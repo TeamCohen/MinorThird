@@ -63,11 +63,13 @@ public class LeaveOneOutDictTransformLearner
 	// and a null code for an instance, so it will match anything
 	static private String instanceId(Instance instance)
 	{
-		if (instance instanceof Example) {
-			return instance.getSubpopulationId()+":"+Integer.toString(instance.hashCode());
+	    return instance.getSubpopulationId();// +":"+Integer.toString(instance.hashCode());
+	    /*		if (instance instanceof Example) {
+		    return instance.getSubpopulationId() +":"+Integer.toString(instance.hashCode());
 		} else {
 			return null;
 		}
+	    */
 	}
 
 	static private String getFeatureValue(Instance instance,String[] featurePattern)
@@ -124,7 +126,7 @@ public class LeaveOneOutDictTransformLearner
 			else {
 				boolean nonZeroFeatureAdded = false;
 				for (int i=0; i<schema.getNumberOfClasses(); i++) {
-					//System.out.println("looking up text in dict "+i);
+				    // System.out.println("looking up text in dict "+i+ " " + instanceId(instance) + " " + text);
 					newFeatureValues[i] = softDict[i].lookupDistance( instanceId(instance), text );
 					// softDict returns -Double.MAX_VALUE if nothing matches, not too useful
 					if (newFeatureValues[i]<=0) {
