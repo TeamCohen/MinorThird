@@ -39,9 +39,9 @@ public class PersonNameTagger extends AbstractAnnotator
 	{
 		try {
 			PersonNameTagger tagger = new PersonNameTagger(args[0]);
-			TextBaseLoader baseLoader = new TextBaseLoader();
-			TextBase base = new BasicTextBase();
-			baseLoader.loadDir(base, new File(args[1]));
+			TextBaseLoader baseLoader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, TextBaseLoader.FILE_NAME);
+			TextBase base = baseLoader.load(new File(args[1]));
+
 			MonotonicTextLabels labels = new BasicTextLabels( base );
 			tagger.annotate( labels );
 			saveType(labels, "predicted_name", new File(args[2]));
