@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 public class TextLabelsExperiment implements Visible
 {
 	private SampleFE.ExtractionFE fe = new SampleFE.ExtractionFE();
+    private Extraction2TaggingReduction reduction = new InsideOutsideReduction();
 	private int classWindowSize = 3;
 
 	private TextLabels labels;
@@ -51,15 +52,21 @@ public class TextLabelsExperiment implements Visible
 	public TextLabelsExperiment(
 		TextLabels labels,Splitter splitter,String learnerName,String spanType,String spanProp,String outputLabel) 
 	{
-		this.labels = labels;
-		this.splitter = splitter;
-		this.inputType = spanType;
-		this.inputProp = spanProp;
-		this.outputLabel = outputLabel;
-		this.learner = toAnnotatorLearner(learnerName);
-		learner.setAnnotationType( outputLabel );
+	    	this(labels,splitter,learnerName,spanType,spanProp,outputLabel,null);
 	}
-
+	public TextLabelsExperiment(
+		TextLabels labels,Splitter splitter,String learnerName,String spanType,String spanProp,String outputLabel, Extraction2TaggingReduction reduce) 
+    {
+	if (reduce != null)
+	    this.reduction = reduce;
+	this.labels = labels;
+	this.splitter = splitter;
+	this.inputType = spanType;
+	this.inputProp = spanProp;
+	this.outputLabel = outputLabel;
+	this.learner = toAnnotatorLearner(learnerName);
+	learner.setAnnotationType( outputLabel );
+    }
 	public TextLabelsExperiment(
 		TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputType,String outputLabel)
 	{
@@ -257,14 +264,17 @@ public class TextLabelsExperiment implements Visible
 	{
 		try {
 			OnlineBinaryClassifierLearner learner = (OnlineBinaryClassifierLearner)Expt.toLearner(s);
-			BatchSequenceClassifierLearner seqLearner = new GenericCollinsLearner(learner,classWindowSize);
-			return new SequenceAnnotatorLearner(seqLearner, fe);
+
+			BatchSequenceClassifierLearner seqLearner = 
+				new GenericCollinsLearner(learner,classWindowSize);
+			return new SequenceAnnotatorLearner(seqLearner, fe, reduction);
 		} catch (IllegalArgumentException ex) {
 			/* that's ok, maybe it's something else */ ;
 		}
 		try {
-			BatchSequenceClassifierLearner seqLearner = toSeqLearner(s);
-			return new SequenceAnnotatorLearner(seqLearner, fe);
+			BatchSequenceClassifierLearner seqLearner = 
+				(BatchSequenceClassifierLearner)SequenceAnnotatorExpt.toSeqLearner(s);
+			return new SequenceAnnotatorLearner(seqLearner, fe, reduction);
 		} catch (IllegalArgumentException ex) {
 			/* that's ok, maybe it's something else */ ;
 		}
@@ -314,6 +324,7 @@ public class TextLabelsExperiment implements Visible
 		TextLabels labels=null;
 		String spanType=null, spanProp=null, saveFileName=null, show=null, annotationNeeded=null;
 		ArrayList featureMods = new ArrayList();
+		Extraction2TaggingReduction reduction = null;
 
 		try {
 			int pos = 0;
@@ -341,6 +352,14 @@ public class TextLabelsExperiment implements Visible
 					annotationNeeded = args[pos++];
 				} else if (opt.startsWith("-fe")) {
 					featureMods.add( args[pos++] );
+				} else if (opt.startsWith("-reduction")) {
+				    try {
+					bsh.Interpreter interp = new bsh.Interpreter();
+					interp.eval("import edu.cmu.minorthird.text.learn.*;");
+					reduction = (Extraction2TaggingReduction)interp.eval(args[pos++]);
+				    } catch (bsh.EvalError e) {
+					throw new IllegalArgumentException("error parsing reductionName '"+args[pos-1]+"':\n"+e);
+				    } 
 				} else {
 					usage();
 					return;
@@ -354,7 +373,7 @@ public class TextLabelsExperiment implements Visible
 				usage();
 				return;
 			}
-      TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,spanType,spanProp,outputLabel);
+			TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,spanType,spanProp,outputLabel,reduction);
 			if (annotationNeeded!=null) {
 				expt.getFE().setRequiredAnnotation(annotationNeeded);
 				expt.getFE().setAnnotationProvider(annotationNeeded+".mixup");
