@@ -23,7 +23,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	protected int totalSize = 0;
 	private int historyLength = 1;
 	private String[] history = new String[historyLength];
-	private Set classNameSet = new HashSet();
+	protected Set classNameSet = new HashSet();
 	protected FeatureFactory factory = new FeatureFactory();
 
 	/** Set the current history length.

@@ -58,15 +58,17 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 		ProgressCounter pc =
 			new ProgressCounter("training sequence perceptron","sequence",numberOfEpochs*dataset.numberOfSequences());
 
-		for (int epoch=0; epoch<numberOfEpochs; epoch++) {
+		for (int epoch=0; epoch<numberOfEpochs; epoch++) 
+		{
+			dataset.shuffle();
 
 			// statistics for curious researchers
 			int sequenceErrors = 0;
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) {
-
+			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) 
+			{
 				Example[] sequence = (Example[])i.next();
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
 

@@ -1,7 +1,7 @@
 package edu.cmu.minorthird.text.learn;
 
 import edu.cmu.minorthird.text.*;
-
+import edu.cmu.minorthird.classify.*;
 /**
  * Feedback for an annotation learner.
  *
@@ -49,6 +49,27 @@ public class AnnotationExample
 
 	public String toString() {
 		return "[AnnEx: document="+document+"]";
+	}
+
+	/** Return the name of the class associated with this span.  If
+	 * inputSpanType is defined, the class name will be POS or NEG;
+	 * otherwise, if inputSpanProp is defined, the class name will be
+	 * the property value assigned, or NEG.
+	 */
+	public String getClassName(Span span)
+	{
+		String className = ExampleSchema.NEG_CLASS_NAME;
+		if (getInputType()!=null) {
+			if (getLabels().hasType(span,getInputType())) 
+				className = ExampleSchema.POS_CLASS_NAME;
+		} else if (getInputProp()!=null) {
+			String propValue = getLabels().getProperty(span, getInputProp());
+				if (propValue!=null) 
+					className = propValue;
+		} else {
+			throw new IllegalStateException("inputType && inputProp undefined for answeredQuery: "+this);
+		}
+		return className;
 	}
 
 	//
