@@ -56,9 +56,8 @@ public class SigFilePredictor
   
   public SigFilePredictor(){
   	try{
-  		//File file = new File("/afs/cs.cmu.edu/user/vitor/VPsigPredictionModel");
   		File file = new File("apps/email/models/VPsigPredictionModel");
-  		//File file = new File("sigModel");
+  		//File file = new File("apps/email/models/sigModel");
 		model = (BinaryClassifier)IOUtil.loadSerialized(file);  		
   	}
   	catch (Exception e){
@@ -816,7 +815,8 @@ public static class WindowRepresentation
     System.out.println("dataset size = " +dataset.size());
     
     //just to compare with paper performance
-    //ClassifierLearner learner2 = new AdaBoost(); //new BatchVersion(new VotedPerceptron(), 5);
+    //ClassifierLearner learner2 = new AdaBoost(); 
+    //new BatchVersion(new VotedPerceptron(), 15);
     //Splitter splitter = Expt.toSplitter("k5");
     //Evaluation eval = Tester.evaluate(learner2, dataset, splitter);
     //ViewerFrame frame = new ViewerFrame("numeric demo", eval.toGUI());

@@ -47,10 +47,8 @@ public class SigFileDetector
   {
   	try
   	{
-  		//File file = new File("/afs/cs.cmu.edu/user/vitor/sigDetectionAdaBoostModel");
-  		//File file = new File("models/sigDetectionAdaBoostModel");
   		File file = new File("apps/email/models/VPsigDetectionModel");
-        //File file = new File("models/AB99sigDetectionModel");
+        //File file = new File("apps/email/models/AB99sigDetectionModel");
 		classifier = (BinaryClassifier)IOUtil.loadSerialized(file);  		
   	}
   	catch (Exception e)
@@ -344,7 +342,7 @@ public class SigDetectorByLine
     	//train and save the model
         String modelName = "mysigDetectionModel";
    		System.out.println("training the Model...");
-    	ClassifierLearner learner = new BatchVersion(new VotedPerceptron(), 5);
+    	ClassifierLearner learner = new BatchVersion(new VotedPerceptron(), 15);
     	//ClassifierLearner learner = new AdaBoost();
     	Classifier cl = new DatasetClassifierTeacher(dataset).train(learner);
 		System.out.println("saving model in file..."+modelName);
