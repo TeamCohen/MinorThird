@@ -37,6 +37,9 @@ public class EmptyLabels implements TextLabels
 	public void require(String annotationType,String fileToLoad) { 
 		throw new IllegalStateException("annotationType "+annotationType+" not present");
 	}
+	public void require(String annotationType,String fileToLoad,AnnotatorLoader loader) { 
+		throw new IllegalStateException("annotationType "+annotationType+" can't be added");
+	}
 	private Span.Looper nullLooper() { return new BasicSpanLooper( EMPTY_SET ); }
 
 	public String toString() { return "[EmptyLabels]"; }

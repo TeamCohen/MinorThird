@@ -17,7 +17,6 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
 /**
  * Minorthird-specific utilities for command line based interface routines.
  *
@@ -31,6 +30,41 @@ class CommandLineUtil
 	//
 	// misc utilities
 	//
+	private static final String CANT_SET_ME = "can't set";
+
+	private static String safeGetRequiredAnnotation(SpanFeatureExtractor fe)
+	{
+		if (fe instanceof MixupCompatible) {
+			String s = ((MixupCompatible)fe).getRequiredAnnotation(); 
+			// this might be called from a gui, so don't return null
+			return (s==null) ? "" : s;
+		} else {
+			return CANT_SET_ME;
+		}
+	}
+	private static void safeSetRequiredAnnotation(SpanFeatureExtractor fe,String s)
+	{
+		// this might be called from a gui, so do something reasonable with blank strings
+		if ("".equals(s) || CANT_SET_ME.equals(s)) return; // no update 
+		if (fe instanceof MixupCompatible) {
+			((MixupCompatible)fe).setRequiredAnnotation(s); 
+		} else {
+			log.error("feature extractor is not MixupCompatible: "+fe);
+		}
+	}
+	private static void safeSetAnnotatorLoader(SpanFeatureExtractor fe,String s)
+	{
+		if (!(fe instanceof MixupCompatible)) {
+			log.error("fe is not MixupCompatible: "+fe);
+		} else {
+			try {
+				((MixupCompatible)fe).setAnnotatorLoader(new EncapsulatingAnnotatorLoader(s));
+			} catch (Exception e) {
+				log.error("can't set AnnotatorLoader: "+e);
+			}
+		}
+	}
+
 
 	/** Build a sequential classification dataset from the necessary inputs. 
 	 */
@@ -269,6 +303,7 @@ class CommandLineUtil
 		public boolean showData=false;
 		public ClassifierLearner learner = new Recommended.NaiveBayes();
 		public SpanFeatureExtractor fe = new Recommended.DocumentFE();
+		private String embeddedAnnotators = "";
 		public String output="_prediction";
 		public void showData() { this.showData=true; }
 		public void learner(String s) { this.learner = (ClassifierLearner)newObjectFromBSH(s,ClassifierLearner.class); }
@@ -281,6 +316,8 @@ class CommandLineUtil
 				return null;
 			}
 		}
+		public void mixup(String s) { safeSetRequiredAnnotation(fe,s);	}
+		public void embed(String s) { embeddedAnnotators=s; safeSetAnnotatorLoader(fe,s);	}
 		public void usage() {
 			System.out.println("classification training parameters:");
 			System.out.println(" [-learner BSH]           Bean-shell code to create a ClassifierLearner");
@@ -290,6 +327,8 @@ class CommandLineUtil
 			System.out.println("                          - default is \"new Recommended.DocumentFE()\"");
 			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
 			System.out.println("                            immediately following command-line arguments are passed to it");
+			System.out.println(" [-mixup STRING]          run named mixup code before extracting features");
+			System.out.println(" [-embed STRING]          embed the listed annotators in the feature extractor");
 			System.out.println(" [-output STRING]         the type or property that is produced by the learned");
 			System.out.println("                            ClassifierAnnotator - default is \"_prediction\"");
 			System.out.println();
@@ -303,6 +342,10 @@ class CommandLineUtil
 		public void setOutput(String s) { output(s); }
 		public SpanFeatureExtractor getFeatureExtractor() { return fe; }
 		public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
+		public String getMixup() { return safeGetRequiredAnnotation(fe); }
+		public void setMixup(String s) { safeSetRequiredAnnotation(fe,s); }
+		public String getEmbeddedAnnotators() { return embeddedAnnotators; }		
+		public void setEmbeddedAnnotators(String s) { embeddedAnnotators=s; safeSetAnnotatorLoader(fe,s); }
 	}
 
 	/** Parameters for testing a stored classifier. */
@@ -441,8 +484,9 @@ class CommandLineUtil
 	/** Parameters for training an extractor. */
 	public static class TrainExtractorParams extends BasicCommandLineProcessor {
 		public AnnotatorLearner learner = new Recommended.VPHMMLearner();
-		private String learnerName;
 		public SpanFeatureExtractor fe = null;
+		private String learnerName;
+		private String embeddedAnnotators="";
 		public String output="_prediction";
 		public void learner(String s) { 
 			this.learnerName = s;
@@ -450,6 +494,15 @@ class CommandLineUtil
 			if (fe!=null) learner.setSpanFeatureExtractor(fe);
 		}
 		public void output(String s) { this.output=s; }
+		public void mixup(String s) { 
+			if (fe==null) fe = learner.getSpanFeatureExtractor();
+			safeSetRequiredAnnotation(fe,s);
+		}
+		public void embed(String s) { 
+			if (fe==null) fe = learner.getSpanFeatureExtractor();
+			embeddedAnnotators=s; 
+			safeSetAnnotatorLoader(fe,s);	
+		}
 		public CommandLineProcessor fe(String s) { 
 			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
 			if (learner!=null) learner.setSpanFeatureExtractor(fe);
@@ -467,6 +520,8 @@ class CommandLineUtil
 			System.out.println("                          - default is \"new Recommended.TokenFE()\"");
 			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
 			System.out.println("                            immediately following arguments are passed to it");
+			System.out.println(" [-mixup STRING]          run named mixup code before extracting features");
+			System.out.println(" [-embed STRING]          embed the listed annotators in the feature extractor");
 			System.out.println(" [-output STRING]         the type or property that is produced by the learned");
 			System.out.println("                            Annotator - default is \"_prediction\"");
 			System.out.println();
@@ -476,6 +531,23 @@ class CommandLineUtil
 		public void setLearner(AnnotatorLearner learner) { this.learner=learner; }
 		public String getOutput() { return output; }
 		public void setOutput(String s) { this.output=s; }
+		public String getMixup() { 
+			if (fe==null) fe = learner.getSpanFeatureExtractor();
+			return safeGetRequiredAnnotation(fe);
+		}
+		public void setMixup(String s) { 
+			if (fe==null) fe = learner.getSpanFeatureExtractor();
+			safeSetRequiredAnnotation(fe,s);
+		}
+		public String getEmbeddedAnnotators() { 
+			return embeddedAnnotators; 
+		}		
+		public void setEmbeddedAnnotators(String s) 
+		{ 
+			if (fe==null) fe = learner.getSpanFeatureExtractor();
+			embeddedAnnotators=s; 
+			safeSetAnnotatorLoader(fe,s); 
+		}
 	}
 
 	/** Parameters for training an extractor. */

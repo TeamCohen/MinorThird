@@ -91,8 +91,11 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 		}
 	}
 
-	private class EncapsulatingClassLoader extends ClassLoader
+	private class EncapsulatingClassLoader extends ClassLoader implements Serializable
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		public Class findClass(String className) throws ClassNotFoundException
 		{
 			log.info("looking for class "+className+" with encapsulated loader");

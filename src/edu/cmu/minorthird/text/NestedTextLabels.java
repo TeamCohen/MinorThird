@@ -198,6 +198,11 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 		else outer.require(annotationType,fileToLoad);
 	}
 
+	public void require(String annotationType,String fileToLoad,AnnotatorLoader loader) { 
+		if (inner.isAnnotatedBy(annotationType)) return;
+		else outer.require(annotationType,fileToLoad,loader);
+	}
+
 	public String showTokenProp(TextBase base, String prop) {
 		return "outer: "+outer.showTokenProp(base,prop)+" inner: "+inner.showTokenProp(base,prop);
 	}

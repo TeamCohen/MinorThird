@@ -18,6 +18,13 @@ public interface TextLabels
 	 * it (if possible) or throw an error. */
 	public void require(String annotationType,String fileToLoad);
 
+	/** Ensure that this TextLabels contains a particular type of
+	 * annotation.  If the annotation is not present, then either load
+	 * it (if possible) or throw an error. Use the provided
+	 * annotatorLoader to find annotators rather than the default
+	 * one. */
+	public void require(String annotationType,String fileToLoad,AnnotatorLoader loader);
+
 	/** Returns the TextBase which is annotated by this TextLabels, or null if that
 	 * isn't set yet. */
 	public TextBase getTextBase();

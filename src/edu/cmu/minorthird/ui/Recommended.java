@@ -179,33 +179,9 @@ public class Recommended
 
 	/** Simple bag-of-words feature extractor, with words being but in lower case.
 	 */
-	public static class DocumentFE extends SpanFE implements Serializable {
-		public void extractFeatures(TextLabels labels, Span s){
-			requireMyAnnotation(labels);
-			from(s).tokens().eq().lc().emit();
-		}
-	}
-
-	/** An extraction-oriented feature extractor to apply to one-token spans.
-	 */
-	public static class TokenFE extends SpanFE implements CommandLineProcessor.Configurable,Serializable
+	abstract public static class TokenPropUsingFE extends SpanFE implements Serializable
 	{
-		protected int windowSize=3;
-		protected boolean useCharType=false;
-		protected boolean useCharTypePattern=true;
 		protected String[] tokenPropertyFeatures=null;
-		//
-		// getters and setters, for gui-based configuration
-		//
-		/** Window size for features. */
-		public void setFeatureWindowSize(int n) { windowSize=n; }
-		public int getFeatureWindowSize() { return windowSize; }
-		/** If produce features like "token.charTypePattern.Aaaa" for the word "Bill" */
-		public void setUseCharType(boolean flag) { useCharType=flag; }
-		public boolean getUseCharType() { return useCharType; }
-		/** If true produce features like "token.charTypePattern.Aa+" for the word "Bill". */
-		public void setUseCharTypePattern(boolean flag) { useCharTypePattern=flag; }
-		public boolean getUseCharTypePattern() { return useCharTypePattern; }
 		/** Specify the token properties from the TextLabels environment
 		 * that will be used as features. A value of '*' or nul means to
 		 * use all defined token properties. */
@@ -221,6 +197,46 @@ public class Recommended
 		{
 			tokenPropertyFeatures = (String[])propertySet.toArray(new String[propertySet.size()]);
 		}
+		protected void setMyTokenPropertyList(TextLabels labels) {
+			if (tokenPropertyFeatures==null) {
+				log.info("tokenPropertyFeatures: "+labels.getTokenProperties());
+				setTokenPropertyFeatures( labels.getTokenProperties() );
+			}
+		}
+	}
+
+	public static class DocumentFE extends TokenPropUsingFE implements Serializable {
+		protected boolean foldCase=true;
+		public void extractFeatures(TextLabels labels, Span s){
+			requireMyAnnotation(labels);
+			setMyTokenPropertyList(labels);
+			if (foldCase) from(s).tokens().eq().lc().emit();
+			else from(s).tokens().eq().emit();
+			for (int j=0; j<tokenPropertyFeatures.length; j++) {
+				from(s).tokens().prop(tokenPropertyFeatures[j]).emit();
+			}
+		}
+	}
+
+	/** An extraction-oriented feature extractor to apply to one-token spans.
+	 */
+	public static class TokenFE extends TokenPropUsingFE implements CommandLineProcessor.Configurable,Serializable
+	{
+		protected int windowSize=3;
+		protected boolean useCharType=false;
+		protected boolean useCharTypePattern=true;
+		//
+		// getters and setters, for gui-based configuration
+		//
+		/** Window size for features. */
+		public void setFeatureWindowSize(int n) { windowSize=n; }
+		public int getFeatureWindowSize() { return windowSize; }
+		/** If produce features like "token.charTypePattern.Aaaa" for the word "Bill" */
+		public void setUseCharType(boolean flag) { useCharType=flag; }
+		public boolean getUseCharType() { return useCharType; }
+		/** If true produce features like "token.charTypePattern.Aa+" for the word "Bill". */
+		public void setUseCharTypePattern(boolean flag) { useCharTypePattern=flag; }
+		public boolean getUseCharTypePattern() { return useCharTypePattern; }
 		//
 		// command-line based configuration
 		//
@@ -242,10 +258,7 @@ public class Recommended
 		public void extractFeatures(TextLabels labels, Span s)
 		{
 			requireMyAnnotation(labels);
-			if (tokenPropertyFeatures==null) {
-				log.info("tokenPropertyFeatures: "+labels.getTokenProperties());
-				setTokenPropertyFeatures( labels.getTokenProperties() );
-			}
+			setMyTokenPropertyList(labels);
 			from(s).tokens().eq().lc().emit();
 			if (useCharTypePattern) from(s).tokens().eq().charTypePattern().emit();
 			if (useCharType) from(s).tokens().eq().charTypes().emit();

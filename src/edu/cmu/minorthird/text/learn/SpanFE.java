@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
  * @author William Cohen
  */
 
-abstract public class SpanFE implements SpanFeatureExtractor, Serializable
+abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Serializable
 {
 	// for serialization
 	static private final long serialVersionUID = 1;
@@ -89,6 +89,7 @@ abstract public class SpanFE implements SpanFeatureExtractor, Serializable
 	
 	protected String requiredAnnotation = null;
 	protected String requiredAnnotationFileToLoad = null;
+	protected AnnotatorLoader annotatorLoader = null;
 
 	/** Create a feature extractor */
 	public SpanFE()
@@ -140,6 +141,10 @@ abstract public class SpanFE implements SpanFeatureExtractor, Serializable
 	{
 		return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad;
 	}
+	public void setAnnotatorLoader(AnnotatorLoader newLoader)
+	{
+		this.annotatorLoader = newLoader;
+	}
 
 	//
 	// preprocessing for extraction
@@ -148,9 +153,7 @@ abstract public class SpanFE implements SpanFeatureExtractor, Serializable
 	/** Make sure the required annotation is present. */
 	public void requireMyAnnotation(TextLabels labels)
 	{
-		if (requiredAnnotation!=null) {
-			labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
-		}
+		labels.require(requiredAnnotation,requiredAnnotationFileToLoad,annotatorLoader);
 	}
 
 	//
@@ -185,7 +188,30 @@ abstract public class SpanFE implements SpanFeatureExtractor, Serializable
 		return new SpanResult(new String[0], this, s);
 	}
 
-	/** Called by some SpanFE.Result subclasses when a 'pipeline' of
+ 	/** Starts a 'pipeline' of extraction steps, and
+ 	 * adds the resulting features to the instance being built. 
+ 	 *
+ 	 * <p> This is intended to be used as an alternative to using the
+ 	 * SpanFE class to build an Span2Instance converter, eg
+ 	 * <pre><code>
+ 	 * fe = new Span2Instance() { 
+ 	 *   public extractInstance(Span s) {
+ 	 *     FeatureBuffer buf = new FeatureBuffer(s);
+ 	 *     SpanFE.from(s,buf).tokens().emit(); 
+ 	 *     SpanFE.from(s,buf).left().subspan(-2,2).emit(); 
+ 	 *     SpanFE.from(s,buf).right().subspan(0,2).emit(); 
+ 	 *     buf.getInstance();
+ 	 *   }
+ 	 * }
+ 	 *</code></pre>
+ 	 * 
+ 	 */
+ 	final static public SpanResult from(Span s, FeatureBuffer buffer)
+ 	{
+ 		return new SpanResult(new String[0], buffer, s);
+ 	}
+
+  /** Called by some SpanFE.Result subclasses when a 'pipeline' of
 	 * extraction steps is ended with a StringBagResult. 
 	 */
 

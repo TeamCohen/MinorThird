@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 public abstract class StringAnnotator extends AbstractAnnotator
 {
   private static Logger log = Logger.getLogger(StringAnnotator.class);
+	protected String providedAnnotation = null;
 
   protected void doAnnotate(MonotonicTextLabels labels)
 	{
@@ -38,7 +39,7 @@ public abstract class StringAnnotator extends AbstractAnnotator
         }
       }
 		}
-
+		if (providedAnnotation!=null) labels.setAnnotatedBy(providedAnnotation);
 	}
 
   protected String[] closedTypes()

@@ -111,6 +111,10 @@ public class SubTextLabels implements TextLabels,Visible
 		labels.require(annotationType,fileToLoad);
 	}
 
+	public void require(String annotationType,String fileToLoad,AnnotatorLoader loader) { 
+		labels.require(annotationType,fileToLoad,loader);
+	}
+
 	private Span.Looper filter(Span.Looper i) {
 		List list = new ArrayList();
 		while (i.hasNext()) {

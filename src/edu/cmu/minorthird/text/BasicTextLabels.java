@@ -72,11 +72,23 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 
 	public void require(String annotationType,String fileToLoad)
 	{
+		require(annotationType,fileToLoad,loader);
+	}
+
+	public void require(String annotationType,String fileToLoad,AnnotatorLoader theLoader)
+	{
 		if (!isAnnotatedBy(annotationType)) {
-			Annotator annotator = loader.findAnnotator(annotationType,fileToLoad);
-			if (annotator==null) 
-				throw new IllegalArgumentException("can't find annotator "+annotationType);
+			if (theLoader==null) theLoader = loader; // use current loader as default
+			Annotator annotator = theLoader.findAnnotator(annotationType,fileToLoad);
+			if (annotator==null) throw new IllegalArgumentException("can't find annotator "+annotationType);
+
+			// annotate using theLoader for any recursively-required annotations,
+			AnnotatorLoader savedLoader = loader;
+			loader = theLoader;
 			annotator.annotate(this);
+			loader = savedLoader; // restore original loader
+
+			// check that the annotationType is provided
 			if (!isAnnotatedBy(annotationType)) 
 				throw new IllegalStateException("didn't provide annotation type: "+annotationType);
 		}

@@ -23,50 +23,12 @@ public class POSTagger extends StringAnnotator
   private static Logger log = Logger.getLogger(POSTagger.class);
   private static JMontyLingua montyLingua = new JMontyLingua();
 
-  public static void main(String[] args) throws Exception
-  {
-    if (args.length != 2)
-    {
-			System.out.println(montyLingua.tag_text("hello"));
-			System.out.println(montyLingua.tag_text("world"));
-
-      log.info("Usage:\t1. java POSTagger [input_file] [output_file]\n\t2. java POSTagger [input_dir]  [output_dir]\n\t3. java POSTagger [input_file] [output_dir]");
-      return;
-    }
-    //montyLingua = new JMontyLingua();
-
-
-    File inFile = new File(args[0]);
-    File outFile = new File(args[1]);
-    if (!inFile.exists())
-    {
-      log.fatal("Error: File " + inFile + " could not be found!");
-      return;
-    }
-
-    if (inFile.isFile())
-    {
-      if (outFile.isDirectory())
-        outFile = new File(outFile.getPath() + File.separator + inFile.getName());
-
-//      writeFile(outFile, POSTag(IOUtil.readFile(inFile), false));
-      writeFile(new File(outFile.getName() + ".l"), POSTag(IOUtil.readFile(inFile)));
-    }
-    else if (inFile.isDirectory())
-    {
-      if (!outFile.exists())
-        outFile.mkdir();
-
-      File[] fileList = inFile.listFiles();
-      for (int i = 0; i < fileList.length; i++)
-        if (fileList[i].isFile())
-        {
-          File outTo = new File(outFile.getPath() + File.separator + fileList[i].getName());
-          log.debug("tagging " + fileList[i]);
-          writeFile(outTo, POSTag(IOUtil.readFile(fileList[i])));
-        }
-    }
-  }
+	public POSTagger()
+	{
+		// tell superclass what type of annotation is
+		// being provided
+		providedAnnotation = "pos";
+	}
 
   /**
    * Returns char based stand-off annotations for pos in the given string
@@ -273,5 +235,52 @@ public class POSTagger extends StringAnnotator
   {
     return "no idea";
   }
+
+
+  public static void main(String[] args) throws Exception
+  {
+    if (args.length != 2)
+    {
+			System.out.println(montyLingua.tag_text("hello"));
+			System.out.println(montyLingua.tag_text("world"));
+
+      log.info("Usage:\t1. java POSTagger [input_file] [output_file]\n\t2. java POSTagger [input_dir]  [output_dir]\n\t3. java POSTagger [input_file] [output_dir]");
+      return;
+    }
+    //montyLingua = new JMontyLingua();
+
+
+    File inFile = new File(args[0]);
+    File outFile = new File(args[1]);
+    if (!inFile.exists())
+    {
+      log.fatal("Error: File " + inFile + " could not be found!");
+      return;
+    }
+
+    if (inFile.isFile())
+    {
+      if (outFile.isDirectory())
+        outFile = new File(outFile.getPath() + File.separator + inFile.getName());
+
+//      writeFile(outFile, POSTag(IOUtil.readFile(inFile), false));
+      writeFile(new File(outFile.getName() + ".l"), POSTag(IOUtil.readFile(inFile)));
+    }
+    else if (inFile.isDirectory())
+    {
+      if (!outFile.exists())
+        outFile.mkdir();
+
+      File[] fileList = inFile.listFiles();
+      for (int i = 0; i < fileList.length; i++)
+        if (fileList[i].isFile())
+        {
+          File outTo = new File(outFile.getPath() + File.separator + fileList[i].getName());
+          log.debug("tagging " + fileList[i]);
+          writeFile(outTo, POSTag(IOUtil.readFile(fileList[i])));
+        }
+    }
+  }
+
 
 }
