@@ -192,6 +192,7 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 	}
 
 	public void declareType(String type){
+		//System.out.println("NestedTextLabels: declareType: "+type);
 		if (!isType(type)) outer.declareType(type);
 	}
 
@@ -254,6 +255,6 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 	}
 
 	public String toString() {
-		return "[NestedLabels: "+outer+"; "+inner+"]";
+		return "[NestedLabels: outer="+outer+"; inner="+inner+"]";
 	}
 }

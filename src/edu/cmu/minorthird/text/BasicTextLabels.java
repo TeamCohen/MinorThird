@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
  * @author William Cohen
  */
 
+
 public class BasicTextLabels implements MutableTextLabels, Serializable, Visible, Saveable
 {
 	static private final long serialVersionUID = 1;
@@ -240,7 +241,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 
 	public void addToType(Span span,String type) {
 		if (type==null) throw new IllegalArgumentException("null type added");
-		getTypeSet(type,span.getDocumentId()).add(span);
+		lookupTypeSet(type,span.getDocumentId()).add(span);
 	}
 	public void addToType(Span span,String type,Details details) {
 		addToType(span,type);
@@ -255,6 +256,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 		return typeDocumentSetMap.get(type)!=null;
 	}
 	public void declareType(String type) {
+		//System.out.println("BasicTextLabels: declareType: "+type);
 		if (type==null) throw new IllegalArgumentException("null type declared");
 		if (!isType(type)) typeDocumentSetMap.put(type, new TreeMap());
 	}
@@ -270,7 +272,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	public void defineTypeInside(String type,Span s,Span.Looper i) {
 		if (type==null || s.getDocumentId()==null) throw new IllegalArgumentException("null type defined");
 		//System.out.println("BTE type: "+type+" documentId: "+s.getDocumentId());
-		Set set = getTypeSet(type,s.getDocumentId());
+		Set set = lookupTypeSet(type,s.getDocumentId());
 		// remove all spans currently inside set
 		for (Iterator j=set.iterator(); j.hasNext(); ) {
 	    Span t = (Span)j.next();
@@ -290,7 +292,8 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	}
 
 	// get the set of spans with a given type in the given document
-	protected Set getTypeSet(String type,String documentId) {
+	// so that it can be modified
+	protected Set lookupTypeSet(String type,String documentId) {
 		if (type==null || documentId==null) throw new IllegalArgumentException("null type?");
 		TreeMap documentsWithType = (TreeMap)typeDocumentSetMap.get(type);
 		if (documentsWithType==null) {
@@ -301,6 +304,16 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 		if (set==null) {
 	    documentsWithType.put( documentId, (set = new TreeSet()) );
 		}
+		return set;
+	}
+
+	// get the set of spans with a given type in the given document w/o changing it
+	protected Set getTypeSet(String type,String documentId) {
+		if (type==null || documentId==null) throw new IllegalArgumentException("null type?");
+		TreeMap documentsWithType = (TreeMap)typeDocumentSetMap.get(type);
+		if (documentsWithType==null) return Collections.EMPTY_SET;
+		TreeSet set = (TreeSet)documentsWithType.get(documentId);
+		if (set==null) return Collections.EMPTY_SET;
 		return set;
 	}
 
