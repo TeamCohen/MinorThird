@@ -123,9 +123,7 @@ public class SubTextLabels implements TextLabels,Visible
 
 	public Viewer toGUI() 
 	{
-		TextLabelsViewer sv = new TextLabelsViewer(this);
-		MarkupControls mc = new MarkupControls(this);
-		return new ControlledViewer(sv,mc);
+		return new ZoomingTextLabelsViewer(this);
 	}
 }
 

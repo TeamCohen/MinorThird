@@ -31,6 +31,9 @@ public class Help
 		"TrainTestExtractor -labels KEY -splitter SPLITTER ...",
 		"  perform a extraction-learning experiment with the data in KEY",
 		"",
+		"TrainTagger -labels KEY -splitter SPLITTER ...",
+		"  perform a tagger-learning experiment with the data in KEY",
+		"",
 		"The single option -help gives detailed command-line help for a command."
 	};
 

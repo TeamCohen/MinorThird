@@ -36,22 +36,41 @@ public class ControlledViewer extends Viewer
 		viewer.setSuperView(this);
 		removeAll();
 
-		int x1,y1,x2,y2,part;
-		int loc = controls.preferredLocation();
-		if (loc==ViewerControls.BOTTOM) {
-			x1=0; y1=0;	x2=0; y2=1; part=10;
-		} else if (loc==ViewerControls.LEFT) {
-			x1=0; y1=0;	x2=1; y2=0; part=4;
+		if (controls.prefersToBeResized()) {
+			if (controls.preferredLocation()==ViewerControls.BOTTOM) {
+				JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+				splitPane.setResizeWeight(0.90);
+				splitPane.setTopComponent(viewer);
+				splitPane.setBottomComponent(controls);
+				add(splitPane,fillerGBC());
+			} else if (controls.preferredLocation()==ViewerControls.RIGHT) {
+				JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+				splitPane.setResizeWeight(0.75);
+				splitPane.setLeftComponent(viewer);
+				splitPane.setRightComponent(controls);
+				add(splitPane,fillerGBC());
+			} else {
+				throw new IllegalArgumentException(
+					"controls has illegal preferred location "+controls.preferredLocation()+": "+controls);
+			}
 		} else {
-			throw new IllegalArgumentException("controls has illegal preferred location "+loc+": "+controls);
+			int x1,y1,x2,y2,part;
+			int loc = controls.preferredLocation();
+			if (loc==ViewerControls.BOTTOM) {
+				x1=0; y1=0;	x2=0; y2=1; part=10;
+			} else if (loc==ViewerControls.RIGHT) {
+				x1=0; y1=0;	x2=1; y2=0; part=4;
+			} else {
+				throw new IllegalArgumentException("controls has illegal preferred location "+loc+": "+controls);
+			}
+			GridBagConstraints gbc = fillerGBC();
+			gbc.gridx = x1; gbc.gridy = y1;
+			add(viewer, gbc);
+			gbc = fillerGBC();
+			gbc.gridx = x2; gbc.gridy = y2;
+			gbc.weightx /= part;	gbc.weighty /= part;
+			add(controls, gbc);
 		}
-		GridBagConstraints gbc = fillerGBC();
-		gbc.gridx = x1; gbc.gridy = y1;
-		add(viewer, gbc);
-		gbc = fillerGBC();
-		gbc.gridx = x2; gbc.gridy = y2;
-		gbc.weightx /= part;	gbc.weighty /= part;
-		add(controls, gbc);
 	}
 
 	public ViewerControls getControls() { return controls; }

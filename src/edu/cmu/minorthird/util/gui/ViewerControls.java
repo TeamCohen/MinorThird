@@ -27,7 +27,7 @@ import java.awt.event.ActionListener;
 
 abstract public class ViewerControls extends JPanel implements ActionListener
 {
-	public static final int BOTTOM=1,LEFT=2;
+	public static final int BOTTOM=1,RIGHT=2;
 
 	private Viewer viewer = null;
 
@@ -67,8 +67,16 @@ abstract public class ViewerControls extends JPanel implements ActionListener
 	}
 
 	/** Override this with one of the other values to help
-	 * ControlledViewer decide where to place the controls. */
+	 * ControlledViewer decide where to place the controls. 
+	 */
 	public int preferredLocation() { return BOTTOM; }
+
+	/** Override this with one of the other values to help
+	 * ControlledViewer decide whether to allow the
+	 * ViewerControls to be resizable
+	 */
+	public boolean prefersToBeResized() { return false; }
+
 
 	//
 	// abstract actions

@@ -393,9 +393,6 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 
 	public Viewer toGUI() 
 	{
-		//return new TextLabelsViewer(this);
-		TextLabelsViewer sv = new TextLabelsViewer(this);
-		MarkupControls mc = new MarkupControls(this);
-		return new ControlledViewer(sv,mc);
+		return new ZoomingTextLabelsViewer(this);
 	}
 }

@@ -234,10 +234,7 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 
 	public Viewer toGUI() 
 	{
-		//return new TextLabelsViewer(this);
-		TextLabelsViewer sv = new TextLabelsViewer(this);
-		MarkupControls mc = new MarkupControls(this);
-		return new ControlledViewer(sv,mc);
+		return new ZoomingTextLabelsViewer(this);
 	}
 
 	public String toString() {

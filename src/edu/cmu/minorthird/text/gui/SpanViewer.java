@@ -127,6 +127,15 @@ public class SpanViewer extends ParallelViewer implements Controllable
 					}
 				}
 			}
+			for (Iterator i=controls.getColoredProperties().iterator(); i.hasNext(); ) {
+				String prop = (String)i.next();
+				for (Span.Looper j=labels.getSpansWithProperty(prop,span.getDocumentId()); j.hasNext(); ) {
+					Span span = j.nextSpan();
+					String val = labels.getProperty(span,prop);
+					SimpleAttributeSet color = controls.getColor(prop,val);
+					if (color!=null) doc.highlight(span,color);
+				}
+			}
 		}
 	}
 

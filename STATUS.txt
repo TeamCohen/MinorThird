@@ -1,30 +1,33 @@
-UI notes:
+UI tweaks:
 
-to do:
-  progress counter & threads for dataset loading   
-  check shadowType
+  show javadocs in TypeSelector
+
+  add TrainTagger, TestTagger?
+  progress counter & threads for dataset loading?   
+  test shadowType
   clear progress bars after they finish?
-  find annotating, presenting examples to annotation learner ProgressCounters
-  output summary of textLabels after load
+  output summary of textLabels after load?
   output total time in UI after command completion?
-  something wrong with "TrainTest extractor -test "?
-  guify classify.experiments.Expt into classify.ui 
+  capture output dynamically?
+  generic loader class, loadable interface, for "Save As..." ?
 
 BUGS:
-   - MontyLingua loaded every time a 'require POS' happens
+   save in TextLabelViewer doesn't work right
+   fix "TrainTest extractor -test "?
    - should precision/recall start at something other than 1.0 (max precision?)
-   and have a graph come out somehow if there is no range?
+   - graph doesn't come out if there is no range?
    - spanClosures are not stored properly (only by document); should really store tokenProps and spanProps also
    and CWA isn't even tracked for span properties
-   - new SmartVanillaViewer(object ) doesn't work as well as loading object after creation-fixed?
    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
    - performance issues loading in large files (with markup?)
 
 CLEANUPS/DESIGN:
 
+ - POS tagger
  - linkage issues
  - remove BinaryExample?
- - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample?
+ - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample,
+ InfoGainInstanceTransform?
  - fix mixup parser to be consistent, fix Dependency/Mixup mess, Dependency to text, remove 'requirements' in Annotator
  - fix FeatureFactory mess
  - add to mixup 'begin' ... 'end exporting a as b,c as d,...;'
@@ -46,6 +49,11 @@ CLEANUPS/DESIGN:
 
 RECENT CHANGES:
 
+ - ZoomedTextLabelsViewer
+ - set span properties with TextLabelsLoader
+ - specify span prop with TextLabelsExperiment
+ - subsetting crossvalsplitter
+ - add SequenceAnnotatorLearner option to show dataset
  -config FILE for CommandLineProcessor
  - added some stats to give more informative errors when dataset is not binary
  - added spanDiffing to TextLabelViewer.ViewerControls
