@@ -3,8 +3,8 @@ package edu.cmu.minorthird.ui;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.text.learn.*;
+import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.util.*;
 
@@ -14,72 +14,64 @@ import java.io.*;
 
 
 /**
- * Allows you to add examples to an Annotator
+ * Start an Online Learner
  *
  * @author Cameron Williams
  */
 
 public class OnlineLearner extends UIMain
 {
+    private static Logger log = Logger.getLogger(OnlineLearner.class);
 
-	// private data needed to test a classifier
+    // private data needed to train a classifier
 
-    private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-    private CommandLineUtil.OnlineLearnerParams olp = new CommandLineUtil.OnlineLearnerParams();
-    private TextLabels annLabels = null;
+    protected CommandLineUtil.OnlineBaseParams unlabeledData = new CommandLineUtil.OnlineBaseParams();   
+    private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
+    private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
+    OnlineTextClassifierLearner textLearner = null;
+    private Classifier classifier = null;
 
-	// for gui
-	public CommandLineUtil.OnlineLearnerParams getOnlineLearnerParams() { return olp; }
-	public void setOnlineLearnerParameters(CommandLineUtil.OnlineLearnerParams p) { olp=p; }
+    public CommandLineUtil.OnlineBaseParams get_UnlabeledDataParameters() { return unlabeledData; }
+    public void set_UnlabeledDataParameters(CommandLineUtil.OnlineBaseParams unlabeledData) { this.unlabeledData=unlabeledData; }
+    public CommandLineUtil.ClassificationSignalParams getSignalParameters() { return signal; } 
+    public void setSignalParameters(CommandLineUtil.ClassificationSignalParams p) { signal=p; } 
+    public CommandLineUtil.TrainClassifierParams getAdditionalParameters() { return train; } 
+    public void setAdditionalParameters(CommandLineUtil.TrainClassifierParams p) { train=p; } 
 
-	public CommandLineProcessor getCLP()
-	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),olp});
-	}
 
-	//
-	// load and test a classifier
-	// 
+    public CommandLineProcessor getCLP()
+    {
+	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,unlabeledData,signal,train});
+    }
 
-	public void doMain()
-	{
-		// check that inputs are valid
-		if (olp.loadFrom==null) throw new IllegalArgumentException("-loadFrom must be specified");
-		if (olp.data==null) throw new IllegalArgumentException("-data must be specified");
+    //
+    // do the experiment
+    // 
 
-		// load the classifier
-		Annotator ann = null;
-		try {
-			ann = (Annotator)IOUtil.loadSerialized(olp.loadFrom);
-		} catch (IOException ex) {
-			throw new IllegalArgumentException("can't load annotator from "+olp.loadFrom+": "+ex);
-		}
-
-		if(!(ann instanceof ClassifierAnnotator)) throw new IllegalArgumentException("Annotator must me a ClassifierAnnotator");
-
-		// do the annotation
-		TextLabels annLabels;	    
-		annLabels = ann.annotatedCopy((TextLabels)olp.data);
-
-		String classLearnerName = ((ClassifierAnnotator)ann).getClassifierLearner();
-		ClassifierLearner learner = (ClassifierLearner)CommandLineUtil.newObjectFromBSH(classLearnerName,ClassifierLearner.class); 
-		if(!(learner instanceof OnlineBinaryClassifierLearner)) 
-		    throw new IllegalArgumentException("Learner mus be an instance of OnlineBinaryClassifierLearner");
-		OnlineBinaryTextClassifierLearner textLearner = new OnlineBinaryTextClassifierLearner
-		    ((OnlineBinaryClassifierLearner)learner, (ClassifierAnnotator)ann);
+    public void doMain()
+    {
+	// check that inputs are valid
+	if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
+	if (signal.spanType==null) 
+	    throw new IllegalArgumentException("-spanType must be specified");
+	if(!(train.learner instanceof OnlineBinaryClassifierLearner))
+	    throw new IllegalArgumentException("The learner must be an OnlineBinaryClassifierLearner");
+	if(unlabeledData.unlabeledData == null)
+	    throw new IllegalArgumentException("You must specify some unlabeled Data");
+	    
+	String outputType = signal.getOutputType(train.output);
+	textLearner = new OnlineBinaryTextClassifierLearner((OnlineBinaryClassifierLearner)train.learner,signal.spanType, base.labels, train.fe);
+	ClassifierAnnotator ann = textLearner.getAnnotator();
+	TextLabels annLabels;	    
+	annLabels = ann.annotatedCopy((TextLabels)unlabeledData.unlabeledData);
 		
-		if(!olp.experiment) {
-		    OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, olp.data, olp.repositoryKey, textLearner);
-		} else {
-		     OnlineExperiment onlineExpt = new OnlineExperiment((TextLabels)olp.data,(ClassifierAnnotator)ann, 
-		     						       learner, learner, classLearnerName);
-		}
-	}
+	OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, unlabeledData.unlabeledData, unlabeledData.repositoryKey, textLearner);
+    }
 
-	public Object getMainResult() { return annLabels; }
+    public Object getMainResult() { return textLearner.getClassifier(); }
 
-	public static void main(String args[])
-	{
-		new OnlineLearner().callMain(args);
-	}
+    public static void main(String args[])
+    {
+	new OnlineLearner().callMain(args);
+    }
 }

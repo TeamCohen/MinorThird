@@ -290,7 +290,7 @@ public class CommandLineUtil
     /** Basic parameters used by almost everything. */
     public static class BaseParams extends BasicCommandLineProcessor {
 	public MonotonicTextLabels labels=null;
-	private String repositoryKey="";
+	public String repositoryKey="";
 	public boolean showLabels=false, showResult=false;
 	public void labels(String repositoryKey) { 
 	    this.repositoryKey = repositoryKey;
@@ -576,6 +576,65 @@ public class CommandLineUtil
 	// for gui
 	public String getLoadFrom() { return loadFromName; }
 	public void setLoadFrom(String s) { loadFrom(s); }
+    }
+
+    /** Parameters encoding the 'training signal' for extraction learning. */
+    public static class OnlineSignalParams extends BasicCommandLineProcessor {
+	private OnlineBaseParams base=new OnlineBaseParams();
+	/** Not recommended, but required for bean-shell like visualization */
+	public OnlineSignalParams() {;}
+	public OnlineSignalParams(OnlineBaseParams base) {this.base=base;}
+	public String spanType=null;
+	public void spanType(String s) { this.spanType=s; }
+	public void usage() {
+	    System.out.println("extraction 'signal' parameters:");
+	    System.out.println(" -spanType TYPE           learn how to extract the given TYPE");
+	}
+	// for gui
+	public String getSpanType() { return safeGet(spanType,"n/a");}
+	public void setSpanType(String t) { this.spanType = safePut(t,"n/a"); }
+	public Object[] getAllowedSpanTypeValues() { 
+	    return base.unlabeledData==null ? new String[]{} : base.unlabeledData.getTypes().toArray();
+	}
+	// subroutines for gui setters/getters
+	protected String safeGet(String s,String def) { return s==null?def:s; }
+	protected String safePut(String s,String def) { return def.equals(s)?null:s; }
+    }
+    
+    /** Basic parameters used by almost everything. */
+    public static class OnlineBaseParams extends BasicCommandLineProcessor {
+	public MutableTextLabels unlabeledData=null;
+	public String repositoryKey="";
+	public boolean showLabels=false, showResult=false;
+	public void unlabeledData(String repositoryKey) { 
+	    this.repositoryKey = repositoryKey;
+	    this.unlabeledData = (MutableTextLabels)FancyLoader.loadTextLabels(repositoryKey); 
+	}
+	public void showLabels() { this.showLabels=true; }
+	public void showResult() { this.showResult=true; }
+	public void usage() {
+	    System.out.println("basic parameters:");
+	    System.out.println(" -unlabeledData REPOSITORY_KEY load text from REPOSITORY_KEY");
+	    System.out.println(" [-showLabels]                 interactively view textBase loaded by -labels");
+	    System.out.println(" [-showResult]                 interactively view final result of this operation");
+	    System.out.println();
+	}
+	// for GUI
+	//public String getLabels() { return repositoryKey; }
+	//public void setLabels(String key) { labels(key); }
+	public String getLabelsFilename() { return repositoryKey; }
+	public void setLabelsFilename(String name) { 
+	    if (name.endsWith(".labels")) unlabeledData(name.substring(0,name.length()-".labels".length()));
+	    else unlabeledData(name);
+	}
+	public String getRepositoryKey() { return repositoryKey; }
+	public void setRepositoryKey(String key) { unlabeledData(key); }
+	public Object[] getAllowedRepositoryKeyValues() { return FancyLoader.getPossibleTextLabelKeys(); }
+	//don't expose these in GUI
+	//public boolean getShowLabels() { return showLabels; }
+	//public void setShowLabels(boolean flag ) { showLabels=flag; }
+	//public boolean getShowResult() { return showResult; }
+	//public void setShowResult(boolean flag ) { showResult=flag; }
     }
 
     /** Parameters for Adding Examples to a Online Classifier */

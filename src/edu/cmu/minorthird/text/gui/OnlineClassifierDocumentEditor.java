@@ -38,10 +38,10 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
     private int editSpanCursor = -1; // indicates nothing selected
     private boolean readOnly = false;
     private SpanFeatureExtractor fe = null;
-    private OnlineBinaryTextClassifierLearner textLearner = null;
+    private OnlineTextClassifierLearner textLearner = null;
     private OnlineBinaryClassifierLearner learner = null;
     private ClassifierAnnotator ann = null;
-    private String spanType = null;
+    private String[] spanTypes = null;
     private String learnerName = "";
     public OnlineClassifierDocumentEditor ocdEditor;
     private TextBaseViewer tbViewer = null;
@@ -68,7 +68,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
      * @param statusMsg a JLabel used for status messages.
      */
     public OnlineClassifierDocumentEditor(
-					  OnlineBinaryTextClassifierLearner learner,
+					  OnlineTextClassifierLearner learner,
 					  TextLabels viewLabels,
 					  TextBaseViewer tbViewer,
 					  MutableTextLabels editLabels,
@@ -79,40 +79,26 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	super(viewLabels, editLabels, documentList, spanPainter, statusMsg);
 
 	this.textLearner = learner;
-	this.ann = this.textLearner.ann;
 	this.editLabels = editLabels;
-	TextBase tb = editLabels.getTextBase();
-    
-	this.spanType = ((ClassifierAnnotator)ann).getLearnedSpanType();
-	if(spanType == null) throw new IllegalArgumentException("The annotator must be trained on a Span Type");
+	TextBase tb = editLabels.getTextBase();    
+	this.spanTypes = learner.getTypes();
 
 	// Initialize editedSpans to include any data that is already labeled
 	editedSpans = new ArrayList();
 	int index = 0;
 	for(Span.Looper j=tb.documentSpanIterator(); j.hasNext(); ) {
 	    Span s = j.nextSpan();
-	    if(editLabels.hasType(s,spanType)) {
-		editedSpans.add(new EditedSpan(s,spanType,index));
-	    }else if(editLabels.hasType(s,"NOT"+spanType)){
-		editedSpans.add(new EditedSpan(s,"NOT"+spanType,index));
+	    for(int x=0; x<spanTypes.length; x++) {
+		if(editLabels.hasType(s,spanTypes[x]))
+		    editedSpans.add(new EditedSpan(s,spanTypes[x],index));
 	    }
 	    index++;
 	}
-	
-	this.fe = ann.getFE();
-	
-	// Incorporate old classifier into new
-	Classifier c = ann.getClassifier();
-	if(!(c instanceof Hyperplane)) throw new IllegalArgumentException("The classifier must be an instance of Hyperplane");
-	textLearner.learner.addClassifier((Hyperplane)c);
 
 	// Create a new annotator with the latest information
-	this.ann = new ClassifierAnnotator(fe,textLearner.learner.getClassifier(),spanType,null,null);
-	ann.setLearnedSpanType(spanType);
-	ann.setClassifierLearner(learnerName);	
-
-	this.learnerName = learnerName;
-
+	//this.ann = new ClassifierAnnotator(textLearner.getFE(),textLearner.getClassifier(),spanType,null,null);	
+	this.ann = textLearner.getAnnotator();
+	    
 	this.tbViewer = tbViewer; 
 	init();
 	ocdEditor = this;
@@ -124,8 +110,9 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	this.ioTypeLabel = new JLabel("Types: [None/None]");
 
 	initLayout();
-	labelBox.addItem(spanType);
-	labelBox.addItem("NOT" + spanType);
+	for(int i=0; i<spanTypes.length; i++) {
+	    labelBox.addItem(spanTypes[i]);
+	}
 	labelBox.addActionListener(new LabelDocument("Label Document"));
 
 	loadSpan(nullSpan());
@@ -319,6 +306,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	public void actionPerformed(ActionEvent event)
 	{
 	    AddDocuments();
+	    tbViewer.highlightAction.paintDocument(null);
 	    statusMsg.display("Documents added to learner");
 	}
     }
@@ -333,7 +321,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 
 	public void actionPerformed(ActionEvent event)
 	{	
-	    new ViewerFrame("Classifier", new SmartVanillaViewer(textLearner.learner.getClassifier()));
+	    new ViewerFrame("Classifier", new SmartVanillaViewer(textLearner.getClassifier()));
 	    statusMsg.display("Getting the Classifier");
 	}
     }
@@ -578,9 +566,11 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	    eSpan.add();
 	}
 	// Create a new annotator
-	ann = new ClassifierAnnotator(fe,textLearner.learner.getClassifier(),spanType,null,null);
-	ann.setLearnedSpanType(spanType);
-	ann.setClassifierLearner(learnerName);	
+	//NEED TO FIX
+	//ann = new ClassifierAnnotator(textLearner.getFE(),textLearner.getClassifier(),spanTypes[0],null,null);	
+	ann = textLearner.getAnnotator();
+	viewLabels = ann.annotatedCopy((TextLabels)editLabels);
+	tbViewer.updateTextLabels(viewLabels);
     }
 
     private Span getEditSpan(int k)

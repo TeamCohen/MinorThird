@@ -81,7 +81,8 @@ public class OneVsAllLearner implements ClassifierLearner
     {
 	this.schema = schema;
 	innerLearner = new ArrayList();
-	for (int i=0; i<innerLearner.size(); i++) {
+	//for (int i=0; i<innerLearner.size(); i++) {
+	for(int i=0; i<schema.getNumberOfClasses(); i++) {
 	    innerLearner.add(((BatchClassifierLearner)learner).copy());	   
 	    ((ClassifierLearner)(innerLearner.get(i))).setSchema( ExampleSchema.BINARY_EXAMPLE_SCHEMA );
 	}

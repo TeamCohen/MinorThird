@@ -14,7 +14,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    //
 	    // bunches of parameters
 	    //
-	    CommandLineUtil.BaseParams.class, CommandLineUtil.SaveParams.class, 
+	    CommandLineUtil.BaseParams.class, CommandLineUtil.OnlineBaseParams.class, CommandLineUtil.SaveParams.class, 
 	    CommandLineUtil.ClassificationSignalParams.class, CommandLineUtil.TrainClassifierParams.class, 
 	    CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TestExtractorParams.class, 
 	    CommandLineUtil.LoadAnnotatorParams.class, CommandLineUtil.SplitterParams.class,
@@ -26,7 +26,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    //
 	    ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
 	    TrainExtractor.class,	TestClassifier.class, TrainTestClassifier.class, 
-	    TrainTestExtractor.class, TrainTestTagger.class,
+	    TrainTestExtractor.class, TrainTestTagger.class, OnlineLearner.class,
 	    RunMixup.class,
 	    //
 	    // recommended classification learners

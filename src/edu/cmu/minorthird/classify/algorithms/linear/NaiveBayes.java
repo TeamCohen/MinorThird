@@ -31,7 +31,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner
 {
     private static Logger log = Logger.getLogger(NaiveBayes.class);
 
-    private Hyperplane numGivenPos, numGivenNeg;
+    private Hyperplane numGivenPos, numGivenNeg, c=null;
     private Set featureSet;
     private double numPos, numNeg;
 
@@ -42,7 +42,6 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner
 
     public void reset() 
     {
-	super.reset();
 	log.info("resetting NaiveBayes");
 	numGivenPos = new Hyperplane();
 	numGivenNeg = new Hyperplane();

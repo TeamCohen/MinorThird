@@ -51,7 +51,7 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
 	    String key,
             StatusMessage statusMsg,
             boolean readOnly, 
-	    OnlineBinaryTextClassifierLearner learner)
+	    OnlineTextClassifierLearner learner)
     {
 //        super(base, viewLabels, editLabels, statusMsg);
 	
@@ -60,7 +60,7 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
     }
 
     private void init(TextBase base, TextLabels viewLabels, StatusMessage statusMsg, MutableTextLabels editLabels, String key,
-		      boolean readOnly, OnlineBinaryTextClassifierLearner learner)
+		      boolean readOnly, OnlineTextClassifierLearner learner)
     {
         super.init(base, viewLabels,  editLabels, statusMsg);
         viewer = new TextBaseViewer(base, viewLabels, statusMsg);
@@ -80,7 +80,7 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
     }
 
     protected void createOnlineClassifierDocumentEditor(TextLabels viewLabels, TextBaseViewer viewer, MutableTextLabels editLabels, 
-							StatusMessage statusMsg, OnlineBinaryTextClassifierLearner learner)
+							StatusMessage statusMsg, OnlineTextClassifierLearner learner)
     {
         viewerTracker = new OnlineClassifierDocumentEditor(learner, viewLabels, viewer, editLabels, viewer.getDocumentList(), 
 							   viewer.getSpanPainter(), statusMsg );
@@ -112,7 +112,7 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
 
     /** Pop up a frame for editing the labels. */
     public static OnlineLearnerEditor edit(TextLabels labels, MutableTextLabels editLabels, String rk,
-					   OnlineBinaryTextClassifierLearner learner)
+					   OnlineTextClassifierLearner learner)
     {
 	TextBase textBase = labels.getTextBase();
         StatusMessage statusMsg = new StatusMessage();

@@ -35,7 +35,7 @@ import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
 
 public class VotedPerceptron extends OnlineBinaryClassifierLearner
 {
-	private Hyperplane s_t,w_t;
+    private Hyperplane s_t,w_t,c=null;
 	private boolean ignoreWeights=false;
 
 	public VotedPerceptron() { 
@@ -49,7 +49,6 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 
 	public void reset() 
 	{
-    super.reset();
 		s_t = new Hyperplane();
 		w_t = new Hyperplane();
 		if (ignoreWeights) {

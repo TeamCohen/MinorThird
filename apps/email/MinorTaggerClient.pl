@@ -56,51 +56,21 @@ $socket = new IO::Socket::INET (PeerAddr => $remote_host,
 print "REMINDER: \nTo Use MinorTaggerClient your file must end with: \$\$\$ \nHost Names: roxie and velmak \nBoth hosts are running on port 9998 \n";
 
 if ($opt_f || $opt_F) {
-    $fh = new FileHandle "$file";
-} else {
-    $fh = *STDIN;
-}
-
-if ($opt_f ||$opt_F) {
-    @all = <$fh>;
-    $fileText = join(/\n/, @all);
+#    $fh = new FileHandle "$file";
+#     @all = <$fh>;
+    open(F,"<$file") || die;
+    @all = <F>;
+    $fileText = join('',@all);
     $exit = "\nexit";
     $all = $fileText.$exit;
+    print "sending: '$all' \n";
     sendMessage($socket, $all);
-    print readMessage($socket);
-}
-
-if ((!$file) || $opt_v) {
-    print "$remote_host:$remote_port> ";
-}
-
-while ($line = <$fh>) {
-   if ($line =~ /^\s*exit\s*$/) {
-     $end = "$$";
-     sendMessage($socket, $end);
-        last;
-    }
-    if ($line =~ /^\s*quit\s*$/) {
-	last;
-    }
-    if ($opt_q) {
-        chomp $line;
-        $line = "'$line'\n";
-    }
-    if ($opt_v) {
-        print $line;
-    }
-
-    $line =~ s:\\n:\n:g;
-
-    print $line;
-    sendMessage($socket, $line);
-    $line = readMessage($socket);
-    print $line, "\n";
-    if (!$file) {
-        print "$remote_host:$remote_port> ";
-    }
-
+    print "sent message\n";
+    readMessage($socket);
+    print "exiting\n";
+    exit;
+} else {
+  print "usage: -f file\n";
 }
 
 sub readMessage {

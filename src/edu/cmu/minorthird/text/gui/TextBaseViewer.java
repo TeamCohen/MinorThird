@@ -40,7 +40,7 @@ public class TextBaseViewer extends JComponent
   private JCheckBox editedOnlyCheckBox;
   private JComboBox guessBox;
   private JComboBox truthBox;
-  private HighlightAction highlightAction;
+  public HighlightAction highlightAction;
   private static Logger log = Logger.getLogger(TextBaseViewer.class);
 	
   public JList getDocumentList()
@@ -62,8 +62,20 @@ public class TextBaseViewer extends JComponent
   public void updateTextLabels(TextLabels newLabels)
   {
     this.labels = newLabels;
-    initializeLayout(null);
-    //highlightAction.paintDocument(null); // repaint everything
+    //initializeLayout(null);
+    highlightAction.paintDocument(null); // repaint everything
+    for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
+    {
+	String label = i.next().toString();
+	boolean contains = false;
+	for(int j=0; j<truthBox.getItemCount(); j++) {
+	    String item = (String)truthBox.getItemAt(j);
+	    if(item.equals(label))
+		contains = true;
+	}
+	if(!contains) 
+	    truthBox.addItem(label);
+    }
   }
 	
   public TextBaseViewer(TextBase base, TextLabels labels, StatusMessage statusMsg)
@@ -296,7 +308,7 @@ public class TextBaseViewer extends JComponent
 	/**
 	 * highlights text in the spans displayed in documentList based on
 	 * the options in truthBox, guessBox */
-	private class HighlightAction extends AbstractAction implements SpanPainter
+	public class HighlightAction extends AbstractAction implements SpanPainter
 	{
 		private JComboBox guessBox,truthBox;
 		private JList documentList;

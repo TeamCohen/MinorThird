@@ -13,13 +13,12 @@ import java.io.*;
 
 public class ClassifierAnnotator extends AbstractAnnotator implements Serializable 
 {
-	static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
-	
-	private SpanFeatureExtractor fe;
-	private Classifier c;
-    private String classLearner;
-    private String spanProp=null, spanType=null, candidateType=null, learnedSpanType = null;
+    static private final long serialVersionUID = 1;
+    private final int CURRENT_VERSION_NUMBER = 1;
+    
+    private SpanFeatureExtractor fe;
+    private Classifier c;
+    private String spanProp=null, spanType=null, candidateType=null;
 	
 	public 
 	ClassifierAnnotator(SpanFeatureExtractor fe,Classifier c,String spanType,String spanProp,String candidateType) 
@@ -49,22 +48,6 @@ public class ClassifierAnnotator extends AbstractAnnotator implements Serializab
 	/** If non-null, the spanType corresponding to candidate spans to be
 	 * classified.  If null, the document spans will be classified. */
 	public String getCandidateType() { return candidateType; }
-
-    public void setLearnedSpanType(String learnedSpanType) {
-	this.learnedSpanType = learnedSpanType;
-    }
-
-    public String getLearnedSpanType() {
-	return learnedSpanType;
-    }
-
-    public void setClassifierLearner(String classLearner) {
-	this.classLearner = classLearner;
-    }
-
-    public String getClassifierLearner() {
-	return classLearner;
-    }
 
 	public void doAnnotate(MonotonicTextLabels labels)
 	{
