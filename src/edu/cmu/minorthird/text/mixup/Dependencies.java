@@ -56,8 +56,13 @@ public class Dependencies
         inStream.read(chars);
         String program = new String(chars);
 
+				log.info("Evaluating mixup program "+file+" to provide "+reqAnnotation);
         MixupProgram subProgram =  new MixupProgram(program);
         subProgram.eval(env, env.getTextBase());
+				if (!env.isAnnotatedBy(reqAnnotation)) {
+					throw new IllegalArgumentException(
+						"file "+file+" did not provide expected annotation type "+reqAnnotation);
+				}
       }
       else // if (file.endsWith("java") || file.endsWith(("class")))
       {

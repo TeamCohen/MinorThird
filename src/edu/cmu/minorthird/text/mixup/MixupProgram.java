@@ -62,7 +62,8 @@ public class MixupProgram
 
 	/** Create a MixupProgram from the contents of a file. */
 	public MixupProgram(File file) throws Mixup.ParseException, FileNotFoundException, IOException {
-		LineNumberReader in = new LineNumberReader(new FileReader(file));
+		//LineNumberReader in = new LineNumberReader(new FileReader(file));
+		LineNumberReader in = mixupReader(file);
 		StringBuffer buf = new StringBuffer();
 		String line;
 		while ((line = in.readLine())!=null) {
@@ -256,7 +257,8 @@ public class MixupProgram
 						while (!(w = advance(null)).equals("\""))
 							defFile.append(w);
 						try {
-							BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
+							//BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
+							LineNumberReader bReader = mixupReader(defFile.toString());
 							String s = null;
 							while ((s = bReader.readLine()) != null)
 								wordList.add( s.toLowerCase() );
@@ -313,7 +315,8 @@ public class MixupProgram
 								StringBuffer defFile = new StringBuffer("");
 								for (int j=1; j<toks.length-1; j++) defFile.append(toks[j]);
 								try {
-									BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
+									//BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
+									LineNumberReader bReader = mixupReader(defFile.toString());
 									String s = null;
 									int line=0;
 									while ((s = bReader.readLine()) != null) {
@@ -498,6 +501,22 @@ public class MixupProgram
 			}
 		}
 	}
+
+	/** Convert a string to an input stream, then a LineNumberReader. */
+	static private LineNumberReader mixupReader(String fileName) throws IOException, FileNotFoundException
+	{
+		File file = new File(fileName);
+		if (file.exists()) return new LineNumberReader(new BufferedReader(new FileReader(file)));
+		else {
+			InputStream s = ClassLoader.getSystemResourceAsStream(fileName);
+			return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
+		}
+	}
+	static private LineNumberReader mixupReader(File file) throws IOException, FileNotFoundException
+	{
+		return mixupReader(file.getName());
+	}
+
 
 	//
 	// interactive test routine

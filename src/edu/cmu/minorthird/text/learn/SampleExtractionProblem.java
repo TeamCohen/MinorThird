@@ -6,6 +6,7 @@ import edu.cmu.minorthird.text.learn.AnnotatorTeacher;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.classify.experiments.Expt;
 import org.apache.log4j.Logger;
 
 /** Some sample inputs to facilitate testing.
@@ -97,7 +98,9 @@ public class SampleExtractionProblem
 		try {
 			TextEnv trainEnv = trainEnv();
 			AnnotatorTeacher annotatorTeacher = new TextEnvAnnotatorTeacher( trainEnv, LABEL );
-			AnnotatorLearner annotatorLearner = FancyLoader.loadAnnotatorLearner( args[0] );
+			//AnnotatorLearner annotatorLearner = FancyLoader.loadAnnotatorLearner( args[0] );
+			AnnotatorLearner annotatorLearner = 
+				new CMMAnnotatorLearner( SampleFE.makeExtractionFE(2), Expt.toLearner(args[0]), 2); 
 			annotatorLearner.setAnnotationType( "predictedName" );
 			Annotator learnedAnnotator = annotatorTeacher.train( annotatorLearner );
 			System.out.println("Learned concept: "+learnedAnnotator);
