@@ -143,10 +143,10 @@ public class EDA
            //StringBuffer buf = new StringBuffer("c(");
            for (int i=0; i<(docsInC-1); i++) {
               //buf.append(del[c][i]+",");
-              if (del[c][i]>1e-10) { isDeltaPos+=1.0; }
+              if (del[c][i]>1e-7) { isDeltaPos+=1.0; }
            }
            //buf.append(del[c][del[c].length-1]+")");
-           if (del[c][del[c].length-1]>1e-10) { isDeltaPos+=1.0; }
+           if (del[c][del[c].length-1]>1e-7) { isDeltaPos+=1.0; }
            //System.out.println(buf.toString());
            out.println("v<m:"+(results[c][0]/docsInC)+" v=m:"+(results[c][1]/docsInC)+" v>m:"+(results[c][2]/docsInC)+" d>0:"+(isDeltaPos/docsInC));
         }
