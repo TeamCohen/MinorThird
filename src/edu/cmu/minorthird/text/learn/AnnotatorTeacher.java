@@ -11,7 +11,7 @@ import edu.cmu.minorthird.util.ProgressCounter;
  *
  * @author William Cohen
  */
-public abstract class AnnotatorTeacher
+public abstract class   AnnotatorTeacher
 {
 	final public Annotator train(AnnotatorLearner learner)
 	{

@@ -86,7 +86,22 @@ public class DatasetLoader implements Loader
 		return dataset;
 	}
 
-	/** Save a SequenceDataset to a file */
+	/**
+   * Save a SequenceDataset to a file
+   *
+   * Each Example in a sequence is saved on a seperate line.
+   * An asterix (*) alone on a line seperates the sequences.
+   *
+   * Example1,0
+   * Example1,1
+   * Example1,2
+   * ...
+   * *
+   * Example2,0
+   * Example2,1
+   * ...
+   * *
+   */
 	static public void saveSequence(SequenceDataset dataset,File file) throws IOException
 	{
 		PrintStream out = new PrintStream(new FileOutputStream(file));
@@ -100,7 +115,10 @@ public class DatasetLoader implements Loader
 		out.close();
 	}
 
-	/** Load a SequenceDataset from a file */
+	/**
+   * Load a SequenceDataset from a file
+   * @see #saveSequence for format
+   */
 	static public SequenceDataset loadSequence(File file) throws IOException,NumberFormatException
 	{
 		SequenceDataset dataset = new SequenceDataset();
