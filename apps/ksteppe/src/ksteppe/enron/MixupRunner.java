@@ -1,8 +1,6 @@
 package ksteppe.enron;
 
-import edu.cmu.minorthird.text.MonotonicTextLabels;
-import edu.cmu.minorthird.text.TextBaseLoader;
-import edu.cmu.minorthird.text.TextLabelsLoader;
+import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
 
 import java.io.File;
@@ -20,9 +18,10 @@ public class MixupRunner
     MixupProgram program = new MixupProgram(new File(args[0]));
     TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE,
                                                 TextBaseLoader.FILE_NAME, false);
-    MonotonicTextLabels labels = (MonotonicTextLabels)loader.load(new File(args[1]));
+    TextBase base = loader.load(new File(args[1]));
 
 //    MonotonicTextLabels labels = (MonotonicTextLabels)SimpleTextLoader.load(args[1], false);
+    MonotonicTextLabels labels = new BasicTextLabels(base);
 
     program.eval(labels, labels.getTextBase());
     File outFile = new File(args[2]);
