@@ -146,6 +146,11 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 		private BinaryClassifier[] innerClassifier;
 		private int numClasses;
 
+	        public MultiClassClassifier(ExampleSchema schema,BinaryClassifier[] learners) {
+			this.schema = schema;
+			this.numClasses = schema.getNumberOfClasses();
+			innerClassifier = learners;
+	        }
 		public MultiClassClassifier(ExampleSchema schema,OnlineBinaryClassifierLearner[] innerLearner)
 		{
 			this.schema = schema;
