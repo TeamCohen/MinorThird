@@ -41,6 +41,13 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		seqData.setHistorySize(historySize);
 	}
 
+  /** This constructor not recommended */
+  public SequenceAnnotatorLearner()
+  {
+    fe = new SampleFE.ExtractionFE();
+    seqLearner = new CollinsPerceptronLearner();
+  }
+
 	/** Specify the type of annotation produced by this annotator - that is, the
 	 * type associated with spans produced by it. */
 	public void setAnnotationType(String s) { annotationType=s; }

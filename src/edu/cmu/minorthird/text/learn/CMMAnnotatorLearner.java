@@ -17,8 +17,29 @@ public class CMMAnnotatorLearner extends SequenceAnnotatorLearner
 {
 	private static Logger log = Logger.getLogger(CMMAnnotatorLearner.class);
 
-	public CMMAnnotatorLearner(SpanFeatureExtractor fe,ClassifierLearner classifierLearner,int historySize)
+  public CMMAnnotatorLearner(SpanFeatureExtractor fe,ClassifierLearner classifierLearner,int historySize)
 	{
 		super(new CMMLearner(classifierLearner,historySize),fe,historySize);
 	}
+
+  public CMMAnnotatorLearner()
+  {
+    CMMAnnotatorLearner copy = (CMMAnnotatorLearner)SampleLearners.CMM;
+    copyFrom(copy);
+  }
+
+  private void copyFrom(CMMAnnotatorLearner copy)
+  {
+    this.seqLearner = copy.seqLearner;
+    this.seqData = copy.seqData;
+    this.annotationType = copy.annotationType;
+    this.fe = copy.fe;
+  }
+
+  protected Object clone() throws CloneNotSupportedException
+  {
+    CMMAnnotatorLearner newObj = new CMMAnnotatorLearner();
+    newObj.copyFrom(this);
+    return newObj;
+  }
 }

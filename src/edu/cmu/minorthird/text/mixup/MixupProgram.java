@@ -28,7 +28,8 @@ BNF:
 	GEN -> [TYPE]~ re 'REGEX',NUMBER
 	GEN -> [TYPE]~ trie phrase1, phrase2, ... ;
 
-	statements are semicolon-separated // and comments look like this
+	statements are semicolon-separated
+  // and comments look like this (C++ style)
 
 SEMANTICS:
   execute each command in order, saving spans/tokens as types, and asserting properties

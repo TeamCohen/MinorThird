@@ -9,6 +9,7 @@ import edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.classify.experiments.RandomSplitter;
 import edu.cmu.minorthird.text.TextBaseLoader;
+import edu.cmu.minorthird.text.gui.CollinsSequenceAnnotatorLearner;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.Loader;
 import jwf.NullWizardPanel;
@@ -58,9 +59,10 @@ public class WizardUI
 			SampleFE.BagOfLowerCaseWordsFE.class,
       //AnnotatorLearners
       BatchFilteredFinderLearner.class,
+      CMMAnnotatorLearner.class,
+      CollinsSequenceAnnotatorLearner.class
 //      BatchInsideOutsideLearner.class,
 //      BatchStartEndLengthLearner.class,
-//      CMMAnnotatorLearner.class
 		};
 		public MyTypeSelector(Class rootClass) { super(myClasses,rootClass); }
 	}
@@ -315,7 +317,6 @@ public class WizardUI
       return super.next();
     }
   }
-
 
 	//
 	// main program to kick off the wizard

@@ -232,7 +232,7 @@ public class ExperimentWizard extends NullWizardPanel
      */
     private void loadData(TextBase base, TextBase testBase) throws IOException
     {
-      TextBaseLoader loader = (TextBaseLoader)viewerContext.get("textBaseLoader");
+      TextBaseLoader loader = (TextBaseLoader)viewerContext.get("Loader");
       File trainDataFile = (File)viewerContext.get("trainDataFile");
       if (trainDataFile.isDirectory())
         loader.loadTaggedFiles(base, trainDataFile);
