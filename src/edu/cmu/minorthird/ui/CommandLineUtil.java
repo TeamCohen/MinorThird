@@ -33,7 +33,7 @@ import java.lang.reflect.*;
  * @author William Cohen
  */
 
-class CommandLineUtil 
+public class CommandLineUtil 
 {
 	private static Logger log = Logger.getLogger(CommandLineUtil.class);
 
