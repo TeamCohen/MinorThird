@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
 <pre>
 BNF:
   STATEMENT -> provide ID
-  STATEMENT -> require ID,FILE
-  STATEMENT -> defDict NAME = ID, ... , ID
+  STATEMENT -> require ID [,FILE]
+  STATEMENT -> defDict [+case] NAME = ID, ... , ID
   STATEMENT -> defTokenProp PROP:VALUE = GEN
 	STATEMENT -> defSpanProp PROP:VALUE = GEN
 	STATEMENT -> defSpanType TYPE2 = GEN
@@ -34,6 +34,16 @@ SEMANTICS:
   execute each command in order, saving spans/tokens as types, and asserting properties
 	'=:' can be replaced with '=TYPE:', in which case the expr will be applied to
 	 each span of the given type, rather than all top-level spans
+
+	 defDict FOO = bar,baz,bat stores a lowercase version of each word the dictionary
+	 defDict +case FOO = blah,Bar,baZ stores each word the dictionary, preserving case
+
+	 in dictionaries and tries, a double-quoted word "foo.txt" means to
+	 find foo.txt on the classpath and store all lines from the file as
+	 words (after trimming them).
+
+	 TYPE: MIXUP-EXPR finds all spans inside a span of type TYPE that match the expression
+	 TYPE- MIXUP-EXPR finds all spans inside a span of type TYPE that do not contain anything matching MIXUP-EXPR
 
 </pre>
  *
@@ -133,18 +143,6 @@ public class MixupProgram
         line = "";
       }
     }
-
-/*    int startStatement = 0;
-    int endStatement = program.indexOf(';');
-    if (endStatement < 0) endStatement = program.length();
-    while (startStatement < program.length())
-    {
-      addStatement(program.substring(startStatement, endStatement));
-      startStatement = endStatement + 1;
-      endStatement = program.indexOf(';', startStatement);
-      if (endStatement < 0) endStatement = program.length();
-    }
-*/
   }
 
 	/** List the program **/
@@ -183,7 +181,7 @@ public class MixupProgram
 		private String input;
 		private static Set generatorStart = new HashSet();
 		private static Set legalKeywords = new HashSet(); 
-		private static Set colonOrEquals = new HashSet();
+		private static Set colonEqualsOrCase = new HashSet();
 		static { 
 			legalKeywords.add("defTokenProp"); 
 			legalKeywords.add("defSpanProp"); 
@@ -193,7 +191,7 @@ public class MixupProgram
 			legalKeywords.add("provide"); 
 			legalKeywords.add("require"); 
 		}
-		static { colonOrEquals.add(":"); colonOrEquals.add("="); }
+		static { colonEqualsOrCase.add(":"); colonEqualsOrCase.add("="); colonEqualsOrCase.add("case"); }
 		static { generatorStart.add(":"); generatorStart.add("~"); generatorStart.add("-"); }
 		//
 		// constructor and parser
@@ -233,7 +231,7 @@ public class MixupProgram
         return;
 			}
 			String propOrType = advance(null);  // read property or type
-			String token = advance(colonOrEquals); // read ':' or '='
+			String token = advance(colonEqualsOrCase); // read ':' or '='
 			if (":".equals(token)) {
 				if (!"defSpanProp".equals(keyword) && !"defTokenProp".equals(keyword)) {
 					parseError("can't define properties here");
@@ -241,7 +239,10 @@ public class MixupProgram
 				property = propOrType; type = null;
 				value = advance(null);
 				advance(Collections.singleton("="));
+			} else if ("case".equals(token)) {
+				if (!"defDict".equals(keyword)) parseError("illegal keyword usage");
 			} else {
+				// token is '='
 				if (!"defSpanType".equals(keyword) && !"defDict".equals(keyword)) {
 					parseError("illegal keyword usage");
 				}
@@ -250,7 +251,18 @@ public class MixupProgram
 			}
 
 			if ("defDict".equals(keyword)) {
-				type = propOrType;
+				// syntax is "defDict [+case] dictName = ", so either
+				// propOrType = dictName and token = '=', or else 
+				// propOrType = + and token = 'case', or else 
+				boolean ignoreCase = true;
+				if ("case".equals(token)) {
+					ignoreCase = false;
+					if (!"+".equals(propOrType)) parseError("illegal defDict");
+					type = advance(null);
+					advance(Collections.singleton("="));
+				} else {
+					type = propOrType;					
+				}
 				wordSet = new HashSet();
 				while (true) {
 					String w =  advance(null);
@@ -264,13 +276,17 @@ public class MixupProgram
 							LineNumberReader bReader = mixupReader(defFile.toString());
 							String s = null;
 							while ((s = bReader.readLine()) != null) {
-								wordSet.add( s.trim() );
+								s = s.trim(); // remove trailing blanks
+								if (ignoreCase) s = s.toLowerCase();
+								wordSet.add( s );
 							}
 							bReader.close();
 						} catch (IOException ioe) {
 							parseError("Error when reading " + defFile.toString() + ": " + ioe);
 						}
-					} else wordSet.add( w );
+					} else {
+						wordSet.add( ignoreCase?w.toLowerCase() : w );
+					}
 					String sep = advance(null);
 					if (sep==null) break;
 					else if (!",".equals(sep)) parseError("expected comma");
@@ -488,7 +504,7 @@ public class MixupProgram
 				} else if (statementType==REGEX) {
 					genString = "~ re '"+regex+"' ,"+regexGroup;
 				} else if (statementType==TRIE) {
-					genString = "~ trie '"+trie;
+					genString = "~ trie ...";
 				}
 				if (type!=null) {
 					return keyword+" "+type+" ="+startType+genString;

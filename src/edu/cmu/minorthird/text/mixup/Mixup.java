@@ -30,8 +30,13 @@ BNF:
 SEMANTICS:
 	basicExpr is pattern match - like a regex, but returns all matches, not just the longest one
 	token-level tests:
+	  eq('foo') check token is exactly foo 
+		'foo' is short for eq('foo')
+		re('regex') checks if token matches the regex
+	  eqi('foo') check lowercase version of token is foo
 	  'foo' or eq('foo') checks a token is equal to 'foo'
     a(bar) checks a token is in dictionary 'bar'
+		ai(bar) checks that the lowercase version of the token is in dictionary 'bar' (i=ignore case)
 	  color:red checks that the token has property 'color' set to 'red'
 	  color:a(primaryColor) checks that the token's  property 'color' is in the dictionary 'primaryColor'
 	  !test is negation of test
@@ -43,6 +48,10 @@ SEMANTICS:
     test* is 0+ tokens matching test
     test{3,7} is between 3 and 7 tokens matching test		
    	... is equal to any*
+		@foo matches a span of type foo
+		@foo? matches a span of type foo or the empty sequence
+		L means sequence can't be extended to left and still match
+		R means sequence can't be extended to right and still match
 	expr || expr is union
 	expr && expr is piping: generate with expr1, filter with expr2
 </pre>
