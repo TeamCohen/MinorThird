@@ -98,6 +98,10 @@ interface, use
 
  % java -Xmx500M edu.cmu.minorthird.ui.TrainTestExtractor -gui
 
+For more information on how to use the Extractractor and Classifier, refer
+to the HowToClassification and HowToExtraction documents in this
+directory.
+
 You can put some or all of the command-line options in a file, using
 the syntax of Java property files, and set the options all at once
 using the option "-config FILENAME".
