@@ -23,6 +23,7 @@ import java.awt.event.*;
 public abstract class UIMain implements CommandLineProcessor.Configurable
 {	
 	//public final static PipedInputStream piOut = new PipedInputStream();
+	public static PipedOutputStream poOut;
 	public final PipedInputStream piErr = new PipedInputStream();
 	
 	public static JTextArea errorArea;
@@ -156,7 +157,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							JButton goButton = new JButton(new AbstractAction("Start task") {
 									public void actionPerformed(ActionEvent event) {										
 										Thread thread = new Thread() {
-											PipedInputStream piOut = new PipedInputStream();											PipedOutputStream poOut;
+											PipedInputStream piOut = new PipedInputStream();											
 											public void run() {												viewButton.setEnabled(false);
 												if (base.labels == null)
 													noLabelsMessage(errorArea);
@@ -176,6 +177,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 																final byte[] buf = new byte[2048];																try {																	while (true) {
 																		final int len = piOut.read(buf);																		if (len == -1){																			errorArea.append("Length less than 1\n");																			break;
 																		}																		SwingUtilities.invokeLater(new Runnable() {																			public void run() {
+																				try {																					poOut.flush();																				} catch (Exception e) {																					System.out.println("Could not flush output stream");																					}
 																				errorArea.append(new String(buf, 0, len));
 																			}//end run																		}); // end Swing invokeLater
 																	} //end while																} //end try																catch (IOException e) {
