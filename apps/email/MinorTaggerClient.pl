@@ -73,6 +73,8 @@ if ((!$file) || $opt_v) {
 
 while ($line = <$fh>) {
    if ($line =~ /^\s*exit\s*$/) {
+     $end = "$$";
+     sendMessage($socket, $end);
         last;
     }
     if ($line =~ /^\s*quit\s*$/) {
