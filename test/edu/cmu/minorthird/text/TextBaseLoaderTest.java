@@ -241,6 +241,32 @@ public class TextBaseLoaderTest extends TestCase
   }
 
   /**
+   * Load from blankLines.base
+   * checks that the extra lines are thrown out
+   */
+  public void testBlankLines()
+  {
+    try
+    {
+      TextBase base = TextBaseLoader.loadDocPerLine(new File(Globals.DATA_DIR + "blankLines.base"), false);
+      //check that I can get a token from every document
+      Span.Looper it = base.documentSpanIterator();
+      while (it.hasNext())
+      {
+        assertNotNull(it.nextSpan().getTextToken(0));
+      }
+      //check that # of documents is 1
+      assertEquals(1, base.size());
+    }
+    catch (Exception e)
+    {
+      log.error(e, e);
+      fail();
+    }
+
+  }
+
+  /**
    * Base test for TextBaseLoaderTest
    */
   public void testDirectories()
