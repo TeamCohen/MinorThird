@@ -61,10 +61,11 @@ class CommandLineUtil
 			for (Span.Looper i=candidateLooper; i.hasNext(); ) {
 				Span s = i.nextSpan();
 				int classLabel = textLabels.hasType(s,spanType) ? +1 : -1;
+				String className = classLabel<0 ? ExampleSchema.NEG_CLASS_NAME : ExampleSchema.POS_CLASS_NAME;
 				dataset.add( new BinaryExample( fe.extractInstance(textLabels,s), classLabel) );
-				Integer cnt = (Integer)countByClass.get( new Integer(classLabel) );
-				if (cnt==null) countByClass.put( new Integer(classLabel), new Integer(1) );
-				else countByClass.put( new Integer(classLabel), new Integer(cnt.intValue()+1) );
+				Integer cnt = (Integer)countByClass.get( className );
+				if (cnt==null) countByClass.put( className, new Integer(1) );
+				else countByClass.put( className, new Integer(cnt.intValue()+1) );
 			}
 			System.out.println("Number of examples by class: "+countByClass);
 			return dataset;
@@ -80,9 +81,9 @@ class CommandLineUtil
 				} else {
 					dataset.add( new Example( fe.extractInstance(textLabels,s), new ClassLabel(className)) );
 				}
-				Integer cnt = (Integer)countByClass.get( new Integer(className) );
-				if (cnt==null) countByClass.put( new Integer(className), new Integer(1) );
-				else countByClass.put( new Integer(className), new Integer(cnt.intValue()+1) );
+				Integer cnt = (Integer)countByClass.get( className );
+				if (cnt==null) countByClass.put( className, new Integer(1) );
+				else countByClass.put( className, new Integer(cnt.intValue()+1) );
 			}
 			System.out.println("Number of examples by class: "+countByClass);
 			return dataset;
