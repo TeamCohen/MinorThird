@@ -25,15 +25,22 @@ public class TestExtractor extends UIMain
 
 	// private data needed to train a extractor
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
+	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TestExtractorParams test = new CommandLineUtil.TestExtractorParams();
 	private TextLabels annLabels = null;
 
+	// for gui
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; } 
+	public void setSignalParameters(CommandLineUtil.ExtractionSignalParams p) { signal=p; } 
+	public CommandLineUtil.TestExtractorParams getAdditionalParameters() { return test; } 
+	public void setAdditionalParameters(CommandLineUtil.TestExtractorParams p) { test=p; } 
+
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,test});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,test});
 	}
 
 	//
@@ -43,16 +50,8 @@ public class TestExtractor extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (test.loadFrom==null) throw new IllegalArgumentException("-loadFrom must be specified");
 
-		// echo the input
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			new ViewerFrame("Textbase",vl);
-		}
-		
 		// load the annotator
 		ExtractorAnnotator ann = null;
 		try {

@@ -152,10 +152,10 @@ class CommandLineUtil
 			double pct = StringUtil.atoi(splitterName.substring(1,splitterName.length())) / 100.0;
 			return new RandomSplitter(pct);
 		}
-		if (splitterName.charAt(0)=='s') {
-			int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
-			return new StratifiedCrossValSplitter(folds);
-		}
+		//if (splitterName.charAt(0)=='s') {
+		//int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
+		//return new StratifiedCrossValSplitter(folds);
+		//}
 		if ("-help".equals(splitterName)) {
 			System.out.println("Valid splitter names:");
 			System.out.println(" kN    N-fold cross-validation, e.g. k5");
@@ -193,6 +193,9 @@ class CommandLineUtil
 		// for GUI
 		public String getLabels() { return repositoryKey; }
 		public void setLabels(String key) { labels(key); }
+		public String getRepositoryKey() { return repositoryKey; }
+		public void setRepositoryKey(String key) { labels(key); }
+		public Object[] getAllowedRepositoryKeyValues() { return FancyLoader.getPossibleTextLabelKeys(); }
 		public boolean getShowLabels() { return showLabels; }
 		public void setShowLabels(boolean flag ) { showLabels=flag; }
 		public boolean getShowResult() { return showResult; }
@@ -202,22 +205,31 @@ class CommandLineUtil
 	/** Parameters used by all 'train' routines. */
 	public static class SaveParams extends BasicCommandLineProcessor {
 		public File saveAs=null;
-		public void saveAs(String fileName) { this.saveAs = new File(fileName); }
+		private String saveAsName=null;
+		public void saveAs(String fileName) { this.saveAs = new File(fileName); this.saveAsName=fileName; }
 		public void usage() {
 			System.out.println("save parameters:");
 			System.out.println(" [-saveAs FILE]           save final result of this operation in FILE");
 			System.out.println();
 		}
+		// for gui
+		public String getSaveAs() { return saveAsName==null ? "n/a" : saveAsName; }
+		public void setSaveAs(String s) { saveAs( "n/a".equals(s) ? null : s ); }
 	}
 
 	/** Parameters encoding the 'training signal' for classification learning. */
 	public static class ClassificationSignalParams extends BasicCommandLineProcessor {
+		private BaseParams base=new BaseParams();
+		/** Not recommended, but required for bean-shell like visualization */
+		public ClassificationSignalParams() {;}
+		public ClassificationSignalParams(BaseParams base) {this.base=base;}
 		public String spanProp=null;
 		public String spanType=null;
 		public String candidateType=null;
 		public void candidateType(String s) { this.candidateType=s; }
 		public void spanProp(String s) { this.spanProp=s; }
 		public void spanType(String s) { this.spanType=s; }
+		// useful abstractions
 		public String getOutputType(String output) { return spanType==null ? null : output;	}
 		public String getOutputProp(String output) { return spanProp==null ? null : output; }
 		public void usage() {
@@ -231,6 +243,25 @@ class CommandLineUtil
 			System.out.println("                          - default is to classify all document spans");
 			System.out.println();
 		}
+		// for gui
+		public String getCandidateType() { return safeGet(candidateType,"top"); }
+		public void setCandidateType(String s) { candidateType = safePut(s,"top"); }
+		public Object[] getAllowedCandidateTypeValues() { 
+			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
+		}
+		public String getSpanProp() { return safeGet(spanProp,"n/a"); }
+		public void setSpanProp(String s) { spanProp = safePut(s,"n/a"); }
+		public Object[] getAllowedSpanPropValues() {
+			return base.labels==null ? new String[]{} : base.labels.getSpanProperties().toArray();
+		}
+		public String getSpanType() { return safeGet(spanType,"n/a"); }
+		public void setSpanType(String s) { spanType = safePut(s,"n/a"); }
+		public Object[] getAllowedSpanTypeValues() {
+			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
+		}
+		// subroutines for gui
+		private String safeGet(String s,String def) { return s==null?def:s; }
+		private String safePut(String s,String def) { return def.equals(s)?null:s; }
 	}
 
 	/** Parameters for training a classifier. */
@@ -262,16 +293,23 @@ class CommandLineUtil
 			System.out.println("                            ClassifierAnnotator - default is \"_prediction\"");
 			System.out.println();
 		}
+		// for gui
+		public boolean getShowData() { return showData; }
+		public void setShowData(boolean flag) { this.showData=flag; }
+		public ClassifierLearner getLearner() { return learner; }
+		public void setLearner(ClassifierLearner learner) { this.learner=learner; }
+		public String getOutput() { return output; } 
+		public void setOutput(String s) { output(s); }
+		public SpanFeatureExtractor getFeatureExtractor() { return fe; }
+		public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
 	}
 
 	/** Parameters for testing a stored classifier. */
-	public static class TestClassifierParams extends BasicCommandLineProcessor {
+	public static class TestClassifierParams extends LoadAnnotatorParams {
 		public boolean showClassifier=false;
 		public boolean showData=false;
-		public File loadFrom=null;
 		public void showClassifier() { this.showClassifier=true; }
 		public void showData() { this.showData=true; }
-		public void loadFrom(String s) { this.loadFrom = new File(s);	}
 		public void usage() {
 			System.out.println("classifier testing parameters:");
 			System.out.println(" -loadFrom FILE           file containing serialized ClassifierAnnotator");
@@ -280,31 +318,41 @@ class CommandLineUtil
 			System.out.println(" [-showClassifier]        interactively view the classifier");
 			System.out.println();
 		}
+		// for gui
+		public boolean getShowClassifier() { return showClassifier; }
+		public void setShowClassifier(boolean flag) { this.showClassifier=flag; }
+		public boolean getShowData() { return showData; }
+		public void setShowData(boolean flag) { this.showData=flag; }
 	}
 
 	/** Parameters for testing a stored classifier. */
-	public static class TestExtractorParams extends BasicCommandLineProcessor {
+	public static class TestExtractorParams extends LoadAnnotatorParams {
 		public boolean showExtractor=false;
-		public File loadFrom;
 		public void showExtractor() { this.showExtractor=true; }
-		public void loadFrom(String s) {this.loadFrom = new File(s);}
 		public void usage() {
 			System.out.println("extractor testing parameters:");
 			System.out.println(" -loadFrom FILE           file containing serialized Annotator, learned by TrainExtractor.");
 			System.out.println(" [-showExtractor]         interactively view the loaded extractor");
 			System.out.println();
 		}
+		// for gui
+		public boolean getShowExtractor() { return showExtractor; }
+		public void setShowExtractor(boolean flag) { this.showExtractor=flag; }
 	}
 
 	/** Parameters for testing a stored classifier. */
 	public static class LoadAnnotatorParams extends BasicCommandLineProcessor {
 		public File loadFrom;
-		public void loadFrom(String s) {this.loadFrom = new File(s);}
+		private String loadFromName;
+		public void loadFrom(String s) {this.loadFrom = new File(s); this.loadFromName=s; }
 		public void usage() {
 			System.out.println("annotation loading parameters:");
 			System.out.println(" -loadFrom FILE           file containing serialized Annotator");
 			System.out.println();
 		}
+		// for gui
+		public String getLoadFrom() { return loadFromName; }
+		public void setLoadFrom(String s) { loadFrom(s); }
 	}
 
 	/** Parameters for doing train/test evaluation of a classifier. */
@@ -327,6 +375,10 @@ class CommandLineUtil
 
 	/** Parameters encoding the 'training signal' for extraction learning. */
 	public static class ExtractionSignalParams extends BasicCommandLineProcessor {
+		private BaseParams base=new BaseParams();
+		/** Not recommended, but required for bean-shell like visualization */
+		public ExtractionSignalParams() {;}
+		public ExtractionSignalParams(BaseParams base) {this.base=base;}
 		public String spanType=null;
 		public void spanType(String s) { this.spanType=s; }
 		public void usage() {
@@ -335,8 +387,11 @@ class CommandLineUtil
 			System.out.println("                          are marked with spanType TYPE are positive");
 		}
 		// for gui
-		public String getSpanType() { return spanType; }
-		public void setSpanType(String t) { this.spanType=t; }
+		public String getSpanType() { return spanType==null?"n/a": spanType; }
+		public void setSpanType(String t) { this.spanType = "n/a".equals(t)?null:t; } 
+		public Object[] getAllowedSpanTypeValues() { 
+			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
+		}
 	}
 
 	/** Parameters for training an extractor. */

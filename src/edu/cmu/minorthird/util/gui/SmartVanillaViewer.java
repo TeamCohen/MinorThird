@@ -18,7 +18,9 @@ public class SmartVanillaViewer extends ComponentViewer
 
 	public JComponent componentFor(Object o) 
 	{
-		if (o instanceof Visible) {
+		if (o==null) {
+			return new JLabel("[null pointer]");
+		} else if (o instanceof Visible) {
 			Viewer v = ((Visible)o).toGUI();
 			v.setSuperView(this);
 			v.setContent(o);

@@ -24,15 +24,22 @@ public class TestClassifier extends UIMain
 
 	// private data needed to test a classifier
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams();
+	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
 	private CommandLineUtil.TestClassifierParams test = new CommandLineUtil.TestClassifierParams();
 	private Evaluation result = null;
 
+	// for gui
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+	public CommandLineUtil.ClassificationSignalParams getSignalParameters() { return signal; } 
+	public void setSignalParameters(CommandLineUtil.ClassificationSignalParams p) { signal=p; } 
+	public CommandLineUtil.TestClassifierParams getAdditionalParameters() { return test; } 
+	public void setAdditionalParameters(CommandLineUtil.TestClassifierParams p) { test=p; } 
+
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,test});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,test});
 	}
 
 	//
@@ -42,15 +49,7 @@ public class TestClassifier extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (test.loadFrom==null) throw new IllegalArgumentException("-loadFrom must be specified");
-
-		// echo the labels after annotation
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			new ViewerFrame("Textbase",vl);
-		}
 
 		// load the classifier
 		ClassifierAnnotator ann = null;

@@ -24,15 +24,22 @@ public class TrainClassifier extends UIMain
 
 	// private data needed to train a classifier
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams();
+	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
 	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
-	private Annotator ann = null;
+	private Classifier classifier = null;
+
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+	public CommandLineUtil.ClassificationSignalParams getSignalParameters() { return signal; } 
+	public void setSignalParameters(CommandLineUtil.ClassificationSignalParams p) { signal=p; } 
+	public CommandLineUtil.TrainClassifierParams getAdditionalParameters() { return train; } 
+	public void setAdditionalParameters(CommandLineUtil.TrainClassifierParams p) { train=p; } 
+
 
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,train});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,train});
 	}
 
 	//
@@ -42,37 +49,30 @@ public class TrainClassifier extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
 		if (signal.spanProp==null && signal.spanType==null) 
 			throw new IllegalArgumentException("one of -spanProp or -spanType must be specified");
 		if (signal.spanProp!=null && signal.spanType!=null) 
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
 
-		// echo the input
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			new ViewerFrame("Textbase",vl);
-		}
-
 		// construct the dataset
 		Dataset d = CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
 		if (train.showData) new ViewerFrame("Dataset", d.toGUI());
 
 		// train the classifier
-		Classifier c = new DatasetClassifierTeacher(d).train(train.learner);
+		classifier = new DatasetClassifierTeacher(d).train(train.learner);
 
 		if (base.showResult) {
 			Viewer cv = new SmartVanillaViewer();
-			cv.setContent(c);
+			cv.setContent(classifier);
 			new ViewerFrame("Classifier",cv); 
 		}
 
+		String type = signal.getOutputType(train.output);
+		String prop = signal.getOutputProp(train.output);
+		ClassifierAnnotator ann = new ClassifierAnnotator(train.fe,classifier,type,prop,signal.candidateType);
+
 		if (save.saveAs!=null) {
-			String type = signal.getOutputType(train.output);
-			String prop = signal.getOutputProp(train.output);
-			ann = new ClassifierAnnotator(train.fe,c,type,prop,signal.candidateType);
 			try {
 				IOUtil.saveSerialized((Serializable)ann,save.saveAs);
 			} catch (IOException e) {
@@ -81,7 +81,7 @@ public class TrainClassifier extends UIMain
 		}
 	}
 
-	public Object getMainResult() { return ann; }
+	public Object getMainResult() { return classifier; }
 
 	public static void main(String args[])
 	{

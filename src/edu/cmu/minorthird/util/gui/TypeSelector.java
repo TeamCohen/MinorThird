@@ -19,7 +19,25 @@ import java.util.List;
 
 /**
  * Allows user to select among possible instantiations of a particular
- * type.
+ * type, and edit bean properties of these instantiations.
+ *
+ * Specifically, this lets the user recursively edit objects as
+ * follows.  A "property" P of an object x is defined by the existence
+ * two methods, a getter method <code>Type x.getP()</code> and a
+ * setter method <code>x.setP(Type newValue).</code>.  Properties can
+ * be edited by the user if <code>Type</code> is either
+ * <code>boolean</code>, <code>int</code>, <code>double</code> or
+ * <code>String</code>, or if <code>Type</code> is one of the
+ * <code>validSubclasses</code> passed to the root constructor.
+ * Double-valued properties with names that contain the string
+ * "Fraction" are visualized specially--it's assumed that their values
+ * are between 0 and 1.0.
+ *
+ * <p> If P is a String-valued property and a method
+ * <code>x.getAllowedPValues()</code> exists, it will be used to
+ * compute possible values for P.  The getAllowedPValues method should
+ * return an Object array.
+ * 
  */
 
 public class TypeSelector extends ComponentViewer
@@ -172,8 +190,8 @@ public class TypeSelector extends ComponentViewer
 	 * property P to be modifiable, it must (a) have getP and setP
 	 * methods defined, according to JavaBean conventions (b) have one
 	 * of the types: int, String, boolean, double, or else have a type
-	 * that is in the validSubclasses array.  Doubles must additionally
-	 * have the substring Fraction in their name.
+	 * that is in the validSubclasses array.  Doubles with the substring
+	 * Fraction in their name are treated specially.
 	 */
 	public class PropertyEditor extends ComponentViewer
 	{
@@ -185,6 +203,7 @@ public class TypeSelector extends ComponentViewer
       //log.setLevel(Level.DEBUG);
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridBagLayout());
+			int numTextFields = 0;
 			int row=0;
 			try {
 				BeanInfo info = Introspector.getBeanInfo(o.getClass());
@@ -250,21 +269,55 @@ public class TypeSelector extends ComponentViewer
 									}
 								});
 							panel.add(textField, gbc(1,row));
+							numTextFields++;
 						} else if (type.equals(String.class)) {
 							// configure an text input
-							final JTextField textField = new JTextField();
-							textField.setText(value.toString());
-							textField.addActionListener(new ActionListener() {
-									public void actionPerformed(ActionEvent ev) {
-										try {
-											log.debug("change to "+textField.getText());
-											writer.invoke(o, new Object[]{textField.getText()});
-										} catch (IllegalAccessException ex) {
-										}	catch (InvocationTargetException ex) {
+							try {
+								// method to find allowed values for property, eg
+								// getAllowedSpanTypeValues for property spanType
+								String allowedValueMethodName = 
+									"getAllowed"+pname.substring(0,1).toUpperCase()+pname.substring(1)+"Values";
+								Method allowedValueMethod = o.getClass().getMethod(allowedValueMethodName,new Class[]{});
+								//System.out.println("allowedValueMethod="+allowedValueMethod);
+								Object[] allowedValues = (Object[]) allowedValueMethod.invoke(o, new Object[]{});
+								final JComboBox theBox = new JComboBox(); 
+								theBox.addItem("-choose a value-");
+								for (int j=0; j<allowedValues.length; j++) {
+									theBox.addItem( allowedValues[j] );
+								}
+								theBox.setSelectedItem( value );
+								theBox.addActionListener(new ActionListener() {
+										public void actionPerformed(ActionEvent ev) {
+											try {
+												if (theBox.getSelectedIndex()>0) {
+													writer.invoke(o, new Object[]{theBox.getSelectedItem()});
+												}
+											} catch (IllegalAccessException ex) {
+												log.error(ex.toString());
+											}	catch (InvocationTargetException ex) {
+											log.error(ex.toString());
+											}
 										}
-									}
-								});
-							panel.add(textField, gbc(1,row));
+									});
+								panel.add(theBox, gbc(1,row));
+							} catch (NoSuchMethodException ex) {
+								final JTextField textField = new JTextField(10);
+								textField.setText(value.toString());
+								textField.addActionListener(new ActionListener() {
+										public void actionPerformed(ActionEvent ev) {
+											try {
+												log.debug("change to "+textField.getText());
+												writer.invoke(o, new Object[]{textField.getText()});
+											} catch (IllegalAccessException ex) {
+												log.error(ex.toString());
+											}	catch (InvocationTargetException ex) {
+												log.error(ex.toString());
+											}
+										}
+									});
+								panel.add(textField, gbc(1,row));
+								numTextFields++;
+							}
 						} else if (type.equals(boolean.class)) {
 							// configure a checkbox
 							final JCheckBox checkbox = new JCheckBox();
@@ -312,6 +365,9 @@ public class TypeSelector extends ComponentViewer
 				} // for possible property
 				if (row==0) {
 					panel.add(new JLabel("No properties to edit for class "+o.getClass()));
+				} 
+				if (numTextFields>0) {
+					panel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"), gbc(0,row+1,2));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

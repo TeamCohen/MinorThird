@@ -25,8 +25,7 @@ public class TrainTestExtractor extends UIMain
 
 	// private data needed to train a extractor
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
-	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
+	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
 	TextLabelsExperiment expt; // the main result
@@ -38,10 +37,8 @@ public class TrainTestExtractor extends UIMain
 	}
 
 	// for GUI
-	public CommandLineUtil.BaseParams getBaseParameters() { return base; }
-	public void setBaseParameters(CommandLineUtil.BaseParams base) { this.base=base; }
 	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; }
-	public void setSignalParameters(CommandLineUtil.ExtractionSignalParams base) { this.signal=signal; }
+  public void setSignalParameters(CommandLineUtil.ExtractionSignalParams signal) { this.signal=signal; }
 	public CommandLineUtil.TrainExtractorParams getTrainingParameters() { return train; }
 	public void setTrainingParameters(CommandLineUtil.TrainExtractorParams train) { this.train=train; }
 	public CommandLineUtil.SplitterParams getSplitterParameters() { return trainTest; }
@@ -54,18 +51,10 @@ public class TrainTestExtractor extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
 		if (signal.spanType==null) throw new IllegalArgumentException("-spanType must be specified");
 
 		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
-
-		// echo the input
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			new ViewerFrame("Textbase",vl);
-		}
 
 		// set up the splitter
 		if (trainTest.labels!=null) {

@@ -24,15 +24,21 @@ public class TrainExtractor extends UIMain
 
 	// private data needed to train a extractor
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
+	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private Annotator ann = null;
 
+	// for gui
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+	public CommandLineUtil.TrainExtractorParams getAdditionalParameters() { return train; } 
+	public void setAdditionalParameters(CommandLineUtil.TrainExtractorParams p) { train=p; } 
+
+
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,train});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,train});
 	}
 
 	//
@@ -42,19 +48,11 @@ public class TrainExtractor extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
 		if (signal.spanType==null) throw new IllegalArgumentException("-spanType must be specified");
 
 		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
 		train.learner.setAnnotationType( train.output );
-
-		// echo the input
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			new ViewerFrame("Textbase",vl);
-		}
 
 		// do the training
 		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( base.labels, signal.spanType );

@@ -24,14 +24,19 @@ public class ApplyAnnotator extends UIMain
 
 	// private data needed to test a classifier
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.LoadAnnotatorParams load = new CommandLineUtil.LoadAnnotatorParams();
 	private Evaluation result = null;
 
+	// for gui
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+	public CommandLineUtil.LoadAnnotatorParams getLoadAnnotatorParameters() { return load; }
+	public void setLoadAnnotatorParameters(CommandLineUtil.LoadAnnotatorParams p) { load=p; }
+
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,load});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,load});
 	}
 
 	//
@@ -41,15 +46,7 @@ public class ApplyAnnotator extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (load.loadFrom==null) throw new IllegalArgumentException("-loadFrom must be specified");
-
-		// echo the labels 
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			new ViewerFrame("Textbase",vl);
-		}
 
 		// load the classifier
 		ClassifierAnnotator ann = null;

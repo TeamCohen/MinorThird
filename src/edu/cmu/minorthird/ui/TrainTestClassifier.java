@@ -28,16 +28,26 @@ public class TrainTestClassifier extends UIMain
 
 	// private data needed to train a classifier
 
-	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams();
+	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
 	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
 	private Evaluation result = null;
 
+	// for GUI
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams base) { this.save=save; }
+	public CommandLineUtil.ClassificationSignalParams getSignalParameters() { return signal; }
+	public void setSignalParameters(CommandLineUtil.ClassificationSignalParams base) { this.signal=signal; }
+	public CommandLineUtil.TrainClassifierParams getTrainingParameters() { return train; }
+	public void setTrainingParameters(CommandLineUtil.TrainClassifierParams train) { this.train=train; }
+	public CommandLineUtil.SplitterParams getSplitterParameters() { return trainTest; }
+	public void setSplitterParameters(CommandLineUtil.SplitterParams trainTest) { this.trainTest=trainTest; }
+
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,train,trainTest});
+		return new JointCommandLineProcessor(
+			new CommandLineProcessor[]{new GUIParams(),base,save,signal,train,trainTest});
 	}
 
 	//
@@ -47,21 +57,12 @@ public class TrainTestClassifier extends UIMain
 	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) 
-			throw new IllegalArgumentException("-labels must be specified");
 		if (train.learner==null) 
 			throw new IllegalArgumentException("-learner must be specified");
 		if (signal.spanProp==null && signal.spanType==null) 
 			throw new IllegalArgumentException("one of -spanProp or -spanType must be specified");
 		if (signal.spanProp!=null && signal.spanType!=null) 
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
-
-		// echo the input
-		if (base.showLabels) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(base.labels);
-			if (base.showLabels) new ViewerFrame("Textbase",vl);
-		}
 
 		// construct the dataset
 		Dataset d = CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
@@ -76,7 +77,7 @@ public class TrainTestClassifier extends UIMain
 
 		// do the experiment
 		CrossValidatedDataset cvd = null;
-		if (train.showData && base.showResult) {
+		if (train.showData && (base.showResult || useGUI)) {
 			cvd = new CrossValidatedDataset(train.learner,d,trainTest.splitter);
 			result = cvd.getEvaluation();
 		} else {
