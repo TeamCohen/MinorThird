@@ -14,7 +14,7 @@ import java.io.*;
 
 public class Main 
 {
-	static private int featureWindow=3,classWindow=5,epochs=6;
+	static private int featureWindow=5,classWindow=3,epochs=6;
 	static private Map propertyMap = new HashMap();
 	static private String classToLearn = "name";
 
@@ -52,7 +52,8 @@ public class Main
 		propertyMap.put("splitter",splitterName);
 		propertyMap.put("mixup",mixupFileStem);
 
-		System.out.println("saved annotator file: '"+saveFileName+"'");
+		//System.out.println("saved annotator file: '"+saveFileName+"'");
+		System.out.println("class: '"+classToLearn+"'");
 
 		try {
 
@@ -106,6 +107,9 @@ public class Main
 		boolean explore)
 	{
 		try {
+
+			System.out.println("teacher uses 'true_"+classToLearn+"'");
+			//TextBaseEditor.edit(labels, null);
 
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_"+classToLearn);
 			SpanFeatureExtractor fe = fe(labels);
