@@ -274,6 +274,7 @@ public class SampleDatasets
         inst.addBinary(new Feature("here "+w[j]));
         if (j>1) inst.addBinary(new Feature("prev "+w[j-1]));
         if (j<w.length-1) inst.addBinary(new Feature("next "+w[j+1]));
+				inst.addBinary(new Feature("casePattern "+w[j].replaceAll("[A-Z]+","A").replaceAll("[a-z]+","a")));
         seq[j] = new Example(inst,lab);
       }
       d.addSequence(seq);

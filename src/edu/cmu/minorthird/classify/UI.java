@@ -219,12 +219,12 @@ public class UI
 				}
 			} else if ("train".equals(op)) {
 				if (sequential) {
-					ClassifierTeacher teacher = new DatasetClassifierTeacher(trainData);
-					Classifier c = teacher.train(clsLearner);
-					resultToShow = resultToSave = c;
-				} else {
 					DatasetSequenceClassifierTeacher teacher = new DatasetSequenceClassifierTeacher((SequenceDataset)trainData);
 					SequenceClassifier c = teacher.train(seqLearner);
+					resultToShow = resultToSave = c;
+				} else {
+					ClassifierTeacher teacher = new DatasetClassifierTeacher(trainData);
+					Classifier c = teacher.train(clsLearner);
 					resultToShow = resultToSave = c;
 				}
 			} else if ("trainTest".equals(op)) {
