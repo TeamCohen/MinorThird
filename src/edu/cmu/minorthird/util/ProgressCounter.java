@@ -9,7 +9,8 @@ import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.util.LinkedList;
-import java.util.List;import edu.cmu.minorthird.ui.*;
+import java.util.List;
+import edu.cmu.minorthird.ui.*;
 
 public class ProgressCounter
 {
@@ -77,14 +78,23 @@ public class ProgressCounter
 		}
 		long time = System.currentTimeMillis();
 		if (time - lastOutputTime > TIME_BTWN_OUTPUTS_IN_MS) {
-			try{				UIMain.poOut.flush();			} catch (Exception e) {				System.out.println("Cannot flush Buffer");			}
-			for (int i=0; i<depth; i++) System.out.print("| ");
-			if (numSteps >= 0) {				try{					UIMain.poOut.flush();				} catch (Exception e) {					System.out.println("Cannot flush Buffer");				}
-				System.out.println(
-					"Task "+task+": "+(100.0*stepsCompleted/numSteps)+"% in "+(time-startTime)/1000.0+" sec");
-			} else {				try{					UIMain.poOut.flush();				} catch (Exception e) {					System.out.println("Cannot flush Buffer");				}
-				System.out.println(
-					"Task "+task+": "+stepsCompleted+" "+step+"(s) in "+(time-startTime)/1000.0+" sec");
+		    try{
+				System.out.flush();
+		    } catch (Exception e) {
+		    }
+		    for (int i=0; i<depth; i++) System.out.print("| ");
+		    if (numSteps >= 0) {
+			try{
+			    System.out.flush();
+			} catch (Exception e) {
+			}
+			System.out.println("Task "+task+": "+(100.0*stepsCompleted/numSteps)+"% in "+(time-startTime)/1000.0+" sec");
+			} else {
+			try{
+			    System.out.flush();
+			} catch (Exception e) {
+			}
+			System.out.println("Task "+task+": "+stepsCompleted+" "+step+"(s) in "+(time-startTime)/1000.0+" sec");
 			}
 			lastOutputTime = time;
 		}
