@@ -21,6 +21,7 @@ public class NameFE implements SpanFeatureExtractor,Serializable
 	private boolean useCompressedCharType=true;
 	private boolean useEqOnNonAnchors=false;
 	private String[] tokenPropertyFeatures=new String[0];
+	private String requiredAnnotation="nameFeatures_v2";
 	
 	//
 	// getters and setters
@@ -38,6 +39,9 @@ public class NameFE implements SpanFeatureExtractor,Serializable
 	public boolean getUseCompressedCharType() { return useCompressedCharType; } 
 	public void setUseCompressedCharType(boolean flag) { useCompressedCharType=flag; } 
 	
+	public void setRequiredAnnotation(String s) { requiredAnnotation=s; }
+	public String getRequiredAnnotation() { return requiredAnnotation; }
+
 	public String getTokenPropertyFeatures() { return StringUtil.toString(tokenPropertyFeatures); }
 	public void setTokenPropertyFeatures(String commaSeparatedTokenPropertyList) { 
 		tokenPropertyFeatures = commaSeparatedTokenPropertyList.split(",\\s*");
@@ -56,9 +60,9 @@ public class NameFE implements SpanFeatureExtractor,Serializable
 	public Instance extractInstance(TextEnv env, Span s)
 	{
 		// need to run the nameFeatures.mixup file
-		if (!env.isAnnotatedBy("nameFeatures_v2")) {
-			System.out.println("env needs nameFeatures_v2 annotation - nameFE");
-			Dependencies.runDependency((MonotonicTextEnv)env, "nameFeatures_v2", "nameFeatures.mixup");
+		if (!env.isAnnotatedBy(requiredAnnotation)) {
+			System.out.println("env needs "+requiredAnnotation);
+			Dependencies.runDependency((MonotonicTextEnv)env, requiredAnnotation, requiredAnnotation+".mixup");
 		}
 
 		FeatureBuffer buf = new FeatureBuffer(env,s);

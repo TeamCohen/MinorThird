@@ -14,7 +14,8 @@ import java.io.*;
 
 public class Main 
 {
-	private static int featureWindow=3,classWindow=5,epochs=6;
+	static private int featureWindow=3,classWindow=5,epochs=6;
+	static private String mixupFileStem="nameFeatures_v2";
 
 	public static void main(String[] args)
 	{
@@ -34,6 +35,7 @@ public class Main
 			else if (opt.startsWith("-env")) envKey = args[pos++];
 			else if (opt.startsWith("-save")) saveFileName = args[pos++];
 			else if (opt.startsWith("-split")) splitterName = args[pos++];
+			else if (opt.startsWith("-mix")) mixupFileStem = args[pos++];
 			else if (opt.startsWith("-show")) show = args[pos++];
 		}
 
@@ -42,7 +44,8 @@ public class Main
 			System.out.println("loading environment "+envKey);
 			if (envKey==null) throw new IllegalArgumentException("-env ENV must be specified");
 			MutableTextEnv env = (MutableTextEnv)FancyLoader.loadTextEnv(envKey);
-			MixupProgram program = new MixupProgram(new File("nameFeatures.mixup"));
+			System.out.println("loading "+mixupFileStem+".mixup...");
+			MixupProgram program = new MixupProgram(new File(mixupFileStem+".mixup"));
 			program.eval(env, env.getTextBase());
 
 			if ("train".equals(command)) {
@@ -62,9 +65,12 @@ public class Main
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.out.println("usage: -do train -env KEY -learner LEARNER -save FILE");
-			System.out.println("       -do test -env KEY -save FILE");
-			System.out.println("       -do expt -env KEY -learner LEARNER -splitter SPLIT -save FILE [-show all]");
+			System.out.println(
+				"usage: -do train -env KEY -mixup FILESTEM -learner LEARNER -save FILE");
+			System.out.println(
+				"       -do test -env KEY -mixup FILESTEM -save FILE");
+			System.out.println(
+				"       -do expt -env KEY -mixup FILESTEM -learner LEARNER -splitter SPLIT -save FILE [-show all]");
 		}
 
 	}
@@ -122,8 +128,10 @@ public class Main
 		NameFE fe = new NameFE(); 
 		Set props = env.getTokenProperties();
 		System.out.println("props: "+props);
+		fe.setWindowSize(featureWindow);
 		fe.setTokenPropertyFeatures( props );
 		fe.setUseEqOnNonAnchors(true);
+		fe.setRequiredAnnotation(mixupFileStem);
 		return fe;
 	}
 

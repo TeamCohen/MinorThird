@@ -1,14 +1,16 @@
 import edu.cmu.minorthird.text.*;
 
-boolean use97=false;
+boolean use97=true;
+boolean use98=true;
 boolean use99=true;
-boolean use910=false;
+boolean use910=true;
 
 TextBaseLoader baseLoader = new TextBaseLoader();
 TextBase base = new BasicTextBase();
 System.out.println("dataDir="+dataDir.getName());
 
 if (use97) baseLoader.loadTaggedFiles(base, new File(dataDir,"cspace/9-7-97"));
+if (use98) baseLoader.loadTaggedFiles(base, new File(dataDir,"cspace/9-8-97"));
 if (use99) baseLoader.loadTaggedFiles(base, new File(dataDir,"cspace/9-9-97"));
 if (use910) baseLoader.loadTaggedFiles(base, new File(dataDir,"cspace/9-10-97"));
 MutableTextEnv env = new BasicTextEnv(base);
@@ -16,6 +18,7 @@ TextEnvLoader envLoader = new TextEnvLoader();
 envLoader.setClosurePolicy(TextEnvLoader.CLOSE_TYPES_IN_LABELED_DOCS);
 if (use97)  envLoader.importOps(env, base, new File(labelDir,"cspace/9-7-97-names-corrected.env"));
 if (use99)  envLoader.importOps(env, base, new File(labelDir,"cspace/9-9-97-names-corrected.env"));
+if (use98)  envLoader.importOps(env, base, new File(labelDir,"cspace/9-8-97-names-corrected.env"));
 if (use910) envLoader.importOps(env, base, new File(labelDir,"cspace/9-10-97-names-corrected-aaron.env"));
 return env;
 

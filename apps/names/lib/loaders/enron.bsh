@@ -6,10 +6,10 @@ TextBase base = new BasicTextBase();
 System.out.println("dataDir="+dataDir);
 
 baseLoader.loadDir(base, new File(dataDir,"enron/bunch-1"));
+baseLoader.loadDir(base, new File(dataDir,"enron/bunch-2"));
 TextEnvLoader envLoader = new TextEnvLoader();
 envLoader.setClosurePolicy(TextEnvLoader.CLOSE_ALL_TYPES);
 MutableTextEnv env = envLoader.loadOps(base, new File(labelDir,"enron/bunch-1-names-corrected.env"));
+envLoader.importOps(env, base, new File(labelDir,"enron/bunch-2-names-corrected.env"));
 return env;
-
-
 

@@ -26,7 +26,7 @@ public class HeaderNameTaggerV2 extends AbstractAnnotator
 			MixupProgram prog = new MixupProgram(	new String[] {
 				"defSpanType _startWord =top~ re '\\n\\n\\s*(\\S+)',1",
 				"defSpanType _headerSection =top: [...] @_startWord ... ",
-				"defSpanType _emailNameWord =_headerSection: ... [L re('^[a-z\\.]+$')+  ] eq('@') ... ", 
+				"defSpanType _emailNameWord =_headerSection: ... [L re('^[a-z\\.]+$'){1,5}  ] eq('@') ... ", 
 			});
 			prog.eval(env, env.getTextBase() );
 		} catch (Mixup.ParseException e) {
