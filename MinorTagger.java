@@ -330,6 +330,7 @@ public class MinorTagger {
 					buf.append(line + "\n");
 					if (end_close || end_continue) {
 						os.println(tag(buf.toString()));
+						os.println("|");
 						buf.setLength(0);
 					}
 					if (end_close) {
