@@ -126,7 +126,6 @@ public class DatasetLoader implements Loader
 		String line;
 		List list = new ArrayList();
 		while ((line = in.readLine())!=null) {
-			line = in.readLine();
 			if ("*".equals(line)) clearBuffer(list,dataset);
 			else list.add( parseLine(line,file,in) );
 		}
