@@ -1,0 +1,35 @@
+<project name="ksteppe" default="build" basedir=".">
+    <description>HMM for minorthird</description>
+  <property name="src" location="src"/>
+  <property name="javadoc" location="javadoc"/>
+  <property name="classdir" location="../../class"/>
+
+  <target name="build-clean" depends="clean,build"  description="compile the source from scratch"/>
+
+  <target name="build" depends="init" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${classdir}" debug="on"/>
+  </target>
+
+  <target name="build-hmm" depends="init" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${classdir}" debug="on" includes="**/hmm/**"/>
+  </target>
+  
+  <target name="init" description="clean up" >
+    <!-- Delete the ${classdir} and ${dist} directory trees -->
+    <mkdir dir="${classdir}"/>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${classdir}"/>
+    <delete dir="${javadoc}"/>
+  </target>
+
+  <target name="javadoc" description="rebuild java docs">
+    <delete dir="${javadoc}"/>    
+    <mkdir dir="${javadoc}"/>
+    <javadoc sourcepath="${src}" destdir="${javadoc}" packagenames="*"/>
+  </target>
+</project>
