@@ -182,6 +182,15 @@ public class Recommended
 	abstract public static class TokenPropUsingFE extends SpanFE implements Serializable
 	{
 		protected String[] tokenPropertyFeatures=null;
+		/** tokenProperties depend on the requiredAnnotation, so override
+		 * default setRequiredAnnotation() method to reset the
+		 * tokenPropertyFeatures to null when this changes.
+		 */
+		public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider)
+		{
+			super.setRequiredAnnotation(requiredAnnotation,annotationProvider);
+			tokenPropertyFeatures = null;
+		}
 		/** Specify the token properties from the TextLabels environment
 		 * that will be used as features. A value of '*' or nul means to
 		 * use all defined token properties. */
@@ -216,7 +225,10 @@ public class Recommended
 				from(s).tokens().prop(tokenPropertyFeatures[j]).emit();
 			}
 		}
+		public boolean getFoldCase() { return foldCase; }
+		public void setFoldCase(boolean flag) { foldCase=flag; }	
 	}
+
 
 	/** An extraction-oriented feature extractor to apply to one-token spans.
 	 */

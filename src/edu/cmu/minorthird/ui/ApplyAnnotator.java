@@ -27,7 +27,7 @@ public class ApplyAnnotator extends UIMain
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.LoadAnnotatorParams load = new CommandLineUtil.LoadAnnotatorParams();
 	private CommandLineUtil.AnnotatorOutputParams output = new CommandLineUtil.AnnotatorOutputParams();
-	private TextLabels result = null;
+	private TextLabels annLabels = null;
 
 	// for gui
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
@@ -60,7 +60,7 @@ public class ApplyAnnotator extends UIMain
 		}
 
 		// do the annotation
-		TextLabels annLabels = ann.annotatedCopy(base.labels);
+		annLabels = ann.annotatedCopy(base.labels);
 
 		// echo the annotated labels 
 		if (base.showResult) {
@@ -82,7 +82,7 @@ public class ApplyAnnotator extends UIMain
 		}
 	}
 
-	public Object getMainResult() { return result; }
+	public Object getMainResult() { return annLabels; }
 
 	public static void main(String args[])
 	{

@@ -60,15 +60,20 @@ public class TrainTestExtractor extends UIMain
 		if (signal.spanProp!=null && signal.spanType!=null) 
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
 
-		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
-
+		//no longer needed
+		//if (train.fe != null) {
+		//System.out.println("setting fe to "+train.fe);
+		//train.learner.setSpanFeatureExtractor(train.fe);
+		//}
+			
 		// set up the splitter
 		if (trainTest.labels!=null) {
 			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
 			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
-		TextLabelsExperiment expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
-																		 signal.spanType,signal.spanProp,"_predicted" );
+		TextLabelsExperiment 
+			expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
+																			 signal.spanType,signal.spanProp,"_predicted" );
 		expt.doExperiment();
 		ExtractionEvaluation evaluation = expt.getEvaluation();
 
