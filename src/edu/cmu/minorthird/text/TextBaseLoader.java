@@ -800,7 +800,7 @@ public class TextBaseLoader implements Loader
 	 * If firstWordIsDocumentId is set to be true, then the first token on
 	 * a line is the documentId.
    *
-   * @deprecated; to be removed at end of February
+   //* @deprecated; to be removed at end of February
 	 */
   public void loadLines(TextBase base, File file) throws IOException, FileNotFoundException
 	{

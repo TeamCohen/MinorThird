@@ -29,9 +29,12 @@ import java.util.List;
  * <code>boolean</code>, <code>int</code>, <code>double</code> or
  * <code>String</code>, or if <code>Type</code> is one of the
  * <code>validSubclasses</code> passed to the root constructor.
+ *
+ * <p>
  * Double-valued properties with names that contain the string
  * "Fraction" are visualized specially--it's assumed that their values
- * are between 0 and 1.0.
+ * are between 0 and 1.0. String-valued properties with names that
+ * contain "Filename" are also visualized specially.
  *
  * <p> If P is a String-valued property and a method
  * <code>x.getAllowedPValues()</code> exists, it will be used to
@@ -316,6 +319,28 @@ public class TypeSelector extends ComponentViewer
 										}
 									});
 								panel.add(textField, gbc(1,row));
+								if (pname.indexOf("Filename")>=0) {
+									final JFileChooser chooser = new JFileChooser();
+									chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+									JButton browseButton = new JButton(new AbstractAction("Browse") {
+											public void actionPerformed(ActionEvent ev) {
+												int returnVal = chooser.showOpenDialog(null);
+												if (returnVal==JFileChooser.APPROVE_OPTION) {
+													String filename = chooser.getSelectedFile().getAbsolutePath();
+													textField.setText(filename);
+													try {
+														log.debug("change to "+textField.getText());
+														writer.invoke(o, new Object[]{filename});
+													} catch (IllegalAccessException ex) {
+														log.error(ex.toString());
+													}	catch (InvocationTargetException ex) {
+														log.error(ex.toString());
+													}
+												}
+											}
+										});
+									panel.add(browseButton, gbc(2,row));
+								}
 								numTextFields++;
 							}
 						} else if (type.equals(boolean.class)) {

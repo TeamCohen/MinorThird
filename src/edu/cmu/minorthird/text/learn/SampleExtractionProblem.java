@@ -52,8 +52,6 @@ public class SampleExtractionProblem
 		"defSpanProp subject:politics =: [@political]",
 		"defSpanProp subject:me =: [...'William' 'Cohen'...]",
 		"defSpanProp subject:other =top- [@political] || [...'William' 'Cohen'...]",
-		// used for tagger-learning tests 
-		"defTokenProp partOfName:true =: ... [@trueName] ... ",
 	};
 	
 	static public TextLabels trainLabels() {
@@ -69,6 +67,21 @@ public class SampleExtractionProblem
 			return labels;
 		} catch (Mixup.ParseException e) {
 			throw new IllegalStateException("error: "+e);
+		}
+	}
+
+	static public TextLabels taggerTrainLabels() { return tagNames(trainLabels()); }
+	static public TextLabels taggerTestLabels() { return tagNames(testLabels()); }
+		
+	static private TextLabels tagNames(TextLabels labels) 
+	{
+		try {
+			MonotonicTextLabels labels1 = new NestedTextLabels(labels);
+			MixupProgram p = new MixupProgram(new String[]{"defTokenProp partOfName:true =: ... [@trueName] ... "});
+			p.eval(labels1, labels1.getTextBase());
+			return labels1; 
+		} catch (Mixup.ParseException e) {
+			throw new IllegalStateException("error: "+e);			
 		}
 	}
 

@@ -205,12 +205,12 @@ class CommandLineUtil
 
 	/** Basic parameters used by almost everything. */
 	public static class BaseParams extends BasicCommandLineProcessor {
-		public MutableTextLabels labels=null;
+		public TextLabels labels=null;
 		private String repositoryKey="";
 		public boolean showLabels=false, showResult=false;
 		public void labels(String repositoryKey) { 
 			this.repositoryKey = repositoryKey;
-			this.labels = (MutableTextLabels)FancyLoader.loadTextLabels(repositoryKey); 
+			this.labels = (TextLabels)FancyLoader.loadTextLabels(repositoryKey); 
 		}
 		public void showLabels() { this.showLabels=true; }
 		public void showResult() { this.showResult=true; }
@@ -222,8 +222,13 @@ class CommandLineUtil
 			System.out.println();
 		}
 		// for GUI
-		public String getLabels() { return repositoryKey; }
-		public void setLabels(String key) { labels(key); }
+		//public String getLabels() { return repositoryKey; }
+		//public void setLabels(String key) { labels(key); }
+		public String getLabelsFilename() { return repositoryKey; }
+		public void setLabelsFilename(String name) { 
+			if (name.endsWith(".labels")) labels(name.substring(0,name.length()-".labels".length()));
+			else labels(name);
+		}
 		public String getRepositoryKey() { return repositoryKey; }
 		public void setRepositoryKey(String key) { labels(key); }
 		public Object[] getAllowedRepositoryKeyValues() { return FancyLoader.getPossibleTextLabelKeys(); }
