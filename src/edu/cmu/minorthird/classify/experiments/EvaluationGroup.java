@@ -54,7 +54,12 @@ public class EvaluationGroup implements Visible,Serializable,Saveable
                 columnHeads[k] = (String)key; // should be name of key
                 k++;
             }
-            int statNumber = 10 + 2 * someEvaluation.getSchema().getNumberOfClasses();
+            // set number of summary statistics
+            ExampleSchema schema = someEvaluation.getSchema();
+            int statNumber = 0;
+            if ( someEvaluation.isBinary() ) { statNumber = 10 + 2 * schema.getNumberOfClasses(); }
+            else {  statNumber = 4 + 2 * schema.getNumberOfClasses(); }
+            // get summary statistics
             table = new Object[statNumber][columnHeads.length];
             k=1;
             for (Iterator i=group.members.keySet().iterator(); i.hasNext(); ) {

@@ -601,47 +601,84 @@ public class Evaluation implements Visible,Serializable,Saveable
     public double[] summaryStatistics()
     {
         int K = schema.getNumberOfClasses();
-        double[] stats = new double[(10+2*K)];
-        stats[0] = errorRate();
-        stats[1] = stDevErrors();
-        stats[2] = errorRateBalanced();
-        double[] err = errorRateByClass();
-        double[] sd = stDevErrorsByClass();
-        for(int i=0; i<K; i++)
+        if (isBinary)
         {
-            stats[(2+2*i+1)] = err[i];
-            stats[(2+2*i+2)] = sd[i];
+            double[] stats = new double[(10+2*K)];
+            stats[0] = errorRate();
+            stats[1] = stDevErrors();
+            stats[2] = errorRateBalanced();
+            double[] err = errorRateByClass();
+            double[] sd = stDevErrorsByClass();
+            for(int i=0; i<K; i++)
+            {
+                stats[(2+2*i+1)] = err[i];
+                stats[(2+2*i+2)] = sd[i];
+            }
+            stats[(3+2*K)] = averagePrecision();
+            stats[(4+2*K)] = maxF1();
+            stats[(5+2*K)] = averageLogLoss();
+            stats[(6+2*K)] = recall();
+            stats[(7+2*K)] = precision();
+            stats[(8+2*K)] = f1();
+            stats[(9+2*K)] = kappa();
+            return stats;
         }
-        stats[(3+2*K)] = averagePrecision();
-        stats[(4+2*K)] = maxF1();
-        stats[(5+2*K)] = averageLogLoss();
-        stats[(6+2*K)] = recall();
-        stats[(7+2*K)] = precision();
-        stats[(8+2*K)] = f1();
-        stats[(9+2*K)] = kappa();
-        return stats;
+        else
+        {
+            double[] stats = new double[(4+2*K)];
+            stats[0] = errorRate();
+            stats[1] = stDevErrors();
+            stats[2] = errorRateBalanced();
+            double[] err = errorRateByClass();
+            double[] sd = stDevErrorsByClass();
+            for(int i=0; i<K; i++)
+            {
+                stats[(2+2*i+1)] = err[i];
+                stats[(2+2*i+2)] = sd[i];
+            }
+            stats[(3+2*K)] = kappa();
+            return stats;
+        }
     }
     public String[] summaryStatisticNames()
     {
         int K = schema.getNumberOfClasses();
-        String[] names = new String[(10+2*K)];
-        names[0] = "Error Rate";
-        names[1] = ". std. deviation error rate";
-        names[2] = "Balanced Error Rate";
-        for(int i=0; i<K; i++)
+        if (isBinary)
         {
-            String classname = schema.getClassName(i);
-            names[(2+2*i+1)] = new String(". error Rate on "+classname);
-            names[(2+2*i+2)] = new String(". std. deviation on "+classname);
+            String[] names = new String[(10+2*K)];
+            names[0] = "Error Rate";
+            names[1] = ". std. deviation error rate";
+            names[2] = "Balanced Error Rate";
+            for(int i=0; i<K; i++)
+            {
+                String classname = schema.getClassName(i);
+                names[(2+2*i+1)] = new String(". error Rate on "+classname);
+                names[(2+2*i+2)] = new String(". std. deviation on "+classname);
+            }
+            names[(3+2*K)] = "Average Precision";
+            names[(4+2*K)] = "Maximium F1";
+            names[(5+2*K)] = "Average Log Loss";
+            names[(6+2*K)] = "Recall";
+            names[(7+2*K)] = "Precision";
+            names[(8+2*K)] = "F1";
+            names[(9+2*K)] = "Kappa";
+            return names;
         }
-        names[(3+2*K)] = "Average Precision";
-        names[(4+2*K)] = "Maximium F1";
-        names[(5+2*K)] = "Average Log Loss";
-        names[(6+2*K)] = "Recall";
-        names[(7+2*K)] = "Precision";
-        names[(8+2*K)] = "F1";
-        names[(9+2*K)] = "Kappa";
-        return names;
+        else
+        {
+            String[] names = new String[(4+2*K)];
+            names[0] = "Error Rate";
+            names[1] = ". std. deviation error rate";
+            names[2] = "Balanced Error Rate";
+            for(int i=0; i<K; i++)
+            {
+                String classname = schema.getClassName(i);
+                names[(2+2*i+1)] = new String(". error Rate on "+classname);
+                names[(2+2*i+2)] = new String(". std. deviation on "+classname);
+            }
+            names[(3+2*K)] = "Kappa";
+            return names;
+        }
     }
 
 
@@ -1148,6 +1185,13 @@ public class Evaluation implements Visible,Serializable,Saveable
     //
     // getters / setters
     //
+
+    /** Returns whether this Evaluation refers to a binary classifier */
+    public boolean isBinary()
+    {
+        return this.isBinary;
+    }
+    /** Returns whether the ExampleSchema this Evaluation is based upon */
     public ExampleSchema getSchema()
     {
         return this.schema;
