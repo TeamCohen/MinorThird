@@ -1,4 +1,7 @@
-// author: Edoardo Airoldi (eairoldi@cs.cmu.edu)
+// author: Edoardo Airoldi
+//  email: eairoldi@cs.cmu.edu
+//
+
 
 // define baseline dictionaries for positive/negative reviews
 // from: Pang et al. (2002)
@@ -11,25 +14,37 @@ defDict p3 = love, wondeful, best, great, superb, still, beautiful, ?, !;
 defDict n3 = bad, worst, stupid, waste, boring;
 
 
-// define references to relevant semantic groups in identifying sentiments
+
+// define relevant semantic groups in identifying sentiments
+// from: Airoldi & Cohen (2004)
 //
-defDict object = atmosphere, artist, artists, action, actions, attempt, film, movie, plot, script, scene, scenes, animation, animators, director, character, characters, performance, comedy, drama, idea, ideas;
+defDict OBJECT = atmosphere, artist, artists, action, actions, attempt, film, films, filmmakers, fiction, movie, plot, script, scene, scenes, story, stories, animation, animators, director, character, characters, performance, performance, comedy, dialogue, dramas, drama, idea, ideas, project, sitcom, themes; 
 
-defDict positive = recommend, recommended, beautiful, good, best, better, blast, brilliant, clever, decent, delightful, delivers, 
-defDict negative = atrocious, asleep, awful, bad, blame, bored, bother, bothered, cheap, cheesy, cliche, complicated, crap, conventional, worse, worst,
-defDict ambiguous = deserves,  
-defDict doubt = believes, beliefs, guess, guessing, hope, hoping, bet, 
-defDict preposition = anyhow, however, 
+JUDGEMRNT = overall, recap;
 
-defDict amplifier = absent, authentic, bold, 
-defDict amplifier = not, don, wouldn, t, 
-defDict irrelevant = starring;
+defDict POSITIVE = recommend, recommended, beautiful, good, best, better, blast, brilliant, clever, decent, delightful, delivers, effective, enjoy, enjoyed, enthralled, epic, excellent, exquisite, extraordinary, fabulous, fascinating, flawless, finest, fun, gorgeous, great, greatest, greatness, gripping, hilarious, homage, honest, important, impressive, inspirational, intelligent, intense, intensity, inventive, ludicrous, magnificent, marvelous, masterfully, masterpiece, mature, notoriety, outstanding, palpable, passable, pleasant, pleasure, poignant, pure, rare, realistic, refined, refreshing, rewarding, right, seamless, shine, shines, simple, smooth, solid, strength, strongest, subtle, subtly, superb, sweet, talented, talent, terrific, timeless, unexpected, unique, unlike, vividly, well, witty, wonderful, wonderfully;
 
-defDict ble = acceptable, affable, agreeable, believable, enjoyable, horrible, incomprehensible, laughable, memorable, palpable, passable, predictable, terrible, unstoppable;
+defDict NEGATIVE = atrocious, asleep, awful, bad, blame, bored, bother, bothered, cheap, cheesy, cliche, complicated, crap, conventional, detract, detracts, disappointment, downside, drawback, dumb, dull, embarrassment, fails , failure, feeble, flaw, flaws, flawed, fumbling, horrible, idiot, idiotic, impossibly, impoverished, incoherent, incompetent, incomprehensible, inept, ineptitude, insubstantial, insult, insulted, junk, lacks, lack, lame, lethal, lifeless, lousy, lurid, moody, mumbo, jumbo, obsessive, offbeat, ominous, painful, pathetic, pitiful, pointless, predictable, regret, ridiculous, shallow, shallowness, sloppy, spoil, steals, steal, stupid, stupidity, sucks, suck, tedious, unassuming, unconvincing, undertones, undeveloped, unfunny, unimpressive, uninspired, waste, wasted, worse, worst, whines, yawn;
 
-defDict ing = amazing, anything, astounding, boring, breaking, breathtaking, complicating, destroying, disappointing, embarrassing, endearing, ending, entertaining, excruciating, fascinating, fumbling, gaining, gripping, grunting, hoping, ingenious, insulting, intimidating, moving, needing, nothing, outstanding, promising, rambling, redeeming, refreshing, rewarding, riveting, satisfying, shaking, suffering, supporting, surprising, touching, unassuming, unconvincing, understanding, unentertaining, uninteresting, uninvolving, uplifting, winning;
+defDict AMBIGUOUS = deserves, existent, generic, idea, ideas, ideals, joe, jokes, laugh, laughter, influenced, intimidating, liaisons, lusty, nude, mood, nomination, nominations, officially, oscar, oscars, paced, remake, reprises, seen, sequel, unusual, wily;  
 
-defDict ly = badly, basically, beautifully, blatantly, brilliantly, calmly, chiefly, continuously, darkly, definitely, deliciously, droppingly, easily, elegantly, extremely, embarrassingly, emotionally, especially, eventually, excruciatingly, extremely, fortunately, frankly, highly, immensely, impossibly, laughably, luckily, masterfully, melancholy, nicely, notoriously, obviously, officially, painfully, perfectly, periodically, poorly, potentially, really, respectively, ridiculously, rightfully, sadly, slightly, sorely, subtly, supposedly, surprisingly, terribly, thankfully, timely, unfortunately, unusually, vividly, wily, wondefully;
+defDict DOUBT = believes, beliefs, guess, guessing, hope, hoping, bet, know, knows, looks, look, supposed, tend, tends, whatsoever;
+
+defDict SUGGESTION = need, needing, should; 
+
+defDict PREPOSITION = anyhow, however, despite, else, equal, may, maybe, nevertheless, nonetheless, often, sometimes, still, though, throughout, towards, why;
+
+defDict AMPLIFIER = already, do, does, did, absent, authentic, bold, full, highly, immensely, least, most, fast, slow, slows, perfect, powerful, pretty, quite, much, several, slightly, smaller, strong, super, questionable, too, very;
+  
+defDict NEGATION = didn, no, not, none, don, wouldn, t, except, shouldn;
+
+defDict IRRELEVANT = starring;
+
+defDict BLE = acceptable, affable, agreeable, believable, enjoyable, horrible, incomprehensible, laughable, memorable, palpable, passable, terrible, unstoppable;
+
+defDict ING = amazing, anything, astounding, boring, breaking, breathtaking, complicating, destroying, disappointing, embarrassing, endearing, ending, entertaining, excruciating, fascinating, fumbling, gaining, gripping, grunting, hoping, ingenious, insulting, intimidating, moving, needing, nothing, outstanding, promising, rambling, redeeming, refreshing, rewarding, riveting, satisfying, shaking, suffering, supporting, surprising, touching, unassuming, unconvincing, understanding, unentertaining, uninteresting, uninvolving, uplifting, winning;
+
+defDict LY = badly, basically, beautifully, blatantly, brilliantly, calmly, chiefly, continuously, darkly, definitely, deliciously, droppingly, easily, elegantly, extremely, embarrassingly, emotionally, especially, eventually, excruciatingly, extremely, fortunately, frankly, highly, immensely, impossibly, laughably, luckily, masterfully, melancholy, nicely, notoriously, obviously, officially, painfully, perfectly, periodically, poorly, potentially, really, respectively, ridiculously, rightfully, sadly, slightly, sorely, subtly, supposedly, surprisingly, terribly, thankfully, timely, unfortunately, unusually, vividly, wily, wondefully;
 
 
 // capture positive/negative feelings
