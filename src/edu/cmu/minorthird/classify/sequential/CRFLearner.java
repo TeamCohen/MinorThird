@@ -190,17 +190,25 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	
 	iitb.Model.FeatureGenImpl featureGen;
 	SequenceUtils.MultiClassClassifier classifier;
-	
-	void allocModel() throws Exception {
-		featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
-		crfModel = new iitb.CRF.CRF(featureGen.numStates(),featureGen,options);	
-	}
+
+    iitb.CRF.DataIter  allocModel(SequenceDataset dataset) throws Exception {
+	featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
+	crfModel = new iitb.CRF.CRF(featureGen.numStates(),featureGen,options);	
+	return new CRFDataIter(dataset);
+    }
+
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
-		try {
-	    schema = dataset.getSchema();
-	    allocModel();
-	    iitb.CRF.DataIter trainData = new CRFDataIter(dataset);
+	    try {
+		schema = dataset.getSchema();
+		doTrain(allocModel(dataset));
+		return this;
+	    } catch (Exception e) {
+		e.printStackTrace();
+		throw new IllegalStateException("error in CRF: "+e);
+	    }
+	}
+    void doTrain(iitb.CRF.DataIter trainData) throws Exception {
 	    featureGen.train(trainData);
 	    ProgressCounter pc = new ProgressCounter("training CRF","iteration");
 	    double crfWs[] = crfModel.train(trainData);
@@ -219,22 +227,15 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 				w_t[i].setBias(0);
 	    }
 	    for (int fIndex = 0; fIndex < crfWs.length; fIndex++) {
-				String fname = featureGen.featureName(fIndex);
-				int classIndex = 0;
-				int dotPos = fname.lastIndexOf('.');
-				classIndex = Integer.parseInt(fname.substring(dotPos+1));
-				if ((dotPos < 0) || (classIndex > numClasses-1)) 
-					throw new Exception("Feature name does not end with a valid class index");
-				w_t[classIndex].increment(new Feature(fname.substring(0,dotPos)),crfWs[fIndex]);
+
+		String fname = featureGen.featureIdentifier(fIndex).name;
+		int classIndex = featureGen.featureIdentifier(fIndex).stateId;
+		w_t[classIndex].increment(Feature.Factory.getFeature(fname),crfWs[fIndex]);
 	    }
 	    classifier = new SequenceUtils.MultiClassClassifier(schema,w_t); 
 			//return new CMM(classifier, 1, schema );	 
-	    return this;
-		} catch (Exception e) {
-	    e.printStackTrace();
-	    throw new IllegalStateException("error in CRF: "+e);
-		}
-	}
+    }
+
 	
 	/** Return a predicted type for each element of the sequence. */
 	public ClassLabel[] classification(Instance[] sequence) {
