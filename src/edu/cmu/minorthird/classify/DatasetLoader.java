@@ -6,7 +6,7 @@ import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.StringEncoder;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
-import edu.cmu.minorthird.Loader;
+import edu.cmu.minorthird.util.Loader;
 import org.apache.log4j.Logger;
 
 import java.io.*;
