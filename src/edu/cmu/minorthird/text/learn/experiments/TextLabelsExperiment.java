@@ -98,17 +98,17 @@ public class TextLabelsExperiment
       log.info("Training annotator...");
 			annotators[i] = teacher.train( learner );
 
+			/*
 			if (learner instanceof SequenceAnnotatorLearner) {
 				new ViewerFrame(
 					"Dataset",
 					((SequenceAnnotatorLearner)learner).getSequenceDataset().toGUI());
 			}
+			*/
 
       //log.info("annotators["+i+"]="+annotators[i]);
 			log.info("Creating test partition...");
 			SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
-			for (Iterator j=splitter.getTest(i); j.hasNext(); )
-      { allTestDocuments.add( j.next() ); }
 			MonotonicTextLabels ithTestLabels = new MonotonicSubTextLabels( testBase, fullTestLabels );
 
       log.info("Labeling test partition...");
@@ -169,7 +169,7 @@ public class TextLabelsExperiment
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
 			interp.eval("import edu.cmu.minorthird.classify.sequential.*;");
-			return (SequenceAnnotatorLearner)interp.eval(s);
+			return (AnnotatorLearner)interp.eval(s);
 		} catch (bsh.EvalError e) {
 			throw new IllegalArgumentException("error parsing learnerName '"+s+"':\n"+e);
 		}

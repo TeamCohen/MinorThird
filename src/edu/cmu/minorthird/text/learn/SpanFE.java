@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * <code><pre>
  *   SpanFE fe = new SpanFE(labels) {
  *       public void extractFeatures(Span span) {
- *         from(span).tokens().emit();
+e *         from(span).tokens().emit();
  *         from(span).left().subSpan(-2,2).emit();
  *         from(span).right().subSpan(0,2).emit();
  *         from(span).right().contains("obj").emit();
@@ -372,6 +372,18 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			}
 			return new TokenSetResult( extend(namex), fe, set );
 		}
+		/** Move to the string value of the span. */
+		public StringBagResult eq() {
+			Bag stringBag  = new Bag();
+			stringBag.add( s.asString() );
+			return new StringBagResult( extend("eq"), fe, stringBag );
+		}
+		/** Find the length of the span. */
+		public StringBagResult size() {
+			Bag stringBag  = new Bag();
+			stringBag.add( "#tokens", s.size() );
+			return new StringBagResult( name, fe, stringBag );
+		}
 	}
 	
 	/** An intermediate result of a SpanFE process where
@@ -398,6 +410,14 @@ abstract public class SpanFE implements SpanFeatureExtractor
 				accum.addAll( r.tokens().asSet() );
 			}
 			return new TokenSetResult( extend("tokens"), fe, accum );
+		}
+		/** Move a set of all string values of spans in the set */
+		public StringBagResult eq() {
+			Bag stringBag  = new Bag();
+			for (Span.Looper i=new BasicSpanLooper(set.iterator()); i.hasNext(); ) {
+				stringBag.add( i.nextSpan().asString() );
+			}
+			return new StringBagResult( extend("eq"), fe, stringBag );
 		}
 	}
 
