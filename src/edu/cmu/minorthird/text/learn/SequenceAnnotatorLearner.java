@@ -41,7 +41,12 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		seqData.setHistorySize(historySize);
 	}
 
-  /** This constructor not recommended */
+  /**
+   * This constructor creates a sequence learner backed by a CollinsPerceptronLearner
+   * and the SampleFE.ExtractionFE feature extractor.
+   *
+   * It was created to allow the wizard to get a 'default' instance of the class
+   */
   public SequenceAnnotatorLearner()
   {
     fe = new SampleFE.ExtractionFE();
