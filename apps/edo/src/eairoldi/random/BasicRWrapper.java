@@ -13,11 +13,11 @@ import org.rosuda.JRI.REXP;
 import edu.cmu.minorthird.classify.algorithms.random.Estimate;
 import edu.cmu.minorthird.classify.algorithms.random.Estimators;
 
-public class RWrapper
+public class BasicRWrapper
 {
    private Rengine re;
 
-   public RWrapper()
+   public BasicRWrapper()
    {
       String [] args = new String [] {"--no-save"};
       System.out.println("Creating Rengine (with arguments)");
@@ -148,7 +148,7 @@ public class RWrapper
 
    public  static void main(String[] args)
    {
-      RWrapper rw = new RWrapper();
+      BasicRWrapper rw = new BasicRWrapper();
 
       // test negative-binomial
       double [] v = rw.rnbinom(10000,7.0,0.15);
