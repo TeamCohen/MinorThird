@@ -15,9 +15,9 @@ package email;
  * The output will be something like:
  * C:\minorthird>java -Xmx500m email.SpeechAct dummy
  * textbase size = 8
- * msgId_28975_fIRMID_N03F2_1997_09_15_00_39_57     (_____ _DLV_ _PROP_ _____ _____ ___________ _DLVCMT__)
- * msgId_547_fIRMID_N03F2_1997_08_26_15_24_57     (_REQ_ _DLV_ _PROP_ _____ _____ _REQAMDPROP _________)
- * msgId_11137_fIRMID_N03F2_1997_09_04_23_56_57     (_REQ_ _DLV_ ______ _____ _____ _REQAMDPROP _DLVCMT__)
+ * msgId_28975_fIRMID_N03F2_1997_09_15_00_39_57     (_____ _DLV_ _PROP_ _____ _____ ___________ _DLVCMT__ _____)
+ * msgId_547_fIRMID_N03F2_1997_08_26_15_24_57     (_REQ_ _DLV_ _PROP_ _____ _____ _REQAMDPROP _________ _MEET_)
+ * msgId_11137_fIRMID_N03F2_1997_09_04_23_56_57     (_REQ_ _DLV_ ______ _____ _____ _REQAMDPROP _DLVCMT_ ______)
  * 
  *
  * Reminder: it currently uses all words inside the text file (bag of lower case
