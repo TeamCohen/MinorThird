@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * An inverted index, mapping features to examples which contain the
@@ -11,8 +12,11 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class DatasetIndex
+public class DatasetIndex implements Serializable
 {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
 	private TreeMap indexByFeature;
 	private TreeMap indexByClass;
 	private int sumFeatureValues;

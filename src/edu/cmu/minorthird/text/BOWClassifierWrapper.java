@@ -37,7 +37,7 @@ public class BOWClassifierWrapper
 		edu.cmu.minorthird.text.TextBase base = new BasicTextBase();
 		base.loadDocument("dummyID",string);
 		edu.cmu.minorthird.text.Span span = base.documentSpan("dummyID");
-		Instance instance = fe.extractInstance(span);
+		Instance instance = fe.extractInstance(new EmptyLabels(),span);
 		return classifier.score(instance);
 	}
 

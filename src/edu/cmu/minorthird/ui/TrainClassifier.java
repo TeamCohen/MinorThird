@@ -18,7 +18,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainClassifier 
+public class TrainClassifier implements CommandLineUtil.UIMain
 {
   private static Logger log = Logger.getLogger(TrainClassifier.class);
 
@@ -28,7 +28,7 @@ public class TrainClassifier
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams();
 	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
-	private SpanFeatureExtractor fe = new SampleFE.BagOfLowerCaseWordsFE();
+	private Annotator ann = null;
 
 	private CommandLineProcessor getCLP()
 	{
@@ -39,27 +39,28 @@ public class TrainClassifier
 	// do the experiment
 	// 
 
-	public void trainClassifier()
+	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) 
-			throw new IllegalArgumentException("-labels must be specified");
-		if (train.learner==null) 
-			throw new IllegalArgumentException("-learner must be specified");
+		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
+		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
 		if (signal.spanProp==null && signal.spanType==null) 
 			throw new IllegalArgumentException("one of -spanProp or -spanType must be specified");
 		if (signal.spanProp!=null && signal.spanType!=null) 
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
 
 		// echo the input
-		Viewer vl = new SmartVanillaViewer();
-		vl.setContent(base.labels);
-		if (base.showLabels) new ViewerFrame("Textbase",vl);
+		if (base.showLabels) {
+			Viewer vl = new SmartVanillaViewer();
+			vl.setContent(base.labels);
+			new ViewerFrame("Textbase",vl);
+		}
 
 		// construct the dataset
-		Dataset d = CommandLineUtil.toDataset(base.labels,fe,signal.spanProp,signal.spanType);
-		if (train.showData && !base.showResult) new ViewerFrame("Dataset", d.toGUI());
+		Dataset d = CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
+		if (train.showData) new ViewerFrame("Dataset", d.toGUI());
 
+		// train the classifier
 		Classifier c = new DatasetClassifierTeacher(d).train(train.learner);
 
 		if (base.showResult) {
@@ -69,7 +70,9 @@ public class TrainClassifier
 		}
 
 		if (save.saveAs!=null) {
-			Annotator ann = new ClassifierAnnotator(fe,c,signal.spanType,signal.spanProp);
+			String type = signal.getOutputType(train.output);
+			String prop = signal.getOutputProp(train.output);
+			ann = new ClassifierAnnotator(train.fe,c,type,prop,signal.candidateType);
 			try {
 				IOUtil.saveSerialized((Serializable)ann,save.saveAs);
 			} catch (IOException e) {
@@ -78,10 +81,17 @@ public class TrainClassifier
 		}
 	}
 
+	public Object getMainResult() { return ann; }
+
 	public static void main(String args[])
 	{
-		TrainClassifier main = new TrainClassifier();
-		main.getCLP().processArguments(args);
-		main.trainClassifier();
+		try {
+			TrainClassifier main = new TrainClassifier();
+			main.getCLP().processArguments(args);
+			main.doMain();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("use option -help for help");
+		}
 	}
 }

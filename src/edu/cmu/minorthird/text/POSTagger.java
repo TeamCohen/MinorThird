@@ -27,10 +27,13 @@ public class POSTagger extends StringAnnotator
   {
     if (args.length != 2)
     {
+			System.out.println(montyLingua.tag_text("hello"));
+			System.out.println(montyLingua.tag_text("world"));
+
       log.info("Usage:\t1. java POSTagger [input_file] [output_file]\n\t2. java POSTagger [input_dir]  [output_dir]\n\t3. java POSTagger [input_file] [output_dir]");
       return;
     }
-    montyLingua = new JMontyLingua();
+    //montyLingua = new JMontyLingua();
 
 
     File inFile = new File(args[0]);

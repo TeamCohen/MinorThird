@@ -19,7 +19,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainTestExtractor 
+public class TrainTestExtractor implements CommandLineUtil.UIMain
 {
   private static Logger log = Logger.getLogger(TrainTestExtractor.class);
 
@@ -29,7 +29,7 @@ public class TrainTestExtractor
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	private SpanFeatureExtractor fe = new SampleFE.ExtractionFE();
+	TextLabelsExperiment expt; // the main result
 
 	private CommandLineProcessor getCLP()
 	{
@@ -40,47 +40,47 @@ public class TrainTestExtractor
 	// do the experiment
 	// 
 
-	public void trainTestExtractor()
+	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) 
-			throw new IllegalArgumentException("-labels must be specified");
-		if (train.learner==null) 
-			throw new IllegalArgumentException("-learner must be specified");
-		if (signal.spanType==null) 
-			throw new IllegalArgumentException("-spanType must be specified");
-		if (trainTest.splitter==null && trainTest.labels==null) 
-			throw new IllegalArgumentException("one of -splitter or -test must be specified");
-		if (trainTest.splitter!=null && trainTest.labels!=null) 
-			throw new IllegalArgumentException("only one of -splitter or -test can be specified");
+		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
+		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
+		if (signal.spanType==null) throw new IllegalArgumentException("-spanType must be specified");
 
 		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
 
 		// echo the input
-		Viewer vl = new SmartVanillaViewer();
-		vl.setContent(base.labels);
-		if (base.showLabels) new ViewerFrame("Textbase",vl);
+		if (base.showLabels) {
+			Viewer vl = new SmartVanillaViewer();
+			vl.setContent(base.labels);
+			new ViewerFrame("Textbase",vl);
+		}
 
 		// set up the splitter
-		if (trainTest.splitter==null) {
+		if (trainTest.labels!=null) {
 			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
 		}
 
-		TextLabelsExperiment expt = 
-			new TextLabelsExperiment( base.labels, trainTest.splitter, train.learner, signal.spanType, "_predicted");
+		expt = new TextLabelsExperiment( base.labels, trainTest.splitter, train.learner, signal.spanType, "_predicted");
 
 		expt.doExperiment();
 
 		if (base.showResult) {
 			new ViewerFrame("Experimental Result",expt.toGUI());
 		}
-
 	}
+
+	public Object getMainResult() { return expt; }
 
 	public static void main(String args[])
 	{
-		TrainTestExtractor main = new TrainTestExtractor();
-		main.getCLP().processArguments(args);
-		main.trainTestExtractor();
+		try {
+			TrainTestExtractor main = new TrainTestExtractor();
+			main.getCLP().processArguments(args);
+			main.doMain();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Use option -help for help");
+		}
 	}
 }

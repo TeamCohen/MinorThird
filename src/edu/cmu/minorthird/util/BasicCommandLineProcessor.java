@@ -76,7 +76,10 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 		usage();
 	}
 
-	/** Override this to print a meaningful usage error. */
+	/** Override this to print a meaningful usage error. 
+	 * Default will list all commands other than 'usage',
+	 * 'help', 'getX', and 'setX'.
+	 */
 	public void usage()
 	{
 		Method[] genericMethods = Object.class.getMethods();
@@ -93,7 +96,9 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 		Method[] methods = getClass().getMethods();
 		for (int i=0; i<methods.length; i++) {
 			Class[] params = methods[i].getParameterTypes();
-			if (!stopList.contains(methods[i].getName())) {
+			if (!(stopList.contains(methods[i].getName())
+						|| methods[i].getName().startsWith("get")	|| methods[i].getName().startsWith("set")))
+			{
 				if (params.length==0) {
 					System.out.print(" [-"+methods[i].getName()+"]");
 				} else if (params.length==1 && params[0].equals(String.class)) {
@@ -120,8 +125,12 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 		CommandLineProcessor p = new BasicCommandLineProcessor() {
 				String mother="hamster";
 				String father="elderberries";
+				String laffter="bwa ha ha ha ha ha!";
 				public void laff() { System.out.println("bwa ha ha ha ha ha!"); }
 				public void scoff(String atWhat) { System.out.println("I scoff derisively at "+atWhat+"!"); }
+				// test that usage doesn't show getters/setters
+				public String getLaff() { return laffter; }
+				public void setLaff(String s) { laffter=s; }
 				public CommandLineProcessor family() { 
 					return new BasicCommandLineProcessor() {
 							public void mom(String s) { mother=s; }

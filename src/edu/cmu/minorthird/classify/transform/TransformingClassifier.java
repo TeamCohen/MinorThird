@@ -2,11 +2,15 @@ package edu.cmu.minorthird.classify.transform;
 
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.util.gui.*;
+import java.io.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class TransformingClassifier implements Classifier,Visible
+public class TransformingClassifier implements Classifier,Visible,Serializable
 {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
 	private Classifier classifier;
 	private InstanceTransform transformer;
 

@@ -323,7 +323,7 @@ public class Recommended
 		{
 			return new JointCommandLineProcessor( new CommandLineProcessor[]{	super.getCLP(),new MyCLP() } );
 		}
-		private class MyCLP extends BasicCommandLineProcessor {
+		public class MyCLP extends BasicCommandLineProcessor {
 			public void first() { useFirst = true; }
 			public void noFirst() { useFirst = false; }
 			public void last() { useLast = true; }

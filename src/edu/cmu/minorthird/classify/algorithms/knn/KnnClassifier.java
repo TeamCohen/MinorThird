@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.io.*;
 
 /** A k-nearest neighbor classifier. This is based on the
  * distance-weighted cosine classifiers introduced by Yang, eg in "An
@@ -18,8 +19,11 @@ import java.util.TreeSet;
  * @author William Cohen
  */
 
-class KnnClassifier implements Classifier
+class KnnClassifier implements Classifier,Serializable
 {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
 	private static Logger log = Logger.getLogger(KnnClassifier.class);
 	private static final boolean DEBUG = log.isDebugEnabled();
 

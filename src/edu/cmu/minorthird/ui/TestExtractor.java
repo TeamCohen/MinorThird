@@ -19,7 +19,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TestExtractor 
+public class TestExtractor implements CommandLineUtil.UIMain
 {
   private static Logger log = Logger.getLogger(TestExtractor.class);
 
@@ -27,34 +27,38 @@ public class TestExtractor
 
 	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
+	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
 	private CommandLineUtil.TestExtractorParams test = new CommandLineUtil.TestExtractorParams();
+	private TextLabels annLabels = null;
 
 	private CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,test});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,test});
 	}
 
 	//
 	// do the experiment
 	// 
 
-	public void testExtractor()
+	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) 
-			throw new IllegalArgumentException("-labels must be specified");
+		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
+		if (test.loadFrom==null) throw new IllegalArgumentException("-loadFrom must be specified");
 
 		// echo the input
-		Viewer vl = new SmartVanillaViewer();
-		vl.setContent(base.labels);
-		if (base.showLabels) new ViewerFrame("Textbase",vl);
-
+		if (base.showLabels) {
+			Viewer vl = new SmartVanillaViewer();
+			vl.setContent(base.labels);
+			new ViewerFrame("Textbase",vl);
+		}
+		
 		// load the annotator
 		Annotator ann = null;
 		try {
 			ann = (Annotator)IOUtil.loadSerialized(test.loadFrom);
 		} catch (IOException ex) {
-			throw new IllegalArgumentException("can't load annotator from "+test.loadFrom);
+			throw new IllegalArgumentException("can't load annotator from "+test.loadFrom+": "+ex);
 		}
 
 		if (test.showExtractor) {
@@ -63,20 +67,28 @@ public class TestExtractor
 			new ViewerFrame("Annotator",vx);
 		}
 
+		annLabels = ann.annotatedCopy(base.labels);
+
 		// echo the labels after annotation
-		if (base.showLabels) {
-			ann.annotate(base.labels);
+		if (base.showResult) {
 			Viewer va = new SmartVanillaViewer();
-			va.setContent(base.labels);
-			new ViewerFrame("Textbase",va);
+			va.setContent(annLabels);
+			new ViewerFrame("Annotated Textbase",va);
 		}
 		
 	}
 
+	public Object getMainResult() { return annLabels; }
+
 	public static void main(String args[])
 	{
-		TestExtractor main = new TestExtractor();
-		main.getCLP().processArguments(args);
-		main.testExtractor();
+		try {
+			TestExtractor main = new TestExtractor();
+			main.getCLP().processArguments(args);
+			main.doMain();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("use option -help for help");
+		}
 	}
 }

@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.io.*;
 
 /**
  * A compact but immutable implementation of an instance.
@@ -15,13 +16,16 @@ import java.util.TreeSet;
  * </ul>
  * @author ksteppe
  */
-public class CompactInstance extends AbstractInstance
+public class CompactInstance extends AbstractInstance implements Serializable
 {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
   Feature[] binaryFeatures;
   Feature[] numericFeatures;
   double[] weights;
 
-  private Logger log = Logger.getLogger(CompactInstance.class);
+  static private Logger log = Logger.getLogger(CompactInstance.class);
 
   /**
    * Create a compact instance from some other instance

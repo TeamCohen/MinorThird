@@ -30,6 +30,7 @@ public class MarkupControls extends ViewerControls
 	private ArrayList types = new ArrayList();
 	private Map colorCode = new HashMap();
 	private int numTypesWithColors;
+	private JComboBox guessBox, truthBox;
 
 	public MarkupControls(TextLabels labels)
 	{

@@ -18,22 +18,33 @@ public class ClassifierAnnotator extends AbstractAnnotator implements Serializab
 	
 	private SpanFeatureExtractor fe;
 	private Classifier c;
-	private String spanProp=null, spanType=null;
+	private String spanProp=null, spanType=null, candidateType=null;
 	
-	public ClassifierAnnotator(SpanFeatureExtractor fe,Classifier c,String spanType,String spanProp) 
+	public 
+	ClassifierAnnotator(SpanFeatureExtractor fe,Classifier c,String spanType,String spanProp,String candidateType) 
 	{ 
-		this.fe=fe; this.c=c; this.spanType=spanType; this.spanProp=spanProp;
+		this.fe=fe; this.c=c; this.spanType=spanType; this.spanProp=spanProp; this.candidateType=candidateType;
+	}
+	public 
+	ClassifierAnnotator(SpanFeatureExtractor fe,Classifier c,String spanType,String spanProp) 
+	{ 
+		this(fe,c,spanType,spanProp,null);
 	}
 	public SpanFeatureExtractor getFE() { return fe; }
 	public Classifier getClassifier() { return c; }
 	public String getSpanProperty() { return spanProp; }
 	public String getSpanType() { return spanType; }
+	public String getCandidateType() { return candidateType; }
 
 	public void doAnnotate(MonotonicTextLabels labels)
 	{
-		for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+		Span.Looper candidateLooper = 
+			candidateType!=null ? 
+			labels.instanceIterator(candidateType) : labels.getTextBase().documentSpanIterator();
+
+		for (Span.Looper i=candidateLooper; i.hasNext(); ) {
 			Span s = i.nextSpan();
-			ClassLabel classOfS = c.classification(fe.extractInstance(s));
+			ClassLabel classOfS = c.classification(fe.extractInstance(labels, s));
 			if (spanProp!=null) labels.setProperty(s, spanProp, classOfS.bestClassName());
 			if (spanType!=null && classOfS.isPositive()) labels.addToType(s,spanType);
 		}

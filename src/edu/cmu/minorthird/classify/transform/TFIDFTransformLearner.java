@@ -1,8 +1,10 @@
 /* Copyright 2003, Carnegie Mellon, All Rights Reserved */
 
 package edu.cmu.minorthird.classify.transform;
+
 import edu.cmu.minorthird.classify.*;
 import java.util.*;
+import java.io.*;
 import gnu.trove.*;
 
 
@@ -12,8 +14,11 @@ import gnu.trove.*;
  * @author William Cohen
  */
 
-public class TFIDFTransformLearner implements InstanceTransformLearner
+public class TFIDFTransformLearner implements InstanceTransformLearner,Serializable
 {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
 	private TObjectDoubleHashMap featureFreq; 
 	private double numDocuments;
 
@@ -37,8 +42,11 @@ public class TFIDFTransformLearner implements InstanceTransformLearner
 		return new TFIDFWeighter(numDocuments,featureFreq);
 	}
 
-	private class TFIDFWeighter extends AbstractInstanceTransform
+	private class TFIDFWeighter extends AbstractInstanceTransform implements Serializable
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		private double numDocuments;
 		private TObjectDoubleHashMap featureFreq;
 		public TFIDFWeighter(double numDocuments,TObjectDoubleHashMap featureFreq)

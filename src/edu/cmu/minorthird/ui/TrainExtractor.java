@@ -18,7 +18,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainExtractor 
+public class TrainExtractor implements CommandLineUtil.UIMain
 {
   private static Logger log = Logger.getLogger(TrainExtractor.class);
 
@@ -28,6 +28,7 @@ public class TrainExtractor
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
+	private Annotator ann = null;
 
 	private CommandLineProcessor getCLP()
 	{
@@ -38,25 +39,25 @@ public class TrainExtractor
 	// do the experiment
 	// 
 
-	public void trainExtractor()
+	public void doMain()
 	{
 		// check that inputs are valid
-		if (base.labels==null) 
-			throw new IllegalArgumentException("-labels must be specified");
-		if (train.learner==null) 
-			throw new IllegalArgumentException("-learner must be specified");
-		if (signal.spanType==null) 
-			throw new IllegalArgumentException("-spanType must be specified");
+		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
+		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
+		if (signal.spanType==null) throw new IllegalArgumentException("-spanType must be specified");
 
 		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
 
 		// echo the input
-		Viewer vl = new SmartVanillaViewer();
-		vl.setContent(base.labels);
-		if (base.showLabels) new ViewerFrame("Textbase",vl);
+		if (base.showLabels) {
+			Viewer vl = new SmartVanillaViewer();
+			vl.setContent(base.labels);
+			new ViewerFrame("Textbase",vl);
+		}
 
+		// do the training
 		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( base.labels, signal.spanType );
-		Annotator ann = teacher.train( train.learner );
+		ann = teacher.train( train.learner );
 
 		if (base.showResult) {
 			Viewer av = new SmartVanillaViewer();
@@ -73,10 +74,17 @@ public class TrainExtractor
 		}
 	}
 
+	public Object getMainResult() { return ann; }
+
 	public static void main(String args[])
 	{
-		TrainExtractor main = new TrainExtractor();
-		main.getCLP().processArguments(args);
-		main.trainExtractor();
+		try {
+			TrainExtractor main = new TrainExtractor();
+			main.getCLP().processArguments(args);
+			main.doMain();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("use option -help for help");
+		}
 	}
 }

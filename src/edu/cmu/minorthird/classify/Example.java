@@ -6,6 +6,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.io.*;
 
 /** An instance that is associated with a ClassLabel.  Implements the
  * Instance interface by delegating to a wrapped Instance, so
@@ -14,8 +15,11 @@ import java.util.Iterator;
  * @author William Cohen
 */
 
-public class Example implements Instance,Visible
+public class Example implements Instance,Visible,Serializable
 {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
 	protected Instance instance;
 	protected ClassLabel label = null;
 

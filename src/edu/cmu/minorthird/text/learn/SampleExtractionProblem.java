@@ -36,14 +36,22 @@ public class SampleExtractionProblem
 	};
 
   final static public String LABEL = "trueName";
-  static private String capDef = "defTokenProp cap:t =: ... [re('^[A-Z][a-z]+')] ...";
   static private String[] labelingProgram = {
-		capDef,
+		// useful features for learning
 		"defDict fn = William, Carmen, George, Curious, Hillary",
+		"defTokenProp cap:t =: ... [re('^[A-Z][a-z]+')] ...",
 		"defTokenProp name:first =: ... [a(fn)] ... ",
 		"defTokenProp name:last =: ... a(fn) [any] ... ",
+		// used to label the true names
 		"defSpanType trueName =~ trie William Cohen,William Clinton,Hillary Clinton,George Washington,"
-		                         +"Carmen Sandiego,George Bush,Curious George,George Mason"
+		     +"Carmen Sandiego,George Bush,Curious George,George Mason",
+		// used as candidates to filter
+		"defSpanType bigram =: ... [any any] ... ",
+		// used for classification tests
+		"defSpanType political =: [ ... 'Clinton' ... ] || [... 'George' 'Bush' ...]",
+		"defSpanProp subject:politics =: [@political]",
+		"defSpanProp subject:me =: [...'William' 'Cohen'...]",
+		"defSpanProp subject:other =top- [@political] || [...'William' 'Cohen'...]",
 	};
 	
 	static public TextLabels trainLabels() {
