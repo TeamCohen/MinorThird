@@ -66,6 +66,7 @@ public class MixupDebugger extends JComponent
 		program.eval( programLabels, base );
 		if (mixupProgramFile==null) throw new IllegalArgumentException("mixup program must be specified");
 
+    new TextLabelsLoader().saveTypesAsOps(programLabels, new File("test.labels"));
 		StatusMessage statusMsg = new StatusMessage();
 		JScrollPane errorPane = new JScrollPane(new JTextField(errorString));
 		editor = new TextBaseEditor(base,programLabels,truthLabels,statusMsg,readOnly);
@@ -348,7 +349,11 @@ public class MixupDebugger extends JComponent
       {
         File data = new File(fileName);
         if (data.isDirectory())
-          base = TextBaseLoader.loadDirOfTaggedFiles(data).getTextBase();
+        {
+          TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE,  TextBaseLoader.FILE_NAME, false);
+          base = loader.load(data);
+        }
+//          base = TextBaseLoader.loadDirOfTaggedFiles(data).getTextBase();
         else
           base = TextBaseLoader.loadDocPerLine(data, false);
       }

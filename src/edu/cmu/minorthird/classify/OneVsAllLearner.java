@@ -22,7 +22,7 @@ public class OneVsAllLearner implements ClassifierLearner
 	}
 
 	/** 
-	 * @param ClassifierLearnerFactory should produce a BinaryClassifier with each call.
+	 * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
 	 */
 	public OneVsAllLearner(ClassifierLearnerFactory learnerFactory)
 	{
