@@ -222,7 +222,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		{
 			int h = 73643674;
 			for (int i=0; i<keyHistory.length; i++) 
-				h = h^keyHistory.hashCode();
+				h = h^keyHistory[i].hashCode();
 			return h;
 		}
 		public boolean equals(Object o)
