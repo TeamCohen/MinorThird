@@ -259,11 +259,13 @@ public class CaptionProcessor
 			TextBase base = new BasicTextBase();
 			base.loadDocument( fileNames[0], caption );
 			MutableTextLabels labels = new BasicTextLabels(base);
-			long start = System.currentTimeMillis();
-			System.out.println("processing labels with "+base.size()+" docs");
-			cp.processLabels(labels,fileNames[2],fileNames[3],fileNames[4]);
-			long end = System.currentTimeMillis();
-			System.out.println("processing time was "+((end-start)/1000.0)+" sec");
+			for (int i=0; i<100; i++) {
+				long start = System.currentTimeMillis();
+				System.out.println("processing labels with "+base.size()+" docs");
+				cp.processLabels(labels,fileNames[2],fileNames[3],fileNames[4]);
+				long end = System.currentTimeMillis();
+				System.out.println("processing time was "+((end-start)/1000.0)+" sec");
+			}
 			if (interactive) {
 				System.out.println("launching viewer...");
 				TextBaseEditor.edit( labels, null );
