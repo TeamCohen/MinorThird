@@ -11,8 +11,7 @@ import java.util.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.algorithms.trees.*;
 import edu.cmu.minorthird.classify.algorithms.knn.*;
-import edu.cmu.minorthird.classify.experiments.Tester;
-import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
+import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedNaiveBayesLearner;
 
 /**
@@ -49,6 +48,8 @@ public class TestPackage extends TestSuite
     suite.addTest( new LogisticRegressionTest() );
     suite.addTest( new XValTest(10,1) );
     suite.addTest( new XValTest(3,5) );
+    suite.addTest( new XValTest(50,1,true) );
+    suite.addTest( new XValTest(3,25,true) );
     return suite;
   }
 
@@ -69,11 +70,17 @@ public class TestPackage extends TestSuite
   public static class XValTest extends TestCase
   {
     private int numSites,numPagesPerSite;
+		private boolean subsample;
     public XValTest(int numSites,int numPagesPerSite)
+		{
+			this(numSites,numPagesPerSite,false);
+		}
+    public XValTest(int numSites,int numPagesPerSite,boolean subsample)
     {
       super("doTest");
       this.numSites = numSites;
       this.numPagesPerSite = numPagesPerSite;
+			this.subsample=subsample;
     }
     public void doTest() {
       log.debug("[XValTest sites: "+numSites+" pages/site: "+numPagesPerSite+"]");
@@ -88,7 +95,9 @@ public class TestPackage extends TestSuite
         }
       }
       int totalSize = list.size();
-      Splitter splitter = new CrossValSplitter(3);
+      Splitter splitter = null;
+			if (subsample) splitter = new SubsamplingCrossValSplitter(3,0.2);
+			else splitter = new CrossValSplitter(3);
       splitter.split( list.iterator() );
       assertEquals( 3, splitter.getNumPartitions() );
       Set[] train = new Set[3];
@@ -110,7 +119,11 @@ public class TestPackage extends TestSuite
           assertTrue( !test[i].contains( inst ) );
         }
         log.debug("  -----\n  "+train[i].size()+" total");
-        assertEquals( totalSize, train[i].size() + test[i].size() );
+				if (subsample) {
+					assertTrue( totalSize >= (train[i].size()+test[i].size()) );
+				} else {
+					assertEquals( totalSize, train[i].size() + test[i].size() );
+				}
         totalTest += test[i].size();
       }
       assertEquals( totalSize, totalTest );
