@@ -61,8 +61,8 @@ public class LearnToClassifyTest extends ClassifyTest
   {
     try
     {
-      dataFile = "examples/webmasterDataLines.text";
-      labelsFile = "examples/addChangeDelete.env";
+      dataFile = "demos/sampleData/webmasterCommands.txt";
+      labelsFile = "demos/sampleData/webmasterCommandTypes.labels";
       documentId = "msg05";
       labelString = "add";
       loadFileData();
