@@ -73,7 +73,7 @@ public class TrainTestExtractor extends UIMain
 		}
 		TextLabelsExperiment 
 			expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
-																			 signal.spanType,signal.spanProp,"_predicted" );
+							 signal.spanType,signal.spanProp,train.output );
 		expt.doExperiment();
 		ExtractionEvaluation evaluation = expt.getEvaluation();
 

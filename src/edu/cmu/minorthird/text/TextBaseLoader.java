@@ -818,6 +818,7 @@ public class TextBaseLoader
     base.loadDocument(id, buf.toString() );
     // add the markup to the labels
     Set types = new TreeSet();
+    int i=0;
     for (Iterator j=spanList.iterator(); j.hasNext(); ) {
       CharSpan charSpan = (CharSpan)j.next();
       types.add( charSpan.type );
@@ -825,6 +826,9 @@ public class TextBaseLoader
       log.debug("approximating "+charSpan.type+" span '"
                 +buf.toString().substring(charSpan.lo,charSpan.hi)
                 +"' with token span '"+approxSpan);
+      if (i<5) 
+	  System.out.println(approxSpan.toString() + ": " + charSpan.type);
+      i++;
       labels.addToType( approxSpan, charSpan.type );
     }
     new TextLabelsLoader().closeLabels( labels, closurePolicy );
@@ -868,6 +872,91 @@ public class TextBaseLoader
     }
     in.close();
   }
+
+    /** Load files from a directory, stripping out any XML/SGML tags.
+   *
+   * @deprecated; to be removed at end of February
+   *
+   */
+  public void loadWordPerLineFiles(TextBase base,File dir) throws IOException,FileNotFoundException
+  {
+    labels = new BasicTextLabels(base);
+
+    File[] files = dir.listFiles();
+    if (files==null) throw new IllegalArgumentException("can't list directory "+dir.getName());
+
+    for (int i=0; i<files.length; i++) {
+
+      // skip CVS directories
+      if ("CVS".equals(files[i].getName())) continue;
+
+      loadWordPerLineFile(base, files[i]);
+
+    }
+  }
+
+    /**
+     *  Load a document where each word has it's own line and is follwed by three desscriptor words.
+     *  The first item on each line is a word, the second a part-of-speech (POS) tag, the third a 
+     *  syntactic chunk tag and the fourth the named entity tag.
+     */
+    public void loadWordPerLineFile(TextBase base, File file) throws IOException, FileNotFoundException
+    {
+	if (labels == null)
+	    labels = new BasicTextLabels(base);
+	//curGrpID = "eng";
+	String id = file.getName();
+	System.out.println("ID: " + id);
+	LineNumberReader in = new LineNumberReader(new FileReader(file));
+	String line;
+	this.textBase = base;
+	StringBuffer buf = new StringBuffer("");
+	List spanList = new ArrayList();
+	int pos = 0;
+
+	//creates document StringBuffer and adds all labels to spanList
+	while((line = in.readLine()) != null) {
+	    StringTokenizer st = new StringTokenizer(line);
+	    int i = 0;
+	    while(st.hasMoreTokens()) {
+		String word = st.nextToken();
+		if(i == 0) {
+		    buf.append(word);
+		    curDocID = file.getName() + "@line:" + in.getLineNumber();
+		    buf.append(" ");
+		    
+		} else if(i == 1) {
+		    spanList.add(new CharSpan(pos,buf.length()-1,word));
+		}else if(i == 3) {
+		    if(!word.equals("O")){
+			spanList.add(new CharSpan(pos,buf.length()-1,word));
+		    }
+		}
+		i++;
+	    }
+	    pos = buf.length();
+	}
+	in.close();
+
+	//Load Document into TextBase
+	
+	base.loadDocument(id, buf.toString());	
+	if(curGrpID != null)
+	    base.setDocumentGroupId(id, curGrpID);
+
+	Set types = new TreeSet();
+	//for (Iterator j=spanList.iterator(); j.hasNext(); ) {
+	Iterator j = spanList.iterator();
+	for(int x=0; x<100; x++){
+	    CharSpan charSpan = (CharSpan)j.next();
+	    
+	    types.add( charSpan.type );
+	    Span approxSpan = base.documentSpan(id).charIndexSubSpan(charSpan.lo, charSpan.hi);
+	    System.out.println(approxSpan.toString() + ": " + charSpan.type);
+	    labels.addToType( approxSpan, charSpan.type );
+	}
+	new TextLabelsLoader().closeLabels( labels, closurePolicy );
+    }
 
   /**
    * Read a serialized BasicTextBase from a file.

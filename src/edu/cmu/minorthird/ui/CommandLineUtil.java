@@ -681,113 +681,115 @@ class CommandLineUtil
 
 	/** Parameters for training an extractor. */
 	public static class TrainExtractorParams extends BasicCommandLineProcessor {
-		public AnnotatorLearner learner = new Recommended.VPHMMLearner();
-		public SpanFeatureExtractor fe = null;
-		private String learnerName;
-		private String embeddedAnnotators="";
-		public String output="_prediction";
-		public void learner(String s) { 
-			this.learnerName = s;
-			this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); 
-			if (fe!=null) learner.setSpanFeatureExtractor(fe);
-		}
-		public void output(String s) { this.output=s; }
-    public void option(String s, Object o) {
-      int i = s.indexOf("=");
-      if(i > 0) {
-        String ans = s.substring(0,i);
-        int slen = s.length();
-        String value = s.substring(i+1,slen);
+	    public AnnotatorLearner learner = new Recommended.VPHMMLearner();
+	    public SpanFeatureExtractor fe = null;
+	    private String learnerName;
+	    private String embeddedAnnotators="";
+	    public String output="_prediction";
+	    public void learner(String s) { 
+		this.learnerName = s;
+		this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); 
+		if (fe!=null) learner.setSpanFeatureExtractor(fe);
+	    }
+	    public void output(String s) { 
+		System.out.println("We are in the output function!");
+		this.output=s; }
+	    public void option(String s, Object o) {
+		int i = s.indexOf("=");
+		if(i > 0) {
+		    String ans = s.substring(0,i);
+		    int slen = s.length();
+		    String value = s.substring(i+1,slen);
+		    
+		    try {
+			//Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
+			//Object o = (Object)learner;
+			BeanInfo info = Introspector.getBeanInfo(o.getClass());
+			PropertyDescriptor[] props = info.getPropertyDescriptors();
 			
-        try {
-			    //Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
-			    //Object o = (Object)learner;
-			    BeanInfo info = Introspector.getBeanInfo(o.getClass());
-			    PropertyDescriptor[] props = info.getPropertyDescriptors();
+			String pname = new String (" ");
+			Class type = null;
+			Method writer = null, reader = null;
+			int x=-1, len = props.length;
+			while (!pname.equals(ans)&& x<len) {
+			    x++;
+			    pname = props[x].getDisplayName();
+			    type = props[x].getPropertyType();
+			    reader = props[x].getReadMethod();
+			    writer = props[x].getWriteMethod();
 			    
-			    String pname = new String (" ");
-			    Class type = null;
-			    Method writer = null, reader = null;
-			    int x=-1, len = props.length;
-			    while (!pname.equals(ans)&& x<len) {
-            x++;
-            pname = props[x].getDisplayName();
-            type = props[x].getPropertyType();
-            reader = props[x].getReadMethod();
-            writer = props[x].getWriteMethod();
-				
-			    }
-			    if (x == len)
-            System.out.println("Did not find Option!");
-
-			    if (type.equals(boolean.class)) {
-            writer.invoke(o,new Object[]{new Boolean(value)});
-            Object val = reader.invoke(o,new Object[]{});
-			    } else if (type.equals(int.class)) {
-            writer.invoke(o,new Object[]{new Integer(value)});
-            Object val = reader.invoke(o,new Object[]{});
-			    } else if (type.equals(double.class)) {
-            writer.invoke(o,new Object[]{new Double(value)});
-            Object val = reader.invoke(o,new Object[]{});
-			    } else if (type.equals(String.class)) {
-            writer.invoke(o,new Object[]{new String(value)});
-            Object val = reader.invoke(o,new Object[]{});
-			    }
-        } catch (Exception e) {
-			    System.out.println("Cannot find class");
-        }
-      } else
-        System.out.println ("Cannot compute option - no object defined");
-    }
-    public void LearnerOp(String s) { 
-      Object o = (Object)learner;
-      option(s, o);		    
-		}
-    public void feOp(String s) {
-      if(fe != null) {
-        Object o = (Object)fe;
-        option(s, o);			
-      } else 
-        System.out.println("You must define a Feature Extrator before setting it's options");
-		}
-		public void mixup(String s) { 
-			if (fe==null) fe = learner.getSpanFeatureExtractor();
-      safeSetRequiredAnnotation(fe,s);	
-    }
-		public void embed(String s) { 
-			if (fe==null) fe = learner.getSpanFeatureExtractor();
-			embeddedAnnotators=s; 
-			safeSetAnnotatorLoader(fe,s);	
-		}
-		public CommandLineProcessor fe(String s) { 
-			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
-			if (learner!=null) learner.setSpanFeatureExtractor(fe);
-			if (this.fe instanceof CommandLineProcessor.Configurable) {
-				return ((CommandLineProcessor.Configurable)this.fe).getCLP();
-			} else {
-				return null;
 			}
+			if (x == len)
+			    System.out.println("Did not find Option!");
+			
+			if (type.equals(boolean.class)) {
+			    writer.invoke(o,new Object[]{new Boolean(value)});
+			    Object val = reader.invoke(o,new Object[]{});
+			} else if (type.equals(int.class)) {
+			    writer.invoke(o,new Object[]{new Integer(value)});
+			    Object val = reader.invoke(o,new Object[]{});
+			} else if (type.equals(double.class)) {
+			    writer.invoke(o,new Object[]{new Double(value)});
+			    Object val = reader.invoke(o,new Object[]{});
+			} else if (type.equals(String.class)) {
+			    writer.invoke(o,new Object[]{new String(value)});
+			    Object val = reader.invoke(o,new Object[]{});
+			}
+		    } catch (Exception e) {
+			System.out.println("Cannot find class");
+		    }
+		} else
+		    System.out.println ("Cannot compute option - no object defined");
+	    }
+	    public void LearnerOp(String s) { 
+		Object o = (Object)learner;
+		option(s, o);		    
+	    }
+	    public void feOp(String s) {
+		if(fe != null) {
+		    Object o = (Object)fe;
+		    option(s, o);			
+		} else 
+		    System.out.println("You must define a Feature Extrator before setting it's options");
+	    }
+	    public void mixup(String s) { 
+		if (fe==null) fe = learner.getSpanFeatureExtractor();
+		safeSetRequiredAnnotation(fe,s);	
+	    }
+	    public void embed(String s) { 
+		if (fe==null) fe = learner.getSpanFeatureExtractor();
+		embeddedAnnotators=s; 
+		safeSetAnnotatorLoader(fe,s);	
+	    }
+	    public CommandLineProcessor fe(String s) { 
+		this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
+		if (learner!=null) learner.setSpanFeatureExtractor(fe);
+		if (this.fe instanceof CommandLineProcessor.Configurable) {
+		    return ((CommandLineProcessor.Configurable)this.fe).getCLP();
+		} else {
+		    return null;
 		}
-		public void usage() {
-			System.out.println("extraction training parameters:");
-			System.out.println(" [-learner BSH]           Bean-shell code to create an AnnotatorLearner ");
-			//System.out.println("                          - default is \"new Recommended.NaiveBayes()\"");
-			System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
-			System.out.println("                          - default is \"new Recommended.TokenFE()\"");
-			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
-			System.out.println("                            immediately following arguments are passed to it");
-			System.out.println(" [-mixup STRING]          run named mixup code before extracting features");
-			System.out.println(" [-embed STRING]          embed the listed annotators in the feature extractor");
-			System.out.println(" [-output STRING]         the type or property that is produced by the learned");
-			System.out.println("                           Annotator - default is \"_prediction\"");
-			System.out.println(" [-LearnerOp STRING=VALUE] Extra options that can be defined with the learner");
-			System.out.println("                           - defaults are set");
-			System.out.println("                           - ex: displayDatasetBeforeLearning=true");
-			System.out.println(" [-feOp STRING=VALUE]      Extra options that can be defined with the feature extractor");
-			System.out.println("                           - defaults are set");
-			System.out.println("                           - ex: featureWindowSize=4");
-			System.out.println();
-		}
+	    }
+	    public void usage() {
+		System.out.println("extraction training parameters:");
+		System.out.println(" [-learner BSH]           Bean-shell code to create an AnnotatorLearner ");
+		//System.out.println("                          - default is \"new Recommended.NaiveBayes()\"");
+		System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
+		System.out.println("                          - default is \"new Recommended.TokenFE()\"");
+		System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
+		System.out.println("                            immediately following arguments are passed to it");
+		System.out.println(" [-mixup STRING]          run named mixup code before extracting features");
+		System.out.println(" [-embed STRING]          embed the listed annotators in the feature extractor");
+		System.out.println(" [-output STRING]         the type or property that is produced by the learned");
+		System.out.println("                           Annotator - default is \"_prediction\"");
+		System.out.println(" [-LearnerOp STRING=VALUE] Extra options that can be defined with the learner");
+		System.out.println("                           - defaults are set");
+		System.out.println("                           - ex: displayDatasetBeforeLearning=true");
+		System.out.println(" [-feOp STRING=VALUE]      Extra options that can be defined with the feature extractor");
+		System.out.println("                           - defaults are set");
+		System.out.println("                           - ex: featureWindowSize=4");
+		System.out.println();
+	    }
 		// for gui
 		public AnnotatorLearner getLearner() { return learner; }
 		public void setLearner(AnnotatorLearner learner) { this.learner=learner; }

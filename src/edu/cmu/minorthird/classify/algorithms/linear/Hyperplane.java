@@ -160,12 +160,13 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	    private JRadioButton absoluteValueButton,valueButton,nameButton,treeButton,noneButton;
 		public void initialize()
 		{
-			add(new JLabel("Sort by"));
-			ButtonGroup group = new ButtonGroup();;
+		        ButtonGroup group = new ButtonGroup();;
+		        treeButton = addButton("Tree view",group,false);
+			add(new JLabel("   OR  "));
+			add(new JLabel("   Sort by"));			
 			nameButton = addButton("name",group,true);
 			valueButton = addButton("weight",group,false);
-			absoluteValueButton = addButton("|weight|",group,false);
-			treeButton = addButton("Tree view",group,false);
+			absoluteValueButton = addButton("|weight|",group,false);			
 		}
 		private JRadioButton addButton(String s,ButtonGroup group,boolean selected)
 		{
