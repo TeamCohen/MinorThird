@@ -283,6 +283,7 @@ public class MixupProgram
         }
         return;
 			}
+			// either "defTokenProp x:y ...", "defSpanProp x:y ...", "defSpanType x ...", "defDict x [case] = ..."
 			String propOrType = advance(null);  // read property or type
 			String token = advance(colonEqualsOrCase); // read ':' or '='
 			if (":".equals(token)) {

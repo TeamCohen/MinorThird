@@ -22,7 +22,7 @@ BNF:
 	repeatedPrim -> [L] prim [R] repeat | @type | @type?
 	repeat -> {int,int} | {,int} | {int,} | {int} | ? | * | +
 	pattern -> | repeatedPrim pattern
-	basicExpr -> pattern [ pattern ] pattern 
+	basicExpr -> pattern [ pattern ] pattern   // really parsed as pattern+
 	basicExpr -> (expr)
 	expr -> basicExpr "||" expr 
 	expr -> basicExpr "&&" expr
@@ -528,6 +528,8 @@ public class Mixup
 				return new BasicSpanLooper(accum.iterator());
 			}
 		}
+		/*
+		 */
 		private void fastMatch(TextLabels labels,Span span,Set accum)
 		{
 //      log.debug("span size: " + span.size() + " - " + span.asString());
@@ -547,10 +549,13 @@ public class Mixup
 			int[] loIndexBuffer = new int[ maxRepeatedPrimMatches ];
 			int[] lengthBuffer = new int[ maxRepeatedPrimMatches ];
 			log.debug("alloc hi-lo: max/free="+Runtime.getRuntime().maxMemory()+"/"+Runtime.getRuntime().freeMemory()); 
-			// store possible places that repPrim[i] can match
+
+			// the big for loop below populates these two arrays, which store
+			// possible places that repPrim[i] can match
 			int[][] possibleLos = new int[repPrim.length][];
 			int[][] possibleLens = new int[repPrim.length][];
-			// also record min/max length 
+
+			// these record min/max length 
 			int[] minLen = new int[repPrim.length];
 			int[] maxLen = new int[repPrim.length];
 			boolean[] isAny = new boolean[repPrim.length];
@@ -569,7 +574,7 @@ public class Mixup
 				if (!isAny[i]) {
 					// find all places this matches
 					int numMatches = 0;
-					if (rp.type!=null) {
+					if (rp.type!=null) { // rp is an "@foo" primitive
 						// look up matches from the labels
 						for (Span.Looper el=labels.instanceIterator(rp.type, span.getDocumentId()); el.hasNext(); ) {
 							if (numMatches>=maxRepeatedPrimMatches) {
@@ -588,7 +593,7 @@ public class Mixup
 							}
 						}
 					}
-					if (rp.type==null || (rp.type!=null && rp.minCount==0)) {
+					if (rp.type==null || (rp.type!=null && rp.minCount==0)) { // rp is "@foo?" or anything else
 						// check all possible subspans
 						for (int j=0; j<=span.size(); j++) {
 							int topLen = Math.min(maxLen[i], span.size()-j);
@@ -630,6 +635,9 @@ public class Mixup
 							 +" minConstraint="+minMatchesToApplyConstraints);
 		}
 
+		// recursively try to match the patterns from patternCursor on to
+		// the span tokens from spanCursor on.
+
 		private void fastMatch(
 			TextLabels labels,    // passed along to subroutines
 			Set accum,            // accumulate matches
@@ -659,6 +667,7 @@ public class Mixup
 			} else {
 				// continue a partial match
 				if (isAny[patternCursor]) {
+					// a tricky little optimization...
 					if (patternCursor+1<repPrim.length && !isAny[patternCursor+1]) {
 						// trick to handle something like '...' followed by a specific pattern 
 						for (int i=0; i<possibleLos[patternCursor+1].length; i++) {						
@@ -668,21 +677,29 @@ public class Mixup
 								lows[patternCursor] = spanCursor;
 								highs[patternCursor] = spanCursor+len;
 								if (DEBUG) showMatch(tab,"partial",span,lows,highs,patternCursor+1);
+								// recurse to match the rest of the pattern
 								fastMatch(labels,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
 													possibleLos,possibleLens,isAny,minLen,maxLen);
 							}
 						}
 					} else {
+						// try this starting point, and all possible lengths
 						int topLen = Math.min( maxLen[patternCursor], span.size()-spanCursor );
 						for (int len=minLen[patternCursor]; len<=topLen; len++) {
 								lows[patternCursor] = spanCursor;
 								highs[patternCursor] = spanCursor+len;
 								if (DEBUG) showMatch(tab,"partial",span,lows,highs,patternCursor+1);
+								// recurse to match the rest of the pattern
 								fastMatch(labels,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
 													possibleLos,possibleLens,isAny,minLen,maxLen);
 						}
 					}
 				} else {
+					// look at all possible 'lo' positions, and all possible
+					// 'los' and 'lengths' for the primitive at patternCursor,
+					// see if the 'lo' matches the spanCursor, and if it does,
+					// try to match the pattern with this assignment to the
+					// primitive at patternCursor.
 					int topLen = span.size() - spanCursor;
 					for (int i=0; i<possibleLos[patternCursor].length; i++) {
 						if (possibleLos[patternCursor][i]==spanCursor && possibleLens[patternCursor][i]<=topLen) {
@@ -690,6 +707,7 @@ public class Mixup
 							lows[patternCursor] = spanCursor;
 							highs[patternCursor] = spanCursor+len;
 							if (DEBUG) showMatch(tab,"partial",span,lows,highs,patternCursor+1);
+							// recurse to match the rest of the pattern
 							fastMatch(labels,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
 												possibleLos,possibleLens,isAny,minLen,maxLen);
 						}
