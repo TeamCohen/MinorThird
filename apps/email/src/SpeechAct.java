@@ -49,6 +49,8 @@ import java.util.*;
 import java.io.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.util.*;
+import edu.cmu.minorthird.ui.CommandLineUtil;
+import edu.cmu.minorthird.ui.Recommended;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.classify.algorithms.trees.*;
@@ -116,12 +118,54 @@ public class SpeechAct {
     return (model.score(mi)>Th)? true:false;    
   }
   
+  TextLabels readBsh(File dir, File envfile) throws Exception{
+  	System.out.println("reading data files...");
+  	TextLabels lala = TextBaseLoader.loadDirOfTaggedFiles(dir);
+  	TextBase basevitor = lala.getTextBase();
+  	TextLabelsLoader labelLoaderVitor = new TextLabelsLoader();
+  	System.out.println("reading env file");
+  	labelLoaderVitor.importOps((MutableTextLabels)lala, basevitor, envfile);
+  	return lala;  	
+  }
+  
+    //just for fun
+  private void createModel(String[] args) throws IOException{
+        String mytag = args[1];
+        String modelName = mytag+"Model";
+		Dataset dataset = new BasicDataset();
+		TextLabels labels;
+		try {
+		  //I hope you have labeled data, otherwise...
+		  //labels = Family.readBsh(new File("dummy/"), new File("dummy.env"));
+          //labels = Family.readBsh(new File("C:/m3test/total/data/"), new File("C:/m3test/total/env/all"+mytag+".env"));
+          labels = readBsh(new File("C:/m3test/total/data/"), new File("C:/m3test/total/env/all"+mytag+".env"));
+		  TextBase base = labels.getTextBase();
+		  dataset = CommandLineUtil.toDataset(labels, fe, null, mytag);
+          //ClassifierLearner learner = new  BatchVersion(new VotedPerceptron(), 15);
+          ClassifierLearner learner = new  Recommended.DecisionTreeLearner();
+
+		  Splitter split = Expt.toSplitter("k5");
+		  Evaluation eval = Tester.evaluate(learner, dataset, split);
+		  //ViewerFrame frame = new ViewerFrame("numeric demo", eval.toGUI());
+		  eval.summarize();
+
+		  System.out.println("training the Model...");
+		  Classifier cl = new DatasetClassifierTeacher(dataset).train(learner);
+		  System.out.println("saving model in file..." + modelName);
+		  IOUtil.saveSerialized((Serializable) cl, new File(modelName));
+	    }
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return;
+	}
+  
 
 
   public static void main(String[] args) {
     //Usage check
     try {
-      if ((args.length < 1)|| (args.length>1)) {
+      if ((args.length < 1)|| (args.length>3)) {
         usage();
         return;
       }
@@ -165,8 +209,8 @@ public class SpeechAct {
   
   private static void usage() {
     System.out.println("usage: SpeechAct directoryName");
-    System.out.println("\n\n, OR, if you have labeled data and want to create a model\n");
-    System.out.println("usage: SpeechAct -create VerbAct\n");
+    System.out.println("\n\n OR, if you have labeled data and want to create a model\n");
+    System.out.println("usage: SpeechAct -create VerbAct");
     System.out.println("VerbAct = Req, Dlv, Cmt, Prop, Amd, ReqAmdProp or DlvCmt");
   }
 }
