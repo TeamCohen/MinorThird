@@ -41,7 +41,7 @@ public class CrossValidatedDataset
 			DatasetIndex testIndex = new DatasetIndex(testData);
 			cds[k] = new ClassifiedDataset(c, testData, testIndex);
 			if (trainCds!=null) trainCds[k] = new ClassifiedDataset(c, trainData, testIndex);
-			v.extend( cds[k].getClassifier(), testData);
+			v.extend( cds[k].getClassifier(), testData, k );
 			v.setProperty("classesInFold"+(k+1), 
 										"train: "+classDistributionString(trainData.getSchema(),new DatasetIndex(trainData))
 										+"     test: "+classDistributionString(testData.getSchema(),testIndex));

@@ -49,7 +49,7 @@ public class CrossValidatedSequenceDataset implements Visible
 			SequenceClassifier c = new DatasetSequenceClassifierTeacher(trainData).train(learner);
 			cds[k] = new ClassifiedSequenceDataset(c, testData);
 			if (trainCds!=null) trainCds[k] = new ClassifiedSequenceDataset(c, trainData);
-			v.extend( cds[k].getClassifier(), testData);
+			v.extend( cds[k].getClassifier(), testData, Evaluation.DEFAULT_PARTITION_ID );
 			log.info("splitting with "+splitter+", stored classified dataset");
 			pc.progress();
 		}

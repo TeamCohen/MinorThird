@@ -38,8 +38,8 @@ public class Expt
 	}
 	/** Convert a set of command-line arguments to an 'experiment'
 	 * Examples:
-     *  -learn \"new NaiveBayes()\" -train sample:toy -split k10
-     *  -learn \"new PoissonLearner()\" -train sample:toy -split s10  << s for stratified CV >>
+   *  -learn \"new NaiveBayes()\" -train sample:toy -split k10          (k-fold CV)
+   *  -learn \"new PoissonLearner()\" -train sample:toy -split s10      (stratified s-fold CV)
 	 *  -learn \"new AdaBoost(new DecisionTreeLearner())\" -train file:foo.data -split r70
 	 *  -learn \"new AdaBoost()\" -train seqfile:foo.data -split r70
 	 */

@@ -31,7 +31,7 @@ public class Tester
 							 +" and test on "+testData.size());
 			Classifier c = new DatasetClassifierTeacher(trainData).train(learner);
 			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
-			v.extend( c, testData );
+			v.extend( c, testData, k );
 			log.info("splitting with "+splitter+", completed train-test round");
 			pc.progress();
 		}

@@ -29,7 +29,7 @@ public class MovieDataset {
 
   // set static variables
   static private boolean MIXUP = false;
-  static private boolean DUMP_WORDS = true;
+  static private boolean DUMP_WORDS = false;
   static private String FILTER = "Info-Gain"; // "Freq" or "T1" or "Info-Gain" or "Top"
 
   /**
@@ -135,8 +135,8 @@ public class MovieDataset {
         filter.setREF_LENGTH(660.0);
         //filter.setPDF("Negative-Binomial");
         T1InstanceTransform t1stat = (T1InstanceTransform)filter.batchTrain( data );
-        t1stat.setALPHA(0.01);
-        t1stat.setMIN_WORDS(50);  t1stat.setMAX_WORDS(500);
+        t1stat.setALPHA(0.05);
+        t1stat.setMIN_WORDS(50);  //t1stat.setMAX_WORDS(10000);
         t1stat.setSAMPLE(2500);
         data = t1stat.transform( data );
       }

@@ -57,7 +57,7 @@ public class InfoGainInstanceTransform implements InstanceTransform
     Set availableFeatures = new HashSet();
     for (int j=0; j<maxIndex; j++)
     {
-      System.out.println( ((Pair)igValues.get(j)).feature+" "+((Pair)igValues.get(j)).value );
+      //System.out.println( ((Pair)igValues.get(j)).feature+" "+((Pair)igValues.get(j)).value ); // DEBUG
       availableFeatures.add( ((Pair)igValues.get(j)).feature );
     }
     // create masked dataset

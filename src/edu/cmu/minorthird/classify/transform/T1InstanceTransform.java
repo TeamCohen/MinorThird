@@ -113,6 +113,8 @@ public class T1InstanceTransform implements InstanceTransform {
       double line = ((double)j) * ALPHA / ((double)pValue.size());
       if ( line>((Pair)pValue.get(j-1)).value ) greatestIndexBeforeAccept = j-1;
     }
+    //System.out.println("max index = "+greatestIndexBeforeAccept);
+    //System.out.println("total words = "+pValue.size());
     greatestIndexBeforeAccept = Math.min( MAX_WORDS,Math.min( pValue.size()-1,Math.max( greatestIndexBeforeAccept,MIN_WORDS ) ) );
     System.out.println("Retained "+greatestIndexBeforeAccept+" fetures, out of "+pValue.size());
     for (int j=0; j<=greatestIndexBeforeAccept; j++) {

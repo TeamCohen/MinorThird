@@ -223,7 +223,7 @@ public class ClassifiedDataset implements Visible
 			split.setRightComponent(right);
 
 			Evaluation e = new Evaluation(cd.dataset.getSchema());
-			e.extend(cd.classifier, cd.dataset);
+			e.extend(cd.classifier, cd.dataset, Evaluation.DEFAULT_PARTITION_ID);
 			Viewer evalViewer = e.toGUI();
 
 			JTabbedPane main = new JTabbedPane();
