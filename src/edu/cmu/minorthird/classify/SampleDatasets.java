@@ -249,19 +249,27 @@ public class SampleDatasets
     return data;
   }
 
-  public static SequenceDataset makeToySequenceData()
-  {
-    String[] lines = new String[]{
+	public static SequenceDataset makeToySequenceData() {
+		return makeToySequenceData(new String[]{
       "you're a good man Charlie Brown",
       "where's Waldo?",
-      "alas dear Yorick, I knew him well"};
+      "alas dear Yorick, I knew him well"});
+	}
 
+	public static SequenceDataset makeToySequenceTestData() {
+		return makeToySequenceData(new String[]{
+      "hello, World War III",
+      "to be or 2B, that is a question"});
+	}
+
+  public static SequenceDataset makeToySequenceData(String[] lines)
+  {
     SequenceDataset d = new SequenceDataset();
     for (int i=0; i<lines.length; i++) {
       String[] w = lines[i].split(" ");
       Example[] seq = new Example[w.length];
       for (int j=0; j<w.length; j++) {
-        ClassLabel lab = Character.isUpperCase(w[j].charAt(0)) ? new ClassLabel("name") : new ClassLabel("other");
+        ClassLabel lab = Character.isUpperCase(w[j].charAt(0)) ? new ClassLabel("POS") : new ClassLabel("NEG");
         MutableInstance inst = new MutableInstance(lines[i]+":"+j, "line"+i);
         inst.addBinary(new Feature("here "+w[j]));
         if (j>1) inst.addBinary(new Feature("prev "+w[j-1]));
@@ -302,9 +310,6 @@ public class SampleDatasets
     } else if ("bayes".equals(name)) {
       if (isTest) return toyBayesTest();
       else return toyBayesTrain();
-    //} else if ("movies".equals(name)) {
-    //  if (isTest) { System.exit(1); return null; } // Movie Data Set is only training!
-    //  else return MovieDataset.MovieReviewsData();
     } else if ("bayesExtreme".equals(name)) {
       if (isTest) return toyBayesExtremeTest();
       else return toyBayesExtremeTrain();
@@ -323,6 +328,9 @@ public class SampleDatasets
     } else if ("toy3".equals(name)) {
       if (isTest) return makeToy3ClassData(new Random(666),50);
       else return makeToy3ClassData(new Random(999),50);
+		} else if ("toySeq".equals(name)) {
+			if (isTest) return makeToySequenceTestData();
+			else return makeToySequenceData();
     } else {
       throw new IllegalArgumentException("illegal dataset name '"+name+"'");
     }

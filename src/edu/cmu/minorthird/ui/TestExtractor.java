@@ -28,7 +28,7 @@ public class TestExtractor extends UIMain
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TestExtractorParams test = new CommandLineUtil.TestExtractorParams();
-	private TextLabels annLabels = null;
+	private ExtractionEvaluation evaluation = null;
 
 	// for gui
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
@@ -65,10 +65,9 @@ public class TestExtractor extends UIMain
 			vx.setContent(ann);
 			new ViewerFrame("Annotator",vx);
 		}
-
-		annLabels = ann.annotatedCopy(base.labels);
-
+		TextLabels annLabels = ann.annotatedCopy(base.labels);
 		
+		evaluation = new ExtractionEvaluation();
 		SpanDifference sd = 
 			new SpanDifference(
 				annLabels.instanceIterator(signal.spanType),
@@ -76,16 +75,18 @@ public class TestExtractor extends UIMain
 				annLabels.closureIterator(signal.spanType));
 		System.out.println("Compare "+ann.getSpanType()+" to "+signal.spanType+":");
 		System.out.println(sd.toSummary());
+		evaluation.extend("Overall performance", sd, true);
 
 		// echo the labels after annotation
 		if (base.showResult) {
 			Viewer va = new SmartVanillaViewer();
 			va.setContent(annLabels);
 			new ViewerFrame("Annotated Textbase",va);
+			new ViewerFrame("Performance Results", evaluation.toGUI());
 		}
 	}
 
-	public Object getMainResult() { return annLabels; }
+	public Object getMainResult() { return evaluation; }
 
 	public static void main(String args[])
 	{

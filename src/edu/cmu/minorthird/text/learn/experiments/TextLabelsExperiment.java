@@ -33,6 +33,7 @@ public class TextLabelsExperiment implements Visible
 	private String outputLabel;
 	private Annotator[] annotators;
   private static Logger log = Logger.getLogger(TextLabelsExperiment.class);
+	private ExtractionEvaluation extractionEval = new ExtractionEvaluation();
 
   /**
    * @param labels The labels and base to be annotated in the example
@@ -109,14 +110,6 @@ public class TextLabelsExperiment implements Visible
       log.info("Training annotator...");
 			annotators[i] = teacher.train( learner );
 
-			/*
-			if (learner instanceof SequenceAnnotatorLearner) {
-				new ViewerFrame(
-					"Dataset",
-					((SequenceAnnotatorLearner)learner).getSequenceDataset().toGUI());
-			}
-			*/
-
       //log.info("annotators["+i+"]="+annotators[i]);
 			log.info("Creating test partition...");
 			SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
@@ -127,17 +120,19 @@ public class TextLabelsExperiment implements Visible
 			annotators[i].annotate( testLabels[i] );
 
 			log.info("Evaluating test partition...");
-			measurePrecisionRecall("Test partition "+(i+1)+":",testLabels[i]);
+			measurePrecisionRecall("Test partition "+(i+1),testLabels[i],false);
 
       //step progress counter
       progressCounter.progress();
     }
 		log.info("\nOverall performance:");
-		measurePrecisionRecall( "Overall performance", fullTestLabels );
+		measurePrecisionRecall( "Overall performance", fullTestLabels, true );
 
     //end progress counter
     progressCounter.finished();
   }
+
+	public ExtractionEvaluation getEvaluation() { return extractionEval; }
 
 	public Viewer toGUI()
 	{
@@ -160,11 +155,21 @@ public class TextLabelsExperiment implements Visible
 					return fullTestLabels;
 				}
 			});
+		v.addSubView("Evaluation", new TransformedViewer(new SmartVanillaViewer()) {
+				public Object transform(Object o) {
+					return extractionEval;
+				}
+			});
 		v.setContent( this );
 		return v;
 	}
 
-	private void measurePrecisionRecall(String tag,TextLabels labels)
+	private void measurePrecisionRecall(String tag,TextLabels labels) 
+	{
+		measurePrecisionRecall(tag,labels,false);
+	}
+
+	private void measurePrecisionRecall(String tag,TextLabels labels,boolean isOverallMeasure)
 	{
 		//System.out.println("output label = "+outputLabel);
 		//System.out.println("input label = "+inputType);
@@ -174,8 +179,9 @@ public class TextLabelsExperiment implements Visible
 					labels.instanceIterator(outputLabel),
 					labels.instanceIterator(inputType),
 					labels.closureIterator(inputType) );
-			System.out.println(tag);
+			System.out.println(tag+":");
 			System.out.println(sd.toSummary());
+			extractionEval.extend(tag,sd,isOverallMeasure);
 		} else {
 			Set propValues = new HashSet();
 			for (Span.Looper i=labels.getSpansWithProperty(inputProp); i.hasNext(); ) {
@@ -189,16 +195,20 @@ public class TextLabelsExperiment implements Visible
 						propertyIterator(labels,outputLabel,val),
 						propertyIterator(labels,inputProp,val),
 						labels.getTextBase().documentSpanIterator());
-				System.out.println(tag+" for "+inputProp+":"+val+":");
+				String tag1 = tag+" for "+inputProp+":"+val;
+				System.out.println(tag1+":");
 				System.out.println(sd.toSummary());
+				extractionEval.extend(tag1,sd,false);
 			}
 			SpanDifference sd =
 				new SpanDifference( 
 					propertyIterator(labels,outputLabel,null),
 						propertyIterator(labels,inputProp,null),
 						labels.getTextBase().documentSpanIterator());
-			System.out.println(tag+" for all values of "+inputProp+":");
+			String tag1 = tag+" for all values of "+inputProp;
+			System.out.println(tag1+":");
 			System.out.println(sd.toSummary());
+			extractionEval.extend(tag1,sd,isOverallMeasure);
 		}
 	}
 	private Span.Looper propertyIterator(TextLabels labels,String prop,String value)

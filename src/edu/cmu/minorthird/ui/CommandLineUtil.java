@@ -116,23 +116,6 @@ class CommandLineUtil
 		throw new IllegalArgumentException("either spanProp or spanType must be specified");
   }
 
-	/** Summarize an Evaluation object by showing summary statistics.
-	 */
-	static public void summarizeEvaluation(Evaluation e)
-	{
-		double[] stats = e.summaryStatistics();
-		String[] statNames = e.summaryStatisticNames();
-		int maxLen = 0;
-		for (int i=0; i<statNames.length; i++) {
-			maxLen = Math.max(statNames[i].length(), maxLen); 
-		}
-		for (int i=0; i<statNames.length; i++) {
-			System.out.print(statNames[i]+": ");
-			for (int j=0; j<maxLen-statNames[i].length(); j++) System.out.print(" ");
-			System.out.println(stats[i]);
-		}
-	}
-
 	//
 	// stuff for command-line parsing
 	//
@@ -216,7 +199,7 @@ class CommandLineUtil
 		public void showResult() { this.showResult=true; }
 		public void usage() {
 			System.out.println("basic parameters:");
-			System.out.println(" -labels REPOSITORY_KEY   load text from REPOSITORY_KEY ");
+			System.out.println(" -labels REPOSITORY_KEY   load text from REPOSITORY_KEY");
 			System.out.println(" [-showLabels]            interactively view textBase loaded by -labels");
 			System.out.println(" [-showResult]            interactively view final result of this operation");
 			System.out.println();
@@ -232,10 +215,11 @@ class CommandLineUtil
 		public String getRepositoryKey() { return repositoryKey; }
 		public void setRepositoryKey(String key) { labels(key); }
 		public Object[] getAllowedRepositoryKeyValues() { return FancyLoader.getPossibleTextLabelKeys(); }
-		public boolean getShowLabels() { return showLabels; }
-		public void setShowLabels(boolean flag ) { showLabels=flag; }
-		public boolean getShowResult() { return showResult; }
-		public void setShowResult(boolean flag ) { showResult=flag; }
+		//don't expose these in GUI
+		//public boolean getShowLabels() { return showLabels; }
+		//public void setShowLabels(boolean flag ) { showLabels=flag; }
+		//public boolean getShowResult() { return showResult; }
+		//public void setShowResult(boolean flag ) { showResult=flag; }
 	}
 	
 	/** Parameters used by all 'train' routines. */

@@ -305,7 +305,7 @@ public class TypeSelector extends ComponentViewer
 								panel.add(theBox, gbc(1,row));
 							} catch (NoSuchMethodException ex) {
 								final JTextField textField = new JTextField(10);
-								textField.setText(value.toString());
+								textField.setText(value==null?"":value.toString());
 								textField.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent ev) {
 											try {
@@ -318,8 +318,10 @@ public class TypeSelector extends ComponentViewer
 											}
 										}
 									});
-								panel.add(textField, gbc(1,row));
-								if (pname.indexOf("Filename")>=0) {
+								if (pname.indexOf("Filename")<0) {
+									panel.add(textField, gbc(1,row));
+								} else { 
+									// couple input field with a browse button
 									final JFileChooser chooser = new JFileChooser();
 									chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 									JButton browseButton = new JButton(new AbstractAction("Browse") {
@@ -339,7 +341,10 @@ public class TypeSelector extends ComponentViewer
 												}
 											}
 										});
-									panel.add(browseButton, gbc(2,row));
+									JPanel typeOrBrowsePanel = new JPanel();
+									typeOrBrowsePanel.add(textField);
+									typeOrBrowsePanel.add(browseButton);
+									panel.add(typeOrBrowsePanel, gbc(1,row));
 								}
 								numTextFields++;
 							}

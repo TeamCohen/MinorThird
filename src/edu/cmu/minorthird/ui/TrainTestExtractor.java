@@ -25,18 +25,21 @@ public class TrainTestExtractor extends UIMain
 
 	// private data needed to train a extractor
 
+	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	TextLabelsExperiment expt; // the main result
+	ExtractionEvaluation evaluation; // the main result
 	
 	// for command-line ui
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,signal,train,trainTest});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,train,trainTest});
 	}
 
 	// for GUI
+	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams base) { this.save=save; }
 	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; }
   public void setSignalParameters(CommandLineUtil.ExtractionSignalParams signal) { this.signal=signal; }
 	public CommandLineUtil.TrainExtractorParams getTrainingParameters() { return train; }
@@ -68,15 +71,27 @@ public class TrainTestExtractor extends UIMain
 			//trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
 			//System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
-		expt = new TextLabelsExperiment( base.labels,trainTest.splitter,train.learner,
+		TextLabelsExperiment expt = new TextLabelsExperiment( base.labels,trainTest.splitter,train.learner,
 																		 signal.spanType,signal.spanProp,"_predicted" );
 		expt.doExperiment();
+		evaluation = expt.getEvaluation();
+
 		if (base.showResult) {
-			new ViewerFrame("Experimental Result",expt.toGUI());
+			if (trainTest.showTestDetails) new ViewerFrame("Experimental Result",expt.toGUI());
+			else new ViewerFrame("Experimental Result",evaluation.toGUI());
 		}
+
+		if (save.saveAs!=null) {
+			try {
+				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
+			} catch (IOException e) {
+				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
+			}
+		}
+
 	}
 
-	public Object getMainResult() { return expt; }
+	public Object getMainResult() { return evaluation; }
 
 	public static void main(String args[])
 	{

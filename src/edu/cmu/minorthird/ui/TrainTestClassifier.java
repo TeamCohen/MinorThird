@@ -103,7 +103,7 @@ public class TrainTestClassifier extends UIMain
 			}
 		}
 
-		CommandLineUtil.summarizeEvaluation(evaluation);
+		evaluation.summarize();
 	}
 
 	public Object getMainResult() { return result; }

@@ -675,30 +675,31 @@ public class Evaluation implements Visible,Serializable
   }
 
 
+	/** Print summary statistics
+	 */
+	public void summarize()
+	{
+		double[] stats = summaryStatistics();
+		String[] statNames = summaryStatisticNames();
+		int maxLen = 0;
+		for (int i=0; i<statNames.length; i++) {
+			maxLen = Math.max(statNames[i].length(), maxLen); 
+		}
+		for (int i=0; i<statNames.length; i++) {
+			System.out.print(statNames[i]+": ");
+			for (int j=0; j<maxLen-statNames[i].length(); j++) System.out.print(" ");
+			System.out.println(stats[i]);
+		}
+	}
+
+
   public Viewer toGUI()
   {
     ParallelViewer main = new ParallelViewer();
 
     main.addSubView("Summary",new SummaryViewer());
     main.addSubView("Properties",new PropertyViewer());
-    /*
-    Viewer prViewer = new ComponentViewer() {
-    public JComponent componentFor(Object o) {
-    Evaluation e = (Evaluation)o;
-    Matrix m = e.precisionRecallScore();
-    LineCharter lc = new LineCharter();
-    lc.startCurve("Raw Precision");
-    for (int i=0; i<m.values.length; i++) {
-    lc.addPoint(m.values[i][1], m.values[i][0]);
-    }
-    return lc.getPanel("Precision vs Recall", "Recall", "Precision");
-    }
-    };
-    main.addSubView("Raw Precision/Recall",prViewer);
-    */
-    if (isBinary) {
-      main.addSubView("11Pt Precision/Recall",new ElevenPointPrecisionViewer());
-    }
+    if (isBinary) main.addSubView("11Pt Precision/Recall",new ElevenPointPrecisionViewer());
     main.addSubView("Confusion Matrix",new ConfusionMatrixViewer());
     main.addSubView("Debug", new VanillaViewer());
     main.setContent(this);

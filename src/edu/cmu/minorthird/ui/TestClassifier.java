@@ -84,7 +84,7 @@ public class TestClassifier extends UIMain
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
 		}
-		CommandLineUtil.summarizeEvaluation(evaluation);
+		evaluation.summarize();
 	}
 
 	public Object getMainResult() { return result; }

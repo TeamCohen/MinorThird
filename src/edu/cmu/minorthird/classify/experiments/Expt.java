@@ -3,9 +3,8 @@
 package edu.cmu.minorthird.classify.experiments;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.IOUtil;
-import edu.cmu.minorthird.util.StringUtil;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
+import edu.cmu.minorthird.util.*;
+import edu.cmu.minorthird.util.gui.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +15,50 @@ import java.io.Serializable;
  * @author William Cohen
  */
 
-public class Expt
+public class Expt implements CommandLineProcessor.Configurable
 {
 	private Dataset trainData=null, testData=null;
 	private Splitter splitter=null;
 	private ClassifierLearner learner=null;
 	private String splitterArg=null,trainArg=null,testArg=null,learnerArg=null;
+
+	private class MyCLP extends BasicCommandLineProcessor
+	{
+		public void train(String s) { 
+			try {
+				trainData = toDataset(s); 
+				trainArg = s;
+			} catch (IOException ex) {
+				throw new IllegalArgumentException("Error loading "+s+": "+ex);
+			}
+		}
+		public void test(String s) { 
+			try {
+				testData = toDataset(s); 
+				splitter = new FixedTestSetSplitter(testData.iterator());
+				testArg = s;
+			} catch (IOException ex) {
+				throw new IllegalArgumentException("Error loading "+s+": "+ex);
+			}
+		}
+		public void splitter(String s) { 
+			splitterArg = s;
+			splitter = toSplitter(s); 
+		}
+		public void learner(String s) { 
+			learner = toLearner(s); 
+			learnerArg = s;
+		}
+		public void usage() {
+			System.out.println("classify.Expt parameters:");
+			System.out.println(" -train FILE              training data is in FILE");
+			System.out.println(" [-test FILE]             test data is in FILE");
+			System.out.println(" [-splitter SPLITTER]     do cross-validation study with the SPLITTER");
+			System.out.println(" [-learner LEARNER]       use learner defined by bean-shell command");
+			System.out.println();
+		}
+	}
+	public CommandLineProcessor getCLP() { return new MyCLP(); }
 
 	public Expt(ClassifierLearner learner,Dataset trainData,Dataset testData)
 	{
