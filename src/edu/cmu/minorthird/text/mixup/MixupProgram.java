@@ -481,16 +481,16 @@ public class MixupProgram
 			labels.declareType(type);
 		    }
 		} else if (statementType==FILTER) {
-		    TreeSet accum = new TreeSet();
-		    for (Span.Looper i=input; i.hasNext(); ) {
-			Span span = i.nextSpan();
-			if (!hasExtraction(mixupExpr,labels,span)) {
+      TreeSet accum = new TreeSet();
+      for (Span.Looper i=input; i.hasNext(); ) {
+        Span span = i.nextSpan();
+        if (!hasExtraction(mixupExpr,labels,span)) {
 			    accum.add( span );
-			}
-		    }
-		    for (Iterator i=accum.iterator(); i.hasNext(); ) {
-			extendLabels( labels, ((Span)i.next()) );
-		    }
+        }
+      }
+      for (Iterator i=accum.iterator(); i.hasNext(); ) {
+        extendLabels( labels, ((Span)i.next()) );
+      }
 		} else if (statementType==TRIE) {
 		    while (input.hasNext()) {
 			Span span = input.nextSpan();

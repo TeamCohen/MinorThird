@@ -29,8 +29,8 @@ public class MarkupControls extends ViewerControls
 	}
 	private static final int NUM_COLOR_BOXES=5;
 
-	private TextLabels labels; // TextLabels being marked up
-	private ArrayList types = new ArrayList(); // all types in the textLabels
+	protected TextLabels labels; // TextLabels being marked up
+	protected ArrayList types = new ArrayList(); // all types in the textLabels
 	private Map typeColorCode = new HashMap(); // map types -> color name (eg "red")
 	private Map propColorCode = new HashMap(); // map prop -> (map from value->color name)
 	private JComboBox guessBox, truthBox; // used for spanDifferencesa
@@ -171,7 +171,7 @@ public class MarkupControls extends ViewerControls
 	public int preferredLocation() { return ViewerControls.RIGHT; }
 	public boolean prefersToBeResized() { return true; }
 
-	public Set propValuePairs()
+	private Set propValuePairs()
 	{
 		TreeSet accum = new TreeSet();
 		Set props = labels.getSpanProperties();
@@ -188,7 +188,7 @@ public class MarkupControls extends ViewerControls
 	private String packPropValue(String p,String v) { return p+"="+v; }
 	private String[] unpackPropValue(String pv) { return pv.split("="); }
 
-	public JButton makeResetButton()
+	private JButton makeResetButton()
 	{
 		return new JButton(new AbstractAction("-reset controls-") {
 				public void actionPerformed(ActionEvent e) {
@@ -200,7 +200,7 @@ public class MarkupControls extends ViewerControls
 	}
 
 	// a drop-down box of something's
-	public JComboBox makeBox(String tag,Collection c)
+	private JComboBox makeBox(String tag,Collection c)
 	{
 		final JComboBox box = new JComboBox();	
 		box.addItem("-select "+tag+"-");

@@ -86,7 +86,7 @@ public class ExtractorTweaker
     public void labels(String s) { textLabels=FancyLoader.loadTextLabels(s); }
     public void spanType(String s) { spanType=s; }
     public void newBias(String s) { newBias=StringUtil.atof(s); biasSpecified=true; }
-    public void lowBias(String s) { lo=StringUtil.atof(s); loSpecified=true; }
+    public void loBias(String s) { lo=StringUtil.atof(s); loSpecified=true; }
     public void hiBias(String s) { hi=StringUtil.atof(s); hiSpecified=true; }
     public void beta(String s) { beta=StringUtil.atof(s); }
     public void usage() { for (int i=0; i<USAGE.length; i++) System.out.println(USAGE[i]); }
@@ -100,6 +100,8 @@ public class ExtractorTweaker
     " -loadFrom FILE                where to load a previously-learner extractor from",
     " [-saveAs FILE]                where to save the 'tweaked' version of the extractor",
     " [-newBias NUM]                new value that replaces the hyperplane_bias term of the NEG hyperplane",
+    " [-loBias NUM]                 lower limit of search for best bias term",
+    " [-hiBias NUM]                 lower limit of search for best bias term",
     "",
     "If -newBias is NOT specified, then ExtractorTweaker will try and find a 'good' value",
     "on its own, using bisection search, guided by the following additional parameters:",
@@ -111,11 +113,17 @@ public class ExtractorTweaker
   };
 
 
-  private void doMain() throws IOException
+  private void doMain() 
   {
     if (fromFile==null) throw new IllegalStateException("need to specify -loadFrom");
 
-    ExtractorAnnotator annotator = (ExtractorAnnotator)IOUtil.loadSerialized(fromFile);
+    ExtractorAnnotator annotator = null;
+    try {
+      System.out.println("loading from: "+fromFile);
+      annotator = (ExtractorAnnotator)IOUtil.loadSerialized(fromFile);
+    } catch (IOException ex) {
+      System.out.println("can't load "+fromFile+": "+ex);
+    }
     ExtractorAnnotator tweaked = null;
     if (biasSpecified) {
       // just tweak the bias as given
@@ -139,8 +147,14 @@ public class ExtractorTweaker
 
       double optBias = solver.solve(lo, hi, 0.01, 0.01, 40, null);
       tweaked = tweak(annotator,optBias);
+    } else {
+      System.out.println("illegal usage, use -help for help");
     }
-    if (toFile!=null) IOUtil.saveSerialized((Serializable)tweaked, toFile);
+    try {
+      if (toFile!=null) IOUtil.saveSerialized((Serializable)tweaked, toFile);
+    } catch (IOException ex) {
+      System.out.println("can't save to "+toFile+": "+toFile);
+    }
   }
 
   //

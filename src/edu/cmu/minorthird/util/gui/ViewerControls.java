@@ -44,6 +44,9 @@ abstract public class ViewerControls extends JPanel implements ActionListener
 		this.viewer = viewer; 
 	}
 
+  /** Return the viewer that is controlled by this object. */
+  public Controllable getControlledViewer() { return (Controllable)viewer; }
+
 	/** Add an update button. */
 	public void addApplyButton() 
 	{ 
