@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project
+[<!ENTITY buildfile SYSTEM "tasks.xml">]>
+
+<project default="build">
+	&buildfile;
+
+<target name="build-ks" depends="init"
+  description="build the source ">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="apps/ksteppe/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
+</target>
+
+  <target name="kt" depends="build, build-test" description="Run the tests, halting on failure">
+    <mkdir dir="${reportsDir}"/>
+    <!-- for edu.cmu.minorthird.wcohen.bb.TestPackage -->
+    <mkdir dir="${testRootDir}"/>
+    <junit printsummary="yes" haltonfailure="no">
+      <!-- <jvmarg value="-Xmx600m -Xms600m"/> -->
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+      <formatter type="plain"/>
+
+      <batchtest fork="yes" todir="${reportsDir}">
+        <fileset dir="${classDir}">
+          <include name="**/TextLabelsLoaderTest.class"/>
+          <!--<include name="com/wcohen/txt/ann/POSTaggerTest.class"/>-->
+          <!--<include name="**/TextLabelsLoaderTest.class"/>-->
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+<!-- visual tests -->
+<target name="visual-tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+  <mkdir dir="${reportsDir}"/>
+  <junit printsummary="yes" haltonfailure="no">
+    <!--<jvmarg value="-Xmx512m"/>-->
+    <classpath>
+      <path refid="classpath"/>
+    </classpath>
+    <formatter type="plain"/>
+
+    <batchtest fork="no" todir="${reportsDir}">
+      <fileset dir="${classDir}">
+	<include name="**/ViewerTest.class"/>
+	<include name="**/BasicDatasetTest.class"/>
+        <include name="**/BayesClassifiersTest.class"/>
+       </fileset>
+    </batchtest>
+   </junit>
+</target>
+
+<target name="base-tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+  <mkdir dir="${reportsDir}"/>
+<!--  <mkdir dir="${testRootDir}"/> -->
+  <junit printsummary="yes" haltonfailure="no">
+    <!--<jvmarg value="-Xmx512m"/>-->
+    <classpath>
+      <path refid="classpath"/>
+    </classpath>
+    <formatter type="plain"/>
+
+    <batchtest fork="no" todir="${reportsDir}">
+      <fileset dir="${classDir}">
+        <!-- either TestPackage or *Test -->
+        <include name="**/TestPackage.class"/>
+        <include name="**/*Test.class"/>
+
+        <exclude name="**/*$*.class"/> <!-- inner classes excluded -->
+        <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> <!-- a base class, not to be run -->
+
+	<!-- visual tests -->
+	<exclude name="**/ViewerTest.class"/>
+	<exclude name="**/BasicDatasetTest.class"/>
+
+	      <!-- requires test data -->
+        <exclude name="**/IOUtilTest.class"/>         <!-- data -->
+        <exclude name="**/LibsvmTest.class"/>         <!-- data -->
+        <exclude name="**/LearnToClassifyTest.class"/>
+        <exclude name="**/EdoTextLabelsTest.class"/>
+        <exclude name="**/BayesClassifiersTest.class"/>
+        <exclude name="**/TextLabelsLoaderTest.class"/>
+
+        <!-- long running time (>5 seconds) -->
+<!--        <exclude name="**/POSTaggerTest.class"/> -->
+       <exclude name="**/MixupProgramTest.class"/>
+
+        <!-- even longer running time (>20 secs) -->
+        <exclude name="**/TextBaseLoaderTest.class"/>
+
+        <!-- VERY long running time (>1 minute) -->
+      </fileset>
+    </batchtest>
+  </junit>
+</target>
+
+
+  <target name="data-tests" depends="build, build-test" description="Run the long tests">
+    <junit printsummary="yes" haltonfailure="no">
+      <jvmarg value="-Xmx512m"/>
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+      <formatter type="plain"/>
+
+      <batchtest fork="no" todir="${reportsDir}">
+        <fileset dir="${classDir}">
+          <include name="**/LearnToClassifyTest.class"/>
+          <include name="**/IOUtilTest.class"/>         <!-- data -->
+          <include name="**/LearnToClassifyTest.class"/>
+          <include name="**/EdoTextLabelsTest.class"/>
+          <include name="**/TextLabelsLoaderTest.class"/>
+	  <include name="**/TextBaseLoaderTest.class"/>
+          <include name="**/SimpleTextLoaderTest.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="long-tests" depends="build, build-test" description="Run the long tests">
+    <junit printsummary="yes" haltonfailure="no">
+      <jvmarg value="-Xmx550m"/>
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+      <formatter type="plain"/>
+
+      <batchtest fork="yes" todir="${reportsDir}">
+        <fileset dir="${classDir}">
+	  <include name="**/MixupProgramTest.class"/>
+	  <include name="**/LibsvmTest.class"/>         <!-- ~30 sec -->
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="all-tests" depends="base-tests, visual-tests, data-tests, long-tests" description="run everything"/>
+  <target name="raff-tests" depends="base-tests, data-tests, long-tests" description="run everything"/>
+
+<!--
+  <include name="com/wcohen/cls/SampleDatasetsClassificationTest.class"/>
+  <include name="com/wcohen/cls/CompactInstanceTest.class"/>
+-->
+
+  <target name="profile" depends="build, build-test" description="Run the tests, halting on failure">
+    <mkdir dir="${reportsDir}"/>
+    <!-- for edu.cmu.minorthird.wcohen.bb.TestPackage -->
+    <mkdir dir="${testRootDir}"/>
+    <junit printsummary="yes" haltonfailure="no">
+      <jvmarg value="-Xmx16m -Xms16m"/>
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+      <formatter type="plain"/>
+
+      <batchtest fork="yes" todir="${reportsDir}">
+        <fileset dir="${classDir}">
+          <include name="com/wcohen/txt/TextBaseLoaderTest.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="mail">
+    <mail mailhost="ux13.sp.cs.cmu.edu" mailport="25"
+        subject="minorthird auto-build" encoding="plain">
+      <from name="mnr3rd on raff" address="ksteppe@cs.cmu.edu"/>
+      <to address="ksteppe@cs.cmu.edu"/>
+
+      <message> Auto Build and Test </message>
+      <fileset dir="/usr1/ksteppe/minorthird/output">
+        <include name=".out"/>
+      </fileset>
+
+    </mail>
+  </target>
+
+</project>
