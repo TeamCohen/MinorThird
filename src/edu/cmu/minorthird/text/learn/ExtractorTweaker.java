@@ -104,7 +104,7 @@ public class ExtractorTweaker
         System.out.println("oldBias term was "+v+" testing between "+lo+" and "+hi);
       }
 
-      System.out.println("try to maximize token F[beta] for beta="+beta+" (b>1 rewards precision, b<1 recall)");
+      System.out.println("try to maximize token F[beta] for beta="+beta+" (b>1 rewards recall, b<1 precision)");
       AnnTester annTester = new AnnTester(annotator,beta);
       ScalarSolver solver = new ScalarSolver(annTester);
 
@@ -132,10 +132,12 @@ public class ExtractorTweaker
           annLabels.instanceIterator(spanType),
           annLabels.closureIterator(spanType));
       double f = 0;
-      if (sd.tokenPrecision()!=0 || sd.tokenPrecision()!=0) {
-        f = (beta*beta+1.0)*sd.tokenPrecision()*sd.tokenRecall()/(beta*beta*sd.tokenPrecision()+sd.tokenRecall());
+      double p = sd.tokenPrecision();
+      double r = sd.tokenRecall();
+      if (p!=0 || p!=0) {
+        f = (beta*beta+1.0)*p*r/(beta*beta*p+r);
       }
-      System.out.println("after testing, bias "+d+" yields f["+beta+"]="+f);
+      System.out.println("after testing bias "+d+" yields f["+beta+"]="+f+" for p/r of "+p+"/"+r);
       return -f; //scalar solver tries to minimize this
     }
   }
