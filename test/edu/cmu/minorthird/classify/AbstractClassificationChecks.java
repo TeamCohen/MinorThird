@@ -5,6 +5,7 @@ import edu.cmu.minorthird.classify.experiments.Evaluation;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 /**
  * This class...
@@ -22,6 +23,7 @@ abstract public class AbstractClassificationChecks extends TestCase
   public AbstractClassificationChecks(String name)
   {
     super(name);
+    log.setLevel(Level.DEBUG);
   }
 
   /**
@@ -44,6 +46,7 @@ abstract public class AbstractClassificationChecks extends TestCase
       stats[1] = v.averagePrecision();
       stats[2] = v.maxF1();
       stats[3] = v.averageLogLoss();
+      log.info("using Standard statos only (4 of them)");
     }
     else
       stats = v.summaryStatistics();

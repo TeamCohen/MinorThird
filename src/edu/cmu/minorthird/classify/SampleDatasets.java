@@ -64,7 +64,21 @@ public class SampleDatasets
 	 */
 	public static Dataset toyTest() { return makeData(posTest, negTest); }
 
+  private static String[] posBayesTrain = {
+    "a a pricy doll house", "a a little red red fire truck", "a red wagon",
+    "a pricy red sports car", "punk queen barbie and and ken", "a little red bike" };
+  private static String[] negBayesTrain = {
+    "a big big 7-seater minivan with with an an automatic transmission",
+    "a big house in the suburbs with a a crushing mortgage",
+    "a job for for life at at IBM", "a huge pile of of tax forms, due yesterday",
+    "huge pile of of junk mail, bills, and catalogs" };
 
+  private static String[] posBayesTest = {
+    "a a pricy barbie doll", "a little yellow toy car", "a a red 10 speed bike", "a red convertible porshe" };
+  private static String[] negBayesTest = {
+    "a big pile of of paperwork", "a huge backlog of email", "a life of woe and and trouble" };
+
+/*
 	private static String[] posBayesTrain = {
 		"p1 p1 n1", "p2 p2 n2",
         "p3 p3 n3","p4 p4 n4",
@@ -82,6 +96,7 @@ public class SampleDatasets
         "p1 n1 n1", "p2 n2 n2",
         "p3 n3 n3","p4 n4 n4",
         "p5 n5 n5" };
+*/
 
 	/** Makes test-data for generative Bayesian models */
 	private static Dataset makeBayesData( String[] pos,String[] neg )
