@@ -9,6 +9,10 @@ import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 
+import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.gui.TextBaseLabeler;
+import edu.cmu.minorthird.text.gui.TextBaseEditor;
+
 import org.apache.log4j.Logger;
 import java.util.*;
 import java.io.*;
@@ -864,6 +868,9 @@ class CommandLineUtil
 		private static final String[] ALLOWED_VALUES = {"minorthird","xml","strings"};
 		public String format = "minorthird";
 		public void format(String s) { format=s; }
+	        public void toXML(String directoryName) {
+		    System.out.println("Creating XML documents");
+		}
 		public void usage() {
 			System.out.println("annotation output parameters:");
 			System.out.println(" -mixup FILE              run mixup program in FILE (existing file, or name on classpath)");
@@ -875,6 +882,47 @@ class CommandLineUtil
 		public String getOutputFormat() { return format; }
 		public void setOutputFormat(String s) { format=s; }
 		public String[] getAllowedOutputFormatValues() { return ALLOWED_VALUES; }
+	}
+
+        static public class ViewLabelsParams extends BasicCommandLineProcessor {
+	        public void toXML(String key) {
+		    System.out.println("Creating XML documents");
+
+		    try {
+			MutableTextLabels labels = (MutableTextLabels)FancyLoader.loadTextLabels(key);
+			
+			String str = null;
+			
+			TextLabelsLoader x = new TextLabelsLoader();
+			TextBase base = labels.getTextBase();
+			
+			//for testing
+			//File userEditedLabelFile = new File("labels.env");
+			//TextBaseEditor.edit(labels, userEditedLabelFile);
+			
+			(new File("./xml-" + key)).mkdir();
+			//int num =0;
+			for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
+			    {
+				String doc = i.nextSpan().getDocumentId();
+				File f = new File("./xml-"+key+"/xml-" + doc);
+				FileOutputStream fos = new FileOutputStream(f);
+				PrintWriter outfile = new PrintWriter(fos);
+				str = x.createXMLmarkup(doc ,labels);
+				outfile.print(str);
+				outfile.close();
+				} 
+		    }		  		    
+		    catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("something wrong..");
+			System.exit(1);}
+		}
+	    public void usage() {
+		System.out.println("labels output parameters:");             
+			System.out.println(" -toXML DIRECTORY_NAME    create documents with embedded XML tags and put in directory");
+			System.out.println();
+		}
 	}
 
 }

@@ -28,7 +28,7 @@ public class TrainTestExtractor extends UIMain
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
-	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
+	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();    
 	private Object result = null;
 	
 	// for command-line ui
