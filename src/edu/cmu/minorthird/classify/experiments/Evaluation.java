@@ -10,6 +10,7 @@ import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
@@ -572,7 +573,7 @@ public class Evaluation implements Visible,Serializable
     }
   }
 
-  static public class SummaryViewer extends ComponentViewer {
+  public class SummaryViewer extends ComponentViewer {
     public JComponent componentFor(Object o) {
       Evaluation e = (Evaluation)o;
       double[] ss = e.summaryStatistics();
@@ -582,7 +583,10 @@ public class Evaluation implements Visible,Serializable
         oss[i][0] = ssn[i];
         oss[i][1] = new Double(ss[i]);
       }
-      return new JScrollPane(new JTable(oss,new String[] { "Statistic", "Value" }));
+      JTable jtable = new JTable(oss,new String[] { "Statistic", "Value" });
+      jtable.setDefaultRenderer(Object.class, new MyTableCellRenderer());
+      jtable.setVisible(true);
+      return new JScrollPane( jtable );
     }
   }
 
@@ -796,6 +800,26 @@ public class Evaluation implements Visible,Serializable
             return ((Entry)a).index - ((Entry)b).index;
           }
         });
+  }
+
+  // table renderer
+  public class MyTableCellRenderer extends DefaultTableCellRenderer
+  {
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+    {
+      JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+      if((row % 2) != 0)
+      {
+        label.setBackground(Color.lightGray);
+        label.setOpaque(true);
+      }
+      else
+      {
+        label.setBackground(Color.white);
+        label.setOpaque(true);
+      }
+      return label;
+    }
   }
 
   //

@@ -15,6 +15,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.IOException;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.*;
@@ -51,7 +52,7 @@ public class MovieDataset {
     {
       try {
         // load counts from file
-        File fileOfCounts = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movies-cnt-ing.id");
+        File fileOfCounts = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/mv-cnt-docu.txt");
         data = DatasetLoader.loadFile(fileOfCounts);
       } catch (Exception e) {
         log.error(e, e);
@@ -150,7 +151,7 @@ public class MovieDataset {
       }
       else if (FILTER.equals("Info-Gain"))
       {
-        int featureToKeep = 10000;  String model = "document"; // or "word"
+        int featureToKeep = 50;  String model = "document"; // or "word"
         System.out.println("Filter Features with Info-Gain");
         InfoGainTransformLearner filter = new InfoGainTransformLearner( model );
         InfoGainInstanceTransform infoGain = (InfoGainInstanceTransform)filter.batchTrain( data );
@@ -175,6 +176,11 @@ public class MovieDataset {
       BasicFeatureIndex fidx = new BasicFeatureIndex(data);
       System.out.println( "Dataset:\n # examples = "+data.size() );
       System.out.println( " # features = "+fidx.numberOfFeatures() );
+
+      //File outFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/IG-5000.3rd");
+      //try { DatasetLoader.save( data,outFile ); }
+      //catch (IOException e) { e.printStackTrace(); }
+      //System.out.println("File saved!");
 
       if (DUMP_WORDS)
       {
