@@ -81,10 +81,26 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 		params.setStackingDepth(depth);
 	}
 
+ 	public StackedSequenceLearner(ClassifierLearner baseLearner,int depth)
+	{
+		this();
+		this.baseLearner = new CMMLearner(baseLearner,0);
+		params.setStackingDepth(depth);
+	}
+
  	public StackedSequenceLearner(SequenceClassifierLearner baseLearner,int depth,int windowSize)
 	{
 		this();
 		this.baseLearner = baseLearner;
+		params.setStackingDepth(depth);
+		params.setHistorySize(windowSize);
+		params.setFutureSize(windowSize);
+	}
+
+ 	public StackedSequenceLearner(ClassifierLearner baseLearner,int depth,int windowSize)
+	{
+		this();
+		this.baseLearner = new CMMLearner(baseLearner,0);
 		params.setStackingDepth(depth);
 		params.setHistorySize(windowSize);
 		params.setFutureSize(windowSize);
