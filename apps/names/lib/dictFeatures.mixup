@@ -1,0 +1,16 @@
+provide 'dictFeatures';
+
+// dictionaries and the 'punctuation' token type
+
+
+defDict common = "commonWords.txt";
+defDict first = "firstNames.txt","nicknames.txt";
+defDict last = "lastNames.txt";
+defDict roster = "rosterNames.txt";
+
+// some properties to exploit
+defTokenProp common:1 =top: ... [ai(common)]...;
+defTokenProp punc:1 =top: ... [re('^\W$')]...;
+defTokenProp first:1 =top: ... [ai(first)]...;
+defTokenProp last:1 =top: ... [ai(last)]...;
+defTokenProp rosterName:1 =top: ... [ai(roster)] ... ;

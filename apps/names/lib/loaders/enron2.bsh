@@ -6,11 +6,10 @@ TextBase base = new BasicTextBase();
 System.out.println("dataDir="+dataDir);
 
 baseLoader.loadDir(base, new File(dataDir,"enron/bunch-2"));
-return new BasicTextEnv(base);
-//TextEnvLoader envLoader = new TextEnvLoader();
-//envLoader.setClosurePolicy(TextEnvLoader.CLOSE_ALL_TYPES);
-//MutableTextEnv env = envLoader.loadOps(base, new File(labelDir,"enron/bunch-1-names-corrected.env"));
-//return env;
+TextLabelsLoader labelsLoader = new TextLabelsLoader();
+labelsLoader.setClosurePolicy(TextLabelsLoader.CLOSE_ALL_TYPES);
+MutableTextLabels labels = labelsLoader.loadOps(base, new File(labelDir,"enron/bunch-2-names-corrected.env"));
+return labels;
 
 
 

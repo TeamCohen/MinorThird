@@ -6,13 +6,11 @@ TextBase base = new BasicTextBase();
 baseLoader.loadDir(base, new File(dataDir,"enron/bunch-1"));
 baseLoader.loadDir(base, new File(dataDir,"enron/bunch-2"));
 baseLoader.loadDir(base, new File(dataDir,"enron/bunch-3"));
-baseLoader.loadDir(base, new File(dataDir,"enron/bunch-4"));
 TextLabelsLoader labelsLoader = new TextLabelsLoader();
 labelsLoader.setClosurePolicy(TextLabelsLoader.CLOSE_ALL_TYPES);
 MutableTextLabels labels = new BasicTextLabels(base);
 labelsLoader.importOps(labels, base, new File(labelDir,"enron/bunch-1-names-corrected.env"));
 labelsLoader.importOps(labels, base, new File(labelDir,"enron/bunch-2-names-corrected.env"));
 labelsLoader.importOps(labels, base, new File(labelDir,"enron/bunch-3-names-corrected.env"));
-labelsLoader.importOps(labels, base, new File(labelDir,"enron/bunch-4-names-corrected.env"));
 return labels;
 

@@ -8,5 +8,5 @@ System.out.println("dataDir="+dataDir);
 baseLoader.loadDir(base, new File(dataDir,"enron/bunch-1"));
 TextLabelsLoader labelsLoader = new TextLabelsLoader();
 labelsLoader.setClosurePolicy(TextLabelsLoader.CLOSE_ALL_TYPES);
-MutableTextLabels labels = labelsLoader.loadOps(base, new File(labelDir,"enron/bunch-1-names-corrected.env"));
+MutableTextLabels labels = labelsLoader.loadOps(base, new File(labelDir,"enron/bunch-1-dates-corrected.env"));
 return labels;

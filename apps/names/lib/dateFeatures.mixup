@@ -1,0 +1,26 @@
+require 'dateTime','dateTime.mixup';
+provide 'dateFeatures';
+
+// make everything in date, time, available as properties
+
+defTokenProp monthWord:1 =: ... [a(monthWord)] ... ;
+defTokenProp dayWord:1 =: ... [a(dayWord)] ... ;
+defTokenProp dateOther:1 =: ... [a(dateOther)] ... ;
+defTokenProp datePartOfDay:1 =: ... [a(datePartOfDay)] ... ;
+defTokenProp commonWord:1 =: ... [a(commonWord)] ...;
+
+defTokenProp monthNum:1 =: ... [a(monthNum)] ... ;
+defTokenProp dayNum:1 =: ... [a(dayNum)] ... ;
+defTokenProp yearNum:1 =: ... [a(yearNum)] ... ;
+
+defTokenProp dateDet:1 =: ... [a(dateDet)] ... ;
+defTokenProp dateSep:1 =: ... [a(dateSep)] ... ;
+defTokenProp tomorrowWord:1 =: ... [a(tomorrowWord)] ... ;
+
+defTokenProp extractedDate:1 =: ... [@extractedDate] ...;
+defTokenProp extractedTime:1 =: ... [@extractedTime] ...;
+
+defTokenProp timeSep:1 =: ... [a(timeSep)] ... ;
+defTokenProp contentSection:1 =: ... [@contentSection] ... ;
+
+defTokenProp extracted:1_dateOrTime =: ... [@extracted_dateOrTime] ... ;

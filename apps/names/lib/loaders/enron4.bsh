@@ -3,10 +3,12 @@ import edu.cmu.minorthird.text.*;
 TextBaseLoader baseLoader = new TextBaseLoader();
 TextBase base = new BasicTextBase();
 
-System.out.println("dataDir="+dataDir);
-
-baseLoader.loadDir(base, new File(dataDir,"enron/bunch-1"));
+baseLoader.loadDir(base, new File(dataDir,"enron/bunch-4"));
 TextLabelsLoader labelsLoader = new TextLabelsLoader();
 labelsLoader.setClosurePolicy(TextLabelsLoader.CLOSE_ALL_TYPES);
-MutableTextLabels labels = labelsLoader.loadOps(base, new File(labelDir,"enron/bunch-1-names-corrected.env"));
+MutableTextLabels labels = labelsLoader.loadOps( base, new File(labelDir,"enron/bunch-4-names-corrected.env"));
+
 return labels;
+
+
+

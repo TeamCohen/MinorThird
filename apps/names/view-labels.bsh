@@ -1,20 +1,23 @@
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.text.mixup.*;
 
-String dirName = System.getProperty("dir");
-String envFile = System.getProperty("env");
+String key = System.getProperty("key","cspace7.bsh");
+String progName = System.getProperty("prog","nameFeatures_v1.mixup");
 
-MutableTextEnv env = (MutableTextEnv)FancyLoader.loadTextEnv("test.bsh");
-MixupProgram prog = new MixupProgram(new File("lib/nameFeatures.mixup"));
-prog.eval(env, env.getTextBase());
+MutableTextLabels labels = (MutableTextLabels)FancyLoader.loadTextLabels(key);
+MixupProgram prog = new MixupProgram(new File(progName));
+prog.eval(labels, labels.getTextBase());
 
-env.declareType("true_name");
+labels.declareType("true_name");
 
 // decide where we will store any labeled added by hand 
 
 File userEditedLabelFile = new File("my-labels.env");
-TextBaseEditor.edit(env, userEditedLabelFile);
+TextBaseEditor.edit(labels, userEditedLabelFile);
+
+
 
 
 

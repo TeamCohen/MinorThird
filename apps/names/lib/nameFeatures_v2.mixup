@@ -5,7 +5,6 @@ provide 'nameFeatures_v2';
 // second version of features for names
 //
 // version 1 was tuned for cspace data, version 2 is tuned for enron data
-// differences are mostly in the way that headers are processed
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -13,13 +12,15 @@ provide 'nameFeatures_v2';
 require 'headerNames_v2', 'HeaderNameTaggerV2';
 
 // part of the header section field
-defTokenProp headerWord:t =top: ... [@_headerSection] ... ;
+defTokenProp headerWord:t =top: ... [@headerSection] ... ;
 
 // part of an email address
-defTokenProp emailNameWord:t =top: ... [@_emailNameWord] ... ;
+defTokenProp emailNameWord:t =top: ... [@emailNameSpan] ... ;
 
 // part of the 'subject' field
 defTokenProp subjectWord:t =top~ re '\nSubject:\s*([^\n]+)',1;
+
+//defSpanType contentSection =top: ... [L subjectWord:t+ R] ... || ... [@bodySection] ... ;
 
 // begins a new sentence, maybe
 //   A-Z[a-z]+ is a capitalized word

@@ -1,0 +1,14 @@
+provide 'headerFeatures';
+
+require 'headerNames_v2', 'HeaderNameTaggerV2';
+
+// part of the 'subject' field
+defTokenProp subjectWord:t =headerSection~ re '\nSubject:\s*([^\n]+)',1;
+
+// part of the header section
+defTokenProp headerWord:t =top: ... [@headerSection] ... ;
+
+defSpanType contentSection =top: ... [L subjectWord:t+ R] ... || ... [@bodySection] ... ;
+defTokenProp contentWord:t =top: ... [@contentSection] ... ;
+
+

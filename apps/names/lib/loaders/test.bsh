@@ -6,10 +6,10 @@ TextBase base = new BasicTextBase();
 System.out.println("dataDir="+dataDir);
 
 baseLoader.loadDir(base, new File("./testdir/mail"));
-TextEnvLoader envLoader = new TextEnvLoader();
-envLoader.setClosurePolicy(TextEnvLoader.CLOSE_ALL_TYPES);
-MutableTextEnv env = envLoader.loadOps(base, new File("./testdir/names.env"));
-return env;
+//TextLabelsLoader labelsLoader = new TextLabelsLoader();
+//labelsLoader.setClosurePolicy(TextLabelsLoader.CLOSE_ALL_TYPES);
+//MutableTextLabels labels = labelsLoader.loadOps(base, new File("./testdir/names.env"));
+return new BasicTextLabels(base);
 
 
 

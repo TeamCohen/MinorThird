@@ -45,7 +45,13 @@ defTokenProp anchor:t =top: ... [<common:t>] ... || ... [<punc:t>] ...;
 
 //defSpanType sureNameSpan =top: ... [L <sureName:t,!emailWord:t>+ R] ... ;
 //defSpanType rosterNameSpan =top: ... [L <rosterName:t,!emailWord:t,!common:t>+ R] ... ;
-//defSpanType headerNameSpan =top: ... [L headerName:t+ R] ... ;
+//defSpanType headerNameSpan =top: ... [headerName:t] ... ;
+//defSpanType fromWordSpan =top: ... [fromWord:t] ... ;
+//defSpanType emailWordSpan =top: ... [emailWord:t] ... ;
+//defSpanType startWordSpan =top: ... [startWord:t] ... ;
+//defSpanType signOffWordSpan =top: ... [signoff:t] ... ;
+
+
 
 
 

@@ -1,0 +1,14 @@
+provide 'simpleHeaderFeatures';
+
+defTokenProp afterBlankLine:1 =top~ re '\n\n(\S+)',1;
+defTokenProp headerWord:1 =top: [!afterBlankLine:1+] afterBlankLine:1 ... ;
+defTokenProp bodyWord:1 =top: @headerSection [...] ;
+
+// part of the 'subject' field
+defTokenProp subjectWord:1 =headerSection~ re '\nSubject:(([^\n]|\n\s)+)', 1;
+
+
+
+
+
+

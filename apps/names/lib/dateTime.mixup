@@ -1,0 +1,30 @@
+require 'date';
+require 'time';
+provide 'dateTime';
+
+// look for extracted dates/dates in body and subject only
+
+require 'headerNames_v2', 'HeaderNameTaggerV2';
+defTokenProp subjectWord:t =top~ re '\nSubject:\s*([^\n]+)',1;
+defSpanType contentSection =top: ... [L subjectWord:t+ R] ... || ... [@bodySection] ... ;
+
+//defSpanType monthSpan =: ... [monthTok:1] ... ;
+//defSpanType dateSepSpan =: ... [a(dateSep)] ... ;
+//defSpanType dayNumSpan =: ... [a(dayNum)] ... ;
+//defSpanType yrNumSpan =: ... [a(yearNum)] ... ;
+
+//defDict filler = on, of ;
+
+defTokenProp dateOrTimeWord:1 =contentSection: ... [@extracted_time] ... ;
+defTokenProp dateOrTimeWord:1 =contentSection: ... [@extracted_date] ... ;
+
+defSpanType extracted_dateOrTime =contentSection: 
+	... [L dateOrTimeWord:1+ !dateOrTimeWord:1{1,3} dateOrTimeWord:1+ R] ... ;
+
+defTokenProp alreadyExtracted:1 =contentSection: ... [@extracted_dateOrTime] ... ;
+
+defSpanType extracted_dateOrTime =contentSection: ... [L <!alreadyExtracted:1,dateOrTimeWord:1>+ R] ... ;
+
+
+
+

@@ -1,0 +1,20 @@
+provide 'trialFeatures';
+
+require 'simpleHeaderFeatures','simpleHeaderFeatures.mixup';
+require 'dictFeatures','dictFeatures.mixup';
+
+//defTokenProp contentWord:1 =: ... [subjectWord:1] ... ||  ... [bodyWord:1] ... ;
+
+//defTokenProp commonContent:1 =top: ... [<common:1,contentWord:1>]...;
+//defTokenProp puncContent:1 =top: ... [<punc:1,contentWord:1>] ... ; 
+
+//defTokenProp firstContent:1 =top: ... [<first:1,contentWord:1>] ... ;
+//defTokenProp lastContent:1 =top: ... [<last:1,contentWord:1>] ... ;
+//defTokenProp rosterNameContent:1 =top: ... [<rosterName:1,contentWord:1>] ... ;
+
+//defTokenProp sureFirstContent:1 =top: ... [<first:1,contentWord:1,!common:1>] ... ;
+//defTokenProp sureLastContent:1 =top: ... [<last:1,contentWord:1,!common:1>] ... ;
+defTokenProp sureRosterNameContent:1 =top: ... [<rosterName:1,contentWord:1,!common:1>] ... ;
+
+
+

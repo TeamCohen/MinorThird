@@ -3,7 +3,7 @@ import edu.cmu.minorthird.text.mixup.*;
 import edu.cmu.minorthird.text.learn.*;
 
 import java.util.*;
-
+import java.util.regex.*;
 /**
  * Finds all tokens that appear in email addresses in the header, 
  * and marks every occurrence of these tokens in a document
@@ -21,36 +21,53 @@ public class HeaderNameTaggerV2 extends AbstractAnnotator
 	{
 		System.out.println("Annotating with HeaderNameTaggerV2: labels size="+labels.getTextBase().size());
 
-		// first find header areas
-		try {
-			MixupProgram prog = new MixupProgram(	new String[] {
-				"defSpanType _startWord =top~ re '\\n\\n\\s*(\\S+)',1",
-				"defSpanType _headerSection =top: [...] @_startWord ... ",
-				"defSpanType _emailNameWord =_headerSection: ... [L re('^[a-z\\.]+$'){1,5}  ] eq('@') ... ", 
-			});
-			prog.eval(labels, labels.getTextBase() );
-		} catch (Mixup.ParseException e) {
-			throw new IllegalStateException("mixup error: "+e);
-		}
+		Pattern emailRegex = Pattern.compile("\\b([a-z\\.]+)@");
 
 		for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 
 			Span doc = i.nextSpan();
 
-			// collect tokens appearing in the HEADER_FIELDS of this document
-			Set headerNames = new HashSet();
-			for (Span.Looper k=labels.instanceIterator("_emailNameWord", doc.getDocumentId()); k.hasNext(); ) {
-				Span span = k.nextSpan();
-				for (int h=0; h<span.size(); h++) {
-					headerNames.add( span.getToken(h).getValue() );
+			// first find header areas
+			String[] lines = doc.asString().split("\\n");
+			int headerLen = 0;
+			for (int j=0; j<lines.length; j++) {
+				if (lines[j].length()>0) {
+					Matcher matcher = emailRegex.matcher( lines[j] );
+					while (matcher.find()) {
+						Span email = doc.charIndexSubSpan( headerLen+matcher.start(1), headerLen+matcher.end(1) );
+						labels.addToType( email, "emailNameSpan" );
+					}
+					headerLen += lines[j].length()+1;
+				} else {
+					Span header = doc.charIndexSubSpan( 0, headerLen );
+					Span body = doc.charIndexSubSpan( headerLen, doc.getTextToken(doc.size()-1).getHi() );
+					labels.addToType( header, "headerSection" ); 
+					labels.addToType( body, "bodySection" );
+					break;
 				}
 			}
 
-			// mark all occurrences of these words in this document 
-			for (int j=0; j<doc.size(); j++) {
-				Token token = doc.getTextToken(j);
-				if (headerNames.contains( token.getValue() )) {
-					labels.setProperty( token, HEADER_NAME_PROP, "t" );
+
+			// collect tokens appearing in the email fields of this document
+			Set headerNames = new HashSet();
+			for (Span.Looper k=labels.instanceIterator("emailNameSpan", doc.getDocumentId()); k.hasNext(); ) {
+				Span span = k.nextSpan();
+				for (int h=0; h<span.size(); h++) {
+					if (span.getToken(h).getValue().length()>1) {
+						// don't bother saving one-token spans from email addresses, which are usually '.'
+						headerNames.add( span.getToken(h).getValue().toLowerCase() );
+					}
+				}
+			}
+
+			// mark all occurrences of these words in the body of this document
+			for (Span.Looper k=labels.instanceIterator("bodySection", doc.getDocumentId()); k.hasNext(); ) {
+				Span body = k.nextSpan();
+				for (int j=0; j<body.size(); j++) {
+					Token token = body.getTextToken(j);
+					if (headerNames.contains( token.getValue().toLowerCase() )) {
+						labels.setProperty( token, HEADER_NAME_PROP, "t" );
+					}
 				}
 			}
 		}
