@@ -24,6 +24,7 @@ public class SubsamplingCrossValSplitter implements Splitter
 	private double subsampleFraction;
 	private Iterator[] trainIt, testIt;
     private CrossValSplitter cvs;
+    private RandomSplitter rs;
 
 	public SubsamplingCrossValSplitter(RandomElement random, int folds, double subsampleFraction)
 	{
@@ -48,7 +49,7 @@ public class SubsamplingCrossValSplitter implements Splitter
 
 	public void split(Iterator i) {
 		cvs = new CrossValSplitter(random,folds);
-		RandomSplitter rs = new RandomSplitter(random,subsampleFraction);
+		rs = new RandomSplitter(random,subsampleFraction);
 		cvs.split( i );
 		testIt = new Iterator[folds];
 		trainIt = new Iterator[folds];		
@@ -61,8 +62,7 @@ public class SubsamplingCrossValSplitter implements Splitter
 
 	public int getNumPartitions() { return folds; }
 
-	//public Iterator getTrain(int k) { return trainIt[k]; }
-    public Iterator getTrain(int k) { return cvs.getTrain(k); }
+	public Iterator getTrain(int k) { return trainIt[k]; }
 
 	//public Iterator getTest(int k) { return testIt[k]; }
     public Iterator getTest(int k) { return cvs.getTest(k); }
