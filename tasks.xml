@@ -31,7 +31,7 @@
 
 <target name="build" depends="init, copy-testcases"  description="build the source ">
   <!-- Compile the java code from ${src} into ${classDir} -->
-  <javac srcdir="${src}" destdir="${classDir}" 
+  <javac source="1.4" srcdir="${src}" destdir="${classDir}" 
    debug="on" classpathref="classpath" deprecation="${deprecation}"/>
 </target>
 

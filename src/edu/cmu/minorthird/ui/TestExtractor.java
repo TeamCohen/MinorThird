@@ -89,12 +89,12 @@ public class TestExtractor extends UIMain
             subLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
             for (int i=0; i<splitter.getNumPartitions(); i++) {
                try {
-				SubTextBase testBase = new SubTextBase(annFullLabels.getTextBase(), splitter.getTest(i) );
-				subLabels[i] = new MonotonicSubTextLabels(testBase, (MonotonicTextLabels)annFullLabels );
-			    } catch (SubTextBase.UnknownDocumentException ex) {
-				// do nothing since testLabels[i] is already set
-			    }
-                measurePrecisionRecall("TestPartition"+(i+1),subLabels[i],false);
+                 SubTextBase testBase = new SubTextBase(annFullLabels.getTextBase(), splitter.getTest(i) );
+                 subLabels[i] = new MonotonicSubTextLabels(testBase, (MonotonicTextLabels)annFullLabels );
+               } catch (SubTextBase.UnknownDocumentException ex) {
+                 // do nothing since testLabels[i] is already set
+               }
+               measurePrecisionRecall("TestPartition"+(i+1),subLabels[i],false);
             }
         }
 
