@@ -24,6 +24,9 @@ CLEANUPS/DESIGN:
 
 RECENT CHANGES:
 
+ - touched up FilteredFinderLearner, added training to distances in ConditionalSemiMarkovModel.dictFE, added
+ options to TextLabelsExperiment
+ - warning issues on on empty directory files too
  - more visualization stuff in text.learn
  - set up ConditionalSemiMarkovModel.CSMMFE to extend SampleFE.ExtractionFE
  - refactored SampleFE.ExtractionFE to extend SpanFE

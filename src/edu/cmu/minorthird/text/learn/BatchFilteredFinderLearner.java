@@ -112,7 +112,7 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 	public Annotator getAnnotator() {
 		filter = new DatasetClassifierTeacher(dataset).train( classifierLearner );
 		FilteredFinder filteredFinder = new FilteredFinder( (BinaryClassifier)filter, fe, candidateFinder );
-		return new FinderAnnotator( filteredFinder, annotationType );
+		return new FinderAnnotator( filteredFinder, annotationType, true );
 	}
 	
 	/** Return the classifier the annotator is based on

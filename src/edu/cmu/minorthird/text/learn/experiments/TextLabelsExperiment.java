@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
+import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
@@ -7,12 +8,9 @@ import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.text.learn.*;
-import edu.cmu.minorthird.util.ProgressCounter;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -208,6 +206,8 @@ public class TextLabelsExperiment implements Visible
 		String learnerName="new CollinsPerceptronLearner()";
 		TextLabels labels=null;
 		String inputLabel=null, saveFileName=null, show=null, annotationNeeded=null;
+		ArrayList featureMods = new ArrayList();
+
 		try {
 			int pos = 0;
 			while (pos<args.length) {
@@ -228,12 +228,16 @@ public class TextLabelsExperiment implements Visible
 					show = args[pos++];
 				} else if (opt.startsWith("-mix")) {
 					annotationNeeded = args[pos++];
+				} else if (opt.startsWith("-fe")) {
+					featureMods.add( args[pos++] );
 				} else {
 					usage();
+					return;
 				}
 			}
 			if (labels==null || learnerName==null || splitter==null|| inputLabel==null || outputLabel==null) {
 				usage();
+				return;
 			}
       TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,inputLabel,outputLabel);
 			if (annotationNeeded!=null) {
@@ -242,6 +246,23 @@ public class TextLabelsExperiment implements Visible
 				expt.getFE().setTokenPropertyFeatures("*"); // use all defined properties
 				labels.require(annotationNeeded,annotationNeeded+".mixup");
 			}
+			for (Iterator i=featureMods.iterator(); i.hasNext(); ) {
+				String mod = (String)i.next();
+				if (mod.startsWith("window=")) {
+					expt.getFE().setFeatureWindowSize(StringUtil.atoi(mod.substring("window=".length())));
+					System.out.println("fe windowSize => "+expt.getFE().getFeatureWindowSize());
+				} else if (mod.startsWith("charType")) {
+					expt.getFE().setUseCharType( mod.substring("charType".length(),1).equals("+") );
+					System.out.println("fe windowSize => "+expt.getFE().getUseCharType());
+				} else if (mod.startsWith("charPattern")) {
+					expt.getFE().setUseCompressedCharType( mod.substring("charPattern".length(),1).equals("+") );
+					System.out.println("fe windowSize => "+expt.getFE().getUseCompressedCharType());
+				} else {
+					usage();
+					return;
+				}
+			}
+
 			expt.doExperiment();
 			if (saveFileName!=null) {
 				new TextLabelsLoader().saveTypesAsOps( expt.getTestLabels(), new File(saveFileName) );
@@ -255,6 +276,7 @@ public class TextLabelsExperiment implements Visible
 		} catch (Exception e) {
 			e.printStackTrace();
 			usage();
+			return;
 		}
 	}
 	private static void usage() {
@@ -277,9 +299,10 @@ public class TextLabelsExperiment implements Visible
 			"                          optional", 
 			"       -mix yyyy          augment feature extracture to first execute 'require yyyy,yyyy.mixup'",
 			"                          optional",
+			"       -fe zzzz           change default feature extractor with one of these options zzzz:",
+			"                          window=K charType+ charType- charPattern+ charPattern-",
 		};
 		for (int i=0; i<usageLines.length; i++) System.out.println(usageLines[i]);
-		System.exit(-1);
 	}
 }
 

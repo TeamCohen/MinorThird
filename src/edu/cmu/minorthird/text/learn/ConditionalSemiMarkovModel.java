@@ -238,6 +238,7 @@ public class ConditionalSemiMarkovModel
 		}
 		public void doAnnotate(MonotonicTextLabels labels)
 		{
+			ProgressCounter pc = new ProgressCounter("annotating","document",labels.getTextBase().size());
 			for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span doc = i.nextSpan();
 				Segments viterbi = bestSegments(doc,labels,fe,classifier,maxSegSize);				
@@ -245,7 +246,9 @@ public class ConditionalSemiMarkovModel
 					Span span = (Span)j.next();
 					labels.addToType( span, annotationType );
 				}
+				pc.progress();
 			}
+			pc.finished();
 		}
 		public String explainAnnotation(TextLabels labels,Span documentSpan)
 		{
@@ -390,44 +393,49 @@ public class ConditionalSemiMarkovModel
 		}
 	}
 
-    static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
+	static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
 	{
-	    SoftDictionary dictionary;
-	    StringDistance distances[];
-	    Feature features[];
-	    // distanceNames has to be "/" separated list of distance functions that
-	    // we want to apply 
-	    public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) { 
-		super();
-		try {
+		SoftDictionary dictionary;
+		StringDistance distances[];
+		Feature features[];
+		// distanceNames has to be "/" separated list of distance functions that
+		// we want to apply 
+		public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) 
+		{
+			super();
+			try {
 		    dictionary = new SoftDictionary();
 		    dictionary.load(new File(dictionaryFile));
-		
 		    distances = DistanceLearnerFactory.buildArray(distanceNames);
 		    // now create features corresponding to each distance function.
 		    features = new Feature[distances.length];
 		    for (int d = 0; d < distances.length; d++) {
-			features[d] =  Feature.Factory.getFeature(distances[d].toString());
+					// train anything that's also a distance learner
+					if (distances[d] instanceof StringDistanceLearner) {
+						distances[d] = dictionary.getTeacher().train( (StringDistanceLearner)distances[d] );
+					}
+					// save the feature name
+					features[d] =  Feature.Factory.getFeature(distances[d].toString());
 		    }
-		} catch (IOException e) {
+			} catch (IOException e) {
 		    e.printStackTrace();
+			}
 		}
-	    }
-	    public void extractFeatures(TextLabels labels,Span span) {
-		super.extractFeatures(labels,span);
-		StringWrapper spanString = new BasicStringWrapper(span.asString());
-		Object closestMatch = dictionary.lookup(spanString);
-		if (closestMatch != null) {
+		public void extractFeatures(TextLabels labels,Span span) {
+			super.extractFeatures(labels,span);
+			StringWrapper spanString = new BasicStringWrapper(span.asString());
+			Object closestMatch = dictionary.lookup(spanString);
+			if (closestMatch != null) {
 		    // create various types of similarity measures.
 		    for (int d = 0; d < distances.length; d++) {
-			double score = distances[d].score(spanString, (StringWrapper)closestMatch);
-			if (score != 0) {
+					double score = distances[d].score(spanString, (StringWrapper)closestMatch);
+					if (score != 0) {
 			    // instance has been created by the parent.
-			    instance.addNumeric(features[d], score);
-			}
+						instance.addNumeric(features[d], score);
+					}
 		    }
+			}
 		}
-	    }
 	};
    
 	// a proposed segmentation of a document
