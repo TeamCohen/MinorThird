@@ -9,8 +9,13 @@ import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
-import org.apache.log4j.Logger;
+import com.wcohen.ss.*;
+import com.wcohen.ss.api.*;
+import com.wcohen.ss.lookup.*;
+
+import org.apache.log4j.*;
 import java.util.*;
+import java.io.*;
 
 /**
  * Learn to annotate based on a conditional semi-markov model
@@ -36,6 +41,7 @@ public class ConditionalSemiMarkovModel
 		private SpanFeatureExtractor fe;
 		private OnlineBinaryClassifierLearner classifierLearner;
 		private int epochs;
+		private int[] maxSegmentSize = new int[]{ 1, 5 };
 		// temporary storage
 		private Span.Looper documentLooper;
 		private List exampleList; 
@@ -44,12 +50,17 @@ public class ConditionalSemiMarkovModel
 		
 		public CSMMLearner()
 		{
-			this( new CSMMSpanFE(), new VotedPerceptron(), 5);
+			this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5);
 		}
 
 		public CSMMLearner(int epochs)
 		{
-			this( new CSMMSpanFE(), new VotedPerceptron(), epochs);
+			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, 5);
+		}
+
+		public CSMMLearner(int epochs, int maxSegmentSize)
+		{
+			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, maxSegmentSize);
 		}
 
 		public CSMMLearner(String annotation)
@@ -59,13 +70,15 @@ public class ConditionalSemiMarkovModel
 		}
 
 		public CSMMLearner(
-			SpanFeatureExtractor fe,OnlineBinaryClassifierLearner classifierLearner,int epochs)
+			SpanFeatureExtractor fe,OnlineBinaryClassifierLearner classifierLearner,int epochs,int maxSegmentSize)
 		{
 			this.fe = fe;
 			this.classifierLearner = classifierLearner;
 			this.epochs = epochs;
+			this.maxSegmentSize[1] = maxSegmentSize;
 			reset();
 		}
+
 		//
 		// query all documents, and accumulate examples in exampleList
 		//
@@ -96,7 +109,8 @@ public class ConditionalSemiMarkovModel
 					if (DEBUG) log.debug("updating from "+doc);
 
 					// get best segmentation, given current classifier
-					Segments viterbi = bestSegments(doc,example.getLabels(),fe,classifierLearner.getBinaryClassifier());
+					Segments viterbi = 
+						bestSegments(doc,example.getLabels(),fe,classifierLearner.getBinaryClassifier(),maxSegmentSize);
 					if (DEBUG) log.debug("viterbi solution:\n" + viterbi);
 
 					// train classifier on any false positives
@@ -138,8 +152,7 @@ public class ConditionalSemiMarkovModel
 
 			}//all epochs
 
-
-			return new CSMMAnnotator(fe,classifierLearner.getBinaryClassifier(),annotationType);
+			return new CSMMAnnotator(fe,classifierLearner.getBinaryClassifier(),annotationType,maxSegmentSize);
 		}
 
 		// build an example from a span and its context
@@ -177,17 +190,20 @@ public class ConditionalSemiMarkovModel
 		private SpanFeatureExtractor fe;
 		private BinaryClassifier classifier;
 		private String annotationType;
-		public CSMMAnnotator(SpanFeatureExtractor fe,BinaryClassifier classifier,String annotationType)
+		private int[] maxSegSize;
+		public 
+		CSMMAnnotator(SpanFeatureExtractor fe,BinaryClassifier classifier,String annotationType,int[] maxSegSize)
 		{
 			this.fe = fe;
 			this.classifier = classifier;
 			this.annotationType = annotationType;
+			this.maxSegSize = maxSegSize;
 		}
 		public void doAnnotate(MonotonicTextLabels labels)
 		{
 			for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span doc = i.nextSpan();
-				Segments viterbi = bestSegments(doc,labels,fe,classifier);				
+				Segments viterbi = bestSegments(doc,labels,fe,classifier,maxSegSize);				
 				for (Iterator j=viterbi.iterator(); j.hasNext(); ) {
 					Span span = (Span)j.next();
 					labels.addToType( span, annotationType );
@@ -201,17 +217,11 @@ public class ConditionalSemiMarkovModel
 	}
 
 	//
-	// some sort of Searcher class would be nicer here...
-	// 
-
-	static private int[] maxSegmentSize = new int[]{ 1, 5 };
-
-	//
 	// viterbi algorithm
 	//
 	
 	static public Segments bestSegments(
-		Span documentSpan,TextLabels labels,SpanFeatureExtractor fe,BinaryClassifier classifier)
+		Span documentSpan,TextLabels labels,SpanFeatureExtractor fe,BinaryClassifier classifier,int[] maxSegSize)
 	{
 		// for t=0..size, y=0 or 1, fty[t][y] is the highest score that
 		// can be obtained with a segmentation of the tokens from 0..t
@@ -233,7 +243,7 @@ public class ConditionalSemiMarkovModel
 		for (int t=0; t<documentSpan.size()+1; t++) {
 			for (int y=0; y<2; y++) {
 				for (int lastY=0; lastY<2; lastY++) {
-					for (int lastT=Math.max(0, t-maxSegmentSize[y]); lastT<t; lastT++) {
+					for (int lastT=Math.max(0, t-maxSegSize[y]); lastT<t; lastT++) {
 						Span segment = documentSpan.subSpan(lastT, t-lastT);
 						double segmentScore = score(labels,lastY,y,lastT,t,segment,fe,classifier);
 						if (segmentScore + fty[lastT][lastY] > fty[t][y]) {
@@ -356,6 +366,46 @@ public class ConditionalSemiMarkovModel
 					from(span).left().token(-(j+1)).prop(p).emit();
 					from(span).right().token(j).prop(p).emit();
 				}
+			}
+		}
+	}
+
+	static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
+	{
+		SoftDictionary dictionary;
+		StringDistance distances[];
+		Feature features[];
+		// distanceNames has to be "/" separated list of distance functions that
+		// we want to apply 
+		public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) { 
+			super();
+			try {
+		    dictionary = new SoftDictionary();
+		    dictionary.load(new File(dictionaryFile));
+				
+		    distances = DistanceLearnerFactory.buildArray(distanceNames);
+		    // now create features corresponding to each distance function.
+		    features = new Feature[distances.length];
+		    for (int d = 0; d < distances.length; d++) {
+					features[d] =  Feature.Factory.getFeature(distances[d].toString());
+		    }
+			} catch (IOException e) {
+		    e.printStackTrace();
+			}
+		}
+		public void extractFeatures(TextLabels labels,Span span) {
+			super.extractFeatures(labels,span);
+			String spanString = span.asString();
+			String closestMatch = (String)dictionary.lookup(spanString);
+			if (closestMatch != null) {
+		    // create various types of similarity measures.
+		    for (int d = 0; d < distances.length; d++) {
+					double score = distances[d].score(spanString,closestMatch);
+					if (score != 0) {
+						// instance has been created by the parent.
+						instance.addNumeric(features[d], score);
+					}
+		    }
 			}
 		}
 	}

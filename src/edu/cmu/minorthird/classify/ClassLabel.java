@@ -41,6 +41,7 @@ public class ClassLabel implements Serializable
 	/** Create a positive binary label, with the associated score (in logits). */
 	static public ClassLabel positiveLabel(double score)
 	{
+		if (score<0) throw new IllegalArgumentException("positiveLabel should have positive score");
 		ClassLabel result = new ClassLabel(ExampleSchema.POS_CLASS_NAME,score);
 		result.add(ExampleSchema.NEG_CLASS_NAME,-score);
 		return result;
@@ -49,6 +50,7 @@ public class ClassLabel implements Serializable
 	/** Create a negative binary label, with the associated score (in logits). */
 	static public ClassLabel negativeLabel(double score)
 	{
+		if (score>0) throw new IllegalArgumentException("negativeLabel should have negative score");
 		ClassLabel result = new ClassLabel(ExampleSchema.POS_CLASS_NAME,score);
 		result.add(ExampleSchema.NEG_CLASS_NAME,-score);
 		return result;
