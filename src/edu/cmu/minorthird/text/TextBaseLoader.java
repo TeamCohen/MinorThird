@@ -253,6 +253,37 @@ public class TextBaseLoader implements Loader
 	}
 
 	/**
+	 * Takes a base directory.  Each file is a different doc to load.
+	 * @param base TextBase to load into
+	 * @param directory File representation of directory
+	 */
+	public void loadDir(TextBase base, File directory)
+	{
+		if (directory.isDirectory())
+		{
+			String categoryLabel = directory.getName();
+			log.debug("found directory for type: " + categoryLabel);
+			//load everything in the directory
+			try
+			{
+				File[] files = directory.listFiles();
+				for (int j = 0; j < files.length; j++)
+				{
+					// skip CVS directories
+					if ("CVS".equals(files[j].getName())) continue;
+					File file = files[j];
+					this.loadFileWithID(base, file, file.getName());
+				}
+			}
+			catch (IOException ioe)
+			{ log.error(ioe, ioe); }
+		}
+		else
+			log.error("loadDir found a file instead of directory label: "
+								+ directory.getPath() + File.pathSeparator + directory.getName());
+	}
+
+	/**
 	 * Takes a base directory.  Each subdirectory is a label for the category
 	 * of the files in that directory.  Each file is a different doc
 	 * @param base TextBase to load into
@@ -338,38 +369,6 @@ public class TextBaseLoader implements Loader
   {
     return labels;
   }
-
-  /**
-   * Takes a base directory.  Each file is a different doc to load.
-   * @param base TextBase to load into
-   * @param directory File representation of directory
-   */
-  public void loadDir(TextBase base, File directory)
-  {
-    if (directory.isDirectory())
-    {
-      String categoryLabel = directory.getName();
-      log.debug("found directory for type: " + categoryLabel);
-      //load everything in the directory
-      try
-      {
-        File[] files = directory.listFiles();
-        for (int j = 0; j < files.length; j++)
-        {
-          // skip CVS directories
-          if ("CVS".equals(files[j].getName())) continue;
-          File file = files[j];
-          this.loadFileWithID(base, file, file.getName());
-        }
-      }
-      catch (IOException ioe)
-      { log.error(ioe, ioe); }
-    }
-    else
-      log.error("loadDir found a file instead of directory label: "
-                + directory.getPath() + File.pathSeparator + directory.getName());
-  }
-
 
   /**
    * Uses load file and the TextBase instead the labels property
