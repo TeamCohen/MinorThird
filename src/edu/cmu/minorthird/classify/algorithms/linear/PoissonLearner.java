@@ -1,6 +1,8 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.transform.InfoGainInstanceTransform;
+import edu.cmu.minorthird.classify.transform.InfoGainTransformLearner;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -49,71 +51,57 @@ public class PoissonLearner extends BatchBinaryClassifierLearner
 
   public Classifier batchTrain(Dataset data)
   {
-    TreeMap numGivenPos = new TreeMap();
-    TreeMap numGivenNeg = new TreeMap();
-
+    //System.out.println("in batchTrain");
     BasicFeatureIndex index = new BasicFeatureIndex(data);
-
-    double numPos = (double)index.size("POS");
-    double numNeg = (double)index.size("NEG");
-
-    for (Feature.Looper i=index.featureIterator(); i.hasNext(); )
-    {
-      Feature f = i.nextFeature();
-      //System.out.println("feature = "+f);
-      numGivenPos.put(f, new Double( index.getCounts(f,"POS") ));
-      numGivenNeg.put(f, new Double( index.getCounts(f,"NEG") ));
-    }
-
-    // Evaluate the logg-odds at ML estimates
+    //System.out.println( "Dataset:\n # examples = "+data.size() );
+    //System.out.println( " # features = "+index.numberOfFeatures() );
     PoissonClassifier c = new PoissonClassifier();
-    c.setScale(SCALE); // Method-Selector should learn it!
+    c.setScale(SCALE);
+
+    double numPos=0.0, numNeg=0.0;
+    for(Feature.Looper floo=index.featureIterator(); floo.hasNext(); )
+    {
+      Feature f = floo.nextFeature();
+      for (int j=0; j<index.size(f); j++)
+      {
+        Example ex = index.getExample(f,j);
+        boolean isPos = ex.getLabel().isPositive();
+        if (isPos) numPos += ex.getWeight(f);
+        else numNeg += ex.getWeight(f);
+      }
+    }
+    //System.out.println("n.Pos="+numPos+" n.Neg="+numNeg);
     double featurePrior = 1.0 / index.numberOfFeatures();
-    //System.out.println("size=" + featureSet.size() + " prior=" +featurePrior);
+    //System.out.println("size=" + index.numberOfFeatures() + " prior=" +featurePrior);
     for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
-      Feature f = (Feature)i.next();
-      double ngp = ( numGivenPos.get(f)==null ? 0.0 : ((Double)numGivenPos.get(f)).doubleValue() );
-      double ngn = ( numGivenNeg.get(f)==null ? 0.0 : ((Double)numGivenNeg.get(f)).doubleValue() );
-      //System.out.println(numGivenPos);
-      //System.out.println(numGivenNeg);
-      //System.out.println("feature:" + f + ", " + ngp + " " + ngn);
+      Feature f = i.nextFeature();
+      double ngp = index.getCounts(f,"POS");
+      double ngn = index.getCounts(f,"NEG");
+      //System.out.println("feature="+f+" n|Pos="+ngp+" n|Neg="+ngn);
       //System.out.println(c.getScale());
       double pweight = estimatedProb( ngp, numPos/c.getScale(), featurePrior, 1.0/c.getScale() );
       double nweight = estimatedProb( ngn, numNeg/c.getScale(), featurePrior, 1.0/c.getScale() );
+      //System.out.println("w|Pos="+pweight+" w|Neg="+nweight);
       c.increment( f, -pweight +nweight );
       pweight = estimatedProb( ngp, numPos/c.getScale(), featurePrior, 1.0/c.getScale(), LOG );
       nweight = estimatedProb( ngn, numNeg/c.getScale(), featurePrior, 1.0/c.getScale(), LOG );
-      c.increment( f, pweight - nweight, LOG );
+      //System.out.println("w|Pos="+pweight+" w|Neg="+nweight);
+      c.increment( f, +pweight -nweight, LOG );
     }
     c.incrementBias( +estimatedProb(numPos, numPos+numNeg, 0.5, 1.0, LOG ) );
     c.incrementBias( -estimatedProb(numNeg, numPos+numNeg, 0.5, 1.0, LOG ) );
-    //System.out.println("out of classifier");
+    //System.out.println("out of batchTrain\n");
     return c;
   }
 
-  /** Compute the maximum likelihood estimate of the rate 'mu' of a Poisson model,
-   *  using integer counts x[] from examples with different lengths omega[].
-   */
-  public double MaximumLikelihoodPoisson(double[] x, double[] omega) {
-    double sumX=0;
-    double sumOmega=0;
-    for(int i=0; i<x.length; i++){
-      sumX += x[i];
-      sumOmega += omega[i];
-    }
-    double mu = sumX/sumOmega;
-    return mu;
-  }
-
-  double estimatedProb(double k,double n, double prior, double pseudoCounts) {
-    //System.out.println("psudoCounts:" + k); // Edo test
+  private double estimatedProb(double k,double n, double prior, double pseudoCounts) {
+    //System.out.println("psudoCounts:" + k);
     return (k+prior*pseudoCounts) / (n+pseudoCounts);
   }
 
-  double estimatedProb(double k,double n, double prior, double pseudoCounts, boolean log) {
-    //.out.println("psudoCounts:" + k); // Edo test
+  private double estimatedProb(double k,double n, double prior, double pseudoCounts, boolean log) {
+    //.out.println("psudoCounts:" + k);
     return Math.log( (k+prior*pseudoCounts) / (n+pseudoCounts) );
   }
-
 
 }
