@@ -114,10 +114,9 @@ public class Recommended
 
 		/**	 Extracted entities must be of length 4 or less. */
 		public VPSMMLearner2() { super(new SegmentCollinsPerceptronLearner(), new MultitokenSpanFE(), 4); }
-		public VPSMMLearner2(int epochs) { super(new SegmentCollinsPerceptronLearner(epochs), new MultitokenSpanFE(), 4); }
+		public VPSMMLearner2(int epochs,int maxLen) { super(new SegmentCollinsPerceptronLearner(epochs), new MultitokenSpanFE(), maxLen); }
 	}
 	
-
 	/** Uses the voted perceptron algorithm to learn a hidden Markov model (HMM).
 	 */
 	static public class VPHMMLearner extends SequenceAnnotatorLearner

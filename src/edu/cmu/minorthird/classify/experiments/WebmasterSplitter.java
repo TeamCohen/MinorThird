@@ -53,6 +53,7 @@ public class WebmasterSplitter implements Splitter
 	public WebmasterSplitter(String constraintFileName, double fraction, int folds) 
 	{
 		this.folds = folds;
+		this.fraction = fraction;
 		loadFile(constraintFileName);
 	}
 
@@ -67,6 +68,7 @@ public class WebmasterSplitter implements Splitter
 					String[] f = line.split(" ");
 					if (f.length!=4) badInput(line,constraintFileName,in);
 					userMap.put(f[0],f[1]);
+					//System.out.println("userMap: '"+f[0]+"' -> "+f[1]);
 					requestMap.put(f[0],f[2]);
 					profileMap.put(f[0], f[3]);
 					String oldProfForRequest = (String)req2ProfileMap.get(f[2]);
@@ -100,7 +102,9 @@ public class WebmasterSplitter implements Splitter
 			HasSubpopulationId hsi = (HasSubpopulationId)o;
 			String subpop = hsi.getSubpopulationId();
 			String userId = (String) userMap.get(subpop);
-			if (userId==null) badExample(o,"no userId for "+subpop+" in the constaint file");
+			if (userId==null) {
+				badExample(o,"no userId for "+subpop+" in the constraint file");
+			}
 			users.add( userId ); 
 			String reqId = (String)requestMap.get(subpop);
 			requests.add( reqId );

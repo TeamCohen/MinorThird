@@ -18,13 +18,16 @@ public class LineCharter
 	private XYSeriesCollection collection = new XYSeriesCollection();
 	private XYSeries currentSeries = null;
 	private int numPoints = 0;
+	private StringBuffer buf = new StringBuffer("");
 
 	/** Start a new curve with a given label. */
 	public void startCurve(String label) 
 	{
 		if (currentSeries!=null) {
 			collection.addSeries(currentSeries);
+			buf.append("\n");
 		}
+		buf.append("#begin "+label+"\n");
 		currentSeries = new XYSeries(label);
 		numPoints = 0;
 	}
@@ -38,6 +41,7 @@ public class LineCharter
 		if (mayDuplicate) currentSeries.add(x+0.00001*numPoints,y);
 		else currentSeries.add(x,y);
 		numPoints++;
+		buf.append(x+"\t"+y+"\n");
 	}
 	/** Add a point to the current curve. */
 	public void addPoint(double x,double y)
@@ -50,9 +54,14 @@ public class LineCharter
 		if (currentSeries!=null) {
 			collection.addSeries(currentSeries);
 		}
+		JPanel mainPanel = new JPanel();
+		JTabbedPane tabbedPane = new JTabbedPane();
 		JFreeChart chart = ChartFactory.createXYLineChart(
 			title,xlabel,ylabel,collection,PlotOrientation.VERTICAL,
 			true,true,false);
-		return new ChartPanel(chart);
+		tabbedPane.add("Graphics",new ChartPanel(chart));
+		tabbedPane.add("Text", new JScrollPane(new JTextArea("#"+xlabel+"\t"+ylabel+"\n" + buf.toString(), 20, 30)));
+		mainPanel.add(tabbedPane);
+		return mainPanel;
 	}
 }

@@ -33,9 +33,9 @@ public class LeaveOneOutDictVersion implements BatchSegmenterLearner
 	    this(LeaveOneOutDictTransformLearner.DEFAULT_PATTERN,innerLearner,distanceNames);
 	}
 
-    public LeaveOneOutDictVersion(BatchSegmenterLearner innerLearner) {
-	this(LeaveOneOutDictTransformLearner.DEFAULT_PATTERN,innerLearner,"Jaccard");
-    }
+	public LeaveOneOutDictVersion(BatchSegmenterLearner innerLearner) {
+		this(LeaveOneOutDictTransformLearner.DEFAULT_PATTERN,innerLearner,"Jaccard");
+	}
 	public void setSchema(ExampleSchema schema)
 	{
 		;

@@ -564,6 +564,17 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 			return new StringBagResult( extend("lc"), fe, lcBag );
 		}
 
+		public StringBagResult toConst(String replacement)
+		{
+			Bag trBag = new Bag();
+			for (Iterator i=bag.iterator(); i.hasNext(); ) {
+				String str = (String)i.next();
+				int n =  bag.getCount(str);
+				trBag.add( replacement, n );
+			}
+			return new StringBagResult( extend("toConst"), fe, trBag );
+		}
+
 		public StringBagResult tr(String regex,String replacement)
 		{
 			Bag trBag = new Bag();
