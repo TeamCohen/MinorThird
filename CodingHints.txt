@@ -1,6 +1,6 @@
 Helpful hints for coding with Minorthird
 
-This does not have step-by-step instructions.  It is intended to give those with some background in machine learning an idea of where to find the important classes and an introduction to their use.  This document should be consider a very high level map, to point you at which part of the code to go read.
+This does not have step-by-step instructions.  It is intended to give those with some background in machine learning an idea of where to find the important classes and an introduction to their use.  This document should be consider a very high level map, to point you at which part of the code to go read. 
 
 ---------------------------------------------------------------------------------------------------
 INTRODUCTION

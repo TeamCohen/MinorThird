@@ -28,9 +28,41 @@ public class TestPackage extends TestSuite
 		suite.addTest( new DiffTest("doTest") );
 		suite.addTest( new TrieTest("doTest") );
 		suite.addTest( new MixupTest("doTest") );
+		suite.addTest( new LabelsTest("doTest") );
 		return suite;
 	}
 		
+	public static class LabelsTest extends TestCase 
+	{
+		public LabelsTest(String string)
+		{
+			super(string);
+		}
+		public void doTest() 
+		{
+			TextBase b = new BasicTextBase();
+			MutableTextLabels lab = new BasicTextLabels(b);
+			b.loadDocument("d1", "a b c b d");
+			try {
+				MixupProgram p = 
+					new MixupProgram(new String[]{"defSpanProp startsWith:b =: ... ['b' any]...",
+																				"defSpanProp startsWith:c =: ... ['c' any]...",
+																				"defSpanProp endsWith:b =: ... [any 'b']..."});
+				p.eval(lab,b);
+				Span.Looper looper = lab.getSpansWithProperty("startsWith");
+				assertTrue( looper.hasNext() );
+				assertEquals( "b c", looper.nextSpan().asString()  ); 
+				assertTrue( looper.hasNext() );
+				assertEquals( "c b", looper.nextSpan().asString()  ); 
+				assertTrue( looper.hasNext() );
+				assertEquals( "b d", looper.nextSpan().asString()  ); 
+				assertTrue( !looper.hasNext() );
+			} catch (Mixup.ParseException e) {
+				throw new IllegalStateException(e.toString());
+			}
+		}
+	}
+
 	public static class ToXMLTest extends TestCase {
 		private TextBase b;
 		public ToXMLTest(String string) {

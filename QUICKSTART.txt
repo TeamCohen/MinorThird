@@ -124,6 +124,20 @@ You can also try out
 
 % java edu.cmu.minorthird.text.gui.TextBaseEditor DATAFILE LABELFILE
 
+Many objects in minorthird can be visualized with a set of Swing
+classes called "Viewers".  When you're in a viewer you can sometimes
+save the object you're viewing.  To view the an object you saved in
+the file "foo" use
+
+% java edu.cmu.minorthird.util.gui.ViewerFrame foo
+
+One object that can be saved this way is an "Evaluation", which is a
+summary of the results of a classification experiment.  You can view
+and compare multiple Evaluations from files foo1.eval, foo2.eval,...
+with
+
+% java edu.cmu.minorthird.classify.experiments.EvaluationGroup foo*.eval
+
 SAMPLE CODE AND DEMOS
 
 Some sample data can be found in minorthird/demos/sampleData. Some
