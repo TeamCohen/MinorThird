@@ -4,8 +4,6 @@ import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.AnnotatorLearner;
-import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.util.ProgressCounter;
 import org.apache.log4j.Logger;
@@ -16,43 +14,37 @@ import javax.swing.border.*;
 import java.io.Serializable;
 
 /**
- * Learn an annotation model using a sequence dataset and a
- * BatchSequenceClassifierLearner.  This class reduces extraction
- * learning to sequential classification of tokens.  The scheme for
- * mapping extraction learning to token learning is determined by the
- * Extraction2TaggingReduction.
+ * Learn an annotation model using a SlidingWindowDataset dataset and a
+ * BatchSequenceClassifierLearner.  
  *
  * @author William Cohen
  */
 
-public class SequenceAnnotatorLearner implements AnnotatorLearner
+public class SlidingWindowAnnotatorLearner implements AnnotatorLearner
 {
-	private static Logger log = Logger.getLogger(SequenceAnnotatorLearner.class);
+	private static Logger log = Logger.getLogger(SlidingWindowAnnotatorLearner.class);
 	private static final boolean DEBUG = false;
 
-	protected SpanFeatureExtractor fe;
 	protected String annotationType = "_prediction";
-	protected int historySize = 3;
-	protected SequenceDataset seqData = new SequenceDataset();
-	protected BatchSequenceClassifierLearner seqLearner;
-	protected Extraction2TaggingReduction reduction = new InsideOutsideReduction();
+	protected SlidingWindowDataset dataset = new SlidingWindowDataset();
+	protected BatchSequenceClassifierLearner learner;
+	protected SpanFeatureExtractor fe;
+	protected int windowSize;
 
-	public SequenceAnnotatorLearner(
-		BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,Extraction2TaggingReduction reduction)
+	public SlidingWindowAnnotatorLearner(BatchSequenceClassifierLearner learner,SpanFeatureExtractor fe,int windowSize)
 	{
-		this.seqLearner = seqLearner;
-		this.reduction = reduction;
+		this.learner = learner;
 		this.fe = fe;
-		this.historySize = seqLearner.getHistorySize();
-		seqData.setHistorySize(this.historySize);
+		this.windowSize = windowSize;
 	}
-	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe)
+	public SlidingWindowAnnotatorLearner(BatchSequenceClassifierLearner learner,SpanFeatureExtractor fe)
 	{
-		this(seqLearner,fe,new InsideOutsideReduction());
+		this(learner,fe,4);
 	}
 
-	public void reset() {
-		seqData = new SequenceDataset();
+	public void reset() 
+	{
+		dataset = new SlidingWindowDataset();
 	}
 
 	//
@@ -61,18 +53,13 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	private boolean displayDatasetBeforeLearning=false;
 
 	/** If set, try and pop up an interactive viewer of the sequential dataset before learning. */
-	public boolean getDisplayDatasetBeforeLearning() {
-		return displayDatasetBeforeLearning; 
-	}
+	public boolean getDisplayDatasetBeforeLearning() { return displayDatasetBeforeLearning; }
 	public void setDisplayDatasetBeforeLearning(boolean newDisplayDatasetBeforeLearning) {
 		this.displayDatasetBeforeLearning = newDisplayDatasetBeforeLearning;
 	}
-	public int getHistorySize() { return historySize; }
-	public void setHistorySize(int historySize) { this.historySize=historySize; }
-	public BatchSequenceClassifierLearner getSequenceClassifierLearner() { return seqLearner; }
-	public void setSequenceClassifierLearner(BatchSequenceClassifierLearner learner) { this.seqLearner=learner; }
-	public Extraction2TaggingReduction getTaggingReduction() { return reduction; }
-	public void setTaggingReduction(Extraction2TaggingReduction reduction) { this.reduction = reduction; }
+	public int getHistorySize() { return 1; }
+	public BatchSequenceClassifierLearner getSequenceClassifierLearner() { return learner; }
+	public void setSequenceClassifierLearner(BatchSequenceClassifierLearner learner) { this.learner=learner; }
 	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
 	public void setSpanFeatureExtractor(SpanFeatureExtractor fe) {this.fe = fe;	}
 	/** Specify the type of annotation produced by this annotator - that is, the
@@ -101,6 +88,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery)
 	{
+		/*
 		reduction.reduceExtraction2Tagging(answeredQuery);
 		TextLabels answerLabels = reduction.getTaggedLabels();
 		Span document = answeredQuery.getDocumentSpan();
@@ -119,51 +107,28 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 			}
 		}
 		seqData.addSequence( sequence );
+		*/
 	}
 
 	/** Return the learned annotator.
 	 */
 	public Annotator getAnnotator()
 	{
-		seqLearner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
+		/*
+		learner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
 		if (displayDatasetBeforeLearning) new ViewerFrame("Sequential Dataset", seqData.toGUI());
-		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
+		SequenceClassifier seqClassifier = learner.batchTrain(seqData);
 		if (DEBUG) log.debug("learned classifier: "+seqClassifier);
-		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, reduction, annotationType );
-	}
-
-	/** Get the constructed sequence data.
-	 */
-	public SequenceDataset getSequenceDataset()
-	{
-		return seqData;
-	}
-
-	/**
-	 * A useful subroutine - prepare sequence data the way a SequenceAnnotatorLearner would prepare it
-	 * when trained by a TextLabelsAnnotatorTeacher.
-	 *
-	 */
-	static public SequenceDataset prepareSequenceData(
-		TextLabels labels,String spanType, String spanProp,
-		SpanFeatureExtractor fe,final int historySize,Extraction2TaggingReduction reduction)
-	{
-		BatchSequenceClassifierLearner dummy1 = new BatchSequenceClassifierLearner() {
-				public void setSchema(ExampleSchema schema) {}
-				public SequenceClassifier batchTrain(SequenceDataset dataset) {return null;}
-				public int getHistorySize() { return historySize; }
-			};
-		SequenceAnnotatorLearner dummy2 = new SequenceAnnotatorLearner(dummy1,fe,reduction) {
-				public Annotator getAnnotator() { return null; }
-			};
-		new TextLabelsAnnotatorTeacher(labels,spanType,spanProp).train(dummy2);
-		return dummy2.getSequenceDataset();
+		return new SlidingWindowAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, reduction, annotationType );
+		*/
+		return null;
 	}
 
 	//
 	// learned annotator
 	//
 
+	/*
 	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable,Visible,ExtractorAnnotator
 	{
 		private static final long serialVersionUID = 2;
@@ -237,4 +202,5 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		}
 		
 	}
+	*/
 }

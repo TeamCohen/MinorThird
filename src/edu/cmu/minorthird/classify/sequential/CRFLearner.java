@@ -19,185 +19,185 @@ import java.awt.*;
  * @author Sunita Sarawagi
  */
 
-public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,Visible,Serializable
+public class CRFLearner 
+implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,Visible,Serializable
 {
-    static private int serialVersionUID = 1;
-    private final int CURRENT_SERIAL_VERSION = 1;
-
-
-    ExampleSchema schema;
-    iitb.CRF.CRF crfModel;
-    java.util.Properties defaults;
-    java.util.Properties options;
-
-    public CRFLearner()
-    {
-	defaults = new java.util.Properties();
-	defaults.setProperty("modelGraph", "naive");
-	defaults.setProperty("debugLvl", "1");
-	options = defaults;
-    }
-    public CRFLearner(int histsize, int epoch) {this();}
-    public CRFLearner(String args) {
-	this();
-	StringTokenizer argTok = new StringTokenizer(args, " ");
-	options = new java.util.Properties(defaults);
-	while (argTok.hasMoreTokens()) {
-	    options.setProperty(argTok.nextToken(),argTok.nextToken());
-	}
-    }
-    public CRFLearner(String args[]) {
-	this();
-	options = new java.util.Properties(defaults);
-	for (int i = 0; i < args.length-1; i+=2) {
-	    options.setProperty(args[i], args[i+1]);
-	}
-    }
-    public void setSchema(ExampleSchema sch) {;}
+	static private int serialVersionUID = 1;
+	private final int CURRENT_SERIAL_VERSION = 1;
 	
-    public int getHistorySize() {return 1;}
-
-    class DataSequenceC implements iitb.CRF.DataSequence {
-	Instance[] sequence;
-	int labels[];
-	void init(Instance[] tokens) {
+	
+	ExampleSchema schema;
+	iitb.CRF.CRF crfModel;
+	java.util.Properties defaults;
+	java.util.Properties options;
+	
+	public CRFLearner()
+	{
+		defaults = new java.util.Properties();
+		defaults.setProperty("modelGraph", "naive");
+		defaults.setProperty("debugLvl", "1");
+		options = defaults;
+	}
+	public CRFLearner(int histsize, int epoch) {this();}
+	public CRFLearner(String args) {
+		this();
+		StringTokenizer argTok = new StringTokenizer(args, " ");
+		options = new java.util.Properties(defaults);
+		while (argTok.hasMoreTokens()) {
+	    options.setProperty(argTok.nextToken(),argTok.nextToken());
+		}
+	}
+	public CRFLearner(String args[]) {
+		this();
+		options = new java.util.Properties(defaults);
+		for (int i = 0; i < args.length-1; i+=2) {
+	    options.setProperty(args[i], args[i+1]);
+		}
+	}
+	public void setSchema(ExampleSchema sch) {;}
+	public int getHistorySize() {return 1;}
+	
+	class DataSequenceC implements iitb.CRF.DataSequence {
+		Instance[] sequence;
+		int labels[];
+		void init(Instance[] tokens) {
 	    sequence = tokens;
 	    if (tokens != null) {
-		if ((labels == null) || (tokens.length > labels.length)) {
-		    labels = new int[tokens.length];
-		}
+				if ((labels == null) || (tokens.length > labels.length)) {
+					labels = new int[tokens.length];
+				}
 	    }
-	}
-	public int length() {
+		}
+		public int length() {
 	    return sequence.length;
-	}
-	public int y(int i) {
+		}
+		public int y(int i) {
 	    return labels[i];
-	}
-	public Object x(int i) {
+		}
+		public Object x(int i) {
 	    return sequence[i];
-	}
-	public void set_y(int i, int label) {
+		}
+		public void set_y(int i, int label) {
 	    labels[i] = label;
-	}
-    };
-
-    class TrainDataSequenceC extends DataSequenceC {
-	void init(Example[] tokens) {
+		}
+	};
+	
+	class TrainDataSequenceC extends DataSequenceC {
+		void init(Example[] tokens) {
 	    super.init(tokens);
 	    if (tokens != null) {
-		for (int i = 0; i < sequence.length; i++) {
-		    labels[i] = schema.getClassIndex(tokens[i].getLabel().bestClassName());
-		}
+				for (int i = 0; i < sequence.length; i++) {
+					labels[i] = schema.getClassIndex(tokens[i].getLabel().bestClassName());
+				}
 	    }
-	}
-    };
-
-    class TestDataSequenceC extends DataSequenceC {
-	TestDataSequenceC(Instance[] tokens) {
+		}
+	};
+	
+	class TestDataSequenceC extends DataSequenceC {
+		TestDataSequenceC(Instance[] tokens) {
 	    init(tokens);
-	}
-	ClassLabel[] getLabels() {	
+		}
+		ClassLabel[] getLabels() {	
 	    ClassLabel[] clabels = new ClassLabel[sequence.length];
 	    for (int i = 0; i < sequence.length; i++) {
-		clabels[i] = new ClassLabel(schema.getClassName(labels[i]));
+				clabels[i] = new ClassLabel(schema.getClassName(labels[i]));
 	    }
 	    return clabels;
-	}
-    };
-
-    class CRFDataIter implements iitb.CRF.DataIter {
-	Iterator iter;
-	SequenceDataset dataset;
-	TrainDataSequenceC sequence;
-	int dataSize;
-	CRFDataIter(SequenceDataset ds) {
+		}
+	};
+	
+	class CRFDataIter implements iitb.CRF.DataIter {
+		Iterator iter;
+		SequenceDataset dataset;
+		TrainDataSequenceC sequence;
+		int dataSize;
+		CRFDataIter(SequenceDataset ds) {
 	    dataset = ds;
 	    dataSize = ds.size();
 	    sequence = new TrainDataSequenceC();
-	}
-	public void startScan() {
+		}
+		public void startScan() {
 	    iter=dataset.sequenceIterator();
-	}
-	public boolean hasNext() {
+		}
+		public boolean hasNext() {
 	    return iter.hasNext();
-	}
-	public iitb.CRF.DataSequence next() {
+		}
+		public iitb.CRF.DataSequence next() {
 	    sequence.init((Example[])iter.next());
 	    return sequence;
-	}
-    };
-
-    class  MTFeatureTypes extends iitb.Model.FeatureTypes {
-	Feature.Looper featureLooper;
-	Feature feature;
-	int numStates;
-	Instance example;
-	int stateId;
-	MTFeatureTypes(iitb.Model.Model m) {
+		}
+	};
+	
+	class  MTFeatureTypes extends iitb.Model.FeatureTypes {
+		Feature.Looper featureLooper;
+		Feature feature;
+		int numStates;
+		Instance example;
+		int stateId;
+		MTFeatureTypes(iitb.Model.Model m) {
 	    super(m);
 	    numStates = model.numStates();
-	}
-	void advance() {
+		}
+		void advance() {
 	    stateId++;
 	    if (stateId < numStates)
-		return;
+				return;
 	    if (featureLooper.hasNext()) {
-		feature = featureLooper.nextFeature();
-		stateId = 0;
+				feature = featureLooper.nextFeature();
+				stateId = 0;
 	    } else {
-		feature = null;
-		featureLooper=null;
+				feature = null;
+				featureLooper=null;
 	    }
-	}
-	boolean startScan() {
+		}
+		boolean startScan() {
 	    stateId = -1;
 	    if (featureLooper.hasNext()) {
-		feature = featureLooper.nextFeature();
-		advance();
+				feature = featureLooper.nextFeature();
+				advance();
 	    } else {
-		feature = null;
-		return false;
+				feature = null;
+				return false;
 	    }
 	    return true;
-	}
-	public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
+		}
+		public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
 	    example = (Instance)data.x(pos);
 	    featureLooper = example.featureIterator();
 	    return startScan();
-	}
-	public boolean hasNext() {
+		}
+		public boolean hasNext() {
 	    return ((stateId  < numStates) && (feature != null));
-	}
-	public  void next(iitb.Model.FeatureImpl f) {
+		}
+		public  void next(iitb.Model.FeatureImpl f) {
 	    f.yend = stateId;
 	    f.ystart = -1;
 	    f.val = (float)example.getWeight(feature);
 	    setFeatureIdentifier(feature.numericName()*numStates+stateId, stateId, feature.toString(),f);
 	    advance();
-	}
-    };
-
-    public class MTFeatureGenImpl extends iitb.Model.FeatureGenImpl {
-	public MTFeatureGenImpl(String modelSpecs, int numLabels, String[] labelNames) throws Exception {
+		}
+	};
+	
+	public class MTFeatureGenImpl extends iitb.Model.FeatureGenImpl {
+		public MTFeatureGenImpl(String modelSpecs, int numLabels, String[] labelNames) throws Exception {
 	    super(modelSpecs,numLabels,false);
 	    addFeature(new iitb.Model.EdgeFeatures(model, HISTORY_FEATURE+".1.",labelNames));
 	    addFeature(new iitb.Model.StartFeatures(model, HISTORY_FEATURE+".1."+NULL_CLASS_NAME));
 	    addFeature(new iitb.Model.EndFeatures(model));
 	    addFeature(new MTFeatureTypes(model));
-	}
-    };
+		}
+	};
 	
-    iitb.Model.FeatureGenImpl featureGen;
-    GenericCollinsLearner.MultiClassClassifier classifier;
-
-    void allocModel() throws Exception {
-	featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
-	crfModel = new iitb.CRF.CRF(featureGen.numStates(),featureGen,options);	
-    }
-    public SequenceClassifier batchTrain(SequenceDataset dataset)
-    {
-	try {
+	iitb.Model.FeatureGenImpl featureGen;
+	SequenceUtils.MultiClassClassifier classifier;
+	
+	void allocModel() throws Exception {
+		featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
+		crfModel = new iitb.CRF.CRF(featureGen.numStates(),featureGen,options);	
+	}
+	public SequenceClassifier batchTrain(SequenceDataset dataset)
+	{
+		try {
 	    schema = dataset.getSchema();
 	    allocModel();
 	    iitb.CRF.DataIter trainData = new CRFDataIter(dataset);
@@ -205,7 +205,7 @@ public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConsta
 	    ProgressCounter pc = new ProgressCounter("training CRF","iteration");
 	    double crfWs[] = crfModel.train(trainData);
 	    pc.finished();
-	   
+			
 	    //return this;
 			
 	    // we can use a CMM here, since the classifier is constructed to the same
@@ -215,40 +215,40 @@ public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConsta
 	    int numClasses = schema.getNumberOfClasses();
 	    w_t = new Hyperplane[numClasses];
 	    for (int i=0; i<numClasses; i++) {
-		w_t[i] = new Hyperplane();
-		w_t[i].setBias(0);
+				w_t[i] = new Hyperplane();
+				w_t[i].setBias(0);
 	    }
 	    for (int fIndex = 0; fIndex < crfWs.length; fIndex++) {
-		String fname = featureGen.featureName(fIndex);
-		int classIndex = 0;
-		int dotPos = fname.lastIndexOf('.');
-		classIndex = Integer.parseInt(fname.substring(dotPos+1));
-		if ((dotPos < 0) || (classIndex > numClasses-1)) 
-		    throw new Exception("Feature name does not end with a valid class index");
-		w_t[classIndex].increment(new Feature(fname.substring(0,dotPos)),crfWs[fIndex]);
+				String fname = featureGen.featureName(fIndex);
+				int classIndex = 0;
+				int dotPos = fname.lastIndexOf('.');
+				classIndex = Integer.parseInt(fname.substring(dotPos+1));
+				if ((dotPos < 0) || (classIndex > numClasses-1)) 
+					throw new Exception("Feature name does not end with a valid class index");
+				w_t[classIndex].increment(new Feature(fname.substring(0,dotPos)),crfWs[fIndex]);
 	    }
-	    classifier = new GenericCollinsLearner.MultiClassClassifier(schema,w_t); 
-	    // return new CMM(classifier, 1, schema );	 
+	    classifier = new SequenceUtils.MultiClassClassifier(schema,w_t); 
+			//return new CMM(classifier, 1, schema );	 
 	    return this;
-	} catch (Exception e) {
+		} catch (Exception e) {
 	    e.printStackTrace();
 	    throw new IllegalStateException("error in CRF: "+e);
+		}
 	}
-    }
 	
-    /** Return a predicted type for each element of the sequence. */
-    public ClassLabel[] classification(Instance[] sequence) {
-	TestDataSequenceC seq = new TestDataSequenceC(sequence);
-	crfModel.apply(seq);
-	featureGen.mapStatesToLabels(seq);
-	return seq.getLabels();
-    }
+	/** Return a predicted type for each element of the sequence. */
+	public ClassLabel[] classification(Instance[] sequence) {
+		TestDataSequenceC seq = new TestDataSequenceC(sequence);
+		crfModel.apply(seq);
+		featureGen.mapStatesToLabels(seq);
+		return seq.getLabels();
+	}
 	
-    /** Return some string that 'explains' the classification */
-    public String explain(Instance[] sequence) {
-	return "not supported";
-    }
-
+	/** Return some string that 'explains' the classification */
+	public String explain(Instance[] sequence) {
+		return "not supported";
+	}
+	
 	public Viewer toGUI()
 	{
 		Viewer v = new ComponentViewer() {
@@ -269,5 +269,5 @@ public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConsta
 		v.setContent(this);
 		return v;
 	}
-
-};
+	
+}

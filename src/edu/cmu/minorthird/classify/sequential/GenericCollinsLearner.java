@@ -1,18 +1,20 @@
+/* Copyright 2003-2004, Carnegie Mellon, All Rights Reserved */
+
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
 import java.util.*;
 import org.apache.log4j.*;
 
 /**
  * 'Generic' version of Collin's voted perceptron learner.
+ *
+ * <p>As of May 9, 2004, this is a different algorithm, which is much
+ * more like Collin's original method.  The 'old' implementation is in
+ * GenericCollinsLearnerV1.
  *
  * @author William Cohen
  */
@@ -76,15 +78,7 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();
-		try {
-			innerLearner = new OnlineClassifierLearner[ schema.getNumberOfClasses() ];		
-			for (int i=0; i<schema.getNumberOfClasses(); i++) {
-				innerLearner[i] = (OnlineClassifierLearner)innerLearnerPrototype.copy();
-				innerLearner[i].reset();
-			}
-		} catch (CloneNotSupportedException ex) {
-			throw new IllegalArgumentException("innerLearner must be cloneable");
-		}
+		innerLearner = SequenceUtils.duplicatePrototypeLearner(innerLearnerPrototype,schema.getNumberOfClasses());
 
 		ProgressCounter pc =
 			new ProgressCounter("training sequential "+innerLearnerPrototype.toString(), 
@@ -102,7 +96,7 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) 
 			{
 				Example[] sequence = (Example[])i.next();
-				Classifier c = new MultiClassClassifier(schema,innerLearner);
+				Classifier c = new SequenceUtils.MultiClassClassifier(schema,innerLearner);
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
 				if (DEBUG) log.debug("classifier: "+c);
 				if (DEBUG) log.debug("viterbi:\n"+StringUtil.toString(viterbi));
@@ -137,7 +131,7 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 						int correctClassIndex = schema.getClassIndex( sequence[j].getLabel().bestClassName() );
 						accumPos[correctClassIndex].increment( correctXj, +1.0 );
 						accumNeg[correctClassIndex].increment( correctXj, -1.0 );
-						if (DEBUG) log.debug("+ update "+sequence[j].getLabel().bestClassName()+" "+correctXj.getSource());
+						if (DEBUG) log.debug("+ update "+sequence[j].getLabel().bestClassName()+" "+correctXj.getSource()+";"+correctXj);
 
 						InstanceFromSequence.fillHistory( history, viterbi, j );
 						Instance wrongXj = new InstanceFromSequence( sequence[j], history );
@@ -175,118 +169,11 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 			innerLearner[k].completeTraining();
 		}
 
-		// we can use a CMM here, since the classifier is constructed to the same
-		// beam search will work
-		Classifier c = new MultiClassClassifier(schema,innerLearner);
+		Classifier c = new SequenceUtils.MultiClassClassifier(schema,innerLearner);
 
+		// we can use a CMM here, since the classifier is constructed so
+		// that the same beam search will work
 		return new CMM(c, historySize, schema );
-	}
-
-	private static class HyperplaneInstance implements Instance
-	{
-		private Hyperplane hyperplane;
-		private String subpopulationId;
-		private Object source;
-		public HyperplaneInstance(Hyperplane hyperplane,String subpopulationId,Object source) { 
-			// compensate for automatic increment of bias term by linear learners
-			// for some reason it seems to work better to have the bias be linear in length
-			hyperplane.incrementBias(-1.0);
-			this.hyperplane = hyperplane; 
-			this.subpopulationId = subpopulationId;
-			this.source = source;
-		}
-		public Viewer toGUI() { return hyperplane.toGUI(); }
-		public double getWeight(Feature f) { return hyperplane.featureScore(f); }
-		public Feature.Looper binaryFeatureIterator() { return new Feature.Looper(Collections.EMPTY_SET); }
-		public Feature.Looper numericFeatureIterator() { return hyperplane.featureIterator(); }
-		public Feature.Looper featureIterator() { return hyperplane.featureIterator(); }
-		public double getWeight() { return 1.0; }
-		public Object getSource() { return source; }
-		public String getSubpopulationId() { return subpopulationId; }
-		// iterate overall hyperplane features except the bias feature
-		private class MyIterator implements Iterator
-		{
-			private Iterator i;
-			private Object myNext = null; // buffers the next nonbias feature produced by i
-			public MyIterator() { this.i = hyperplane.featureIterator(); advance(); }
-			private void advance() 
-			{
-				if (!i.hasNext()) myNext = null;
-				else { 
-					myNext = i.next();
-					if (myNext.equals(Hyperplane.BIAS_TERM)) advance();
-				}
-			}
-			public void remove() { throw new UnsupportedOperationException("can't remove"); }
-			public boolean hasNext() { return myNext!=null; }
-			public Object next() { Object result=myNext; advance(); return result; }
-		}
-	}
-
-	public static class MultiClassClassifier implements Classifier,Visible,Serializable
-	{
-		private int serialVersionUID = 1;
-		private ExampleSchema schema;
-		private Classifier[] innerClassifier;
-		private int numClasses;
-
-		public MultiClassClassifier(ExampleSchema schema,Classifier[] learners) {
-			this.schema = schema;
-			this.numClasses = schema.getNumberOfClasses();
-			innerClassifier = learners;
-		}
-		public MultiClassClassifier(ExampleSchema schema,OnlineClassifierLearner[] innerLearner)
-		{
-			this.schema = schema;
-			this.numClasses = schema.getNumberOfClasses();
-			innerClassifier = new Classifier[ numClasses ];
-			for (int i=0; i<numClasses; i++) {
-				innerClassifier[i] = innerLearner[i].getClassifier();
-			}
-		}
-		public ClassLabel classification(Instance instance)
-		{
-			ClassLabel label = new ClassLabel();
-			for (int i=0; i<numClasses; i++) {			
-				label.add( schema.getClassName(i), innerClassifier[i].classification(instance).posWeight() );
-			}
-			return label; 
-		}
-		public String explain(Instance instance)
-		{
-			StringBuffer buf = new StringBuffer("");
-			for (int i=0; i<numClasses; i++) {			
-				buf.append("Classifier for class "+schema.getClassName(i)+":\n");
-				buf.append( innerClassifier[i].explain(instance) );
-				buf.append("\n");
-			}
-			return buf.toString();
-		}
-
-		public Viewer toGUI()
-		{
-			Viewer gui = new ComponentViewer() {
-					public JComponent componentFor(Object o) {
-						MultiClassClassifier c = (MultiClassClassifier)o;
-						JPanel main = new JPanel();
-						for (int i=0; i<numClasses; i++) {
-							JPanel classPanel = new JPanel();
-							classPanel.setBorder(new TitledBorder("Class "+c.schema.getClassName(i)));
-							Viewer subviewer = new SmartVanillaViewer( c.innerClassifier[i] );
-							subviewer.setSuperView( this );
-							classPanel.add( subviewer );
-							main.add(classPanel);
-						}
-						return new JScrollPane(main);
-					}
-				};
-			gui.setContent(this);
-			return gui;
-		}
-		public String toString() 
-		{
-			return "[MultiClassClassifier:"+StringUtil.toString(innerClassifier,"\n","\n]","\n - ");
-		}
 	}
 }
 

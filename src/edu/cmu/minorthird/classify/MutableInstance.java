@@ -18,7 +18,7 @@ public class MutableInstance extends AbstractInstance
 	private WeightedSet wset = new WeightedSet();
 	private Set set = new TreeSet();
 
-    public MutableInstance() { this("_unknownSource_",null); }
+	public MutableInstance() { this("_unknownSource_",null); }
 	public MutableInstance(Object source) { this(source,null); }
 	public MutableInstance(Object source,String subpopulationId) { 
 		this.source=source; 
