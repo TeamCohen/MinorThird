@@ -47,7 +47,6 @@ public class Evaluation implements Visible,Serializable,Saveable
     transient private Matrix cachedConfusionMatrix = null;
     // dataset schema
     private ExampleSchema schema;
-    private static ExampleSchema s;
     // properties
     private Properties properties = new Properties();
     private ArrayList propertyKeyList = new ArrayList();
@@ -59,7 +58,6 @@ public class Evaluation implements Visible,Serializable,Saveable
     public Evaluation(ExampleSchema schema)
     {
         this.schema = schema;
-        this.s = schema;
         isBinary = schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
     }
 
@@ -186,7 +184,7 @@ public class Evaluation implements Visible,Serializable,Saveable
         for (int i=0; i<entryList.size(); i++) {
             Entry e = getEntry(i);
             String actualLabel = e.actual.bestClassName();
-            int index = s.getClassIndex(actualLabel);
+            int index = schema.getClassIndex(actualLabel);
             err[index] += e.predicted.isCorrect(e.actual) ? 0 : e.w;
         }
         return err;
@@ -202,7 +200,7 @@ public class Evaluation implements Visible,Serializable,Saveable
             if (e.partitionID==ID)
             {
                 String actualLabel = e.actual.bestClassName();
-                int index = s.getClassIndex(actualLabel);
+                int index = schema.getClassIndex(actualLabel);
                 err[index] += e.predicted.isCorrect(e.actual) ? 0 : e.w;
             }
         }
@@ -379,7 +377,7 @@ public class Evaluation implements Visible,Serializable,Saveable
         for (int i=0; i<entryList.size(); i++) {
             Entry e = getEntry(i);
             String actualLabel = e.actual.bestClassName();
-            int index = s.getClassIndex(actualLabel);
+            int index = schema.getClassIndex(actualLabel);
             wgt[index] += e.w;
         }
         return wgt;
@@ -393,7 +391,7 @@ public class Evaluation implements Visible,Serializable,Saveable
         for (int i=0; i<entryList.size(); i++) {
             Entry e = getEntry(i);
             String actualLabel = e.actual.bestClassName();
-            int index = s.getClassIndex(actualLabel);
+            int index = schema.getClassIndex(actualLabel);
             if (e.partitionID==ID)
             {
                 wgt[index] += e.w;
@@ -623,16 +621,16 @@ public class Evaluation implements Visible,Serializable,Saveable
         stats[(9+2*K)] = kappa();
         return stats;
     }
-    static public String[] summaryStatisticNames()
+    public String[] summaryStatisticNames()
     {
-        int K = s.getNumberOfClasses();
+        int K = schema.getNumberOfClasses();
         String[] names = new String[(10+2*K)];
         names[0] = "Error Rate";
         names[1] = ". std. deviation error rate";
         names[2] = "Balanced Error Rate";
         for(int i=0; i<K; i++)
         {
-            String classname = s.getClassName(i);
+            String classname = schema.getClassName(i);
             names[(2+2*i+1)] = new String(". error Rate on "+classname);
             names[(2+2*i+2)] = new String(". std. deviation on "+classname);
         }
@@ -1145,6 +1143,16 @@ public class Evaluation implements Visible,Serializable,Saveable
         in.close();
         return result;
     }
+
+
+    //
+    // getters / setters
+    //
+    public ExampleSchema getSchema()
+    {
+        return this.schema;
+    }
+
 
 
     //
