@@ -1,0 +1,22 @@
+//this file provides annotations of 'time'
+provide 'time';
+
+//A dictionary of tokens, called 'timeSep', containing one element ':'
+defDict timeSep = :;
+
+//Defining a property called "Time:Unit" applied to any matching tokens
+defTokenProp Time:Unit =: ... ['p' '.' 'm' '.'] ... || ... [eqi('pm')] ... ;
+defTokenProp Time:Unit =: ... ['a' '.' 'm' '.'] ... || ... [eqi('am')] ... ;
+
+//Defines a span type matching the property above
+defSpanType time_unit =: ... [ Time:Unit ] ...;
+
+//Defines another property "Time:1" which matches regular expression of numbers, then a 'timeSep' token (from the dictionary)
+// then more numbers and "am" or "pm"
+defTokenProp Time:1 =: ... [re('^[0-9]+$') a(timeSep) re('^[0-9]+(am|pm)?$')] ... ;
+
+//Gives anything having Time:1 property the type "time" - as promised by provide
+defSpanType time =: ... [Time:1] ... ;
+
+
+
