@@ -36,8 +36,7 @@ public class ReplyToAnnotator extends StringAnnotator
 	
   public ReplyToAnnotator(){
   	try{
-  		File file = new File("apps/email/models/VPreplyModel");
-  		//File file = new File("apps/email/models/replyModel");
+  		File file = new File("apps/email/models/VPreplyModel");//vp15
 		model = (BinaryClassifier)IOUtil.loadSerialized(file);  		
   	}
   	catch (Exception e){
@@ -65,7 +64,22 @@ public class ReplyToAnnotator extends StringAnnotator
     CharAnnotation[] cann = (CharAnnotation[])list.toArray(new CharAnnotation[list.size()]);
 	return cann;
   }
-
+  
+  public String deleteReplyLinesFromMsg(String doc){
+  	SigFilePredictor.WindowRepresentation windowRep = new SigFilePredictor.WindowRepresentation(doc);
+  	StringBuffer notreplybuff = new StringBuffer();
+  	ClassifyInstances(windowRep, "reply", notreplybuff, null);
+  	return notreplybuff.toString();
+  }
+  
+  public String getMsgReplyLines(String doc){
+  	SigFilePredictor.WindowRepresentation windowRep = new SigFilePredictor.WindowRepresentation(doc);
+  	StringBuffer replybuff = new StringBuffer();
+  	ClassifyInstances(windowRep, "reply", null, replybuff);
+  	return replybuff.toString();
+  }
+  
+  
   public String explainAnnotation(edu.cmu.minorthird.text.TextLabels labels, edu.cmu.minorthird.text.Span documentSpan)
   {
     return "reply-to extraction - not implemented yet!";
@@ -81,7 +95,7 @@ public class ReplyToAnnotator extends StringAnnotator
   private ArrayList Predict(String msg)
   {  
   	SigFilePredictor.WindowRepresentation windowRep = new SigFilePredictor.WindowRepresentation(msg);
-   	ArrayList herelist = ClassifyInstances(windowRep, "reply");
+   	ArrayList herelist = ClassifyInstances(windowRep, "reply", null, null);
    	return herelist;    	
   }
   
@@ -93,7 +107,7 @@ public class ReplyToAnnotator extends StringAnnotator
  *  @return an ArrayList with all reply lines in a CharAnnotation[] format
  * 
  */
-  private ArrayList ClassifyInstances(SigFilePredictor.WindowRepresentation windowRep, String tag)
+  private ArrayList ClassifyInstances(SigFilePredictor.WindowRepresentation windowRep, String tag, StringBuffer notreply, StringBuffer reply)
   {  	
 	ArrayList bemlocal = new ArrayList();
 	MutableInstance[] ins = windowRep.getInstances();
@@ -107,18 +121,23 @@ public class ReplyToAnnotator extends StringAnnotator
 		if(decision){
 			//System.out.println("POSITIVE = " +i);//to debug
 			//System.out.println(ins[i].toString());
+			if(!(reply==null)) reply.append(arrayOfLines[i]+"\n");
 			log.debug(arrayOfLines[i]);
 			charBegin = wholeMessage.indexOf(arrayOfLines[i], firstCharIndex[i]-1);
 			if(charBegin<0) charBegin = firstCharIndex[i]; //just in case
 			//bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length(), tag));
 			bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length()+1, tag));
-		}			
+		}	
+		else{
+			if(!(notreply==null))  notreply.append(arrayOfLines[i]+"\n");
+		}		
 	}
 	log.debug("\n\n");
 	return bemlocal;  	
   }
   
-
+ 
+ 
 //--------------------- main method/testing -----------------------------------------------------
   
   //for testing purposes
@@ -147,10 +166,14 @@ public class ReplyToAnnotator extends StringAnnotator
           ReplyToAnnotator repto = new ReplyToAnnotator();
 
           for(int i=0; i< args.length; i++){
-       	     System.out.println(args[i]);
          	 String message = LineProcessingUtil.readFile(args[i]);
      	 	 CharAnnotation[] onelist = repto.annotateString(message);
- 		     //System.out.print(onelist.toString()); 
+ 		     String onelist3 = repto.getMsgReplyLines(message);
+     	 	 System.out.println("\n######### Reply Lines of "+args[i]+" #######");
+ 		     System.out.print(onelist3.toString());
+     	 	 //System.out.println("\n######### Msg After Removing the Reply Lines  #######");
+     	 	 //String onelist2 = repto.deleteReplyLinesFromMsg(message);
+ 		     //System.out.print(onelist2.toString()+"\n\n"); 
           }
        }    	
     } catch (Exception e) {
