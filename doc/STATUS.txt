@@ -1,7 +1,25 @@
+PROPOSED EXTENSION TO HANDLE RETOKENIZED TEXTBASES:
+
+ in text.learn: 
+   - labeled pointer from parent textBase to spanType/retokenized textbases
+
+ in SpanFE: 
+   - from(s,textLabels).toLevel("foo") returns corresponding span s'/textLabels' on level "foo"
+
+ MIXUP_COMMAND -> onLevel name;   // push level
+ MIXUP_COMMAND -> offLevel;       // back to parent level
+ // alternative might be "onLevel foo { .... } which produces a mixup program
+ // that will run on the child level named "foo"
+ MIXUP_COMMAND -> defLevel name: LEVELDEF+ ;  // produce new child textbase
+ LEVELDEF -> from DOCSPANTYPE 
+          | token ( re RE | class CLASS | filter MIXUP_TOKENEXPR )
+          | pseudoToken ATOM=SPANTYPE(, ATOM=SPANTYPE)+
+ GENERATOR -> importFromLevel name SPANTYPE=SPANTYPE (,SPANTYPE=SPANTYPE)+
+
 PRIORITIES:
  - SVMs: update svmlib to get confidences?
- - stderr on error rates/f1's
- - 
+ - fix bug in SVM save/restore
+ - stderr on error rates/f1's -done, sortof
 
 BUGS:
   - does showTestDetails change the result?
@@ -10,7 +28,6 @@ BUGS:
   - spanClosures are not stored properly (only by document); should really store tokenProps also,
   and CWA isn't even tracked for span properties
   - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
-  - performance issues loading in large files (with markup?)
 
 UI tweaks:
   - in TextBaseViewer, an 'apply' button?
@@ -28,41 +45,26 @@ LARGER PROJECTS:
 MEDIUM TASKS:
 
  - POS tagger
- - engineering line-based analysis: 
- TextBase b = textBase.retokenize(tokenizer,textBase); // retokenize a text base, eg by lines, or tree-bank
- boolean textBase.compatibleWith(otherBase);  // check if otherBase is a variant tokenization
- LabelImporter imp = monotonicTextLabels.getImporter(); // build something that imports new stuff into textLabels
- labelImporter.importSpanType(type,otherLabels);  // import a span type from text labels with a compatible textBase
 
 CLEANUPS/DESIGN:
 
  - clean up AnnotationExample - should some of code go in Extraction2TaggingReduction?
- - should have default FE's in SequenceAnnotatorLearner, SegmentAnnotatorLearner, ClassifierAnnotatorLearner?
-   that are called by UI.Recommended
+ - should I have default FE's in SequenceAnnotatorLearner,
+ SegmentAnnotatorLearner, ClassifierAnnotatorLearner?  that are called
+ by UI.Recommended
  - clean up util.Loader?
- - linkage issues
+ - linkage issues: do classify, util compile separately?
  - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample,
     InfoGainInstanceTransform
- - fix mixup parser to be consistent, fix Dependency/Mixup mess, Dependency to text, remove 'requirements' in Annotator
- - add to mixup 'begin' ... 'end exporting a as b,c as d,...;'
  - transform.MaskedInstance could be more efficient
  - classify.algorithm.random, classify.algorithm.active are misplaced
  - explanations are messy in text - structure them?
  - edo code: Spiltter, punk => grep, get rid of stopwords in file?
  - Conventions to get names consistently used.
- - Text GUI rewrite: labeler, viewer
 
  To evaluate:
  - should Hyperplane extend MutableInstance ?
  - separate out feature extractor loading from classifier loading somehow? 
-
-Spring cleaning:
-    TODO:
-    - move MovieDataset to apps
-    - move hard-coded annotators (POSTagger, StopWords, SigFileAnnotator, ...) to text.annotators ? 
-    - BatchFilteredFinderLearner: do I need 'finders'?
-    - clean up mixup parsing, text loading
-    - will remove text.learn.experiments.SequenceAnnotatorExpt
 
 CHANGES from William:
 
