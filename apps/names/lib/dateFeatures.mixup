@@ -1,6 +1,7 @@
 require 'dateTime','dateTime.mixup';
 provide 'dateFeatures';
 
+// TR-style features
 // make everything in date, time, available as properties
 
 defTokenProp monthWord:1 =: ... [a(monthWord)] ... ;

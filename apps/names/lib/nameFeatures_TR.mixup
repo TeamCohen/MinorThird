@@ -1,0 +1,18 @@
+require 'rcwangName','rcwangName.mixup';
+
+provide 'nameFeatures_TR';
+
+// TR-style features 
+// make all non-properties in the theory available as properties
+
+defTokenProp SWord:1 =: ... [@S] ... ;
+defTokenProp NP1Word:1 =: ... [@NP1] ... ;
+
+defTokenProp CapAbrvNameWord:1 =: ... [@CapAbrvName] ... ;
+defTokenProp LowAbrvNameWord:1 =: ... [@LowAbrvName] ... ;
+defTokenProp TitleWordWord:1 =: ... [@TitleWord]...;
+
+defTokenProp name1Word:1 =: ... [@name1Word]... ;
+defTokenProp nameWord:1 =: ... [@name]... ;
+
+
