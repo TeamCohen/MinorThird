@@ -179,7 +179,8 @@ public class CommandLineUtil
 		Span s = i.nextSpan();
 		String className = textLabels.getProperty(s,spanProp);
 		if (className==null) {
-		    log.warn("no span property "+spanProp+" for document "+s.getDocumentId()+" - will be ignored");
+		    dataset.add( new Example( fe.extractInstance(safeLabels,s), new ClassLabel("NEG")) );
+		    //log.warn("no span property "+spanProp+" for document "+s.getDocumentId()+" - will be ignored");
 		} else {
 		    dataset.add( new Example( fe.extractInstance(safeLabels,s), new ClassLabel(className)) );
 		}
