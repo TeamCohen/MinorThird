@@ -294,6 +294,8 @@ public class TypeSelector extends ComponentViewer
 											try {
 												if (theBox.getSelectedIndex()>0) {
 													writer.invoke(o, new Object[]{theBox.getSelectedItem()});
+												} else {
+													writer.invoke(o, new Object[]{null});
 												}
 											} catch (IllegalAccessException ex) {
 												log.error(ex.toString());

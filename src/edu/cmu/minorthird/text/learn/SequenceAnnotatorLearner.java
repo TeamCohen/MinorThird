@@ -195,6 +195,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 				ClassLabel[] classLabels = seqClassifier.classification( sequence );
 				for (int j=0; j<classLabels.length; j++) {
 					labels.setProperty( s.getToken(j), reduction.getTokenProp(), classLabels[j].bestClassName() );
+					//System.out.println("setTokenProp for "+ s.getToken(j) +": "+reduction.getTokenProp() + " => "+classLabels[j].bestClassName() );
 				}
 				pc.progress();
 			}

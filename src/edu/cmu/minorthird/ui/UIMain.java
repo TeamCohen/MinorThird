@@ -59,7 +59,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		//
 		// reductions from annotator-learning to tagging
 		//
-		InsideOutsideReduction.class,
+		InsideOutsideReduction.class, BeginContinueEndUniqueReduction.class,
 		//
 		// recommend feature extractors
 		//

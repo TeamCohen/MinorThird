@@ -88,7 +88,9 @@ public class BasicTextBase implements TextBase, Serializable
 	/** An iterator over all documents.
 	 */
 	public Span.Looper documentSpanIterator()
-	{	return new MyDocumentSpanLooper();	}
+	{	
+		return new MyDocumentSpanLooper();	
+	}
 
 	/** Find the document span for the given id */
 	public Span documentSpan(String documentId)

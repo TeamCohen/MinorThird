@@ -51,7 +51,7 @@ public class SubTextBase implements TextBase
 	public int size() { return validDocumentSpans.size(); }
 
 	public Span.Looper documentSpanIterator() {
-		return new BasicSpanLooper( validDocumentSpans.iterator() );
+		return new BasicSpanLooper( validDocumentSpans );
 	}
 
 	public Span documentSpan(String documentId) {
