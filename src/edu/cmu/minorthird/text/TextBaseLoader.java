@@ -137,6 +137,7 @@ public class TextBaseLoader implements Loader
       buf.append( line.substring(currentChar, line.length()) );
       buf.append( "\n" );
     }
+    in.close();
     // add the document to the textbase
     base.loadDocument(id, buf.toString() );
     // add the markup to the labels
