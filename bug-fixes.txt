@@ -1,19 +1,20 @@
 Bug list:
 	
-1 - FIXED - ProgressCounter
-	checking graphic counter in finished can NPE
+6 - KNOWN - DatasetLoader/ClassLabel
+	Edo reports seeing [NEG 1.0] as a binary label instead of [NEG -1.0]
 2 - KNOWN - MixupProgram
 	mixup file must be in classpath directory or it can't be loaded
 	*causing MixupProgramTest to fail
-3 - FIXED - TextBaseLoader
-	loadTaggedFile didn't close it's reader.  Does now.
 4 - KNOWN - TextBaseLoader
 	Edo reports that using TextBaseLoader.saveSerialized results in bad output
 		may be that he was using it for the wrong thing
+
+1 - FIXED - ProgressCounter
+	checking graphic counter in finished can NPE
+3 - FIXED - TextBaseLoader
+	loadTaggedFile didn't close it's reader.  Does now.
 5 - FIXED - DatasetLoader
 	parseLine checked the array size after indexing the array instead of before
-6 - KNOWN - DatasetLoader/ClassLabel
-	Edo reports seeing [NEG 1.0] as a binary label instead of [NEG -1.0]
 7 - FIXED - TextBaseLoader
 	missing line feeds
 8 - FIXED - MixupDebugger
@@ -22,6 +23,10 @@ Bug list:
 	didn't associated labels and text base
 10 - FIXED - EdoTextLabelsTest
 	wrong document for span checking
-
-	
+11 - FIXED (2/10/04) - FancyLoader
+	threw out xml labels
+12 - FIXED (2/10/04) - TextBaseLoader	
+	threw out xml labels
+13 - FIXED (2/10/04) - TextBaseLoader
+	maintained span list between multiple documents in a single file
 	
