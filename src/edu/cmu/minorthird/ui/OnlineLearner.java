@@ -64,13 +64,13 @@ public class OnlineLearner extends UIMain
 		String classLearnerName = ((ClassifierAnnotator)ann).getClassifierLearner();
 		ClassifierLearner classLearner = (ClassifierLearner)CommandLineUtil.newObjectFromBSH(classLearnerName,ClassifierLearner.class); 
 		
-		//if(useGUI) {
+		if(!olp.experiment) {
 		    OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, olp.data, olp.repositoryKey, 
-								      (ClassifierAnnotator)ann, classLearner, classLearnerName);
-		    //} else {
-		    //    OnlineExperiment onlineExpt = new OnlineExperiment((TextLabels)olp.data,(ClassifierAnnotator)ann, 
-		    //						       classLearner, classLearner, classLearnerName);
-		    //}
+									  (ClassifierAnnotator)ann, classLearner, classLearnerName);
+		} else {
+		    OnlineExperiment onlineExpt = new OnlineExperiment((TextLabels)olp.data,(ClassifierAnnotator)ann, 
+		    						       classLearner, classLearner, classLearnerName);
+		}
 	}
 
 	public Object getMainResult() { return annLabels; }

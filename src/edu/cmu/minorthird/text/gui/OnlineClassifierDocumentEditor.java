@@ -89,12 +89,27 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
     addedLabels = new String[tbSize];
     for(int i=0; i<tbSize; i++) {
 	editedSpans[i] = null;
-	spanLabels[i] = null;
 	addedLabels[i] = null;
-    }
+    }    
     
     this.spanType = ((ClassifierAnnotator)ann).getLearnedSpanType();
     if(spanType == null) throw new IllegalArgumentException("The annotator must be trained on a Span Type");
+
+    int counter = 0;
+    for(Span.Looper j=tb.documentSpanIterator(); j.hasNext(); ) {
+	Span s = j.nextSpan();
+	if(editLabels.hasType(s,spanType)) {
+	    spanLabels[counter] = spanType;
+	    editedSpans[counter] = s;
+	}else if(editLabels.hasType(s,"NOT"+spanType)){
+	    spanLabels[counter] = "NOT"+spanType;
+	    editedSpans[counter] = s;
+	}else{
+	    spanLabels[counter] = null;
+	    editedSpans[counter] = null;
+	}
+	counter++;
+    }
 	
     this.fe = ann.getFE();
 	

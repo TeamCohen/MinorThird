@@ -583,6 +583,7 @@ public class CommandLineUtil
 	public MutableTextLabels data = null;
 	public MonotonicTextLabels labels = null;
 	public String repositoryKey = null;
+	public boolean experiment = false;
 	public File loadFrom;
 	private String loadFromName;
 	public void loadFrom(String s) {this.loadFrom = new File(s); this.loadFromName=s; }
@@ -591,10 +592,15 @@ public class CommandLineUtil
 	    this.data = (MutableTextLabels)FancyLoader.loadTextLabels(dirName); 
 	    this.labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(dirName);
 	}
+	public void experiment() {
+	    this.experiment = true;
+	}
 	public void usage() {
 	    System.out.println("Online Learning loading parameters:");
 	    System.out.println(" -loadFrom FILE           file containing serialized Annotator");
 	    System.out.println(" -data DIRECTORY        Directory containing new data you would like to add");
+	    System.out.println(" -experiment            Perform an experiment with labeled data -");
+	    System.out.println("                        See if Online Learning give you an advantage");
 	    System.out.println();
 	}
 	// for gui
