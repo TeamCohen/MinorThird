@@ -22,19 +22,23 @@ public class LeaveOneOutDictVersion implements BatchSegmenterLearner
 {
 	private String[] featurePattern;
 	private BatchSegmenterLearner innerLearner;
+    private String distanceNames;
 
-	public LeaveOneOutDictVersion(String[] featurePattern, BatchSegmenterLearner innerLearner)
+	public LeaveOneOutDictVersion(String[] featurePattern, BatchSegmenterLearner innerLearner, String distanceNames)
 	{
 		this.featurePattern = featurePattern;
 		this.innerLearner = innerLearner;
+		this.distanceNames = distanceNames;
 	}
 
-	public LeaveOneOutDictVersion(BatchSegmenterLearner innerLearner)
+	public LeaveOneOutDictVersion(BatchSegmenterLearner innerLearner, String distanceNames)
 	{
-		this.featurePattern = LeaveOneOutDictTransformLearner.DEFAULT_PATTERN;
-		this.innerLearner = innerLearner;
+	    this(LeaveOneOutDictTransformLearner.DEFAULT_PATTERN,innerLearner,distanceNames);
 	}
 
+    public LeaveOneOutDictVersion(BatchSegmenterLearner innerLearner) {
+	this(LeaveOneOutDictTransformLearner.DEFAULT_PATTERN,innerLearner,"Jaccard");
+    }
 	public void setSchema(ExampleSchema schema)
 	{
 		;
@@ -42,7 +46,7 @@ public class LeaveOneOutDictVersion implements BatchSegmenterLearner
 
 	public Segmenter batchTrain(SegmentDataset dataset)
 	{
-		LeaveOneOutDictTransformLearner transformLearner = new LeaveOneOutDictTransformLearner(featurePattern);
+		LeaveOneOutDictTransformLearner transformLearner = new LeaveOneOutDictTransformLearner(featurePattern, distanceNames);
 		InstanceTransform transform = transformLearner.batchTrain(dataset);
 		SegmentTransform segmentTransform = new SegmentTransform(transform);
 		SegmentDataset transformedDataset = segmentTransform.transform(dataset);

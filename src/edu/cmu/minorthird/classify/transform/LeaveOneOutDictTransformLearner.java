@@ -25,18 +25,42 @@ public class LeaveOneOutDictTransformLearner
 
 	private String[] featurePattern;
 	private boolean buildDictionaryForNegativeClass=false;
+    private StringDistance distances[][];
+    String distanceNames;
 
-	public LeaveOneOutDictTransformLearner()
+    public LeaveOneOutDictTransformLearner() {
+	this("SoftTFIDF");
+    }
+	public LeaveOneOutDictTransformLearner(String distanceNames)
 	{
-		this(DEFAULT_PATTERN);
+		this(DEFAULT_PATTERN,distanceNames);
 	}
 
-	public LeaveOneOutDictTransformLearner(String[] featurePattern)
-	{
+    	public LeaveOneOutDictTransformLearner(String[] featurePattern) {
+	    this(featurePattern,"SoftTFIDF");
+	}
+	public LeaveOneOutDictTransformLearner(String[] featurePattern, String distanceNames) {
 		this.featurePattern = featurePattern;
+		this.distanceNames = distanceNames;
 	}
 
 	public void setSchema(ExampleSchema schema)	{;}
+
+
+    public void trainDistances(ExampleSchema schema, SoftDictionary[] softDict) {
+	distances = new StringDistance[schema.getNumberOfClasses()][0];
+	for (int i=0; i<schema.getNumberOfClasses(); i++) {
+	    distances[i] = DistanceLearnerFactory.buildArray(distanceNames);
+	}
+	for (int i=0; i<schema.getNumberOfClasses(); i++) {
+	    for (int d = 0; d < distances[i].length; d++) {
+		if (distances[i][d] instanceof StringDistanceLearner) {
+		    distances[i][d] = softDict[i].getTeacher().train( (StringDistanceLearner)distances[i][d] );
+		}
+	    }
+	}
+    }
+    
 
 	/** Examine data, build an instance transformer */
 	public InstanceTransform batchTrain(Dataset dataset)
@@ -59,7 +83,8 @@ public class LeaveOneOutDictTransformLearner
 				}
 			}
 		}
-		return new DictionaryTransform(schema,softDict,featurePattern);
+		trainDistances(schema,softDict);
+		return new DictionaryTransform(schema,softDict,featurePattern,distances);
 	}
 
 	// return a unique code for an example, for leave-one-out matching,
@@ -109,40 +134,54 @@ public class LeaveOneOutDictTransformLearner
 		private ExampleSchema schema;
 		private String[] newFeatureNames;
 		private double[] newFeatureValues;
-
-		public DictionaryTransform(ExampleSchema schema,SoftDictionary[] softDict,String[] featurePattern)
+	    
+	        private StringDistance distances[][];
+	    int numDistances;
+	    
+		public DictionaryTransform(ExampleSchema schema,SoftDictionary[] softDict,String[] featurePattern, StringDistance dists[][])
 		{
 			this.schema = schema;
 			this.softDict = softDict;
 			this.featurePattern = featurePattern;
-			newFeatureNames = new String[schema.getNumberOfClasses()];
-			for (int i=0; i<newFeatureNames.length; i++) {
-				newFeatureNames[i] = "distToSome "+schema.getClassName(i);
+			distances = dists;
+			numDistances = distances[0].length;
+			newFeatureNames = new String[schema.getNumberOfClasses()*numDistances];
+			newFeatureValues = new double[newFeatureNames.length];
+			int r = 0;
+			for (int i=0; i< schema.getNumberOfClasses(); i++) {
+			    for (int d = 0; d < distances[i].length; d++) {
+				newFeatureNames[r++] = distances[i][d].toString()+"_"+schema.getClassName(i);
+			    }
 			}
-			newFeatureValues = new double[schema.getNumberOfClasses()];
 		}
 		public Instance transform(Instance instance)
-		{
+	         {
+		     for (int i = 0; i < newFeatureValues.length; newFeatureValues[i++] = 0);
 			//System.out.println("transforming "+instance);
 			String text = getFeatureValue(instance,featurePattern);
 			if (text==null) return instance;
 			else {
 				boolean nonZeroFeatureAdded = false;
+				StringWrapper spanString = new BasicStringWrapper(text);
 				for (int i=0; i<schema.getNumberOfClasses(); i++) {
-				    // System.out.println("looking up text in dict "+i+ " " + instanceId(instance) + " " + text);
-					newFeatureValues[i] = softDict[i].lookupDistance( instanceId(instance), text );
-					// softDict returns -Double.MAX_VALUE if nothing matches, not too useful
-					if (newFeatureValues[i]<=0) {
-						newFeatureValues[i]=0.0;
-					} else {
+					//System.out.println("looking up text in dict "+i);
+
+				    Object closestMatch = softDict[i].lookup(instanceId(instance), spanString );			
+				    if (closestMatch != null) {
+				// create various types of similarity measures.
+					for (int d = 0; d < distances[i].length; d++) {
+					    double score  = distances[i][d].score(spanString, (StringWrapper)closestMatch);
+					    if (score >= 0) {
 						nonZeroFeatureAdded = true;
-						//System.out.println("lookupDistance '"+text+"' for y="+i+" is "+newFeatureValues[i]);
+						newFeatureValues[i*numDistances+d] = score;
+					    } 
 					}
+				    }
 				}
 				if (nonZeroFeatureAdded) {
 					Instance augmentedInstance = new AugmentedInstance( instance, newFeatureNames, newFeatureValues  );
 					//System.out.println("transformed to "+augmentedInstance);
-					Feature f = new Feature(newFeatureNames[ schema.getClassIndex(ExampleSchema.POS_CLASS_NAME) ]);
+					// Feature f = new Feature(newFeatureNames[ schema.getClassIndex(ExampleSchema.POS_CLASS_NAME) ]);
 					//System.out.println("weight of "+f+" is "+augmentedInstance.getWeight(f)+" in "+augmentedInstance);
 					return augmentedInstance;
 				} else {
