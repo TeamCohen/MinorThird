@@ -82,9 +82,9 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 				BinaryExample example = new BinaryExample( fe.extractInstance(answerLabels,tokenSpan), OUTSIDE_LABEL);
 				sequence[i] = example;
 			} else {
-				log.warn("token "+tok+" not labeled in "+document.getDocumentId());
-				System.out.println("input type "+answeredQuery.getInputType());
-				
+				log.warn("token "+tok+" not labeled in "+document.getDocumentId()+" - ignoring test of document");
+				//System.out.println("input type "+answeredQuery.getInputType());
+				return;
 			}
 		}
 		seqData.addSequence( sequence );

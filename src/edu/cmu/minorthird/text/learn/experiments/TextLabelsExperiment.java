@@ -102,18 +102,20 @@ public class TextLabelsExperiment
 			annotators[i].annotate( ithTestLabels );
 
 			log.info("Evaluating test partition...");
-			measurePrecisionRecall( ithTestLabels );
+			measurePrecisionRecall("Test partition "+(i+1)+":",ithTestLabels );
 		}
-		log.info("Overall performance measure");
-		measurePrecisionRecall( fullTestLabels );
+		log.info("\nOverall performance:");
+		measurePrecisionRecall( "Overall performance", fullTestLabels );
 	}
 
-	private void measurePrecisionRecall(TextLabels labels)
+	private void measurePrecisionRecall(String tag,TextLabels labels)
 	{
 		SpanDifference sd =
-			new SpanDifference( labels.instanceIterator(outputLabel),
-													labels.instanceIterator(inputLabel),
-													labels.closureIterator(inputLabel) );
+			new SpanDifference( 
+				labels.instanceIterator(outputLabel),
+				labels.instanceIterator(inputLabel),
+				labels.closureIterator(inputLabel) );
+		System.out.println(tag);
 		System.out.println("TokenPrecision: "+sd.tokenPrecision()+" TokenRecall: "+sd.tokenRecall());
 		System.out.println("SpanPrecision:  "+sd.spanPrecision() +" SpanRecall:  "+sd.spanRecall());
 	}

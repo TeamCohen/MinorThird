@@ -61,7 +61,7 @@ public class SampleFE
 	 */
 	public static class ExtractionFE implements SpanFeatureExtractor
 	{
-		private int windowSize=3;
+		private int windowSize=5;
 		private String requiredAnnotation = null;
 		private String requiredAnnotationFileToLoad = null;
 		private boolean useCharType=true;
