@@ -1,7 +1,6 @@
 package edu.cmu.minorthird.ui;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.sequential.GenericCollinsLearner;
 import edu.cmu.minorthird.classify.algorithms.knn.KnnLearner;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
@@ -193,6 +192,19 @@ public class WizardUI
       log.debug("Loader: " + getWizardPanel());
 		}
 
+    protected void setHelp()
+    {
+      helpText = "DatasetLoader load a single file with lines of format: \n"
+                +"   type subpopid label feature1 feature2 \n\n"
+                +"RepositoryLoader uses a beanshell script which should return a TextLabels object. \n\n"
+                +"SimpleTextLoader checks the given file and does one of two things: \n"
+                +"  1) if Directory - load each file as a document assuming that labels are embedded\n"
+                +"  2) if file - load each line as a document assuming the first word is a document name.\n"
+                +"The properties page allows you to indicate if an .labels file exists.  If so those labels are used, "
+                +"otherwise the embedded labels are used.";
+    }
+
+
     /**
      * initialize the view -
      * places either datasetloader or simpletextloader depending
@@ -241,6 +253,12 @@ public class WizardUI
           "trainData", "trainLabels");
 
     }
+
+    protected void setHelp()
+    {
+      helpText = "Select the data you wish use as training data.  The file selector accepts both files and directories.\n"
+                +"The view data button will load and display what you've selected so that you can be sure it's correct.";
+    }
   }
 
 	/** Pick a training-data file. */
@@ -280,9 +298,12 @@ public class WizardUI
       {
         dataChooser = new FileChooserViewer(this);
         dataChooser.addActionListener(this);
+        String defaultDir = System.getProperty("user.dir") + "/" + FancyLoader.getProperty(FancyLoader.DATADIR_PROP);
+        dataChooser.setDefaultDir(defaultDir);
 
         labelChooser = new FileChooserViewer(this);
         labelChooser.addActionListener(this);
+        dataChooser.setDefaultDir(defaultDir);
       }
 
       if (viewerContext.get("Loader") != null)
@@ -485,6 +506,9 @@ public class WizardUI
 
     public PickTargetClass(Map viewerContext)
     { super(null, viewerContext, "Pick target", "What do you want to try to learn?", null); }
+
+    protected void setHelp()
+    { helpText = "Displays the labels found in the training set."; }
 
     public SimpleViewerWizard.SimpleViewerPanel buildWizardPanel()
     { return new TargetPanel(this); }

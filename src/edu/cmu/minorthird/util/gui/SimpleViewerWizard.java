@@ -19,6 +19,7 @@ public class SimpleViewerWizard extends ViewerWizard
 {
 	private String titleString,promptString;
 	private SimpleViewerPanel nextWizardPanel;
+  protected String helpText = null;
 
 	public SimpleViewerWizard(
 		String key,Map viewerContext,
@@ -32,8 +33,14 @@ public class SimpleViewerWizard extends ViewerWizard
     this.wizardPanel = buildWizardPanel();
     this.getWizardPanel().init();
     init();
+    setHelp();
 
 	}
+
+  /** default is no help text */
+  protected void setHelp()
+  { }
+
 	public SimpleViewerPanel buildWizardPanel()
   {	return new SimpleViewerPanel(this); }
 
@@ -80,6 +87,18 @@ public class SimpleViewerWizard extends ViewerWizard
       this.title = titleString;
       this.context = viewerContext;
       this.parent = parent;
+    }
+
+    /**
+     * @return whether help text is available
+     */
+    public boolean hasHelp()
+    { return helpText != null; }
+
+    public void help()
+    {
+      JOptionPane.showMessageDialog(this,
+        helpText, "Help", JOptionPane.PLAIN_MESSAGE);
     }
 
     /**
