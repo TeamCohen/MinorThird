@@ -9,14 +9,25 @@ UI tweaks:
   add TrainTagger, TestTagger?
   progress counter & threads for dataset loading?   
   test shadowType?
-  clear progress bars after they finish?
   capture output dynamically?
   generic loader class, loadable interface, for "Save As..." in gui?
 
 LARGER PROJECTS:
- - pruning & shrinkage for maxent & CRFs 
+
+ - bootstrapping 
+ - pruning & shrinkage for maxent & CRFs
+
+MEDIUM TASKS:
+
+ - POS tagger
+ - engineering line-based analysis: 
+ TextBase b = textBase.retokenize(tokenizer,textBase); // retokenize a text base, eg by lines, or tree-bank
+ boolean textBase.compatibleWith(otherBase);  // check if otherBase is a variant tokenization
+ LabelImporter imp = monotonicTextLabels.getImporter(); // build something that imports new stuff into textLabels
+ labelImporter.importSpanType(type,otherLabels);  // import a span type from text labels with a compatible textBase
 
 BUGS:
+   output label shows up twice in TrainExtractor
    save in TextLabelViewer doesn't work right
    fix "TrainTest extractor -test "?
    - should precision/recall start at something other than 1.0 (max precision?)
@@ -28,19 +39,13 @@ BUGS:
 
 CLEANUPS/DESIGN:
 
- - engineering line-based analysis: 
- TextBase b = textBase.retokenize(tokenizer,textBase); // retokenize a text base, eg by lines, or tree-bank
- boolean textBase.compatibleWith(otherBase);  // check if otherBase is a variant tokenization
- LabelImporter imp = monotonicTextLabels.getImporter(); // build something that imports new stuff into textLabels
- labelImporter.importSpanType(type,otherLabels);  // import a span type from text labels with a compatible textBase
-
- - POS tagger
+ - fix FeatureFactory mess
+ - work out better way to handle histories in training: they should not have to be specified twice
  - linkage issues
  - remove BinaryExample?
  - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample,
  InfoGainInstanceTransform, Wizard,
  - fix mixup parser to be consistent, fix Dependency/Mixup mess, Dependency to text, remove 'requirements' in Annotator
- - fix FeatureFactory mess
  - add to mixup 'begin' ... 'end exporting a as b,c as d,...;'
  - transform.MaskedInstance could be more efficient
  - classify.algorithm.random, classify.algorithm.active are misplaced

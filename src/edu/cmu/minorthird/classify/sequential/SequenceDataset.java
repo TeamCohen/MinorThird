@@ -23,8 +23,8 @@ import java.util.*;
 
 public class SequenceDataset implements Dataset,SequenceConstants,Visible
 {
-	private ArrayList sequenceList = new ArrayList(); 
-	private int totalSize = 0;
+	protected ArrayList sequenceList = new ArrayList(); 
+	protected int totalSize = 0;
 	private int historyLength = 1;
 	private String[] history = new String[historyLength];
 	private Set classNameSet = new HashSet();
@@ -47,7 +47,6 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible
 	{
 		return historyLength;
 	}
-
 
 	public ExampleSchema getSchema()
 	{

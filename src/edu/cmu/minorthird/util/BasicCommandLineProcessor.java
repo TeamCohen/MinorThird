@@ -17,7 +17,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 	final public void processArguments(String[] args) 
 	{
 		int k = consumeArguments(args,0);
-		if (k<args.length) usage("illegal argument "+args[k]);
+		if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
 	}
 
 	final public int consumeArguments(String[] args,int startPos)
@@ -36,6 +36,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 				try {
 					Method m = getClass().getMethod(arg,new Class[]{});
 					log.info(getClass()+" consuming '-"+arg+"'");
+					System.out.println("option: "+arg+"=");
 					Object result = m.invoke(this, new Object[]{});
 					pos += 1;
 					if (result instanceof CommandLineProcessor && result!=null) {
@@ -46,14 +47,14 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 						Method ms = getClass().getMethod(arg,new Class[]{String.class});
 						if (pos+1<args.length) {
 							log.info(getClass()+" consuming '-"+arg+"' '"+args[pos+1]+"'");
+							System.out.println("option: "+arg+"="+args[pos+1]);
 							Object result = ms.invoke(this, new String[]{args[pos+1]});
 							pos += 2;
 							if (result instanceof CommandLineProcessor) {
 								pos += ((CommandLineProcessor)result).consumeArguments(args,pos);
 							}
 						} else {
-							usage("no argument found to option '-"+arg+"'");
-							pos += 1;
+							throw new IllegalArgumentException("no argument found to option '-"+arg+"'");
 						}
 					} catch (NoSuchMethodException ex2) {
 						return pos-startPos; 
@@ -63,12 +64,10 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 			return pos-startPos;
 		} catch (IllegalAccessException iax) {
 			iax.printStackTrace();
-			usage("error: "+iax);
-			return 0;
+			throw new IllegalArgumentException("error: "+iax);
 		} catch (InvocationTargetException itx) {
 			itx.printStackTrace();
-			usage("error: "+itx);
-			return 0;
+			throw new IllegalArgumentException("error: "+itx);
 		}
 	}
 
@@ -89,7 +88,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 		try {
 			props.load(new FileInputStream(new File(fileName)));
 		} catch (IOException ex) {
-			clp.usage("error: "+ex);
+			throw new IllegalArgumentException("error: "+ex);
 		}
 		ArrayList list = new ArrayList();
 		for (Enumeration i=props.propertyNames(); i.hasMoreElements(); ) {

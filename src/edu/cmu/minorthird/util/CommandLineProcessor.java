@@ -14,7 +14,8 @@ public interface CommandLineProcessor
 	 * bar" should cause a call to x.foo("bar"), where x is this
 	 * CommandLineProcessor.  Options like "-gorp" cause a call to
 	 * x.gorp().  Options without corresponding methods are considered
-	 * errors.  If an error occurs, then x.usage(msg) is called.
+	 * errors.  If an error occurs, then an IllegalArgumentException is
+	 * thrown.
 	 *
 	 * <p>If function like -foo happens to return a non-null
 	 * CommandLineProcessor, that processor is should be invoked on the

@@ -84,12 +84,18 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 
 		for (int epoch=0; epoch<numberOfEpochs; epoch++) {
 
+			// statistics for curious researchers
+			int sequenceErrors = 0;
+			int transitionErrors = 0;
+			int transitions = 0;
+
 			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) {
 
 				Example[] sequence = (Example[])i.next();
 				Classifier c = new MultiClassClassifier(schema,innerLearner);
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
-				
+
+				boolean errorOnThisSequence=false;
 				for (int j=0; j<sequence.length; j++) {
 					// is the instance at sequence[j] associated with a difference in the sum
 					// of feature values over the viterbi sequence and the actual one? 
@@ -100,6 +106,8 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 						}
 					}
 					if (differenceAtJ) {
+						transitionErrors++;
+						errorOnThisSequence=true;
 						InstanceFromSequence.fillHistory( history, sequence, j );
 						Instance correctXj = new InstanceFromSequence( sequence[j], history );
 						int correctClassIndex = schema.getClassIndex( sequence[j].getLabel().bestClassName() );
@@ -111,8 +119,16 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 						innerLearner[wrongClassIndex].addExample( new BinaryExample( wrongXj, -1.0) );
 					}
 				} // example sequence j
+				if (errorOnThisSequence) sequenceErrors++;
+				transitions += sequence.length;
 				pc.progress();
 			} // sequence i
+
+			System.out.println("Epoch "+epoch+": sequenceErr="+sequenceErrors
+												 +" transitionErrors="+transitionErrors+"/"+transitions);
+
+			if (transitionErrors==0) break;
+
 		} // epoch
 		pc.finished();
 			

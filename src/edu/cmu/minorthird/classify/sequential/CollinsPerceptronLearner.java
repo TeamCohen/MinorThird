@@ -57,6 +57,11 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 
 		for (int epoch=0; epoch<numberOfEpochs; epoch++) {
 
+			// statistics for curious researchers
+			int sequenceErrors = 0;
+			int transitionErrors = 0;
+			int transitions = 0;
+
 			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) {
 
 				Example[] sequence = (Example[])i.next();
@@ -71,6 +76,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 				// (b) rather than computing Phi(sequence), Phi(viterbi), and
 				// subtracting, we compute the difference directly.  
 
+				boolean errorOnThisSequence=false;
 				for (int j=0; j<sequence.length; j++) {
 					// is the instance at sequence[j] associated with a difference in the sum
 					// of feature values over the viterbi sequence and the actual one? 
@@ -82,6 +88,8 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 					}
 
 					if (differenceAtJ) { // i.e., if phi(sequence,j) != phi(viterbi,j)
+						transitionErrors++;
+						errorOnThisSequence=true;
 						InstanceFromSequence.fillHistory( history, sequence, j );
 						Instance correctXj = new InstanceFromSequence( sequence[j], history );
 						c.update( sequence[j].getLabel().bestClassName(), correctXj, 1.0 ); 
@@ -95,8 +103,17 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 				// for voted perceptron needs this...
 				c.completeUpdate(); 
 
+				if (errorOnThisSequence) sequenceErrors++;
+				transitions += sequence.length;
+
 				pc.progress();
 			} // sequence i
+
+			System.out.println("Epoch "+epoch+": sequenceErr="+sequenceErrors
+												 +" transitionErrors="+transitionErrors+"/"+transitions);
+
+			if (transitionErrors==0) break;
+
 		} // epoch
 		pc.finished();
 		c.setVoteMode(true);

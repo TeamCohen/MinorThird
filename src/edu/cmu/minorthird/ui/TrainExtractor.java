@@ -34,6 +34,8 @@ public class TrainExtractor extends UIMain
 	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
 	public CommandLineUtil.TrainExtractorParams getAdditionalParameters() { return train; } 
 	public void setAdditionalParameters(CommandLineUtil.TrainExtractorParams p) { train=p; } 
+	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; }
+	public void setSignalParameters(CommandLineUtil.ExtractionSignalParams newSignal) { this.signal=newSignal; }
 
 
 	public CommandLineProcessor getCLP()

@@ -40,13 +40,7 @@ public class ConditionalSemiMarkovModel
 {
 	private static Logger log = Logger.getLogger(ConditionalSemiMarkovModel.class);
 	private static final boolean DEBUG = log.isDebugEnabled();
-
-	//
-	// some sort of Searcher class would be nicer here...
-	// 
-
-	static private int[] maxSegmentSize = new int[]{ 1, 5 };
-
+	
 	/** A learner for ConditionalSemiMarkovModel's.
 	 */ 
 	static public class CSMMLearner implements AnnotatorLearner 
@@ -54,13 +48,17 @@ public class ConditionalSemiMarkovModel
 		private SpanFeatureExtractor fe;
 		private OnlineBinaryClassifierLearner classifierLearner;
 		private int epochs;
-		private int[] maxSegmentSize = new int[]{ 1, 5 };
+		private int maxSegmentSize = 5;
 		// temporary storage
 		private Span.Looper documentLooper;
 		private List exampleList; 
 		// type of annotation to produce
 		private String annotationType;
 		
+		//
+		// constructors
+		//
+
 		public CSMMLearner()
 		{
 			this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5,"");
@@ -69,55 +67,77 @@ public class ConditionalSemiMarkovModel
 		{
 			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, 5,"");
 		}
-
+		
 		public CSMMLearner(int epochs, int maxSegmentSize)
 		{
 			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, maxSegmentSize,"");
 		}
-
+		
 		public CSMMLearner(String annotation)
 		{
-		    this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5,annotation);
+			this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5,annotation);
 		}
+
 		public CSMMLearner(String dictionaryFile, String distanceNames, int maxSegmentSize)
 		{
 			this(dictionaryFile, distanceNames, 5, maxSegmentSize);
 		}
-	        public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize) 
-	        {
-		this(dictionaryFile, distanceNames, epoch, maxSegmentSize,"");
-	        }
+
+		public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize) 
+		{
+			this(dictionaryFile, distanceNames, epoch, maxSegmentSize,"");
+		}
+
 		public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize, String mixFile)
 		{
 			this(dictionaryFile, distanceNames, epoch, maxSegmentSize,false,mixFile);
 		}
-	        public CSMMLearner(String dictionaryFile, String distanceNames,
-				   int epochSize, int maxSegmentSize, 
-				   boolean addTraining,boolean doCrossVal,
-				   String mixFile) {
-		    this(new CSMMWithDictionarySpanFE(dictionaryFile, distanceNames, addTraining,doCrossVal), 
-			  new VotedPerceptron(), epochSize, maxSegmentSize,mixFile);
+
+		public CSMMLearner(String dictionaryFile, String distanceNames,
+											 int epochSize, int maxSegmentSize, 
+											 boolean addTraining,boolean doCrossVal,
+											 String mixFile) {
+			this(new CSMMWithDictionarySpanFE(dictionaryFile, distanceNames, addTraining,doCrossVal), 
+					 new VotedPerceptron(), epochSize, maxSegmentSize,mixFile);
 		}
-	        public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize, boolean addTraining,String mixFile) {
-		    this(dictionaryFile, distanceNames, epoch, maxSegmentSize,addTraining,true,mixFile);
+
+		public 
+		CSMMLearner(
+			String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize, boolean addTraining,String mixFile) 
+		{
+			this(dictionaryFile, distanceNames, epoch, maxSegmentSize,addTraining,true,mixFile);
 		}
+		
 		public CSMMLearner(
 			SpanFeatureExtractor fe,OnlineBinaryClassifierLearner classifierLearner,int epochs,int maxSegSz,String annotation)
 		{
 			this.fe = fe;
 			if (annotation.length() > 0) {
-			    System.out.println("Reading annotations");
-			    ((CSMMSpanFE)fe).setRequiredAnnotation(annotation,annotation+".mixup");
-			    ((CSMMSpanFE)fe).setTokenPropertyFeatures("*"); // use all defined properties
+				System.out.println("Reading annotations");
+				((CSMMSpanFE)fe).setRequiredAnnotation(annotation,annotation+".mixup");
+				((CSMMSpanFE)fe).setTokenPropertyFeatures("*"); // use all defined properties
 			}
 			this.classifierLearner = classifierLearner;
 			this.epochs = epochs;
-			this.maxSegmentSize[1] = maxSegSz;
+			this.maxSegmentSize = maxSegSz;
 			reset();
 		}
+		
+		//
+		// getters/setters for gui
+		//
+		public OnlineBinaryClassifierLearner getLearner() { return classifierLearner; }
+		public void setLearner(OnlineBinaryClassifierLearner newLearner) { this.classifierLearner=newLearner; }
+		public int getEpochs() { return epochs; }
+		public void setEpochs(int newEpochs) { this.epochs = newEpochs; }
+		public int getMaxSegmentSize() { return maxSegmentSize; }
+		public void setMaxSegmentSize(int newMaxSize) { this.maxSegmentSize = newMaxSize; }
+		//
+		public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
+		public void setSpanFeatureExtractor(SpanFeatureExtractor fe)  { this.fe = fe; }
 
 		//
-		// query all documents, and accumulate examples in exampleList
+		// AnnotatorLearner implementation: query all documents, and accumulate examples in exampleList
 		//
 		public void reset()	{	exampleList = new ArrayList();	}
 		public void setDocumentPool(Span.Looper documentLooper) {	this.documentLooper = documentLooper;	}
@@ -126,34 +146,32 @@ public class ConditionalSemiMarkovModel
 		public void setAnswer(AnnotationExample answeredQuery) { exampleList.add(answeredQuery); }
 		public void setAnnotationType(String s)	{	this.annotationType = s;}
 		public String getAnnotationType()	{	return annotationType;}
-
-		public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
-		public void setSpanFeatureExtractor(SpanFeatureExtractor fe)  { this.fe = fe; }
+		
 		
 		/** Learning takes place here.
 		 */
 		public Annotator getAnnotator() 
 		{ 
 			classifierLearner.reset();
-
+			
 			log.debug("processing "+exampleList.size()+" examples for "+epochs+" epochs");
-
+			
 			ProgressCounter pc = new ProgressCounter("training CSMM", "document", epochs*exampleList.size()); 
 			
 			if (fe.getClass().getName().endsWith("CSMMWithDictionarySpanFE")) ((CSMMWithDictionarySpanFE)fe).train(exampleList.iterator());
 			for (int i=0; i<epochs; i++) {
-
+				
 				for (Iterator j=exampleList.iterator(); j.hasNext(); ) {
-
+					
 					AnnotationExample example = (AnnotationExample)j.next();
 					Span doc = example.getDocumentSpan();
 					if (DEBUG) log.debug("updating from "+doc);
-
+					
 					// get best segmentation, given current classifier
 					Segments viterbi = 
 						bestSegments(doc,example.getLabels(),fe,classifierLearner.getBinaryClassifier(),maxSegmentSize);
 					if (DEBUG) log.debug("viterbi solution:\n" + viterbi);
-
+					
 					// train classifier on any false positives
 					Segments correct = correctSegments(example);
 					if (DEBUG) log.debug("correct spans:\n" + correct);
@@ -177,25 +195,25 @@ public class ConditionalSemiMarkovModel
 						} 
 						previousSpan = span;
 					}
-
-
+					
+					
 					pc.progress();
-
+					
 				}//epoch
-
+				
 				if (DEBUG) {
 					ViewerFrame f = 
 						new ViewerFrame("classifier after epoch "+i, 
 														new SmartVanillaViewer( classifierLearner.getBinaryClassifier() ));
 				}
-
+				
 				pc.finished();
-
+				
 			}//all epochs
-
+			
 			return new CSMMAnnotator(fe,classifierLearner.getBinaryClassifier(),annotationType,maxSegmentSize);
 		}
-
+		
 		// build an example from a span and its context
 		private BinaryExample exampleFor(AnnotationExample example, Span span, Span prevSpan, double numberLabel)
 		{
@@ -210,7 +228,7 @@ public class ConditionalSemiMarkovModel
 			if (DEBUG) log.debug("example for "+span+": "+instanceFromSeq);
 			return new BinaryExample( instanceFromSeq, numberLabel);
 		}
-
+		
 		// the correct segments, as defined by the example
 		private Segments correctSegments(AnnotationExample example)
 		{
@@ -223,18 +241,18 @@ public class ConditionalSemiMarkovModel
 			return new Segments( set );
 		}
 	} // class CSMMLearner
-
-
+	
+	
 	// annotate a document using a learned model
 	static public class CSMMAnnotator extends AbstractAnnotator	implements Visible,ExtractorAnnotator,Serializable 
 	{
 		static private final long serialVersionUID = 1;
 		private final int CURRENT_VERSION_NUMBER = 1;
-
+		
 		private SpanFeatureExtractor fe;
 		private BinaryClassifier classifier;
 		private String annotationType;
-		private int[] maxSegSize;
+		private int maxSegSize;
 		public Viewer toGUI()
 		{
 			Viewer v = new ComponentViewer() {
@@ -243,7 +261,7 @@ public class ConditionalSemiMarkovModel
 						JPanel mainPanel = new JPanel();
 						mainPanel.setLayout(new BorderLayout());
 						mainPanel.add(
-							new JLabel("CSMM: segsize "+StringUtil.toString(maxSegSize)),
+							new JLabel("CSMM: segsize "+maxSegSize),
 							BorderLayout.NORTH);
 						Viewer subView = new SmartVanillaViewer(ann.classifier);
 						subView.setSuperView(this);
@@ -256,7 +274,7 @@ public class ConditionalSemiMarkovModel
 			return v;
 		}
 		public 
-		CSMMAnnotator(SpanFeatureExtractor fe,BinaryClassifier classifier,String annotationType,int[] maxSegSize)
+		CSMMAnnotator(SpanFeatureExtractor fe,BinaryClassifier classifier,String annotationType,int maxSegSize)
 		{
 			this.fe = fe;
 			this.classifier = classifier;
@@ -283,19 +301,19 @@ public class ConditionalSemiMarkovModel
 			return "not implemented";
 		}
 	}
-
+	
 	//
 	// viterbi algorithm
 	//
 	
 	static public Segments bestSegments(
-		Span documentSpan,TextLabels labels,SpanFeatureExtractor fe,BinaryClassifier classifier,int[] maxSegSize)
+		Span documentSpan,TextLabels labels,SpanFeatureExtractor fe,BinaryClassifier classifier,int maxSegSize)
 	{
 		// for t=0..size, y=0 or 1, fty[t][y] is the highest score that
 		// can be obtained with a segmentation of the tokens from 0..t
 		// that ends with class y (where y=1 means "from dictionary", y=0
 		// means "from null model")
-
+		
 		// initialize
 		double[][] fty = new double[documentSpan.size()+1][2];
 		BackPointer[][] trace = new BackPointer[documentSpan.size()+1][2];
@@ -306,12 +324,13 @@ public class ConditionalSemiMarkovModel
 			}
 		}
 		fty[0][0] = fty[0][1] = 0;
-
+		
 		// fill the fty matrix
 		for (int t=0; t<documentSpan.size()+1; t++) {
 			for (int y=0; y<2; y++) {
 				for (int lastY=0; lastY<2; lastY++) {
-					for (int lastT=Math.max(0, t-maxSegSize[y]); lastT<t; lastT++) {
+					int maxSegSizeForY = y==0 ? 1 : maxSegSize;
+					for (int lastT=Math.max(0, t-maxSegSizeForY); lastT<t; lastT++) {
 						Span segment = documentSpan.subSpan(lastT, t-lastT);
 						double segmentScore = score(labels,lastY,y,lastT,t,segment,fe,classifier);
 						if (segmentScore + fty[lastT][lastY] > fty[t][y]) {
@@ -322,7 +341,7 @@ public class ConditionalSemiMarkovModel
 				}
 			}
 		}
-
+		
 		// use the back pointers to find the best segmentation that ends at t==documentSize
 		int y = (fty[documentSpan.size()][1] > fty[documentSpan.size()][0]) ? 1 : 0;
 		Set result = new TreeSet();
@@ -334,7 +353,7 @@ public class ConditionalSemiMarkovModel
 		if (DEBUG) dumpStuff(fty,trace);
 		return new Segments(result);
 	}
-
+	
 	private static void dumpStuff(double[][] fty, BackPointer[][] trace)
 	{
 		java.text.DecimalFormat format = new java.text.DecimalFormat("####.###");
@@ -350,13 +369,13 @@ public class ConditionalSemiMarkovModel
 			}
 		}
 	}
-
-
+	
+	
 	// used by viterbi
 	static private double 
 	score(TextLabels labels,int lastY,int y,int lastT,int t,Span segment,SpanFeatureExtractor fe,BinaryClassifier cls)
 	{
-	    if (y == 0)	return 0;
+		if (y == 0)	return 0;
 		String prevLabel = lastY==1 ? ExampleSchema.POS_CLASS_NAME : ExampleSchema.NEG_CLASS_NAME;
 		//System.out.println("score with labels "+labels.getClass());
  		Instance segmentInstance = 
@@ -365,7 +384,7 @@ public class ConditionalSemiMarkovModel
 		//		System.out.println("score" + cls.score(segmentInstance)+"\t"+segment + " instance " + segmentInstance);
 		return cls.score( segmentInstance );
 	}
-
+	
 	private static class BackPointer {
 		public Span span; 
 		public int lastT, lastY;
@@ -385,11 +404,11 @@ public class ConditionalSemiMarkovModel
 	{
 		public CSMMSpanFE() { super(); }
 		public CSMMSpanFE(int windowSize) { super(windowSize); }
-
+		
 		public void extractFeatures(Span span) {
 			extractFeatures(new EmptyLabels(),span);
 		}
-
+		
 		public void extractFeatures(TextLabels labels,Span span) 
 		{
 			super.extractFeatures(labels,span);
@@ -421,105 +440,105 @@ public class ConditionalSemiMarkovModel
 			}
 		}
 	};
-
-    /**
-     * Feature extractor for providing distance-based features on terms
-     * Dictionary can be specified either as an external file or by using the training spans.
-     * - Sunita Sarawagi
-     */
-    static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
-    {
-	boolean addTrainingSegsToDictionary;
-	boolean useCrossVal;
-	SoftDictionary dictionary;
-	StringDistance distances[];
-	Feature features[];
-	// distanceNames has to be "/" separated list of distance functions that
-	// we want to apply 
-	public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) {
+	
+	/**
+	 * Feature extractor for providing distance-based features on terms.
+	 * Dictionary can be specified either as an external file or by using the training spans.
+	 * - Sunita Sarawagi
+	 */
+	static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
+	{
+		boolean addTrainingSegsToDictionary;
+		boolean useCrossVal;
+		SoftDictionary dictionary;
+		StringDistance distances[];
+		Feature features[];
+		// distanceNames has to be "/" separated list of distance functions that
+		// we want to apply 
+		public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) {
 	    this(dictionaryFile,distanceNames,false,false);
-	} 
-	public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames, boolean addTraining, boolean useCrossValArg) { 
+		} 
+		public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames, boolean addTraining, boolean useCrossValArg) { 
 	    super();
 	    try {
-		addTrainingSegsToDictionary = addTraining;
-		useCrossVal = useCrossValArg;
-		dictionary = new SoftDictionary();
-		distances = DistanceLearnerFactory.buildArray(distanceNames);
-		if (dictionaryFile.length() > 0) {
-		    dictionary.load(new File(dictionaryFile));
-		    trainDistances();
-		}
-		// now create features corresponding to each distance function.
-		features = new Feature[distances.length];
-		for (int d = 0; d < distances.length; d++) {
-		    // save the feature name
-		    features[d] =  Feature.Factory.getFeature(distances[d].toString());
-		}
+				addTrainingSegsToDictionary = addTraining;
+				useCrossVal = useCrossValArg;
+				dictionary = new SoftDictionary();
+				distances = DistanceLearnerFactory.buildArray(distanceNames);
+				if (dictionaryFile.length() > 0) {
+					dictionary.load(new File(dictionaryFile));
+					trainDistances();
+				}
+				// now create features corresponding to each distance function.
+				features = new Feature[distances.length];
+				for (int d = 0; d < distances.length; d++) {
+					// save the feature name
+					features[d] =  Feature.Factory.getFeature(distances[d].toString());
+				}
 	    } catch (IOException e) {
-		e.printStackTrace();
+				e.printStackTrace();
 	    }
-	}
-	public void trainDistances() {
-	    for (int d = 0; d < distances.length; d++) {
-		// train anything that's also a distance learner
-		if (distances[d] instanceof StringDistanceLearner) {
-		    distances[d] = dictionary.getTeacher().train( (StringDistanceLearner)distances[d] );
 		}
+		public void trainDistances() {
+	    for (int d = 0; d < distances.length; d++) {
+				// train anything that's also a distance learner
+				if (distances[d] instanceof StringDistanceLearner) {
+					distances[d] = dictionary.getTeacher().train( (StringDistanceLearner)distances[d] );
+				}
 	    }
-	}
-	public void train(Iterator iter) {
+		}
+		public void train(Iterator iter) {
 	    if (!addTrainingSegsToDictionary)
-		return;
+				return;
 	    int numAdded = 0;
 	    float total = 0;
 	    for (; iter.hasNext(); ) {
-		AnnotationExample example = (AnnotationExample)iter.next();
-		String id = example.getDocumentSpan().getDocumentId();
-		String type = example.getInputType();
-		for (Span.Looper i=example.getLabels().instanceIterator( type, id ); i.hasNext(); ) {
-		    String thisSeg = ((Span)i.nextSpan()).asString();
-		    /**
-		     * Uncomment for reporting distances..
-		     
-		    float dist = (float)dictionary.lookupDistance(thisSeg);
-		    System.out.println("Match " + thisSeg + " => " + dictionary.lookup(thisSeg)+ " at " + dictionary.lookupDistance(thisSeg));
-		    if (dist > 0)
-			total += dist;
-		    */
-		    numAdded++;
-		    dictionary.put(id,thisSeg,null);
-		}
+				AnnotationExample example = (AnnotationExample)iter.next();
+				String id = example.getDocumentSpan().getDocumentId();
+				String type = example.getInputType();
+				for (Span.Looper i=example.getLabels().instanceIterator( type, id ); i.hasNext(); ) {
+					String thisSeg = ((Span)i.nextSpan()).asString();
+					/**
+					 * Uncomment for reporting distances..
+					 
+					 float dist = (float)dictionary.lookupDistance(thisSeg);
+					 System.out.println("Match " + thisSeg + " => " + dictionary.lookup(thisSeg)+ " at " + dictionary.lookupDistance(thisSeg));
+					 if (dist > 0)
+					 total += dist;
+					*/
+					numAdded++;
+					dictionary.put(id,thisSeg,null);
+				}
 	    }
 	    trainDistances();
 	    //	    System.out.println("Average distance " + total/numAdded + " over " + numAdded);
-	}
-	public void extractFeatures(TextLabels labels,Span span) {
+		}
+		public void extractFeatures(TextLabels labels,Span span) {
 	    super.extractFeatures(labels,span);
 	    StringWrapper spanString = new BasicStringWrapper(span.asString());
 	    String id = ((addTrainingSegsToDictionary && useCrossVal)?span.getDocumentId():null);
 	    Object closestMatch = dictionary.lookup(id,spanString);
 	    if (closestMatch != null) {
-		// create various types of similarity measures.
-		for (int d = 0; d < distances.length; d++) {
-		    double score = distances[d].score(spanString, (StringWrapper)closestMatch);
-		    if (score != 0) {
-			// instance has been created by the parent.
-			instance.addNumeric(features[d], score);
-		    }
-		}
+				// create various types of similarity measures.
+				for (int d = 0; d < distances.length; d++) {
+					double score = distances[d].score(spanString, (StringWrapper)closestMatch);
+					if (score != 0) {
+						// instance has been created by the parent.
+						instance.addNumeric(features[d], score);
+					}
+				}
 	    }
+		}
+	};
+	
+	// a proposed segmentation of a document
+	static public class Segments
+	{
+		private Set spanSet;
+		public Segments(Set spanSet)	{	this.spanSet = spanSet;	}
+		public Span.Looper iterator() {	return new BasicSpanLooper(spanSet.iterator());	}
+		public boolean contains(Span span) { return spanSet.contains(span);	}
+		public String toString() { return "[Segments: "+spanSet.toString()+"]"; }
 	}
-    };
-
-    // a proposed segmentation of a document
-    static public class Segments
-    {
-	private Set spanSet;
-	public Segments(Set spanSet)	{	this.spanSet = spanSet;	}
-	public Span.Looper iterator() {	return new BasicSpanLooper(spanSet.iterator());	}
-	public boolean contains(Span span) { return spanSet.contains(span);	}
-	public String toString() { return "[Segments: "+spanSet.toString()+"]"; }
-    }
-
+	
 };

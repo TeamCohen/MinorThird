@@ -37,7 +37,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		// main routines
 		//
 		ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
-		TrainExtractor.class,	TrainTestClassifier.class, 
+		TrainExtractor.class,	TestClassifier.class, TrainTestClassifier.class, 
 		TrainTestExtractor.class, TrainTestTagger.class,
 		RunMixup.class,
 		//
@@ -99,7 +99,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 	abstract public CommandLineProcessor getCLP();
 			
 	/** Helper to handle command-line processing, in either gui or text mode. */
-	protected void callMain(final String[] args) 
+	public void callMain(final String[] args) 
 	{
 		try {
 			getCLP().processArguments(args);
