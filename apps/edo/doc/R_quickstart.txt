@@ -1,0 +1,30 @@
+##
+#  How to add R functionality to Minorthird
+##
+
+
+## Resources
+
+. R is available at http://cran.r-project.org/
+. JGR is available at http://www.rosuda.org/JGR/
+. JRI is available at http://www.rosuda.org/R/nightly/
+
+
+## At a glance
+
+. On Windows XP
+  1. Install R
+  2. add R_HOME to the environment
+  3. add R_HOME to the PATH
+  4. Install JGR
+  5. run Minorthird from JGR installation directory
+
+. On a Mac Os x/3
+  1. Install R
+  2. add R_HOME
+  3. Install JRI and make
+  4. run Minorthird from JRI installation directory
+
+
+## More in detail
+

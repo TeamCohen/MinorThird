@@ -23,7 +23,7 @@ public class ProbabilityFactory
                 FLAG += 1;
             } catch (Exception x) {
                 System.out.println("error: R in Minorthird is not properly installed!");
-                System.out.println("       See quickstart.txt in apps/eairoldi for more information.");
+                System.out.println("       See R_quickstart.txt in apps/edo/doc/ for more information.");
                 System.exit(-99);
             }
         }
