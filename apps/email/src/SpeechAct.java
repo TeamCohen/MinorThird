@@ -75,7 +75,7 @@ public class SpeechAct {
       File reqamdpropfile = new File("apps/email/models/ReqAmdProp_Model");//DT
       reqamdprop_model = (BinaryClassifier) IOUtil.loadSerialized(reqamdpropfile);
       File dlvcmtfile = new File("apps/email/models/DlvCmt_Model");//VP,batch15
-      dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
+     dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -101,14 +101,13 @@ public class SpeechAct {
         return;
       }
       File dir = new File(args[0]);
-      boolean clo;
       SpeechAct sa = new SpeechAct();
       MutableTextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
       TextBase textBase = labels.getTextBase();
       System.out.println("textbase size = " + textBase.size());
       //TextBaseEditor.edit(labels, new File("moomoomoo"));
-      //for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
-	  for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
+      for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
+	  //for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
         //Span span = (Span)it.nextSpan();
         Span span = (Span)it.next();
         MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
@@ -119,6 +118,7 @@ public class SpeechAct {
 	    boolean amdbool = sa.bclassify(sa.amd_model, ins);
 	   	boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
 	    boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
+
 	    
 	    String reqs = reqbool?   "_REQ_":"_____";
 	    String dlvs = dlvbool?   "_DLV_":"_____";
@@ -127,7 +127,7 @@ public class SpeechAct {
 	   	String amds = amdbool?   "_AMD_":"_____";
 		String reqamdprops = reqamdpropbool? "_REQAMDPROP":"___________";
 	    String dlvcmts = dlvcmtbool? "_DLVCMT__":"_________";
-	    System.out.print("docId = "+span.getDocumentId()+"\n\t\t("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+"\n");
+	    System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+")\n");
        // String spanString = span.asString();
       }
     }
