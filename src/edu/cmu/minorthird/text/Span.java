@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 public interface Span extends Comparable
 {
+
     /** Number of TextToken's in the span. */
     public int size();
 
@@ -69,6 +70,9 @@ public interface Span extends Comparable
 
     /** Check overlap */
     public boolean overlaps(Span other);
+
+    /** Returns the low text token */
+    public int getLoTextToken();
 
     /** Returns the Char index of where the span starts in the document */
     public int getLoChar();

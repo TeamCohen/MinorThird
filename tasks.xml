@@ -62,6 +62,12 @@
   </unjar>
 </target>
 
+<target name="build-apps" depends="build" description="build the source for the app directory">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="apps/" 
+  destdir="${classDir}" debug="on" classpathref="classpath"/>
+</target>
+
 <target name="mergeJars" depends="openJars" description="merge lib/*.jar into a single jar file">
   <jar jarfile="minorThirdIncludes.jar" baseDir="${tmpDir}">
     <fileset dir="${tmpDir}" includes="**/*.class"/>

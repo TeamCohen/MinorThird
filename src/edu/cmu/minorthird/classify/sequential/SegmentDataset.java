@@ -160,5 +160,9 @@ public class SegmentDataset implements Dataset
 		Viewer instGui = GUI.newSourcedExampleViewer();
 		return new ZoomedViewer(dbGui,instGui);
 	}
+
+     public int getNumPosExamples() {
+	return -1;
+    }
 }
 

@@ -256,4 +256,8 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 		if (args.length>0) 
 			DatasetLoader.saveSequence(d,new File(args[0]));
 	}
+
+     public int getNumPosExamples() {
+	return -1;
+    }
 }

@@ -60,6 +60,8 @@ public interface Dataset extends Visible
 		/** Return a dataset containing the test cases in the k-th split */
 		public Dataset getTest(int k);
 	}
+
+    public int getNumPosExamples();
 }
 
 

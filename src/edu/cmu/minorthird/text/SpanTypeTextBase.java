@@ -52,7 +52,8 @@ public class SpanTypeTextBase extends ImmutableTextBase
 	    Span parentSpan = parentIterator.nextSpan();
 	    String docID = parentSpan.getDocumentId();
 	    Span childDocSpan = base.documentSpan(docID); //The matching span in the child textbase
-	    int childDocStartIndex = base.getDocument(docID).charOffset; //the number of charaters the child span is offset
+	    //int childDocStartIndex = base.getDocument(docID).charOffset; //the number of charaters the child span is offset
+	    int childDocStartIndex = parentSpan.getLoTextToken();
 	    Set types = parentLabels.getTypes();  
 	    Iterator typeIterator = types.iterator();
 	    //Iterate over span types in the parent textBase
@@ -66,7 +67,8 @@ public class SpanTypeTextBase extends ImmutableTextBase
 		    //See if the parent span conains the span
 		    if(parentSpan.contains(s)) {
 			//find the matching span in the child doc span and add it to the child Labels
-			Span subSpan = childDocSpan.charIndexSubSpan(s.getLoChar()-childDocStartIndex, s.getHiChar()-childDocStartIndex);
+			//Span subSpan = childDocSpan.charIndexSubSpan(s.getLoChar()-childDocStartIndex, s.getHiChar()-childDocStartIndex);
+			Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
 			labels.addToType(subSpan, type);
 		    }
 		}

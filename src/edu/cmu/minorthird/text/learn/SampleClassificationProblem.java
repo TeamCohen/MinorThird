@@ -26,6 +26,22 @@ public class SampleClassificationProblem
 	{
 		return makeLabels( SampleDatasets.posTest, SampleDatasets.negTest );
 	}
+    static public TextLabels unlabeled() {
+	String[] pos = SampleDatasets.posTest;
+	String[] neg = SampleDatasets.negTest;
+	
+	BasicTextBase base = new BasicTextBase();
+	for (int i=0; i<pos.length; i++) {
+	    base.loadDocument("pos."+i, pos[i]);
+	}
+	for (int i=0; i<neg.length; i++) {
+	    base.loadDocument("neg."+i, neg[i]);
+	}
+	BasicTextLabels labels = new BasicTextLabels(base);
+
+	return labels;
+	
+    }
 
 	static private TextLabels makeLabels(String[] pos, String[] neg)
 	{

@@ -137,9 +137,9 @@ public class RandomFilePicker
 
         if (newFile.exists())
         { System.out.println("ERROR - file exists: " + newFile.getName()); }
-        try { com.ksteppe.fileUtils.FileTool.copy(messages[p.person][p.email], newFile); }
-        catch (IOException e)
-        { e.printStackTrace(); } //To change body of catch statement use Options | File Templates.
+        //try { com.ksteppe.fileUtils.FileTool.copy(messages[p.person][p.email], newFile); }
+        //catch (IOException e)
+        //{ e.printStackTrace(); } //To change body of catch statement use Options | File Templates.
       }
     }
 

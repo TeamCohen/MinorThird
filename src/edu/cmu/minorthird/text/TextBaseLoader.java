@@ -313,6 +313,8 @@ public class TextBaseLoader
 	    in = new BufferedReader(new FileReader(file));
 
 	curDocID = file.getName(); //set the docid
+	//String pattern = ".*";
+	//use_markup = Pattern.compile(pattern).matcher(curDocID).matches();
 
 	spanList = new ArrayList(); //list of labeled spans if internally tagged
 

@@ -24,7 +24,7 @@ public class BasicSpan implements Span,Serializable,Visible
 
     private String documentId;
     private String documentGroupId;
-    private int loTextTokenIndex, loCharIndex = -1, hiCharIndex = -1;
+    public int loTextTokenIndex, loCharIndex = -1, hiCharIndex = -1;
     private int charOffset = 0;
     private int spanLen;
     private TextToken[] textTokens;
@@ -226,6 +226,10 @@ public class BasicSpan implements Span,Serializable,Visible
 	//System.out.println("closest first ["+firstTextToken+"] "+getTextToken(firstTextToken));
 	//System.out.println("closest last ["+lastTextToken+"] "+getTextToken(lastTextToken));
 	return subSpan(loCharIndex, firstTextToken,lastTextToken-firstTextToken+1);
+    }
+
+    public int getLoTextToken() {
+	return loTextTokenIndex;
     }
 
     /** Returns how many characters are before the span in the document */

@@ -177,7 +177,7 @@ public class MinorTagger {
 		String tagged = POSTag(in);
 
 		// load text base
-		TextBaseLoader baseLoader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, TextBaseLoader.FILE_NAME, true);
+		TextBaseLoader baseLoader = new TextBaseLoader();
 		File tempFile = createFile(tagged);
 		TextBase base = baseLoader.load(tempFile);
 

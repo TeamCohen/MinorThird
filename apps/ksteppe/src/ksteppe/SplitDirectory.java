@@ -95,8 +95,8 @@ public class SplitDirectory
   private static void copyFile(File destDir, File[] fromList, int fileIndex)
   {
     File copyTo = new File(destDir, fromList[fileIndex].getName());
-    try { com.ksteppe.fileUtils.FileTool.copy(fromList[fileIndex], copyTo); }
-    catch (IOException e)
-    { e.printStackTrace(); } //To change body of catch statement use Options | File Templates.
+    //try { com.ksteppe.fileUtils.FileTool.copy(fromList[fileIndex], copyTo); }
+    //catch (IOException e)
+    //{ e.printStackTrace(); } //To change body of catch statement use Options | File Templates.
   }
 }

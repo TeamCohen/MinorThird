@@ -11,7 +11,7 @@ package edu.cmu.minorthird.classify;
 
 public abstract class BatchClassifierLearner implements ClassifierLearner
 {
-	private Dataset dataset = new BasicDataset();
+	public Dataset dataset = new BasicDataset();
 
 	/** This variable saves the last classifier produced by batchTrain.
 	 * If it is non-null, then it will be returned by class to
@@ -19,6 +19,21 @@ public abstract class BatchClassifierLearner implements ClassifierLearner
 	 * returned classifier to avoid extra work.
 	 */
 	protected Classifier classifier = null;
+
+
+    public ClassifierLearner copy() {
+	BatchClassifierLearner bcl = null;//(ClassifierLearner)(new Object());
+	try {
+	    bcl =(BatchClassifierLearner)(this.clone());
+	    //bcl = this;
+	    bcl.dataset = new BasicDataset();
+	    bcl.classifier = null;
+	} catch (Exception e) {
+	    System.out.println("Can't CLONE!!");
+	    e.printStackTrace();
+	}
+	return (ClassifierLearner)bcl;
+    }
 
 	final public void reset() { 
 		dataset = new BasicDataset(); 

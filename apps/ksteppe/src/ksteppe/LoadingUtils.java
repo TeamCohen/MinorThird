@@ -45,7 +45,7 @@ public class LoadingUtils
    {
       try
       {
-         loader.setFirstWordIsDocumentId(true);
+	  //loader.setFirstWordIsDocumentId(true);
 
 //      labels.setTextBase(base);
          loadDataTBL(new File("demos/SampleData/webmasterCommands.txt"),
@@ -71,15 +71,15 @@ public class LoadingUtils
    public void loadDataTBL(File trainFile, File testFile, File labelsFile) throws IOException
    {
 
-      if (trainFile.isDirectory())
-         loader.loadTaggedFiles(base, trainFile);
-      else
-         loader.loadFile(base, trainFile);
+       //if (trainFile.isDirectory())
+         loader.load(trainFile);
+	 //else
+         //loader.loadFile(base, trainFile);
 
       //standard test data file loading
       //skipped if no test file present
       if (testFile != null)
-         loader.loadFile(testBase, testFile);
+         loader.load(testFile);
 
       //get the text labels
       if (trainFile.isDirectory())

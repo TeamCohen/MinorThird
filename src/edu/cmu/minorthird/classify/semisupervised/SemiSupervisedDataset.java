@@ -177,4 +177,8 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,Visi
       }
    }
 
+     public int getNumPosExamples() {
+	return -1;
+    }
+
 }
