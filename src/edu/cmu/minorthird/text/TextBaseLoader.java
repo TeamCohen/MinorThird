@@ -397,32 +397,27 @@ public class TextBaseLoader implements Loader
   private void loadFile(File file) throws IOException, ParseException
   {
     log.debug("loadFile: " + file.getName());
-    //get input reader
-    BufferedReader in;
+
     //build the correct reader
+    BufferedReader in;
     if (documentStyle == DOC_PER_LINE)
       in = new LineNumberReader(new FileReader(file));
     else
       in = new BufferedReader(new FileReader(file));
 
-    //set the docid
     if (docIdSourceType == FILE_NAME)
-      curDocID = file.getName();
+      curDocID = file.getName(); //set the docid
 
-    //select the categoryID properly
     if (categoryIdSourceType == FILE_NAME)
-      curCatID = file.getName();
+      curCatID = file.getName(); //select the categoryID properly
 
-    //set the groupID
     if (groupIdSourceType == FILE_NAME)
-      curGrpID = file.getName();
+      curGrpID = file.getName(); //set the groupID
 
-    //list of labeled spans if internally tagged
-    spanList = new ArrayList();
+    spanList = new ArrayList(); //list of labeled spans if internally tagged
 
     //buffer of lines in file
     StringBuffer buf = new StringBuffer();
-
 
     //loop through the file
     while (in.ready()) //in.ready may cause problems on Macintosh
@@ -465,6 +460,13 @@ public class TextBaseLoader implements Loader
   {
 //    if (log.isDebugEnabled())
 //      log.debug("add doc (" + curDocID + ") " + docText);
+
+    //Blank documents are dropped
+    if (docText.trim().length() == 0)
+    {
+      log.warn("Text for document " + curDocID + " is length zero or all white space, it will not be added to the text base.");
+      return;
+    }
 
     textBase.loadDocument(curDocID, docText);
     if (curGrpID != null)
