@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 
 public class ClassifyExperiment
 {
-	private SpanFeatureExtractor fe = new SampleFE.BagOfLowerCaseWordsFE();
+	private SpanFeatureExtractor fe = SampleFE.BAG_OF_LC_WORDS;
 
 	private TextLabels labels;
 	private Splitter splitter;
@@ -57,16 +57,25 @@ public class ClassifyExperiment
 
 	public Dataset asDataset() 
 	{
-		Dataset dataset = new BasicDataset();
-		for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
-			Span s = i.nextSpan();
-			double classLabel = labels.hasType(s,inputLabel) ? +1 : -1;
-			dataset.add( new BinaryExample( fe.extractInstance(labels,s), classLabel) );
-		}
-		return dataset;
-	}
+    return toDataset(labels, fe, inputLabel);
+  }
 
-	public Evaluation evaluation() 
+  public static Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor featureExtractor,
+                                  String inLabel)
+  {
+    Dataset dataset = new BasicDataset();
+    for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+      Span s = i.nextSpan();
+      double classLabel = textLabels.hasType(s,inLabel) ? +1 : -1;
+      dataset.add( new BinaryExample( featureExtractor.extractInstance(textLabels,s), classLabel) );
+    }
+    return dataset;
+  }
+
+//  public static Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor featureExtractor, String inLabel)
+
+
+	public Evaluation evaluation()
 	{
 		return Tester.evaluate( learner, asDataset(), splitter );
 	}
@@ -78,9 +87,10 @@ public class ClassifyExperiment
 
 	public static void main(String[] args) 
 	{
-		Splitter splitter=new RandomSplitter(0.7);
+		Splitter splitter=null; //new RandomSplitter(0.7);
 		String learnerName="new BatchVersion(new VotedPerceptron())";
 		TextLabels labels=null;
+    TextLabels testLabels=null;
 		String inputLabel=null;
 		String show=null;
 		try {
@@ -89,8 +99,17 @@ public class ClassifyExperiment
 				String opt = args[pos++];
 				if (opt.startsWith("-lab")) {
 					labels = FancyLoader.loadTextLabels(args[pos++]);
+        } else if (opt.startsWith("-te")) {
+          if (splitter!=null) throw new IllegalArgumentException("only one of splitter, testData allowed");
+          if (inputLabel == null) throw new IllegalArgumentException("input lable must be specified before test data");
+          testLabels = FancyLoader.loadTextLabels(args[pos++]);
+          //build dataset to build Test splitter
+          Dataset testData = toDataset(testLabels, SampleFE.BAG_OF_LC_WORDS, inputLabel);
+          splitter = new FixedTestSetSplitter(testData.iterator());
+
 				} else if (opt.startsWith("-split")) {
-					splitter = Expt.toSplitter(args[pos++]);
+          if (testLabels !=null) throw new IllegalArgumentException("only one of splitter, testData allowed");
+          splitter = Expt.toSplitter(args[pos++]);
 				} else if (opt.startsWith("-lea")) {
 					learnerName = args[pos++];
 				} else if (opt.startsWith("-in")) {
@@ -104,6 +123,8 @@ public class ClassifyExperiment
 			if (labels==null || learnerName==null || splitter==null|| inputLabel==null) {
 				usage();
 			}
+
+      log.info("splitter: " + splitter);
       ClassifyExperiment expt = new ClassifyExperiment(labels,splitter,learnerName,inputLabel);
 			if ("all+".equals(show)) {
 				ViewerFrame f = new ViewerFrame("Experiment Result", expt.crossValidatedDataset().toGUI() );				
@@ -117,7 +138,7 @@ public class ClassifyExperiment
 	}
 	private static void usage() {
 		System.out.println(
-			"usage: -label labelsKey -learn learner -in inputLabel -split splitter");
+			"usage: -label labelsKey -learn learner -in inputLabel [-split splitter | -test testLabels] ");
 		System.exit(-1);
 	}
 }

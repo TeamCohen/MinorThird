@@ -501,6 +501,8 @@ public class TextBaseLoader implements Loader
       return;
     }
 
+    if (log.isDebugEnabled())
+      log.debug("add document " + curDocID);
     textBase.loadDocument(curDocID, docText);
     if (curGrpID != null)
       textBase.setDocumentGroupId(curDocID, curGrpID);
