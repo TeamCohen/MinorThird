@@ -104,6 +104,8 @@ public class ConditionalSemiMarkovModel
 		public void setAnswer(AnnotationExample answeredQuery) { exampleList.add(answeredQuery); }
 		public void setAnnotationType(String s)	{	this.annotationType = s;}
 		public String getAnnotationType()	{	return annotationType;}
+
+		public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
 		
 		/** Learning takes place here.
 		 */
@@ -348,59 +350,42 @@ public class ConditionalSemiMarkovModel
 	//
 	// convert a span to an instance
 	//
-	static public class CSMMSpanFE extends SpanFE
+	static public class CSMMSpanFE extends SampleFE.ExtractionFE
 	{
-		private int windowSize = 5;
-		private String requiredAnnotation = null;
-		private String requiredAnnotationFileToLoad = null;
+		public CSMMSpanFE() { super(); }
+		public CSMMSpanFE(int windowSize) { super(windowSize); }
 
-		public CSMMSpanFE() { super(new EmptyLabels()); }
-		public void setRequiredAnnotation(String requiredAnnotation,String requiredAnnotationFileToLoad)
-		{
-			this.requiredAnnotation = requiredAnnotation;
-			this.requiredAnnotationFileToLoad = requiredAnnotationFileToLoad;
-		}
 		public void extractFeatures(Span span) {
 			extractFeatures(new EmptyLabels(),span);
 		}
+
 		public void extractFeatures(TextLabels labels,Span span) 
 		{
-			if (requiredAnnotation!=null) labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
-
-			// exact text of span
+			super.extractFeatures(labels,span);
+			// text of span & its charTypePattern
 			from(span).eq().lc().emit();
-			from(span).eq().charTypePattern().emit();
-			// tokens in the span
-			from(span).tokens().eq().lc().emit();
-			from(span).eq().charTypePattern().emit();
-			// length properties
+			if (useCharType) from(span).eq().charTypes().emit();
+			if (useCompressedCharType) from(span).eq().charTypePattern().emit();
+			// length properties of span
 			from(span).size().emit();
 			from(span).exactSize().emit();
 			// first and last tokens
 			from(span).token(0).eq().lc().emit();
-			from(span).token(0).eq().charTypePattern().lc().emit();
 			from(span).token(-1).eq().lc().emit();
-			from(span).token(-1).eq().charTypePattern().lc().emit();
-			// window to left and right
-			for (int i=0; i<windowSize; i++) {
-				from(span).left().token(-(i+1)).eq().emit();
-				from(span).left().token(-(i+1)).eq().charTypePattern().emit();
-				from(span).right().token(i).eq().emit();
-				from(span).right().token(i).eq().charTypePattern().emit();
+			if (useCharType) {
+				from(span).token(0).eq().charTypes().lc().emit();
+				from(span).token(-1).eq().charTypes().lc().emit();
 			}
-			// properties
-			for (Iterator i=labels.getTokenProperties().iterator(); i.hasNext(); ) {
-				String p = (String)i.next();
-				// tokens
-				from(span).tokens().prop(p).emit();
-				// first & last
+			if (useCompressedCharType) {
+				from(span).token(0).eq().charTypePattern().lc().emit();
+				from(span).token(-1).eq().charTypePattern().lc().emit();
+			}
+			// use marked properties of tokens for first & last tokens in span
+			for (int i=0; i<tokenPropertyFeatures.length; i++) {
+				String p = tokenPropertyFeatures[i];
+				// first & last tokens
 				from(span).token(0).prop(p).emit();
 				from(span).token(-1).prop(p).emit();
-				// window
-				for (int j=0; j<windowSize; j++) {
-					from(span).left().token(-(j+1)).prop(p).emit();
-					from(span).right().token(j).prop(p).emit();
-				}
 			}
 		}
 	}

@@ -69,7 +69,9 @@ public class TextLabelsExperiment implements Visible
 		learner.setAnnotationType( outputLabel );
 	}
 
-	public SampleFE.ExtractionFE getFE() { return fe; }
+	public SampleFE.ExtractionFE getFE() { 
+		return fe; 
+	}
 
 	public void doExperiment() 
 	{
@@ -139,6 +141,11 @@ public class TextLabelsExperiment implements Visible
 						return annotators[index];
 					}
 				});
+			v.addSubView( "Test set "+(i+1), new TransformedViewer(new SmartVanillaViewer()) {
+					public Object transform(Object o) {
+						return testLabels[index];
+					}
+				});
 		}
 		v.setContent( this );
 		return v;
@@ -161,16 +168,16 @@ public class TextLabelsExperiment implements Visible
 	public AnnotatorLearner toAnnotatorLearner(String s)
 	{
 		try {
+			OnlineBinaryClassifierLearner learner = (OnlineBinaryClassifierLearner)Expt.toLearner(s);
 			BatchSequenceClassifierLearner seqLearner = 
-				(BatchSequenceClassifierLearner)SequenceAnnotatorExpt.toSeqLearner(s);
+				new GenericCollinsLearner(learner,classWindowSize);
 			return new SequenceAnnotatorLearner(seqLearner, fe, classWindowSize);
 		} catch (IllegalArgumentException ex) {
 			/* that's ok, maybe it's something else */ ;
 		}
 		try {
-			OnlineBinaryClassifierLearner learner = (OnlineBinaryClassifierLearner)Expt.toLearner(s);
 			BatchSequenceClassifierLearner seqLearner = 
-				new GenericCollinsLearner(learner,classWindowSize);
+				(BatchSequenceClassifierLearner)SequenceAnnotatorExpt.toSeqLearner(s);
 			return new SequenceAnnotatorLearner(seqLearner, fe, classWindowSize);
 		} catch (IllegalArgumentException ex) {
 			/* that's ok, maybe it's something else */ ;
@@ -207,10 +214,10 @@ public class TextLabelsExperiment implements Visible
 				String opt = args[pos++];
 				if (opt.startsWith("-lab")) {
 					labels = FancyLoader.loadTextLabels(args[pos++]);
-				} else if (opt.startsWith("-split")) {
-					splitter = Expt.toSplitter(args[pos++]);
 				} else if (opt.startsWith("-lea")) {
 					learnerName = args[pos++];
+				} else if (opt.startsWith("-split")) {
+					splitter = Expt.toSplitter(args[pos++]);
 				} else if (opt.startsWith("-in")) {
 					inputLabel = args[pos++];
 				} else if (opt.startsWith("-out")) {
@@ -251,8 +258,27 @@ public class TextLabelsExperiment implements Visible
 		}
 	}
 	private static void usage() {
-		System.out.println(
-			"usage: -label labelsKey -learn learner -in inputLabel -out outputLabel [-split splitter] [-save saveFile]");
+		String[] usageLines = new String[] {
+			"usage: options are:",
+			"       -label labelsKey   dataset to load",
+			"       -input inputLabel  label that defines the extraction target",
+			"       -learn learner     Java code to construct the learner, which could be an ",
+			"                          an AnnotatorLearner, a BatchSequenceClassifierLearner, or an OnlineClassifierLearner",
+			"                          - a BatchSequenceClassifierLearner is used to defined a SequenceAnnotatorLearner",
+			"                          and an OnlineClassifierLearner is used to define a GenericCollinsLearner", 
+			"                          optional, default \"new CollinsPerceptronLearner()\"",
+			"       -out outputLabel   label assigned to predictions",
+			"                          optional, default _prediction", 
+			"       -split splitter    splitter to use, in format used by minorthird.classify.experiments.Expt.toSplitter()",
+			"                          optional, default r70",
+			"       -save fileName     file to save extended TextLabels in (train data + predictions)",
+			"                          optional",
+			"       -show xxxx         how much detail on experiment to show - xxx=all shows the most",
+			"                          optional", 
+			"       -mix yyyy          augment feature extracture to first execute 'require yyyy,yyyy.mixup'",
+			"                          optional",
+		};
+		for (int i=0; i<usageLines.length; i++) System.out.println(usageLines[i]);
 		System.exit(-1);
 	}
 }

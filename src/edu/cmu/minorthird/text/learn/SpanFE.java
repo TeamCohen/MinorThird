@@ -94,6 +94,13 @@ abstract public class SpanFE implements SpanFeatureExtractor
 		this.textLabels = textLabels;
 	}
 
+	/** Create a feature extractor */
+	public SpanFE()
+	{
+		this(new EmptyLabels());
+	}
+
+
 	//
 	// getters and setters
 	// 

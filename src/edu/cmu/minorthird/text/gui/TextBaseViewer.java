@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text.gui;
 
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.mixup.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -734,66 +735,16 @@ public class TextBaseViewer extends JComponent
 
     public static void main(String[] args)
     {
-        try
-        {
-            JFrame frame = new JFrame("TextBaseViewer");
-            TextBase base;
-            MonotonicTextLabels labels;
-
-            if (args.length == 0)
-            {
-                base = SampleTextBases.getTextBase();
-                labels = SampleTextBases.getGuessLabels();
-                //labels = edu.cmu.minorthird.text.ann.TestExtractionProblem.getLabels();
-                //base = labels.getTextBase();
-                //SampleTextBases.showLabels(labels);
-            }
-            else if (args.length == 2)
-            {
-              labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
-              base = labels.getTextBase();
-              System.out.println(labels.toString());
-              System.in.read();
-            }
-            else
-            {
-                Object o = new FancyLoader().loadObject(args[0]);
-                if (o instanceof MonotonicTextLabels)
-                {
-                    labels = (MonotonicTextLabels) o;
-                    base = labels.getTextBase();
-                }
-                else if (o instanceof TextBase)
-                {
-                    base = (TextBase) o;
-                    labels = new BasicTextLabels(base);
-                }
-                else
-                {
-                    throw new Exception("object should be TextBase or TextLabels");
-                }
-            }
-
-            StatusMessage statusMsg = new StatusMessage();
-            TextBaseViewer viewer = new TextBaseViewer(base, labels, statusMsg);
-            JComponent main = new StatusMessagePanel(viewer, statusMsg);
-
-            frame.getContentPane().add(main, BorderLayout.CENTER);
-            frame.addWindowListener(new WindowAdapter()
-            {
-                public void windowClosing(WindowEvent e)
-                {
-                    System.exit(0);
-                }
-            });
-            frame.pack();
-            frame.setVisible(true);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            System.out.println("usage: TextBaseViewer taggedFileDir");
-            System.out.println("   or: TextBaseViewer taggedFileDir");
-        }
+			try {
+				TextLabels labels = FancyLoader.loadTextLabels(args[0]);
+				if (args.length>1) {
+					MixupProgram p = new MixupProgram(new File(args[1]));
+					p.eval((MonotonicTextLabels)labels, labels.getTextBase());
+				}
+				view(labels);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("usage: TextBaseViewer key [mixupProgram]");
+			}
     }
 }

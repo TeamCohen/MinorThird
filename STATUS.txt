@@ -24,6 +24,12 @@ CLEANUPS/DESIGN:
 
 RECENT CHANGES:
 
+ - more visualization stuff in text.learn
+ - set up ConditionalSemiMarkovModel.CSMMFE to extend SampleFE.ExtractionFE
+ - refactored SampleFE.ExtractionFE to extend SpanFE
+ - exposed getSpanFeatureExtractor() in AnnotatorLearner
+ - added/documented some more parameters for TextLabelsExperiment
+ - added more visualization for CSMM
  - added (some minimal) visualization for CSMM
  - bug fix in VotedPerceptron
  - TFIDF transform -done

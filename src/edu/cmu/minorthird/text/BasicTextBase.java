@@ -61,6 +61,7 @@ public class BasicTextBase implements TextBase, Serializable
 //			int index = valueIndex( string.substring(matcher.start(1), matcher.end(1)) );
 			tokenList.add( new TextToken(document, matcher.start(1), matcher.end(1)-matcher.start(1)) );
 		}
+		if (tokenList.size()==0) log.warn("empty document with id "+documentId);
 
 		TextToken[] tokenArray = (TextToken[])tokenList.toArray(new TextToken[0]);
     document.setTokens(tokenArray);

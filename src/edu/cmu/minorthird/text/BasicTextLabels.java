@@ -1,6 +1,8 @@
 package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.text.mixup.Dependencies;
+import edu.cmu.minorthird.text.gui.TextLabelsViewer;
+import edu.cmu.minorthird.util.gui.*;
 import java.io.Serializable;
 import java.util.*;
 
@@ -12,7 +14,7 @@ import org.apache.log4j.Logger;
  * @author William Cohen
 */
 
-public class BasicTextLabels implements MutableTextLabels, Serializable
+public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 {
   static private final long serialVersionUID = 1;
 	private final int CURRENT_VERSION_NUMBER = 1;
@@ -342,5 +344,10 @@ public class BasicTextLabels implements MutableTextLabels, Serializable
 			buf.append("\n");
 		}
 		return buf.toString();
+	}
+
+	public Viewer toGUI() 
+	{
+		return new TextLabelsViewer(this);
 	}
 }

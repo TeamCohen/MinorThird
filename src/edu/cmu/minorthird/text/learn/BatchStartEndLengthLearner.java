@@ -110,6 +110,8 @@ public class BatchStartEndLengthLearner implements AnnotatorLearner
 		}
 	}
 
+  public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
+
 	/** Return the learned annotator
 	 */
 	public Annotator getAnnotator() {

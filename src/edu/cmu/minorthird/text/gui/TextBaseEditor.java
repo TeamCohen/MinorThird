@@ -108,27 +108,6 @@ public class TextBaseEditor extends TrackedTextBaseComponent
 				return editor;
     }
 
-    public static void main(String[] args)
-    {
-        // parse options
-        try
-        {
-					  TextBaseEditor editor = new TextBaseEditor(args);
-					  editor.initializeLayout();
-					  editor.buildFrame();
-        }
-        catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        catch (Error e)
-        {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     private void setLabels(String[] args) throws IOException
     {
         boolean readOnly = checkReadOnly(args);
@@ -182,4 +161,27 @@ public class TextBaseEditor extends TrackedTextBaseComponent
         }
         return readOnly;
     }
+
+    public static void main(String[] args)
+    {
+        // parse options
+        try
+        {
+					  TextBaseEditor editor = new TextBaseEditor(args);
+					  editor.initializeLayout();
+					  editor.buildFrame();
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        catch (Error e)
+        {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
 }

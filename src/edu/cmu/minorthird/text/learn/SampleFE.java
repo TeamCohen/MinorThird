@@ -60,14 +60,14 @@ public class SampleFE
 
 	/** A simple extraction-oriented feature extractor to apply to one-token spans, for extraction tasks.
 	 */
-	public static class ExtractionFE implements SpanFeatureExtractor
+	public static class ExtractionFE extends SpanFE
 	{
-		private int windowSize=5;
-		private String requiredAnnotation = null;
-		private String requiredAnnotationFileToLoad = null;
-		private boolean useCharType=true;
-		private boolean useCompressedCharType=true;
-		private String[] tokenPropertyFeatures=new String[0];
+		protected int windowSize=5;
+		protected String requiredAnnotation = null;
+		protected String requiredAnnotationFileToLoad = null;
+		protected boolean useCharType=true;
+		protected boolean useCompressedCharType=true;
+		protected String[] tokenPropertyFeatures=new String[0];
 
 		public ExtractionFE() { this(3); }
 		public ExtractionFE(int windowSize) { this.windowSize=windowSize; }
@@ -80,6 +80,17 @@ public class SampleFE
 		 */
 		public void setRequiredAnnotation(String requiredAnnotation) { this.requiredAnnotation=requiredAnnotation; }
 		public String getRequiredAnnotation() { return requiredAnnotation==null ? "" : requiredAnnotation; }
+
+
+		/** Specify an annotator to run before feature generation
+		 * and a mixup file/class that generates it simultaneously.
+		*/
+		public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider) 
+		{ 
+			setRequiredAnnotation(requiredAnnotation);
+			setAnnotationProvider(annotationProvider);
+		}
+
 
 		/** Specify a mixup file or java class to use to provide the annotation.
 		 */
@@ -111,52 +122,63 @@ public class SampleFE
 		 * defined token properties. */
 		public void setTokenPropertyFeatures(String commaSeparatedTokenPropertyList) {
 			if ("*".equals(commaSeparatedTokenPropertyList)) {
+				//System.out.println("setting properties to null");
 				tokenPropertyFeatures = null; 
+			} else {
+				tokenPropertyFeatures = commaSeparatedTokenPropertyList.split(",\\s*");
 			}
-			tokenPropertyFeatures = commaSeparatedTokenPropertyList.split(",\\s*");
 		}
 		public void setTokenPropertyFeatures(Set propertySet) {
 			tokenPropertyFeatures = (String[])propertySet.toArray(new String[propertySet.size()]);
 		}
 
-		public Instance extractInstance(Span s)
+		public void extractFeatures(Span s)
 		{
-			return extractInstance(new EmptyLabels(), s);
+			extractFeatures(new EmptyLabels(), s);
 		}
-		public Instance extractInstance(TextLabels labels, Span s)
+		public void extractFeatures(TextLabels labels, Span s)
 		{
-			if (requiredAnnotation!=null) labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
-			if (tokenPropertyFeatures==null) setTokenPropertyFeatures( labels.getTokenProperties() );
+			if (requiredAnnotation!=null) {
+				//System.out.println("require "+requiredAnnotation+", tokenPropertyFeatures="+tokenPropertyFeatures);
+				labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
+			}
+			if (tokenPropertyFeatures==null) {
+				System.out.println("setTokenPropertyFeatures to the set "+labels.getTokenProperties());
+				setTokenPropertyFeatures( labels.getTokenProperties() );
+			}
 
-			FeatureBuffer buf = new FeatureBuffer(labels,s);
-
-			SpanFE.from(s,buf).tokens().eq().lc().emit();
+			// tokens in span
+			from(s).tokens().eq().lc().emit();
+			// simplified capitalization pattern
 			if (useCompressedCharType) {
-				SpanFE.from(s,buf).tokens().eq().charTypePattern().emit();
+				from(s).tokens().eq().charTypePattern().emit();
 			}
+			// exact capitalization pattern
 			if (useCharType) {
-				SpanFE.from(s,buf).tokens().eq().charTypes().emit();
+				from(s).tokens().eq().charTypes().emit();
 			}
+			// token properties
 			for (int j=0; j<tokenPropertyFeatures.length; j++) {
-				SpanFE.from(s,buf).tokens().prop(tokenPropertyFeatures[j]).emit();
+				from(s).tokens().prop(tokenPropertyFeatures[j]).emit();
 			}
+			// window
 			for (int i=0; i<windowSize; i++) {
-				SpanFE.from(s,buf).left().token(-i-1).eq().lc().emit();
-				SpanFE.from(s,buf).right().token(i).eq().lc().emit();
+				from(s).left().token(-i-1).eq().lc().emit();
+				from(s).right().token(i).eq().lc().emit();
 				for (int j=0; j<tokenPropertyFeatures.length; j++) {
-					SpanFE.from(s,buf).left().token(-i-1).prop(tokenPropertyFeatures[j]).emit();
-					SpanFE.from(s,buf).right().token(i).prop(tokenPropertyFeatures[j]).emit();
+					//System.out.println("Property: "+tokenPropertyFeatures[j]);
+					from(s).left().token(-i-1).prop(tokenPropertyFeatures[j]).emit();
+					from(s).right().token(i).prop(tokenPropertyFeatures[j]).emit();
 				}
 				if (useCompressedCharType) {
-					SpanFE.from(s,buf).left().token(-i-1).eq().charTypePattern().emit();
-					SpanFE.from(s,buf).right().token(i).eq().charTypePattern().emit();
+					from(s).left().token(-i-1).eq().charTypePattern().emit();
+					from(s).right().token(i).eq().charTypePattern().emit();
 				}
 				if (useCharType) {
-					SpanFE.from(s,buf).left().token(-i-1).eq().charTypes().emit();
-					SpanFE.from(s,buf).right().token(i).eq().charTypes().emit();
+					from(s).left().token(-i-1).eq().charTypes().emit();
+					from(s).right().token(i).eq().charTypes().emit();
 				}
 			}
-			return buf.getInstance();
 		}
 	}
 

@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.text.learn;
 
+import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
@@ -9,6 +10,9 @@ import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.util.ProgressCounter;
 import org.apache.log4j.Logger;
 
+import javax.swing.*;
+import java.awt.BorderLayout;
+import javax.swing.border.*;
 import java.io.Serializable;
 
 /**
@@ -83,6 +87,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery)
 	{
+		TextLabels oldAnswerLabels = answeredQuery.getLabels();
 		TextLabels answerLabels = answeredQuery.labelTokensInsideOutside("insideOutside");
 		Span document = answeredQuery.getDocumentSpan();
 		Example[] sequence = new Example[document.size()];
@@ -91,11 +96,11 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 			String value = answerLabels.getProperty(tok,"insideOutside");
 			if (AnnotationExample.INSIDE.equals(value)) {
 				Span tokenSpan = document.subSpan(i,1);
-				BinaryExample example = new BinaryExample( fe.extractInstance(answerLabels,tokenSpan), INSIDE_LABEL);
+				BinaryExample example = new BinaryExample( fe.extractInstance(oldAnswerLabels,tokenSpan), INSIDE_LABEL);
 				sequence[i] = example;
 			} else if (AnnotationExample.OUTSIDE.equals( value )) {
 				Span tokenSpan = document.subSpan(i,1);
-				BinaryExample example = new BinaryExample( fe.extractInstance(answerLabels,tokenSpan), OUTSIDE_LABEL);
+				BinaryExample example = new BinaryExample( fe.extractInstance(oldAnswerLabels,tokenSpan), OUTSIDE_LABEL);
 				sequence[i] = example;
 			} else {
 				log.warn("token "+tok+" not labeled in "+document.getDocumentId()+" - ignoring test of document");
@@ -123,7 +128,12 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		return seqData;
 	}
 
-	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable
+	public SpanFeatureExtractor getSpanFeatureExtractor()
+	{
+		return fe;
+	}
+
+	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable,Visible
 	{
 		private static final long serialVersionUID = 1;
 		private static Mixup mergeExpr;
@@ -179,5 +189,22 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		{
 			return "[SequenceAnnotator "+annotationType+":\n"+seqClassifier+"]";
 		}
+		public Viewer toGUI()
+		{
+			Viewer v = new ComponentViewer() {
+					public JComponent componentFor(Object o) {
+						SequenceAnnotator sa = (SequenceAnnotator)o;
+						JPanel mainPanel = new JPanel();
+						mainPanel.setBorder(new TitledBorder("Sequence Annotator"));
+						Viewer subView = new SmartVanillaViewer(sa.seqClassifier);
+						subView.setSuperView(this);
+						mainPanel.add(subView);
+						return new JScrollPane(mainPanel);
+					}
+				};
+			v.setContent(this);
+			return v;
+		}
+		
 	}
 }

@@ -45,59 +45,13 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
 
     public static void main(String[] args)
     {
-        try
-        {
-
-            TextBase base;
-            MonotonicTextLabels guessLabels = null;
-            MutableTextLabels truthLabels = null;
-            File labelsFile = null;
-
-            if (args.length == 0)
-            {
-                base = SampleTextBases.getTextBase();
-                guessLabels = SampleTextBases.getTruthLabels();
-                truthLabels = SampleTextBases.getTruthLabels();
-            }
-            else
-            {
-                base = new BasicTextBase();
-                File f = new File(args[0]);
-                if (f.isDirectory())
-                {
-                  guessLabels = truthLabels = TextBaseLoader.loadDirOfTaggedFiles(f);
-                  base = guessLabels.getTextBase();
-                }
-                else
-                {
-                  base = TextBaseLoader.loadDocPerLine(f, false);
-//                    baseLoader.loadLines(base, f);
-                }
-                if (args.length >= 2)
-                {
-                    labelsFile = new File(args[1]);
-                    if (labelsFile.exists())
-                    {
-                        guessLabels = truthLabels = new TextLabelsLoader().loadSerialized(labelsFile, base);
-                    }
-                }
-                if (guessLabels == null)
-                {
-                    guessLabels = truthLabels = new BasicTextLabels(base);
-                }
-            }
-
-            TextBaseLabeler labeler = new TextBaseLabeler(base, guessLabels, truthLabels, new StatusMessage());
-            labeler.setSaveAs(labelsFile);
-            labeler.initializeLayout();
-
-            labeler.buildFrame();
-
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+			try {
+				MutableTextLabels labels = (MutableTextLabels)FancyLoader.loadTextLabels(args[0]);
+				label(labels,new File(args[1]));
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("usage: TextBaseLabeler key labelFile");
+			}
     }
 
 }

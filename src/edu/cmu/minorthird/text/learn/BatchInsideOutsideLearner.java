@@ -11,6 +11,7 @@ import edu.cmu.minorthird.util.ProgressCounter;
 /**
  * Learn a InsideOutsideAnnotator from examples.
  *
+ * This is a no-history version of the SequenceAnnotatorLearner. 
  * @author William Cohen
  */
 
@@ -76,6 +77,8 @@ public class BatchInsideOutsideLearner implements AnnotatorLearner
 			}
 		}
 	}
+
+  public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
 
 	/** Return the learned annotator
 	 */

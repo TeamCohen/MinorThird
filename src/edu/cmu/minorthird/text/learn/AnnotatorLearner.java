@@ -34,4 +34,8 @@ public interface AnnotatorLearner
 	/** Return the learned annotator */
 	public Annotator getAnnotator();
 
+	/** Return the span feature extractor used by this annotator.  This could be null
+	 * if no such feature extractor exists. 
+	 */
+	public SpanFeatureExtractor getSpanFeatureExtractor();
 }

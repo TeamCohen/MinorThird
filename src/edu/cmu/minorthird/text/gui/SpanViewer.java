@@ -16,7 +16,7 @@ import java.util.Set;
  * @author William Cohen
  */
 
-public class SpanViewer extends ParallelViewer
+public class SpanViewer extends ParallelViewer implements Controllable
 {
 	private static final int DEFAULT_CONTEXT=10;
 
@@ -34,9 +34,9 @@ public class SpanViewer extends ParallelViewer
 		addSubView("Tokens",new TokenViewer(labels,span));
 		setContent(span);
 	}
-	public void applyMarkup(MarkupPlan plan)
+	public void applyControls(ViewerControls controls)
 	{
-		textViewer.applyMarkup(plan);
+		textViewer.applyControls(controls);
 	}
 	
 	/** A text view of a span, plus controls */
@@ -80,7 +80,7 @@ public class SpanViewer extends ParallelViewer
 	}
 
 	/** A text view of a span. */
-	public static class TextViewer extends ComponentViewer
+	public static class TextViewer extends ComponentViewer implements Controllable
 	{																
 		private TextLabels labels;
 		private Span span;
@@ -105,12 +105,13 @@ public class SpanViewer extends ParallelViewer
 			textPane.setEditable(false);
 			return new JScrollPane(textPane);
 		}
-		public void applyMarkup(MarkupPlan plan)
+		public void applyControls(ViewerControls viewerControls)
 		{
+			MarkupControls controls = (MarkupControls)viewerControls;
 			doc.resetHighlights(); 
 			for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
 				String type = (String)i.next();
-				SimpleAttributeSet color = plan.getColor(type);
+				SimpleAttributeSet color = controls.getColor(type);
 				if (color!=null) {
 					for (Span.Looper j=labels.instanceIterator(type,span.getDocumentId()); j.hasNext(); ) {
 						Span typeSpan = j.nextSpan();
@@ -157,7 +158,7 @@ public class SpanViewer extends ParallelViewer
 	public static void main(String[] argv)
 	{
 		try {
-			TextLabels labels0 = FancyLoader.loadTextLabels("labels/seminar-subset");
+			TextLabels labels0 = FancyLoader.loadTextLabels("demos/sampleData/seminar-subset");
 			final MonotonicTextLabels labels = new NestedTextLabels(labels0);
 			MixupProgram p = 
 				new MixupProgram(
@@ -171,28 +172,12 @@ public class SpanViewer extends ParallelViewer
 			
 			Span s = labels.getTextBase().documentSpanIterator().nextSpan();
 			SpanViewer sv = new SpanViewer(labels,s);
-			MarkupPlan mp = new MarkupPlan(labels);
-			SplitViewer v = new SplitViewer(sv,mp.toGUI()) {
-					public void receiveContent(Object content) {
-						viewer1.setContent((Span)content);
-						viewer2.setContent(new MarkupPlan(labels));
-					}
-					public boolean canReceive(Object content)	{
-						return (content instanceof Span);
-					}
-					protected void handle(int signal,Object argument,ArrayList senders) {
-						((SpanViewer)viewer1).applyMarkup((MarkupPlan)argument);
-					}
-					protected boolean canHandle(int signal,Object argument,ArrayList senders) {
-						return (signal==OBJECT_UPDATED && (argument instanceof MarkupPlan));
-					}
-				};
-			v.setHorizontal();
-			//v.receiveContent(s);
-			//ViewerFrame f = new ViewerFrame("SpanViewer", v);
-			Span subspan = s.subSpan(10,5);
-			Viewer u = new ControlledTextViewer(subspan);
-			ViewerFrame f = new ViewerFrame("SpanViewer",u);
+			MarkupControls mp = new MarkupControls(labels);
+			ControlledViewer v = new ControlledViewer(sv,mp);
+			v.setContent(s);
+			//Span subspan = s.subSpan(10,5);
+			//Viewer u = new ControlledTextViewer(subspan);
+			ViewerFrame f = new ViewerFrame("SpanViewer",v);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,6 +1,8 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.gui.*;
+import edu.cmu.minorthird.util.gui.*;
 
 import java.util.*;
 
@@ -9,7 +11,7 @@ import java.util.*;
  * @author William Cohen
 */
 
-public class SubTextLabels implements TextLabels
+public class SubTextLabels implements TextLabels,Visible
 {
 	protected SubTextBase subBase;
 	protected TextLabels labels;
@@ -109,6 +111,11 @@ public class SubTextLabels implements TextLabels
 				list.add( span );
 		}
 		return new BasicSpanLooper( list.iterator() );
+	}
+
+	public Viewer toGUI() 
+	{
+		return new TextLabelsViewer(this);
 	}
 }
 

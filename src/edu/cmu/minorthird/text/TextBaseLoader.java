@@ -10,17 +10,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Configurable Loader.<br>
- * <br>
+ * Configurable Loader.
+ * <p>
  * Usage:
- * Configure a loader object using the constructors or the get/set methods.<br>
- * Call .load(File) with the file object to your data (could be a directory)<br>
+ * Configure a loader object using the constructors or the get/set methods.
+ * Call .load(File) with the file object to your data (could be a directory)
  * load(File) returns the TextBase object for the data.
+ * <p>
  *
  * Calling .load a second time will add additional documents to the same text base.
  * Use setTextBase(null) to get a new text base from the same loader object.
  *
  * ex:
+ *<pre>
  * //Load files in directory "Foo"
  * //Use each file as a 'document', get document id's from the individual file names
  * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME);
@@ -45,6 +47,8 @@ import java.util.regex.Pattern;
  * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, NONE, DIRECTORY_NAME, true, true);
  * TextBase base = TBL.load(new File("myDir"));
  * -----------------------------------------------------------------
+ *</pre>
+ *
  * //Load files in "myDir" and "yourDir" into a single text base
  * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, true);
  * TBL.load(new File("myDir"));
@@ -56,6 +60,7 @@ import java.util.regex.Pattern;
  * TBL.setTextBase(null);
  * TextBase yourDirBase = TBL.load(new File("yourDir"));
  * -----------------------------------------------------------------
+>>>>>>> 1.24
  *
  * Configure the loader for the format of the data you have.  Then call load to return a TextBase<br.
  * <br>
@@ -70,9 +75,10 @@ import java.util.regex.Pattern;
  * <li>labelsInFile - are their xml style label tags on the data? (boolean)</li>
  * <li>recurseDirectories - search directories recursively for more data? (boolean) note that "CVS" directories will be omitted</li>
  * </ul>
- * <br>
- * These can be controlled with getter/setters or through constructors.<br>
- * load(File) is called to return a TextBase object.  The File object should be the root of your data (single file or directory of data)<br>
+ * <p>
+ * These can be controlled with getter/setters or through constructors.
+ * <p>
+ * load(File) is called to return a TextBase object.  The File object should be the root of your data (single file or directory of data). 
  * load throws exceptions if: 1) there is a problem reading the file (IOException), 2) xml tagging is not well formed (ParseException),
  *  or 3) parameter combination is not allowed (Exception)<br>
  * The validity of the parameter combination can be checked via <code>public boolean checkParameters</code>
