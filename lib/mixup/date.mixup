@@ -1,54 +1,65 @@
 provide 'date';
+//require 'pos';
+//require 'npchunks';
 
-//
-// hand-coded date extraction from emails
-//
+defDict monthName = january, jan, february, feb, march, mar, april, apr, may, june, jun, july, jul, 
+	            august, aug, september, sep, sept, october, oct, november, nov, december, dec;	
 
-// stuff like 'this afternoon', 'tomorrow morning', 'next week'
+defDict weekDay = monday, mon, tuesday, tue, wednesday, wed, thursday, thu, thur, friday, fri, saturday, sat, sunday, sun;
 
-defDict monthWord = 
-	january, jan, february, feb, march, mar, april, apr, may, june, jun, july, jul, 
-	august, aug, september, sep, sept, october, oct, november, nov, december, dec;	
-defDict dayWord =
-	monday, mon, tuesday, tue, wednesday, wed, thursday, thu, thur, friday, fri, saturday, sat, sunday, sun;
-defDict dateOther = 
-	week,weekend,semester,year,month;
-defDict datePartOfDay = 
-	morning,afternoon,evening,night;
+defDict commonWord = may, sun, jan, sat; 
 
-defDict commonWord = may,sun,jan,sat; // stuff above that might not be part of a date
+defDict dateOther = week, weekend, year, month;
+
+defDict dtDayWord = today, tomorrow, yesterday; // May prefer to eliminate today
+
+defDict datePrefix = this, next, some, following, after, before, until, till, by;
+
+defDict qttyWord = $, USD, dollars, dollar, unit, units, %, precent, precents, am, pm;
 
 
-defTokenProp dateNoun:1 =: 
-	... [ai(monthWord)] ... || ... [ai(dayWord)] ... || ... [ai(dateOther)] ... || ... [ai(datePartOfDay)] ...;
+defDict monthNo = 1,2,3,4,5,6,7,8,9,10,11,12;
+defDict dayNo   = 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;
+defDict daySuffix = st, nd, rd, th ;
+defDict yearNum  = 95,96,97,98,99,00,01,02,03,04,05,06,07,08,09,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020;
 
-defDict monthNum = 1,2,3,4,5,6,7,8,9,10,11,12;
-defDict dayNum = 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;
-defDict yearNum = 95,96,97,98,99,00,01,02,03,04,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004;
+defDict dateSep = - , /, . ;
 
-defDict dateDet = this,next,some,following;
-defDict dateSep = -,/;
-defDict tomorrowWord = tomorrow;
+defTokenProp dateWord:1 =: ... [ai(monthName)] ... || ... [ai(weekDay)] ... || ... [ai(dtDayWord)] ... ; 
 
-defSpanType extracted_date =: ... [ eqi('today') ] ... || ...[eqi('tonight')]... || ...[eqi('tonite')] ...;
-defSpanType extracted_date =: ... [ ai(dateDet) dateNoun:1 ] ...;
-defSpanType extracted_date =: ... [ eqi('tomorrow') a(datePartOfDay)?R ] ... ;
-defSpanType extracted_date =: ... [ eqi('the') 'following' dateNoun:1 ] ... ;
-defSpanType extracted_date =: ... [ eqi('the') dateNoun:1 'after' 'next'] ... ;
-defSpanType extracted_date =: ... [ eqi('the') re('^[0-9]+(st|nd|rd|th)$')] ...;
+defTokenProp monthName:1  =: ... [ai(monthName)] ... ;
+defTokenProp monthNo:1    =: ... [a(monthNo)] ... ;
+defTokenProp month:1      =: ... [ai(monthName)] ... || ... [a(monthNo)] ... ;
 
-//
-// days in day/month/yr format
-//
+defTokenProp weekDay:1    =: ... [ai(weekDay)] ... ;
+defTokenProp dtDayWord:1  =: ... [ai(dtDayWord)] ... ;
 
-defTokenProp monthTok:1 =: ... [ai(monthWord)] ... || ... [a(monthNum)] ...;
-defSpanType extracted_date =: ... [ monthTok:1 a(dateSep) a(dayNum) a(dateSep) a(yearNum)] ...;
-defSpanType extracted_date =: ... [ monthTok:1 a(dateSep) a(dayNum) ] !a(dateSep) ...;
+defTokenProp dayNo:1      =: ... [ai(dayNo)] ... ;
+defTokenProp dayNoSufx:1  =: ... ['st'] ... || ... ['nd'] ... || ... ['rd'] ... || ... ['th'] ... ;
 
-defTokenProp alreadyExtracted:1 =: ... [@extracted_date]...;
+defTokenProp year:1       =: ... [ai(yearNum)] ... ;
 
-//
-// words like 'april' or 'wednesday' all alone; note 'May' and other common words don't count
-//
-defSpanType extracted_date =: ... [ <ai(monthWord),!a(commonWord),!alreadyExtracted:1> ] ...;
-defSpanType extracted_date =: ... [ <ai(dayWord),!alreadyExtracted:1> ] ...;
+defTokenProp dateOther:1  =: ... [ai(dateOther)] ... ;
+defTokenProp dateCommon:1 =: ... [ai(commonWord)] ... ;
+
+defTokenProp dateSep:1    =: ... [ai(dateSep)] ... ;
+defTokenProp datePrefix:1 =: ... [ai(datePrefix)] ... ;
+
+defTokenProp qtty:1 =: ... [ai(qttyWord)] ... ;
+
+defTokenProp date:1 =: ... [month:1 dateSep:1 dayNo:1 dateSep:1 year:1] ... ;
+defTokenProp date:1 =: ... [dayNo:1 dateSep:1 month:1 dateSep:1 year:1] ... ;
+defTokenProp date:1 =: ... [month:1 dateSep:1 dayNo:1] ... ;
+defTokenProp date:1 =: ... [dayNo:1 dateSep:1 month:1] ... ;
+defTokenProp date:1 =: ... [monthName:1 dayNo:1 dayNoSufx:1] ... ;  // e.g. July 2nd
+defTokenProp date:1 =: ... [monthName:1 dayNo:1] ... ;      // e.g. July 2
+//defTokenProp date:1 =: ... ['the' dayNo:1 dayNoSufx:1] <!P:NN, !P:JJ> ... ; // the 15th - why doesn't the negation work?
+defTokenProp date:1 =: ... [<dateWord:1, !dateCommon:1>] ... ;
+defTokenProp date:1 =: ... date:1+R dateSep:1? [year:1] ... || ... date:1+R ',' [year:1] ... ;
+
+defTokenProp extracted_date:1 =: ... !ai(qttyWord) [L date:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [L date:1+R] || !ai(qttyWord) [L date:1+R] ... ;
+defTokenProp extracted_date:1 =: ... !ai(qttyWord) [datePrefix:1+R L date:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [datePrefix:1+R L date:1+R] || ... !ai(qttyWord) [datePrefix:1+R L date:1+R] ... ;
+
+defSpanType extracted_date =: ... [extracted_date:1+ R] ... ;
+
+defSpanType year =: ... [<year:1, !date:1>] ... ;
