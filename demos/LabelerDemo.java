@@ -28,7 +28,7 @@ public class LabelerDemo
     try
     {
 			String[] myArgs = args.length>0 ? args : 
-												new String[]{ "sampleData/seminar-subset", "human.labels", "toyName.mixup" };
+												new String[]{ "sampleData/seminar-subset", "human.labels", "sampleMixup/toyName.mixup" };
 
       File dataDir = new File(myArgs[0]);
       File labelFile = new File(myArgs[1]);
@@ -79,5 +79,7 @@ public class LabelerDemo
   private static void usage()
   {
     System.out.println("usage: LabelerDemo directoryOfFilesToLabel labelFile [mixupFile]");
+		System.out.println("       - for a demo, if you're in the minorthird/demos directory, try");
+		System.out.println("java LabelerDemo sampleData/seminar-subset my.labels sampleMixup/toyName.mixup");
   }
 }
