@@ -14,6 +14,8 @@ import java.io.*;
 
 public class LearnImagePtrExtractor
 {
+  static { Mixup.maxNumberOfMatchesPerToken = 20; }
+
 	/** Heuristic used to find candidate image pointers */
 	static public SpanFinder candidateFinder;
 
@@ -23,7 +25,7 @@ public class LearnImagePtrExtractor
 	// initialize
 	static {
 		try {
-			candidateFinder = new MixupFinder( new Mixup("... [eq('(') !eq(')'){1,15} eq(')')] ...") );
+			candidateFinder = new MixupFinder( new Mixup("... [L eq('(') !eq(')'){1,15} eq(')') R] ...") );
 			featureProgram = 	new MixupProgram( new File("lib/features.mixup" ) );
 		} catch (Exception e) {
 			throw new IllegalStateException("mixup or io error: "+e);

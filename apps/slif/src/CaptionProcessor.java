@@ -20,6 +20,7 @@ import org.apache.log4j.*;
 public class CaptionProcessor
 {
 	static final boolean DEBUG = true;
+  static { Mixup.maxNumberOfMatchesPerToken = 20; }
 
 	private static Annotator regionalAnnotator,localAnnotator;
 	private static MixupProgram scopingProgram, cellTypeProgram, proteinProgram;

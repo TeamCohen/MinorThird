@@ -40,6 +40,15 @@ public interface Span extends Comparable
 	/** Return the id of the group of documents this span belongs to */
 	public String getDocumentGroupId();
 
+  /** Return a string containing the entire content of the document
+   * that this span lives in. 
+   * <p>
+   * <b>Note:</b> this differs subtly from documentSpan().asString(),
+   * which returns the string between the beginning of the first
+   * token and the end of the last token in the containing document. */
+  
+  public String getDocumentContents();
+
 	/** Find the index of this span within its document.
 	 * In other words, a span can be copied with the code
 	 * <code>span.documentSpan().subSpan( span.documentSpanStartIndex(), span.length())</code>

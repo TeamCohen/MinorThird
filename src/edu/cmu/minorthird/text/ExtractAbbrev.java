@@ -3,6 +3,7 @@ package edu.cmu.minorthird.text;
 import java.util.*;
 import java.io.*;
 import java.text.*;
+import org.apache.log4j.*;
 
 /**
  * The ExtractAbbrev class implements a simple algorithm for
@@ -22,6 +23,8 @@ import java.text.*;
 
 public class ExtractAbbrev extends AbstractAnnotator
 {
+  private Logger log = Logger.getLogger(ExtractAbbrev.class);
+
   /** The annotation type provided by this annotator. */
   public static final String PROVIDED_ANNOTATION = "abbrev";
   /** The type asserted for extracted acronyms */
@@ -37,7 +40,7 @@ public class ExtractAbbrev extends AbstractAnnotator
   private int truePositives = 0, falsePositives = 0, falseNegatives = 0, trueNegatives = 0;
   private static final char DELIMITER = '\t';
   private boolean testMode = false;
-
+  
   //
   // added by wcohen - implements the AbstractAnnotator interface
   //
@@ -50,7 +53,7 @@ public class ExtractAbbrev extends AbstractAnnotator
     for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
       accum.clear(); 
       Span doc = i.nextSpan();
-      String s = doc.asString();
+      String s = doc.getDocumentContents();
       // call Schwartz's code to fill up accum with short,long pairs
       extractAbbrPairsFromString(s);
       // build annotations based on the contents of the accumulator
@@ -58,6 +61,11 @@ public class ExtractAbbrev extends AbstractAnnotator
         StringSpan shortForm = (StringSpan)j.next();
         StringSpan longForm = (StringSpan)j.next();
         Span shortSpan = doc.charIndexSubSpan(shortForm.lo, shortForm.hi);
+        log.debug("shortSpan["+shortForm.lo+".."+shortForm.hi+"] of doc: near '"+
+                  doc.getDocumentContents().substring(shortForm.lo,shortForm.hi)+"'");
+        log.debug("shortForm='"+shortForm.asString()+"' shortSpan='"+shortSpan.asString()+"'");
+
+
         Span longSpan = doc.charIndexSubSpan(longForm.lo, longForm.hi);
         labels.addToType(shortSpan, SHORT_FORM_TYPE);
         labels.addToType(longSpan, LONG_FORM_TYPE);
@@ -200,6 +208,7 @@ public class ExtractAbbrev extends AbstractAnnotator
     int openParenIndex, closeParenIndex = -1, sentenceEnd, newCloseParenIndex, tmpIndex = -1;
     StringTokenizer shortTokenizer;
 
+    log.debug("finding pairs in '"+currSentence.asString()+"'");
     openParenIndex =  currSentence.indexOf(" (");
     do {
       if (openParenIndex > -1)
@@ -287,6 +296,8 @@ public class ExtractAbbrev extends AbstractAnnotator
     StringSpan bestLongForm;
     StringTokenizer tokenizer;
     int longFormSize, shortFormSize;
+
+    log.debug("finding long form for '"+shortForm.asString()+"' and '"+longForm.asString()+"'");
 
     if (shortForm.length() == 1)
 	    return;

@@ -330,6 +330,25 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 		/** Convert to a plain old set. 
 		 */
 		public Set asSet() { return set; }
+    /** Filter the set using a user-defined filter.
+     */
+    protected TreeSet applyFilter(Filter f) {
+      TreeSet s = new TreeSet();
+      for (Iterator i=set.iterator(); i.hasNext(); ) {
+        Object o = i.next();
+        if (f.match(o)) s.add(o);
+      }
+      return s;
+    }
+    /** Modify each element in the set using a user-defined function.
+     */
+    protected TreeSet mapFunction(Function f) {
+      TreeSet s = new TreeSet();
+      for (Iterator i=set.iterator(); i.hasNext(); ) {
+        s.add( f.apply(i.next()) );
+      }
+      return s;
+    }
 	}
 
 
@@ -342,6 +361,7 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 		public SpanResult trace() {	return (SpanResult)doTrace(); }
 		public void emit() {	fe.emit(this);	}
 		public String toString() { return "[SpanResult: "+s+"]"; }
+    public Span getSpan() { return s; }
 
 		/** Move to the span consisting of all tokens in the same document that
 		 * precede the current span. 
@@ -357,6 +377,12 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 			Span rSpan = s.documentSpan().subSpan(s.documentSpanStartIndex()+s.size(),
 																						 s.documentSpan().size()-s.documentSpanStartIndex()-s.size());
 			return new SpanResult( extend("right"), fe, rSpan );
+		}
+		/** Move to the document containing this span.
+		 */
+		public SpanResult doc() {
+			Span docSpan = s.documentSpan();
+			return new SpanResult( extend("doc"), fe, docSpan );
 		}
 		/** Move to a set of all spans of the named type that are
 		 * contained by the current span. 
@@ -481,6 +507,13 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 			}
 			return new StringBagResult( extend("eq"), fe, stringBag );
 		}
+    /** Filter out spans that don't match the filter. */
+    public SpanSetResult filter(Filter f) {
+      return new SpanSetResult( extend("filter_"+f.getName()), fe, applyFilter(f) );
+    }
+    public SpanSetResult map(Function f) {
+      return new SpanSetResult( extend("map_"+f.getName()), fe, mapFunction(f) );
+    }
 	}
 
 	/** An intermediate result of a SpanFE process where
@@ -677,4 +710,27 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 			return new StringBagResult( extend("usewords"), fe, uwBag );
 		}
 	}
+  
+  /** An abstract class that can be used to filter SpanSetResults.
+   */
+  static public abstract class Filter
+  {
+    /** A short name, used to help construct feature names associated
+     * with this filter. */
+    abstract public String getName();
+    /** Should return true for all items that will be accepted by the
+     * filter. */
+    abstract public boolean match(Object o);
+  }
+
+  /** An abstract class that can be used to change SpanSets
+   */
+  static public abstract class Function
+  {
+    /** A short name, used to help construct feature names associated
+     * with this filter. */
+    abstract public String getName();
+    /** Should return the modified object. */
+    abstract public Object apply(Object Object);
+  }
 }

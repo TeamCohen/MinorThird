@@ -48,6 +48,11 @@ public class BasicSpan implements Span,Serializable,Visible
 		return documentGroupId;
 	}
 
+  public String getDocumentContents() {
+    if (textTokens.length==0) return "";
+    else return textTokens[0].getDocument();
+  }
+
 	public int size() { 
 		return spanLen; 
 	}
@@ -100,7 +105,7 @@ public class BasicSpan implements Span,Serializable,Visible
 
 	/** Find the string contained in a Span. */
 	public String asString() {
-		if (size()==0) return "";
+		if (size()<=0) return "";
 		else {
 			TextToken lo = getTextToken(0);
 			TextToken hi = getTextToken(size()-1);

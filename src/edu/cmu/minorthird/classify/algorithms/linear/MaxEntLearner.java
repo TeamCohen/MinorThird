@@ -102,11 +102,11 @@ public class MaxEntLearner extends BatchClassifierLearner
     // artificial two-class problems, weights for POS and NEG
     // hyperplanes approximate 1/2 the actual coefficients of the
     // logistic term.  Eg, if Prob(y=+|x) = logistic(ax+b), then the
-    // total bias terms approach b/2, //and the total weight for x
-    // approaches a/2.  The pos score for "POS" with instance is then
-    // (1/2 * (ax+b)), and the score for "NEG" is (-1/2 * (ax +b)).
-    // This transform takes care of that and converts to log-odds
-    // scores.
+    // total bias terms approach b/2, 
+    // and the total weight for x approaches a/2.  The pos score for
+    // "POS" with instance is then (1/2 * (ax+b)), and the score for
+    // "NEG" is (-1/2 * (ax +b)).  This transform takes care of that
+    // and converts to log-odds scores.
     //
     private ClassLabel transformScores(ClassLabel label)
     {

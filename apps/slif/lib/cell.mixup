@@ -37,7 +37,7 @@ defDict closeParen = );
 // 'context' is anything near a cell end.  This is used to restrict search
 
 defSpanType end =: ... [a(pluralEnd)] ... || ... [a(singEnd)] ...;
-defSpanType context =: any+ [ any{15} @end any{2}] ... ||  [ any{,15} @end any{2}] ... ;
+defSpanType context =: ...  [L any{,15} @end any{,2} R] ... ;
 
 // the start of a sentence might have a panel label like (a) before it.
 

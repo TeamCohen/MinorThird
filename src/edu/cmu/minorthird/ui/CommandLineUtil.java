@@ -338,8 +338,8 @@ public class CommandLineUtil
 	public void setSaveAs(String s) { saveAs( "n/a".equals(s) ? null : s ); }
     }
 
-    /** Parameters used by all 'train' routines. */
-    public static class EditParams extends BasicCommandLineProcessor {
+  /** Parameters used by all 'train' routines. */
+  public static class EditParams extends BasicCommandLineProcessor {
 	public File editFile=null;
 	private String editFileName=null;
 	public String extractedType=null,trueType=null;
@@ -349,8 +349,8 @@ public class CommandLineUtil
 	public void usage() {
 	    System.out.println("edit parameters:");
 	    System.out.println(" [-edit FILE]             stored result of hand-edited changes to labels in FILE");
-	    System.out.println(" [-extracted TYPE]        debugging or labeling proposed spans of type TYPE");
-	    System.out.println(" [-true TYPE]             hand-corrected labels saved as type YPE");
+	    System.out.println(" [-extractedType TYPE]    debugging or labeling proposed spans of type TYPE");
+	    System.out.println(" [-trueType TYPE]         hand-corrected labels saved as type YPE");
 	    System.out.println();
 	}
 	// for gui

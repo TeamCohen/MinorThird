@@ -20,10 +20,10 @@ public abstract class StringAnnotator extends AbstractAnnotator
   protected void doAnnotate(MonotonicTextLabels labels)
 	{
 		//add the annotations into labels
-		edu.cmu.minorthird.text.TextBase textBase = labels.getTextBase();
-		for (edu.cmu.minorthird.text.Span.Looper it = textBase.documentSpanIterator(); it.hasNext();)
+		TextBase textBase = labels.getTextBase();
+		for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();)
 		{
-			edu.cmu.minorthird.text.Span span = it.nextSpan();
+			Span span = it.nextSpan();
 			String spanString = span.asString();
 
       CharAnnotation[] annotations = annotateString(spanString);
@@ -34,7 +34,7 @@ public abstract class StringAnnotator extends AbstractAnnotator
         {
           CharAnnotation ann = annotations[i];
           int lo = ann.getOffset();
-          edu.cmu.minorthird.text.Span newSpan = span.charIndexSubSpan(lo, lo + ann.getLength());
+          Span newSpan = span.charIndexSubSpan(lo, lo + ann.getLength());
           labels.addToType(newSpan, ann.getType());
         }
       }
