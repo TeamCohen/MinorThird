@@ -11,9 +11,8 @@ If you want write access to the source (you plan to change or add to our softwar
 you need an account on the Raff computer.  You can then use the following cvsroot to 
 access minorthird:
 
-cvsroot= :ext:<your user name>@raff.cald.cs.cmu.edu/usr1/cvsroot
-with module "minorthird"
-
+cvsroot= :ext:<your user name>@raff.cald.cs.cmu.edu/usr1/cvsroot with module "minorthird"
+Using command line cvs you'll need to have the environment CVS_RSH=ssh set.
 
 To do this you'll need CVS, which is generally installed on
 unix systems.  For windows I recommend using the cygwin package,
