@@ -51,6 +51,7 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 	public void reset() 
 	{
 		dataset = new SegmentDataset();
+    dataset.setDataCompression(compressDataset);
 	}
 
 	//
@@ -63,6 +64,14 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 	public void setDisplayDatasetBeforeLearning(boolean newDisplayDatasetBeforeLearning) {
 		this.displayDatasetBeforeLearning = newDisplayDatasetBeforeLearning;
 	}
+
+  private boolean compressDataset=false; 
+
+  /** If set, try and compress the data. This leads to longer loading and learning times
+   * but less memory usage. */
+  public boolean getCompressDataset() { return compressDataset; } 
+  public void setCompressDataset(boolean flag) { compressDataset=flag; }
+
 	public int getHistorySize() { return 1; }
 	public BatchSegmenterLearner getSemiMarkovLearner() { return learner; }
 	public void setSemiMarkovLearner(BatchSegmenterLearner learner) { this.learner=learner; }

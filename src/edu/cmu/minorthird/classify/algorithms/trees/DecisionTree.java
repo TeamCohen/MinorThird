@@ -134,26 +134,26 @@ import java.io.Serializable;
       DefaultMutableTreeNode top = createNodes(dtree);
       final JTree jtree = new JTree(top);
       jtree.addTreeSelectionListener(new TreeSelectionListener() {
-	  public void valueChanged(TreeSelectionEvent e) {
-	    DefaultMutableTreeNode node = (DefaultMutableTreeNode)jtree.getLastSelectedPathComponent();
-	    Object nodeInfo = node.getUserObject();
-	    if (nodeInfo instanceof InternalNode) {
-	      sendSignal(OBJECT_SELECTED, ((InternalNode)nodeInfo).test);
-	    }
-	  }
-	});
+          public void valueChanged(TreeSelectionEvent e) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)jtree.getLastSelectedPathComponent();
+            Object nodeInfo = node.getUserObject();
+            if (nodeInfo instanceof InternalNode) {
+              sendSignal(OBJECT_SELECTED, ((InternalNode)nodeInfo).test);
+            }
+          }
+        });
       return new JScrollPane(jtree);
     }
     private DefaultMutableTreeNode createNodes(DecisionTree dtree)
     {
       if (dtree instanceof Leaf) {
-	return new DefaultMutableTreeNode(dtree);
+        return new DefaultMutableTreeNode(dtree);
       } else {
-	InternalNode internal = (InternalNode)dtree;
-	DefaultMutableTreeNode n = new DefaultMutableTreeNode(dtree);
-	n.add( createNodes(internal.ifTrue) );
-	n.add( createNodes(internal.ifFalse) );
-	return n;
+        InternalNode internal = (InternalNode)dtree;
+        DefaultMutableTreeNode n = new DefaultMutableTreeNode(dtree);
+        n.add( createNodes(internal.ifTrue) );
+        n.add( createNodes(internal.ifFalse) );
+        return n;
       }
     }
   }

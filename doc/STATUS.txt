@@ -1,30 +1,10 @@
 PRIORITIES:
  - SVMs: update svmlib to get confidences?
  - stderr on error rates/f1's
- - vitor's bug with maxent confidences:
-
-Diagnosis: on artificial two-class problems, weights for POS and NEG
-hyperplanes approximate 1/2 the actual coefficients of the LR.  Eg, if
-Prob(y=+|x) = logistic(ax+b), then the total bias terms approach b/2,
-and the total weight for x approaches a/2.  The pos score for "POS"
-with instance is then (1/2 * (ax+b)), and the score for "NEG" is (-1/2
-* (ax +b)).
-
-so should use Prob(y)=logistic[score(y)-score(not y)] for binary.  I
-*suspect* that for k-ary we should do the same, replacing -score(not
-y) with [sum_{y'!=y}-score(y')]
-
-in ClassLabel, I might want to also convert a bunch of log-odds score
-with real probabilities..given r = lg p/(1-p) convert to p = exp(r)/(1 + exp(r))  
- r = lg (p/(1-p))
- er = p/(1-p)
- (1-p)er = p
- er/(1 + er)  = p
-
+ - 
 
 BUGS:
   - does showTestDetails change the result?
-  - update issues with 'mixup' and feature extractor in gui
   - should precision/recall start at something other than 1.0 (max precision?)
   - graph doesn't come out if there is no range?
   - spanClosures are not stored properly (only by document); should really store tokenProps also,

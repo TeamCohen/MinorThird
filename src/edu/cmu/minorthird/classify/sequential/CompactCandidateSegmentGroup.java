@@ -61,6 +61,10 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
   // helpers to construct feature iterators and/or compute weights
   //
 
+  /** The binary features in in any unitInstance between start...end
+   * or otherInstance.  Equivalently, the features in the sum of
+   * {unitInstance[start],...,unitInstance[end-1],otherInstance}
+   */
   private Set binaryFeatureSet(int start,int end,Instance otherInstance)
   {
     Set s = new HashSet();
@@ -71,6 +75,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
     return s;
   }
 
+  /** Analogous to binaryFeatureSet */
   private Set numericFeatureSet(int start,int end,Instance otherInstance)
   {
     Set s = new HashSet();
@@ -81,6 +86,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
     return s;
   }
 
+  /** Analogous to binaryFeatureSet */
   private Set featureSet(int start,int end,Instance otherInstance)
   {
     Set s = new HashSet();
@@ -91,6 +97,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
 
   private void addAll(Set s,Iterator i) { while (i.hasNext()) s.add(i.next()); }
 
+  /** Get sum of weight of f over in all unitInstance between start and end */
   private double getSumWeight(int start,int end,Feature f)
   {
     double w = 0;
@@ -100,8 +107,9 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
     return w;
   }
 
-  // encode differences between a segmentInstance and the sum of the
-  // weights of the unit instance
+  /** encode differences between a segmentInstance and the sum of the
+   * weights of the unit instances between start and end.
+  */
 
   private class Delta
   {
@@ -118,12 +126,18 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
           if (segmentWeight!=sumWeight) deltaWeight.put( f, segmentWeight-sumWeight );
         }
       }
+      /*
+      System.out.println("segmentInstance: "+segmentInstance);
+      System.out.println("deltaInstance:   "+new DeltaInstance(start,end,this,
+                                                               segmentInstance.getSource(),
+                                                               segmentInstance.getSubpopulationId()));
+      */
     }
   }
 
-  //
-  // lazily construct an instance from a Delta
-  //
+  /** Construct an instance from the unit instances and a delta. 
+   */
+
   private class DeltaInstance extends AbstractInstance
   {
     private int start,end;
@@ -137,6 +151,15 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
       this.source = segmentSource[start][end-start-1];  
       this.subpopulationId = subPopId;
     }
+    // for debugging mostly
+    public DeltaInstance(int start,int end,Delta initDelta,Object initSource,String initSubPopId)
+    {
+      this.start = start;
+      this.end = end;
+      this.diff = initDelta;
+      this.source = initSource;
+      this.subpopulationId = initSubPopId;
+    }
     public double getWeight(Feature f)
     {
       if (diff.zeroWeights.contains(f)) return 0;
@@ -144,19 +167,35 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
     }
     public Feature.Looper binaryFeatureIterator() 
     { 
-      return noZeros(diff.zeroWeights,binaryFeatureSet(start,end,null)); 
+      return adjust(binaryFeatureSet(start,end,null), diff.zeroWeights, null); 
     }
     public Feature.Looper numericFeatureIterator() 
     { 
-      return noZeros(diff.zeroWeights, numericFeatureSet(start,end,null));
+      return adjust(numericFeatureSet(start,end,null), diff.zeroWeights, diff.deltaWeight);
     }
     public Feature.Looper featureIterator() 
     { 
-      return noZeros(diff.zeroWeights, featureSet(start,end,null));
+      return adjust(featureSet(start,end,null), diff.zeroWeights, diff.deltaWeight);
     }
-    private Feature.Looper noZeros( Set exclude, Set set )
+    private Feature.Looper adjust(final Set set,  THashSet exclude, TObjectDoubleHashMap include)
     {
-      set.removeAll( exclude );
+      // like set.removeAll(exclude) but faster
+      exclude.forEach( new TObjectProcedure() {
+          public boolean execute(Object o) {
+            set.remove( o );
+            return true; // indicates it's ok to invoke this procedure again
+          }
+        });
+      if (include!=null) {
+        // like set.addAll( include ) but faster
+        include.forEachKey( 
+          new TObjectProcedure() {
+            public boolean execute(Object key) {
+              set.add( key );
+              return true; // indicates it's ok to invoke this procedure again
+            }
+          });
+      }
       return new Feature.Looper(set);
     }
   }

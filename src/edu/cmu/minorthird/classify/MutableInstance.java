@@ -57,19 +57,6 @@ public class MutableInstance extends AbstractInstance
 		return new Feature.Looper( new UnionIterator(set.iterator(), wset.asSet().iterator()) );
 	}
 
-	public String toString() {
-		StringBuffer buf = new StringBuffer("[instance/"+subpopulationId+":");
-		for (Feature.Looper i=binaryFeatureIterator(); i.hasNext(); ) {
-			buf.append(" "+i.nextFeature());
-		}
-		for (Feature.Looper i=numericFeatureIterator(); i.hasNext(); ) {
-			Feature f = i.nextFeature();
-			buf.append(" "+f+":"+getWeight(f));
-		}
-		buf.append("]");
-		return buf.toString();
-	}
-
   static public void main(String[] args)
 	{
 		try {

@@ -25,11 +25,13 @@ public class SegmentDataset implements Dataset
 	private Set classNameSet = new HashSet();
 	private int totalSize = 0;
   private FeatureFactory factory = new FeatureFactory();
+  private boolean compressGroups = false;
 
 	public SegmentDataset() {;}
 
-	public int getMaxWindowSize() { return maxWindowSize; }
+  public void setDataCompression(boolean flag) { compressGroups=flag; }
 
+	public int getMaxWindowSize() { return maxWindowSize; }
 	public int size() { return totalSize; }
 
 	public int getNumberOfSegmentGroups() { return groupList.size(); }
@@ -41,8 +43,8 @@ public class SegmentDataset implements Dataset
 		if (maxWindowSize>=0 && group.getMaxWindowSize()!=maxWindowSize) {
 			throw new IllegalArgumentException("mismatched window sizes: "+maxWindowSize+", "+group.getMaxWindowSize());
 		}
-    groupList.add(group);
-		//groupList.add(new CompactCandidateSegmentGroup(factory,group));
+    if (compressGroups) groupList.add(new CompactCandidateSegmentGroup(factory,group));
+    else groupList.add(group);
 		classNameSet.addAll( group.classNameSet() );
 		totalSize += group.size();
 	}

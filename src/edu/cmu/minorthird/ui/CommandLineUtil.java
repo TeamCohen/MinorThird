@@ -419,24 +419,26 @@ class CommandLineUtil
             writer.invoke(o,new Object[]{new String(value)});
             Object val = reader.invoke(o,new Object[]{});
 			    }
-
         } catch (Exception e) {
 			    System.out.println("Cannot find class");
         }
-			    
-      } else
+      } else {
         System.out.println ("Cannot compute option - no object defined");
+      }
     }
     public void LearnerOp(String s) { 
       Object o = (Object)learner;
       option(s, o);		    
 		}
+    public void learnerOp(String s) { 
+      LearnerOp(s); 
+    }
     public void feOp(String s) {
       if(fe != null) {
         Object o = (Object)fe;
         option(s, o);			
       } else 
-        System.out.println("You must define a Feature Extrator before setting it's options");
+        System.out.println("You must define a feature extractor before setting it's options");
 		}
 	        
 		public void usage() {
