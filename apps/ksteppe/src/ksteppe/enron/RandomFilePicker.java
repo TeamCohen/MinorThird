@@ -10,6 +10,27 @@ import java.util.Iterator;
  */
 public class RandomFilePicker
 {
+  private class Pick
+  {
+    int person;
+    int email;
+
+    public Pick(int email, int person)
+    {
+      this.email = email;
+      this.person = person;
+    }
+
+    public boolean equals(Object obj)
+    {
+      Pick p = (Pick)obj;
+      if (this.person == p.person && this.email == p.email)
+        return true;
+      else
+        return false;
+    }
+  }
+
   public static void main(String[] args)
   {
     if (args.length !=4)
@@ -71,7 +92,7 @@ public class RandomFilePicker
         int email = (int)Math.floor(Math.random() * messages[person].length);
 
         System.out.println("selected: [" + person + "][" + email + "] - " + messages[person][email]);
-        if (!selections.add(messages[person][email]))
+        if (!selections.add(new Pick(person, email)))
         {
           System.out.println("already have that selection!  try again");
           continue; //if it's already in the set, find another
@@ -98,8 +119,11 @@ public class RandomFilePicker
 
       for (int msg = 0; msg < numMsg; msg++)
       {
-        File f = (File)it.next(); //get file from selections
-        try { com.ksteppe.fileUtils.FileTool.copy(f, newDir); }
+        Pick p = (Pick)it.next();
+        String newName = dirs[p.person].getName() + "_" + messages[p.person][p.email].getName();
+        File newFile = new File(newDir, newName);
+
+        try { com.ksteppe.fileUtils.FileTool.copy(messages[p.person][p.email], newFile); }
         catch (IOException e)
         { e.printStackTrace(); } //To change body of catch statement use Options | File Templates.
       }
