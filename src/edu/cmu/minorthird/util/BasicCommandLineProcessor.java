@@ -62,9 +62,11 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 			}			
 			return pos-startPos;
 		} catch (IllegalAccessException iax) {
+			iax.printStackTrace();
 			usage("error: "+iax);
 			return 0;
 		} catch (InvocationTargetException itx) {
+			itx.printStackTrace();
 			usage("error: "+itx);
 			return 0;
 		}

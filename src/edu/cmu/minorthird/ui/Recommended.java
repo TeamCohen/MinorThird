@@ -188,9 +188,10 @@ public class Recommended
 		// command-line processor based configuration
 		//
 		public CommandLineProcessor getCLP() {
-			return new BasicCommandLineProcessor() {
-					public void mixup(String annotation) { setRequiredAnnotation(annotation,annotation+".mixup");	};
-				};
+			return new MyCLP();
+		}
+		public class MyCLP extends BasicCommandLineProcessor {
+			public void mixup(String annotation) { setRequiredAnnotation(annotation,annotation+".mixup");	};			
 		}
 		//
 		// the real code (ie not config code)
