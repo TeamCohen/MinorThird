@@ -46,7 +46,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	    if (w!=0) {
         out.writeObject(f);
         out.writeDouble(w);
-        System.out.println("wrote weight: "+f+" => "+w);
+        //System.out.println("wrote weight: "+f+" => "+w);
 	    }
     }
     out.writeObject(BIAS_TERM);
@@ -56,14 +56,14 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
   private void readObject(ObjectInputStream in) throws IOException,ClassNotFoundException
   {
     try {
-	    System.out.println("reading new object");
+	    //System.out.println("reading new object");
 	    double w = 1;
 	    hyperplaneWeights = new TObjectDoubleHashMap();
 	    while (w!=0) {
         Feature f = (Feature)in.readObject();
         w = in.readDouble();
         if (w!=0) hyperplaneWeights.put(f,w);
-        System.out.println("read weight: "+f+" => "+w);
+        //System.out.println("read weight: "+f+" => "+w);
 	    }
 	    ignoreWeights = in.readBoolean();
     } catch (StreamCorruptedException ex) {
