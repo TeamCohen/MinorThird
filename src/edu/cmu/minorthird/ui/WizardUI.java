@@ -30,7 +30,7 @@ import java.util.Map;
  * @author William Cohen
  */
 
-public class WizardUI implements WizardController
+public class WizardUI
 {
 
 	/** A special type selector.
