@@ -17,14 +17,28 @@ public interface MonotonicTextLabels extends TextLabels
 	/** Assert that TextToken textToken has the given value of the given property. */
 	public void setProperty(Token token,String prop,String value);
 
+	/** Assert that a token has a given property value, and associate that
+	 * with some detailed information.
+	 * If details==null, this should have the same effect as setProperty(span,prop,value).
+	 */
+	public void setProperty(Token token,String prop,String value,Details details);
+
 	/** Assert that Span span has the given value of the given property */
 	public void setProperty(Span span,String prop,String value);
+
+	/** Assert that Span span has the given value of the given property, 
+	 * and associate that with some detailed information
+	 */
+	public void setProperty(Span span,String prop,String value,Details details);
+
 
 	/** Assert that a span has a given type. */
 	public void addToType(Span span,String type);
 
 	/** Assert that a span has a given type, and associate that
-	 * assertion with some detailed information. */
+	 * assertion with some detailed information. 
+	 * If details==null, this should have the same effect as addToType(span,type).
+	 */
 	public void addToType(Span span,String type,Details details);
 
 	/** Declare a new type, without asserting any spans as members. */

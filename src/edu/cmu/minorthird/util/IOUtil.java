@@ -77,6 +77,7 @@ public class IOUtil
     InputStream inputStream = new FileInputStream(in);
     byte[] bytes = new byte[inputStream.available()];
     inputStream.read(bytes);
+		inputStream.close();
     return new String(bytes);
 
   //Richard's implementation, this may be more thread safe than using inputStream.available()

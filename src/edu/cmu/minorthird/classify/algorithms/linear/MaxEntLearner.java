@@ -50,7 +50,6 @@ public class MaxEntLearner extends BatchClassifierLearner
     }
   }
 	public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }
-	
 	public Classifier batchTrain(Dataset dataset)
 	{
 		SequenceDataset seqData = new SequenceDataset();
@@ -97,6 +96,7 @@ public class MaxEntLearner extends BatchClassifierLearner
       }
 		}
 
+		/** convert from log pseudoProbabilities to log probabilities */
     // in principle, the MaxEntLearner's weights will converge so that
     // Prob(x,y) = logistic( sum_i fi(x,y) ).  In experiments on on
     // artificial two-class problems, weights for POS and NEG
@@ -110,19 +110,25 @@ public class MaxEntLearner extends BatchClassifierLearner
     //
     private ClassLabel transformScores(ClassLabel label)
     {
+			double[] pseudoProb = new double[schema.getNumberOfClasses()];
+			double normalizer = 0;
+      for (int i=0; i<schema.getNumberOfClasses(); i++) {
+        String yi = schema.getClassName(i);
+				pseudoProb[i] = Math.exp( label.getWeight(yi) );
+				normalizer += pseudoProb[i];
+      }
       ClassLabel transformed = new ClassLabel();
       for (int i=0; i<schema.getNumberOfClasses(); i++) {
-        String y1 = schema.getClassName(i);
-        double s = label.getWeight(y1);
-        for (int j=0; j<schema.getNumberOfClasses(); j++) {
-          String y2 = schema.getClassName(j);
-          if (!y1.equals(y2)) s -= label.getWeight(y2);
-        }
-        double p1 = MathUtil.logistic(s);
-        double odds1 = Math.log( p1/(1.0-p1) );
-        transformed.add( y1,odds1 );
-      }
-      return transformed;
+        String yi = schema.getClassName(i);
+				double p = pseudoProb[i]/normalizer;
+				transformed.add( yi, Math.log(p/(1-p)) );
+			}
+			//System.out.println("schema: "+StringUtil.toString(schema.validClassNames()));
+			//System.out.println("Pseudo: "+label.toDetails());
+			//System.out.println("exp:    "+StringUtil.toString(pseudoProb));
+			//System.out.println("z="+normalizer);
+			//System.out.println("Xform:  "+transformed.toDetails());
+			return transformed;
     }
 
 		public Classifier getRawClassifier() { return c; }

@@ -31,9 +31,18 @@ public class MonotonicSubTextLabels extends SubTextLabels implements MonotonicTe
 		monotonicLabels.setProperty(token,prop,value);
 	}
 
+	public void setProperty(Token token,String prop,String value,Details details) {
+		monotonicLabels.setProperty(token,prop,value,details);
+	}
+
 	public void setProperty(Span span,String prop,String value) {
 		if (subBase.contains(span))	
 			monotonicLabels.setProperty(span,prop,value);
+	}
+
+	public void setProperty(Span span,String prop,String value,Details details) {
+		if (subBase.contains(span))	
+			monotonicLabels.setProperty(span,prop,value,details);
 	}
 
 	public void addToType(Span span,String type) {

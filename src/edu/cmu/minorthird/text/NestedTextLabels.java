@@ -90,6 +90,10 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 		if (shadowedProperties.contains(prop)) log.warn("Property "+prop+" has been shadowed");
 		else outer.setProperty(token,prop,value); 
 	}
+	public void setProperty(Token token,String prop,String value,Details details) {
+		if (shadowedProperties.contains(prop)) log.warn("Property "+prop+" has been shadowed");
+		else outer.setProperty(token,prop,value); 
+	}
 
 	public String getProperty(Token token,String prop) {
 		if (shadowedProperties.contains(prop)) return null;
@@ -121,6 +125,10 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 
 	public void setProperty(Span span,String prop,String value){
 		outer.setProperty(span,prop,value);
+	}
+
+	public void setProperty(Span span,String prop,String value,Details details){
+		outer.setProperty(span,prop,value,details);
 	}
 
 	public String getProperty(Span span,String prop) {

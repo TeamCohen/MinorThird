@@ -114,12 +114,16 @@ public class ClassLabel implements Serializable
 	/** Returns the weight of the positive class name */
 	public double posWeight() { return getWeight(ExampleSchema.POS_CLASS_NAME);	}
 
+	/** Returns the probability of the positive class name */
+	public double posProbability() { return getProbability(ExampleSchema.POS_CLASS_NAME); }
+
 	/** Returns the weight of the label. */
 	public double getWeight(String label) { return wset.getWeight(label,-Double.MAX_VALUE); }
 
   /** Returns the probability of a label. */
   public double getProbability(String label) 
   { 
+		// same as MathUtil.logistic, I think
     double expOdds = Math.exp( getWeight(label) );
     return expOdds/(1.0 + expOdds);
   }

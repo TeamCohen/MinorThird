@@ -75,8 +75,13 @@ public class ClassifierAnnotator extends AbstractAnnotator implements Serializab
 		for (Span.Looper i=candidateLooper; i.hasNext(); ) {
 			Span s = i.nextSpan();
 			ClassLabel classOfS = c.classification(fe.extractInstance(labels, s));
-			if (spanProp!=null) labels.setProperty(s, spanProp, classOfS.bestClassName());
-			if (spanType!=null && classOfS.isPositive()) labels.addToType(s,spanType);
+			if (spanProp!=null) {
+				//labels.setProperty(s, spanProp, classOfS.bestClassName(),new Details(classOfS.bestWeight()));
+				labels.setProperty(s, spanProp, classOfS.bestClassName());
+			} else if (spanType!=null && classOfS.isPositive()) {
+				//labels.addToType(s,spanType,new Details(classOfS.posWeight()));
+				labels.addToType(s,spanType);
+			}
 		}
 	}
 	public String explainAnnotation(TextLabels labels,Span documentSpan)

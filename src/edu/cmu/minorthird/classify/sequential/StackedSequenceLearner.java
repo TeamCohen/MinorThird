@@ -1,4 +1,5 @@
-import edu.cmu.minorthird.classify.sequential.*;
+package edu.cmu.minorthird.classify.sequential;
+
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;

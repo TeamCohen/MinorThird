@@ -90,12 +90,12 @@ public interface TextLabels
 	 * with the given property. */
 	public String showTokenProp(TextBase base, String prop);
 
-	/** Associate an assertion 'span S has type T' with a
-	 * record of additional detailed information.  Returns null
-	 * if the span doesn't have the stated type. */
+	/** Retrieve additional information associated with an assertion
+	 * 'span S has type T'.  Returns null if the span doesn't have the
+	 * stated type. */
 	public Details getDetails(Span span,String type);
 
-    /** Assert that Span span has the given value of the given property */
-    public void setProperty(Span span,String prop,String value);
+	/** Assert that Span span has the given value of the given property */
+	public void setProperty(Span span,String prop,String value);
 
 }

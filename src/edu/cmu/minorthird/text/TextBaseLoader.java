@@ -303,7 +303,6 @@ public class TextBaseLoader
     private void loadFile(File file) throws IOException, ParseException
     {
 	log.debug("loadFile: " + file.getName());
-	boolean fileGood = true;
 
 	//build the correct reader
 	BufferedReader in;
@@ -313,8 +312,6 @@ public class TextBaseLoader
 	    in = new BufferedReader(new FileReader(file));
 
 	curDocID = file.getName(); //set the docid
-	//String pattern = ".*";
-	//use_markup = Pattern.compile(pattern).matcher(curDocID).matches();
 
 	spanList = new ArrayList(); //list of labeled spans if internally tagged
 
@@ -328,10 +325,6 @@ public class TextBaseLoader
 
 		if (this.use_markup) {
 		    line = labelLine(line, buf, spanList); // appends to the buffer internally
-		    if(line == null) {
-			fileGood = false;
-			break;
-		    }
 		}
 
 		if (this.documentStyle == DOC_PER_LINE)
@@ -351,12 +344,8 @@ public class TextBaseLoader
 			}
 	    }
 
-	if(fileGood) {
-	    if (this.documentStyle == DOC_PER_FILE)
-		addDocument(buf.toString()); //still need to set ids and such
-	} else {
-	    log.warn("Document: " + curDocID + " contains error and will not be added to the TextBase");
-	}
+	if (this.documentStyle == DOC_PER_FILE)
+	    addDocument(buf.toString()); //still need to set ids and such
 
 	in.close();
     }
@@ -384,7 +373,6 @@ public class TextBaseLoader
 	while((line = in.readLine()) != null) {
 	   String[] words = line.split("\\s");
 	   if(!(words[0].equals("-DOCSTART-"))) {
-	       tokenPropList = new ArrayList();
 	       if(words.length > 2) {
 		   start = buf.length();
 		   buf.append(words[0]+" ");
@@ -399,7 +387,7 @@ public class TextBaseLoader
 	       this.tokenizer = new Tokenizer(Tokenizer.SPLIT, " ");
 	       addDocument(buf.toString());
 	       spanList = new ArrayList();
-	       tokenPropList = null;
+	       tokenPropList = new ArrayList();
 	       buf = new StringBuffer("");
 	       docNum++;
 	       curDocID = id + "-" + docNum;
@@ -453,17 +441,15 @@ public class TextBaseLoader
 	    labels.addToType( approxSpan, charSpan.type );
 
 	}
-	if(tokenPropList != null) {
-	    if(tokenPropList.size() > 0) {	    	    
-		Document doc = textBase.getDocument(curDocID);
-		TextToken[] tokens = tokenizer.splitIntoTokens(doc,docText);
-		Iterator itr = tokenPropList.iterator();
-		if(tokens.length > 0) {		
-		    for(int x=0; x<tokens.length; x++) {
-			String nextPOS = (String)itr.next();
-			if(nextPOS != null && tokens[x] != null) {
-			    labels.setProperty(tokens[x], "POS", nextPOS);
-			}
+	if(tokenPropList!=null && tokenPropList.size() > 0) {	    	    
+	    Document doc = textBase.getDocument(curDocID);
+	    TextToken[] tokens = tokenizer.splitIntoTokens(doc,docText);
+	    Iterator itr = tokenPropList.iterator();
+	    if(tokens.length > 0) {		
+		for(int x=0; x<tokens.length; x++) {
+		    String nextPOS = (String)itr.next();
+		    if(nextPOS != null && tokens[x] != null) {
+			labels.setProperty(tokens[x], "POS", nextPOS);
 		    }
 		}
 	    }
@@ -512,15 +498,10 @@ public class TextBaseLoader
 			break;
 		    }
 		}
-		if (entry==null) {
-		    //log.warn("close '"+tag+"' tag with no open", entry.index);
-		    return null;
-		    //throw new ParseException("close '"+tag+"' tag with no open", entry.index);
-		}if (!tag.equals(entry.markupTag)){
-		    //log.warn("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
-		    return null;
-		    //throw new ParseException("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
- 		}
+		if (entry==null)
+		    throw new ParseException("close '"+tag+"' tag with no open", entry.index);
+		if (!tag.equals(entry.markupTag))
+		    throw new ParseException("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
 
 		if (log.isDebugEnabled()) {
 		    log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
