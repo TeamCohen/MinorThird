@@ -18,11 +18,13 @@ import java.util.*;
 
 public class BeamSearcher implements SequenceConstants, Serializable
 {
-	static private int serialVersionUID = 1;
+	static private long serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 
+	static private boolean OLD_VERSION = false;
+
 	static private Logger log = Logger.getLogger(BeamSearcher.class);
-        static private final boolean DEBUG = false;
+	static private final boolean DEBUG = false;
 
 	// parameters of beam searcher
 	private int historySize; 
@@ -223,8 +225,10 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		public int hashCode()
 		{
 			int h = 73643674;
-			for (int i=0; i<keyHistory.length; i++) 
-				h = h^keyHistory[i].hashCode();
+			for (int i=0; i<keyHistory.length; i++) {
+				if (OLD_VERSION) h = h^keyHistory.hashCode();
+				else h = h^keyHistory[i].hashCode();
+			}
 			return h;
 		}
 		public boolean equals(Object o)

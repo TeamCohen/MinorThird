@@ -21,6 +21,24 @@ public class MaxEntLearner extends BatchClassifierLearner
 {
 	private CRFLearner crfLearner;
 	public MaxEntLearner(){	crfLearner = new CRFLearner(); }
+	/**
+	 * String is list of parameter-value pairs, e.g.
+	 * "maxIters 20 mForHessian 5".
+	 * <p>
+	 * Allowed parameters: 
+	 * <ul>
+	 *<li>doScaling 
+	 *<li>epsForConvergence: Convergence criteria for finding optimum lambda using BFGS 
+	 *<li>initValue:  initial value for all the lambda arrays 
+	 *<li>invSigmaSquare: 
+          penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
+					set this to zero, if no penalty needed 
+	 *<li>maxIters: Maximum number of iterations over the training data during training 
+   *<li>mForHessian: The number of corrections used in the BFGS update. 
+   *<li>trainerType  
+	 *</ul>
+	 * For more info, see the docs for the iitb.CRF package.
+	 */
 	public MaxEntLearner(String args) {	crfLearner = new CRFLearner(args); }
 	public MaxEntLearner(String args[]) { crfLearner = new CRFLearner(args); }
 	public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }

@@ -77,6 +77,8 @@ public class AdaBoost extends BatchBinaryClassifierLearner
 			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
 				Example xk = i.nextExample();
 				double yk = xk.getLabel().numericScore();
+				// for Adaboost.L, multiply weight for example xk by 1/( 1 + exp( yk * c.score(xk) ) )
+				// for Adaboost, multiply weight for example xk by 1/exp( yk * c.score(xk))  
 				double factor =  Math.exp( yk * c.score(xk) );
 				//System.out.println("weight("+xk+") "+boostingWeight[k]+" -> "+boostingWeight[k]/factor);
 				boostingWeight[k] /= factor;

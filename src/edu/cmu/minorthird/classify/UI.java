@@ -127,9 +127,9 @@ public class UI
 				else if (sequential) return DatasetLoader.loadSequence(new File(s));
 				else return DatasetLoader.loadFile(new File(s));
 			} catch (IOException ex) {
-				throw new IllegalArgumentException("Error loading "+s+": "+ex);
+				throw new IllegalArgumentException("Error loading '"+s+"': "+ex);
 			} catch (NumberFormatException ex) {
-				throw new IllegalArgumentException("Error loading "+s+": "+ex);
+				throw new IllegalArgumentException("Error loading '"+s+"': "+ex);
 			}
 		}
 		private SequenceClassifierLearner toSeqLearner(String s)
