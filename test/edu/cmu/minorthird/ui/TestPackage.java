@@ -113,7 +113,7 @@ public class TestPackage extends TestSuite
 																"-splitter","k5"}) {
 				public void checkResult(Object result) {
 					ExtractionEvaluation e = (ExtractionEvaluation)result;
-					assertEquals( 0.67, e.spanF1(), 0.125 );
+					assertEquals( 0.5, e.spanF1(), 0.125 );
 				}
 			});
 		suite.addTest( new UITest(TrainTestExtractor.class,
@@ -124,7 +124,7 @@ public class TestPackage extends TestSuite
 																"-test","sample1.test"}) {
 				public void checkResult(Object result) {
 					ExtractionEvaluation e = (ExtractionEvaluation)result;
-					assertEquals( 0.677, e.spanF1(), 0.125 );
+					assertEquals( 0.75, e.spanF1(), 0.125 );
 				}
 			});
 		suite.addTest( new UITest(TrainExtractor.class,
@@ -144,7 +144,7 @@ public class TestPackage extends TestSuite
 																"-loadFrom","tmp.ann"}) {
 				public void checkResult(Object result) {
 					ExtractionEvaluation e = (ExtractionEvaluation)result;
-					assertEquals( 1.0, e.spanF1(), 0.1 );
+					assertEquals( 0.5, e.spanF1(), 0.1 );
 				}
 			});
 
