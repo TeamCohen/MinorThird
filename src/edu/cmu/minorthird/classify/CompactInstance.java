@@ -31,7 +31,7 @@ public class CompactInstance extends AbstractInstance
   {
     this.source = instance.getSource();
     this.weight = instance.getWeight();
-		this.subpopulationId = instance.getSubpopulationId();
+    this.subpopulationId = instance.getSubpopulationId();
 
     //two pieces, numeric and binary to copy over
 		//don't assume features are ordered...

@@ -120,6 +120,20 @@ public class PoissonLearner implements BinaryClassifierLearner
 		return c;
 	}
 
+    /** Compute the maximum likelihood estimate of the rate 'mu' of a Poisson model,
+     *  using integer counts x[] from examples with different lengths omega[].
+     */
+    public double MaximumLikelihoodPoisson(double[] x, double[] omega) {
+        double sumX=0;
+        double sumOmega=0;
+        for(int i=0; i<x.length; i++){
+            sumX += x[i];
+            sumOmega += omega[i];
+        }
+        double mu = sumX/sumOmega;
+        return mu;
+    }
+
 	double estimatedProb(double k,double n, double prior, double pseudoCounts) {
         //System.out.println("psudoCounts:" + k); // Edo test
 		return (k+prior*pseudoCounts) / (n+pseudoCounts);

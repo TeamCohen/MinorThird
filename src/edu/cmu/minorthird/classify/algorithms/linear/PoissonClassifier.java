@@ -22,14 +22,9 @@ class PoissonClassifier extends BinaryClassifier implements Visible, Serializabl
 
     static private Logger log = Logger.getLogger(PoissonClassifier.class);
 
-    // the value of POIS_BIAS_TERM goes into poissonWeights
     private static final boolean LOG = true;
     private Hyperplane linear;    // BIAS is the bias of linear
     private Hyperplane loglinear; // SCALE is the bias of loglinear
-    //protected static final Feature SCALE_TERM = new Feature("_hyperplaneScale");
-	//public static final Feature BIAS_TERM = new Feature("_poissonClassifierBias");
-    //private Map hyperplaneWeights;
-    //private Map hyperplaneLogWeights;
 
 	public PoissonClassifier() {
         this.linear = new Hyperplane();
@@ -45,7 +40,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible, Serializabl
         for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
             Feature f = j.nextFeature();
             //System.out.println( f+"<"+instance.getWeight(f)+"*"+featureScore(f,LOG)+"+"+featureScore(f)+">");
-            total += instance.getWeight(f)/featureScore( loglinear.BIAS_TERM );
+            total += instance.getWeight(f)/featureScore( loglinear.BIAS_TERM,LOG );
             score += featureScore(f);
             scoreLog += instance.getWeight(f) * featureScore(f,LOG);
         }

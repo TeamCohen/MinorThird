@@ -8,12 +8,10 @@ import org.apache.log4j.Logger;
 import java.io.File;
 
 /**
- * Created by IntelliJ IDEA.
- * User: eairoldi
+ * @author Edoardo M. Airoldi
  * Date: Jan 22, 2004
- * Time: 3:37:43 PM
- * To change this template use Options | File Templates.
  */
+
 public class MovieDataset {
 
     static private Logger log = Logger.getLogger(MovieDataset.class);
@@ -25,12 +23,12 @@ public class MovieDataset {
             // load the documents into a textbase
             TextBase base = new BasicTextBase();
             TextBaseLoader loader = new TextBaseLoader();
-            File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews-100");
+            File dir = new File("/usr1/edo/Min3rd-Datasets/movie-reviews-100");
             loader.loadTaggedFiles(base, dir);
 
             // set up labels
             MutableTextLabels labels = new BasicTextLabels(base);
-            new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
+            new TextLabelsLoader().importOps(labels, base, new File("/usr1/edo/Min3rd-Datasets/movie-labels-100.env"));
 
             // for verification/correction of the labels, if we care...
             //TextBaseLabeler.label( labels, new File("my-document-labels.env"));
@@ -62,9 +60,9 @@ public class MovieDataset {
             // check
             log.debug(labels.getTypes().toString());
 
-            System.out.println("create a dataset");
+            System.out.println("Create Movie Reviews Dataset");
 
-            // create a binary dataset for the class 'rr'
+            // create a binary dataset for the class 'Pos'
             for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
             {
                 Span s = i.nextSpan();

@@ -16,7 +16,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
                                      // See static methods at the bottom of this class
 
     public T1InstanceTransformLearner() {
-        this.REF_LENGTH = 10.0;
+        this.REF_LENGTH = 100.0;
     }
 
     /** Accept an ExampleSchema - constraints on what the

@@ -108,7 +108,7 @@ public class Expt
 		}
 		if (splitterName.charAt(0)=='s') {
 			int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
-			return new StratifiedCrossValSpiltter(folds);
+			return new StratifiedCrossValSplitter(folds);
 		}
 		throw new IllegalArgumentException("illegal splitterName '"+splitterName+"'");
 	}

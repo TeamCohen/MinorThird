@@ -81,13 +81,13 @@ public class SampleDatasets
 
 
 	private static String[] posBayesExtremeTrain = {
-		"p1 p1 n1", "p2 p2 n2",
-        "p3 p3 n3", "p4 p4 n4",
-        "p5 p5 n5" };
+		"p1 p1 p1 p2 p2 p3 p3 p4 p4 p5 p5 n1 n2 n3 n4 n5", "p1 p1 p2 p2 p2 p3 p3 p4 p4 p5 p5 n1 n2 n3 n4 n5",
+        "p1 p1 p2 p2 p3 p3 p3 p4 p4 p5 p5 n1 n2 n3 n4 n5", "p1 p1 p2 p2 p3 p3 p3 p4 p4 p5 p5 n1 n2 n3 n4 n5",
+        "p1 p1 p2 p2 p3 p3 p4 p4 p5 p5 p5 n1 n2 n3 n4 n5" };
 	private static String[] negBayesExtremeTrain = {
-		"p1 n1 n1", "p2 n2 n2",
-        "p3 n3 n3", "p4 n4 n4",
-        "p5 n5 n5" };
+		"p1 p2 p3 p4 p5 n1 n1 n1 n2 n2 n3 n3 n4 n4 n5 n5", "p1 p2 p3 p4 p5 n1 n1 n2 n2 n2 n3 n3 n4 n4 n5 n5",
+        "p1 p2 p3 p4 p5 n1 n1 n2 n2 n3 n3 n3 n4 n4 n5 n5", "p1 p2 p3 p4 p5 n1 n1 n2 n2 n3 n3 n4 n4 n4 n5 n5",
+        "p1 p2 p3 p4 p5 n1 n1 n2 n2 n3 n3 n4 n4 n5 n5 n5" };
 	private static String[] posBayesExtremeTest = {
         "p1 p1 n1", "p2 p2 n2",
         "p3 p3 n3","p4 p4 n4",

@@ -10,7 +10,10 @@ import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.gui.TextBaseLabeler;
 import edu.cmu.minorthird.text.learn.SpanFE;
+import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
+import edu.cmu.minorthird.text.learn.FeatureBuffer;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -23,7 +26,7 @@ import java.io.IOException;
  * This class is responsible for running experiments on the datasets of Movie Reviews
  * publicly available for download from Cornell Univ.
  *
- * @author ksteppe
+ * @author Edoardo M. Airoldi
  * Date: Jan 21, 2004
  */
 
@@ -31,73 +34,62 @@ public class ExptMovieReviews extends TestCase
 {
     Logger log = Logger.getLogger(this.getClass());
 
-    /**
-     * Standard test class constructior for BayesClassifiersTest
+    /** Standard test class constructior for ExptMovieReviews
      * @param name Name of the test
      */
-    public ExptMovieReviews(String name)
-    {
+    public ExptMovieReviews(String name) {
         super(name);
     }
 
-    /**
-     * Convinence constructior for BayesClassifiersTest
+    /** Convinence constructior for BayesClassifiersTest
      */
-    public ExptMovieReviews()
-    {
+    public ExptMovieReviews() {
         super("ExptMovieReviews");
     }
 
-    /**
-     * setUp to run before each test
+    /** setUp to run before each test
      */
-    protected void setUp()
-    {
+    protected void setUp() {
         Logger.getRootLogger().removeAllAppenders();
         org.apache.log4j.BasicConfigurator.configure();
     }
 
-    /**
-     * Base test for BayesClassifiersTest
-     */
-    public void testExptMovieReviews()
-    {
 
-        try
-        {
+    /**
+     * Experiment on Movie Reviews
+     */
+    public void testExptMovieReviews() {
+        try {
+
             // load the documents into a textbase
             TextBase base = new BasicTextBase();
             TextBaseLoader loader = new TextBaseLoader();
-            File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews-100");
+            File dir = new File("/usr1/edo/Min3rd-Datasets/movie-reviews-100"); // /Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004
             loader.loadTaggedFiles(base, dir);
 
-            // set up labels
+            // load labels
             MutableTextLabels labels = new BasicTextLabels(base);
-            new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
+            new TextLabelsLoader().importOps(labels, base, new File("/usr1/edo/Min3rd-Datasets/movie-labels-100.env"));
 
             // for verification/correction of the labels, if we care...
-            //TextBaseLabeler.label( labels, new File("my-document-labels.env"));
+            //TextBaseLabeler.label( labels, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
 
-            System.out.println("extract features");
 
             // set up a simple bag-of-words feature extractor
-            edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe = new edu.cmu.minorthird.text.learn.SpanFeatureExtractor()
-            {
-                public Instance extractInstance(TextLabels labels, Span s)
-                {
-                    edu.cmu.minorthird.text.learn.FeatureBuffer buf = new edu.cmu.minorthird.text.learn.FeatureBuffer(labels, s);
-                    /*try
-                    {
-                        edu.cmu.minorthird.text.learn.SpanFE.from(s, buf).tokens().eq().lc().punk().usewords("examples/t1.words.text").emit(); }
-                        catch (IOException e)
-                    {
+            System.out.println("extract features");
+            SpanFeatureExtractor fe = new SpanFeatureExtractor() {
+                public Instance extractInstance(TextLabels labels, Span s) {
+                    FeatureBuffer buf = new FeatureBuffer(labels, s);
+                    SpanFE.from(s, buf).tokens().eq().lc().punk().emit();
+                    //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
+                    /*try {
+                        SpanFE.from(s, buf).tokens().eq().lc().punk().usewords("examples/t1.words.text").emit();
+                    } catch (IOException e) {
                         log.error(e, e);
-                    }*/
-                    SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
+                    } */
                     return buf.getInstance();
                 }
-                public Instance extractInstance(Span s)
-                {
+                public Instance extractInstance(Span s) {
                     return extractInstance(null,s);
                 }
             };
@@ -105,9 +97,9 @@ public class ExptMovieReviews extends TestCase
             // check
             log.debug(labels.getTypes().toString());
 
-            System.out.println("create a dataset");
 
-            // create a binary dataset for the class 'rr'
+            // create a binary dataset for the class 'Pos'
+            System.out.println("create a dataset");
             Dataset data = new BasicDataset();
             for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
             {
@@ -119,6 +111,7 @@ public class ExptMovieReviews extends TestCase
                 //data.add( example );
             }
 
+
             // Filter
             System.out.println("filter examples");
             T1InstanceTransformLearner filter = new T1InstanceTransformLearner();
@@ -129,48 +122,44 @@ public class ExptMovieReviews extends TestCase
             data = t1Statistics.transform( data );
             System.out.println( "new data:\n" + data );
 
-            //System.out.println("view frame");
-
             ViewerFrame f = new ViewerFrame("Pos data", data.toGUI());
             //System.exit(0);
 
-            System.out.println("classify examples");
 
             // pick a learning algorithm
+            System.out.println("classify examples");
             ClassifierLearner learner = new NaiveBayes();
 
-            System.out.println("evaluate");
 
             // do a 10-fold cross-validation experiment
+            System.out.println("evaluate");
             Evaluation v = Tester.evaluate(learner, data, new StratifiedCrossValSplitter(10));
 
-            System.out.println("show results");
 
             // display the results
+            System.out.println("show results");
             f = new ViewerFrame("Results of 10-fold CV on 'Pos'", v.toGUI());
-        }
-        catch (Exception e)
-        {
+
+
+        } catch (Exception e) {
             log.error(e, e);
             fail();
         }
     }
 
-    /**
-     * Creates a TestSuite from all testXXX methods
+
+
+    /** Creates a TestSuite from the experiment
      * @return TestSuite
      */
-    public static Test suite()
-    {
+    public static Test suite() {
         return new TestSuite(ExptMovieReviews.class);
     }
 
-    /**
-     * Run the full suite of tests with text output
+    /** Run the suite with text output
      * @param args - unused
      */
-    public static void main(String args[])
-    {
+    public static void main(String args[]) {
         junit.textui.TestRunner.run(suite());
 
     }
