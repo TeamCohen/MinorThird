@@ -23,7 +23,7 @@ public interface AnnotatorLearner
 	public Span nextQuery();
 
 	/** Accept the answer to the last query. */
-	public void setAnswer(edu.cmu.minorthird.text.learn.AnnotationExample answeredQuery);
+	public void setAnswer(AnnotationExample answeredQuery);
 
 	/** Set the label used for annotations produced by the learner. */
 	public void setAnnotationType(String s);

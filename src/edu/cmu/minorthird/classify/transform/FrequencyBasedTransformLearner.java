@@ -43,6 +43,9 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
 				public Instance transform(Instance instance) {
 					return new MaskedInstance(instance, activeFeatureSet);
 				}
+				public String toString() {
+					return "[InstanceTransform: features appear >= "+minimumFrequency+" times]";
+				}
 			};
 	}
 }

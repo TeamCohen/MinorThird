@@ -49,16 +49,6 @@ public class TransformingBatchLearner extends BatchClassifierLearner
 		final InstanceTransform transformer = transformLearner.batchTrain(dataset);
 		final Classifier classifier = classifierLearner.batchTrain(transformer.transform(dataset));
 
-		return new Classifier () {
-				public ClassLabel classification(Instance instance) {
-					return classifier.classification( transformer.transform(instance) );
-				}
-				public String explain(Instance instance) {
-					Instance transformedInstance = transformer.transform(instance);
-					return
-						"Transformed instance: "+transformedInstance+"\n"+
-						classifier.explain(transformedInstance)+"\n";
-				}
-			};
+		return new TransformingClassifier(classifier,transformer);
 	}
 }

@@ -21,6 +21,7 @@ import java.util.TreeSet;
 class KnnClassifier implements Classifier
 {
 	private static Logger log = Logger.getLogger(KnnClassifier.class);
+	private static final boolean DEBUG = log.isDebugEnabled();
 
 	private DatasetIndex index;
 	private ExampleSchema schema;
@@ -32,12 +33,12 @@ class KnnClassifier implements Classifier
 		this.index = index;
 		this.schema = schema;
 		this.k = k; 
-		log.info("knn classifier for index:\n"+index);
+		if (DEBUG) log.debug("knn classifier for index:\n"+index);
 	}
 
 	public ClassLabel classification(Instance instance)
 	{
-		log.info("classifying: "+instance);
+		if (DEBUG) log.debug("classifying: "+instance);
 		// compute distance to neighbors
 		TreeSet set = new TreeSet();
 		for (Example.Looper i=index.getNeighbors(instance); i.hasNext(); ) {
@@ -48,20 +49,17 @@ class KnnClassifier implements Classifier
 		// compute weighted sim of distances
 		double tot = 0.0;
 		HashMap classCounts = new HashMap();
-		for (int k=0; k<schema.getNumberOfClasses(); k++) {
-			String classK = schema.getClassName(k);
-			classCounts.put(classK,new Double(0));
-		}
 		int num=0;
 		for (Iterator j=set.iterator(); num++<k && j.hasNext(); ) {
 			Neighbor n = (Neighbor) j.next();
 			String s = n.e.getLabel().bestClassName();
 			double w = n.e.getWeight() * n.sim;
 			Double d = (Double) classCounts.get( s );
-			if (d==null) throw new IllegalStateException("unexpected class name "+s);
+			if (d==null) classCounts.put(s, (d = new Double(0)) );
 			classCounts.put( s, new Double(d.doubleValue() + w ) );
 			tot += w;
-			log.info("neighbor: "+n.e+" distance: "+n.sim+" weight: "+w+" count["+s+"]: "+classCounts.get(s) );
+			if (DEBUG) 
+				log.debug("neighbor: "+n.e+" distance: "+n.sim+" weight: "+w+" count["+s+"]: "+classCounts.get(s) );
 		}
 
 		// create a new classlabel with log odds

@@ -8,6 +8,9 @@ import org.apache.log4j.*;
 /**
  * A budgeted version of binary MIRA.
  *
+ * Status: this doesn't seem to work too well in tests.
+ * The algorithm might be buggy.
+ *
  * @author William Cohen
  */
 
@@ -15,6 +18,7 @@ import org.apache.log4j.*;
 public class BBMira extends OnlineBinaryClassifierLearner
 {
 	private static Logger log = Logger.getLogger(BBMira.class);
+	private static final boolean DEBUG = false;
 
 	private LinkedList cache;
 	private double minimalMargin = 0.001;
@@ -101,8 +105,8 @@ public class BBMira extends OnlineBinaryClassifierLearner
 		for (Iterator i=cache.iterator(); i.hasNext(); ) {
 			WeightedExample wx = (WeightedExample)i.next();
 			double y = wx.example.getLabel().numericScore();
-			double delta = kernel(x, wx.example.asInstance())* wx.alpha * y;
-			log.debug("score += "+delta+" from "+wx);
+			double delta = kernel(x, wx.example.asInstance()) * wx.alpha * y;
+			if (DEBUG) log.debug("score += "+delta+" from "+wx);
 			result += delta;
 		}
 		// this +1 correction is because W can't be initialized to
