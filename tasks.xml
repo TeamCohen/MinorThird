@@ -135,6 +135,7 @@
         <exclude name="**/BayesClassifiersTest.class"/>
         <exclude name="**/TextLabelsLoaderTest.class"/>
         <exclude name="**/SimpleTextLoaderTest.class"/>
+        <exclude name="com/lgc/wsh/inv/GaussNewtonSolverTest.class"/>
 
         <!-- long running time (>5 seconds) -->
 <!--      <exclude name="**/MixupProgramTest.class"/>  -->

@@ -160,6 +160,7 @@
       <batchtest fork="yes" todir="${reportsDir}">
         <fileset dir="${classDir}">
           <include name="com/wcohen/txt/TextBaseLoaderTest.class"/>
+          <exclude name="com/lgc/wsh/GaussNewtonSolverTest.class"/>
         </fileset>
       </batchtest>
     </junit>

@@ -303,6 +303,7 @@ public class TextBaseLoader
     private void loadFile(File file) throws IOException, ParseException
     {
 	log.debug("loadFile: " + file.getName());
+	boolean fileGood = true;
 
 	//build the correct reader
 	BufferedReader in;
@@ -325,6 +326,10 @@ public class TextBaseLoader
 
 		if (this.use_markup) {
 		    line = labelLine(line, buf, spanList); // appends to the buffer internally
+		    if(line == null) {
+			fileGood = false;
+			break;
+		    }
 		}
 
 		if (this.documentStyle == DOC_PER_LINE)
@@ -344,8 +349,12 @@ public class TextBaseLoader
 			}
 	    }
 
-	if (this.documentStyle == DOC_PER_FILE)
-	    addDocument(buf.toString()); //still need to set ids and such
+	if(fileGood) {
+	    if (this.documentStyle == DOC_PER_FILE)
+		addDocument(buf.toString()); //still need to set ids and such
+	} else {
+	    log.warn("Document: " + curDocID + " contains error and will not be added to the TextBase");
+	}
 
 	in.close();
     }
@@ -501,10 +510,15 @@ public class TextBaseLoader
 			break;
 		    }
 		}
-		if (entry==null)
-		    throw new ParseException("close '"+tag+"' tag with no open", entry.index);
-		if (!tag.equals(entry.markupTag))
-		    throw new ParseException("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
+		if (entry==null) {
+		    //log.warn("close '"+tag+"' tag with no open", entry.index);
+		    return null;
+		    //throw new ParseException("close '"+tag+"' tag with no open", entry.index);
+		}if (!tag.equals(entry.markupTag)){
+		    //log.warn("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
+		    return null;
+		    //throw new ParseException("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
+ 		}
 
 		if (log.isDebugEnabled()) {
 		    log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
