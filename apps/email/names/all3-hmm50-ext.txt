@@ -1,0 +1,58 @@
+Model: all3-hmm50-ext.ann
+
+Requires all files under ./lib directory:
+	nameFeatures2.mixup
+	HeaderNameTagger.class	
+	BritDict.txt
+	commonEmailWords.txt
+	commonWords.txt
+	firstNames.txt
+	lastNames.txt
+	nicknames.txt
+	rosterNames.txt
+
+Trained on: cspace + enron + sigs (90%, 2700 e-mails, randomly chosen)
+
+Trained by:
+	Recommended.VPHMMLearner() (50 epochs)
+	Recommended.MultitokenSpanFE()
+	nameFeatures2.mixup
+
+Tested on: cspace + enron + sigs (10%, 300 e-mails, non-training e-mails)
+
+Test results:
+
+TestPartition1:
+TokenPrecision: 0.9683 TokenRecall: 0.8664 F: 0.9145
+SpanPrecision:  0.8879 SpanRecall:  0.6844 F: 0.7730
+
+TestPartition2:
+TokenPrecision: 0.8887 TokenRecall: 0.8668 F: 0.8776
+SpanPrecision:  0.7399 SpanRecall:  0.6030 F: 0.6645
+
+TestPartition3:
+TokenPrecision: 0.9540 TokenRecall: 0.8953 F: 0.9237
+SpanPrecision:  0.8994 SpanRecall:  0.8237 F: 0.8599
+
+TestPartition4:
+TokenPrecision: 0.9658 TokenRecall: 0.9461 F: 0.9558
+SpanPrecision:  0.8780 SpanRecall:  0.7890 F: 0.8312
+
+TestPartition5:
+TokenPrecision: 0.9394 TokenRecall: 0.8712 F: 0.9040
+SpanPrecision:  0.8785 SpanRecall:  0.7611 F: 0.8156
+
+OverallTest:
+TokenPrecision: 0.9444 TokenRecall: 0.8955 F: 0.9193
+SpanPrecision:  0.8581 SpanRecall:  0.7353 F: 0.7919
+
+
+ Test Partitions Statistics:
+
+                 n       stdErr
+tokenPrecision  5.0     0.014562591717022648
+tokenRecall     5.0     0.015202893865643191
+tokenF1         5.0     0.012772921643549364
+spanPrecision   5.0     0.029468638840860626
+spanRecall      5.0     0.03963593600522064
+spanF1          5.0     0.03411403057946823

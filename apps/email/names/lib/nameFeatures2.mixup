@@ -1,0 +1,55 @@
+provide 'nameFeatures2';
+
+
+
+// use the HeaderNameTagger class
+require 'headerNames_v2', 'HeaderNameTagger';
+
+// part of the 'from' field
+defTokenProp fromWord:1 =top~ re '\nFrom:\s*\S+\s+([^\n]+)',1;
+
+// signoffs and greetings
+defDict closeWords = thank, you, thanks, best, regards, sincerely, later, dear, thx, cheers, cya, hey, hi, hello;
+defTokenProp closeWord:1 =: ... [ai(closeWords) punc:1?R] ...;
+
+// initials
+defTokenProp capAbrvName:1 =: ... [re('^[A-Z]$') '.'?R] ... ;
+defTokenProp lowAbrvName:1 =: ... [re('^[a-z]$') '.'?R] ... ;
+
+// name dictionaries
+defDict common = "commonWords.txt", "commonEmailWords.txt", "BritDict.txt";
+defTokenProp common:1 =: ... [ai(common)] ... ;
+defDict first = "firstNames.txt", "nicknames.txt";
+defTokenProp first:1 =: ... [ai(first)] ... ;
+defDict last = "lastNames.txt";
+defTokenProp last:1 =: ... [ai(last)] ... ;
+defDict roster = "rosterNames.txt";
+
+defTokenProp punc:1 =: ... [re('^\W$')] ... ;
+defTokenProp name:1 =: ... [first:1] ... || ... [last:1] ... || ... [ai(roster)] ... ;
+
+defTokenProp email:1 =top ~re '([A-z\.\-_]+@[A-z\.\-_]+)',1;
+defTokenProp sureFirst:1 =top: ... [<first:1, !last:1, !common:1, !email:1>] ... ;
+defTokenProp sureLast:1 =top: ... [<last:1, !first:1, !common:1, !email:1>] ... ;
+defTokenProp sureName:1 =top: ... [<name:1, !common:1, !email:1>] ... ;
+
+// some broader contextual clues
+defTokenProp capWord:1 =top~ re '([A-Z][a-z]+)',1;
+defDict proNouns = he, she, his, her, they, them, their, us, our, theirs, ours, hers, we, me, i;
+defTokenProp proNoun:1 =: ... [ai(proNouns)] ... ;
+defTokenProp pronClue:1 =: ... [<capWord:1, !common:1>] 'and' proNoun:1 ... ;
+defTokenProp pronClue:1 =: ... proNoun:1 'and' [<capWord:1, !common:1>] ... ;
+
+// titles
+defDict title = dr, doctor, prof, professor, ceo, vice, president, chief, manager, mngr, mgr, assistant, secretary, mr, miss, mrs, ms, sr, sen, senator, judge, general, attorney;
+defTokenProp title:1 =: ... [ai(title) punc:1?R] ... ;
+
+// indication of org
+defDict org = ltd, co, corp, inc, systems, software, organization, org, organization, univ, university, department, dept, dep, center, foundation, agency, institute, institution, company, consulting, division, div, school, college, club, hotel;
+defTokenProp orgWord:1 =: ... [ai(org) punc:1?R] ... ;
+
+// indication of loc
+defDict loc = street, st, avenue, ave, road, rd, city, drive, hall, tel, address, square, home, center, county, state, mountain, mt, community, lines;
+defTokenProp locWord:1 =: ... [ai(loc) punc:1?R] ... ;
+
+defTokenProp nonPerson:1 =: ... [orgWord:1] ... || ... [locWord:1] ... ;
