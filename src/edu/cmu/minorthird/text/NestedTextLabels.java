@@ -2,6 +2,8 @@ package edu.cmu.minorthird.text;
 
 import java.util.HashSet;
 import java.util.Set;
+import edu.cmu.minorthird.util.gui.*;
+import edu.cmu.minorthird.text.gui.*;
 
 /** A TextLabels which is defined by two TextLabels's.
  *
@@ -20,7 +22,7 @@ import java.util.Set;
  * @author William Cohen
 */
 
-public class NestedTextLabels implements MonotonicTextLabels
+public class NestedTextLabels implements MonotonicTextLabels,Visible
 {
 //	private static final Set EMPTY_SET = new HashSet();
 
@@ -199,6 +201,14 @@ public class NestedTextLabels implements MonotonicTextLabels
 		}
 		public Span nextSpan() { return (Span)next(); }
 		public int estimatedSize() { return estSize; }
+	}
+
+	public Viewer toGUI() 
+	{
+		//return new TextLabelsViewer(this);
+		TextLabelsViewer sv = new TextLabelsViewer(this);
+		MarkupControls mc = new MarkupControls(this);
+		return new ControlledViewer(sv,mc);
 	}
 
 	public String toString() {

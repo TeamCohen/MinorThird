@@ -145,6 +145,11 @@ public class TextLabelsExperiment implements Visible
 					}
 				});
 		}
+		v.addSubView( "Full test set", new TransformedViewer(new SmartVanillaViewer()) {
+				public Object transform(Object o) {
+					return fullTestLabels;
+				}
+			});
 		v.setContent( this );
 		return v;
 	}

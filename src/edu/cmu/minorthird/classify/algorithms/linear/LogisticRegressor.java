@@ -21,8 +21,6 @@ import java.util.Set;
  * Learning 48(1/2/3), July/August/Sep 2002, specifically the
  * algorithm of Figure 1 parameterized by using LogLoss (Equation 21).
  *
- * <p>This has been tested only for univariate regression.
- *
  * @author William Cohen
  */
 
@@ -51,7 +49,7 @@ public class LogisticRegressor extends BatchBinaryClassifierLearner
 		this.maxRounds = maxRounds;
 		this.tolerance = tolerance;
 	}
-	public LogisticRegressor() { this(10,0.01);	}
+	public LogisticRegressor() { this(20,0.001);	}
 
 	public int getMaxRounds() { return maxRounds; }
 	public void setMaxRounds(int n) { maxRounds=n; }	

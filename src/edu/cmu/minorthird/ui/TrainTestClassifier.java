@@ -114,7 +114,7 @@ public class TrainTestClassifier
 			main.trainTestClassifier();
 		} catch (Exception e) {
 			System.out.println("Error: "+e);
-			main.getCLP().usage();
+			System.out.println("Use option -help for command-line help");
 		}
 	}
 }

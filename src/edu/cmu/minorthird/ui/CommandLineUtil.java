@@ -135,6 +135,15 @@ class CommandLineUtil
 			int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
 			return new StratifiedCrossValSplitter(folds);
 		}
+		if ("-help".equals(splitterName)) {
+			System.out.println("Valid splitter names:");
+			System.out.println(" kN    N-fold cross-validation, e.g. k5");
+			System.out.println(" sN    stratified N-fold cross-validation, i.e., the");
+			System.out.println("       distribution of pos/neg classes is the same in each fold");
+			System.out.println(" rNN   single random train-test split with NN% going to train");
+			System.out.println("        e.g, r70 is a 70%-30% split");
+			return new RandomSplitter(0.70);
+		} 
 		throw new IllegalArgumentException("illegal splitterName '"+splitterName+"'");
 	}
 
@@ -268,7 +277,7 @@ class CommandLineUtil
 
 	/** Parameters for training an extractor. */
 	public static class TrainExtractorParams extends BasicCommandLineProcessor {
-		public AnnotatorLearner learner;
+		public AnnotatorLearner learner = new Recommended.VPHMMLearner();
 		public SpanFeatureExtractor fe = null;
 		public void learner(String s) { this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); }
 		public CommandLineProcessor fe(String s) { 
