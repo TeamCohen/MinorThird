@@ -90,23 +90,23 @@ public class POSTagger extends StringAnnotator
     int sep = 0;
 //    int endPointer = 0;
 
-    StringTokenizer tokeTagged = new StringTokenizer(tagged, " ", false);
+    StringTokenizer tokeTagged = new StringTokenizer(tagged, "\n ", false);
     log.debug("\n" + in);
 
+    //list of annotations
     List list = new ArrayList();
 
     int curLocation = 0;
-//    String workingString = new String(in);
     while (tokeTagged.hasMoreTokens())
     {
       strToken = tokeTagged.nextToken();
 
-      sep = strToken.lastIndexOf("/");
-      word = strToken.substring(0, sep);
+      sep = strToken.lastIndexOf("/"); //find the annotation location
+      word = strToken.substring(0, sep); //get string rep of the actual word
 
-      curLocation = in.indexOf(word, curLocation);
+      curLocation = in.indexOf(word, curLocation); //where in the original string is this word
 
-      pos = strToken.substring(sep + 1);
+      pos = strToken.substring(sep + 1);  //the POS tag
       if (pos.endsWith("$"))
         pos = pos.replace('$', 'S');
 
@@ -232,7 +232,7 @@ public class POSTagger extends StringAnnotator
     int sep = 0;
     int endPointer = 0;
 
-    StringTokenizer tokeTagged = new StringTokenizer(tagged, " ");
+    StringTokenizer tokeTagged = new StringTokenizer(tagged, "\n ", false);
 //    log.debug(in);
 
     String workingString = new String(in);
