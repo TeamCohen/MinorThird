@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
+import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.BasicSpanLooper;
 import edu.cmu.minorthird.text.Span;
 import edu.cmu.minorthird.text.TextBase;
@@ -39,6 +40,10 @@ public class SubTextBase implements TextBase
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
 
+    public void loadDocument(String documentId, String documentString, Tokenizer tokenizer) {
+		throw new UnsupportedOperationException("SubTextBase is read-only");
+	}
+
 	public void loadDocument(String documentId, String string){
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
@@ -66,4 +71,11 @@ public class SubTextBase implements TextBase
 	public void setDocumentGroupId(String documentId, String groupId) {
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
+
+    public TextBase retokenize(Tokenizer tok)
+    {
+	TextBase tb = new BasicTextBase();
+	tb = base.retokenize(new Tokenizer());
+	return tb;
+    }
 }

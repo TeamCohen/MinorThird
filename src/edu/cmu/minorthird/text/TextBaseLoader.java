@@ -76,6 +76,7 @@ public class TextBaseLoader
     // saves labels associated with last set of files loaded
     private MutableTextLabels labels;
     private TextBase textBase;
+    private Tokenizer tokenizer = null;
 
     private String curDocID;
     private Pattern markupPattern = Pattern.compile("</?([^ ><]+)( [^<>]+)?>");
@@ -153,12 +154,56 @@ public class TextBaseLoader
 	    labels = new BasicTextLabels(textBase);
 
 	clear();
+	this.tokenizer = null;
 	//check whether it's a dir or single dataLocation
 	if (dataLocation.isDirectory())
 	    loadDirectory(dataLocation);
 	else
 	    loadFile(dataLocation);
 
+	return (TextBase)textBase;
+    }
+
+    /**
+     * Load data from the given location according to configuration and whether location
+     * is a directory or not
+     *
+     * Calling load a second time will load into the same text base (thus the second call returns
+     * documents from both the first and second locations).  Use setTextBase(null) to reset the text base.
+     *
+     *
+     * @param dataLocation File representation of location (single file or directory)
+     * @return the loaded TextBase
+     * @throws IOException - problem reading the file
+     * @throws ParseException - problem with xml of internal tagging
+     */
+    public TextBase load(File dataLocation, Tokenizer tok) throws IOException, ParseException
+    {
+	if (textBase == null)
+	    textBase = new BasicTextBase();
+	if (labels == null)
+	    labels = new BasicTextLabels(textBase);
+
+	curDocID = curDocID + "2";
+
+	clear();
+	//check whether it's a dir or single dataLocation
+	this.tokenizer = tok;
+	if (dataLocation.isDirectory())
+	    loadDirectory(dataLocation);
+	else
+	    loadFile(dataLocation);
+
+	return (TextBase)textBase;
+    }
+
+    public TextBase retokenize(TextBase tb, Tokenizer tokenizer) throws IOException, ParseException
+    {
+	if (labels == null)
+	    labels = new BasicTextLabels(textBase);
+
+	TextBase childTB = ((BasicTextBase)tb).retokenize(tokenizer);
+	textBase = childTB;
 	return textBase;
     }
 
@@ -316,7 +361,9 @@ public class TextBaseLoader
 
 	if (log.isDebugEnabled())
 	    log.debug("add document " + curDocID);
-	textBase.loadDocument(curDocID, docText);
+	if(tokenizer == null)
+	    textBase.loadDocument(curDocID, docText);
+	else textBase.loadDocument(curDocID, docText, tokenizer);
 
 	for (Iterator j=spanList.iterator(); j.hasNext(); ) {
 	    CharSpan charSpan = (CharSpan)j.next();

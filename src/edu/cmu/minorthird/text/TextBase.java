@@ -23,6 +23,13 @@ public interface TextBase
    */
   public void loadDocument(String documentId, String documentString, String regexPattern);
 
+    
+  /**
+   * Load a text document (represented by the given string) and tokenize
+   * according to the Tokenizer
+   */
+  public void loadDocument(String documentId, String documentString, Tokenizer tokenizer);
+
   /**
    * Load a text document (represented by the given string) and tokenize
    * using the default regex pattern
@@ -45,4 +52,7 @@ public interface TextBase
 
 	/** Set the group that a document belongs to */
 	public void setDocumentGroupId(String documentId,String documentGroupId);
+
+    /**Tokenize a text base differently*/
+    public TextBase retokenize(Tokenizer tok);
 }
