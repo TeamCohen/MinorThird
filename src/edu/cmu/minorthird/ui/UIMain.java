@@ -21,10 +21,11 @@ import java.awt.event.*;
  * interactively, by command lines, or by a file.
  */
 
-public abstract class UIMain implements CommandLineProcessor.Configurable
+public abstract class UIMain implements CommandLineProcessor.Configurable, Console.Task
 {			
 	private JPanel errorPanel;
-	private static JButton viewButton;
+    public static JButton viewButton;
+    public Console.Task main;
 
 	//
 	// some basic parameters and CommandLineProcessor items shared by everyone
@@ -42,16 +43,22 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 	protected CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	public CommandLineUtil.BaseParams getBaseParameters() { return base; }
 	public void setBaseParameters(CommandLineUtil.BaseParams base) { this.base=base; }
-
-	/** Do the main action, after setting all parameters. */
+	
+    /**Do the main action, after setting all parameters. */
 	abstract public void doMain();
-
+	
 	/** Return the result of the action. */
-	abstract public Object getMainResult(); 	
+	abstract public Object getMainResult(); 
+    
+    /** Returns whether base.labels exits */
+    public boolean getLabels(){
+	return (base.labels != null);
+    }
 			
 	/** Helper to handle command-line processing, in either gui or text mode. */
 	public void callMain(final String[] args) 
 	{
+	   
 		try {
 			getCLP().processArguments(args);
 			if (!useGUI) {
@@ -60,7 +67,8 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 				doMain();
 			}
 			else {
-				final Viewer v = new ComponentViewer() {
+			    main = this;			    
+			    final Viewer v = new ComponentViewer() {
 						public JComponent componentFor(Object o) 
 						{
 							Viewer ts = new TypeSelector(SelectableTypes.CLASSES, "selectableTypes.txt", o.getClass());
@@ -77,15 +85,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							subpanel1.setBorder(new TitledBorder("Parameter modification"));
 							subpanel1.add( ts );
 							gbc = Viewer.fillerGBC(); gbc.weighty=0; 
-							panel.add( subpanel1, gbc  ); 										    
-
-							// another panel for error messages and other outputs
-							
-							errorPanel = new JPanel();
-							errorPanel.setBorder(new TitledBorder("Error messages and output"));
-							final Console console = new Console();
-							errorPanel.add(console.getMainComponent());
-
+							panel.add( subpanel1, gbc  ); 										    							
 							// a control panel for controls
 							JPanel subpanel2 = new JPanel();
 							subpanel2.setBorder(new TitledBorder("Execution controls"));
@@ -99,9 +99,16 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 								});
 							viewButton.setEnabled(false);
 
+							// another panel for error messages and other outputs
+							
+							errorPanel = new JPanel();
+							errorPanel.setBorder(new TitledBorder("Error messages and output"));
+							final Console console = new Console(main, base.labels != null, viewButton);
+							errorPanel.add(console.getMainComponent());
+
 							// a button to start this thread
 							JButton goButton = new JButton(new AbstractAction("Start Task") {
-									public void actionPerformed(ActionEvent event) {									    
+								public void actionPerformed(ActionEvent event) {
 										console.start();
 									}
 								});
@@ -166,7 +173,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 
 							return panel;
 						}
-					};
+						};
 				v.setContent(this);
 				String className = this.getClass().toString().substring("class ".length());
 				ViewerFrame f = new ViewerFrame(className,v);
@@ -177,7 +184,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 			System.out.println("Use option -help for help");
 		}
 	}	       	
-    private void noLabelsMessage(Console console) 
+    public void noLabelsMessage(Console console) 
     {
 			console.append("\nYou need to specify the labeled data you're using!\n"
 										 +"Modify the 'labels' parameters under base parameters section\n"
@@ -204,144 +211,8 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 				"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n" +
 				"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n" +
 				"and foo, where foo is a directory.\n");
-	}		
-
-	private class Console
-	{
-    private PipedInputStream piOut;
-    private PipedOutputStream poOut;
-//  private final PipedInputStream piErr = new PipedInputStream();
-    private JTextArea errorArea;
-		private JScrollPane scroller;
-		private Thread mainThread, readerThread;
-		private boolean doMainRunning;
-		private PrintStream oldSystemOut;
-
-    public Console()
-    {
-			this.errorArea = new JTextArea(20,100);
-			errorArea.setFont( new Font("monospaced",Font.PLAIN,12) );
-			scroller = new JScrollPane(errorArea);
-		}
-
-		/** The outermost component of the console. */
-		public JComponent getMainComponent()
-		{
-			return scroller;
-		}
-
-		/** Start the task for the console. */
-		public void start()
-		{
-			initThreads();
-			try {
-				oldSystemOut = System.out;
-				piOut  = new PipedInputStream();
-				poOut = new PipedOutputStream(piOut);
-				System.setOut(new PrintStream(poOut, true));															
-			} catch (java.io.IOException io) {
-				errorArea.append("Couldn't redirect output\n" + io.getMessage() + "\n");
-			} catch (SecurityException se) {
-				errorArea.append("SE error" + se.getMessage() + "\n");
-			}												    	    	    
-			mainThread.start();
-		}
-			
-		/** Append a string to the console window. */
-		public void append(String s)
-		{
-			errorArea.append(s);
-			scrollDown();
-		}
-
-		/** Clear the console window. */
-		public void clear()
-		{
-			errorArea.setText("");
-		}
-
-		/** Re-initialize the threads for the console */
-		private void initThreads()
-		{
-			// mainthread - runs the main task with doMain
-			mainThread = new Thread() {
-					public void run() {
-						viewButton.setEnabled(false);
-						if (base.labels == null) {
-							noLabelsMessage(Console.this);
-						} else {
-							long startTime = System.currentTimeMillis();
-							doMainRunning=true;
-							readerThread.start();
-							doMain();	    
-							double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
-							System.out.println("\nTotal time for task: "+elapsedTime+" sec");
-							viewButton.setEnabled(getMainResult()!=null);
-							doMainRunning=false; // signal reader to stop
-							try {
-								readerThread.join(); // wait for it to end
-							} catch (InterruptedException ex) {
-								System.err.println("reader interrupted?");
-							}
-							scrollDown();
-						} //end else
-					} //end run
-				}; // end thread
-
-			// this thread traps output from mainThread and sticks it in
-			// console window
-			readerThread = new Thread() {
-					public void run() {
-						try {
-							byte[] buf = new byte[2048];
-							int len=0;
-							Dimension dim = new Dimension();
-							while (doMainRunning) {
-								// look for more output
-								if ((len = piOut.read(buf))>0) {
-									errorArea.append(new String(buf, 0, len));
-									scrollDown();
-								}
-								yield(); // let someone else in to execute
-							}
-							// clean up any output we might have missed
-							// after exiting
-							if ((len = piOut.read(buf))>0) {
-								errorArea.append(new String(buf, 0, len));
-								scrollDown();
-							}
-							closePipes();
-						} catch (IOException e) {
-							errorArea.append(e.getMessage());
-							System.out.println(e.getMessage());
-						}
-					}
-				}; //end reader Thread
-		} // constructor
-
-
-		// imperfect method to scroll to bottom
-		private void scrollDown()
-		{
-			try {
-				JScrollBar bar = scroller.getVerticalScrollBar();
-				bar.setValue(bar.getMaximum());
-			} catch (Exception ex) {
-				System.err.println("error scrolling: "+ex);
-			}
-		}
-
-		private void closePipes()
-		{
-			try {
-				poOut.close();
-				piOut.close();
-				System.setOut(oldSystemOut);
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-			}
     }
-	}
-}
-							
+}		
+
+
 
