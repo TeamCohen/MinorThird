@@ -30,11 +30,19 @@ class CommandLineUtil
 	 * Build a classification dataset from the necessary inputs.
 	 */
   static public Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType)
+	{
+		return toDataset(textLabels,fe,spanProp,spanType,null);
+	}
+
+  static public Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType,String candidateType)
   {
+		Span.Looper candidateLooper = 
+			candidateType!=null ? textLabels.instanceIterator(candidateType) : textLabels.getTextBase().documentSpanIterator();
+
 		// binary dataset - anything labeled as in this type is positive
 		if (spanType!=null) {
 			Dataset dataset = new BasicDataset();
-			for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+			for (Span.Looper i=candidateLooper; i.hasNext(); ) {
 				Span s = i.nextSpan();
 				double classLabel = textLabels.hasType(s,spanType) ? +1 : -1;
 				dataset.add( new BinaryExample( fe.extractInstance(textLabels,s), classLabel) );
@@ -44,7 +52,7 @@ class CommandLineUtil
 		// k-class dataset
 		if (spanProp!=null) {
 			Dataset dataset = new BasicDataset();
-			for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+			for (Span.Looper i=candidateLooper; i.hasNext(); ) {
 				Span s = i.nextSpan();
 				String className = textLabels.getProperty(s,spanProp);
 				if (className==null) {
@@ -154,6 +162,8 @@ class CommandLineUtil
 	public static class ClassificationSignalParams extends BasicCommandLineProcessor {
 		public String spanProp=null;
 		public String spanType=null;
+		public String candidateType=null;
+		public void candidateType(String s) { this.candidateType=s; }
 		public void spanProp(String s) { this.spanProp=s; }
 		public void spanType(String s) { this.spanType=s; }
 	}
@@ -162,8 +172,10 @@ class CommandLineUtil
 	public static class TrainClassifierParams extends BasicCommandLineProcessor {
 		public boolean showData=false;
 		public ClassifierLearner learner;
+		public SpanFeatureExtractor fe = new SampleFE.BagOfLowerCaseWordsFE();
 		public void showData() { this.showData=true; }
 		public void learner(String s) { this.learner = (ClassifierLearner)newObjectFromBSH(s,ClassifierLearner.class); }
+		public void fe(String s) { this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); }
 	}
 
 	/** Parameters for testing a stored classifier. */

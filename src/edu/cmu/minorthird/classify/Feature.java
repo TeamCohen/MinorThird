@@ -107,6 +107,8 @@ public class Feature implements Comparable,Serializable
     private static TObjectIntHashMap featureIds = new TObjectIntHashMap();
     private static int nextID = 1;
 
+		public static int getMaxFeatureIndex() { return nextID-1; }			 
+
 		/** kludge to keep factory from growing w/o bound for multiple learning problems. */
 		public static void reset()
 		{

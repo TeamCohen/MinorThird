@@ -33,7 +33,6 @@ public class TrainTestClassifier
 	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams();
 	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	private SpanFeatureExtractor fe = new SampleFE.BagOfLowerCaseWordsFE();
 
 	private CommandLineProcessor getCLP()
 	{
@@ -66,12 +65,12 @@ public class TrainTestClassifier
 		if (base.showLabels) new ViewerFrame("Textbase",vl);
 
 		// construct the dataset
-		Dataset d = CommandLineUtil.toDataset(base.labels,fe,signal.spanProp,signal.spanType);
+		Dataset d = CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
 		if (train.showData && !base.showResult) new ViewerFrame("Dataset", d.toGUI());
 
 		// construct the splitter, if necessary
 		if (trainTest.splitter==null) {
-			Dataset testData = CommandLineUtil.toDataset(trainTest.labels,fe,signal.spanProp,signal.spanType);
+			Dataset testData = CommandLineUtil.toDataset(trainTest.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
 			trainTest.splitter = new FixedTestSetSplitter(testData.iterator());
 		}
 
