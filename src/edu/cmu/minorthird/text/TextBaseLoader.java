@@ -800,7 +800,7 @@ public class TextBaseLoader implements Loader
 	// test routine
 	static public void main(String[] args) {
 		if (args.length<2)
-			throw new IllegalArgumentException("usage: TextBaseLoader [file.txt|dir] output.seqbase");
+			throw new IllegalArgumentException("usage: TextBaseLoader [file|dir] output.seqbase");
 		try {
 			TextBase b; // = new BasicTextBase();
 			TextBaseLoader loader = new TextBaseLoader();
