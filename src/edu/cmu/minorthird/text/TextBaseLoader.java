@@ -350,6 +350,61 @@ public class TextBaseLoader
     }
 
     /**
+     *  Load a document where each word has it's own line and is follwed by three desscriptor words.
+     *  The first item on each line is a word, the second a part-of-speech (POS) tag, the third a 
+     *  syntactic chunk tag and the fourth the named entity tag.
+     */
+    public void loadWordPerLineFile(TextBase base, File file) throws IOException, FileNotFoundException
+    {
+	this.tokenizer = new Tokenizer(Tokenizer.SPLIT, " ");
+	if (labels == null)
+	    labels = new BasicTextLabels(base);
+	String id = file.getName();
+	LineNumberReader in = new LineNumberReader(new FileReader(file));
+	String line;
+	this.textBase = base;
+	StringBuffer buf = new StringBuffer("");
+	int docNum = 1, start = 0, end = 0;
+	curDocID = id + "-" + docNum;
+	spanList = new ArrayList();
+
+	while((line = in.readLine()) != null) {
+	   String[] words = line.split("\\s");
+	   //System.out.println(words[0]);
+	   if(!(words[0].equals("-DOCSTART-"))) {
+	       if(words.length > 1) {
+		   start = buf.length();
+		   buf.append(words[0]+" ");
+		   end = buf.length()-1;
+		   
+		   spanList.add(new CharSpan(start,end,words[1],curDocID));
+		   if(!words[3].equals("O"))
+		       spanList.add(new CharSpan(start,end,words[3],curDocID)); 
+	       }
+	       
+	   }else {
+	       //this.tokenizer = new Tokenizer(Tokenizer.SPLIT, " ");
+	       //base.loadDocument(curDocID, buf.toString()/*, tok*/);
+	       addDocument(buf.toString());
+	       spanList = new ArrayList();
+	       buf = new StringBuffer("");
+	       docNum++;
+	       curDocID = id + "-" + docNum;
+	   }
+	}
+	in.close();
+
+	//Iterator j = spanList.iterator();
+	//for(int x=0; x<500; x++){
+	/*for (Iterator j=spanList.iterator(); j.hasNext(); ) {
+	    CharSpan charSpan = (CharSpan)j.next();
+	    Span approxSpan = base.documentSpan(charSpan.docID).charIndexSubSpan(charSpan.lo, charSpan.hi);
+	    //System.out.println(approxSpan.asString() + ": " + charSpan.type);
+	    labels.addToType( approxSpan, charSpan.type );
+	    }*/
+    }
+
+    /**
      * Add this text to the textBase as a new document, including group id and categorization
      * @param docText String version of text
      */
