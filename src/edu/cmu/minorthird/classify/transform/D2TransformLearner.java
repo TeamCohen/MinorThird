@@ -12,8 +12,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
 
-import eairoldi.experiments.EDA;
-
 /**
 * @author Edoardo Airoldi  (eairoldi@cs.cmu.edu)
 * Date: Mar 6, 2005
@@ -774,9 +772,6 @@ public class D2TransformLearner implements InstanceTransformLearner
            Feature ft = (Feature) i.next();
            System.out.println(ft);
         }
-
-        EDA eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
 
      } catch (Exception x) {
         System.out.println( "error:\n"+x );

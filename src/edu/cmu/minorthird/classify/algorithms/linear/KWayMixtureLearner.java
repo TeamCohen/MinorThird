@@ -17,7 +17,6 @@ import java.util.TreeMap;
 
 public class KWayMixtureLearner extends BatchClassifierLearner
 {
-   static private Logger log = Logger.getLogger(KWayMixtureLearner.class);
    private double SCALE;
    private String MODEL; // "Naive-Bayes", "Binomial", "Poisson", "Negative-Binomial", "Mixture"
    private String PARAMETERIZATION;

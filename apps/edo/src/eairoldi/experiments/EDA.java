@@ -3,10 +3,7 @@ package eairoldi.experiments;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.random.Estimators;
 import edu.cmu.minorthird.classify.algorithms.random.Estimate;
-import edu.cmu.minorthird.classify.transform.T1InstanceTransform;
-import edu.cmu.minorthird.classify.transform.T1InstanceTransformLearner;
-import edu.cmu.minorthird.classify.transform.InstanceTransform;
-import edu.cmu.minorthird.classify.transform.InfoGainTransformLearner2;
+import edu.cmu.minorthird.classify.transform.*;
 
 import java.io.IOException;
 import java.io.File;
@@ -193,691 +190,730 @@ public class EDA
      try {
         File outFile = new File(path+fout);
         PrintStream out = new PrintStream(new FileOutputStream(outFile));
-
-        //
-        // webmaster & info-gain
-        //
-
-        File dataFile = new File(path+"webmaster.3rd");
-        int[] levels = new int[]{100,250,500,750,1000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           Dataset data = DatasetLoader.loadFile( dataFile );
-           out.println("# webmaster & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("webmaster.ig-"+levels[l]+".3rd"));
-
-           EDA eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        Dataset data = DatasetLoader.loadFile( dataFile );
-        BasicFeatureIndex fid = new BasicFeatureIndex(data);
-        out.println("# webmaster & info-gain :: "+fid.numberOfFeatures());
-
-        EDA eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // webmaster & delta^2 stat
-        //
-
-        dataFile = new File(path+"webmaster.3rd");
-        levels = new int[]{100,250,500,750,1000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# webmaster & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("webmaster.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# webmaster & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // pr & info-gain
-        //
-
-        dataFile = new File(path+"pr_data.3rd");
-        levels = new int[]{100,200,300,400,500,600,700};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# pr & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("pr_data.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# pr & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // pr & delta^2 stat
-        //
-
-        dataFile = new File(path+"pr_data.3rd");
-        levels = new int[]{100,200,300,400,500,600,700};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# pr & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("pr_data.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# pr & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // online & info-gain
-        //
-
-        dataFile = new File(path+"online_data.3rd");
-        levels = new int[]{25,50,75,100,125,150,175};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# online & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("online_data.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# online & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // online & delta^2 stat
-        //
-
-        dataFile = new File(path+"online_data.3rd");
-        levels = new int[]{25,50,75,100,125,150,175};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# online & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("online_data.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# online & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // movies & info-gain
-        //
-
-        dataFile = new File(path+"movie-data-all.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,15000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# movie & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("movie-data-all.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# movie & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // movies & delta^2 stat
-        //
-
-        dataFile = new File(path+"movie-data-all.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,15000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# movie & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("movie-data-all.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# movie & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // roy-data-fin & info-gain
-        //
-
-        dataFile = new File(path+"roy-data-fin.3rd");
-        levels = new int[]{100,500,1000,2500,5000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# roy-data-fin & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("roy-data-fin.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# roy-data-fin & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // roy-data-fin & delta^2 stat
-        //
-
-        dataFile = new File(path+"roy-data-fin.3rd");
-        levels = new int[]{100,500,1000,2500,5000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# roy-data-fin & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("roy-data-fin.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# roy-data-fin & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // roy-data-ma & info-gain
-        //
-
-        dataFile = new File(path+"roy-data-ma.3rd");
-        levels = new int[]{100,500,1000,2500,5000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# roy-data-ma & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("roy-data-ma.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# roy-data-ma & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // roy-data-ma & delta^2 stat
-        //
-
-        dataFile = new File(path+"roy-data-ma.3rd");
-        levels = new int[]{100,500,1000,2500,5000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# roy-data-ma & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("roy-data-ma.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# roy-data-ma & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // roy-data-mix & info-gain
-        //
-
-        dataFile = new File(path+"roy-data-mix.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# roy-data-mix & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("roy-data-mix.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# roy-data-mix & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // roy-data-ma & delta^2 stat
-        //
-
-        dataFile = new File(path+"roy-data-mix.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# roy-data-mix & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("roy-data-mix.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# roy-data-mix & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // spam assassin & info-gain
-        //
-
-        dataFile = new File(path+"spamAss2002-3cat.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# spamAss2002-3cat & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("spamAss2002-3cat.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# spamAss2002-3cat & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // spam assassin & delta^2 stat
-        //
-
-        dataFile = new File(path+"spamAss2002-3cat.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# spamAss2002-3cat & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("spamAss2002-3cat.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# spamAss2002-3cat & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // fraud detection & info-gain
-        //
-
-        dataFile = new File(path+"fraud-3cat.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# fraud-3cat & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("fraud-3cat.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# fraud-3cat & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // fraud detection & delta^2 stat
-        //
-
-        dataFile = new File(path+"fraud-3cat.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# fraud-3cat & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("fraud-3cat.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# fraud-3cat & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // 5 newsgroups & info-gain
-        //
-
-        dataFile = new File(path+"5news-nohead.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# 5news-nohead & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("5news-nohead.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# 5news-nohead & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // 5 newsgroups & delta^2 stat
-        //
-
-        dataFile = new File(path+"5news-nohead.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# 5news-nohead & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("5news-nohead.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# 5news-nohead & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // reuters & info-gain
-        //
-
-        dataFile = new File(path+"reuters21578.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# reuters21578 & info-gain :: "+levels[l]);
-
-           InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
-           InstanceTransform t = filter.batchTrain(data);
-           data = t.transform(data);
-           DatasetLoader.save(data,new File("reuters21578.ig-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# reuters21578 & info-gain :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-
-        //
-        // reuters & delta^2 stat
-        //
-
-        dataFile = new File(path+"reuters21578.3rd");
-        levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
-
-        for (int l=0; l<levels.length;l++)
-        {
-           data = DatasetLoader.loadFile( dataFile );
-           out.println("# reuters21578 & delta^2 stat :: "+levels[l]);
-
-           T1InstanceTransformLearner f = new T1InstanceTransformLearner();
-           f.setREF_LENGTH(500.0);
-           T1InstanceTransform t1stat = (T1InstanceTransform)f.batchTrain( data );
-           t1stat.setALPHA(0.99);
-           t1stat.setSAMPLE(10000);
-           t1stat.setMAX_WORDS(levels[l]);
-           data = t1stat.transform( data );
-           DatasetLoader.save(data,new File("reuters21578.d2-"+levels[l]+".3rd"));
-
-           eda = new EDA(data,"Negative-Binomial");
-           eda.AnalyzeFeatures(out);
-        }
-
-        data = DatasetLoader.loadFile( dataFile );
-        fid = new BasicFeatureIndex(data);
-        out.println("# reuters21578 & delta^2 stat :: "+fid.numberOfFeatures());
-
-        eda = new EDA(data,"Negative-Binomial");
-        eda.AnalyzeFeatures(out);
-        out.println("\n");
-     }
-     catch (IOException e) { e.printStackTrace(); }
+         out.println("class :: docsInC :: v<m :: v=m :: v>m :: d>0");
+
+         //
+         // webmaster & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"webmaster.3rd");
+            int[] levels = new int[]{100,250,500,750,1000};
+            out.println("# webmaster & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("webmaster.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# webmaster & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+
+         //
+         // webmaster & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"webmaster.3rd");
+            int[] levels = new int[]{100,250,500,750,1000};
+            out.println("# webmaster & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("webmaster.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+
+
+
+         //
+         // pr & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"pr_data.3rd");
+            int[] levels = new int[]{100,200,300,400,500,600,700};
+            out.println("# pr & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("pr_data.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# pr & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // pr & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"pr_data.3rd");
+            int[] levels = new int[]{100,200,300,400,500,600,700};
+            out.println("# pr & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("pr_data.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // online & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"online_data.3rd");
+            int[] levels = new int[]{25,50,75,100,125,150,175};
+            out.println("# online & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("online_data.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# online & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // online & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"online_data.3rd");
+            int[] levels = new int[]{25,50,75,100,125,150,175};
+            out.println("# online & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("online_data.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // movies & info-gain
+         //
+
+         try{
+            File dataFile = new File(path+"movie-data-all.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,15000,20000,30000};
+            out.println("# movie & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("movie-data-all.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# movie & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // movies & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"movie-data-all.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,15000,20000,30000};
+            out.println("# movie & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("movie-data-all.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // roy-data-fin & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"roy-data-fin.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000};
+            out.println("# roy-data-fin & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("roy-data-fin.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# roy-data-fin & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // roy-data-fin & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"roy-data-fin.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000};
+            out.println("# roy-data-fin & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("roy-data-fin.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // roy-data-ma & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"roy-data-ma.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000};
+            out.println("# roy-data-ma & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("roy-data-ma.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# roy-data-ma & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // roy-data-ma & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"roy-data-ma.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000};
+			out.println("# roy-data-ma & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("roy-data-ma.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+         //
+         // roy-data-mix & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"roy-data-mix.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000};
+            out.println("# roy-data-mix & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("roy-data-mix.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# roy-data-mix & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // roy-data-ma & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"roy-data-mix.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000};
+            out.println("# roy-data-mix & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("roy-data-mix.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // spam assassin & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"spamAss2002-3cat.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# spamAss2002-3cat & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("spamAss2002-3cat.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# spamAss2002-3cat & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // spam assassin & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"spamAss2002-3cat.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# spamAss2002-3cat & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("spamAss2002-3cat.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // fraud detection & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"fraud-3cat.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# fraud-3cat & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("fraud-3cat.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# fraud-3cat & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // fraud detection & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"fraud-3cat.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# fraud-3cat & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("fraud-3cat.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // 5 newsgroups & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"5news-nohead.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# 5news-nohead & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("5news-nohead.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# 5news-nohead & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // 5 newsgroups & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"5news-nohead.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# 5news-nohead & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("5news-nohead.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+
+
+         //
+         // reuters & info-gain
+         //
+
+         try {
+            File dataFile = new File(path+"reuters21578.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# reuters21578 & info-gain");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               InfoGainTransformLearner2 filter = new InfoGainTransformLearner2(levels[l]);
+               InstanceTransform t = filter.batchTrain(data);
+               data = t.transform(data);
+               DatasetLoader.save(data,new File("reuters21578.ig-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+            Dataset data = DatasetLoader.loadFile( dataFile );
+            BasicFeatureIndex fid = new BasicFeatureIndex(data);
+            out.println("# reuters21578 & info-gain :: "+fid.numberOfFeatures());
+
+            EDA eda = new EDA(data,"Negative-Binomial");
+            eda.AnalyzeFeatures(out);
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+
+         //
+         // reuters & delta^2 stat
+         //
+
+         try {
+            File dataFile = new File(path+"reuters21578.3rd");
+            int[] levels = new int[]{100,500,1000,2500,5000,10000,20000,30000};
+            out.println("# reuters21578 & delta^2 stat");
+
+            for (int l=0; l<levels.length;l++)
+            {
+               Dataset data = DatasetLoader.loadFile( dataFile );
+
+               D2TransformLearner f = new D2TransformLearner();
+               f.setREF_LENGTH(500.0);
+               f.setSAMPLE(10000);
+               f.setMIN_WORDS(levels[l]-1);
+               f.setMAX_WORDS(levels[l]-1);
+               InstanceTransform d2 = f.batchTrain( data );
+               data = d2.transform( data );
+               DatasetLoader.save(data,new File("reuters21578.d2-"+levels[l]+".3rd"));
+
+               EDA eda = new EDA(data,"Negative-Binomial");
+               eda.AnalyzeFeatures(out);
+            }
+
+         } catch (Exception x) {
+            out.println("error: webmaster ig\n"+x.toString());
+         }
+         out.println("\n");
+      }
+      catch (IOException e) { e.printStackTrace(); }
 
      // it's all good  =:-)
      System.exit(0);
