@@ -5,6 +5,7 @@ import jwf.*;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.*;
 
 /**
  * 
@@ -29,6 +30,7 @@ public class WizardFrame extends JFrame
 				public void wizardFinished(Wizard wizard) {	System.exit(0);	}
 				public void wizardCancelled(Wizard wizard) {  System.exit(0); }
 			});
+    wizard.setPreferredSize(new Dimension(600,250));
 		setContentPane(wizard);
 		pack();
 		setVisible(true);

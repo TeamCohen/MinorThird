@@ -1,11 +1,10 @@
 package edu.cmu.minorthird.util.gui;
 
-import jwf.*;
-
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 
 
 /** Wraps a WizardPanel (from the Java Wizard Framework, jwf) in a
@@ -19,7 +18,8 @@ abstract public class ViewerWizard extends ComponentViewer
 {
 	final protected String myKey;
 	final protected Map viewerContext;
-	final private WizardPanel wizardPanel;
+  final protected Map viewerToKeyMap;
+	protected SimpleViewerWizard.SimpleViewerPanel wizardPanel = null;
 
 	/**
 	 * Construct a ViewerWizard.  
@@ -29,10 +29,10 @@ abstract public class ViewerWizard extends ComponentViewer
 	 * under this key.
 	 */
 	public ViewerWizard(String key,Map viewerContext)	
-	{	
-		this.myKey = key; 
+	{
+    this.viewerToKeyMap = new HashMap();
+		this.myKey = key;
 		this.viewerContext = viewerContext;	
-		this.wizardPanel = buildWizardPanel();
 	}
 
 	public ViewerWizard(String key)	
@@ -42,7 +42,7 @@ abstract public class ViewerWizard extends ComponentViewer
 
 	/** Return the WizardPanel which contains the viewer.
 	 */
-	public WizardPanel getWizardPanel()	{	return wizardPanel;	}
+	public SimpleViewerWizard.SimpleViewerPanel getWizardPanel()	{	return wizardPanel;	}
 
 	public JComponent componentFor(Object o) 	{ return wizardPanel;	}
 
@@ -51,12 +51,13 @@ abstract public class ViewerWizard extends ComponentViewer
 	public void handle(int signal,Object argument,ArrayList senders) 
 	{
 		if (signal==OBJECT_SELECTED) {
-			System.out.println("selected "+argument);
-			viewerContext.put(myKey,argument);
+			//get key from content map
+      Object key = viewerToKeyMap.get(senders.get(0));
+      viewerContext.put(key, argument);
 		}
 	}
 
 	/** Construct a WizardPanel, which contains some Viewer.
 	 */
-	abstract public WizardPanel buildWizardPanel();
+	abstract public SimpleViewerWizard.SimpleViewerPanel buildWizardPanel();
 }

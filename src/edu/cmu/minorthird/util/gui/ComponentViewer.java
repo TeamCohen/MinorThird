@@ -17,7 +17,8 @@ import java.util.ArrayList;
 
 abstract public class ComponentViewer extends Viewer
 {
-	static private Logger log = Logger.getLogger(ComponentViewer.class);
+//	static private Logger log = Logger.getLogger(ComponentViewer.class);
+  protected Logger log = Logger.getLogger(this.getClass());
 
 	public ComponentViewer()
 	{
@@ -38,7 +39,7 @@ abstract public class ComponentViewer extends Viewer
 	/** Get new content. */	
 	public void receiveContent(Object content)
 	{
-		log.info("recieving content: "+content+" at "+this);
+//		log.info("recieving content: "+content+" at "+this);
 		removeAll();
 		JComponent c = componentFor(content);
 		log.debug("adding component "+c+" at "+this);

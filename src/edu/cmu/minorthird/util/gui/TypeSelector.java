@@ -14,9 +14,8 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 /**
  * Allows user to select among possible instantiations of a particular
@@ -28,7 +27,8 @@ public class TypeSelector extends ComponentViewer
 	static private boolean DEBUG = false;
 	Logger log = Logger.getLogger(TypeSelector.class);
 
-	private final Class[] validSubclasses;
+//	private final Class[] validSubclasses;
+  private List validSubclasses;
 	private final Class rootClass;
 	// maps classes to the objects which will be used to instantiate these classes
 	private final Map instanceMap;
@@ -46,22 +46,75 @@ public class TypeSelector extends ComponentViewer
 	 */
 	public TypeSelector(Class[] validSubclasses,Class rootClass)
 	{
-		this.validSubclasses = validSubclasses;
-		this.rootClass = rootClass;
-		this.instanceMap = new HashMap();
-		for (int i=0; i<validSubclasses.length; i++) {
-			if (rootClass.isAssignableFrom(validSubclasses[i])) {
-				try {
-					Object instance = validSubclasses[i].newInstance();
-					instanceMap.put( validSubclasses[i], instance);
-				} catch (InstantiationException ex) {
-					log.warn("can't create instance of "+validSubclasses[i]+": "+ex);
-				} catch (IllegalAccessException ex) {
-					log.warn("can't create instance of "+validSubclasses[i]+": "+ex);
-				}
-			}
-		}
-	}
+		this.validSubclasses = new ArrayList();
+    this.validSubclasses.addAll(Arrays.asList(validSubclasses));
+
+    this.rootClass = rootClass;
+    this.instanceMap = new HashMap();
+
+    init(rootClass);
+  }
+
+  /**
+   * copies the given list as possible classes
+   */
+  public TypeSelector(List validClasses, Class rootClass)
+  {
+    this.validSubclasses = new ArrayList();
+    this.validSubclasses.addAll(validClasses);
+
+    this.rootClass = rootClass;
+    this.instanceMap = new HashMap();
+
+    init(rootClass);
+
+  }
+
+  private void init(Class rootClass)
+  {
+    for (int i=0; i<validSubclasses.size() ; i++) {
+      if (rootClass.isAssignableFrom((Class)validSubclasses.get(i))) {
+        try {
+          Object instance = ((Class)validSubclasses.get(i)).newInstance();
+          instanceMap.put( validSubclasses.get(i), instance);
+        } catch (InstantiationException ex) {
+          log.warn("can't create instance of "+(Class)validSubclasses.get(i)+": "+ex);
+        } catch (IllegalAccessException ex) {
+          log.warn("can't create instance of "+(Class)validSubclasses.get(i)+": "+ex);
+        }
+      }
+    }
+  }
+
+  /**
+   * add a new class to the list of valid sub classes.
+   * exiting UI components are NOT updated (so make additions first)
+   * @param subClass
+   */
+  public void addClass(Class subClass)
+  {
+    try
+    {
+      validSubclasses.add(subClass);
+      instanceMap.put(subClass, subClass.newInstance());
+    }
+    catch (InstantiationException e)
+    { log.warn("can't create instance of "+subClass +": "+e); }
+    catch (IllegalAccessException e)
+    { log.warn("can't create instance of "+subClass+": "+e); }
+  }
+
+  /**
+   * remove a class from the list of valid sub classes.
+   * exiting UI components are NOT updated (so make changes first or update
+   * the component seperately)
+   * @param subClass
+   */
+  public void removeClass(Class subClass)
+  {
+    validSubclasses.remove(subClass);
+    instanceMap.remove(subClass);
+  }
 
 	public JComponent componentFor(final Object o)
 	{
@@ -75,7 +128,8 @@ public class TypeSelector extends ComponentViewer
 		}
 		classBox = new JComboBox();
 		for (Iterator i=instanceMap.keySet().iterator(); i.hasNext(); ) {
-			Class key = (Class)i.next();
+      Class key = (Class)i.next();
+      log.debug("adding to classBox " + key);
 			classBox.addItem( key );
 		}
 		classBox.setSelectedItem(o.getClass());
@@ -96,6 +150,7 @@ public class TypeSelector extends ComponentViewer
 		// edit button - pops up an editor for the currently selected type 
 		panel.add(new JButton(new AbstractAction("Edit") {
 				public void actionPerformed(ActionEvent e) {
+          log.debug("pressed edit");
 					PropertyEditor editor = new PropertyEditor();
 					editor.setContent(instanceMap.get(classBox.getSelectedItem()));
 					String title = name==null ? "Property Editor" : "Property Editor for "+name;
@@ -127,6 +182,7 @@ public class TypeSelector extends ComponentViewer
 //      if (o instanceof Configurable) //custom property editor
 //        return ((Configurable)(o)).guiConfigure();
 
+      log.setLevel(Level.DEBUG);
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridBagLayout());
 			int row=0;
@@ -134,7 +190,6 @@ public class TypeSelector extends ComponentViewer
 				BeanInfo info = Introspector.getBeanInfo(o.getClass());
 				PropertyDescriptor[] props = info.getPropertyDescriptors();
 				for (int i=0; i<props.length; i++) {
-          log.setLevel(Level.DEBUG);
           log.debug("inspecting property: " + props[i].getShortDescription());
 					final String pname = props[i].getDisplayName();
 					final Class type = props[i].getPropertyType();
@@ -145,6 +200,7 @@ public class TypeSelector extends ComponentViewer
 						// will be the corresponding wrapper class
 						row++;
 						Object value = reader.invoke(o,new Object[]{});
+            log.debug("reader: " + reader.getName());
 						panel.add(new JLabel(pname+":"), gbc(0,row));
 						if (type.equals(int.class)) {
 							// configure an int spinner
@@ -163,7 +219,7 @@ public class TypeSelector extends ComponentViewer
 							panel.add(spinner, gbc(1,row));
 						} else if (type.equals(double.class) && pname.indexOf("Fraction")>=0) {
 							// configure an double spinner from 0 - 1
-							final JSpinner spinner = 
+							final JSpinner spinner =
 								new JSpinner(new SpinnerNumberModel(((Double)value).doubleValue(),0,1.0,0.05));
 							spinner.addChangeListener(new ChangeListener() {
 									public void stateChanged(ChangeEvent e) {
@@ -224,9 +280,10 @@ public class TypeSelector extends ComponentViewer
 								});
 							checkbox.setSelected(((Boolean)value).booleanValue());
 							panel.add(checkbox, gbc(1,row));
-						} else if (isValid(value.getClass())) {
+						} else if (value != null && isValid(value.getClass())) {
 							// configure a type selector for this class
 							log.debug("type "+value.getClass()+" is editable");
+              log.debug("add selector on type " + type + " of " + validSubclasses);
 							final TypeSelector selector = new TypeSelector(validSubclasses,type);
 							selector.setContent(value);
 							selector.name = name==null ? pname : name+"."+pname;
@@ -243,11 +300,14 @@ public class TypeSelector extends ComponentViewer
 							panel.add(selector, gbc(1,row));
 						} else {
 							log.debug("type "+type+" is not editable");
-							panel.add(new JLabel(value==null ? "null " : value.toString()), gbc(2,row));						
+							panel.add(new JLabel(value==null ? "null " : value.toString()), gbc(2,row));
 						}
 						//panel.add(new JLabel(type.toString()), gbc(1,row));
 						log.debug("property "+row+"\n  name: "+name+"\n  type: "+type+"\n  value: "+value);
-						log.debug("class of value is: "+value.getClass());
+						if (value != null)
+              log.debug("class of value is: "+value.getClass());
+            else
+              log.debug("null value, no class");
 					}
 				} // for possible property
 				if (row==0) {
@@ -280,8 +340,8 @@ public class TypeSelector extends ComponentViewer
 		}	
 		private boolean isValid(Class c)
 		{
-			for (int i=0; i<validSubclasses.length; i++) {
-				if (c.equals(validSubclasses[i])) return true;
+			for (int i=0; i<validSubclasses.size(); i++) {
+				if (c.equals(validSubclasses.get(i))) return true;
 			}
 			return false;
 		}
