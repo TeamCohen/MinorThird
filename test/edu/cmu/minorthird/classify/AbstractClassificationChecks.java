@@ -51,6 +51,9 @@ abstract public class AbstractClassificationChecks extends TestCase
     else
       stats = v.summaryStatistics();
 
+    if (referenceStats != null && stats.length != referenceStats.length)
+      throw new IllegalStateException("number of statistics to check is different from the number of reference stats given!");
+
     checkStats(stats, referenceStats);
   }
 

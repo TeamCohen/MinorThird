@@ -59,7 +59,10 @@ public class SampleDatasetsClassificationTest extends AbstractClassificationChec
 
     log.debug("train: \n" + train);
     log.debug("test: \n" + test);
-    double[] expectedStats = new double[] {0d, 0d, 0d, 0d, 0d, 0d, 1d, 1d, 10.117528032481275,1d,1d,1d};
+    double[] expectedStats = new double[] {0d, 0d, 0d, 0d, 0d, 0d,
+                                           1d, 1d,
+                                           10.117528032481275,
+                                           1d,1d,1d, 1d};
 
     super.checkClassify(this.DEFAULT_LEARNER, train, test, expectedStats);
   }

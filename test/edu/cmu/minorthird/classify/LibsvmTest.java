@@ -118,8 +118,11 @@ public class LibsvmTest extends AbstractClassificationChecks
    */
   public void testSampleData()
   {
-    double[] refs = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 1.0,
-                                 1.3132616875182228, 1.0, 1.0, 1.0};
+    double[] refs = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //0-5 are 0
+                                 1.0, 1.0, //6-7 are 1
+                                 1.3132616875182228,
+                                 1.0, 1.0, 1.0, //9-11 are 1
+                                 1.0 }; //12 is 1
     super.checkClassify(new SVMLearner(), SampleDatasets.toyTrain(), SampleDatasets.toyTest(), refs);
   }
 
