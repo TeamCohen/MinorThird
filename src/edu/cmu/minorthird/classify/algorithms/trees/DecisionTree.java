@@ -49,6 +49,8 @@ import java.io.Serializable;
 	 */
 	public static class InternalNode extends DecisionTree implements Visible
 	{
+		static private final long serialVersionUID = 1;
+	    private final int CURRENT_SERIAL_VERSION = 1;
 		private Feature test;
 		private double threshold;
 		private DecisionTree ifTrue,ifFalse;
