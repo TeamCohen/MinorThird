@@ -92,13 +92,8 @@ public class ExperimentWizard extends NullWizardPanel
         log.setLevel(Level.DEBUG);
         log.debug("viewer context: " + viewerContext.toString());
 
-//        String testMethod = (String)viewerContext.get("testMethod");
-
-        //standard data file loading
-        //won't handle directories :(
-        TextBase base = new BasicTextBase();
-        TextBase testBase = new BasicTextBase();
-        loadData(base, testBase);
+        Dataset trainDataset;
+        File testDataFile = (File)viewerContext.get("testDataFile");
 
         //Feature settings
         targetClass = (String)viewerContext.get("targetClass");
@@ -107,14 +102,36 @@ public class ExperimentWizard extends NullWizardPanel
         //Learner setting
         splitter = (Splitter)viewerContext.get("splitter");
 
-        Dataset trainDataset = loadDataset(labels, targetClass, fe, "creating train dataset");
+//        String testMethod = (String)viewerContext.get("testMethod");
 
-        File testDataFile = (File)viewerContext.get("testDataFile");
-        if (testDataFile != null)
+        //standard data file loading
+        //won't handle directories :(
+        if (viewerContext.get("Loader") instanceof DatasetLoader)
         {
-          Dataset testDataset = loadDataset(labels, targetClass, fe, "creating test dataset");
-          //this will over-ride the user selection
-          splitter = new FixedTestSetSplitter(testDataset.iterator());
+          File trainDataFile = (File)viewerContext.get("trainDataFile");
+          trainDataset = DatasetLoader.loadFile(trainDataFile);
+
+          //get test data set
+          if (testDataFile != null)
+          {
+            Dataset testDataset = DatasetLoader.loadFile(testDataFile);
+            splitter = new FixedTestSetSplitter(testDataset.iterator());
+          }
+        }
+        else
+        {
+          TextBase base = new BasicTextBase();
+          TextBase testBase = new BasicTextBase();
+          loadData(base, testBase);
+
+          trainDataset = loadDataset(labels, targetClass, fe, "creating train dataset");
+
+          if (testDataFile != null)
+          {
+            Dataset testDataset = loadDataset(labels, targetClass, fe, "creating test dataset");
+            //this will over-ride the user selection
+            splitter = new FixedTestSetSplitter(testDataset.iterator());
+          }
         }
 
         if (viewerContext.get(WizardUI.TASK_KEY).equals(WizardUI.TEXT_CAT_TASK))

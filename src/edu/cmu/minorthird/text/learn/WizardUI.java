@@ -37,7 +37,7 @@ public class WizardUI
 		private static Class[] myClasses = {
 			// loaders
 			TextBaseLoader.class,
-//      DatasetLoader.class,
+      DatasetLoader.class,
 			// learners
 			NaiveBayes.class,
 			BBMira.class,
@@ -178,11 +178,16 @@ public class WizardUI
 
     public boolean validateNext(java.util.List list)
     {
+//ks nb should we really enforce choosing a label file?  probably not
+      return true;
+
       //don't need to check for loader type, since that is checked one page earlier.
-      if (((File)viewerContext.get("trainDataFile")).isDirectory())
-        return true;
-      else
-        return super.validateNext(list);
+//      if (((File)viewerContext.get("trainDataFile")).isDirectory())
+//        return true;
+//      else if (viewerContext.get("Loader") instanceof DatasetLoader)
+//        return true;
+//      else
+//        return super.validateNext(list);
     }
 
     public WizardPanel next()

@@ -328,8 +328,12 @@ public class MixupDebugger extends JComponent
 			}
 		}
 
-    if ((textBaseId == null && fileName == null) || mixupProgramFile == null)
+    if ((textBaseId == null && fileName == null) || mixupProgramFile == null ||
+        !mixupProgramFile.exists() || !mixupProgramFile.isFile())
+    {
       usage();
+      return;
+    }
 
     try {
 
