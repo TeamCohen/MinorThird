@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.text.ParseException;
 
-import edu.cmu.minorthird.Loader;
+import edu.cmu.minorthird.util.Loader;
 
 /**
  * Configurable Loader.<br>
@@ -51,28 +51,28 @@ public class TextBaseLoader implements Loader
 
   /** Parameters for loading follow */
   /** One document per line in a file or One document per file */
-  private int documentSytle = DOC_PER_FILE;
+  private int documentStyle = DOC_PER_FILE;
 
   /**
    * where is the string id for each document found?
    * if loading one doc per line then could be NONE or IN_FILE, others invalid
    * if loading one doc per file then must be FILE_NAME (assumed)
    */
-  private int docID = FILE_NAME;
+  private int docIDsourceType = FILE_NAME; //TODO longer name
 
   /**
    * where do we find a groupID
    * if loading one doc per line then could any setting
    * if loading one doc per file then can be any except IN_FILE
    */
-  private int groupID = NONE;
+  private int groupIDsourceType = NONE;
 
   /**
    * Category to label documents
    * NOT SUPPORTED if loading one doc per line
    * if loading one doc per file then can be any except IN_FILE
    */
-  private int categoryID = NONE;
+  private int categoryIDsourceType = NONE;
 
   //tagging -- are labels tagged with xml style?
   private boolean labelsInFile = false;
@@ -109,7 +109,7 @@ public class TextBaseLoader implements Loader
   {
     TextBaseLoader loader = new TextBaseLoader(DOC_PER_LINE, IN_FILE);
     if (hasGroupID)
-      loader.setGroupID(IN_FILE);
+      loader.setGroupIDsourceType(IN_FILE);
 
     return loader.load(file);
   }
@@ -132,25 +132,25 @@ public class TextBaseLoader implements Loader
 
 
   //------------------ Getters and Setters -------------------------------------------------
-  public int getDocID()
-  { return docID; }
+  public int getDocIDsourceType()
+  { return docIDsourceType; }
 
-  public void setDocID(int docID)
+  public void setDocIDsourceType(int docIDsourceType)
   {
-    this.docID = docID;
-    if (docID == IN_FILE)
+    this.docIDsourceType = docIDsourceType;
+    if (docIDsourceType == IN_FILE)
       this.firstWordIsDocumentId = true;
     else
       this.firstWordIsDocumentId = false;
   }
 
-  public int getGroupID()
-  { return groupID; }
+  public int getGroupIDsourceType()
+  { return groupIDsourceType; }
 
-  public void setGroupID(int groupID)
+  public void setGroupIDsourceType(int groupIDsourceType)
   {
-    this.groupID = groupID;
-    if (groupID == IN_FILE)
+    this.groupIDsourceType = groupIDsourceType;
+    if (groupIDsourceType == IN_FILE)
       this.secondWordIsGroupId = true;
     else
       this.secondWordIsGroupId = false;
@@ -168,15 +168,15 @@ public class TextBaseLoader implements Loader
   public void setRecurseDirectories(boolean recurseDirectories)
   { this.recurseDirectories = recurseDirectories; }
 
-  public int getDocumentSytle()
-  { return documentSytle; }
+  public int getDocumentStyle()
+  { return documentStyle; }
 
   /** DOC_PER_FILE => docID = FILE_NAME */
-  public void setDocumentSytle(int documentSytle)
+  public void setDocumentStyle(int documentStyle)
   {
-    this.documentSytle = documentSytle;
-    if (documentSytle == DOC_PER_FILE)
-      docID = FILE_NAME;
+    this.documentStyle = documentStyle;
+    if (documentStyle == DOC_PER_FILE)
+      docIDsourceType = FILE_NAME;
   }
 
   /** loading labels from data file? */
@@ -219,35 +219,35 @@ public class TextBaseLoader implements Loader
   {}
 
   public TextBaseLoader(int documentSytle)
-  { this.documentSytle = documentSytle; }
+  { this.documentStyle = documentSytle; }
 
   public TextBaseLoader(int documentSytle, int docID)
   {
-    this.documentSytle = documentSytle;
-    this.docID = docID;
+    this.documentStyle = documentSytle;
+    this.docIDsourceType = docID;
   }
 
   public TextBaseLoader(int documentSytle, int docID, boolean labelsInFile)
   {
-    this.documentSytle = documentSytle;
-    this.docID = docID;
+    this.documentStyle = documentSytle;
+    this.docIDsourceType = docID;
     this.labelsInFile = labelsInFile;
   }
 
   public TextBaseLoader(int documentSytle, int docID, int groupID, int categoryID)
   {
-    this.categoryID = categoryID;
-    this.docID = docID;
-    this.documentSytle = documentSytle;
-    this.groupID = groupID;
+    this.categoryIDsourceType = categoryID;
+    this.docIDsourceType = docID;
+    this.documentStyle = documentSytle;
+    this.groupIDsourceType = groupID;
   }
 
   public TextBaseLoader(int documentSytle, int docID, int groupID, int categoryID, boolean labelsInFile, boolean recurseDirectories)
   {
-    this.documentSytle = documentSytle;
-    this.docID = docID;
-    this.groupID = groupID;
-    this.categoryID = categoryID;
+    this.documentStyle = documentSytle;
+    this.docIDsourceType = docID;
+    this.groupIDsourceType = groupID;
+    this.categoryIDsourceType = categoryID;
     this.labelsInFile = labelsInFile;
     this.recurseDirectories = recurseDirectories;
   }
@@ -291,15 +291,15 @@ public class TextBaseLoader implements Loader
    */
   public boolean checkParameters()
   {
-    switch (this.documentSytle)
+    switch (this.documentStyle)
     {
       case DOC_PER_LINE:
-        if ( (docID == NONE || docID == IN_FILE) && (categoryID == NONE) )
+        if ( (docIDsourceType == NONE || docIDsourceType == IN_FILE) && (categoryIDsourceType == NONE) )
           return true;
         break;
 
       case DOC_PER_FILE:
-        if ( (docID == NONE || docID == FILE_NAME ) && (groupID != IN_FILE) && (categoryID != IN_FILE))
+        if ( (docIDsourceType == NONE || docIDsourceType == FILE_NAME ) && (groupIDsourceType != IN_FILE) && (categoryIDsourceType != IN_FILE))
           return true;
         break;
     }
@@ -330,9 +330,9 @@ public class TextBaseLoader implements Loader
       File[] files = directory.listFiles();
       if (files==null) throw new IllegalArgumentException("can't list directory "+directory.getName());
 
-      if (categoryID == DIRECTORY_NAME)
+      if (categoryIDsourceType == DIRECTORY_NAME)
         curCatID = directory.getName();
-      if (groupID == DIRECTORY_NAME)
+      if (groupIDsourceType == DIRECTORY_NAME)
         curGrpID = directory.getName();
 
       for (int i=0; i<files.length; i++)
@@ -361,21 +361,21 @@ public class TextBaseLoader implements Loader
     //get input reader
     BufferedReader in;
     //build the correct reader
-    if (documentSytle == DOC_PER_LINE)
+    if (documentStyle == DOC_PER_LINE)
       in = new LineNumberReader(new FileReader(file));
     else
       in = new BufferedReader(new FileReader(file));
 
     //set the docid
-    if (docID == FILE_NAME)
+    if (docIDsourceType == FILE_NAME)
       curDocID = file.getName();
 
     //select the categoryID properly
-    if (categoryID == FILE_NAME)
+    if (categoryIDsourceType == FILE_NAME)
       curCatID = file.getName();
 
     //set the groupID
-    if (groupID == FILE_NAME)
+    if (groupIDsourceType == FILE_NAME)
       curGrpID = file.getName();
 
     //list of labeled spans if internally tagged
@@ -392,10 +392,10 @@ public class TextBaseLoader implements Loader
       if (this.isLabelsInFile())
         line = labelLine(line, buf, spanList); // appends to the buffer internally
 
-      if (this.documentSytle == DOC_PER_LINE)
+      if (this.documentStyle == DOC_PER_LINE)
       {   //get ids
         //make doc
-        if (docID == NONE)
+        if (docIDsourceType == NONE)
           curDocID = file.getName() + "@line:" + ((LineNumberReader)in).getLineNumber();
         else
           line = getIDsFromLine(line);
@@ -408,7 +408,7 @@ public class TextBaseLoader implements Loader
           buf.append(line);
     }
 
-    if (this.documentSytle == DOC_PER_FILE)
+    if (this.documentStyle == DOC_PER_FILE)
       addDocument(buf.toString()); //still need to set ids and such
 
     in.close();

@@ -11,7 +11,7 @@ import edu.cmu.minorthird.classify.experiments.RandomSplitter;
 import edu.cmu.minorthird.text.TextBaseLoader;
 import edu.cmu.minorthird.text.gui.CollinsSequenceAnnotatorLearner;
 import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.Loader;
+import edu.cmu.minorthird.util.Loader;
 import jwf.NullWizardPanel;
 import jwf.WizardPanel;
 
