@@ -172,7 +172,7 @@
 
       <message> Auto Build and Test </message>
       <fileset dir="/usr1/ksteppe/minorthird/output">
-        <include name=".out"/>
+        <include name="*.txt"/>
       </fileset>
 
     </mail>
