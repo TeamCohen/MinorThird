@@ -44,7 +44,7 @@ public class SampleExtractionProblem
 		"defTokenProp name:last =: ... a(fn) [any] ... ",
 		// used to label the true names
 		"defSpanType trueName =~ trie William Cohen,William Clinton,Hillary Clinton,George Washington,"
-		     +"Carmen Sandiego,George Bush,Curious George,George Mason",
+		  +"Carmen Sandiego,George Bush,Curious George,George Mason",
 		// used as candidates to filter
 		"defSpanType bigram =: ... [any any] ... ",
 		// used to test learning against a span property

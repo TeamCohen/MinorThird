@@ -93,6 +93,7 @@ public abstract class AnnotatorLoader
 
 	final private Annotator findNativeAnnotatorFromString(String className)
 	{
+	    System.out.println("Mixup File name: " + className);
 		try {
 			Class c = findClassResource(className);
 			Object o = c.newInstance();

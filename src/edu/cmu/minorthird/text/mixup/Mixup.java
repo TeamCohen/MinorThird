@@ -91,7 +91,7 @@ public class Mixup
     // tokenize: words, single-quoted strings, "&&", "||", "..." or single non-word chars
     static public final Pattern tokenizerPattern = 
 	//Pattern.compile("\\s*(\\w+|'([^']|\\\\')*'|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
-	Pattern.compile("\\s*((\\w+)|('(\\\\'|[^\\'])*')|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
+	Pattern.compile("\\s*((\\n)|(\\w+)|(\\/\\/)|('(\\\\'|[^\\'])*')|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
 
     // legal functions
     private static Set legalFunctions; 
@@ -114,7 +114,12 @@ public class Mixup
 
     /** Create a new mixup query. */
     public Mixup(String pattern) throws ParseException {
-	expr = new MixupParser(pattern).parseExpr();
+	MixupTokenizer tok = new MixupTokenizer(pattern);
+	if(tok.advance())
+	    expr = new MixupParser(tok).parseExpr();
+    }
+    public Mixup(MixupTokenizer tok) throws ParseException{
+	expr = new MixupParser(tok).parseExpr();
     }
     /** Extract subspans from each generated span using the mixup expression.
      */
@@ -124,20 +129,93 @@ public class Mixup
 
     public String toString() { return expr.toString(); }
 
+    public static class MixupTokenizer {
+	public String input;
+	public Matcher matcher;
+	private String token;
+	public String nextToken;
+	private int cursor;
+	public int nextCursor = 0;
+	private boolean inComment = false;
+
+	public MixupTokenizer(String input) {
+	    this.input = input;
+	    this.matcher = tokenizerPattern.matcher(input); 
+	    //firstAdvance();
+	}
+
+	public boolean advance() { 
+	    
+	    if (matcher.find()) {
+		cursor = matcher.start(1);
+		token = matcher.group(1);
+		
+		if (token.equals("asdfghjkl")) {
+		    token = null;
+		    return false;
+		}
+		if((token.equals(";"))) {
+		    token = null;
+		    return false;
+		} 
+
+		return true;
+	    } else {
+		token = null;
+		return false;
+	    }
+	}
+
+	// advance to next token, and check that it's what's expected
+	public String advance(Set set) throws Mixup.ParseException
+	{
+	    
+	    if (!matcher.find()){
+		token = null;
+		cursor = input.length();
+		return null;	
+	    }
+	    
+	    cursor = matcher.start(1);
+	    token = matcher.group(1);
+	    if((token.equals(";"))) {
+		token = null;
+		return null;
+	    }  
+	    if (set != null && !set.contains(token)){
+		System.out.println("Token at Error: " + token);
+		parseError("statement error: expected one of: " + setContents(set) + " in " + token);
+	    }	
+	    
+	    
+	    return token;
+	}
+
+	private void parseError(String msg) throws ParseException {
+	    throw new 
+		ParseException(msg+": "
+			       +input.substring(0,cursor)+"^^^"+input.substring(cursor,input.length()));
+	}
+
+	/** convert a set to a string listing the elements */
+	private String setContents(Set set) {
+	    StringBuffer buf = new StringBuffer("");
+	    for (Iterator i = set.iterator(); i.hasNext(); ) {
+		if (buf.length()>0) buf.append(" ");
+		buf.append("'"+i.next().toString()+"'");
+	    }
+	    return buf.toString();
+	}
+    }
+
     //
     // recursive descent parser for the BNF above
     //
     private static class MixupParser 
-    {
-	private String input;
-	private Matcher matcher;
-	private String token;
-	private int cursor;
-	public MixupParser(String input) { 
-	    this.input = input;
-	    this.matcher = tokenizerPattern.matcher(input); 
-	    cursor = 0;
-	    advance(); 
+    {	
+	private MixupTokenizer tok;	
+	public MixupParser(MixupTokenizer tok) { 
+	    this.tok = tok;	    
 	}
 	public Expr parse() throws ParseException {
 	    return parseExpr();
@@ -147,9 +225,9 @@ public class Mixup
 	    Expr expr2 = null;
 	    String op = null; 
 	    BasicExpr basic = parseBasicExpr();
-	    if ("&&".equals(token) || "||".equals(token)) {
-		op = token;
-		advance(); 
+	    if ("&&".equals(tok.token) || "||".equals(tok.token)) {
+		op = tok.token;
+		tok.advance(); 
 		expr2 = parseExpr();
 	    }
 	    return new Expr(basic,expr2,op);
@@ -157,117 +235,117 @@ public class Mixup
 	private BasicExpr parseBasicExpr() throws ParseException {
 	    List list = new ArrayList();
 	    int left = -1, right = -1;
-	    if ("(".equals(token)) {
-		advance();
+	    if ("(".equals(tok.token)) {
+		tok.advance();
 		Expr expr = parseExpr();
-		if (!")".equals(token)) parseError("expected close paren");
-		advance(); // past ')'
+		if (!")".equals(tok.token)) tok.parseError("expected close paren");
+		tok.advance(); // past ')'
 		return new BasicExpr(expr);
 	    } else {
-		while (token!=null && !"||".equals(token) && !"&&".equals(token) && !")".equals(token)) {
-		    if ("[".equals(token)) {
-			left = list.size(); advance(); 
-		    } else if ("]".equals(token)) {
-			right = list.size(); advance();
+		while (tok.token!=null && !"||".equals(tok.token) && !"&&".equals(tok.token) && !")".equals(tok.token)) {
+		    if ("[".equals(tok.token)) {
+			left = list.size(); tok.advance(); 
+		    } else if ("]".equals(tok.token)) {
+			right = list.size(); tok.advance();
 		    } else {
 			list.add(parseRepeatedPrim());
 		    } 
 		}
-		if (left<0) parseError("no left bracket");
-		if (right<0) parseError("no right bracket");
+		if (left<0) tok.parseError("no left bracket");
+		if (right<0) tok.parseError("no right bracket");
 		return new BasicExpr( (RepeatedPrim[])list.toArray(new RepeatedPrim[list.size()]), left, right );
 	    }
 	}
 	private RepeatedPrim parseRepeatedPrim() throws ParseException {
 	    RepeatedPrim buf = new RepeatedPrim();
-	    if ("@".equals(token)) {
-		advance();
-		buf.type = token;
-		advance();
+	    if ("@".equals(tok.token)) {
+		tok.advance();
+		buf.type = tok.token;
+		tok.advance();
 		buf.maxCount = 1;
-		if ("?".equals(token)) {
+		if ("?".equals(tok.token)) {
 		    buf.minCount = 0;
-		    advance();
+		    tok.advance();
 		} else {
 		    buf.minCount = 1;
 		}
 		return buf;
 	    } else {
-		if ("L".equals(token)) {
+		if ("L".equals(tok.token)) {
 		    buf.leftMost = true;
-		    advance();
+		    tok.advance();
 		}
 		parsePrim(buf);
 		parseRepeat(buf);
-		if ("R".equals(token)) {
+		if ("R".equals(tok.token)) {
 		    buf.rightMost = true;
-		    advance();
+		    tok.advance();
 		}					
 		buf.expandShortcuts();
-		if (!buf.checkFunction()) parseError("syntax error");
+		if (!buf.checkFunction()) tok.parseError("syntax error");
 		return buf;
 	    }
 	}
 	private void parsePrim(RepeatedPrim buf) throws ParseException {
-	    if ("<".equals(token)) {
-		advance();
+	    if ("<".equals(tok.token)) {
+		tok.advance();
 		parseSimplePrim(buf);
-		while (",".equals(token)) {
-		    advance();
+		while (",".equals(tok.token)) {
+		    tok.advance();
 		    parseSimplePrim(buf);
 		}
-		if (">".equals(token)) advance();
-		else parseError("expected '>'");
+		if (">".equals(tok.token)) tok.advance();
+		else tok.parseError("expected '>'");
 	    } else {
 		parseSimplePrim(buf);
 	    }
 	}
 	private void parseSimplePrim(RepeatedPrim buf) throws ParseException {
 	    Prim prim = new Prim();
-	    if ("!".equals(token)) {
-		prim.negated = true;	advance();
+	    if ("!".equals(tok.token)) {
+		prim.negated = true;	tok.advance();
 	    }	 
-	    prim.funcString = token;
-	    int funcLength = token.length();
-	    char firstLetter = token.charAt(0);
-	    if("a".equals(token)) prim.function = A;
-	    else if("eq".equals(token)) prim.function = EQ;
-	    else if("ai".equals(token)) prim.function = AI;
-	    else if("re".equals(token)) prim.function = RE;
-	    else if("any".equals(token)) prim.function = ANY;
-	    else if("eqi".equals(token)) prim.function = EQI;
-	    else if("...".equals(token)) prim.function = ELIPSE;
-	    else if("prop".equals(token)) prim.function = PROP;
-	    else if("propDict".equals(token)) prim.function = PROPDICT;
-	    advance();
-	    if ("(".equals(token)) {
-		advance(); // to argument
-		prim.argument = token;
-		advance(); // to ')' 
-		if (!")".equals(token)) parseError("expected close paren");
-		advance(); // past prim
-	    } else if (":".equals(token)) {
+	    prim.funcString = tok.token;
+	    int funcLength = tok.token.length();
+	    char firstLetter = tok.token.charAt(0);
+	    if("a".equals(tok.token)) prim.function = A;
+	    else if("eq".equals(tok.token)) prim.function = EQ;
+	    else if("ai".equals(tok.token)) prim.function = AI;
+	    else if("re".equals(tok.token)) prim.function = RE;
+	    else if("any".equals(tok.token)) prim.function = ANY;
+	    else if("eqi".equals(tok.token)) prim.function = EQI;
+	    else if("...".equals(tok.token)) prim.function = ELIPSE;
+	    else if("prop".equals(tok.token)) prim.function = PROP;
+	    else if("propDict".equals(tok.token)) prim.function = PROPDICT;
+	    tok.advance();
+	    if ("(".equals(tok.token)) {
+		tok.advance(); // to argument
+		prim.argument = tok.token;
+		tok.advance(); // to ')' 
+		if (!")".equals(tok.token)) tok.parseError("expected close paren");
+		tok.advance(); // past prim
+	    } else if (":".equals(tok.token)) {
 		prim.property = prim.funcString;
 		prim.function = PROP;
 		prim.funcString = "prop";
-		advance(); // to property value
-		if ("a".equals(token)) {
-		    advance(); // to '('
-		    if (!"(".equals(token)) {
+		tok.advance(); // to property value
+		if ("a".equals(tok.token)) {
+		    tok.advance(); // to '('
+		    if (!"(".equals(tok.token)) {
 			prim.value = "a";
-			advance(); // past value
+			tok.advance(); // past value
 		    } else {
-			advance(); // to dictionary name
+			tok.advance(); // to dictionary name
 			prim.function = PROPDICT;
 			prim.funcString = "propDict";
-			prim.value = token;
-			advance();
-			if (!")".equals(token)) parseError("expected close paren");
-			advance(); // past close paren
+			prim.value = tok.token;
+			tok.advance();
+			if (!")".equals(tok.token)) tok.parseError("expected close paren");
+			tok.advance(); // past close paren
 		    }					
 		} else {
-		    prim.value = token;
-		    advance(); // past value
+		    prim.value = tok.token;
+		    tok.advance(); // past value
 		}
 	    } 
 	    prim.expandShortcuts();
@@ -275,35 +353,35 @@ public class Mixup
 	}
 	private void parseRepeat(RepeatedPrim buf) throws ParseException {
 	    String min = null,max = null;
-	    if ("{".equals(token)) {
-		advance();
-		if (!",".equals(token)) {
-		    min = token;
-		    advance(); // to "," 
+	    if ("{".equals(tok.token)) {
+		tok.advance();
+		if (!",".equals(tok.token)) {
+		    min = tok.token;
+		    tok.advance(); // to "," 
 		} else {
 		    min = "0";
 		}
-		if ("}".equals(token)) {
+		if ("}".equals(tok.token)) {
 		    max = min;
-		    advance();
+		    tok.advance();
 		} else {
-		    if (!",".equals(token)) parseError("expected \",\"");
-		    advance(); 
-		    if (!"}".equals(token)) { 
-			max = token;
-			advance(); // to "}"
+		    if (!",".equals(tok.token)) tok.parseError("expected \",\"");
+		    tok.advance(); 
+		    if (!"}".equals(tok.token)) { 
+			max = tok.token;
+			tok.advance(); // to "}"
 		    } else {
 			max = "-1";
 		    }
-		    if (!"}".equals(token)) parseError("expected \"}\"");
-		    advance();
+		    if (!"}".equals(tok.token)) tok.parseError("expected \"}\"");
+		    tok.advance();
 		}
-	    } else if ("+".equals(token)) {
-		min = "1";	max = "-1";	advance();
-	    } else if ("*".equals(token)) {
-		min = "0";	max = "-1";	advance();
-	    } else if ("?".equals(token)) {
-		min = "0";	max = "1"; advance();
+	    } else if ("+".equals(tok.token)) {
+		min = "1";	max = "-1";	tok.advance();
+	    } else if ("*".equals(tok.token)) {
+		min = "0";	max = "-1";	tok.advance();
+	    } else if ("?".equals(tok.token)) {
+		min = "0";	max = "1"; tok.advance();
 	    } else {
 		min = max = "1";
 	    }
@@ -311,24 +389,10 @@ public class Mixup
 		buf.minCount = Integer.parseInt(min);
 		buf.maxCount = Integer.parseInt(max);
 	    } catch (NumberFormatException e) {
-		parseError("expected an integer: min = '"+min+"' max='"+max+"'");
+		tok.parseError("expected an integer: min = '"+min+"' max='"+max+"'");
 	    }
-	}
-	private void parseError(String msg) throws ParseException {
-	    throw new 
-		ParseException(msg+": "
-			       +input.substring(0,cursor)+"^^^"+input.substring(cursor,input.length()));
-	}
-	private boolean advance() { 
-	    if (matcher.find()) {
-		cursor = matcher.start(1);
-		token = matcher.group(1);
-		return true;
-	    } else {
-		token = null;
-		return false;
-	    }
-	}
+	}	
+	
     }
 	
     /** Signals an error in parsing a mixup document. */

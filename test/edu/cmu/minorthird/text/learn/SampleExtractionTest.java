@@ -90,9 +90,9 @@ public class SampleExtractionTest extends TestCase
   {
 		SpanFeatureExtractor fe = new Recommended.TokenFE();
 		doExtractionTest( new SequenceAnnotatorLearner( new CMMLearner(new VotedPerceptron(), 3), fe),
-										 new double[]{0.93,0.75,0.1, 1.0,0.6,0.1});
+										 new double[]{0.93,0.75,0.1,1.0,0.6,0.1});
 		doExtractionTest( new SequenceAnnotatorLearner( new CMMLearner(new SVMLearner(), 3),  fe),
-											new double[]{0.93,1.0,0.1,  1.0,1.0,0.1} );
+											new double[]{0.93,1.0,0.1,1.0,1.0,0.1} );
   }
 
 	// double array is <precision,recall,tolerance> for train & test

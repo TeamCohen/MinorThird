@@ -111,18 +111,44 @@ public class MixupProgram
     // maps dictionary names to the sets they correspond to 
     private HashMap dictionaryMap = new HashMap();
 
+    public static Set legalKeywords = new HashSet(); 
+    static { 
+	legalKeywords.add("defTokenProp"); 
+	legalKeywords.add("defSpanProp"); 
+	legalKeywords.add("defSpanType"); 
+	legalKeywords.add("defDict"); 
+	legalKeywords.add("declareSpanType"); 
+	legalKeywords.add("provide"); 
+	legalKeywords.add("require"); 
+	legalKeywords.add("//");
+	legalKeywords.add("\n");
+	legalKeywords.add("asdfghjkl");
+    }
+
     public MixupProgram() {;}
 
     /** Create a MixupProgram from an array of statements */
     public MixupProgram(String[] statements) throws Mixup.ParseException {
+	String program = "";
 	for (int i=0; i<statements.length; i++) {
-	    addStatement( statements[i] );
+	    program = program + statements[i] + ";\n";
 	}
+	startProgram(program);
     }
 
     /** Create a MixupProgram from single string with a bunch of semicolon-separated statements. */
     public MixupProgram(String program) throws Mixup.ParseException {
-	addStatements(program);
+	String[] lines  = program.split("\n");
+	StringBuffer buf = new StringBuffer();
+	String line;
+	for(int i=0; i<lines.length; i++) {
+	    int startComment = lines[i].indexOf("//");
+	    if (startComment>=0) line = lines[i].substring(0,startComment); else line = lines[i];
+	    buf.append(line);
+	    buf.append("\n");
+	}
+	program = buf.toString();
+	startProgram(program);
     }
 
     /** Create a MixupProgram from the contents of a file. */
@@ -132,13 +158,30 @@ public class MixupProgram
 	StringBuffer buf = new StringBuffer();
 	String line;
 	while ((line = in.readLine())!=null) {
-	    //			int startComment = line.indexOf("//");
-	    //			if (startComment>=0) line = line.substring(0,startComment);
+	    int startComment = line.indexOf("//");
+	    if (startComment>=0) line = line.substring(0,startComment);
 	    buf.append(line);
 	    buf.append("\n");
 	}
 	in.close();
-	addStatements( buf.toString() );
+	String program = buf.toString();
+	startProgram(program);
+    }
+
+    public void startProgram(String program)throws Mixup.ParseException {
+	program.trim();
+	program = program + " asdfghjkl";	
+	Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(program);
+	String keyword = tok.advance(legalKeywords);
+	while(keyword!=null) {
+	    if(!keyword.startsWith("\n"))
+		addStatement(tok,keyword);
+	    keyword = tok.advance(legalKeywords);
+	    if(keyword == null || keyword.equals("asdfghjkl")) 
+		{
+		    break;
+		}
+	}
     }
 
     /** Evaluate the program against an existing labels. */
@@ -152,50 +195,17 @@ public class MixupProgram
     }
 
     /** Add a single statement to the current mixup program. */
-    public void addStatement(String statement) throws Mixup.ParseException
+    public void addStatement(Mixup.MixupTokenizer tok, String keyword) throws Mixup.ParseException
     {
-	//    log.debug("add statement: " + statement);
-	statement = statement.trim();
-	if (statement.length() > 0)
-	    {
-		if (!statement.startsWith("//")) //skip comments
-		    {
-			//        log.debug("inserting: " + statement);
-			statementList.add(new Statement(statement));
-		    }
-	    }
+	statementList.add(new Statement(tok, keyword));
     }
 
-    /** Add a bunch of ';'-separated statements
-     *
-     *
-     * Splits into lines based on \n.
-     * Add a line to the current
-     * Removes anything after //
-     * Checks if the current line has a ';'
-     * If so split the line into statements on ';', send all statements to addStatement
-     * If not, carry the current line forward
-     */
-    public void addStatements(String program) throws Mixup.ParseException
+    /** Add a single statement to the current mixup program. */
+    public void addStatement(String statement) throws Mixup.ParseException
     {
-	String[] lines = program.split("\\n");
-	String line = "";
-	for (int i = 0; i < lines.length; i++)
-	    {
-		line += lines[i];
-		int commentStart = line.indexOf("//");
-		if (commentStart > -1)
-		    line = line.substring(0, commentStart);
-
-		if (line.indexOf(';') > 0)
-		    {
-			String[] statements = line.split(";");
-			for (int j = 0; j < statements.length; j++)
-			    { addStatement(statements[j]); }
-
-			line = "";
-		    }
-	    }
+	Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(statement);
+	String keyword = tok.advance(legalKeywords);
+	addStatement(tok, keyword);	
     }
 
     /** List the program **/
@@ -249,49 +259,48 @@ public class MixupProgram
 	//
 	// constructor and parser
 	//
-	Statement(String input) throws Mixup.ParseException 
+	Statement(Mixup.MixupTokenizer tok, String firstTok) throws Mixup.ParseException 
 	{
-	    this.input = input;
-	    this.matcher = Mixup.tokenizerPattern.matcher(input);
-	    keyword = advance(legalKeywords); // read 
+	    keyword = firstTok;
 	    if (keyword.equals("declareSpanType")) {
 		statementType = DECLARE;
-		type = advance(null);
+		type = tok.advance(null);
 		return;
 	    }
 	    if (keyword.equals("provide")) {
 		statementType = PROVIDE;
-		annotationType = advance(null);
+		annotationType = tok.advance(null);
 		if (annotationType.charAt(0)=='\'') {
 		    annotationType = annotationType.substring(1,annotationType.length()-1);
 		}
+		String marker = tok.advance(null); //Collections.singleton(","));
 		return;
 	    }
 	    if (keyword.equals("require")) {
 		statementType = REQUIRE;
-		annotationType = advance(null);
+		annotationType = tok.advance(null);
 		if (annotationType.charAt(0)=='\'') {
 		    annotationType = annotationType.substring(1,annotationType.length()-1);
 		}
-		String marker = advance(null); //Collections.singleton(","));
+		String marker = tok.advance(null); //Collections.singleton(","));
 		log.debug("marker: " + marker);
 		if (marker != null)
 		    {
-			fileToLoad = advance(null);
+			fileToLoad = tok.advance(null);
 			if (fileToLoad.charAt(0) == '\'')
 			    fileToLoad = fileToLoad.substring(1, fileToLoad.length() - 1);
 		    }
 		return;
 	    }
-	    String propOrType = advance(null);  // read property or type
-	    String token = advance(colonEqualsOrCase); // read ':' or '='
+	    String propOrType = tok.advance(null);  // read property or type
+	    String token = tok.advance(colonEqualsOrCase); // read ':' or '='
 	    if (":".equals(token)) {
 		if (!"defSpanProp".equals(keyword) && !"defTokenProp".equals(keyword)) {
 		    parseError("can't define properties here");
 		}
 		property = propOrType; type = null;
-		value = advance(null);
-		advance(Collections.singleton("="));
+		value = tok.advance(null);
+		tok.advance(Collections.singleton("="));
 	    } else if ("case".equals(token)) {
 		if (!"defDict".equals(keyword)) parseError("illegal keyword usage");
 	    } else {
@@ -311,18 +320,18 @@ public class MixupProgram
 		if ("case".equals(token)) {
 		    ignoreCase = false;
 		    if (!"+".equals(propOrType)) parseError("illegal defDict");
-		    type = advance(null);
-		    advance(Collections.singleton("="));
+		    type = tok.advance(null);
+		    tok.advance(Collections.singleton("="));
 		} else {
 		    type = propOrType;					
 		}
 		wordSet = new HashSet();
 		while (true) {
-		    String w =  advance(null);
+		    String w =  tok.advance(null);
 		    // read in each line of the file name embraced by double quotes	
 		    if (w.equals("\"")) {
 			StringBuffer defFile = new StringBuffer("");
-			while (!(w = advance(null)).equals("\""))
+			while (!(w = tok.advance(null)).equals("\""))
 			    defFile.append(w);
 			try {
 			    LineNumberReader bReader = mixupReader(defFile.toString());
@@ -339,55 +348,81 @@ public class MixupProgram
 		    } else {
 			wordSet.add( ignoreCase?w.toLowerCase() : w );
 		    }
-		    String sep = advance(null);
+		    String sep = tok.advance(null);
 		    if (sep==null) break;
 		    else if (!",".equals(sep)) parseError("expected comma");
 		}
 	    } else {
 		// GEN
 		// should be at '=' sign or starttype
-		token = advance(null); 
+		token = tok.advance(null); 
 		if (generatorStart.contains(token)) {
 		    startType = "top";
 		} else {
 		    startType = token;
-		    token = advance( generatorStart );
+		    token = tok.advance( generatorStart );
 		}
 		if (token.equals(":")) {
 		    statementType = MIXUP;
-		    mixupExpr = new Mixup( input.substring(matcher.end(1),input.length()) );
+		    //mixupExpr = new Mixup( tok.input.substring(tok.matcher.end(1),tok.input.length()) );
+		    //if(tok.advance())
+		    if(tok.advance())
+			mixupExpr = new Mixup(tok);
 		} else if (token.equals("-")) {
 		    statementType = FILTER;
-		    mixupExpr = new Mixup( input.substring(matcher.end(1),input.length()) );
+		    //mixupExpr = new Mixup( tok.input.substring(tok.matcher.end(1),tok.input.length()) );
+		    //if(tok.advance())		    
+		    if(tok.advance())
+			mixupExpr = new Mixup(tok);
 		} else if (token.equals("~")) {
-		    token = advance(null);
+		    token = tok.advance(null);
 		    if ("re".equals(token)) {
 			statementType = REGEX;
-			regex = advance(null);
+			regex = tok.advance(null);
+			System.out.println("THIS IS THE REGEX: " + regex);
 			if (regex.startsWith("'")) {
 			    regex = regex.substring(1,regex.length()-1);
 			    regex = regex.replaceAll("\\\\'","'");
 			}
-			token = advance(Collections.singleton(","));
-			token = advance(null);
+			token = tok.advance(Collections.singleton(","));
+			token = tok.advance(null);
+			System.out.println("THIS IS THE EXPECTED GROUP NUMBER: " + token);
 			try {
 			    regexGroup = Integer.parseInt(token);
+			    token = tok.advance(null);
 			} catch (NumberFormatException e) {
 			    parseError("expected a regex group number and saw "+token);
 			}
 		    } else if ("trie".equals(token)) {
 			statementType = TRIE;
-			String trieString = input.substring(matcher.end(1),input.length());
-			String[] phrases = trieString.split("\\s*,\\s*");
+			ArrayList phraseList = new ArrayList();
+			String word = tok.advance(null);
+			word.trim();
+			String fullWord = "";
+			while(word != null) {			    
+			    if(!word.equals(",")) {
+				fullWord = fullWord + word + " ";							
+			    } else {
+				fullWord.trim();
+				phraseList.add(fullWord);
+				fullWord = "";
+			    }
+			    word = tok.advance(null);
+			}
+			phraseList.add(fullWord);
+			//String[] phrases = (String[])phraseList.toArray();
 			trie = new Trie();
 			BasicTextBase tokenizerBase = new BasicTextBase();
-			for (int i=0; i<phrases.length; i++) {
-			    String[] toks = tokenizerBase.splitIntoTokens(phrases[i]);
+			for (int i=0; i<phraseList.size(); i++) {
+			    String[] toks = tokenizerBase.splitIntoTokens((String)phraseList.get(i));
 			    if (toks.length<=2 || !"\"".equals(toks[0]) || !"\"".equals(toks[toks.length-1])) {
 				trie.addWords( "phrase#"+i, toks );
 			    } else {
 				StringBuffer defFile = new StringBuffer("");
-				for (int j=1; j<toks.length-1; j++) defFile.append(toks[j]);
+				
+				for (int j=1; j<toks.length-1; j++) {
+				    defFile.append(toks[j]);
+				}
 				try {
 				    //BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
 				    LineNumberReader bReader = mixupReader(defFile.toString());
@@ -398,7 +433,7 @@ public class MixupProgram
 					String[] words = tokenizerBase.splitIntoTokens(s);
 					trie.addWords(defFile+".line."+line, words);
 				    }
-				    bReader.close();
+				    bReader.close();				    
 				} catch (IOException ioe) {
 				    parseError("Error when reading " + defFile.toString() + ": " + ioe);
 				}
@@ -503,36 +538,7 @@ public class MixupProgram
 		    labels.setProperty(token,property,value);
 		}
 	    }
-	}
-
-	// advance to next token, and check that it's what's expected
-	private String advance(Set set) throws Mixup.ParseException
-	{
-	    if (!matcher.find())
-		{
-		    lastTokenStart = input.length();
-		    if (set != null && set.size() == 1)
-			{
-			    parseError("incompete statement: expected " + setContents(set));
-			}
-		    else if (set != null)
-			{
-			    parseError("incompete statement: expected one of " + setContents(set));
-			}
-		    else
-			{
-			    return null;
-			}
-		}
-
-	    lastTokenStart = matcher.start(1);
-	    String result = matcher.group(1);
-	    if (set != null && !set.contains(result))
-		{
-		    parseError("statement error: expected one of: " + setContents(set) + " in " + result);
-		}
-	    return result;
-	}
+	}	
 
 	/** convert a set to a string listing the elements */
 	private String setContents(Set set) {

@@ -222,7 +222,6 @@ public class TestPackage extends TestSuite
 			b.loadDocument("t2","men of the year: william william cohen ; william clinton ; and - bill gates??");
 			b.loadDocument("t3","cohen & jensen was written by (a) william cohen (b) paul cohen (c) all of the above");
 			b.loadDocument("t4","is the pope john paul II or not?");
-			//System.out.println(trie.toString());
 			checkLookup( "t1", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},1,2) } );
 			checkLookup( "t2", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},6,2),
 																							 new TrieExpects(new String[]{"wjc"},9,2) });
@@ -328,12 +327,12 @@ public class TestPackage extends TestSuite
 			checkProg(new String[] { "defSpanType out =~ re 'b+ (c+)', 1'"},
 								new String[] { "ccc" });
 			checkProg(new String[] { "defSpanType out =~ re 'b+ (c+\\s+)', 1'"},
-								new String[] { "ccc" });
+			new String[] { "ccc" });
 			checkProg(new String[] { "defSpanType pair =: ... [any any] ...", 
 															 "defSpanType out =pair- ... ['ccc'] ... " }, 
 								new String[] { "aa bb", "dd ee", "ee ff" });
 			checkProg(new String[] { "defSpanType out =~ trie aa bb,bb ccc,bb ccc dd" },
-								new String[] { "aa bb", "bb ccc", "bb ccc dd" });
+			  new String[] { "aa bb", "bb ccc", "bb ccc dd" });
 			//
 			// test dictionaries and multiple documents
 			//

@@ -1,5 +1,7 @@
 Model: all3-hmm50-ext.ann
 
+cspace + enron + sigs (90%)
+
 Requires all files under ./lib directory:
 	nameFeatures2.mixup
 	HeaderNameTagger.class	
