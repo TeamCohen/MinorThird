@@ -27,12 +27,19 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 	private int numberOfEpochs;
 	private String[] history;
 
+	public CollinsPerceptronLearner()
+	{
+		this(3,5);
+	}
+
 	public CollinsPerceptronLearner(int historySize,int numberOfEpochs)
 	{
 		this.historySize = historySize;
 		this.numberOfEpochs = numberOfEpochs;
 		this.history = new String[historySize];
 	}
+
+	public void setSchema(ExampleSchema schema)	{	;	}
 
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{

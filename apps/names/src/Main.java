@@ -110,7 +110,7 @@ public class Main
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_"+classToLearn);
 			SpanFeatureExtractor fe = fe(labels);
 
-			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(fe,classWindow) {
+			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(null,fe,classWindow) {
 					public Annotator getAnnotator() { return null; }
 				};
 			teacher.train(dummy);
@@ -167,7 +167,7 @@ public class Main
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_"+classToLearn);
 			SpanFeatureExtractor fe = fe(labels);
 
-			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(fe,classWindow) {
+			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(null,fe,classWindow) {
 					public Annotator getAnnotator() { return null; }
 				};
 			teacher.train(dummy);

@@ -92,6 +92,10 @@ public class SubTextLabels implements TextLabels
 		return (subBase.contains(span)) ? labels.getDetails(span,type): null;
 	}
 
+	public void require(String annotationType,String fileToLoad) { 
+		labels.require(annotationType,fileToLoad);
+	}
+
 	private Span.Looper filter(Span.Looper i) {
 		List list = new ArrayList();
 		while (i.hasNext()) {

@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.sequential;
 
+import edu.cmu.minorthird.classify.ExampleSchema;
 
 
 /**
@@ -10,6 +11,6 @@ package edu.cmu.minorthird.classify.sequential;
 
 public interface SequenceClassifierLearner
 {
-	
+	public void setSchema(ExampleSchema schema);
 }
 

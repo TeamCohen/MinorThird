@@ -145,6 +145,11 @@ public class NestedTextLabels implements MonotonicTextLabels
 		return inner.getDetails(span,type);
 	}
 
+	public void require(String annotationType,String fileToLoad) { 
+		if (inner.isAnnotatedBy(annotationType)) return;
+		else outer.require(annotationType,fileToLoad);
+	}
+
 	public String showTokenProp(TextBase base, String prop) {
 		return "outer: "+outer.showTokenProp(base,prop)+" inner: "+inner.showTokenProp(base,prop);
 	}

@@ -24,13 +24,20 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	private int numberOfEpochs;
 	private String[] history;
 
-	public GenericCollinsLearner(int historySize,int epochs,OnlineBinaryClassifierLearner innerLearner)
+	public GenericCollinsLearner(OnlineBinaryClassifierLearner innerLearner,int historySize)
+	{
+		this(innerLearner,historySize,5);
+	}
+
+	public GenericCollinsLearner(OnlineBinaryClassifierLearner innerLearner,int historySize,int epochs)
 	{
 		this.historySize = historySize;
 		this.innerLearnerPrototype = innerLearner;
 		this.numberOfEpochs = epochs;
 		this.history = new String[historySize];
 	}
+
+	public void setSchema(ExampleSchema schema)	{	;	}
 
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{

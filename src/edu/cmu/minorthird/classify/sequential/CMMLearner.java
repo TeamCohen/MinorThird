@@ -19,6 +19,8 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 		this.historySize = historySize;
 	}
 
+	public void setSchema(ExampleSchema schema) {;}
+
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();

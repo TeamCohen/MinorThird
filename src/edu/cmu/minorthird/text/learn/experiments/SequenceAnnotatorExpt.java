@@ -45,7 +45,7 @@ public class SequenceAnnotatorExpt
 		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,inputLabel);
 		SampleFE.ExtractionFE fe = new SampleFE.ExtractionFE(3);
 		if (tokPropFeats!=null) fe.setTokenPropertyFeatures(tokPropFeats);
-		SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(fe,3) {
+		SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(null,fe,3) {
 				public Annotator getAnnotator() { return null; }
 			};
 		teacher.train(dummy);

@@ -36,7 +36,7 @@ public class SequenceDatasetBuilder
 	static public SequenceDataset build(TextLabels labels, String userlabelType, SpanFeatureExtractor fe, int historySize)
 	{
 		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,userlabelType);
-		SequenceAnnotatorLearner learner = new SequenceAnnotatorLearner(fe,historySize) {
+		SequenceAnnotatorLearner learner = new SequenceAnnotatorLearner(null, fe,historySize) {
 				public Annotator getAnnotator() { return null; }
 			};
 		teacher.train(learner);

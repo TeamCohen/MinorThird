@@ -68,4 +68,10 @@ public interface TextLabels
 	 * record of additional detailed information.  Returns null
 	 * if the span doesn't have the stated type. */
 	public Details getDetails(Span span,String type);
+
+	/** Ensure that this TextLabels contains a particular type of
+	 * annotation.  If the annotation is not present, then either load
+	 * it (if possible) or throw an error.  fileToLoad may be null. */
+
+	public void require(String annotationType,String fileToLoad);
 }

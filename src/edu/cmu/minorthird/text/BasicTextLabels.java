@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.text;
 
+import edu.cmu.minorthird.text.mixup.Dependencies;
 import java.io.Serializable;
 import java.util.*;
 
@@ -53,7 +54,16 @@ public class BasicTextLabels implements MutableTextLabels, Serializable
 	public boolean isAnnotatedBy(String s) { return annotatedBySet.contains(s); }
 
 	public void setAnnotatedBy(String s) { annotatedBySet.add(s); }
-
+ 
+	public void require(String annotationType,String fileToLoad)
+	{
+		if (!isAnnotatedBy(annotationType)) {
+			Dependencies.runDependency(this,annotationType,fileToLoad);
+		}
+		if (!isAnnotatedBy(annotationType)) {
+			throw new IllegalStateException("couldn't provide annotation type: "+annotationType);
+		}
+	}
 
 
 	//

@@ -50,10 +50,10 @@ public class SampleFE
 
 	/** A simple extraction-oriented feature extractor to apply to one-token spans, for extraction tasks. 
 	 */
-	public static final SpanFeatureExtractor makeExtractionFE(final int windowSize)
+	public static final SpanFeatureExtractor makeExtractionFE(final int featureWindowSize)
 	{
 		ExtractionFE fe = new ExtractionFE();
-		fe.setWindowSize(windowSize);
+		fe.setFeatureWindowSize(featureWindowSize);
 		return fe;
 	}
 
@@ -62,7 +62,9 @@ public class SampleFE
 	public static class ExtractionFE implements SpanFeatureExtractor
 	{
 		private int windowSize=3;
-		private boolean useCharType=false;
+		private String requiredAnnotation = null;
+		private String requiredAnnotationFileToLoad = null;
+		private boolean useCharType=true;
 		private boolean useCompressedCharType=true;
 		private String[] tokenPropertyFeatures=new String[0];
 
@@ -73,20 +75,44 @@ public class SampleFE
 		// getters and setters
 		//
 
-		public int getWindowSize() { return windowSize; }
-		public void setWindowSize(int n) { windowSize=n; }
+		/** Specify an annotator to run before feature generation.
+		 */
+		public void setRequiredAnnotation(String requiredAnnotation) { this.requiredAnnotation=requiredAnnotation; }
+		public String getRequiredAnnotation() { return requiredAnnotation==null ? "" : requiredAnnotation; }
 
-		public boolean getUseCharType() { return useCharType; } 
+		/** Specify a mixup file or java class to use to provide the annotation.
+		 */
+		public void setAnnotationProvider(String classNameOrMixupFileName) {
+			this.requiredAnnotationFileToLoad = classNameOrMixupFileName;
+		}
+		public String getAnnotationProvider() {	
+			return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad; 
+		}
+
+		/** Specify the number of tokens on before and after the span to
+		 * emit features for. */
+		public void setFeatureWindowSize(int n) { windowSize=n; }
+		public int getFeatureWindowSize() { return windowSize; }
+
+		/** If set to true, produce features like
+		 * "token.charTypePattern.Aaaa" for the word "Bill" */
 		public void setUseCharType(boolean flag) { useCharType=flag; } 
+		public boolean getUseCharType() { return useCharType; } 
 
-		public boolean getUseCompressedCharType() { return useCompressedCharType; } 
+		/** If set to true, produce features like
+		 * "token.charTypePattern.Aa+" for the word "Bill". */
 		public void setUseCompressedCharType(boolean flag) { useCompressedCharType=flag; } 
+		public boolean getUseCompressedCharType() { return useCompressedCharType; } 
 
 		public String getTokenPropertyFeatures() { return StringUtil.toString(tokenPropertyFeatures); }
+		/** Specify the token properties from the TextLabels environment
+		 * that will be used as features. A value of '*' means to use all
+		 * defined token properties. */
 		public void setTokenPropertyFeatures(String commaSeparatedTokenPropertyList) {
+			if ("*".equals(commaSeparatedTokenPropertyList)) {
+				tokenPropertyFeatures = null; 
+			}
 			tokenPropertyFeatures = commaSeparatedTokenPropertyList.split(",\\s*");
-			//System.out.println("input: "+commaSeparatedTokenPropertyList);
-			//System.out.println("tokenPropertyFeatures: "+StringUtil.toString(tokenPropertyFeatures));
 		}
 		public void setTokenPropertyFeatures(Set propertySet) {
 			tokenPropertyFeatures = (String[])propertySet.toArray(new String[propertySet.size()]);
@@ -98,14 +124,16 @@ public class SampleFE
 		}
 		public Instance extractInstance(TextLabels labels, Span s)
 		{
-			//System.out.println("tokenPropertyFeatures: "+StringUtil.toString(tokenPropertyFeatures));
+			if (tokenPropertyFeatures==null) setTokenPropertyFeatures( labels.getTokenProperties() );
+
 			FeatureBuffer buf = new FeatureBuffer(labels,s);
+
 			SpanFE.from(s,buf).tokens().eq().lc().emit();
 			if (useCompressedCharType) {
-				SpanFE.from(s,buf).tokens().eq().tr("[A-Z]+","X").tr("[a-z]+","x").tr("[0-9]+","9").emit();
+				SpanFE.from(s,buf).tokens().eq().charTypePattern().emit();
 			}
 			if (useCharType) {
-				SpanFE.from(s,buf).tokens().eq().tr("[A-Z]","A").tr("[a-z]","a").tr("[0-9]","0").emit();
+				SpanFE.from(s,buf).tokens().eq().charTypes().emit();
 			}
 			for (int j=0; j<tokenPropertyFeatures.length; j++) {
 				SpanFE.from(s,buf).tokens().prop(tokenPropertyFeatures[j]).emit();
@@ -115,15 +143,15 @@ public class SampleFE
 				SpanFE.from(s,buf).right().token(i).eq().lc().emit();
 				for (int j=0; j<tokenPropertyFeatures.length; j++) {
 					SpanFE.from(s,buf).left().token(-i-1).prop(tokenPropertyFeatures[j]).emit();
-				}
-				for (int j=0; j<tokenPropertyFeatures.length; j++) {
 					SpanFE.from(s,buf).right().token(i).prop(tokenPropertyFeatures[j]).emit();
 				}
 				if (useCompressedCharType) {
-					SpanFE.from(s,buf).left().token(-i-1).eq().tr("[A-Z]+","X").tr("[a-z]+","x").tr("[0-9]+","9").emit();
+					SpanFE.from(s,buf).left().token(-i-1).eq().charTypePattern().emit();
+					SpanFE.from(s,buf).right().token(i).eq().charTypePattern().emit();
 				}
 				if (useCharType) {
-					SpanFE.from(s,buf).right().token(i).eq().tr("[A-Z]","A").tr("[a-z]","a").tr("[0-9]","0").emit();
+					SpanFE.from(s,buf).left().token(-i-1).eq().charTypes().emit();
+					SpanFE.from(s,buf).right().token(i).eq().charTypes().emit();
 				}
 			}
 			return buf.getInstance();

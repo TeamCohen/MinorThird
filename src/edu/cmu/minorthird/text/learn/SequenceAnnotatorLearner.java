@@ -1,8 +1,7 @@
 package edu.cmu.minorthird.text.learn;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.sequential.SequenceClassifier;
-import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.AnnotatorLearner;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
@@ -13,32 +12,39 @@ import org.apache.log4j.Logger;
 import java.io.Serializable;
 
 /**
- * Learn an annotation model using a sequence dataset.
+ * Learn an annotation model using a sequence dataset and a
+ * BatchSequenceClassifierLearner.  This class reduces learning a
+ * single type T to sequential classification of tokens as 'inside a
+ * span of type T' or 'outside a span of type T'.
  *
- * @author William Cohen
+ * @AUTHOR William Cohen
  */
 
-public abstract class SequenceAnnotatorLearner implements AnnotatorLearner
+public class SequenceAnnotatorLearner implements AnnotatorLearner
 {
 	private static Logger log = Logger.getLogger(SequenceAnnotatorLearner.class);
+	private static final boolean DEBUG = false;
 
 	protected static double INSIDE_LABEL = +1;
 	protected static double OUTSIDE_LABEL = -1;
 	protected SpanFeatureExtractor fe;
 	protected String annotationType = "_prediction";
-	protected int historySize = 1;
+	protected int historySize = 3;
 	protected SequenceDataset seqData = new SequenceDataset();
+	protected BatchSequenceClassifierLearner seqLearner;
 
-	public SequenceAnnotatorLearner(SpanFeatureExtractor fe,int historySize)
+	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,int historySize)
 	{
+		this.seqLearner = seqLearner;
 		this.fe = fe;
 		this.historySize = historySize;
 		seqData.setHistorySize(historySize);
 	}
 
-	public String getAnnotationType() { return annotationType; }
-
+	/** Specify the type of annotation produced by this annotator - that is, the
+	 * type associated with spans produced by it. */
 	public void setAnnotationType(String s) { annotationType=s; }
+	public String getAnnotationType() { return annotationType; }
 
 	// temporary storage
 	private Span.Looper documentLooper;
@@ -85,7 +91,13 @@ public abstract class SequenceAnnotatorLearner implements AnnotatorLearner
 
 	/** Return the learned annotator.
 	 */
-	abstract public Annotator getAnnotator();
+	public Annotator getAnnotator()
+	{
+		seqLearner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
+		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
+		if (DEBUG) log.debug("learned classifier: "+seqClassifier);
+		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, annotationType );
+	}
 
 	/** Get the constructed sequence data.
 	 */
@@ -131,14 +143,14 @@ public abstract class SequenceAnnotatorLearner implements AnnotatorLearner
 				for (int j=0; j<classLabels.length; j++) {
 					boolean inside = classLabels[j].isPositive();
 					labels.setProperty( s.getToken(j), "insideOutside", (inside?"inside":"outside") );
-					if (inside) log.debug("inside: '"+s.getToken(j).getValue()+"'");
+					if (DEBUG && inside) log.debug("inside: '"+s.getToken(j).getValue()+"'");
 				}
 				pc.progress();
 			}
 			for (Span.Looper j=mergeExpr.extract(labels, labels.getTextBase().documentSpanIterator()); j.hasNext(); ) {
 				Span s = j.nextSpan();
 				labels.addToType( s, annotationType );
-				log.info(annotationType+": '"+s.asString()+"'");
+				if (DEBUG) log.debug(annotationType+": '"+s.asString()+"'");
 			}
 			pc.finished();
 		}

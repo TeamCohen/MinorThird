@@ -46,5 +46,9 @@ public class MonotonicSubTextLabels extends SubTextLabels implements MonotonicTe
 		monotonicLabels.declareType(type);
 	}
 	
+	public void require(String annotationType,String fileToLoad) { 
+		monotonicLabels.require(annotationType,fileToLoad);
+	}
+
 }
 

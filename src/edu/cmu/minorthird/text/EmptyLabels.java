@@ -31,6 +31,8 @@ public class EmptyLabels implements TextLabels
 	public Span.Looper closureIterator(String type, String documentId) { return nullLooper(); }
 	public String showTokenProp(TextBase base, String prop) { return ""; }
 	public Details getDetails(Span span,String type) { return null; }
-
+	public void require(String annotationType,String fileToLoad) { 
+		throw new IllegalStateException("annotationType "+annotationType+" not present");
+	}
 	private Span.Looper nullLooper() { return new BasicSpanLooper( EMPTY_SET ); }
 }
