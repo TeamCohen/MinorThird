@@ -56,7 +56,7 @@ public class ApplyAnnotator extends UIMain
 		try {
 			ann = (Annotator)IOUtil.loadSerialized(load.loadFrom);
 		} catch (IOException ex) {
-			throw new IllegalArgumentException("can't load annotator from "+load.loadFrom);
+			throw new IllegalArgumentException("can't load annotator from "+load.loadFrom+": "+ex);
 		}
 
 		// do the annotation

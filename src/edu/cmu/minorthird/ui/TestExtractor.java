@@ -84,6 +84,14 @@ public class TestExtractor extends UIMain
 			new ViewerFrame("Annotated Textbase",va);
 			new ViewerFrame("Performance Results", evaluation.toGUI());
 		}
+
+		if (save.saveAs!=null) {
+			try {
+				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
+			} catch (IOException e) {
+				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
+			}
+		}
 	}
 
 	public Object getMainResult() { return evaluation; }

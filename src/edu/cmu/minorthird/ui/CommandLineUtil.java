@@ -534,7 +534,6 @@ class CommandLineUtil
 		public void setMixupProgramFilename(String s) { mixup(s); }
 	}
 
-
 	static public class AnnotatorOutputParams extends BasicCommandLineProcessor {
 		private static final String[] ALLOWED_VALUES = {"minorthird","xml","strings"};
 		public String format = "minorthird";
