@@ -633,8 +633,8 @@ public class TextBaseLoader
       String tag = matcher.group(1);
       boolean isOpenTag = !matcher.group().startsWith("</");
       if (log.isDebugEnabled()) {
-	log.debug("matcher.group='"+matcher.group()+"'");
-	log.debug("found '"+tag+"' tag ,open="+isOpenTag+", at "+matcher.start()+" in:\n"+line);
+        log.debug("matcher.group='"+matcher.group()+"'");
+        log.debug("found '"+tag+"' tag ,open="+isOpenTag+", at "+matcher.start()+" in:\n"+line);
       }
       //copy stuff up to tag into buffer
       docBuffer.append( line.substring(currentChar, matcher.start()) );
@@ -656,10 +656,10 @@ public class TextBaseLoader
         if (!tag.equals(entry.markupTag))
           throw new ParseException("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
 
-	if (log.isDebugEnabled()) {
-	  log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
-		    +": '"+docBuffer.substring(entry.index)+"'");
-	}
+        if (log.isDebugEnabled()) {
+          log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
+                    +": '"+docBuffer.substring(entry.index)+"'");
+        }
         //spanList.add( new CharSpan(entry.index, docBuffer.length()-1, tag) );
         spanList.add( new CharSpan(entry.index, docBuffer.length(), tag, curDocID) );
       }

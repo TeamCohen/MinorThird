@@ -124,7 +124,9 @@ public class MaxEntLearner extends BatchClassifierLearner
       }
       return transformed;
     }
-		//public SequenceClassifier getSequenceClassifier() { return c; }
+
+		public Classifier getRawClassifier() { return c; }
+
 		public Viewer toGUI()
 		{
 			Viewer v = new TransformedViewer(new SmartVanillaViewer()) {

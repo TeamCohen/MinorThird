@@ -5,6 +5,7 @@ import java.beans.*;
 import java.lang.reflect.*;
 
 /**
+ * Utilities for reflection.
  */
 public class RefUtils
 {
@@ -21,6 +22,12 @@ public class RefUtils
 		return "set"+s.substring(0,1).toUpperCase()+s.substring(1);
 	}
 
+  /**
+   * Creates an instance of class c, initialized with the string s.
+   * String can be something like "true", "false", "1041", "13.56", or
+   * the name of a class (for instance
+   * "text.learn.SequentialLearner").
+   */
 	static private Object toObject(String s,Class c)
 	{
 		if ((c==Boolean.class  || c==boolean.class) && c.equals("true")) return new Boolean(true);
@@ -53,6 +60,26 @@ public class RefUtils
 		}
 	}
 
+  /**
+   * Returns a modified copy of the object.  
+   *
+   * @param modifications a comma or semi-colon separated list of
+   * strings of the form LHS=RHS, where RHS is something that can be
+   * passed to toObject(), and LHS is a period-separated chain of
+   * getters/setters, where only the last item is a setter.
+   * <p>
+   * Example:<br>
+   * <code>RefUtils.modify(
+   *           new StackedSequenceLearner(new MaxEntLearner(),1),<br>
+   *           "params.historySize=1,params.futureSize=0")<br>
+   * </code>
+   * is the same as:
+   * <code>
+   * StackedSequenceLearner a = new StackedSequenceLearner(new MaxEntLearner(),1);<br>
+   * a.getParams().setHistorySize(1);<br>
+   * a.getParams().setFutureSize(0);<br>
+   * </code>
+   */
 	public static Object modify(Object obj,String modifications)
 	{
 		String[] mods = modifications.split("[,;]\\s*");
