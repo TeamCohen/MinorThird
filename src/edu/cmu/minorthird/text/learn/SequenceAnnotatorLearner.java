@@ -4,6 +4,7 @@ import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.ui.*;
 import edu.cmu.minorthird.text.learn.AnnotatorLearner;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.mixup.Mixup;
@@ -37,6 +38,14 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	protected BatchSequenceClassifierLearner seqLearner;
 	protected Extraction2TaggingReduction reduction = new InsideOutsideReduction();
 
+	public SequenceAnnotatorLearner()
+	{
+		this(new CollinsPerceptronLearner(),new Recommended.TokenFE());
+	}
+	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe)
+	{
+		this(seqLearner,fe,new InsideOutsideReduction());
+	}
 	public SequenceAnnotatorLearner(
 		BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,Extraction2TaggingReduction reduction)
 	{
@@ -45,10 +54,6 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		this.fe = fe;
 		this.historySize = seqLearner.getHistorySize();
 		seqData.setHistorySize(this.historySize);
-	}
-	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe)
-	{
-		this(seqLearner,fe,new InsideOutsideReduction());
 	}
 
 	public void reset() {

@@ -108,14 +108,19 @@ public class BasicDataset implements Visible,Saveable,Dataset
 	public static class SimpleDatasetViewer extends ComponentViewer
 	{
 		public boolean canReceive(Object o) {
-			return o instanceof BasicDataset;
+			return o instanceof Dataset;
 		}
 		public JComponent componentFor(Object o) {
-			final BasicDataset d = (BasicDataset)o;
-			final JList jList = new JList(d.examples.toArray());
+			final Dataset d = (Dataset)o;
+			final Example[] tmp = new Example[d.size()];
+			int k=0;
+			for (Example.Looper i=d.iterator(); i.hasNext(); ) {
+				tmp[k++] = i.nextExample();
+			}
+			final JList jList = new JList(tmp);
 			jList.setCellRenderer( new ListCellRenderer() {
 					public Component getListCellRendererComponent(JList el,Object v,int index,boolean sel,boolean focus){
-						return GUI.conciseExampleRendererComponent((Example)d.examples.get(index),60,sel);
+						return GUI.conciseExampleRendererComponent((Example)tmp[index],60,sel);
 					}});
 			monitorSelections(jList);
 			return new JScrollPane(jList);		

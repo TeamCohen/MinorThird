@@ -27,6 +27,7 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 	private int numberOfEpochs;
 
 	public SegmentCollinsPerceptronLearner(int epochs) { this.numberOfEpochs = epochs; }
+	public SegmentCollinsPerceptronLearner() { this.numberOfEpochs = 5; }
 
 	public void setSchema(ExampleSchema schema)	{	;	}
 
@@ -52,18 +53,18 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 
 		ProgressCounter pc =
 			new ProgressCounter("training semi-markov voted-perceptron",
-													"sequence",numberOfEpochs*dataset.numberOfSequences());
+													"sequence",numberOfEpochs*dataset.getNumberOfSegmentGroups());
 
 		for (int epoch=0; epoch<numberOfEpochs; epoch++) 
 		{
-			//dataset.shuffle();
+			dataset.shuffle();
 
 			// statistics for curious researchers
 			int sequenceErrors = 0;
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (SegmentDataset.Looper i=dataset.slidingWindowGroupIterator(); i.hasNext(); ) 
+			for (SegmentDataset.Looper i=dataset.candidateSegmentGroupIterator(); i.hasNext(); ) 
 			{
 				CandidateSegmentGroup g = i.nextCandidateSegmentGroup();
 				if (DEBUG) log.debug("classifier is: "+c);
@@ -267,8 +268,11 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 		}
 	}
 
-	public static class ViterbiSegmenter implements Segmenter,Visible
+	public static class ViterbiSegmenter implements Segmenter,Visible,Serializable
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		private CollinsPerceptronLearner.MultiClassVPClassifier c;
 		private ExampleSchema schema;
 		private int maxSegSize;

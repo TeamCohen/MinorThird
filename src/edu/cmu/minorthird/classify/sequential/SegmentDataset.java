@@ -31,7 +31,7 @@ public class SegmentDataset implements Dataset
 
 	public int size() { return totalSize; }
 
-	public int numberOfSequences() { return groupList.size(); }
+	public int getNumberOfSegmentGroups() { return groupList.size(); }
 
 	/** Add a new sequence of examples to the dataset. */
 	public void addCandidateSegmentGroup(CandidateSegmentGroup group)
@@ -67,7 +67,7 @@ public class SegmentDataset implements Dataset
 		for (Iterator i=groupList.iterator(); i.hasNext(); ) {
 			CandidateSegmentGroup g = (CandidateSegmentGroup)i.next();
 			for (int j=0; j<g.getSequenceLength(); j++) {
-				for (int k=1; k<=g.getMaxWindowSize(); j++) {
+				for (int k=1; k<=g.getMaxWindowSize(); k++) {
 					Example e = g.getSubsequenceExample(j,j+k);
 					if (e!=null) result.add(e);
 				}
@@ -77,7 +77,7 @@ public class SegmentDataset implements Dataset
 	}
 
 
-	public SegmentDataset.Looper slidingWindowGroupIterator()
+	public SegmentDataset.Looper candidateSegmentGroupIterator()
 	{
 		return new Looper();
 	}
@@ -95,6 +95,7 @@ public class SegmentDataset implements Dataset
 	public String toString()
 	{	
 		StringBuffer buf = new StringBuffer("");
+		buf.append("size = "+size()+"\n");
 		for (Iterator i=groupList.iterator(); i.hasNext(); ) {
 			buf.append( i.next() + "\n" );
 		}
@@ -149,7 +150,11 @@ public class SegmentDataset implements Dataset
 	/** A GUI view of the dataset. */
 	public Viewer toGUI()
 	{
-		return new VanillaViewer(this);
+		//return new VanillaViewer(this);
+		Viewer dbGui = new BasicDataset.SimpleDatasetViewer();
+		dbGui.setContent(this);
+		Viewer instGui = GUI.newSourcedExampleViewer();
+		return new ZoomedViewer(dbGui,instGui);
 	}
 }
 

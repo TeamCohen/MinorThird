@@ -113,7 +113,8 @@ public class Recommended
 		private final int CURRENT_VERSION_NUMBER = 1;
 
 		/**	 Extracted entities must be of length 4 or less. */
-		public VPSMMLearner2() { super(new SegmentCollinsPerceptronLearner(5), new MultitokenSpanFE(), 4); }
+		public VPSMMLearner2() { super(new SegmentCollinsPerceptronLearner(), new MultitokenSpanFE(), 4); }
+		public VPSMMLearner2(int epochs) { super(new SegmentCollinsPerceptronLearner(epochs), new MultitokenSpanFE(), 4); }
 	}
 	
 

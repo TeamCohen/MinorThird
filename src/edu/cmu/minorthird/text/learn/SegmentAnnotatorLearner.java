@@ -4,6 +4,7 @@ import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.ui.*;
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.util.ProgressCounter;
 import org.apache.log4j.Logger;
@@ -32,16 +33,20 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 	protected SpanFeatureExtractor fe;
 	protected int maxWindowSize;
 
+	public SegmentAnnotatorLearner()
+	{
+		this(new SegmentCollinsPerceptronLearner(),new Recommended.MultitokenSpanFE());
+	}
+	public SegmentAnnotatorLearner(BatchSegmenterLearner learner,SpanFeatureExtractor fe)
+	{
+		this(learner,fe,4);
+	}
 	public SegmentAnnotatorLearner(BatchSegmenterLearner learner,SpanFeatureExtractor fe,int windowSize)
 	{
 		this.learner = learner;
 		this.fe = fe;
 		this.maxWindowSize = windowSize;
 		reset();
-	}
-	public SegmentAnnotatorLearner(BatchSegmenterLearner learner,SpanFeatureExtractor fe)
-	{
-		this(learner,fe,4);
 	}
 	public void reset() 
 	{
@@ -167,7 +172,9 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 						if (DEBUG) log.debug("span of type: "+annotationType+": "+span);
 					}
 				}
+				pc.progress();
 			}
+			pc.finished();
 		}
 		public String explainAnnotation(TextLabels labels,Span documentSpan)
 		{

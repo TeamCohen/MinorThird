@@ -17,6 +17,7 @@ public class GUI
 	/** A JComponent holding a very concise rendering of an example. */
 	public static JComponent conciseExampleRendererComponent(Example e,int len,boolean emphasized)
 	{
+		if (e==null) return new JTextField("[null example]");
 		String sourceString = e.getSource()==null ? "[null]" : StringUtil.truncate(len, e.getSource().toString());
 		JTextField tf = new JTextField(e.getLabel()+" "+sourceString);
 		Color c = (emphasized ? Color.blue: Color.black);

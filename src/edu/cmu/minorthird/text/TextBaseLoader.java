@@ -59,7 +59,6 @@ import java.util.regex.Pattern;
  * TBL.setTextBase(null);
  * TextBase yourDirBase = TBL.load(new File("yourDir"));
  * -----------------------------------------------------------------
->>>>>>> 1.24
  *
  * Configure the loader for the format of the data you have.  Then call load to return a TextBase<br.
  * <br>
@@ -597,8 +596,10 @@ public class TextBaseLoader
     while (matcher.find()) {
       String tag = matcher.group(1);
       boolean isOpenTag = !matcher.group().startsWith("</");
-      log.debug("matcher.group='"+matcher.group()+"'");
-      log.debug("found '"+tag+"' tag ,open="+isOpenTag+", at "+matcher.start()+" in:\n"+line);
+			if (log.isDebugEnabled()) {
+				log.debug("matcher.group='"+matcher.group()+"'");
+				log.debug("found '"+tag+"' tag ,open="+isOpenTag+", at "+matcher.start()+" in:\n"+line);
+			}
       //copy stuff up to tag into buffer
       docBuffer.append( line.substring(currentChar, matcher.start()) );
       currentChar = matcher.end();
@@ -619,8 +620,10 @@ public class TextBaseLoader
         if (!tag.equals(entry.markupTag))
           throw new ParseException("close '"+tag+"' tag paired with open '" +entry.markupTag+"'", entry.index);
 
-        log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
-                  +": '"+docBuffer.substring(entry.index)+"'");
+				if (log.isDebugEnabled()) {
+					log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
+										+": '"+docBuffer.substring(entry.index)+"'");
+				}
         spanList.add( new CharSpan(entry.index, docBuffer.length(), tag) );
       }
     }
