@@ -27,6 +27,7 @@ public class MixupProgramTest extends TestSuite
 		suite.addTest( new NestedProgramTest1() );
 		suite.addTest( new NestedProgramTest2() );
 		suite.addTest( new NestedProgramTest3() );
+		suite.addTest( new ImplicitDeclareTest() );
 		return suite;
 	}
 		
@@ -79,6 +80,23 @@ public class MixupProgramTest extends TestSuite
 			assertTrue( i.hasNext() );
 			assertEquals( "Warren Baker", i.nextSpan().asString() );
 			assertTrue( !i.hasNext() );
+		}
+	}
+
+	/** make sure implicit declarations work */
+	public static class ImplicitDeclareTest extends AbstractProgramTest
+	{
+		public ImplicitDeclareTest() { super("doTest"); }
+		public void doTest() throws Mixup.ParseException 
+		{
+			String testCaseDir="edu/cmu/minorthird/text/mixup/testcases";
+			String progDef = contentsOfResourceFile(testCaseDir+"/implicitDeclare.mixup");
+			MixupProgram prog = new MixupProgram(progDef);
+			TextBase base = new BasicTextBase();
+			String trialDoc = contentsOfResourceFile(testCaseDir+"/seminar-official-news-2477.txt");
+			base.loadDocument("2477",trialDoc);
+			MonotonicTextLabels labels = new BasicTextLabels(base);
+			prog.eval(labels,base); // just check there's no error raised
 		}
 	}
 

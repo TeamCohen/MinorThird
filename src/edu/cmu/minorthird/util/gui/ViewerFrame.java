@@ -4,12 +4,12 @@ import edu.cmu.minorthird.util.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
+import javax.swing.filechooser.FileFilter;
+import java.awt.event.*;
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.Stack;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -24,46 +24,41 @@ public class ViewerFrame extends JFrame
 {
 	private Viewer myViewer = null;
 	private String myName = null;
-	private JMenuItem saveItem = null;
+	private JMenuItem saveItem=null, zoomItem=null, openItem=null;
+	private Object content = null;
+	private ContentWrapper wrapper = null;
 
 	private static class StackFrame {
 		public Viewer view; 
 		public String name;
 		public StackFrame(String s,Viewer v) { this.view=v; this.name=s; }
 	}
-	private Stack history = new Stack();
+
 
 	public ViewerFrame(String name,Viewer viewer)
 	{
 		super();
-		pushContent(name,viewer);
 		addMenu();
+		setContent(name,viewer);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     pack();
 		setVisible(true);
 	}
 
-	private void pushContent(String name,Viewer viewer)
-	{
-		if (myName!=null) history.push(new StackFrame(myName,myViewer));
-		setContent(name,viewer);
-	}
-	private void popContent()
-	{
-		if (!history.empty()) {
-			StackFrame sf = (StackFrame)history.pop();
-			setContent(sf.name,sf.view);
-		}
-	}
 	private void setContent(String name,Viewer viewer)
 	{
 		this.myName = name;
 		this.myViewer = viewer;
+		this.content = myViewer.getVisibleContent();
+		this.wrapper = new ContentWrapper(content);
 		viewer.setPreferredSize(new java.awt.Dimension(800,600));
 		getContentPane().removeAll();
 		getContentPane().add(viewer, BorderLayout.CENTER);
 		setTitle(name);
 		myViewer.revalidate();
+		zoomItem.setEnabled( myViewer.getSubViewNames().size()>0 );
+		saveItem.setEnabled( wrapper.isSaveable() );
+		openItem.setEnabled( wrapper.isSaveable() );
 		//repaint();
 	}
 
@@ -75,19 +70,19 @@ public class ViewerFrame extends JFrame
 		JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 
-		JMenuItem openItem = new JMenuItem("Open ...");
+		openItem = new JMenuItem("Open ...");
 		menu.add(openItem);
 		openItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
-					JFileChooser chooser = new JFileChooser();
+					JFileChooser chooser = wrapper.makeFileChooser(wrapper);
 					int returnVal = chooser.showOpenDialog(ViewerFrame.this);
 					if (returnVal==JFileChooser.APPROVE_OPTION) {
 						try {
-							Object obj = IOUtil.loadSerialized(chooser.getSelectedFile());
+							Object obj = wrapper.restore( chooser.getSelectedFile() );
 							if (!(obj instanceof Visible)) {
 								throw new RuntimeException(obj.getClass()+" is not Visible");
 							}
-							pushContent(obj.getClass().toString(), ((Visible)obj).toGUI());
+							setContent(obj.getClass().toString(), ((Visible)obj).toGUI());
 						} catch (Exception ex) {
 							JOptionPane.showMessageDialog(
 								ViewerFrame.this,
@@ -104,28 +99,28 @@ public class ViewerFrame extends JFrame
 		menu.add(saveItem);
 		saveItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
-					Object content = myViewer.getContent();
-					System.out.println("saving object of type "+content.getClass());
-					if (content instanceof Saveable || content instanceof Serializable) {
-						JFileChooser chooser = new JFileChooser();
+					if (wrapper.isSaveable()) {
+						JFileChooser chooser = wrapper.makeFileChooser(wrapper);
 						int returnVal = chooser.showSaveDialog(ViewerFrame.this);
 						if (returnVal==JFileChooser.APPROVE_OPTION) {
 							try {
-								if (content instanceof Saveable) {
-									((Saveable) content).saveAs( chooser.getSelectedFile() );
-								} else {
-									IOUtil.saveSerialized((Serializable)content, chooser.getSelectedFile());
-								}
+								FileFilter filter = chooser.getFileFilter();
+								String fmt = filter.getDescription();
+								String ext = wrapper.getExtensionFor(fmt);
+								File file0 = chooser.getSelectedFile();
+								File file = 
+									(file0.getName().endsWith(ext)) ? 
+									file0 : new File(file0.getParentFile(), file0.getName()+ext);
+								wrapper.saveAs( file, filter.getDescription() );
 							} catch (Exception ex) {
 								JOptionPane.showMessageDialog(
-									ViewerFrame.this,
-									"Error saving: "+ex,"Save File Error",JOptionPane.ERROR_MESSAGE);
+									ViewerFrame.this,"Error saving: "+ex,"Save File Error",JOptionPane.ERROR_MESSAGE);
 							}
 						}
 					} else {
 						JOptionPane.showMessageDialog(
 							ViewerFrame.this,
-							"You cannot save "+content.getClass(),"Serializability Error",JOptionPane.ERROR_MESSAGE);
+							"You cannot save "+content.getClass(),"Error",JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			});
@@ -140,21 +135,8 @@ public class ViewerFrame extends JFrame
 
 		JMenu menu2 = new JMenu("Go");
 		menuBar.add(menu2);
-		JMenuItem backItem = new JMenuItem("Back");
-		menu2.add(backItem);
-		backItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent ev) {
-					if (!history.empty()) {
-						popContent();
-					} else {
-						JOptionPane.showMessageDialog(
-							ViewerFrame.this,"You can't go back","Navigation Error",JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			});
-		backItem.setEnabled(false); // this doesn't seem to work 
 
-		JMenuItem zoomItem = new JMenuItem("Zoom..");
+		zoomItem = new JMenuItem("Zoom..");
 		menu2.add(zoomItem);
 		zoomItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
@@ -177,7 +159,7 @@ public class ViewerFrame extends JFrame
 									if (buttons[i].isSelected()) {
 										final String name = buttons[i].getText();
 										final Viewer subview = myViewer.getNamedSubView(buttons[i].getText());
-										pushContent(myName+" / "+name,subview);
+										setContent(myName+" / "+name,subview);
 										dialog.dispose();
 									}
 								}
@@ -210,6 +192,69 @@ public class ViewerFrame extends JFrame
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("usage: ViewerFrame [serializedVisableObjectFile]");
+		}
+	}
+
+	private static class ContentWrapper implements Saveable
+	{
+		private Object obj;
+		private String[] formats;
+		public static final String SERIALIZED_FORMAT_NAME = "Serialized Java Object";
+		public static final String SERIALIZED_EXT = ".serialized";
+		public ContentWrapper(Object obj) 
+		{	
+			this.obj = obj;	
+			int n = (obj instanceof Serializable)?1:0;
+			if (obj instanceof Saveable) {
+				String[] fs = ((Saveable)obj).getFormatNames();
+				formats = new String[fs.length+n];
+				for (int i=0; i<fs.length; i++) formats[i+n] = fs[i];
+			} else {
+				formats = new String[n];
+			}
+			if (formats.length>0) formats[0] = SERIALIZED_FORMAT_NAME;
+		}
+		public boolean isSaveable() { return formats.length>0; }
+		public String[] getFormatNames() { return formats; }
+		public String getExtensionFor(String formatName)
+		{
+			if (formatName.equals(SERIALIZED_FORMAT_NAME)) return SERIALIZED_EXT;
+			else if (obj instanceof Saveable) return ((Saveable)obj).getExtensionFor(formatName);
+			else return null;
+		}
+		public FileFilter getFilter(int i)
+		{
+			final String ext = getExtensionFor(formats[i]);
+			final String fmt = formats[i];
+			return new FileFilter() {
+					public boolean accept(File f) { return f.isDirectory() || f.getName().endsWith( ext ); }
+					public String getDescription() { return fmt; }
+				};
+		}
+		public void saveAs(File file, String formatName) throws IOException
+		{
+			if (!isSaveable()) throw new IllegalArgumentException("can't save "+obj);
+			if (SERIALIZED_FORMAT_NAME.equals(formatName)) 
+				IOUtil.saveSerialized((Serializable)obj, file);
+			else 
+				((Saveable)obj).saveAs(file,formatName);
+		}
+		public Object restore(File file) throws IOException
+		{
+			if (!isSaveable()) throw new IllegalArgumentException("can't restore something like "+obj);			
+			if (file.getName().endsWith(SERIALIZED_EXT)) {
+				return IOUtil.loadSerialized(file);
+			} else {
+				return ((Saveable)obj).restore(file);
+			}
+		}
+		public JFileChooser makeFileChooser(ContentWrapper w)
+		{
+			JFileChooser chooser = new JFileChooser();
+			for (int i=0; i<formats.length; i++) {
+				chooser.addChoosableFileFilter(w.getFilter(i));
+			}
+			return chooser;
 		}
 	}
 }

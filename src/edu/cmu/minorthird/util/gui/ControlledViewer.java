@@ -91,7 +91,7 @@ public class ControlledViewer extends Viewer
 	}
 	public void receiveContent(Object obj)
 	{
-		viewer.receiveContent(obj);
+		viewer.setContent(obj);
 	}
 	protected boolean canHandle(int signal,Object argument,ArrayList senders) 
 	{ 

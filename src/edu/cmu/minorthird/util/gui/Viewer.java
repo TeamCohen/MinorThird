@@ -72,7 +72,7 @@ public abstract class Viewer extends JPanel
 		setSuperView(superView,ONLY_SUBVIEWER);
 	}
 
-	/** Declare this viewer to be the only subview of superView. */
+	/** Declare this viewer to be a subview of superView. */
 	final public void setSuperView(Viewer superView,String title) 
 	{ 
 		//if (namedSubViews.get(title)!=null) 
@@ -80,14 +80,20 @@ public abstract class Viewer extends JPanel
 		this.superView = superView; 
 		superView.namedSubViews.put(title,this);
 	}
+	/** Get Viewer in which this viewer is contained. */
 	final public Viewer getSuperView() 
 	{ 
 		return superView; 
 	}
+	/** Change the object being displayed by this viewer. */
 	final public void setContent(Object content)
 	{
 		setContent(content,false);
 	}
+	/** Change the object being displayed by this viewer.
+	 * If forceUpdate is false, to not force the display
+	 * to be changed.
+	 */
 	final public void setContent(Object content,boolean forceUpdate)
 	{
 		if (content!=this.content || forceUpdate) {
@@ -96,11 +102,22 @@ public abstract class Viewer extends JPanel
 			sendSignal(SET_CONTENT,content);
 		}
 	}
+	/** Get the object being displayed, as determined by the
+	 * last call to setContent(). */
 	final public Object getContent()
 	{
 		return content;
 	}
-		
+	/** Get the object being displayed as the user sees it.  */
+	final public Object getVisibleContent()
+	{
+		if (namedSubViews.size()==1 && namedSubViews.get(ONLY_SUBVIEWER)!=null) {
+			Object result = ((Viewer)namedSubViews.get(ONLY_SUBVIEWER)).getVisibleContent();
+			return result;
+		} else {
+			return content;
+		}
+	}
 
 	//
 	// signalling
@@ -117,7 +134,8 @@ public abstract class Viewer extends JPanel
 		}
 	}
 
-	/** Listen to passing signals, and either handle them, or propogare them upward. */
+	/** Listen to passing signals, and either handle them, or propogare them upward
+	 * to the superViewer. */
 	final private void hearBroadcast(int signal,Object argument,ArrayList senders)
 	{
 		if (canHandle(signal,argument,senders)) {

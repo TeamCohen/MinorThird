@@ -200,10 +200,24 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 		return buf.toString();
 	}
 
-	/** Save to disk with the DatasetLoader. */
-	public void saveAs(File file) throws IOException
+	//
+	// Implement Saveable interface. 
+	//
+	static private final String FORMAT_NAME = "Minorthird Sequential Dataset";
+	public String[] getFormatNames() { return new String[] {FORMAT_NAME}; } 
+	public String getExtensionFor(String s) { return ".seqdata"; }
+	public void saveAs(File file,String format) throws IOException
 	{
+		if (!format.equals(FORMAT_NAME)) throw new IllegalArgumentException("illegal format "+format);
 		DatasetLoader.saveSequence(this,file);
+	}
+	public Object restore(File file) throws IOException
+	{
+		try {
+			return DatasetLoader.loadSequence(file);
+		} catch (NumberFormatException ex) {
+			throw new IllegalStateException("error loading from "+file+": "+ex);
+		}
 	}
 
 	/** A GUI view of the dataset. */

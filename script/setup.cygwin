@@ -1,12 +1,11 @@
 echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-echo CYGWIN setup script
-echo To run this you should:
-echo + have JAVA_HOME defined
+echo CYGWIN setup script for MinorThird
+echo To use this to develop with MinorThird, you should 
+echo + have JAVA_HOME defined, with a version of Java later than 1.4
 echo + have ANT installed
 echo + either
 echo + - run all commands, including this one, from the directory containing the build.xml file, OR
-echo + - define MINORTHIRD to be WINDOWS name of that directory, eg c:\minorthird
-echo + rather than /cygdrive/c/minorthird
+echo + - define MINORTHIRD as the WINDOWS name of that dir, eg c:\minorthird NOT /cygdrive/c/minorthird
 echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 echo
 export CLASSPATH="${CLASSPATH};.;${MINORTHIRD-.}/class;${MINORTHIRD-.}/lib;${MINORTHIRD-.}/lib/minorThirdIncludes.jar"

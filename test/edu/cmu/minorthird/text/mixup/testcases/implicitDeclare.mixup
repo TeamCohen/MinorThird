@@ -1,0 +1,9 @@
+
+// this tests a new feature: defSpanType will now
+// 'declare' a type after its run, even if no instances
+// of the type are added.
+
+defSpanType emptyType =top: [ 'gobbledy' 'Gook' ] ;
+
+defSpanType testImplicitDeclare =emptyType:  ... [any ];
+

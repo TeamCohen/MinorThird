@@ -31,13 +31,15 @@ public class ExtractionEvaluation implements Visible,Serializable
 		double tp,tr,tf1,sp,sr,sf1;
 	}
 
-    private static class accStats {
-		 MathUtil.Accumulator tp    = new MathUtil.Accumulator();
-         MathUtil.Accumulator tr    = new MathUtil.Accumulator();
-         MathUtil.Accumulator tf1   = new MathUtil.Accumulator();
-         MathUtil.Accumulator sp    = new MathUtil.Accumulator();
-         MathUtil.Accumulator sr    = new MathUtil.Accumulator();
-         MathUtil.Accumulator sf1   = new MathUtil.Accumulator();
+	private static class accStats implements Serializable {
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+		MathUtil.Accumulator tp    = new MathUtil.Accumulator();
+		MathUtil.Accumulator tr    = new MathUtil.Accumulator();
+		MathUtil.Accumulator tf1   = new MathUtil.Accumulator();
+		MathUtil.Accumulator sp    = new MathUtil.Accumulator();
+		MathUtil.Accumulator sr    = new MathUtil.Accumulator();
+		MathUtil.Accumulator sf1   = new MathUtil.Accumulator();
 	}
 
 

@@ -39,14 +39,8 @@ abstract public class ComponentViewer extends Viewer
 	/** Get new content. */	
 	public void receiveContent(Object content)
 	{
-//		log.info("recieving content: "+content+" at "+this);
 		removeAll();
 		JComponent c = componentFor(content);
-		//Kevin, the line below was crashing, presumably because 'log'
-		//is null---removing the line below lets it work...
-		//the line that threw the error was
-		// java edu.cmu.minorthird.ui.TrainTestClassifier -labels cspace.07 -spanType meeting -showLabels -learner "SVMLearner()" -showResult -showData -splitter k5
-		//log.debug("adding component "+c+" at "+this);
 		add( c, fillerGBC() );
 	}	
 

@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.util;
 
+import java.io.Serializable;
+
 /**
  * Math utilities.
  *
@@ -30,8 +32,11 @@ public class MathUtil
 	/** Accumulate a list of numbers, then report on mean, standard
 	 * deviation, and other common statistics.
 	 */
-	static public class Accumulator
+	static public class Accumulator implements Serializable
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		private double sum=0, cov=0, count=0; 
 		private boolean isBinomial=true;
 

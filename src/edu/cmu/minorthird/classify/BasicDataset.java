@@ -78,10 +78,24 @@ public class BasicDataset implements Visible,Saveable,Dataset
 		return copy;
 	}
 
-	/** Save to disk with the DatasetLoader. */
-	public void saveAs(File file) throws IOException
+	//
+	// Implement Saveable interface. 
+	//
+	static private final String FORMAT_NAME = "Minorthird Dataset";
+	public String[] getFormatNames() { return new String[] {FORMAT_NAME}; } 
+	public String getExtensionFor(String s) { return ".data"; }
+	public void saveAs(File file,String format) throws IOException
 	{
+		if (!format.equals(FORMAT_NAME)) throw new IllegalArgumentException("illegal format "+format);
 		DatasetLoader.save(this,file);
+	}
+	public Object restore(File file) throws IOException
+	{
+		try {
+			return DatasetLoader.loadFile(file);
+		} catch (NumberFormatException ex) {
+			throw new IllegalStateException("error loading from "+file+": "+ex);
+		}
 	}
 
 	/** A string view of the dataset */

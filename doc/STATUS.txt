@@ -4,6 +4,8 @@ PRIORITIES:
  - vitor's bug
 
 BUGS:
+  - does showTestDetails change the result?
+  - update issues with 'mixup' and feature extractor
   - output issues with console window?
   - clean up TBL so that it doesn't always try and parse xml tags
   - should precision/recall start at something other than 1.0 (max precision?)
@@ -14,11 +16,29 @@ BUGS:
   - performance issues loading in large files (with markup?)
 
 UI tweaks:
-  add TrainTagger, TestTagger?
-  capture output dynamically?
+  - for EditLabels, list the unlabeled examples (no closure)
+  - stop task?
+  - can we save all edited changes as a config file?
+  - should sequenceLearner mark up the environment shown to the user?
+  - allow FixedTestSetSplitter in gui?
+  - cleaner semantics for FancyLoader:   
+  {
+    if (file FOO && FOO is bsh script) {
+        return bshLoad;
+    }  else if (file FOO) {
+        load doc/line;  // xml interpretation set by flag      
+    } else if (dir FOO) {
+        loadDir FOO;    // xml interpretation set by flag 
+    } else if (FOO is bsh script in scriptDir) {
+        return bshLoad;      
+    } 
+    importOps if FOO.labels present
+    run mixup if FOO.mixup present
+  }
+
+  unify reflection for TypeSelector, CommandLineProcessor?
   progress counter & threads for dataset loading?   
   generic Saveable interface, for "Save As..." in gui?
-  unify reflection for TypeSelector, CommandLineProcessor?
 
 LARGER PROJECTS:
 
@@ -33,6 +53,9 @@ MEDIUM TASKS:
  boolean textBase.compatibleWith(otherBase);  // check if otherBase is a variant tokenization
  LabelImporter imp = monotonicTextLabels.getImporter(); // build something that imports new stuff into textLabels
  labelImporter.importSpanType(type,otherLabels);  // import a span type from text labels with a compatible textBase
+
+SMALL TASKS:
+ AdaBoost.L: new update if D_t(i) = D_t(i) * 1 / (1 + exp(yi * f_{t-1}(x_i)))
 
 CLEANUPS/DESIGN:
 
@@ -77,7 +100,11 @@ Spring cleaning:
     text/BOWClassifierWrapper.java.deleteMe - removed use classifierAnnotator instead
     removed prerequistings from text.AbstractAnnotator, it's now in Dependencies
 
-RECENT CHANGES:
+CHANGES from William:
+ - messed with the UIMain console a bit
+ - fixed bugs in viewer, added better support for saving datasets and stuff
+ - defSpanType now does an implicit declareType of its span
+ - added comments to script/setup.sh
  - made "Feature(String s)" split on .'s not spaces
  - added LeaveOneOutDictionary stuff
  - set default #epochs to 1, not 4

@@ -438,6 +438,10 @@ public class MixupProgram
 						Span span = i.nextSpan();
 						extendLabels( labels, span );
 					}
+					// make sure type is declared, even if nothing happened to be defined here
+					if ("defSpanType".equals(keyword)) {
+						labels.declareType(type);
+					}
 				} else if (statementType==FILTER) {
 					TreeSet accum = new TreeSet();
 					for (Span.Looper i=input; i.hasNext(); ) {

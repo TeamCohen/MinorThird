@@ -2,7 +2,8 @@ package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.util.gui.*;
-import java.io.Serializable;
+import edu.cmu.minorthird.util.*;
+import java.io.*;
 import java.util.*;
 
 import org.apache.log4j.Logger;
@@ -13,7 +14,7 @@ import org.apache.log4j.Logger;
  * @author William Cohen
 */
 
-public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
+public class BasicTextLabels implements MutableTextLabels, Serializable, Visible, Saveable
 {
   static private final long serialVersionUID = 1;
 	private final int CURRENT_VERSION_NUMBER = 1;
@@ -418,4 +419,21 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	{
 		return new ZoomingTextLabelsViewer(this);
 	}
+
+	//
+	// Implement Saveable interface. 
+	//
+	static private final String FORMAT_NAME = "Minorthird TextLabels";
+	public String[] getFormatNames() { return new String[] {FORMAT_NAME}; } 
+	public String getExtensionFor(String s) { return ".labels"; }
+	public void saveAs(File file,String format) throws IOException
+	{
+		if (!format.equals(FORMAT_NAME)) throw new IllegalArgumentException("illegal format "+format);
+		new TextLabelsLoader().saveTypesAsOps(this,file);
+	}
+	public Object restore(File file) throws IOException
+	{
+		throw new UnsupportedOperationException("Cannot load TextLabels object");
+	}
+
 }

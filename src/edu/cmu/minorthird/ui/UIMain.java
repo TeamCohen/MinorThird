@@ -23,9 +23,8 @@ import java.awt.event.*;
 
 public abstract class UIMain implements CommandLineProcessor.Configurable
 {			
-	public static JTextArea errorArea;
 	private JPanel errorPanel;
-	public static JButton viewButton;
+	private static JButton viewButton;
 	private static final Class[] SELECTABLE_TYPES = new Class[]
 	{
 		//
@@ -121,21 +120,21 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							JPanel panel = new JPanel();
 							panel.setBorder(new TitledBorder(StringUtil.toString(args,"Command line: ",""," ")));
 							panel.setLayout(new GridBagLayout());
-							GridBagConstraints gbc;
 
+							GridBagConstraints gbc;
 							// another panel to allow parameter modifications
 							JPanel subpanel1 = new JPanel();
 							subpanel1.setBorder(new TitledBorder("Parameter modification"));
-							//subpanel1.add(new JLabel("Use the edit button to change the parameters given in the command line"));
 							subpanel1.add( ts );
 							gbc = Viewer.fillerGBC(); gbc.weighty=0; 
 							panel.add( subpanel1, gbc  ); 										    
+
 							// another panel for error messages and other outputs
+							
 							errorPanel = new JPanel();
 							errorPanel.setBorder(new TitledBorder("Error messages and output"));
-							errorArea = new JTextArea(20,100);
-							errorArea.setFont( new Font("monospaced",Font.PLAIN,12) );
-							errorPanel.add(new JScrollPane(errorArea));
+							final Console console = new Console();
+							errorPanel.add(console.getMainComponent());
 
 							// a control panel for controls
 							JPanel subpanel2 = new JPanel();
@@ -149,45 +148,29 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 									}
 								});
 							viewButton.setEnabled(false);
-							// a button to start this thread
-							JButton goButton = new JButton(new AbstractAction("Start task") {
-									public void actionPerformed(ActionEvent event) {									    
-										Thread thread = new Thread() {
-																					
-											public void run() {
-												viewButton.setEnabled(false);
-												if (base.labels == null)
-													noLabelsMessage(errorArea);
-												else {
-												    long startTime = System.currentTimeMillis();
-												    PrintStream oldSystemOut = System.out;
-												    Console c = new Console(errorArea);
-												    doMain();	    
-												    double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;												    
-												    errorArea.append("\nTotal time for task: "+elapsedTime+" sec");
-												    c.closePipes();
-												    System.setOut(oldSystemOut);
 
-												    viewButton.setEnabled(getMainResult()!=null);
-												} //end else
-											} //end run
-										    }; // end Thread       
-										thread.start();
-									} //end actionPerformed
-							    }); //end new Button
+							// a button to start this thread
+							JButton goButton = new JButton(new AbstractAction("Start Task") {
+									public void actionPerformed(ActionEvent event) {									    
+										console.start();
+									}
+								});
+																						 
 							// and a button to show the current labels
 							JButton showLabelsButton = new JButton(new AbstractAction("Show labels") {
 								public void actionPerformed(ActionEvent ev) {
-								    if (base.labels==null) noLabelsMessage(errorArea);
+								    if (base.labels==null) noLabelsMessage(console);
 								    else new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(base.labels));
 								}
-							    });
+								});
+
 							// and a button to clear the errorArea
 							JButton clearButton = new JButton(new AbstractAction("Clear window") {
 								public void actionPerformed(ActionEvent ev) {
-								    errorArea.setText("");
+									console.clear();
 								}
-							    });
+								});
+
 							// and a button for help
 							JButton helpParamsButton = new JButton(new AbstractAction("Parameters") {
 								public void actionPerformed(ActionEvent ev) {
@@ -195,14 +178,15 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 								    ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
 								    System.setOut(new PrintStream(outBuffer));
 								    getCLP().usage(); 
-								    errorArea.append(outBuffer.toString());
+								    console.append(outBuffer.toString());
 								    System.setOut(oldSystemOut);
 								}
 							    });
+
 							// and another
 							JButton helpRepositoryButton = new JButton(new AbstractAction("Repository") {
 								public void actionPerformed(ActionEvent ev) {
-								    repositoryHelp( errorArea );
+								    repositoryHelp( console );
 								}
 							    });
 							subpanel2.add( goButton );
@@ -236,109 +220,178 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 				v.setContent(this);
 				String className = this.getClass().toString().substring("class ".length());
 				ViewerFrame f = new ViewerFrame(className,v);
+				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Use option -help for help");
 		}
 	}	       	
-    private void noLabelsMessage(JTextArea errorArea) 
+    private void noLabelsMessage(Console console) 
     {
-	errorArea.append("\nYou need to specify the labeled data you're using!\n"
-			 +"Modify the 'labels' parameters under base parameters section\n"
-			 +"of the parameter modification window.\n");
+			console.append("\nYou need to specify the labeled data you're using!\n"
+										 +"Modify the 'labels' parameters under base parameters section\n"
+										 +"of the parameter modification window.\n");
     }
-    private void repositoryHelp(JTextArea errorArea)
+    private void repositoryHelp(Console console)
     {
-	errorArea.append(
-			"The Minorthird repository is a collection of data previously labeled for extraction\n"+
-			"or classification learning. One version of the repository containing public data is on:\n"+
-			"   /afs/cs/project/extract-learn/repository.\n"+
-			"\n"+
-			"Your repository is now configured as follows:\n"+
-			"  "+FancyLoader.SCRIPTDIR_PROP+" => "+ FancyLoader.getProperty(FancyLoader.SCRIPTDIR_PROP)+"\n"+
-			"  "+FancyLoader.DATADIR_PROP+" => "+ FancyLoader.getProperty(FancyLoader.DATADIR_PROP)+"\n"+
-			"  "+FancyLoader.LABELDIR_PROP+" => "+ FancyLoader.getProperty(FancyLoader.LABELDIR_PROP)+"\n"+
-			"To change these parameters, put new values in a file \"data.properties\" on your classpath.\n"+
-			"\n"+
-			FancyLoader.SCRIPTDIR_PROP+" should contain bean shell scripts that return labeled datasets,\n"+
-			"encoded as TextLabels objects. Usually these load documents from the directory pointed to by\n"+
-			FancyLoader.DATADIR_PROP+" and load labels from the directory pointed to by\n"
-			+FancyLoader.LABELDIR_PROP+"\n\n"+
-			"Instead of using script names from repositories as the \"keys\" for the -labels options\n"+
-			"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n" +
-			"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n" +
-			"and foo, where foo is a directory.\n");
+			console.append(
+				"The Minorthird repository is a collection of data previously labeled for extraction\n"+
+				"or classification learning. One version of the repository containing public data is on:\n"+
+				"   /afs/cs/project/extract-learn/repository.\n"+
+				"\n"+
+				"Your repository is now configured as follows:\n"+
+				"  "+FancyLoader.SCRIPTDIR_PROP+" => "+ FancyLoader.getProperty(FancyLoader.SCRIPTDIR_PROP)+"\n"+
+				"  "+FancyLoader.DATADIR_PROP+" => "+ FancyLoader.getProperty(FancyLoader.DATADIR_PROP)+"\n"+
+				"  "+FancyLoader.LABELDIR_PROP+" => "+ FancyLoader.getProperty(FancyLoader.LABELDIR_PROP)+"\n"+
+				"To change these parameters, put new values in a file \"data.properties\" on your classpath.\n"+
+				"\n"+
+				FancyLoader.SCRIPTDIR_PROP+" should contain bean shell scripts that return labeled datasets,\n"+
+				"encoded as TextLabels objects. Usually these load documents from the directory pointed to by\n"+
+				FancyLoader.DATADIR_PROP+" and load labels from the directory pointed to by\n"
+				+FancyLoader.LABELDIR_PROP+"\n\n"+
+				"Instead of using script names from repositories as the \"keys\" for the -labels options\n"+
+				"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n" +
+				"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n" +
+				"and foo, where foo is a directory.\n");
 	}		
-}
 
-class Console
-{
-    public static PipedInputStream piOut;
-    public static PipedOutputStream poOut;
-    public final PipedInputStream piErr = new PipedInputStream();
-    public static JTextArea errorArea;
+	private class Console
+	{
+    private PipedInputStream piOut;
+    private PipedOutputStream poOut;
+//  private final PipedInputStream piErr = new PipedInputStream();
+    private JTextArea errorArea;
+		private JScrollPane scroller;
+		private Thread mainThread, readerThread;
+		private boolean doMainRunning;
+		private PrintStream oldSystemOut;
 
-    public Console(JTextArea ea)
+    public Console()
     {
-	errorArea = ea;
-	try {
-	    try{
-		piOut  = new PipedInputStream();
-		poOut = new PipedOutputStream(piOut);
-		System.setOut(new PrintStream(poOut, true));															
-	    } catch (java.io.IOException io) {
-		errorArea.append("Couldn't redirect output\n" + io.getMessage() + "\n");
-	    } catch (SecurityException se) {
-		errorArea.append("SE error" + se.getMessage() + "\n");
-	    }												    	    	    
-	    
-	    Thread reader = new Thread() {
-		    public void run() {
-			final byte[] buf = new byte[2048];
+			this.errorArea = new JTextArea(20,100);
+			errorArea.setFont( new Font("monospaced",Font.PLAIN,12) );
+			scroller = new JScrollPane(errorArea);
+		}
+
+		/** The outermost component of the console. */
+		public JComponent getMainComponent()
+		{
+			return scroller;
+		}
+
+		/** Start the task for the console. */
+		public void start()
+		{
+			initThreads();
 			try {
-			    while (true) {
-				final int len = piOut.read(buf);
-				if (len == -1){
-				    //errorArea.append("Length less than 1\n");
-				    break;
-				}
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-					    try {
-						System.out.flush();
-					    } catch (Exception e) {	
-						System.out.println("Could not flush output stream");   
-					    }
-					    errorArea.append(new String(buf, 0, len));
-					}//end run												
-				    }); // end Swing invokeLater
-			    } //end while
-			} //end try
-			catch (IOException e) {
-			    errorArea.append(e.getMessage());
-			    System.out.println(e.getMessage());
-			} //end catch
-		    } //end run
-		}; //end reader Thread
-	    reader.start();												       
-	    
-	} //end try
-	catch (Exception e) {
-	    System.out.println("Error: " + e.toString());
-	    errorArea.append("Error: " + e.toString());
-	} //end catch
-	
-    } 
+				oldSystemOut = System.out;
+				piOut  = new PipedInputStream();
+				poOut = new PipedOutputStream(piOut);
+				System.setOut(new PrintStream(poOut, true));															
+			} catch (java.io.IOException io) {
+				errorArea.append("Couldn't redirect output\n" + io.getMessage() + "\n");
+			} catch (SecurityException se) {
+				errorArea.append("SE error" + se.getMessage() + "\n");
+			}												    	    	    
+			mainThread.start();
+		}
+			
+		/** Append a string to the console window. */
+		public void append(String s)
+		{
+			errorArea.append(s);
+			scrollDown();
+		}
 
-    public void closePipes()
-    {
-	try{
-	    piOut.close();
-	    poOut.close();
-	} catch (Exception e) {
-	    System.out.println(e.getMessage());
-	}
+		/** Clear the console window. */
+		public void clear()
+		{
+			errorArea.setText("");
+		}
+
+		/** Re-initialize the threads for the console */
+		private void initThreads()
+		{
+			// mainthread - runs the main task with doMain
+			mainThread = new Thread() {
+					public void run() {
+						viewButton.setEnabled(false);
+						if (base.labels == null) {
+							noLabelsMessage(Console.this);
+						} else {
+							long startTime = System.currentTimeMillis();
+							doMainRunning=true;
+							readerThread.start();
+							doMain();	    
+							double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
+							System.out.println("\nTotal time for task: "+elapsedTime+" sec");
+							viewButton.setEnabled(getMainResult()!=null);
+							doMainRunning=false; // signal reader to stop
+							try {
+								readerThread.join(); // wait for it to end
+							} catch (InterruptedException ex) {
+								System.err.println("reader interrupted?");
+							}
+							scrollDown();
+						} //end else
+					} //end run
+				}; // end thread
+
+			// this thread traps output from mainThread and sticks it in
+			// console window
+			readerThread = new Thread() {
+					public void run() {
+						try {
+							byte[] buf = new byte[2048];
+							int len=0;
+							Dimension dim = new Dimension();
+							while (doMainRunning) {
+								// look for more output
+								if ((len = piOut.read(buf))>0) {
+									errorArea.append(new String(buf, 0, len));
+									scrollDown();
+								}
+								yield(); // let someone else in to execute
+							}
+							// clean up any output we might have missed
+							// after exiting
+							if ((len = piOut.read(buf))>0) {
+								errorArea.append(new String(buf, 0, len));
+								scrollDown();
+							}
+							closePipes();
+						} catch (IOException e) {
+							errorArea.append(e.getMessage());
+							System.out.println(e.getMessage());
+						}
+					}
+				}; //end reader Thread
+		} // constructor
+
+
+		// imperfect method to scroll to bottom
+		private void scrollDown()
+		{
+			try {
+				JScrollBar bar = scroller.getVerticalScrollBar();
+				bar.setValue(bar.getMaximum());
+			} catch (Exception ex) {
+				System.err.println("error scrolling: "+ex);
+			}
+		}
+
+		private void closePipes()
+		{
+			try {
+				poOut.close();
+				piOut.close();
+				System.setOut(oldSystemOut);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
     }
-} // end class
+	}
+}
+							
 
