@@ -92,8 +92,9 @@ public class Evaluation implements Visible,Serializable
       log.debug("ok: "+ok+"\tpredict: "+predicted+"\ton: "+example);
     }
     entryList.add( new Entry(example.asInstance(), predicted, example.getLabel(), entryList.size(), cvID) );
-    if (!example.getLabel().isBinary()) isBinary = false;
-    if (!predicted.isBinary()) isBinary = false;
+		// calling these extends the schema to cover these classes
+		extendSchema( example.getLabel() );
+		extendSchema( predicted );
     // clear caches
     cachedPRCMatrix = null;
   }
@@ -128,6 +129,7 @@ public class Evaluation implements Visible,Serializable
   /** Weighted total errors on POSITIVE examples. */
   public double errorsPos()
   {
+		if (!isBinary) return -1;
     double errsPos = 0;
     for (int i=0; i<entryList.size(); i++) {
       Entry e = getEntry(i);
@@ -141,6 +143,7 @@ public class Evaluation implements Visible,Serializable
   /** Weighted total errors on POSITIVE examples with partitionID = ID. */
   public double errorsPos(int ID)
   {
+		if (!isBinary) return -1;
     double errsPos = 0;
     for (int i=0; i<entryList.size(); i++) {
       Entry e = getEntry(i);
@@ -180,6 +183,7 @@ public class Evaluation implements Visible,Serializable
   /** standard deviation of total errors on POSITIVE examples. */
   public double stDevErrorsPos()
   {
+		if (!isBinary) return -1;
     int cvFolds=0;
     for (int i=0; i<entryList.size(); i++)
     {
@@ -198,6 +202,7 @@ public class Evaluation implements Visible,Serializable
   /** standard deviation of total errors on POSITIVE examples. */
   public double stDevErrorsNeg()
   {
+		if (!isBinary) return -1;
     int cvFolds=0;
     for (int i=0; i<entryList.size(); i++)
     {
@@ -226,6 +231,7 @@ public class Evaluation implements Visible,Serializable
   /** Total weight of all POSITIVE examples. */
   public double numberOfPositiveExamples()
   {
+		if (!isBinary) return -1;
     double n = 0;
     for (int i=0; i<entryList.size(); i++) {
       Entry e = getEntry(i);
@@ -239,6 +245,7 @@ public class Evaluation implements Visible,Serializable
   /** Total weight of all POSITIVE examples with partitionID = ID. */
   public double numberOfPositiveExamples(int ID)
   {
+		if (!isBinary) return -1;
     double n = 0;
     for (int i=0; i<entryList.size(); i++) {
       Entry e = getEntry(i);
@@ -335,6 +342,30 @@ public class Evaluation implements Visible,Serializable
     return maxF1;
   }
 
+	public double kappa()
+	{
+		Matrix cm = confusionMatrix();
+		double n = entryList.size();
+		int k = schema.getNumberOfClasses(); 
+
+		double[] numActual = new double[k];
+		double[] numPredicted = new double[k];
+		double numAgree = 0.0;
+		for (int i=0; i<k; i++) {
+			numAgree += cm.values[i][i];
+			for (int j=0; j<k; j++) {
+				numActual[i] += cm.values[i][j];
+				numPredicted[i] += cm.values[j][i];
+			}
+		}
+		
+		double randomAgreement = 0.0;
+		for (int i=0; i<k; i++) {
+			randomAgreement += (numActual[i]/n) * (numPredicted[i]/n);
+		}
+		return (numAgree/n - randomAgreement) / (1.0 - randomAgreement);
+	}
+
   /** Average logloss on all examples. */
   public double averageLogLoss()
   {
@@ -350,6 +381,7 @@ public class Evaluation implements Visible,Serializable
 
   public double precision()
   {
+		if (!isBinary) return -1;
     Matrix cm = confusionMatrix();
     int p = classIndexOf(ExampleSchema.POS_CLASS_NAME);
     int n = classIndexOf(ExampleSchema.NEG_CLASS_NAME);
@@ -358,6 +390,7 @@ public class Evaluation implements Visible,Serializable
   }
   public double recall()
   {
+		if (!isBinary) return -1;
     Matrix cm = confusionMatrix();
     int p = classIndexOf(ExampleSchema.POS_CLASS_NAME);
     int n = classIndexOf(ExampleSchema.NEG_CLASS_NAME);
@@ -366,6 +399,7 @@ public class Evaluation implements Visible,Serializable
   }
   public double f1()
   {
+		if (!isBinary) return -1;
     double p = precision();
     double r = recall();
     return (2*p*r) / (p+r);
@@ -384,7 +418,8 @@ public class Evaluation implements Visible,Serializable
       averageLogLoss(),
       recall(),
       precision(),
-      f1()
+      f1(),
+			kappa()
     };
   }
   static public String[] summaryStatisticNames()
@@ -401,7 +436,8 @@ public class Evaluation implements Visible,Serializable
       "Average Log Loss",
       "Recall",
       "Precision",
-      "F1" };
+      "F1",
+			"Kappa" };
   }
 
   //
@@ -775,9 +811,21 @@ public class Evaluation implements Visible,Serializable
   }
   private int classIndexOf(String classLabelName)
   {
-    int result = schema.getClassIndex(classLabelName);
-    if (result>=0) return result;
-    throw new IllegalArgumentException("no class "+classLabelName+" in "+schema);
+		return  schema.getClassIndex(classLabelName);
+	}
+	private void extendSchema(ClassLabel classLabel)
+	{
+		//System.out.println("classLabel: "+classLabel);
+    if (!classLabel.isBinary()) isBinary = false;
+		int r = classIndexOf(classLabel.bestClassName());
+		if (r < 0) {
+			//System.out.println("extending");
+			// extend the schema
+			String[] currentNames = schema.validClassNames();
+			String[] newNames = new String[currentNames.length+1];
+			for (int i=0; i<currentNames.length; i++) newNames[i] = currentNames[i];
+			newNames[currentNames.length] = classLabel.bestClassName();
+		}
   }
 
   private void byBinaryScore()

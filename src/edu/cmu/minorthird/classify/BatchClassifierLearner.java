@@ -28,9 +28,6 @@ public abstract class BatchClassifierLearner implements ClassifierLearner
 	final public boolean hasNextQuery() { return false; }
 	final public Instance nextQuery() { return null; }
 	final public void addExample(Example answeredQuery) { dataset.add(answeredQuery); classifier=null; }
-	final public BatchClassifierLearner copy() throws CloneNotSupportedException { 
-		return (BatchClassifierLearner)clone(); 
-	}
 
 	final public Classifier getClassifier() {
 		if (classifier==null) classifier = batchTrain(dataset);

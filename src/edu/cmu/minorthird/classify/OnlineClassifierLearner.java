@@ -16,8 +16,8 @@ public abstract class OnlineClassifierLearner implements ClassifierLearner
 	final public void setInstancePool(Instance.Looper i) { ; }
 	final public boolean hasNextQuery() { return false; }
 	final public Instance nextQuery() { return null; }
-	final public OnlineClassifierLearner copy() throws CloneNotSupportedException { 
-		return (OnlineClassifierLearner)clone(); 
+	final public ClassifierLearner copy() throws CloneNotSupportedException { 
+		return (ClassifierLearner)clone(); 
 	}
 
 	/** Subclasses should use this method to to whatever incremental update is
@@ -31,4 +31,5 @@ public abstract class OnlineClassifierLearner implements ClassifierLearner
 
 	/** Subclasses need to implement this method */
 	abstract public void reset();
+
 }

@@ -57,4 +57,5 @@ public interface ClassifierLearner extends Cloneable
 	 * All learners must implement this method.
 	 */
 	public Classifier getClassifier();
+
 }

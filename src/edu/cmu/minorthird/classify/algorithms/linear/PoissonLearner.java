@@ -143,4 +143,6 @@ public class PoissonLearner implements BinaryClassifierLearner
         //.out.println("psudoCounts:" + k); // Edo test
 		return Math.log( (k+prior*pseudoCounts) / (n+pseudoCounts) );
 	}
+
+
 }

@@ -2,7 +2,8 @@
 
 package edu.cmu.minorthird.classify;
 
-
+import edu.cmu.minorthird.util.gui.*;
+import javax.swing.*;
 
 /** A KWayClassifier composed of a bunch of binary classifiers,
  * each of which separates one class from the others.
@@ -10,7 +11,7 @@ package edu.cmu.minorthird.classify;
  * @author William Cohen
  */
 
-public class OneVsAllClassifier implements Classifier
+public class OneVsAllClassifier implements Classifier,Visible
 {
 	private String[] classNames;
 	private BinaryClassifier[] binaryClassifiers;
@@ -55,6 +56,26 @@ public class OneVsAllClassifier implements Classifier
 		}
 		buf.append("end OneVsAllClassifier]\n");
 		return buf.toString();
+	}
+
+	public Viewer toGUI()
+	{
+		final Viewer v = new ComponentViewer() {
+				public JComponent componentFor(Object o) {
+					OneVsAllClassifier c = (OneVsAllClassifier)o;
+					JPanel panel = new JPanel();
+					for (int i=0; i<c.classNames.length; i++) {
+						panel.add(new JLabel(c.classNames[i]));
+						Viewer subView = new SmartVanillaViewer();
+						subView.setContent( c.binaryClassifiers[i] );
+						subView.setSuperView(this);
+						panel.add(subView);
+					}
+					return new JScrollPane(panel);
+				}
+			};
+		v.setContent(this);
+		return v;
 	}
 }
 
