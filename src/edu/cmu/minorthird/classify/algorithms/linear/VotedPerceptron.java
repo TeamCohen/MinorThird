@@ -38,7 +38,9 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 	private Hyperplane s_t,w_t;
 	private boolean ignoreWeights=false;
 
-	public VotedPerceptron() { this(false); }
+	public VotedPerceptron() { 
+	    this(false); 
+	}
 
 	/** If ignoreWeights is true, treat all weights as binary. For
 	 * backward compatibility with an older buggy version.

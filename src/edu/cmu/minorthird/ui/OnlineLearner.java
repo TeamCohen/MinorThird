@@ -62,14 +62,17 @@ public class OnlineLearner extends UIMain
 		annLabels = ann.annotatedCopy((TextLabels)olp.data);
 
 		String classLearnerName = ((ClassifierAnnotator)ann).getClassifierLearner();
-		ClassifierLearner classLearner = (ClassifierLearner)CommandLineUtil.newObjectFromBSH(classLearnerName,ClassifierLearner.class); 
+		ClassifierLearner learner = (ClassifierLearner)CommandLineUtil.newObjectFromBSH(classLearnerName,ClassifierLearner.class); 
+		if(!(learner instanceof OnlineBinaryClassifierLearner)) 
+		    throw new IllegalArgumentException("Learner mus be an instance of OnlineBinaryClassifierLearner");
+		OnlineBinaryTextClassifierLearner textLearner = new OnlineBinaryTextClassifierLearner
+		    ((OnlineBinaryClassifierLearner)learner, (ClassifierAnnotator)ann);
 		
 		if(!olp.experiment) {
-		    OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, olp.data, olp.repositoryKey, 
-									  (ClassifierAnnotator)ann, classLearner, classLearnerName);
+		    OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, olp.data, olp.repositoryKey, textLearner);
 		} else {
-		    OnlineExperiment onlineExpt = new OnlineExperiment((TextLabels)olp.data,(ClassifierAnnotator)ann, 
-		    						       classLearner, classLearner, classLearnerName);
+		     OnlineExperiment onlineExpt = new OnlineExperiment((TextLabels)olp.data,(ClassifierAnnotator)ann, 
+		     						       learner, learner, classLearnerName);
 		}
 	}
 

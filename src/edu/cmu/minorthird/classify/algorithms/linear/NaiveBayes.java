@@ -35,7 +35,10 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner
     private Set featureSet;
     private double numPos, numNeg;
 
-    public NaiveBayes()	{ reset();	}
+    public NaiveBayes()	{ 
+	super();
+	reset();	
+    }
 
     public void reset() 
     {

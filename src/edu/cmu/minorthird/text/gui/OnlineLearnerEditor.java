@@ -51,23 +51,21 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
 	    String key,
             StatusMessage statusMsg,
             boolean readOnly, 
-	    ClassifierAnnotator ann,
-	    ClassifierLearner learner,
-	    String learnerName)
+	    OnlineBinaryTextClassifierLearner learner)
     {
 //        super(base, viewLabels, editLabels, statusMsg);
 	
 	
-        init(base, viewLabels, statusMsg, editLabels, key, readOnly, ann, learner, learnerName);
+        init(base, viewLabels, statusMsg, editLabels, key, readOnly, learner);
     }
 
     private void init(TextBase base, TextLabels viewLabels, StatusMessage statusMsg, MutableTextLabels editLabels, String key,
-		      boolean readOnly, ClassifierAnnotator ann, ClassifierLearner cl, String learnerName)
+		      boolean readOnly, OnlineBinaryTextClassifierLearner learner)
     {
         super.init(base, viewLabels,  editLabels, statusMsg);
         viewer = new TextBaseViewer(base, viewLabels, statusMsg);
 
-        createOnlineClassifierDocumentEditor(viewLabels, viewer, editLabels, statusMsg, ann, cl, learnerName);
+        createOnlineClassifierDocumentEditor(viewLabels, viewer, editLabels, statusMsg, learner);
         ocdEditor = (OnlineClassifierDocumentEditor) viewerTracker;
 	File saveLabels = new File(key + ".labels");
 	ocdEditor.setSaveAs(saveLabels);
@@ -82,10 +80,10 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
     }
 
     protected void createOnlineClassifierDocumentEditor(TextLabels viewLabels, TextBaseViewer viewer, MutableTextLabels editLabels, 
-							StatusMessage statusMsg, ClassifierAnnotator ann, ClassifierLearner cl, String learnerName)
+							StatusMessage statusMsg, OnlineBinaryTextClassifierLearner learner)
     {
-        viewerTracker = new OnlineClassifierDocumentEditor(viewLabels, viewer, editLabels, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg, 
-							   ann, cl, learnerName);
+        viewerTracker = new OnlineClassifierDocumentEditor(learner, viewLabels, viewer, editLabels, viewer.getDocumentList(), 
+							   viewer.getSpanPainter(), statusMsg );
     }
 
     /** Change the type of span being edited. */
@@ -113,12 +111,12 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
     }
 
     /** Pop up a frame for editing the labels. */
-    public static OnlineLearnerEditor edit(TextLabels labels, MutableTextLabels editLabels, String rk,ClassifierAnnotator ann, 
-					   ClassifierLearner classLearner, String learnerName)
+    public static OnlineLearnerEditor edit(TextLabels labels, MutableTextLabels editLabels, String rk,
+					   OnlineBinaryTextClassifierLearner learner)
     {
 	TextBase textBase = labels.getTextBase();
         StatusMessage statusMsg = new StatusMessage();
-        OnlineLearnerEditor editor = new OnlineLearnerEditor(textBase, labels, editLabels, rk, statusMsg, false, ann, classLearner, learnerName);
+        OnlineLearnerEditor editor = new OnlineLearnerEditor(textBase, labels, editLabels, rk, statusMsg, false, learner);
         editor.initializeLayout();
         editor.buildFrame();
 
@@ -153,7 +151,7 @@ public class OnlineLearnerEditor extends TrackedTextBaseComponent
                 log.info("load text bases");
             }
          }
-        init(base, labels, new StatusMessage(), labels,  "default", readOnly, null, null, "");
+        init(base, labels, new StatusMessage(), labels,  "default", readOnly, null);
         this.setSaveAs(saveFile);
 
     }

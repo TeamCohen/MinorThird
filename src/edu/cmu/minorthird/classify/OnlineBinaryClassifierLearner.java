@@ -13,7 +13,7 @@ import edu.cmu.minorthird.classify.algorithms.linear.*;
  */
 
 public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLearner implements BinaryClassifierLearner
-{
+{    
     public Hyperplane c = null;
 
 	final public void setSchema(ExampleSchema schema)
@@ -38,4 +38,5 @@ public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLear
 	    this.c = new Hyperplane();
 	this.c.increment(classifier);
     }
+
 }
