@@ -1,17 +1,44 @@
 provide 'time';
 
-defDict timeSep = :;
-defTokenProp Time:Unit =: ... ['p' '.' 'm' '.'] ... || ... [eqi('pm')] ... ;
-defTokenProp Time:Unit =: ... ['a' '.' 'm' '.'] ... || ... [eqi('am')] ... ;
 
-defTokenProp Time:1 =: ... [re('^[0-9]+$') a(timeSep) re('^[0-9]+(am|pm)?$')] ... ;
-defTokenProp Time:1 =: ... Time:1 [Time:Unit+R] ... ;
-defTokenProp Time:1 =: ... [re('^[0-9]+$') Time:Unit+R] ... ;
-defTokenProp Time:1 =: ... [re('^[0-9]+(am|pm)$')] ... ;
-defTokenProp Time:1 =: ... 'at' [re('^[0-9]+$')] ...;
+defDict timeSep = : , . , \; ; //how do I capture the ';'?
+defDict atTime = at, @;
+defDict prefixTime = this, next, about, around, before, after, until, till, by;
+defDict midWord = or, -, and;
+defDict btwWord = between, btw, bw, bt;
+defDict qttyWord = $, dollar, USD, dollars, cent, cents, %, percent, percents, times, quarter, Q;
+defDict timeWord = noon, midnight, morning, afternoon, evening, tonight; 
 
-defTokenProp Time:1 =: ... [eqi('noon')] ... ;
+defTokenProp prefixtime:1 =: ... [ai(prefixTime)] ... ;
+defTokenProp midWord:1 	  =: ... [ai(midWord)] ... ;
+defTokenProp btwWord:1    =: ... [ai(btwWord)] ... ;
+defTokenProp qttyWord:1	  =: ... [ai(qttyWord)] ... ;
+defTokenProp timeWord:1   =: ... [ai(timeWord)] ... ;
 
-defSpanType extracted_time =: ... [L Time:1+R] ... ;
+
+defTokenProp TUnit:1 =: ... [eqi('p') '.' eqi('m') '.'] ... || ... [eqi('pm')] ... ;
+defTokenProp TUnit:1 =: ... [eqi('a') '.' eqi('m') '.'] ... || ... [eqi('am')] ... ;
+
+
+defTokenProp T24:1  =: ... [re('^[0-1]?[0-9]$')] ... || ... [re('^2[0-4]$')] ... ; 
+defTokenProp T60:1  =: ... [re('^[0-5][0-9]$')] ... ;
+
+
+defTokenProp time:1 =: ... [ai(timeWord)] ... ;
+defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1] ... ; 
+defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1 ai(timeSep) T60:1] ... ;
+defTokenProp time:1 =: ... [T24:1 TUnit:1+R] ... ; 
+defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1 TUnit:1+R] ... ; 
+defTokenProp time:1 =: ... ai(atTime) [T24:1] ... ;
+defTokenProp time:1 =: ... time:1+R [ai(midWord)] time:1+R ... ;
+defTokenProp time:1 =: ... [ai(btwWord)] time:1+R ai(midWord) time:1+R ... ; // the btw word doesn't seem to be extracted
+
+
+defSpanType extracted_time =: ... !ai(qttyWord) [L time:1+ R] !ai(qttyWord) ... || ... !ai(qttyWord) [L time:1+ R] || [L time:1+ R] !ai(qttyWord) ...  ;
+defSpanType extracted_time =: ... <!ai(qttyWord), !time:1> [ai(prefixTime)+ R time:1+ R] !ai(qttyWord) ... || ... <!ai(qttyWord), !time:1> [ai(prefixTime)+ R time:1+ R] || [ai(prefixTime)+ R time:1+ R] !ai(qttyWord) ... ;;
+defSpanType extracted_time =: ... <!ai(qttyWord), !time:1> [ai(prefixTime)+ 'the' time:1+ R] !ai(qttyWord) ... || ... <!ai(qttyWord), !time:1> [ai(prefixTime)+ 'the' time:1+ R] || [ai(prefixTime)+ 'the' time:1+ R] !ai(qttyWord) ... ;;
+
+defTokenProp extracted_time:1 =: ... [@extracted_time] ... ;
+
 
 

@@ -64,9 +64,11 @@ defTokenProp date:1 =: ... [monthName:1 dayNo:1] ... ;      // e.g. July 2
 defTokenProp date:1 =: ... [<dateWord:1, !dateCommon:1>] ... ;
 defTokenProp date:1 =: ... date:1+R dateSep:1? [year:1] ... || ... date:1+R ',' [year:1] ... ;
 
-defTokenProp extracted_date:1 =: ... !ai(qttyWord) [L date:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [L date:1+R] || !ai(qttyWord) [L date:1+R] ... ;
-defTokenProp extracted_date:1 =: ... !ai(qttyWord) [datePrefix:1+R L date:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [datePrefix:1+R L date:1+R] || ... !ai(qttyWord) [datePrefix:1+R L date:1+R] ... ;
+defSpanType extracted_date =: ... !ai(qttyWord) [L date:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [L date:1+R] || !ai(qttyWord) [L date:1+R] ... ;
+defSpanType extracted_date =: ... !ai(qttyWord) [datePrefix:1+R L date:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [datePrefix:1+R L date:1+R] || ... !ai(qttyWord) [datePrefix:1+R L date:1+R] ... ;
 
-defSpanType extracted_date =: ... [extracted_date:1+ R] ... ;
+defTokenProp extracted_date:1 =: ... [@extracted_date] ... ;
+
+
 
 defSpanType year =: ... [<year:1, !date:1>] ... ;
