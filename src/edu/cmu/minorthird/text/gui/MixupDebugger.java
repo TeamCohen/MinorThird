@@ -28,14 +28,14 @@ public class MixupDebugger extends JComponent
 
   public TextBaseEditor getEditor() { return editor; }
 
-	public 
+	public
 	MixupDebugger(TextBase base,File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,boolean stem)
 		throws IOException
     {
 	this(base,new BasicTextLabels(base),groundTruthLabelsFile,mixupProgramFile,readOnly,stem);
     }
 
-	public 
+	public
 	MixupDebugger(TextBase base,MonotonicTextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,boolean stem)
 		throws IOException
 	{
@@ -86,7 +86,7 @@ public class MixupDebugger extends JComponent
 										"Reload program from "+mixupProgramFile.getName(),
 										mixupProgramFile,base,programLabels,truthLabels,editor.getViewer(),errorPane));
 		JTextField newTypeField = new JTextField(10);
-		JButton newTypeButton = 
+		JButton newTypeButton =
 			new JButton(new NewTypeAction("New type:",truthLabels,editor.getViewer().getTruthBox(),newTypeField));
 
 		//
@@ -126,7 +126,7 @@ public class MixupDebugger extends JComponent
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0; gbc.weighty = 0.0;
 		gbc.gridx = ++col; gbc.gridy = row;
-		top.add( saveButton, gbc );		
+		top.add( saveButton, gbc );
 
 		++row;
 		gbc = new GridBagConstraints();
@@ -142,14 +142,14 @@ public class MixupDebugger extends JComponent
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1.0; gbc.weighty = 1.0;
-		gbc.gridx = 1; gbc.gridy = row; 
+		gbc.gridx = 1; gbc.gridy = row;
 		bottom.add( editor, gbc );
 
 		++row;
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0; gbc.weighty = 0.0;
-		gbc.gridx = 1; gbc.gridy = row; 
+		gbc.gridx = 1; gbc.gridy = row;
 		bottom.add( statusMsg, gbc );
 
 		// a splitpane to size them
@@ -170,8 +170,8 @@ public class MixupDebugger extends JComponent
 		private MutableTextLabels labels;
 		private StatusMessage statusMsg;
 		public SaveTruthLabelsAction(String msg, File saveFile, MutableTextLabels labels, StatusMessage statusMsg) {
-			super(msg);	
-			this.saveFile = saveFile;	
+			super(msg);
+			this.saveFile = saveFile;
 			this.labels = labels;
 			this.statusMsg = statusMsg;
 		}
@@ -185,7 +185,7 @@ public class MixupDebugger extends JComponent
 				new TextLabelsLoader().saveTypesAsOps(labels, saveFile );
 				statusMsg.display("saved to "+saveFile.getName());
 			} catch (Exception e) {
-				statusMsg.display("can't save to "+saveFile.getName()+": "+e);				
+				statusMsg.display("can't save to "+saveFile.getName()+": "+e);
 			}
 		}
 	}
@@ -204,9 +204,9 @@ public class MixupDebugger extends JComponent
 			TextLabels initProgramLabels,
 			TextLabels truthLabels,
 			TextBaseViewer viewer,
-			JScrollPane errorPane) 
+			JScrollPane errorPane)
 		{
-			super(msg);	
+			super(msg);
 			this.mixupFile = mixupFile;
 			this.base = base;
 			this.initProgramLabels = initProgramLabels;
@@ -219,7 +219,7 @@ public class MixupDebugger extends JComponent
 			try {
 				program = new MixupProgram(mixupFile);
 			} catch (Exception e) {
-				errorPane.getViewport().setView( new JTextField(e.toString()) );				
+				errorPane.getViewport().setView( new JTextField(e.toString()) );
 				return;
 			}
 			NestedTextLabels programLabels = new NestedTextLabels( truthLabels );
@@ -254,7 +254,7 @@ public class MixupDebugger extends JComponent
 		public NewTypeAction(String msg,
 												 MutableTextLabels truthLabels,
 												 JComboBox truthBox,
-												 JTextField newTypeField) 
+												 JTextField newTypeField)
 		{
 			super(msg);
 			truthTypeSet = new HashSet();
@@ -295,7 +295,7 @@ public class MixupDebugger extends JComponent
 		}
 	}
 
-	public static void main(String[] args) 
+	public static void main(String[] args)
 	{
 		String textBaseId = null;
     String fileName = null;
@@ -306,6 +306,7 @@ public class MixupDebugger extends JComponent
 
 		// parse options
 		if (args.length < 4) {
+      System.out.println("Not enough arguments.  Must have at least {-file <dataFile> or -textBase <textBaseFile>} and -mixup <programFile>");
       usage();
     }
 
@@ -331,6 +332,7 @@ public class MixupDebugger extends JComponent
     if ((textBaseId == null && fileName == null) || mixupProgramFile == null ||
         !mixupProgramFile.exists() || !mixupProgramFile.isFile())
     {
+      System.out.println("Either can't data file not specified or can't find mixupProgram");
       usage();
       return;
     }
