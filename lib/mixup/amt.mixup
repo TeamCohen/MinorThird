@@ -1,10 +1,14 @@
 provide 'amt';
+require 'time';
+require 'date';
+require 'phone';
 
 //-----------------------------------------------------------------------------
 //A pertial code, that suffices for webMaster but otherwise should be enhanced.
 //-Einat, feb4
 //-----------------------------------------------------------------------------
 
+defTokenProp other:1 =: ... [time:1] ... || ... [date:1] ... || ... [phone:1] ... ;
 
 defDict amtWord = $, dollar, USD, dollars, cent, cents, %, percent, percents, M, million, millions, K, thousands, billion, billions;
 
@@ -15,13 +19,18 @@ defTokenProp amt:main =: ... [re('^[0-9]{1,3}$') 3dig:1+R] ... ; 	// e.g. 25,000
 defTokenProp amt:dec =: ... amt:1 '.' [ re('^[0-9]+$') ] ... ; 	// e.g. xx.500
 defTokenProp amt:exp =: ... [ai(amtWord)] amt:1 ... || ... amt:1 [ai(amtWord)] ... ;
 
-defTokenProp amt:1 =: ... [amt:main amt:dec? amt:exp?] ... || ... [amt:exp? amt:main amt:dec?] ... ;
-defTokenProp amt:1 =: ... [amt:maybe amt:dec? amt:exp] ... || ... [amt:exp amt:maybe amt:dec?] ... ; // add: if can't be date or time then it's amount for sure
+// defTokenProp amt:1 =: ... [amt:main amt:dec? amt:exp?] ... || ... [amt:exp? amt:main amt:dec?] ... ;
+// defTokenProp amt:1 =: ... [amt:maybe amt:dec? amt:exp] ... || ... [amt:exp amt:maybe amt:dec?] ... ; 
+
 
 // Extract adjacent amts separately
 
-defSpanType amt =: ... [amt:main amt:dec? amt:exp?] ... || ... [amt:exp? amt:main amt:dec?] ... ;
-defSpanType amt =: ... [amt:maybe amt:dec? amt:exp] ... || ... [amt:exp amt:maybe amt:dec?] ... ; // add: if can't be date or time then it's amount for sure
+defSpanType extracted_amt =: ... [amt:main L 3dig:1+R amt:dec] ... ;
+defSpanType extracted_amt =: ... [amt:main L 3dig:1+R] ... ;
+defSpanType extracted_amt =: ... [<amt:main, !other:1> <amt:dec, !other:1>] ... ;
+defSpanType extracted_amt =: ... ai(amtWord) [amt:amybe] ... || ... [amt:maybe] ai(amtWord) ... ;
+
+defTokenProp amt:1 =: ... [@extracted_amt] ... ;
 
 
 defDict midWord = or, -, and;

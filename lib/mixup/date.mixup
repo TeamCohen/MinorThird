@@ -1,7 +1,5 @@
 require 'time';
 provide 'date';
-//require 'pos';
-//require 'npchunks';
 
 ///////////////////////////////////////////////////////////////////////
 //  Date is defined here as any expression referring to a specific day.
@@ -48,7 +46,7 @@ defTokenProp datePrefix:1 =: ... [ai(datePrefix)] ... ;
 
 defTokenProp qtty:1 	  =: ... [ai(qttyWord)] ... ;
 defTokenProp midWord:1 	  =: ... [ai(midWord)] ... ;
-defTokenProp fromWord:1    =: ... [ai(fromWord)] ... ;
+defTokenProp fromWord:1   =: ... [ai(fromWord)] ... ;
 
 defTokenProp date:1 =: ... [dateWord:1] ... ;
 defTokenProp date:1 =: ... [month:1 dateSep:1 dayNo:1 dateSep:1 year:1] ... ;
@@ -58,15 +56,15 @@ defTokenProp date:1 =: ... [month:1 dateSep:1 dayNo:1] ... ;
 defTokenProp date:1 =: ... [dayNo:1 dateSep:1 month:1] ... ;
 defTokenProp date:1 =: ... [monthName:1 dayNo:1 dayNoSufx:1] ... ;  // e.g. July 2nd
 defTokenProp date:1 =: ... [monthName:1 dayNo:1] ... ;      // e.g. July 2
-//defTokenProp date:1 =: ... ['the' dayNo:1 dayNoSufx:1] <!P:NN, !P:JJ> ... ; // the 15th - why doesn't the negation work?
 defTokenProp date:1 =: ... [<dateWord:1, !dateCommon:1>] ... ;
 defTokenProp date:1 =: ... date:1+R [year:1] ... || ... date:1+R ',' [year:1] ... ;
 defTokenProp date:1 =: ... <date:1, dayNo:1> [dayNoSufx:1] ... ;
 defTokenProp date:1 =: ... [dayNo:1 dateSep:1] <dayNo:1, date:1> ... || ... [dayNo:1 midWword:1] <dayNo:1, date:1> ... ;
+defTokenProp date:1 =: ... date:1 ['the' dayNo:1 dayNoSufx:1] ... || ... date:1 ',' ['the' dayNo:1 dayNoSufx:1] ... ;
 
 defTokenProp dt:1 =: ... [<date:1, !extracted_time:1>] ... ;  // eliminate whatever is marked as time
 defTokenProp dt:1 =: ... [fromWord:1] dt:1+R ai(midWord) dt:1+R ... ;
-defTokenProp dt:1 =: ... dt:1 [ai(midWord)] dt:1 ... ; 
+defTokenProp dt:1 =: ...  !eqi('the') L dt:1+R [ai(midWord)] dt:1 ... ; 
 
 
 defSpanType extracted_date =: ... !ai(qttyWord) [L dt:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [L dt:1+R] || !ai(qttyWord) [L dt:1+R] ... ;
