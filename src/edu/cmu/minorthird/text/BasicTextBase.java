@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import java.io.Serializable;
 import java.util.*;
