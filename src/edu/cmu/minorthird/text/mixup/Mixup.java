@@ -493,6 +493,7 @@ public class Mixup
 	public int minCount;
 	public int maxCount; // -1 indicates infinity
 	String type = null;  // non-null for @type and @type?
+
 	/** Expand some syntactic sugar-like abbreviations. */
 	public void expandShortcuts() {
 	    // expand the 'const' abbreviation to eq('const')
@@ -543,47 +544,44 @@ public class Mixup
 	    whatIIndexed = s;
 	    whereIMatch = new boolean[s.size()];
 	    for(int i=0; i<s.size(); i++) {
-		whereIMatch[i] = matchesPrimList(labels, s.getToken(i));
+        whereIMatch[i] = matchesPrimList(labels, s.getToken(i));
 	    }
 	}
 
 	/** See if this pattern matches span.subSpan(lo,len). */
 	public boolean matchesSubspan(TextLabels labels,Span span, int lo, int len) {
-	    if (type!=null) {
-		if (minCount==1) {
+    if (type!=null) {
+      if (minCount==1) {
 		    return labels.hasType(span.subSpan(lo,len), type);
-		} else {
+      } else {
 		    return len==0 || labels.hasType(span.subSpan(lo,len), type);
-		}
-	    } else {
-		int x = 0;
-		String span1 = span.asString();
-		String span2 = "";
-		if(whatIIndexed != null)
-		    span2 = whatIIndexed.asString();
-		if(!span1.trim().equals(span2.trim())) {		    
-		    index(span, labels);		    
-		} //else System.out.println("Same Span!!!");
-		if (len>maxCount && maxCount>=0) return false;
-		if (len<minCount) return false;
-		int spanSize = span.size();
-		for (int i=lo; i<lo+len; i++) {
+      }
+    } else {
+      // check and see if this span has been indexed or not
+      //String span1 = span.asString();
+      //String span2 = "";
+      //if(whatIIndexed != null) span2 = whatIIndexed.asString();
+      //if(!span1.trim().equals(span2.trim())) index(span, labels);		    
+      if (whatIIndexed==null || !whatIIndexed.equals(span)) index(span,labels);
+
+      if (len>maxCount && maxCount>=0) return false;
+      if (len<minCount) return false;
+      int spanSize = span.size();
+      for (int i=lo; i<lo+len; i++) {
 		    if (i>=spanSize) return false;
 		    //if (!matchesPrimList(labels,span.getToken(i))) return false;
 		    if(!whereIMatch[i]) return false;
-		}
-		if (leftMost && (len<maxCount || maxCount<0)) {
+      }
+      if (leftMost && (len<maxCount || maxCount<0)) {
 		    if (lo>0 && /*matchesPrimList(labels,span.getToken(lo-1))*/whereIMatch[lo-1])
-			return false;
-		}
-		if (rightMost && (len<maxCount || maxCount<0)) {
+          return false;
+      }
+      if (rightMost && (len<maxCount || maxCount<0)) {
 		    if (lo+len<spanSize && /*matchesPrimList(labels,span.getToken(lo+len))*/ whereIMatch[lo+len])
-			return false;
-		}
-		return true;
-		
-		    
-	    }
+          return false;
+      }
+      return true;
+    }
 	}
 	private boolean matchesPrimList(TextLabels labels, Token token) {
 	    for (Iterator i=primList.iterator(); i.hasNext(); ) {

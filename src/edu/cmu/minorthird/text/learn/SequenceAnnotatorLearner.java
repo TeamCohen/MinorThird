@@ -251,4 +251,17 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		}
 		
 	}
+
+  static public void main(String[] args)
+  {
+    try {
+      SequenceAnnotator a = 
+        (SequenceAnnotator)edu.cmu.minorthird.util.IOUtil.loadSerialized(new java.io.File(args[0]));
+      a.annotationType = args[1];
+      edu.cmu.minorthird.util.IOUtil.saveSerialized(a,new java.io.File(args[2]));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      System.out.println("usage: inputFile new-annotation-type outputfile");
+    }
+  }
 }
