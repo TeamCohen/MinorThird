@@ -43,11 +43,11 @@ public class RandomFilePicker
     }
 
     String exemptFile = dest.getAbsoluteFile() + "exempted";
-    File f = new File(exemptFile);
+    File ef = new File(exemptFile);
     try
     {
-      f.createNewFile();
-      PrintWriter out = new PrintWriter(new FileWriter(f));
+      ef.createNewFile();
+      PrintWriter out = new PrintWriter(new FileWriter(ef));
       for (Iterator it = exempted.iterator(); it.hasNext();)
       {
         out.println(dirs[((Integer)it.next()).intValue()].getName());
@@ -55,7 +55,7 @@ public class RandomFilePicker
       out.close();
     }
     catch (IOException e)
-    { e.printStackTrace();  //To change body of catch statement use Options | File Templates. }
+    { e.printStackTrace(); } //To change body of catch statement use Options | File Templates. }
 
     for (int chunk = 0; chunk < numChunks; chunk++)
     {
