@@ -38,7 +38,7 @@ public class SimpleTextLoader implements Loader
       if (externalLabelFile)
       {
         String fileName = file.getName();
-        fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+				if (fileName.lastIndexOf('.')>=0) fileName = fileName.substring(0, fileName.lastIndexOf('.'));
         fileName += ".labels";
         File dir = file.getParentFile();
         File labelsFile = new File(dir, fileName);

@@ -26,6 +26,7 @@ public class ApplyAnnotator extends UIMain
 
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.LoadAnnotatorParams load = new CommandLineUtil.LoadAnnotatorParams();
+	private CommandLineUtil.AnnotatorOutputParams output = new CommandLineUtil.AnnotatorOutputParams();
 	private TextLabels result = null;
 
 	// for gui
@@ -33,10 +34,12 @@ public class ApplyAnnotator extends UIMain
 	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
 	public CommandLineUtil.LoadAnnotatorParams getLoadAnnotatorParameters() { return load; }
 	public void setLoadAnnotatorParameters(CommandLineUtil.LoadAnnotatorParams p) { load=p; }
+	public CommandLineUtil.AnnotatorOutputParams getAnnotatorOutputParams() { return output; }
+	public void setAnnotatorOutputParams(CommandLineUtil.AnnotatorOutputParams p) { output=p; }
 
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,load});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,load,output});
 	}
 
 	//
@@ -66,7 +69,13 @@ public class ApplyAnnotator extends UIMain
 		
 		if (save.saveAs!=null) {
 			try {
-				new TextLabelsLoader().saveTypesAsOps( annLabels, save.saveAs );
+				if ("minorthird".equals(output.format)) {
+					new TextLabelsLoader().saveTypesAsOps( annLabels, save.saveAs );
+				} else if ("strings".equals(output.format)) {
+					new TextLabelsLoader().saveTypesAsStrings( annLabels, save.saveAs, true );					
+				} else {
+					throw new IllegalArgumentException("illegal output format "+output.format+" allowed values are "+StringUtil.toString(output.getAllowedOutputFormatValues()));
+				}
 			} catch (IOException e) {
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}

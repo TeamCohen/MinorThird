@@ -534,4 +534,22 @@ class CommandLineUtil
 		public void setMixupProgramFilename(String s) { mixup(s); }
 	}
 
+
+	static public class AnnotatorOutputParams extends BasicCommandLineProcessor {
+		private static final String[] ALLOWED_VALUES = {"minorthird","xml","strings"};
+		public String format = "minorthird";
+		public void format(String s) { format=s; }
+		public void usage() {
+			System.out.println("annotation output parameters:");
+			System.out.println(" -mixup FILE              run mixup program in FILE (existing file, or name on classpath)");
+			System.out.println(" -format TYPE             output results in appropriate TYPE, which must be either");
+			System.out.println("                          'minorthird', 'xml', or 'strings'");
+			System.out.println();
+		}
+		// for gui
+		public String getOutputFormat() { return format; }
+		public void setOutputFormat(String s) { format=s; }
+		public String[] getAllowedOutputFormatValues() { return ALLOWED_VALUES; }
+	}
+
 }
