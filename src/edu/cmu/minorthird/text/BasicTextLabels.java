@@ -4,6 +4,8 @@ import edu.cmu.minorthird.text.mixup.Dependencies;
 import java.io.Serializable;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 /** Maintains assertions about 'types' and 'properties' of
  * contiguous Spans of these TextToken's.
  *
@@ -29,13 +31,19 @@ public class BasicTextLabels implements MutableTextLabels, Serializable
 
   // don't serialize this
 	transient private TextBase textBase = null;
+  private static Logger log = Logger.getLogger(BasicTextLabels.class);
 
-	public BasicTextLabels() { this.textBase = null; }
+  public BasicTextLabels() { this.textBase = null; }
 	public BasicTextLabels(TextBase textBase) { this.textBase = textBase; }
 
 	public TextBase getTextBase() { return textBase; }
 
-	public void setTextBase(TextBase textBase) {
+  public boolean hasDictionary(String dictionary)
+  {
+    return textTokenDictMap.containsKey(dictionary);
+  }
+
+  public void setTextBase(TextBase textBase) {
 		if (this.textBase!=null) throw new IllegalStateException("textBase already set");
 		this.textBase = textBase;
 	}
@@ -81,6 +89,8 @@ public class BasicTextLabels implements MutableTextLabels, Serializable
 	/** Associate a dictionary with this labeling. */
 	public void defineDictionary(String dictName, Set dictionary) {
 		textTokenDictMap.put(dictName,dictionary);
+    if (log.isDebugEnabled())
+      log.debug("added to token dictionary: " + dictName + " values " + ((Set)textTokenDictMap.get(dictName)));
 	}
 
 

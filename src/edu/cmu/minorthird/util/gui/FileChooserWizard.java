@@ -69,11 +69,6 @@ abstract public class FileChooserWizard extends NullWizardPanel
 		}
 	}
 
-  public void setNextWizardPanel(WizardPanel nextWizardPanel)
-  {
-    this.nextWizardPanel = nextWizardPanel;
-  }
-
 	public boolean canFinish() { return false; }
 	public boolean validateFinish(java.util.List list) { 	return false; }
 	public boolean hasNext() { return true; }

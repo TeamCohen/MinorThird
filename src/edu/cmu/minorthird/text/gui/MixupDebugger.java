@@ -298,47 +298,54 @@ public class MixupDebugger extends JComponent
 	public static void main(String[] args) 
 	{
 		String textBaseId = null;
+    String fileName = null;
 		File groundTruthLabelsFile = null;
 		File mixupProgramFile = null;
-		String mainType = null;
+//		String mainType = null;
 		boolean readOnly = false, stem = false;
 
 		// parse options
-		if (args.length==0) {
-			System.out.println(
-				"usage: MixupDebugger -textBase <textBaseFile> -truth <truthLabels> -mixup <programFile> [options]");
-			System.out.println(
-				"       options: -readOnly -stem");   
-			System.exit(0);
-		}
-		int argp = 0;
-		while (argp<args.length) {
+		if (args.length < 4) {
+      usage();
+    }
+
+    for (int argp = 0; argp < args.length; argp++)
+    {
 			if ("-textBase".equals(args[argp])) {
 				textBaseId = args[++argp];
-				++argp;
+      } else if ("-file".equals(args[argp])) {
+        fileName = args[++argp];
 			} else if ("-truth".equals(args[argp])) {
 				groundTruthLabelsFile = new File(args[++argp]);
-				++argp;
 			} else if ("-mixup".equals(args[argp])) {
 				mixupProgramFile = new File(args[++argp]);
-				++argp;
 			} else if ("-readOnly".equals(args[argp])) {
 				readOnly = true;
-				++argp;
 			} else if ("-stem".equals(args[argp])) {
 				stem = true;
-				++argp;
 			} else {
 				System.out.println("illegal option "+args[argp]);
-				++argp;
 			}
 		}
 
-		try {
+    if ((textBaseId == null && fileName == null) || mixupProgramFile == null)
+      usage();
+
+    try {
 
 			JFrame frame = new JFrame("TextBaseEditor");
-			TextBase base = FancyLoader.loadTextBase(textBaseId);
-			MixupDebugger debugger = 
+      TextBase base;
+
+      if (textBaseId != null)
+        base = FancyLoader.loadTextBase(textBaseId);
+      else
+      {
+        TextBaseLoader loader = new TextBaseLoader();
+        base = new BasicTextBase();
+        loader.loadFileWithID(base, new File(fileName), fileName);
+      }
+
+			MixupDebugger debugger =
 				new MixupDebugger(base,groundTruthLabelsFile,mixupProgramFile,readOnly,stem);
 			frame.getContentPane().add( debugger, BorderLayout.CENTER );
 			frame.addWindowListener(new WindowAdapter() {
@@ -350,4 +357,13 @@ public class MixupDebugger extends JComponent
 			e.printStackTrace();
 		}
 	}
+
+  private static void usage()
+  {
+    System.out.println(
+      "usage: MixupDebugger {-file <dataFile> or -textBase <textBaseFile>} -truth <truthLabels> -mixup <programFile> [options]");
+    System.out.println(
+      "       options: -readOnly -stem");
+    System.exit(0);
+  }
 }

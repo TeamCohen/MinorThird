@@ -10,6 +10,7 @@ import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.classify.experiments.RandomSplitter;
 import edu.cmu.minorthird.text.TextBaseLoader;
 import edu.cmu.minorthird.util.gui.*;
+import edu.cmu.minorthird.Loader;
 import jwf.NullWizardPanel;
 import jwf.WizardPanel;
 
@@ -18,7 +19,6 @@ import javax.swing.border.TitledBorder;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.*;
 
 
 /**
@@ -37,6 +37,7 @@ public class WizardUI
 		private static Class[] myClasses = {
 			// loaders
 			TextBaseLoader.class,
+//      DatasetLoader.class,
 			// learners
 			NaiveBayes.class,
 			BBMira.class,
@@ -91,55 +92,6 @@ public class WizardUI
 		}
 	}
 
-	//
-	// doing a text cat experiment
-	//
-
-
-	/** pick a TextBaseLoader. */
-	private static class PickLoader extends SimpleViewerWizard
-	{
-		public PickLoader(Map viewerContext)
-		{
-			super("textBaseLoader",viewerContext,
-						"Configure TextBaseLoader","Define the data format being used:",
-						new PickTrainDataFile(viewerContext));
-			MyTypeSelector selector = new MyTypeSelector(TextBaseLoader.class);
-			selector.setContent(new TextBaseLoader());
-			addViewer(selector);
-		}
-	}
-
-	/** Pick a training-data file. */
-	private static class PickTrainDataFile extends FileChooserWizard
-	{
-		public PickTrainDataFile(Map viewerContext)
-		{
-			super("trainDataFile",viewerContext,
-						true,"Select Training Data","Where is the training data?");
-      this.nextWizardPanel = new PickLabelFile(viewerContext);
-		}
-
-	}
-
-	/** Pick a label file. */
-	private static class PickLabelFile extends FileChooserWizard
-	{
-		public PickLabelFile(Map viewerContext)
-		{
-			super("labelsFile",viewerContext,
-						true,"Select Annotation File","Where are annotations stored?");
-      this.nextWizardPanel = new PickFeatureExtractor(viewerContext).getWizardPanel();
-		}
-
-    public boolean validateNext(java.util.List list)
-    {
-      if (((File)viewerContext.get("trainDataFile")).isDirectory())
-        return true;
-      else
-        return super.validateNext(list);
-    }
-	}
 
   /** pick an annotator algorithm. */
   private static class PickAnnotatorLearner extends SimpleViewerWizard
@@ -167,6 +119,80 @@ public class WizardUI
 			selector.setContent(new AdaBoost());
 			addViewer(selector);
 		}
+	}
+
+
+	/** pick a TextBaseLoader. */
+	private static class PickLoader extends SimpleViewerWizard
+	{
+		public PickLoader(Map viewerContext)
+		{
+			super("Loader",viewerContext,
+						"Configure Loader","Define the data format being used:",
+						new PickTrainDataFile(viewerContext));
+			MyTypeSelector selector = new MyTypeSelector(Loader.class);
+			selector.setContent(new TextBaseLoader());
+			addViewer(selector);
+		}
+	}
+
+	/** Pick a training-data file. */
+	private static class PickTrainDataFile extends FileChooserWizard
+	{
+		public PickTrainDataFile(Map viewerContext)
+		{
+			super("trainDataFile",viewerContext,
+						true,"Select Training Data","Where is the training data?");
+      this.nextWizardPanel = new PickLabelFile(viewerContext);
+		}
+
+    public boolean validateNext(java.util.List list)
+    {
+      if (((File)viewerContext.get("trainDataFile")).isDirectory())
+      {
+        if (viewerContext.get("Loader") instanceof DatasetLoader)
+        {
+          list.add("can not load directories with DatasetLoader");
+          return false;
+        }
+        else
+          return true;
+      }
+      else
+        return super.validateNext(list);
+    }
+	}
+
+	/** Pick a label file. */
+	private static class PickLabelFile extends FileChooserWizard
+	{
+    private WizardPanel fePanel = new PickFeatureExtractor(viewerContext).getWizardPanel();
+
+    public PickLabelFile(Map viewerContext)
+		{
+			super("labelsFile",viewerContext,
+						true,"Select Annotation File","Where are annotations stored?");
+      this.nextWizardPanel = fePanel;
+//      this.nextWizardPanel = new PickFeatureExtractor(viewerContext).getWizardPanel();
+		}
+
+    public boolean validateNext(java.util.List list)
+    {
+      //don't need to check for loader type, since that is checked one page earlier.
+      if (((File)viewerContext.get("trainDataFile")).isDirectory())
+        return true;
+      else
+        return super.validateNext(list);
+    }
+
+    public WizardPanel next()
+    {
+      if (viewerContext.get("Loader") instanceof DatasetLoader)
+        return new PickTestMethod(viewerContext);
+      else
+        return fePanel;
+    }
+
 	}
 
 	/** pick a feature extractor. */

@@ -363,7 +363,8 @@ public class MixupProgram
 			log.info("Evaluating: "+this);
 			long start = System.currentTimeMillis();
 			if ("defDict".equals(keyword)) {
-				labels.defineDictionary( type, wordSet );
+				log.debug("defining dictionary of: " + wordSet);
+        labels.defineDictionary( type, wordSet );
 			} else if ("declareSpanType".equals(keyword)) {
 				labels.declareType( type );
 			} else if (statementType==PROVIDE) {

@@ -6,6 +6,7 @@ import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.StringEncoder;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
+import edu.cmu.minorthird.Loader;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -33,7 +34,7 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class DatasetLoader 
+public class DatasetLoader implements Loader
 {
 	static private Logger log = Logger.getLogger(DatasetLoader.class);
 
@@ -56,7 +57,7 @@ public class DatasetLoader
 	}
 
 	/** Load a dataset from a file */
-	static public Dataset load(File file) throws IOException,NumberFormatException
+	static public Dataset loadFile(File file) throws IOException,NumberFormatException
 	{
 		Dataset dataset = new BasicDataset();
 		ProgressCounter pc = new ProgressCounter("loading file "+file.getName(), "line");
@@ -226,11 +227,22 @@ public class DatasetLoader
 			boolean sequential = "-sequential".equals(args[0]);
 			String dbName =  sequential ? args[1] : args[0];
 			DatasetLoader loader = new DatasetLoader();
-			Dataset d = sequential ? loader.loadSequence(new File(dbName)) : loader.load(new File(dbName));
+			Dataset d = sequential ? loader.loadSequence(new File(dbName)) : loader.loadFile(new File(dbName));
 			ViewerFrame f = new ViewerFrame("Data from "+dbName, d.toGUI());
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("usage: file");
 		}
 	}
+
+  /**
+   * Calls loadFile.  The Dataset is temporarily swallowed.
+   * In other words, don't call this method.
+   * @param f
+   * @throws IOException
+   */
+  public void load(File f) throws IOException
+  {
+    loadFile(f);
+  }
 }

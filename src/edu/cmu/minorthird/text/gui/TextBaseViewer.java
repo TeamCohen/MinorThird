@@ -13,6 +13,8 @@ import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 /** Interactively view the contents of a TextBase and TextLabels.
  *
  * @author William Cohen
@@ -20,270 +22,254 @@ import java.util.*;
 
 public class TextBaseViewer extends JComponent
 {
-    public static final String NULL_TRUTH_ENTRY = "-compare to-";
-    public static final String NULL_DISPLAY_TYPE = "-top-";
+  public static final String NULL_TRUTH_ENTRY = "-compare to-";
+  public static final String NULL_DISPLAY_TYPE = "-top-";
 
-    // links to outside
-    private final StatusMessage statusMsg;
+  // links to outside
+  private final StatusMessage statusMsg;
 
-    // internal state
-    private final TextBase base;
-    private TextLabels labels;
-    // components
-    private JList documentList;
-    private JSlider documentCellHeightSlider;
-    private JComboBox displayedTypeBox;
-    private JCheckBox editedOnlyCheckBox;
-    private JComboBox guessBox;
-    private JComboBox truthBox;
-    private HighlightAction highlightAction;
+  // internal state
+  private final TextBase base;
+  private TextLabels labels;
+  // components
+  private JList documentList;
+  private JSlider documentCellHeightSlider;
+  private JComboBox displayedTypeBox;
+  private JCheckBox editedOnlyCheckBox;
+  private JComboBox guessBox;
+  private JComboBox truthBox;
+  private HighlightAction highlightAction;
+  private static Logger log = Logger.getLogger(TextBaseViewer.class);
 
-    public JList getDocumentList()
+  public JList getDocumentList()
+  { return documentList; }
+
+  public JComboBox getGuessBox()
+  { return guessBox; }
+
+  public JComboBox getTruthBox()
+  { return truthBox; }
+
+  public JComboBox getDisplayedTypeBox()
+  { return displayedTypeBox; }
+
+  public SpanPainter getSpanPainter()
+  { return highlightAction; }
+
+  /** change the text labels*/
+  public void updateTextLabels(TextLabels newLabels)
+  {
+    this.labels = newLabels;
+    highlightAction.paintDocument(null); // repaint everything
+  }
+
+  public TextBaseViewer(TextBase base, TextLabels labels, StatusMessage statusMsg)
+  { this(base, labels, null, statusMsg); }
+
+  public TextBaseViewer(TextBase base, TextLabels labels, String displayType, StatusMessage statusMsg)
+  {
+    this.base = base;
+    this.labels = labels;
+    this.statusMsg = statusMsg;
+    initializeLayout(displayType);
+  }
+
+  // lay out the main window
+  private void initializeLayout(String displayType)
+  {
+    documentList = new JList();
+    documentList.setFixedCellWidth(760);
+    resetDocumentList(labels, displayType, false);
+
+    // select 'guess' spans
+    guessBox = new JComboBox();
+    guessBox.setEditable(false);
+    for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
     {
-        return documentList;
+      String type = (String)i.next();
+      guessBox.addItem(type);
+    }
+    // select 'truth' spans
+    truthBox = new JComboBox();
+    //truthBox.setEditable(false);
+    truthBox.addItem(NULL_TRUTH_ENTRY);
+    for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
+    {
+      truthBox.addItem(i.next().toString());
+    }
+    // select spans to display in the documentList
+    displayedTypeBox = new JComboBox();
+    displayedTypeBox.setEditable(false);
+    displayedTypeBox.addItem(NULL_DISPLAY_TYPE);
+    for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
+    {
+      displayedTypeBox.addItem(i.next().toString());
+      if (displayType != null) displayedTypeBox.setSelectedItem(displayType);
+    }
+    ResetDocumentListAction resetDocumentListAction = new ResetDocumentListAction();
+    displayedTypeBox.addActionListener(resetDocumentListAction);
+    editedOnlyCheckBox = new JCheckBox("Edited");
+    editedOnlyCheckBox.addActionListener(resetDocumentListAction);
+
+    // create the highlightAction
+    highlightAction = new HighlightAction("Highlight", guessBox, truthBox, documentList);
+
+    // action for highlighting happens when guessBox, truthBox changes or button pressed
+    guessBox.addActionListener(highlightAction);
+    truthBox.addActionListener(highlightAction);
+    JButton highlightButton = new JButton(highlightAction);
+
+    documentCellHeightSlider = new DocumentCellHeightSlider(documentList);
+
+    //
+    // layout stuff
+    //
+    setPreferredSize(new Dimension(800, 600));
+    setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4)); // 4 = border width
+    setLayout(new GridBagLayout());
+    GridBagConstraints gbc;
+
+    // row 2 - the toolbar
+    int col = 0;
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(highlightButton, gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(guessBox, gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(truthBox, gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.weightx = gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(new JLabel("H:"), gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(documentCellHeightSlider, gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.weightx = gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(new JLabel("W:"), gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(new DocumentCellWidthSlider(documentList), gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(new JButton(new ZoomAction("Font-2", -2, documentList)), gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(new JButton(new ZoomAction("Font+2", +2, documentList)), gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(displayedTypeBox, gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(editedOnlyCheckBox, gbc);
+
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1.0;
+    gbc.weighty = 0.0;
+    gbc.gridx = ++col;
+    gbc.gridy = 2;
+    add(new ContextWidthSlider(documentList), gbc);
+
+    // row 1
+    gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = gbc.weighty = 2.0;
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    gbc.gridwidth = col;
+    add(new JScrollPane(documentList), gbc);
+
+  }
+
+  synchronized private void resetDocumentList(TextLabels labels, String displayType, boolean onlyEditedSpans)
+  {
+    // collect all the top-level spans, and put them in a JList
+    log.debug("reset for type " + displayType);
+    ArrayList spans = new ArrayList();
+    Span.Looper i = null;
+    if (displayType == null || NULL_DISPLAY_TYPE.equals(displayType))
+      i = base.documentSpanIterator();
+    else
+      i = labels.instanceIterator(displayType);
+
+//    log.debug("iterator " + i);
+    while (i.hasNext())
+    {
+      Span s = i.nextSpan();
+      if (!onlyEditedSpans || labels.getProperty(s.documentSpan(), SpanEditor.EDITOR_PROP) != null)
+        spans.add(s);
     }
 
-    public JComboBox getGuessBox()
+    if (spans.size() == 0)
+      statusMsg.display("no" + (onlyEditedSpans ? " edited" : "") + " spans of type " + displayType);
+    else
     {
-        return guessBox;
+      synchronized (documentList)
+      {
+        Span[] spanArray = (Span[])spans.toArray(new Span[spans.size()]);
+        if (documentList == null) documentList = new JList();
+        documentList.setVisible(false);
+        documentList.setListData(spanArray);
+        SpanRenderer renderer = new SpanRenderer(spanArray);
+        documentList.setCellRenderer(renderer);
+        documentList.setVisible(true);
+        documentList.repaint();
+      }
     }
-
-    public JComboBox getTruthBox()
-    {
-        return truthBox;
-    }
-
-    public JComboBox getDisplayedTypeBox()
-    {
-        return displayedTypeBox;
-    }
-
-    public SpanPainter getSpanPainter()
-    {
-        return highlightAction;
-    }
-
-    /** change the text labels*/
-    public void updateTextLabels(TextLabels newLabels)
-    {
-        this.labels = newLabels;
-        highlightAction.paintDocument(null); // repaint everything
-    }
-
-    public TextBaseViewer(TextBase base, TextLabels labels, StatusMessage statusMsg)
-    {
-        this(base, labels, null, statusMsg);
-    }
-
-    public TextBaseViewer(TextBase base, TextLabels labels, String displayType, StatusMessage statusMsg)
-    {
-        this.base = base;
-        this.labels = labels;
-        this.statusMsg = statusMsg;
-        initializeLayout(displayType);
-    }
-
-    // lay out the main window
-    private void initializeLayout(String displayType)
-    {
-        documentList = new JList();
-        documentList.setFixedCellWidth(760);
-        resetDocumentList(labels, displayType, false);
-
-        // select 'guess' spans
-        guessBox = new JComboBox();
-        guessBox.setEditable(false);
-        for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
-        {
-            String type = (String) i.next();
-            guessBox.addItem(type);
-        }
-        // select 'truth' spans
-        truthBox = new JComboBox();
-        //truthBox.setEditable(false);
-        truthBox.addItem(NULL_TRUTH_ENTRY);
-        for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
-        {
-            truthBox.addItem(i.next().toString());
-        }
-        // select spans to display in the documentList
-        displayedTypeBox = new JComboBox();
-        displayedTypeBox.setEditable(false);
-        displayedTypeBox.addItem(NULL_DISPLAY_TYPE);
-        for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
-        {
-            displayedTypeBox.addItem(i.next().toString());
-            if (displayType != null) displayedTypeBox.setSelectedItem(displayType);
-        }
-        ResetDocumentListAction resetDocumentListAction = new ResetDocumentListAction();
-        displayedTypeBox.addActionListener(resetDocumentListAction);
-        editedOnlyCheckBox = new JCheckBox("Edited");
-        editedOnlyCheckBox.addActionListener(resetDocumentListAction);
-
-        // create the highlightAction
-        highlightAction = new HighlightAction("Highlight", guessBox, truthBox, documentList);
-
-        // action for highlighting happens when guessBox, truthBox changes or button pressed
-        guessBox.addActionListener(highlightAction);
-        truthBox.addActionListener(highlightAction);
-        JButton highlightButton = new JButton(highlightAction);
-
-        documentCellHeightSlider = new DocumentCellHeightSlider(documentList);
-
-        //
-        // layout stuff
-        //
-        setPreferredSize(new Dimension(800, 600));
-        setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4)); // 4 = border width
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc;
-
-        // row 2 - the toolbar
-        int col = 0;
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(highlightButton, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(guessBox, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(truthBox, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.weightx = gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(new JLabel("H:"), gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(documentCellHeightSlider, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.weightx = gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(new JLabel("W:"), gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(new DocumentCellWidthSlider(documentList), gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(new JButton(new ZoomAction("Font-2", -2, documentList)), gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(new JButton(new ZoomAction("Font+2", +2, documentList)), gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(displayedTypeBox, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(editedOnlyCheckBox, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.gridx = ++col;
-        gbc.gridy = 2;
-        add(new ContextWidthSlider(documentList), gbc);
-
-        // row 1
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = gbc.weighty = 2.0;
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridwidth = col;
-        add(new JScrollPane(documentList), gbc);
-
-    }
-
-    synchronized private void resetDocumentList(TextLabels labels, String displayType, boolean onlyEditedSpans)
-    {
-        // collect all the top-level spans, and put them in a JList
-        ArrayList spans = new ArrayList();
-        Span.Looper i = null;
-        if (displayType == null || NULL_DISPLAY_TYPE.equals(displayType))
-        {
-            i = base.documentSpanIterator();
-        }
-        else
-        {
-            i = labels.instanceIterator(displayType);
-        }
-        while (i.hasNext())
-        {
-            Span s = i.nextSpan();
-            if (!onlyEditedSpans || labels.getProperty(s.documentSpan(), SpanEditor.EDITOR_PROP) != null)
-            {
-                spans.add(s);
-            }
-        }
-
-        if (spans.size() == 0)
-        {
-            statusMsg.display("no" + (onlyEditedSpans ? " edited" : "") + " spans of type " + displayType);
-        }
-        else
-        {
-            synchronized (documentList)
-            {
-                Span[] spanArray = (Span[]) spans.toArray(new Span[spans.size()]);
-                if (documentList == null) documentList = new JList();
-                documentList.setVisible(false);
-                documentList.setListData(spanArray);
-                SpanRenderer renderer = new SpanRenderer(spanArray);
-                documentList.setCellRenderer(renderer);
-                documentList.setVisible(true);
-                documentList.repaint();
-            }
-        }
-    }
+  }
 
 
     /**
@@ -522,70 +508,71 @@ public class TextBaseViewer extends JComponent
      */
     private class SpanRenderer implements ListCellRenderer
     {
-        // a span plus a color to show it in
-        private class SpanMarkup implements Comparable
+      // a span plus a color to show it in
+      private class SpanMarkup implements Comparable
+      {
+        public Span span;
+        public AttributeSet color;
+
+        public SpanMarkup(Span span, AttributeSet color)
         {
-            public Span span;
-            public AttributeSet color;
-
-            public SpanMarkup(Span span, AttributeSet color)
-            {
-                this.span = span;
-                this.color = color;
-            }
-
-            public int compareTo(Object other)
-            {
-                SpanMarkup cspan = (SpanMarkup) other;
-                return span.compareTo(cspan.span);
-            }
+          this.span = span;
+          this.color = color;
         }
 
-        private JComponent spanComponents[]; // component for each span
-        private SpanDocument spanDocs[];     // doc to hold each span
-        private TreeSet[] spanMarkups;       // markup for each span
-        private boolean[] spanIsDirty;       // true if document needs to be updated
-        private Span[] spans;                // action spans
-        private Map indexOfSpanMap;          // maps span to index in arrays above
-        private Map spansWithDocumentMap;   // find all spans with a particular documentId
-        private Font currentFont;            // font being used
-        private int contextWidth = 0;        // how much context to show
-
-        public SpanRenderer(Span[] spans)
+        public int compareTo(Object other)
         {
-            this.spans = spans;
-
-            // work out default font
-            currentFont = new JTextPane().getFont();
-
-            synchronized (documentList)
-            {
-                // cache out renderers and rendered documents for each span
-                spanComponents = new JComponent[spans.length];
-                spanDocs = new SpanDocument[spans.length];
-                spanMarkups = new TreeSet[spans.length];
-                spanIsDirty = new boolean[spans.length];
-                spansWithDocumentMap = new HashMap();
-                indexOfSpanMap = new HashMap();
-                for (int i = 0; i < spans.length; i++)
-                {
-                    spanDocs[i] = new SpanDocument(spans[i], contextWidth);
-                    spanMarkups[i] = new TreeSet();
-                    spanIsDirty[i] = false;
-                    refreshSpanComponent(i);
-                    // update indexOfSpanMap
-                    indexOfSpanMap.put(spans[i], new Integer(i));
-                    // update spansWithDocumentMap
-                    String documentId = spans[i].getDocumentId();
-                    ArrayList spansWithDocument = (ArrayList) spansWithDocumentMap.get(documentId);
-                    if (spansWithDocument == null)
-                    {
-                        spansWithDocumentMap.put(documentId, (spansWithDocument = new ArrayList()));
-                    }
-                    spansWithDocument.add(spans[i]);
-                }
-            }
+          SpanMarkup cspan = (SpanMarkup)other;
+          return span.compareTo(cspan.span);
         }
+      }
+
+      private JComponent spanComponents[]; // component for each span
+      private SpanDocument spanDocs[];     // doc to hold each span
+      private TreeSet[] spanMarkups;       // markup for each span
+      private boolean[] spanIsDirty;       // true if document needs to be updated
+      private Span[] spans;                // action spans
+      private Map indexOfSpanMap;          // maps span to index in arrays above
+      private Map spansWithDocumentMap;   // find all spans with a particular documentId
+      private Font currentFont;            // font being used
+      private int contextWidth = 0;        // how much context to show
+
+      public SpanRenderer(Span[] spans)
+      {
+        this.spans = spans;
+
+        // work out default font
+        currentFont = new JTextPane().getFont();
+
+        synchronized (documentList)
+        {
+          // cache out renderers and rendered documents for each span
+          spanComponents = new JComponent[spans.length];
+          spanDocs = new SpanDocument[spans.length];
+          spanMarkups = new TreeSet[spans.length];
+          spanIsDirty = new boolean[spans.length];
+          spansWithDocumentMap = new HashMap();
+          indexOfSpanMap = new HashMap();
+          for (int i = 0; i < spans.length; i++)
+          {
+//            log.debug("render span loop on span: " + spans[i].asString());
+            spanDocs[i] = new SpanDocument(spans[i], contextWidth);
+            spanMarkups[i] = new TreeSet();
+            spanIsDirty[i] = false;
+            refreshSpanComponent(i);
+            // update indexOfSpanMap
+            indexOfSpanMap.put(spans[i], new Integer(i));
+            // update spansWithDocumentMap
+            String documentId = spans[i].getDocumentId();
+            ArrayList spansWithDocument = (ArrayList)spansWithDocumentMap.get(documentId);
+            if (spansWithDocument == null)
+            {
+              spansWithDocumentMap.put(documentId, (spansWithDocument = new ArrayList()));
+            }
+            spansWithDocument.add(spans[i]);
+          }
+        }
+      }
 
         // used to force repaint of a component
         private void refreshSpanComponent(int i)

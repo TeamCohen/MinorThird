@@ -30,7 +30,12 @@ public class SubTextLabels implements TextLabels
 		return subBase;
 	}
 
-	public boolean inDict(Token token,String dict) {
+  public boolean hasDictionary(String dictionary)
+  {
+    return labels.hasDictionary(dictionary);
+  }
+
+  public boolean inDict(Token token,String dict) {
 		return labels.inDict(token,dict);
 	}
 

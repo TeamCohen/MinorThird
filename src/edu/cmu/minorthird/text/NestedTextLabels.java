@@ -22,7 +22,7 @@ import java.util.Set;
 
 public class NestedTextLabels implements MonotonicTextLabels
 {
-	private static final Set EMPTY_SET = new HashSet();
+//	private static final Set EMPTY_SET = new HashSet();
 
 	private MonotonicTextLabels outer;
 	private TextLabels inner;
@@ -46,7 +46,12 @@ public class NestedTextLabels implements MonotonicTextLabels
 		return inner.getTextBase();
 	}
 
-	public boolean isAnnotatedBy(String s) { return outer.isAnnotatedBy(s) || inner.isAnnotatedBy(s); }
+  public boolean hasDictionary(String dictionary)
+  {
+    return inner.hasDictionary(dictionary) || outer.hasDictionary(dictionary);
+  }
+
+  public boolean isAnnotatedBy(String s) { return outer.isAnnotatedBy(s) || inner.isAnnotatedBy(s); }
 		 
 	public void setAnnotatedBy(String s) { outer.setAnnotatedBy(s); }
 
@@ -54,8 +59,15 @@ public class NestedTextLabels implements MonotonicTextLabels
 		outer.defineDictionary(dictName, dict);
 	}
 
-	public boolean inDict(Token token,String dict) {
-		return outer.inDict(token,dict) || inner.inDict(token,dict); 
+	public boolean inDict(Token token, String dictionary) {
+    boolean outDict = outer.hasDictionary(dictionary);
+    boolean innerDict = inner.hasDictionary(dictionary);
+    if (outDict)
+      return outer.inDict(token, dictionary);
+    else if (innerDict)
+      return inner.inDict(token, dictionary);
+    else
+      throw new IllegalArgumentException("undefined dictionary " + dictionary);
 	}
 
 	public void setProperty(Token token,String prop,String value) {

@@ -51,7 +51,8 @@ public class TextBaseLoader implements Loader
    */
 	public void loadFile(TextBase base,File file) throws IOException,FileNotFoundException
 	{
-		if (file.isDirectory()) loadTaggedFiles(base,file);
+		if (file.isDirectory())
+      loadTaggedFiles(base,file);
 		else {
 			loadLines(base,file);
 			labels = new BasicTextLabels(base);

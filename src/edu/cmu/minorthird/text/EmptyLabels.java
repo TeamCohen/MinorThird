@@ -17,7 +17,11 @@ public class EmptyLabels implements TextLabels
 	public boolean isAnnotatedBy(String s) { return false; }
 	public void setAnnotatedBy(String s) { ; }
 	public TextBase getTextBase() { throw new UnsupportedOperationException("no text base"); }
-	public boolean inDict(Token token,String dict) { return false; }
+
+  public boolean hasDictionary(String dictionary)
+  { return false; }
+
+  public boolean inDict(Token token,String dict) { return false; }
 	public String getProperty(Token token,String prop) { return null; }
 	public Set getTokenProperties() { return EMPTY_SET; }
 	public String getProperty(Span span,String prop) { return null; }

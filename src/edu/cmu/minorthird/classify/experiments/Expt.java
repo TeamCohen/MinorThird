@@ -130,11 +130,11 @@ public class Expt
 		String[] words = datasetName.split("\\:");
 		if (words.length==1) {
 			// file
-			return DatasetLoader.load(new File(words[0]));
+			return DatasetLoader.loadFile(new File(words[0]));
 		}
 		if (words.length==2 && "file".equals(words[0])) {
 			// file:bar
-			return DatasetLoader.load(new File(words[1]));
+			return DatasetLoader.loadFile(new File(words[1]));
 		}
 		if (words.length==2 && "seqfile".equals(words[0])) {
 			// file:bar

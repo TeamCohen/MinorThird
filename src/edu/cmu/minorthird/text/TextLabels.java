@@ -17,6 +17,13 @@ public interface TextLabels
 	 * isn't set yet. */
 	public TextBase getTextBase();
 
+  /**
+   *
+   * @param dictionary String name of the dictionary
+   * @return true if the dictionary is defined for these labels
+   */
+  public boolean hasDictionary(String dictionary);
+
 	/** Returns true if the value of the Token is in the named dictionary. */
 	public boolean inDict(Token token,String dict);
 
