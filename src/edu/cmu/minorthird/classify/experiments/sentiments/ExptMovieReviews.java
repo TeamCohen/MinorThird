@@ -10,7 +10,9 @@ import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.mixup.MixupProgram;
 import edu.cmu.minorthird.text.gui.TextBaseLabeler;
+import edu.cmu.minorthird.text.gui.MixupDebugger;
 import edu.cmu.minorthird.text.learn.SpanFE;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.learn.FeatureBuffer;
@@ -19,8 +21,12 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.log4j.Logger;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * This class is responsible for running experiments on the datasets of Movie Reviews
@@ -75,18 +81,24 @@ public class ExptMovieReviews extends TestCase
       //TextBaseLabeler.label( labels, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
 
 
+      // apply mixup file to get candidates, if there is one
+      File mixupFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/sentiments.mixup");
+      MixupProgram p = new MixupProgram(mixupFile);
+      p.eval(labels,base);
+
       // set up a simple bag-of-words feature extractor
       System.out.println("extract features");
       SpanFeatureExtractor fe = new SpanFeatureExtractor() {
         public Instance extractInstance(TextLabels labels, Span s) {
           FeatureBuffer buf = new FeatureBuffer(labels, s);
-          SpanFE.from(s, buf).tokens().eq().lc().punk().emit();
           //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
           /*try {
           SpanFE.from(s, buf).tokens().eq().lc().punk().usewords("examples/t1.words.text").emit();
           } catch (IOException e) {
           log.error(e, e);
           } */
+          SpanFE.from(s,buf).contains("bigram").eq().emit();
+          SpanFE.from(s, buf).tokens().eq().lc().punk().emit();
           return buf.getInstance();
         }
         public Instance extractInstance(Span s) {
@@ -96,6 +108,31 @@ public class ExptMovieReviews extends TestCase
 
       // check
       //log.debug(labels.getTypes().toString());
+
+
+      //
+      // debug mixup
+      //
+      try {
+
+        JFrame frame = new JFrame("TextBaseEditor");
+
+        MixupDebugger debugger =
+          new MixupDebugger(base,null,mixupFile,false,false);
+        frame.getContentPane().add( debugger, BorderLayout.CENTER );
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) { System.exit(0); }
+          });
+        frame.pack();
+        frame.setVisible(true);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      //
+      //
+      //
+
+
 
 
       // create a binary dataset for the class 'Pos'
