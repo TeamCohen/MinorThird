@@ -27,14 +27,17 @@ public class MarkupControls extends ViewerControls
 		colorMap.put("yellow",HiliteColors.yellow );
 		colorMap.put("gray",HiliteColors.gray );
 	}
+	private TextLabels labels;
 	private ArrayList types = new ArrayList();
 	private Map colorCode = new HashMap();
 	private int numTypesWithColors;
 	private JComboBox guessBox, truthBox;
+	private SpanDifference sd;
 
 	public MarkupControls(TextLabels labels)
 	{
 		super();
+		this.labels = labels;
 		types = new ArrayList(labels.getTypes());
 		colorCode = new HashMap();
 		initialize(); // initialize again!
@@ -43,6 +46,38 @@ public class MarkupControls extends ViewerControls
 	protected void initialize()
 	{
 		if (types==null) return;
+
+		guessBox = new JComboBox();
+		guessBox.addItem( "-compare- ");
+		truthBox = new JComboBox();
+		truthBox.addItem( "-to-" );
+		for (int i=0; i<types.size(); i++) {
+			guessBox.addItem( types.get(i).toString() );
+			truthBox.addItem( types.get(i).toString() );
+		}
+		ActionListener diffListener = new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (guessBox.getSelectedIndex()==0 || truthBox.getSelectedIndex()==0) {
+						sd = null;
+						System.out.println("cleared sd");
+					} else {
+						String guess = guessBox.getSelectedItem().toString();
+						String truth = truthBox.getSelectedItem().toString();
+						sd = new SpanDifference( 
+							labels.instanceIterator(guess), 
+							labels.instanceIterator(truth), 
+							labels.closureIterator(truth));
+						System.out.println("created  "+sd); 
+					}
+				}
+			};
+		guessBox.addActionListener(diffListener);
+		truthBox.addActionListener(diffListener);
+		JPanel comparePanel = new JPanel();
+		comparePanel.add(guessBox);
+		comparePanel.add(truthBox);
+		add(comparePanel);
+
 		final ArrayList boxList = new ArrayList();
 		for (int i=0; i<types.size(); i++) {
 			JPanel boxPanel = new JPanel();
@@ -61,14 +96,18 @@ public class MarkupControls extends ViewerControls
 			}));
 		addApplyButton();
 	}
-
-
+	
 
 	public SimpleAttributeSet getColor(String type)
 	{
 		String s = (String)colorCode.get(type);
 		if (s==null) return null;
 		else return (SimpleAttributeSet)colorMap.get(s);
+	}
+
+	public SpanDifference getSpanDifference()
+	{
+		return sd;
 	}
 
 	private JComboBox colorBox(final int i) 

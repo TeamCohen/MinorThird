@@ -4,9 +4,10 @@ import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
 import java.awt.*;
 import java.util.ArrayList;
-
+import java.util.HashMap;
 
 /** View the contents of a bunch of spans, using the util.gui.Viewer framework.
  *
@@ -19,9 +20,18 @@ import java.util.ArrayList;
 
 public class TextLabelsViewer extends ComponentViewer implements Controllable
 {
+	static SimpleAttributeSet[] colorByStatus = new SimpleAttributeSet[SpanDifference.MAX_STATUS + 1];
+	static {
+		colorByStatus[SpanDifference.FALSE_POS] = HiliteColors.red;
+		colorByStatus[SpanDifference.FALSE_NEG] = HiliteColors.blue;
+		colorByStatus[SpanDifference.TRUE_POS] = HiliteColors.green;
+		colorByStatus[SpanDifference.UNKNOWN_POS] = HiliteColors.yellow;
+	}
+
 	private TextLabels labels;
 	private Span[] spans;
 	private SpanViewer.TextViewer[] viewers=null;
+	private HashMap viewerForId=new HashMap();
 	private JList jlist;
 
 	public TextLabelsViewer(TextLabels labels)
@@ -37,9 +47,19 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 			for (int i=0; i<viewers.length; i++) {
 				viewers[i].applyControls(controls);
 			}
+			SpanDifference sd = controls.getSpanDifference();
+			if (sd!=null) {
+				for (SpanDifference.Looper i=sd.differenceIterator(); i.hasNext(); ) {
+					Span s = i.nextSpan();
+					SpanViewer.TextViewer sv = (SpanViewer.TextViewer)viewerForId.get(s.getDocumentId());
+					if (sv==null) throw new IllegalStateException("can't highlight span "+s);
+					sv.highlight(s, colorByStatus[i.getStatus()]);
+				}
+			}
 			jlist.repaint(10); // optional argument seems to be necessary
 		}
 	}
+
 	public JComponent componentFor(Object o)
 	{																
 		TextLabels labels = (TextLabels)o;
@@ -51,6 +71,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 			spans[j] = i.nextSpan();
 			viewers[j] = new SpanViewer.TextViewer(labels,spans[j]);
 			viewers[j].setContent(spans[j]);
+			viewerForId.put( spans[j].getDocumentId(), viewers[j] );
 			j++;
 		}
 		jlist = new JList(spans);

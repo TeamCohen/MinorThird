@@ -302,4 +302,10 @@ public class SpanDifference
 		}
 		public String toString() { return "[Diff "+status+" "+diffSpan+"]"; }
 	}
+	
+	public String toString() 
+	{ 
+		return "[SpanDiff: token p/r="+tokenPrecision()+"/"+tokenRecall()
+			       +" span p/r="+spanPrecision()+"/"+spanRecall()+"]"; 
+	}
 }

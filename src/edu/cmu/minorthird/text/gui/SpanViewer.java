@@ -97,6 +97,10 @@ public class SpanViewer extends ParallelViewer implements Controllable
 			this.span = span;
 			this.context = context;
 		}
+		public void highlight(Span span, SimpleAttributeSet color)
+		{
+			if (color!=null) doc.highlight(span,color);
+		}
 		public JComponent componentFor(Object o)
 		{
 			span = (Span)o;
