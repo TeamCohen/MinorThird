@@ -108,7 +108,7 @@ public class Tester
 	/** Return the log loss on an example with known true class. */
 	static public double logLoss(BinaryClassifier c, Example e)
 	{
-		return Math.log( 1.0 + Math.exp( e.getLabel().numericScore() * c.score(e) ) ); 
+		return Math.log( 1.0 + Math.exp( e.getLabel().numericLabel() * c.score(e) ) ); 
 	}
 
 	/** Return the average log loss on a dataset. */ 

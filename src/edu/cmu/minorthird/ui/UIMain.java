@@ -50,7 +50,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		Recommended.KnnLearner.class, Recommended.NaiveBayes.class,
 		Recommended.VotedPerceptronLearner.class,	Recommended.SVMLearner.class,
 		Recommended.DecisionTreeLearner.class, Recommended.BoostedDecisionTreeLearner.class,
-		Recommended.BoostedStumpLearner.class, 
+		Recommended.BoostedStumpLearner.class, Recommended.MaxEntLearner.class,
 		//
 		// recommended sequence learners
 		//

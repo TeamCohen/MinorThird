@@ -238,17 +238,20 @@ public class SampleDatasets
    */
   public static Dataset makeLogisticRegressionData(Random rand, int m, double a, double b)
   {
+    int numPos=0, numNeg=0;
     Dataset data = new BasicDataset();
     for (int i=0; i<m; i++) {
       double x = rand.nextDouble();
       double p = MathUtil.logistic(a*x+b);
       double r = rand.nextDouble();
       ClassLabel y = p>r ? ClassLabel.positiveLabel(1) : ClassLabel.negativeLabel(-1) ; 
+      if (p>r) numPos++; else numNeg++;
 			MutableInstance instance = new MutableInstance();
 			instance.addNumeric(new Feature("x"), x);
 			instance.addBinary(new Feature("bias"));
       data.add(new Example(instance, y));
     }
+    System.out.println(m+" examples: "+numPos+" pos, "+numNeg+" neg");
     return data;
   }
 
@@ -326,6 +329,9 @@ public class SampleDatasets
     } else if ("logistic".equals(name)) {
       if (isTest) return makeLogisticRegressionData(new Random(666),50,2,-2);
       else return makeLogisticRegressionData(new Random(999),50,2,-2);
+    } else if ("bigLogistic".equals(name)) {
+      if (isTest) return makeLogisticRegressionData(new Random(666),1000,2,-2);
+      else return makeLogisticRegressionData(new Random(999),1000,2,-2);
     } else if ("sparseNum".equals(name)) {
       if (isTest) return makeSparseNumericData(new Random(666),20);
       else return makeSparseNumericData(new Random(999),20);
@@ -374,7 +380,7 @@ public class SampleDatasets
     for (Example.Looper i=d.iterator(); i.hasNext(); ) {
       Example e = i.nextExample();
       if (c instanceof BinaryClassifier) {
-        double actual = e.getLabel().numericScore();
+        double actual = e.getLabel().numericLabel();
         double predicted = c.classification(e).posWeight();
         String ok = predicted*actual>=0 ? "Y" : "N";
         log.info(ok+"\tpred="+predicted+"\tactual="+actual+"\t"+e);

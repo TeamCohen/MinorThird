@@ -71,7 +71,12 @@ public class FeatureFactory implements Serializable
 	 */
 	public Example compress(Example example)
 	{
-		return new Example(new CompactInstance(example.asInstance()), example.getLabel());
+    if (example.asInstance() instanceof CompactInstance) {
+      CompactInstance instance = (CompactInstance)example.asInstance();
+      if (instance.getFactory()==this) return example;
+    }
+    Instance compressedInstance = new CompactInstance(example.asInstance());
+    return new Example(compressedInstance, example.getLabel(), example.getWeight());
 	}
 
   /**
@@ -92,7 +97,6 @@ public class FeatureFactory implements Serializable
 		public CompactInstance(Instance instance)
 		{
 			this.source = instance.getSource();
-			this.weight = instance.getWeight();
 			this.subpopulationId = instance.getSubpopulationId();
 
 			//two pieces, numeric and binary to copy over
@@ -113,6 +117,8 @@ public class FeatureFactory implements Serializable
 			}
 			binaryFeatures = (Feature[])set.toArray( new Feature[set.size()] );
 		}
+
+    public FeatureFactory getFactory() { return FeatureFactory.this; }
 
 		public double getWeight(Feature f)
 		{

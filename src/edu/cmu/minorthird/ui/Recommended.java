@@ -66,6 +66,12 @@ public class Recommended
 		public SVMLearner() { super(); }
 	}
 
+	/** Maximum entropy learner/linear regression */
+	static public class MaxEntLearner extends edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner
+	{
+		public MaxEntLearner() { super("maxIters 50"); }
+	}
+
 	/** Default decision tree learner.  */
 	static public class DecisionTreeLearner extends edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner
 	{

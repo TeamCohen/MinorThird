@@ -28,9 +28,6 @@ public interface Instance extends HasSubpopulationId,Visible
 	/** Return an iterator over all features */
 	public Feature.Looper featureIterator();
 
-	/** Get the weight of this instance. */
-	public double getWeight();
-
 	/** Get the underlying object used that this instance describes */ 
 	public Object getSource();
 

@@ -57,7 +57,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 
 	public void addExample(Example example)
 	{
-		double y_t = example.getLabel().numericScore();
+		double y_t = example.getLabel().numericLabel();
 		if (w_t.score(example.asInstance()) * y_t <= 0) {
 			w_t.increment( example, y_t );
 		}

@@ -88,10 +88,6 @@ import java.io.Serializable;
     {
       return ifFalse;
     }
-    public String toString()
-    {
-      return "Test: "+test+">="+threshold;
-    }
     public Viewer toGUI()
     {
       Viewer v = new TreeViewer();
@@ -121,10 +117,6 @@ import java.io.Serializable;
     public double getScore() 
     { 
       return myScore; 
-    }
-    public String toString() 
-    {
-      return "Predict: "+myScore;
     }
     public Viewer toGUI()
     {

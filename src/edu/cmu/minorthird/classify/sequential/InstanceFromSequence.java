@@ -41,7 +41,6 @@ public class InstanceFromSequence implements Instance,SequenceConstants
 	//
 	// delegate to wrapped instance
 	//
-	public double getWeight() { return instance.getWeight(); }
 	final public Object getSource() { return instance.getSource(); }
 	final public String getSubpopulationId() { return instance.getSubpopulationId(); }
 	final public Feature.Looper numericFeatureIterator() { return instance.numericFeatureIterator(); }

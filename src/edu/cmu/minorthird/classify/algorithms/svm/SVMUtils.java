@@ -36,7 +36,7 @@ public class SVMUtils
     for (int i = 0; it.hasNext(); i++)
     {
       Example example = it.nextExample();
-      problem.y[i] = example.getLabel().numericScore();
+      problem.y[i] = example.getLabel().numericLabel();
 
       problem.x[i] = instanceToNodeArray(example);
     }

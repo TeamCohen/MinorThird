@@ -42,7 +42,7 @@ public class BBMira extends OnlineBinaryClassifierLearner
 
 	public void addExample(Example example)
 	{
-		double y = example.getLabel().numericScore();
+		double y = example.getLabel().numericLabel();
 		Instance x = example.asInstance();
 		// simulate initialization of w_t to unit values for each feature
 		for (Feature.Looper i=x.featureIterator(); i.hasNext(); ) {
@@ -110,7 +110,7 @@ public class BBMira extends OnlineBinaryClassifierLearner
 			somethingRemoved = false;
 			for (ListIterator i=cache.listIterator(); i.hasNext(); ) {
 				WeightedExample wx = (WeightedExample)i.next();
-				double y = wx.example.getLabel().numericScore();
+				double y = wx.example.getLabel().numericLabel();
 				Instance x = wx.example.asInstance();
 				//double currentPrediction = cacheScore(cache,x);
 				double currentPrediction = w_t.score(x);

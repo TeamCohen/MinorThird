@@ -57,9 +57,6 @@ public class MutableInstance extends AbstractInstance
 		return new Feature.Looper( new UnionIterator(set.iterator(), wset.asSet().iterator()) );
 	}
 
-  /** Set the weight of this instance. */
-	public void setWeight(double weight) { this.weight=weight; }
-
 	public String toString() {
 		StringBuffer buf = new StringBuffer("[instance/"+subpopulationId+":");
 		for (Feature.Looper i=binaryFeatureIterator(); i.hasNext(); ) {

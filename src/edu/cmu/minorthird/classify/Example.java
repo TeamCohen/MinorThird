@@ -21,20 +21,19 @@ public class Example implements Instance,Visible,Serializable
 	private final int CURRENT_VERSION_NUMBER = 1;
 
 	protected Instance instance;
-	protected ClassLabel label = null;
+	protected ClassLabel label;
+  protected double weight;
 
 	public Example(Instance instance,ClassLabel label) 
 	{
+    this(instance,label,1.0);
+	}
+	public Example(Instance instance,ClassLabel label,double weight) 
+	{
 		this.instance = instance;
 		this.label = label;
+    this.weight = weight;
 	}
-
-	// /** compress the example, if possible */
-	//public Example compress()
-	//{
-	//if (instance instanceof CompactInstance) return this;
-	//else return new Example(new CompactInstance(instance),label);
-  //}
 
 	/** get the label associated with the underlying object */
 	public ClassLabel getLabel() { return label; }
@@ -55,9 +54,11 @@ public class Example implements Instance,Visible,Serializable
 	/** Return an iterator over all numeric features */
 	final public Feature.Looper featureIterator() { return instance.featureIterator(); }
 
-	/** Get the weight of this instance.  Not final, since we might want
-	 * to re-weight examples locally in a dataset. */
-	public double getWeight() { return instance.getWeight(); }
+	/** Get the weight of this example. */
+	final public double getWeight() { return weight; }
+
+	/** Change the weight of this example. */
+	final public void setWeight(double newWeight) { this.weight=newWeight; }
 
 	/** Return the subpopulation Id of the instance. **/
 	final public String getSubpopulationId() { return instance.getSubpopulationId(); }

@@ -35,7 +35,6 @@ public class AugmentedInstance implements Instance
 	//
 	// delegate to wrapped instance
 	//
-	public double getWeight() { return instance.getWeight(); }
 	final public Object getSource() { return instance.getSource(); }
 	final public String getSubpopulationId() { return instance.getSubpopulationId(); }
 	final public Feature.Looper binaryFeatureIterator() 

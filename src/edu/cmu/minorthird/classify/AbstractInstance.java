@@ -9,7 +9,6 @@ import edu.cmu.minorthird.util.gui.Visible;
  */
 public abstract class AbstractInstance implements Instance, Visible
 {
-  protected double weight = 1.0;
   protected Object source;
   protected String subpopulationId;
 
@@ -18,9 +17,6 @@ public abstract class AbstractInstance implements Instance, Visible
 
   /** Return the subpopulation from which the source was drawn. */
 	public String getSubpopulationId() { return subpopulationId; }
-
-  /** Get the weight of this instance. */
-	public double getWeight() { return weight; }
 
   /** Retrieve Viewer for the instance */
   public Viewer toGUI()	

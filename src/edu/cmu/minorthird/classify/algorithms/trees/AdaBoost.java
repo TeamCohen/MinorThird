@@ -35,6 +35,17 @@ public class AdaBoost extends BatchBinaryClassifierLearner
   private BatchClassifierLearner baseLearner;
   private int maxRounds = 100;
 
+  /** AdaBoost.L is a logistic-regression version of AdaBoost. */
+  static public class L extends AdaBoost 
+  {
+    public L() {	super(); }
+    public L(BatchClassifierLearner baseLearner,int maxRounds) { super(baseLearner,maxRounds); }
+    protected double discountFactor(double y,double yhat)
+    {
+      return 1.0 + Math.exp( y*yhat );
+    }
+  }
+
   public AdaBoost() {	this(new DecisionTreeLearner(),10);	}
   public AdaBoost(BatchClassifierLearner baseLearner,int maxRounds)
   {
@@ -49,13 +60,12 @@ public class AdaBoost extends BatchBinaryClassifierLearner
 
   public Classifier batchTrain(Dataset dataset)
   {
-    // initialize the weight of each example
-    double[] boostingWeight = new double[dataset.size()];
-    int k=0;
+    // so that a local copy of weights can be stored...
+    Dataset weightedData = new BasicDataset();
     for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-      boostingWeight[k++] = i.nextExample().getWeight();
+      Example e =  i.nextExample(); 
+      weightedData.add( new Example(e.asInstance(), e.getLabel()) );
     }
-    WeightedDataset weightedData = new WeightedDataset(dataset,boostingWeight);
 		
     List classifiers = new ArrayList(maxRounds); 
 
@@ -71,34 +81,35 @@ public class AdaBoost extends BatchBinaryClassifierLearner
 
       // re-weight data, assuming score of classifier is as required by the booster
 
+      if (log.isDebugEnabled()) log.debug("classifier is "+c);
       log.info("Generating new distribution");
       double z = 0; // normalization factor
-      k=0;
-      double errors=0, margin=0; // stats for researchers
-      for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-	Example xk = i.nextExample();
-	double yk = xk.getLabel().numericScore();
-	double yhatk = c.score(xk);
-	// for Adaboost.L, multiply weight for example xk by 1/( 1 + exp( yk * c.score(xk) ) )
-	// for Adaboost, multiply weight for example xk by 1/exp( yk * c.score(xk))  
-	double factor =  Math.exp( yk * yhatk );
-	//System.out.println("weight("+xk+") "+boostingWeight[k]+" -> "+boostingWeight[k]/factor);
-	boostingWeight[k] /= factor;
-	z += boostingWeight[k];
-	k++;
-	if (yk*yhatk<0) errors++;
-	margin += yk*yhatk;
+      for (Example.Looper k = weightedData.iterator(); k.hasNext(); ) {
+        Example xk = k.nextExample();
+        double yk = xk.getLabel().numericLabel();
+        double yhatk = c.score(xk);
+        // for Adaboost.L, multiply weight for example xk by 1/( 1 + exp( yk * c.score(xk) ) )
+        // for Adaboost, multiply weight for example xk by 1/exp( yk * c.score(xk))  
+        //double factor =  Math.exp( yk * yhatk );
+        //double w = xk.getWeight();
+        //xk.setWeight( w/factor );
+        xk.setWeight( xk.getWeight() / discountFactor(yk, yhatk) );
+        z += xk.getWeight();
       }
-      for (k=0; k<boostingWeight.length; k++) {
-	boostingWeight[k] /= z;
+      for (Example.Looper i=weightedData.iterator(); i.hasNext(); ) {
+        Example e = i.nextExample(); 
+        e.setWeight( e.getWeight() / z );
       }
-      System.out.println("Training error for round "+(t+1)+": "+errors/boostingWeight.length);
-      System.out.println("Total margin for round "+(t+1)+":   "+margin);
       pc.progress();
     }
 
     pc.finished();
     return new BoostedClassifier(classifiers);
+  }
+
+  protected double discountFactor(double y,double yhat)
+  {
+    return Math.exp( y*yhat );
   }
 
   /**
@@ -114,8 +125,8 @@ public class AdaBoost extends BatchBinaryClassifierLearner
     { 
       double totalScore = 0;
       for (Iterator i=classifiers.iterator(); i.hasNext(); ) {
-	BinaryClassifier c = (BinaryClassifier)i.next();
-	totalScore += c.score(instance);
+        BinaryClassifier c = (BinaryClassifier)i.next();
+        totalScore += c.score(instance);
       }
       return totalScore;
     }
@@ -124,10 +135,10 @@ public class AdaBoost extends BatchBinaryClassifierLearner
       StringBuffer buf = new StringBuffer("");
       double totalScore = 0;
       for (Iterator i=classifiers.iterator(); i.hasNext(); ) {
-	BinaryClassifier c = (BinaryClassifier)i.next();
-	totalScore += c.score(instance);
-	buf.append("score of "+c+": "+c.score(instance)+"\n");
-	buf.append(StringUtil.indent(1,c.explain(instance))+"\n");
+        BinaryClassifier c = (BinaryClassifier)i.next();
+        totalScore += c.score(instance);
+        buf.append("score of "+c+": "+c.score(instance)+"\n");
+        buf.append(StringUtil.indent(1,c.explain(instance))+"\n");
       }
       buf.append("total score: "+totalScore);
       return buf.toString();
@@ -136,8 +147,8 @@ public class AdaBoost extends BatchBinaryClassifierLearner
     {
       StringBuffer buf = new StringBuffer("[boosted classifier:\n");			
       for (Iterator i=classifiers.iterator(); i.hasNext(); ) {
-	BinaryClassifier c = (BinaryClassifier)i.next();
-	buf.append(c.toString()+"\n");
+        BinaryClassifier c = (BinaryClassifier)i.next();
+        buf.append(c.toString()+"\n");
       }
       buf.append("]");
       return buf.toString();
@@ -158,62 +169,18 @@ public class AdaBoost extends BatchBinaryClassifierLearner
       panel.setLayout(new GridBagLayout());
       int ypos = 0;
       for (Iterator i=bc.classifiers.iterator(); i.hasNext(); ) {
-	Classifier c = (Classifier)i.next();
-	GridBagConstraints gbc = new GridBagConstraints();
-	gbc.fill = GridBagConstraints.HORIZONTAL;
-	gbc.weightx = gbc.weighty = 0;
-	gbc.gridx = 0; gbc.gridy = ypos++;
-	Viewer subview = (c instanceof Visible) ? ((Visible)c).toGUI() : new VanillaViewer(c);
-	subview.setSuperView(this);
-	panel.add(subview, gbc);
+        Classifier c = (Classifier)i.next();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = gbc.weighty = 0;
+        gbc.gridx = 0; gbc.gridy = ypos++;
+        Viewer subview = (c instanceof Visible) ? ((Visible)c).toGUI() : new VanillaViewer(c);
+        subview.setSuperView(this);
+        panel.add(subview, gbc);
       }
       JScrollPane scroller = new JScrollPane(panel);
       scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       return scroller;
-    }
-  }
-
-  /**
-   * A weighted example
-   */
-  private static class WeightedExample extends Example 
-  {
-    private double localWeight = 1.0;
-    public WeightedExample(Example example,double weight) {
-      super(example.asInstance(), example.getLabel());
-      this.localWeight = weight;
-    }
-    public double getWeight()	{ return localWeight; }
-  }
-
-  /**
-   * A weighted dataset.
-   */
-  private static class WeightedDataset extends BasicDataset 
-  {
-    private Dataset innerData;
-    private double[] boostingWeight;
-    public WeightedDataset(Dataset innerData,double[] boostingWeight)
-    {
-      this.innerData = innerData;
-      this.boostingWeight = boostingWeight;
-    }
-    public void add(Example example)
-    {
-      innerData.add(example);
-    }
-    public Example.Looper iterator()
-    {
-      List list = new ArrayList(size());
-      int k=0;
-      for (Iterator i=innerData.iterator(); i.hasNext(); ) {
-	list.add( new WeightedExample((Example)i.next(), boostingWeight[k++]) );
-      }
-      return new Example.Looper( list );
-    }
-    public int size()
-    {
-      return innerData.size();
     }
   }
 }

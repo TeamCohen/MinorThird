@@ -9,18 +9,24 @@ import java.util.Set;
  * A label which is associated with an instance---either by a classifier,
  * or in training data.
  *
- * ClassLabels should be weighted to that the weight for a label
- * is (approximately) the log-odds having that label.
+ *<p>
+ * ClassLabels should be weighted to that the weight for a class name
+ * is (approximately) the log-odds having that class name, ie if
+ * the probability of class "POS" is p, the getWeight("POS") should
+ * return Math.log( p/(1-p) ).
  *
- * <li>Binary class labels should always be created with the
- * positiveLabel() and negativeLabel() routines.  For training, a
- * +1/-1 labeling of the class can be obtained with the
- * classLabel.numericScore() method---this ignores the underlying
- * score.  For testing, classLabel.isPositive(),
+ * The POS and NEG class labels (as defined in
+ * ExampleSchema.POS_CLASS_NAME and ExampleSchema.NEG_CLASS_NAME) are
+ * special. Binary class labels should be created with the
+ * positiveLabel(posWeight) and negativeLabel(negWeight) routines, or
+ * else the binaryLabel routine. The numericLabel() returns +1 or -1
+ * for binary classLabels.  The posWeight() method returns the score
+ * of the positive class.
+
+ * The classLabel.numericLabel() method ignores the underlying score.
+ * For testing binary examples, classLabel.isPositive(),
  * classLabel.isNegative(), and classLabel.bestWeight() should be
- * used.  The desired weight is the log odds of the POSITIVE class.
- *
- * </ol>
+ * used.
  *
  * @author William Cohen
 */
@@ -71,7 +77,7 @@ public class ClassLabel implements Serializable
 	public boolean isNegative() { return ExampleSchema.NEG_CLASS_NAME.equals(this.bestLabel); }
 
 	/** Return a numeric score of +1, or -1 for a binary example */
-	public double numericScore() 
+	public double numericLabel() 
 	{
 		if (isPositive()) return +1;
 		else if (isNegative()) return -1;
@@ -89,6 +95,13 @@ public class ClassLabel implements Serializable
 
 	/** Returns the weight of the label. */
 	public double getWeight(String label) { return wset.getWeight(label,-Double.MAX_VALUE); }
+
+  /** Returns the probability of a label. */
+  public double getProbability(String label) 
+  { 
+    double expOdds = Math.exp( getWeight(label) );
+    return expOdds/(1.0 + expOdds);
+  }
 
 	/** Returns the set of labels that appear in the ranking. */
 	public Set possibleLabels() { return wset.asSet(); }
@@ -117,8 +130,14 @@ public class ClassLabel implements Serializable
 		wset.add( label, weight );
 	}
 
-	public String toString() {
+	public String toString() 
+  {
 		return "[Class: "+bestLabel+" "+bestWeight+"]";
 	}
+
+  public String toDetails()
+  {
+    return "[ClassLabel: "+wset+"]"; 
+  }
 }
 

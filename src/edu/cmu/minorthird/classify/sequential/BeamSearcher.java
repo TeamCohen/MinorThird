@@ -47,8 +47,8 @@ public class BeamSearcher implements SequenceConstants, Serializable
 	}
 
 	public int getMaxBeamSize() { return beamSize; }
-	public void setMaxBeamSize(int n) { beamSize=n; }
 
+	public void setMaxBeamSize(int n) { beamSize=n; }
 	
 	/** Get the best label sequence, as determined by the beam search */
 	public ClassLabel[] bestLabelSequence(Instance[] instances)
@@ -56,6 +56,13 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		doSearch(instances);
 		return viterbi(0);
 	}
+
+  static public Instance getBeamInstance(Instance instance,int historySize)
+  {
+    String[] history = new String[historySize];
+    InstanceFromSequence.fillHistory( history, new String[]{}, 0);
+    return new InstanceFromSequence(instance,history);
+  }
 
 	/** Do a beam search. */
 	public void doSearch(Instance[] sequence)
@@ -116,9 +123,9 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		}
 		return result;
 	}
-        public float score(int k) {
-	        return (float)beam.get(k).score;
-        }
+  public float score(int k) {
+    return (float)beam.get(k).score;
+  }
 	public String explain(Instance[] sequence)
 	{
 		StringBuffer buf = new StringBuffer("");

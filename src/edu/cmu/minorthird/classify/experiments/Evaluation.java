@@ -753,13 +753,12 @@ public class Evaluation implements Visible,Serializable,Saveable
     public int partitionID;
     public int index;
     public ClassLabel predicted,actual;
-    public double w;
     public int h;
+    public double w=1.0;
     public Entry(Instance i,ClassLabel p,ClassLabel a,int k, int id)
     {
       instance=i; predicted=p; actual=a;	index=k;  partitionID=id;
       h=instance.hashCode();
-      w=instance.getWeight();
     }
     public String toString()
     {
@@ -799,8 +798,7 @@ public class Evaluation implements Visible,Serializable,Saveable
       out.println(
           e.predicted.bestClassName() +" "+
           e.predicted.bestWeight() +" "+
-          e.actual.bestClassName() +" "+
-          e.w);
+          e.actual.bestClassName());
     }
     out.close();
   }
@@ -828,14 +826,14 @@ public class Evaluation implements Visible,Serializable,Saveable
         }
       } else {
         String[] words = line.split(" ");
-        if (words.length!=4)
+        if (words.length<3)
           throw new IllegalArgumentException(
               file.getName()+" line "+in.getLineNumber()+": illegal format");
         ClassLabel predicted = new ClassLabel(words[0],StringUtil.atof(words[1]));
         ClassLabel actual = new ClassLabel(words[2]);
-        double instanceWeight = StringUtil.atof(words[3]);
+        //double instanceWeight = StringUtil.atof(words[3]);
         MutableInstance instance = new MutableInstance("dummy");
-        instance.setWeight( instanceWeight );
+        //instance.setWeight( instanceWeight );
         Example example = new Example(instance, actual );
         result.extend( predicted, example, DEFAULT_PARTITION_ID );
       }

@@ -42,7 +42,7 @@ public class MarginPerceptron extends OnlineBinaryClassifierLearner
 	public void addExample(Example example)
 	{
 		numExamples++;
-		double y_t = example.getLabel().numericScore();
+		double y_t = example.getLabel().numericLabel();
 		//System.out.println("add example: score "+w_t.score(example.asInstance())+" target "+y_t+" margin "+minMargin);
 		if (w_t.score(example.asInstance()) * y_t <= minMargin) {
 			//System.out.println("update w_t weights");

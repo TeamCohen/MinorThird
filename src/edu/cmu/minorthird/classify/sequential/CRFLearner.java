@@ -40,7 +40,6 @@ public class CRFLearner
       defaults.setProperty("debugLvl", "1");
       options = defaults;
     }
-  public CRFLearner(int histsize, int epoch) {this();}
   public CRFLearner(String args) {
     this(args,1);
   }
@@ -191,10 +190,13 @@ public class CRFLearner
       super(modelSpecs,numLabels,false);
 
       Feature features[] = new Feature[labelNames.length];
-      for (int i = 0; i < labelNames.length; i++)
+      for (int i = 0; i < labelNames.length; i++) {
         features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
+      }
       addFeature(new iitb.Model.EdgeFeatures(model, features));
-      addFeature(new iitb.Model.StartFeatures(model, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+      addFeature(
+        new iitb.Model.StartFeatures(model, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+
       //wwc: I don't think this feature should be used for minorthird....
       //addFeature(new iitb.Model.EndFeatures(model, new Feature("E")));
 
