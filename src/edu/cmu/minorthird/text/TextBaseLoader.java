@@ -188,6 +188,8 @@ public class TextBaseLoader implements Loader
 
 
   //------------------ Getters and Setters -------------------------------------------------
+
+
   public int getDocIdSourceType()
   { return docIdSourceType; }
 

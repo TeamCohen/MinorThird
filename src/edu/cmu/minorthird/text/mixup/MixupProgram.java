@@ -587,9 +587,11 @@ public class MixupProgram
 	}
 
 
-	//
-	// interactive test routine
-	//
+  /**
+   * usage: programFile textFile/directory [outfile]
+   * evaluates the given program file against the specified data (either a file or directory of files)
+   * if an outfile is specified it outputs the types as operators to that file
+   */
 	public static void main(String[] args) {
 		try {
 			MixupProgram program = new MixupProgram(new File(args[0]));
@@ -598,17 +600,24 @@ public class MixupProgram
 				MonotonicTextLabels labels = (MonotonicTextLabels)SimpleTextLoader.load(args[1], false);
 
 				program.eval(labels, labels.getTextBase());
-				for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
-					String type = (String)i.next();
-					System.out.println("Type "+type+":");
-					for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
-						Span span = j.nextSpan();
-						System.out.println( "\t'"+span.asString()+"'" );
-					}
-				}
+
+        if (args.length > 2)
+        {
+          File outFile = new File(args[2]);
+          new TextLabelsLoader().saveTypesAsOps(labels, outFile);
+        }
+        else
+          for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
+            String type = (String)i.next();
+            System.out.println("Type "+type+":");
+            for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
+              Span span = j.nextSpan();
+              System.out.println( "\t'"+span.asString()+"'" );
+            }
+          }
 			}
 		} catch (Exception e) {
-			System.out.println("usage: programFile [textFile]");
+			System.out.println("usage: programFile textFile/directory [outfile]");
 			e.printStackTrace();
 		}
 	}

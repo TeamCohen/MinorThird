@@ -18,16 +18,6 @@ public class SimpleTextLoader implements Loader
 {
   private static Logger log = Logger.getLogger(SimpleTextLoader.class);
 
-  public boolean labelFile;
-  public SimpleTextLoader()
-  {}
-
-  public TextLabels load(File file)
-  { return load(file, labelFile); }
-
-  public TextLabels load(String fileName)
-  { return load(fileName, labelFile); }
-
   public static TextLabels load(File file, boolean externalLabelFile)
   {
     TextBase base = null;
@@ -69,4 +59,23 @@ public class SimpleTextLoader implements Loader
   {
     return load(new File(fileName), externalLabelFile);
   }
+
+//-------------------Instance stuff for the Wizard ----------------------------------------
+  public boolean labelFile = true;
+  public SimpleTextLoader()
+  {}
+
+  public TextLabels load(File file)
+  { return load(file, labelFile); }
+
+  public TextLabels load(String fileName)
+  { return load(fileName, labelFile); }
+
+  public boolean isLabelFile()
+  { return labelFile; }
+
+  public void setLabelFile(boolean labelFile)
+  { this.labelFile = labelFile; }
+//--------------------------------------------------------------------------------
+
 }
