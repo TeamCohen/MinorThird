@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
+import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.classify.experiments.*;
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
 
 public class TextLabelsExperiment
 {
-	private SpanFeatureExtractor fe = new SampleFE.ExtractionFE();
+	private SampleFE.ExtractionFE fe = new SampleFE.ExtractionFE();
 	private int classWindowSize = 3;
 
 	private TextLabels labels;
@@ -66,6 +67,8 @@ public class TextLabelsExperiment
 		learner.setAnnotationType( outputLabel );
 	}
 
+	public SampleFE.ExtractionFE getFE() { return fe; }
+
 	public void doExperiment() 
 	{
 		splitter.split( labels.getTextBase().documentSpanIterator() );
@@ -90,6 +93,12 @@ public class TextLabelsExperiment
 
       log.info("Training annotator...");
 			annotators[i] = teacher.train( learner );
+
+			if (learner instanceof SequenceAnnotatorLearner) {
+				new ViewerFrame(
+					"Dataset",
+					((SequenceAnnotatorLearner)learner).getSequenceDataset().toGUI());
+			}
 
       //log.info("annotators["+i+"]="+annotators[i]);
 			log.info("Creating test partition...");
@@ -116,8 +125,10 @@ public class TextLabelsExperiment
 				labels.instanceIterator(inputLabel),
 				labels.closureIterator(inputLabel) );
 		System.out.println(tag);
-		System.out.println("TokenPrecision: "+sd.tokenPrecision()+" TokenRecall: "+sd.tokenRecall());
-		System.out.println("SpanPrecision:  "+sd.spanPrecision() +" SpanRecall:  "+sd.spanRecall());
+		double tokenF = 2*sd.tokenPrecision()*sd.tokenRecall()/(sd.tokenPrecision()+sd.tokenRecall());
+		System.out.println("TokenPrecision: "+sd.tokenPrecision()+" TokenRecall: "+sd.tokenRecall()+" F: "+tokenF);
+		double spanF = 2*sd.spanPrecision()*sd.spanRecall()/(sd.spanPrecision()+sd.spanRecall());
+		System.out.println("SpanPrecision:  "+sd.spanPrecision() +" SpanRecall:  "+sd.spanRecall()+" F: "+spanF);
 	}
 
 	public AnnotatorLearner toAnnotatorLearner(String s)
@@ -158,9 +169,11 @@ public class TextLabelsExperiment
 
 	public static void main(String[] args) 
 	{
-		TextLabels labels=null;
 		Splitter splitter=new RandomSplitter(0.7);
-		String inputLabel=null, outputLabel="_prediction", saveFileName=null, show=null, learnerName=null;
+		String outputLabel="_prediction"; 
+		String learnerName="new CollinsPerceptronLearner()";
+		TextLabels labels=null;
+		String inputLabel=null, saveFileName=null, show=null, annotationNeeded=null;
 		try {
 			int pos = 0;
 			while (pos<args.length) {
@@ -179,13 +192,22 @@ public class TextLabelsExperiment
 					saveFileName = args[pos++];
 				} else if (opt.startsWith("-show")) {
 					show = args[pos++];
+				} else if (opt.startsWith("-mix")) {
+					annotationNeeded = args[pos++];
 				} else {
 					usage();
 				}
 			}
-			if (labels==null || learnerName==null || splitter==null|| inputLabel==null || outputLabel==null) 
+			if (labels==null || learnerName==null || splitter==null|| inputLabel==null || outputLabel==null) {
 				usage();
+			}
       TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,inputLabel,outputLabel);
+			if (annotationNeeded!=null) {
+				expt.getFE().setRequiredAnnotation(annotationNeeded);
+				expt.getFE().setAnnotationProvider(annotationNeeded+".mixup");
+				expt.getFE().setTokenPropertyFeatures("*"); // use all defined properties
+				labels.require(annotationNeeded,annotationNeeded+".mixup");
+			}
 			expt.doExperiment();
 			if (saveFileName!=null) {
 				new TextLabelsLoader().saveTypesAsOps( expt.getTestLabels(), new File(saveFileName) );

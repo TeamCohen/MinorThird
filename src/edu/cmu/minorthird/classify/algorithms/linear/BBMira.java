@@ -18,10 +18,14 @@ public class BBMira extends OnlineBinaryClassifierLearner
 
 	private LinkedList cache;
 	private double minimalMargin = 0.001;
-	private boolean useBudget=false;
+	private boolean useBudget=true;
 
-	public BBMira(double minimalMargin ) { this.minimalMargin=minimalMargin; reset(); }
-	public BBMira( ) { this(0.001); }
+	public BBMira(boolean useBudget,double minimalMargin ) { 
+		this.useBudget = useBudget;
+		this.minimalMargin = minimalMargin; 
+		reset(); 
+	}
+	public BBMira() { this(true,0.001); }
 
 	public void reset() { cache = new LinkedList(); }
 
@@ -33,7 +37,7 @@ public class BBMira extends OnlineBinaryClassifierLearner
 		if (y*s <= minimalMargin) {
 			double tau = truncateG( - y*s / kernel(x,x) );
 			cache.add( new WeightedExample( example,  tau ) );
-			log.info("into cache, tau="+tau+" :"+x);
+			//log.info("into cache, tau="+tau+" :"+x);
 			if (useBudget) distillCache();
 		}
 	}
