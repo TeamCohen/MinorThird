@@ -61,9 +61,8 @@ public class OnlineLearner extends UIMain
 	    
 	String outputType = signal.getOutputType(train.output);
 	textLearner = new OnlineBinaryTextClassifierLearner((OnlineBinaryClassifierLearner)train.learner,signal.spanType, base.labels, train.fe);
-	ClassifierAnnotator ann = textLearner.getAnnotator();
 	TextLabels annLabels;	    
-	annLabels = ann.annotatedCopy((TextLabels)unlabeledData.unlabeledData);
+	annLabels = textLearner.annotatedCopy((TextLabels)unlabeledData.unlabeledData);
 		
 	OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, unlabeledData.unlabeledData, unlabeledData.repositoryKey, textLearner);
     }

@@ -21,13 +21,13 @@ import java.io.*;
 
 public class BinaryTextClassifier implements TextClassifier
 {
-    private OnlineBinaryClassifierLearner learner;
+    private OnlineClassifierLearner learner;
     private SpanFeatureExtractor fe = null;
     private int docNum;
 
     private final static String DOC = "OnlineDocument_";
 
-    public BinaryTextClassifier(OnlineBinaryClassifierLearner learner, SpanFeatureExtractor fe)
+    public BinaryTextClassifier(OnlineClassifierLearner learner, SpanFeatureExtractor fe)
     {
 	this.learner = learner;
 	this.fe = fe;

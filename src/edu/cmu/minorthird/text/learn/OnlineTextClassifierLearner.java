@@ -39,6 +39,9 @@ public interface OnlineTextClassifierLearner
     /** Returns an array of spanTypes that can be added to the learner */
     public String[] getTypes();
 
-    /** Returns the SpanFeatureExtractor which is used to add new examples */
+    /** Returns an annotated copy of TextLabels */
+    public TextLabels annotatedCopy(TextLabels labels);
+
     public ClassifierAnnotator getAnnotator();
+
 }

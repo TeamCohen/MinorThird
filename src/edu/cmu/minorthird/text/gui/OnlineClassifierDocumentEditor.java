@@ -40,18 +40,18 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
     private SpanFeatureExtractor fe = null;
     private OnlineTextClassifierLearner textLearner = null;
     private OnlineBinaryClassifierLearner learner = null;
-    private ClassifierAnnotator ann = null;
     private String[] spanTypes = null;
     private String learnerName = "";
     public OnlineClassifierDocumentEditor ocdEditor;
     private TextBaseViewer tbViewer = null;
     public ArrayList editedSpans = null;
+    public ClassifierAnnotator ann = null;
 
     // buttons
     JComboBox labelBox = new JComboBox();
     JButton addButton = new JButton(new AddSelection("Add Doc(s)"));
     JButton classifierButton = new JButton(new GetClassifier("Show Classifier"));
-    JButton saveAnnButton = new JButton(new SaveAnnotator("Save Annotator"));
+    JButton saveAnnButton = new JButton(new SaveAnnotator("Save TextLearner"));
     JButton resetButton = new JButton(new Reset("Reset"));
     JButton completeButton = new JButton(new CompleteTraining("Complete Training"));
     JButton thisUpButton = new JButton(new MoveOnlineDocumentCursor("Up", -1));
@@ -79,6 +79,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	super(viewLabels, editLabels, documentList, spanPainter, statusMsg);
 
 	this.textLearner = learner;
+	ann = textLearner.getAnnotator();
 	this.editLabels = editLabels;
 	TextBase tb = editLabels.getTextBase();    
 	this.spanTypes = learner.getTypes();
@@ -94,10 +95,6 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	    }
 	    index++;
 	}
-
-	// Create a new annotator with the latest information
-	//this.ann = new ClassifierAnnotator(textLearner.getFE(),textLearner.getClassifier(),spanType,null,null);	
-	this.ann = textLearner.getAnnotator();
 	    
 	this.tbViewer = tbViewer; 
 	init();
@@ -330,6 +327,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	//if (!format.equals(FORMAT_NAME)) throw new IllegalArgumentException("illegal format "+format);
 	try {	    	    
 	    try {
+		//Annotator ann = (Annotator)textLearner;
 		IOUtil.saveSerialized((Serializable)ann,file);
 	    } catch (IOException e) {
 		throw new IllegalArgumentException("can't save to "+file+": "+e);
@@ -565,11 +563,8 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	    EditedSpan eSpan = ((EditedSpan)editedSpans.get(j));
 	    eSpan.add();
 	}
-	// Create a new annotator
-	//NEED TO FIX
-	//ann = new ClassifierAnnotator(textLearner.getFE(),textLearner.getClassifier(),spanTypes[0],null,null);	
 	ann = textLearner.getAnnotator();
-	viewLabels = ann.annotatedCopy((TextLabels)editLabels);
+	viewLabels = textLearner.annotatedCopy((TextLabels)editLabels);
 	tbViewer.updateTextLabels(viewLabels);
     }
 

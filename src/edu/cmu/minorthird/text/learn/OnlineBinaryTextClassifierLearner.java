@@ -18,42 +18,35 @@ import java.io.*;
  * @author Cameron Williams
  */
 
-public class OnlineBinaryTextClassifierLearner implements OnlineTextClassifierLearner
+public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator implements OnlineTextClassifierLearner
 {
     // internal state       
     private SpanFeatureExtractor fe = null;
-    public OnlineBinaryClassifierLearner learner;
+    public OnlineClassifierLearner learner;
     public String spanType, outputType;
     private int docNum;
 
     private final static String DOC = "OnlineDocument_";
 
-    public OnlineBinaryTextClassifierLearner(OnlineBinaryClassifierLearner learner, String spanType)
+    public OnlineBinaryTextClassifierLearner(OnlineClassifierLearner learner, String spanType)
     {
-	this.learner = learner;
-	this.spanType = spanType;
-	this.outputType = "_predicted_"+spanType;
-	this.docNum = 0;
-	this.fe = new Recommended.DocumentFE();
+	this(learner, spanType, null, null);
     }
 
-    public OnlineBinaryTextClassifierLearner(OnlineBinaryClassifierLearner learner, String spanType, TextLabels labeledData)
+    public OnlineBinaryTextClassifierLearner(OnlineClassifierLearner learner, String spanType, TextLabels labeledData)
     {
-	this.learner = learner;
-	this.spanType = spanType;
-	this.outputType = "_predicted_"+spanType;
-	this.docNum = 0;
-	this.fe = new Recommended.DocumentFE();
-	addLabeledData(labeledData);
+	this(learner, spanType, labeledData, null);
     }
 
-    public OnlineBinaryTextClassifierLearner(OnlineBinaryClassifierLearner learner, String spanType, TextLabels labeledData, SpanFeatureExtractor fe)
+    public OnlineBinaryTextClassifierLearner(OnlineClassifierLearner learner, String spanType, TextLabels labeledData, SpanFeatureExtractor fe)
     {
 	this.learner = learner;
 	this.spanType = spanType;
 	this.outputType = "_predicted_"+spanType;
 	this.docNum = 0;
-	this.fe = fe;
+	if (fe != null)
+	    this.fe = fe;
+	else this.fe = new Recommended.DocumentFE();
 	if(labeledData != null)
 	    addLabeledData(labeledData);	
     }
@@ -116,6 +109,25 @@ public class OnlineBinaryTextClassifierLearner implements OnlineTextClassifierLe
     public String[] getTypes() {
 	String[] types = {spanType, "NOT"+spanType};
 	return types;
+    }
+
+    public void doAnnotate(MonotonicTextLabels labels)
+    {
+	Span.Looper candidateLooper =  labels.getTextBase().documentSpanIterator();
+
+	Classifier c = learner.getClassifier();
+	for (Span.Looper i=candidateLooper; i.hasNext(); ) {
+	    Span s = i.nextSpan();
+	    ClassLabel classOfS = c.classification(fe.extractInstance(labels, s));
+	    if (spanType!=null && classOfS.isPositive()) {
+		labels.addToType(s,outputType);
+	    }
+	}
+    }
+    public String explainAnnotation(TextLabels labels,Span documentSpan)
+    {
+	Classifier c = learner.getClassifier();
+	return c.explain(fe.extractInstance(documentSpan));
     }
 
     public ClassifierAnnotator getAnnotator() {
