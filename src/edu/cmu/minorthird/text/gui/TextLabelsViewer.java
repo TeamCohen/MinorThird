@@ -6,8 +6,11 @@ import edu.cmu.minorthird.util.gui.*;
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import java.awt.*;
+import java.awt.event.*;
+import javax.swing.event.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.*;
 
 /** View the contents of a bunch of spans, using the util.gui.Viewer framework.
  *
@@ -62,7 +65,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 
 	public JComponent componentFor(Object o)
 	{																
-		TextLabels labels = (TextLabels)o;
+		final TextLabels labels = (TextLabels)o;
 		int n = labels.getTextBase().size();
 		spans = new Span[n];
 		viewers = new SpanViewer.TextViewer[n];
@@ -85,7 +88,28 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 			});
 		monitorSelections(jlist);
 		//for (int i=0; i<viewers.length; i++) System.out.println("viewers["+i+"].superView  "+viewers[i].getSuperView());
-		return new JScrollPane(jlist);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		JPanel subpanel = new JPanel();
+		final JTextField fileField = new JTextField(20);
+		subpanel.add( new JLabel("[ "+n+" documents "+labels.getTypes().size()+" types ]") );
+		subpanel.add( new JButton(new AbstractAction("Save as... ") {
+				public void actionPerformed(ActionEvent ev) {
+					try {
+						new TextLabelsLoader().saveTypesAsOps(labels,new File(fileField.getText()));
+					} catch (Exception ex) {
+						System.out.println("Error saving "+ex);
+					}
+				}
+			}));
+		subpanel.add(fileField);
+		panel.add(jlist, fillerGBC());
+		GridBagConstraints gbc = fillerGBC();
+		gbc.gridy = 1;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		panel.add(subpanel,gbc);
+		return new JScrollPane(panel);
 	}
 
 	// fancy test case
