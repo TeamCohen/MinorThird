@@ -5,7 +5,7 @@ package edu.cmu.minorthird.text.learn;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextEnv;
+import edu.cmu.minorthird.text.TextLabels;
 import edu.cmu.minorthird.text.learn.SpanFE;
 
 /**
@@ -33,8 +33,8 @@ public class FeatureBuffer extends SpanFE
 {
 	private Span span=null;
 
-	public FeatureBuffer(TextEnv env,Span span) {
-		super(env); 
+	public FeatureBuffer(TextLabels labels,Span span) {
+		super(labels);
 		this.instance = new MutableInstance(span,span.getDocumentGroupId());
 	}
 
@@ -43,6 +43,6 @@ public class FeatureBuffer extends SpanFE
 	}
 
 	public Instance getInstance() { return instance; }
-	public void extractFeatures(TextEnv env,Span s) {	throw new IllegalStateException("improper use of FeatureBuffer");	}
+	public void extractFeatures(TextLabels labels,Span s) {	throw new IllegalStateException("improper use of FeatureBuffer");	}
 	public void extractFeatures(Span s) {	throw new IllegalStateException("improper use of FeatureBuffer");	}
 }

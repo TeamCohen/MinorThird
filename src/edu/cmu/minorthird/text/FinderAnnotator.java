@@ -26,29 +26,29 @@ public class FinderAnnotator extends AbstractAnnotator implements SpanFinder
 
 	public String toString() { return "[FinderAnnotator "+annotationType+" "+finder+"]"; }
 
-	protected void doAnnotate(MonotonicTextEnv env) {
-		for (Span.Looper i=finder.findSpans(env, env.getTextBase().documentSpanIterator()); i.hasNext(); ) {
-			env.addToType( i.nextSpan(), annotationType );
+	protected void doAnnotate(MonotonicTextLabels labels) {
+		for (Span.Looper i=finder.findSpans(labels, labels.getTextBase().documentSpanIterator()); i.hasNext(); ) {
+			labels.addToType( i.nextSpan(), annotationType );
 		}
 	}
 
-	public String explainAnnotation(TextEnv env,Span documentSpan) {
-		return finder.explainFindSpans(env,documentSpan);
+	public String explainAnnotation(TextLabels labels, Span documentSpan) {
+		return finder.explainFindSpans(labels, documentSpan);
 	}
 
 	//
 	// implements SpanFinder by delegation
 	//
-	public Span.Looper findSpans(TextEnv env,Span.Looper documentSpanLooper)
+	public Span.Looper findSpans(TextLabels labels, Span.Looper documentSpanLooper)
 	{ 
-		return finder.findSpans(env,documentSpanLooper);
+		return finder.findSpans(labels, documentSpanLooper);
 	}
-  public Span.Looper findSpans(TextEnv env,Span documentSpan)
+  public Span.Looper findSpans(TextLabels labels,Span documentSpan)
 	{ 
-		return finder.findSpans(env,documentSpan);
+		return finder.findSpans(labels, documentSpan);
 	}
-	public String explainFindSpans(TextEnv env,Span documentSpan)
+	public String explainFindSpans(TextLabels labels, Span documentSpan)
 	{ 
-		return finder.explainFindSpans(env,documentSpan);
+		return finder.explainFindSpans(labels, documentSpan);
 	}
 }

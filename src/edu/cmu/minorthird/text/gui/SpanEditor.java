@@ -42,21 +42,21 @@ public class SpanEditor extends ViewerTracker
     private ArrayList buttonsThatChangeStuff = new ArrayList();
 
     /**
-     * @param viewEnv a superset of editEnv which may include some additional read-only information
-     * @param editEnv the environment being modified
+     * @param viewLabels a superset of editLabels which may include some additional read-only information
+     * @param editLabels the labels being modified
      * @param documentList the document Span being edited is associated with
      * the selected entry of the documentList.
      * @param spanPainter used to repaint documentList elements
      * @param statusMsg a JLabel used for status messages.
      */
     public SpanEditor(
-            TextEnv viewEnv,
-            MutableTextEnv editEnv,
+            TextLabels viewLabels,
+            MutableTextLabels editLabels,
             JList documentList,
             SpanPainter spanPainter,
             StatusMessage statusMsg)
     {
-        super(viewEnv, editEnv, documentList, spanPainter, statusMsg);
+        super(viewLabels, editLabels, documentList, spanPainter, statusMsg);
         init();
 
     }
@@ -286,8 +286,8 @@ public class SpanEditor extends ViewerTracker
             }
             editedDoc.resetHighlights();
             editedSpans = new TreeSet();
-            //System.out.println("viewenv: "+viewEnv);
-            for (Span.Looper i = viewEnv.instanceIterator(importType, documentSpan.getDocumentId()); i.hasNext();)
+
+            for (Span.Looper i = viewLabels.instanceIterator(importType, documentSpan.getDocumentId()); i.hasNext();)
             {
                 Span guessSpan = i.nextSpan();
                 editedDoc.highlight(guessSpan, HiliteColors.yellow);
@@ -319,13 +319,13 @@ public class SpanEditor extends ViewerTracker
             //System.out.println("exportType: "+exportType+" documentSpan "+documentSpan+" newSpans "+newSpans);
             //System.out.println("editedSpans: "+editedSpans);
 						//System.out.println("current export type spans:");
-						//for (Span.Looper ii=editEnv.instanceIterator(exportType,documentSpan.getDocumentId()); ii.hasNext(); )
+						//for (Span.Looper ii=editLabels.instanceIterator(exportType,documentSpan.getDocumentId()); ii.hasNext(); )
 						//System.out.println(" - "+ii.nextSpan());
-            editEnv.defineTypeInside(exportType, documentSpan, newSpans);
+            editLabels.defineTypeInside(exportType, documentSpan, newSpans);
 						//System.out.println("new spans type: "+exportType);
-						//for (Span.Looper ii=editEnv.instanceIterator(exportType,documentSpan.getDocumentId()); ii.hasNext(); )
+						//for (Span.Looper ii=editLabels.instanceIterator(exportType,documentSpan.getDocumentId()); ii.hasNext(); )
 						//System.out.println(" - "+ii.nextSpan());
-            //editEnv.setProperty(documentSpan.documentSpan(), EDITOR_PROP, "t");
+            //editLabels.setProperty(documentSpan.documentSpan(), EDITOR_PROP, "t");
             //System.out.println("SE: will paint "+documentSpan+" id: "+documentSpan.getDocumentId());
             spanPainter.paintDocument(documentSpan.getDocumentId());
             editSpanCursor = -1;

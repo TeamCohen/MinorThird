@@ -15,26 +15,26 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
 
     public TextBaseLabeler(
             TextBase base,
-            TextEnv viewEnv, // seen in viewer
-            MutableTextEnv editEnv, // changed in editor
+            TextLabels viewLabels, // seen in viewer
+            MutableTextLabels editLabels, // changed in editor
             StatusMessage statusMsg)
     {
-        super(base, viewEnv, editEnv, statusMsg);
-        viewer = new TextBaseViewer(base, viewEnv, statusMsg);
-        viewerTracker = new SpanLabeler(viewEnv, editEnv, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
+        super(base, viewLabels, editLabels, statusMsg);
+        viewer = new TextBaseViewer(base, viewLabels, statusMsg);
+        viewerTracker = new SpanLabeler(viewLabels, editLabels, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
         ((SpanLabeler) viewerTracker).addViewer(viewer);
         viewer.getDocumentList().addListSelectionListener(viewerTracker);
         initializeLayout();
     }
 
-    /** Pop up a frame for editing the environment. */
-    public static void label(MutableTextEnv env, File file)
+    /** Pop up a frame for editing the labels. */
+    public static void label(MutableTextLabels labels, File file)
     {
         JFrame frame = new JFrame("TextBaseLabeler");
-        TextBase base = env.getTextBase();
+        TextBase base = labels.getTextBase();
 
         StatusMessage statusMsg = new StatusMessage();
-        TextBaseLabeler labeler = new TextBaseLabeler(base, env, env, statusMsg);
+        TextBaseLabeler labeler = new TextBaseLabeler(base, labels, labels, statusMsg);
         if (file != null) labeler.setSaveAs(file);
         JComponent main = new StatusMessagePanel(labeler, statusMsg);
         frame.getContentPane().add(main, BorderLayout.CENTER);
@@ -49,17 +49,15 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
         {
 
             TextBase base;
-            MonotonicTextEnv guessEnv = null;
-            MutableTextEnv truthEnv = null;
-            File envFile = null;
+            MonotonicTextLabels guessLabels = null;
+            MutableTextLabels truthLabels = null;
+            File labelsFile = null;
 
             if (args.length == 0)
             {
                 base = SampleTextBases.getTextBase();
-                guessEnv = SampleTextBases.getTruthEnv();
-                truthEnv = SampleTextBases.getTruthEnv();
-                //env = edu.cmu.minorthird.text.ann.TestExtractionProblem.getEnv();
-                //base = env.getTextBase();
+                guessLabels = SampleTextBases.getTruthLabels();
+                truthLabels = SampleTextBases.getTruthLabels();
             }
             else
             {
@@ -70,7 +68,7 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
                 if (f.isDirectory())
                 {
                     baseLoader.loadTaggedFiles(base, f);
-                    guessEnv = truthEnv = baseLoader.getFileMarkup();
+                    guessLabels = truthLabels = baseLoader.getFileMarkup();
                 }
                 else
                 {
@@ -78,20 +76,20 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
                 }
                 if (args.length >= 2)
                 {
-                    envFile = new File(args[1]);
-                    if (envFile.exists())
+                    labelsFile = new File(args[1]);
+                    if (labelsFile.exists())
                     {
-                        guessEnv = truthEnv = new TextEnvLoader().loadSerialized(envFile, base);
+                        guessLabels = truthLabels = new TextLabelsLoader().loadSerialized(labelsFile, base);
                     }
                 }
-                if (guessEnv == null)
+                if (guessLabels == null)
                 {
-                    guessEnv = truthEnv = new BasicTextEnv(base);
+                    guessLabels = truthLabels = new BasicTextLabels(base);
                 }
             }
 
-            TextBaseLabeler labeler = new TextBaseLabeler(base, guessEnv, truthEnv, new StatusMessage());
-            labeler.setSaveAs(envFile);
+            TextBaseLabeler labeler = new TextBaseLabeler(base, guessLabels, truthLabels, new StatusMessage());
+            labeler.setSaveAs(labelsFile);
             labeler.initializeLayout();
 
             labeler.buildFrame();

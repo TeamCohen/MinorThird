@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 /** View results of executing a mixup program.
  *
  * @author William Cohen
@@ -22,33 +24,35 @@ import java.util.Set;
 public class MixupDebugger extends JComponent
 {
 	private TextBaseEditor editor;
-	public TextBaseEditor getEditor() { return editor; }
+  private Logger log = Logger.getLogger(this.getClass());
+
+  public TextBaseEditor getEditor() { return editor; }
 
 	public 
-	MixupDebugger(TextBase base,File groundTruthEnvFile,File mixupProgramFile,boolean readOnly,boolean stem)
+	MixupDebugger(TextBase base,File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,boolean stem)
 		throws IOException
     {
-	this(base,new BasicTextEnv(base),groundTruthEnvFile,mixupProgramFile,readOnly,stem);
+	this(base,new BasicTextLabels(base),groundTruthLabelsFile,mixupProgramFile,readOnly,stem);
     }
 
 	public 
-	MixupDebugger(TextBase base,MonotonicTextEnv baseEnv,File groundTruthEnvFile,File mixupProgramFile,boolean readOnly,boolean stem)
+	MixupDebugger(TextBase base,MonotonicTextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,boolean stem)
 		throws IOException
 	{
 		super();
-		MutableTextEnv truthEnv = null;
-		MonotonicTextEnv programEnv;
+		MutableTextLabels truthLabels = null;
+		MonotonicTextLabels programLabels;
 		MixupProgram program = new MixupProgram();
-		if (groundTruthEnvFile!=null && groundTruthEnvFile.exists()) {
-			System.out.println("loading textEnv from "+groundTruthEnvFile.getName()+"...");
-			truthEnv = new BasicTextEnv(base);
-			TextEnvLoader envLoader = new TextEnvLoader();
-			envLoader.setClosurePolicy( TextEnvLoader.CLOSE_TYPES_IN_LABELED_DOCS );
-			envLoader.importOps( truthEnv, base, groundTruthEnvFile );
+		if (groundTruthLabelsFile!=null && groundTruthLabelsFile.exists()) {
+			log.info("loading textLabels from "+groundTruthLabelsFile.getName()+"...");
+			truthLabels = new BasicTextLabels(base);
+			TextLabelsLoader labelsLoader = new TextLabelsLoader();
+			labelsLoader.setClosurePolicy( TextLabelsLoader.CLOSE_TYPES_IN_LABELED_DOCS );
+			labelsLoader.importOps( truthLabels, base, groundTruthLabelsFile );
 		} else {
-			if (truthEnv==null)	truthEnv = new BasicTextEnv(base);
+			if (truthLabels==null)	truthLabels = new BasicTextLabels(base);
 		}
-		if (stem) new BoneheadStemmer().stem(base,truthEnv);
+		if (stem) new BoneheadStemmer().stem(base,truthLabels);
 
 		String errorString = "no mixup program specified";
 		try {
@@ -57,33 +61,33 @@ public class MixupDebugger extends JComponent
 		} catch (Exception e) {
 			errorString = e.toString();
 		}
-		programEnv = new NestedTextEnv( new NestedTextEnv( baseEnv, truthEnv) );
+		programLabels = new NestedTextLabels( new NestedTextLabels( baseLabels, truthLabels) );
 		System.out.println("evaluating program from "+mixupProgramFile.getName()+"...");
-		program.eval( programEnv, base );
+		program.eval( programLabels, base );
 		if (mixupProgramFile==null) throw new IllegalArgumentException("mixup program must be specified");
 
 		StatusMessage statusMsg = new StatusMessage();
 		JScrollPane errorPane = new JScrollPane(new JTextField(errorString));
-		editor = new TextBaseEditor(base,programEnv,truthEnv,statusMsg,readOnly);
+		editor = new TextBaseEditor(base,programLabels,truthLabels,statusMsg,readOnly);
 		JButton saveButton = null;
-		if (groundTruthEnvFile!=null) {
-			saveButton = new JButton(new SaveTruthEnvAction(
-																 "Save current to "+groundTruthEnvFile.getName(),
-																 groundTruthEnvFile, truthEnv, statusMsg));
+		if (groundTruthLabelsFile!=null) {
+			saveButton = new JButton(new SaveTruthLabelsAction(
+																 "Save current to "+groundTruthLabelsFile.getName(),
+																 groundTruthLabelsFile, truthLabels, statusMsg));
 		} else {
-			saveButton = new JButton(new SaveTruthEnvAction(
+			saveButton = new JButton(new SaveTruthLabelsAction(
 																 "Save current to [no file specified]",
-																 groundTruthEnvFile, truthEnv, statusMsg));
+																 groundTruthLabelsFile, truthLabels, statusMsg));
 			saveButton.setEnabled( false );
 		}
-		editor.getViewerTracker().setSaveAs( groundTruthEnvFile );
+		editor.getViewerTracker().setSaveAs( groundTruthLabelsFile );
 		JButton refreshButton =
 			new JButton(new RefreshProgramAction(
 										"Reload program from "+mixupProgramFile.getName(),
-										mixupProgramFile,base,programEnv,truthEnv,editor.getViewer(),errorPane));
+										mixupProgramFile,base,programLabels,truthLabels,editor.getViewer(),errorPane));
 		JTextField newTypeField = new JTextField(10);
 		JButton newTypeButton = 
-			new JButton(new NewTypeAction("New type:",truthEnv,editor.getViewer().getTruthBox(),newTypeField));
+			new JButton(new NewTypeAction("New type:",truthLabels,editor.getViewer().getTruthBox(),newTypeField));
 
 		//
 		// layout stuff
@@ -161,14 +165,14 @@ public class MixupDebugger extends JComponent
 		add( splitPane, gbc );
 	}
 
-	static private class SaveTruthEnvAction extends AbstractAction {
+	static private class SaveTruthLabelsAction extends AbstractAction {
 		private File saveFile;
-		private MutableTextEnv env;
+		private MutableTextLabels labels;
 		private StatusMessage statusMsg;
-		public SaveTruthEnvAction(String msg, File saveFile, MutableTextEnv env, StatusMessage statusMsg) {
+		public SaveTruthLabelsAction(String msg, File saveFile, MutableTextLabels labels, StatusMessage statusMsg) {
 			super(msg);	
 			this.saveFile = saveFile;	
-			this.env = env;
+			this.labels = labels;
 			this.statusMsg = statusMsg;
 		}
 		public void actionPerformed(ActionEvent event) {
@@ -178,7 +182,7 @@ public class MixupDebugger extends JComponent
 			}
 			statusMsg.display("saving to "+saveFile.getName());
 			try {
-				new TextEnvLoader().saveTypesAsOps(env, saveFile );
+				new TextLabelsLoader().saveTypesAsOps(labels, saveFile );
 				statusMsg.display("saved to "+saveFile.getName());
 			} catch (Exception e) {
 				statusMsg.display("can't save to "+saveFile.getName()+": "+e);				
@@ -188,8 +192,8 @@ public class MixupDebugger extends JComponent
 
 	static private class RefreshProgramAction extends AbstractAction {
 		private File mixupFile;
-		private TextEnv initProgramEnv;
-		private TextEnv truthEnv;
+		private TextLabels initProgramLabels;
+		private TextLabels truthLabels;
 		private TextBase base;
 		private JScrollPane errorPane;
 		private TextBaseViewer viewer;
@@ -197,16 +201,16 @@ public class MixupDebugger extends JComponent
 			String msg,
 			File mixupFile,
 			TextBase base,
-			TextEnv initProgramEnv,
-			TextEnv truthEnv,
+			TextLabels initProgramLabels,
+			TextLabels truthLabels,
 			TextBaseViewer viewer,
 			JScrollPane errorPane) 
 		{
 			super(msg);	
 			this.mixupFile = mixupFile;
 			this.base = base;
-			this.initProgramEnv = initProgramEnv;
-			this.truthEnv = truthEnv;
+			this.initProgramLabels = initProgramLabels;
+			this.truthLabels = truthLabels;
 			this.viewer = viewer;
 			this.errorPane = errorPane;
 		}
@@ -218,22 +222,22 @@ public class MixupDebugger extends JComponent
 				errorPane.getViewport().setView( new JTextField(e.toString()) );				
 				return;
 			}
-			NestedTextEnv programEnv = new NestedTextEnv( truthEnv );
-			program.eval( programEnv, base );
-			viewer.updateTextEnv( programEnv );
-			updateTypeBox( programEnv, viewer.getGuessBox() );
-			updateTypeBox( programEnv, viewer.getTruthBox() );
-			updateTypeBox( programEnv, viewer.getDisplayedTypeBox() );
+			NestedTextLabels programLabels = new NestedTextLabels( truthLabels );
+			program.eval( programLabels, base );
+			viewer.updateTextLabels( programLabels );
+			updateTypeBox( programLabels, viewer.getGuessBox() );
+			updateTypeBox( programLabels, viewer.getTruthBox() );
+			updateTypeBox( programLabels, viewer.getDisplayedTypeBox() );
 			errorPane.getViewport().setView( new JTextField("loaded "+mixupFile.getName() ));
 		}
 	}
 
-	static private void updateTypeBox(TextEnv env, JComboBox box) {
+	static private void updateTypeBox(TextLabels labels, JComboBox box) {
 		Set oldTypes = new HashSet();
 		for (int j=0; j<box.getItemCount(); j++) {
 			oldTypes.add( box.getItemAt(j) );
 		}
-		for (Iterator i=env.getTypes().iterator(); i.hasNext(); ) {
+		for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
 			String t = (String)i.next();
 			System.out.println("checking type "+t);
 			if (!oldTypes.contains(t)) {
@@ -248,13 +252,13 @@ public class MixupDebugger extends JComponent
 		private JComboBox truthBox;
 		private JTextField newTypeField;
 		public NewTypeAction(String msg,
-												 MutableTextEnv truthEnv,
+												 MutableTextLabels truthLabels,
 												 JComboBox truthBox,
 												 JTextField newTypeField) 
 		{
 			super(msg);
 			truthTypeSet = new HashSet();
-			truthTypeSet.addAll( truthEnv.getTypes() );
+			truthTypeSet.addAll( truthLabels.getTypes() );
 			this.truthBox = truthBox;
 			this.newTypeField = newTypeField;
 		}
@@ -267,17 +271,17 @@ public class MixupDebugger extends JComponent
 		}
 	}
 
-	public static MixupDebugger debug(TextBase base,File groundTruthEnvFile,File mixupProgramFile)
+	public static MixupDebugger debug(TextBase base,File groundTruthLabelsFile,File mixupProgramFile)
     {
-	MonotonicTextEnv baseEnv = new BasicTextEnv(base);
-	return debug(base,baseEnv,groundTruthEnvFile,mixupProgramFile);
+	MonotonicTextLabels baseLabels = new BasicTextLabels(base);
+	return debug(base,baseLabels,groundTruthLabelsFile,mixupProgramFile);
     }
 
-	public static MixupDebugger debug(TextBase base,MonotonicTextEnv baseEnv,File groundTruthEnvFile,File mixupProgramFile)
+	public static MixupDebugger debug(TextBase base,MonotonicTextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile)
 	{
 		try {
 			JFrame frame = new JFrame("MixupDebugger");
-			MixupDebugger debugger = new MixupDebugger(base,baseEnv,groundTruthEnvFile,mixupProgramFile,false,false);
+			MixupDebugger debugger = new MixupDebugger(base,baseLabels,groundTruthLabelsFile,mixupProgramFile,false,false);
 			frame.getContentPane().add( debugger, BorderLayout.CENTER );
 			frame.addWindowListener(new WindowAdapter() {
 					public void windowClosing(WindowEvent e) { System.exit(0); }
@@ -294,7 +298,7 @@ public class MixupDebugger extends JComponent
 	public static void main(String[] args) 
 	{
 		String textBaseId = null;
-		File groundTruthEnvFile = null;
+		File groundTruthLabelsFile = null;
 		File mixupProgramFile = null;
 		String mainType = null;
 		boolean readOnly = false, stem = false;
@@ -302,7 +306,7 @@ public class MixupDebugger extends JComponent
 		// parse options
 		if (args.length==0) {
 			System.out.println(
-				"usage: MixupDebugger -textBase <textBaseFile> -truth <truthEnvironment> -mixup <programFile> [options]");
+				"usage: MixupDebugger -textBase <textBaseFile> -truth <truthLabels> -mixup <programFile> [options]");
 			System.out.println(
 				"       options: -readOnly -stem");   
 			System.exit(0);
@@ -313,7 +317,7 @@ public class MixupDebugger extends JComponent
 				textBaseId = args[++argp];
 				++argp;
 			} else if ("-truth".equals(args[argp])) {
-				groundTruthEnvFile = new File(args[++argp]);
+				groundTruthLabelsFile = new File(args[++argp]);
 				++argp;
 			} else if ("-mixup".equals(args[argp])) {
 				mixupProgramFile = new File(args[++argp]);
@@ -335,7 +339,7 @@ public class MixupDebugger extends JComponent
 			JFrame frame = new JFrame("TextBaseEditor");
 			TextBase base = FancyLoader.loadTextBase(textBaseId);
 			MixupDebugger debugger = 
-				new MixupDebugger(base,groundTruthEnvFile,mixupProgramFile,readOnly,stem);
+				new MixupDebugger(base,groundTruthLabelsFile,mixupProgramFile,readOnly,stem);
 			frame.getContentPane().add( debugger, BorderLayout.CENTER );
 			frame.addWindowListener(new WindowAdapter() {
 					public void windowClosing(WindowEvent e) { System.exit(0); }

@@ -54,18 +54,18 @@ public class NameFE implements SpanFeatureExtractor,Serializable
 	
 	public Instance extractInstance(Span s)	
 	{
-		return extractInstance(new EmptyEnv(), s);
+		return extractInstance(new EmptyLabels(), s);
 	}
 
-	public Instance extractInstance(TextEnv env, Span s)
+	public Instance extractInstance(TextLabels labels, Span s)
 	{
 		// need to run the nameFeatures.mixup file
-		if (!env.isAnnotatedBy(requiredAnnotation)) {
-			System.out.println("env needs "+requiredAnnotation);
-			Dependencies.runDependency((MonotonicTextEnv)env, requiredAnnotation, requiredAnnotation+".mixup");
+		if (!labels.isAnnotatedBy(requiredAnnotation)) {
+			System.out.println("labels need "+requiredAnnotation);
+			Dependencies.runDependency((MonotonicTextLabels)labels, requiredAnnotation, requiredAnnotation+".mixup");
 		}
 
-		FeatureBuffer buf = new FeatureBuffer(env,s);
+		FeatureBuffer buf = new FeatureBuffer(labels,s);
 		if (useEqOnNonAnchors) {
 			SpanFE.from(s,buf).tokens().eq().lc().emit();
 		} else {

@@ -22,7 +22,7 @@ public class SampleFE
 
 	public static class BagOfWordsFE implements SpanFeatureExtractor
 	{
-		public Instance extractInstance(TextEnv env, Span s)	{
+		public Instance extractInstance(TextLabels labels, Span s)	{
 			return extractInstance(s);
 		}
 		public Instance extractInstance(Span s){
@@ -38,7 +38,7 @@ public class SampleFE
 
 	public static class BagOfLowerCaseWordsFE implements SpanFeatureExtractor
 	{
-		public Instance extractInstance(TextEnv env, Span s)	{
+		public Instance extractInstance(TextLabels labels, Span s)	{
 			return extractInstance(s);
 		}
 		public Instance extractInstance(Span s){
@@ -94,12 +94,12 @@ public class SampleFE
 
 		public Instance extractInstance(Span s)
 		{
-			return extractInstance(new EmptyEnv(), s);
+			return extractInstance(new EmptyLabels(), s);
 		}
-		public Instance extractInstance(TextEnv env, Span s)
+		public Instance extractInstance(TextLabels labels, Span s)
 		{
 			//System.out.println("tokenPropertyFeatures: "+StringUtil.toString(tokenPropertyFeatures));
-			FeatureBuffer buf = new FeatureBuffer(env,s);
+			FeatureBuffer buf = new FeatureBuffer(labels,s);
 			SpanFE.from(s,buf).tokens().eq().lc().emit();
 			if (useCompressedCharType) {
 				SpanFE.from(s,buf).tokens().eq().tr("[A-Z]+","X").tr("[a-z]+","x").tr("[0-9]+","9").emit();

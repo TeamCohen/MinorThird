@@ -13,7 +13,7 @@ import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import java.util.*;
 
-/** Interactively view the contents of a TextBase and TextEnv.
+/** Interactively view the contents of a TextBase and TextLabels.
  *
  * @author William Cohen
  */
@@ -28,7 +28,7 @@ public class TextBaseViewer extends JComponent
 
     // internal state
     private final TextBase base;
-    private TextEnv env;
+    private TextLabels labels;
     // components
     private JList documentList;
     private JSlider documentCellHeightSlider;
@@ -63,22 +63,22 @@ public class TextBaseViewer extends JComponent
         return highlightAction;
     }
 
-    /** change the text environment */
-    public void updateTextEnv(TextEnv newEnv)
+    /** change the text labels*/
+    public void updateTextLabels(TextLabels newLabels)
     {
-        this.env = newEnv;
+        this.labels = newLabels;
         highlightAction.paintDocument(null); // repaint everything
     }
 
-    public TextBaseViewer(TextBase base, TextEnv env, StatusMessage statusMsg)
+    public TextBaseViewer(TextBase base, TextLabels labels, StatusMessage statusMsg)
     {
-        this(base, env, null, statusMsg);
+        this(base, labels, null, statusMsg);
     }
 
-    public TextBaseViewer(TextBase base, TextEnv env, String displayType, StatusMessage statusMsg)
+    public TextBaseViewer(TextBase base, TextLabels labels, String displayType, StatusMessage statusMsg)
     {
         this.base = base;
-        this.env = env;
+        this.labels = labels;
         this.statusMsg = statusMsg;
         initializeLayout(displayType);
     }
@@ -88,12 +88,12 @@ public class TextBaseViewer extends JComponent
     {
         documentList = new JList();
         documentList.setFixedCellWidth(760);
-        resetDocumentList(env, displayType, false);
+        resetDocumentList(labels, displayType, false);
 
         // select 'guess' spans
         guessBox = new JComboBox();
         guessBox.setEditable(false);
-        for (Iterator i = env.getTypes().iterator(); i.hasNext();)
+        for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
         {
             String type = (String) i.next();
             guessBox.addItem(type);
@@ -102,7 +102,7 @@ public class TextBaseViewer extends JComponent
         truthBox = new JComboBox();
         //truthBox.setEditable(false);
         truthBox.addItem(NULL_TRUTH_ENTRY);
-        for (Iterator i = env.getTypes().iterator(); i.hasNext();)
+        for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
         {
             truthBox.addItem(i.next().toString());
         }
@@ -110,7 +110,7 @@ public class TextBaseViewer extends JComponent
         displayedTypeBox = new JComboBox();
         displayedTypeBox.setEditable(false);
         displayedTypeBox.addItem(NULL_DISPLAY_TYPE);
-        for (Iterator i = env.getTypes().iterator(); i.hasNext();)
+        for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
         {
             displayedTypeBox.addItem(i.next().toString());
             if (displayType != null) displayedTypeBox.setSelectedItem(displayType);
@@ -243,7 +243,7 @@ public class TextBaseViewer extends JComponent
 
     }
 
-    synchronized private void resetDocumentList(TextEnv env, String displayType, boolean onlyEditedSpans)
+    synchronized private void resetDocumentList(TextLabels labels, String displayType, boolean onlyEditedSpans)
     {
         // collect all the top-level spans, and put them in a JList
         ArrayList spans = new ArrayList();
@@ -254,12 +254,12 @@ public class TextBaseViewer extends JComponent
         }
         else
         {
-            i = env.instanceIterator(displayType);
+            i = labels.instanceIterator(displayType);
         }
         while (i.hasNext())
         {
             Span s = i.nextSpan();
-            if (!onlyEditedSpans || env.getProperty(s.documentSpan(), SpanEditor.EDITOR_PROP) != null)
+            if (!onlyEditedSpans || labels.getProperty(s.documentSpan(), SpanEditor.EDITOR_PROP) != null)
             {
                 spans.add(s);
             }
@@ -367,7 +367,7 @@ public class TextBaseViewer extends JComponent
             String guessType = (String) guessBox.getSelectedItem();
             String truthType = (String) truthBox.getSelectedItem();
             Span.Looper guessLooper =
-                    documentId == null ? env.instanceIterator(guessType) : env.instanceIterator(guessType, documentId);
+                    documentId == null ? labels.instanceIterator(guessType) : labels.instanceIterator(guessType, documentId);
             if (nullTruthType())
             {
                 Span.Looper nullLooper = new BasicSpanLooper(new HashSet().iterator());
@@ -379,16 +379,16 @@ public class TextBaseViewer extends JComponent
 							//System.out.println("TBV: truthType: "+truthType+" document:" + documentId);
 
                 Span.Looper truthSpanLooper =
-									documentId==null ? env.instanceIterator(truthType) : env.instanceIterator(truthType, documentId);
+									documentId==null ? labels.instanceIterator(truthType) : labels.instanceIterator(truthType, documentId);
                 Span.Looper closureSpanLooper =
-									documentId==null ? env.closureIterator(truthType) : env.closureIterator(truthType, documentId);
+									documentId==null ? labels.closureIterator(truthType) : labels.closureIterator(truthType, documentId);
 
 								/*
 								System.out.println("TBV: iterating over "+truthType+" spans");
-								for (Span.Looper ii=env.instanceIterator(truthType,documentId); ii.hasNext(); ) {
+								for (Span.Looper ii=labels.instanceIterator(truthType,documentId); ii.hasNext(); ) {
 									System.out.println("TBV: span type "+truthType+": "+ii.nextSpan());
 								}
-								for (Span.Looper ii=env.closureIterator(truthType,documentId); ii.hasNext(); ) {
+								for (Span.Looper ii=labels.closureIterator(truthType,documentId); ii.hasNext(); ) {
 									System.out.println("TBV: closure span "+ii.nextSpan());
 								}
 								*/
@@ -416,7 +416,7 @@ public class TextBaseViewer extends JComponent
             synchronized (documentList)
             {
                 String type = (String) displayedTypeBox.getSelectedItem();
-                resetDocumentList(env, type, editedOnlyCheckBox.isSelected());
+                resetDocumentList(labels, type, editedOnlyCheckBox.isSelected());
                 documentList.repaint();
             }
         }
@@ -728,14 +728,14 @@ public class TextBaseViewer extends JComponent
         }
     }
 
-    /** Pop up a frame for viewing the environment. */
-    public static void view(TextEnv env)
+    /** Pop up a frame for viewing the labels. */
+    public static void view(TextLabels labels)
     {
         JFrame frame = new JFrame("TextBaseViewer");
-        TextBase base = env.getTextBase();
+        TextBase base = labels.getTextBase();
 
         StatusMessage statusMsg = new StatusMessage();
-        TextBaseViewer viewer = new TextBaseViewer(base, env, statusMsg);
+        TextBaseViewer viewer = new TextBaseViewer(base, labels, statusMsg);
         JComponent main = new StatusMessagePanel(viewer, statusMsg);
         frame.getContentPane().add(main, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -749,37 +749,37 @@ public class TextBaseViewer extends JComponent
         {
             JFrame frame = new JFrame("TextBaseViewer");
             TextBase base;
-            MonotonicTextEnv env;
+            MonotonicTextLabels labels;
 
             if (args.length == 0)
             {
                 base = SampleTextBases.getTextBase();
-                env = SampleTextBases.getGuessEnv();
-                //env = edu.cmu.minorthird.text.ann.TestExtractionProblem.getEnv();
-                //base = env.getTextBase();
-                //SampleTextBases.showEnv(env);
+                labels = SampleTextBases.getGuessLabels();
+                //labels = edu.cmu.minorthird.text.ann.TestExtractionProblem.getLabels();
+                //base = labels.getTextBase();
+                //SampleTextBases.showLabels(labels);
             }
             else
             {
                 Object o = new FancyLoader().loadObject(args[0]);
-                if (o instanceof MonotonicTextEnv)
+                if (o instanceof MonotonicTextLabels)
                 {
-                    env = (MonotonicTextEnv) o;
-                    base = env.getTextBase();
+                    labels = (MonotonicTextLabels) o;
+                    base = labels.getTextBase();
                 }
                 else if (o instanceof TextBase)
                 {
                     base = (TextBase) o;
-                    env = new BasicTextEnv(base);
+                    labels = new BasicTextLabels(base);
                 }
                 else
                 {
-                    throw new Exception("object should be TextBase or TextEnv");
+                    throw new Exception("object should be TextBase or TextLabels");
                 }
             }
 
             StatusMessage statusMsg = new StatusMessage();
-            TextBaseViewer viewer = new TextBaseViewer(base, env, statusMsg);
+            TextBaseViewer viewer = new TextBaseViewer(base, labels, statusMsg);
             JComponent main = new StatusMessagePanel(viewer, statusMsg);
 
             frame.getContentPane().add(main, BorderLayout.CENTER);

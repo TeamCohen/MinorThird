@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
  * @see edu.cmu.minorthird.text.learn.FeatureBuffer
  *
  * @author $ksteppe$
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SimpleFeatureExtractor implements SpanFeatureExtractor
 {
@@ -36,12 +36,12 @@ public class SimpleFeatureExtractor implements SpanFeatureExtractor
     }
 
     /**
-     * This version ignores the TextEnv
-     * @param env a TextEnv (ignored)
+     * This version ignores the TextLabels
+     * @param labels a TextLabels (ignored)
      * @param span The Span to extract from
      * @return an Instance
      */
-    public Instance extractInstance(edu.cmu.minorthird.text.TextEnv env, edu.cmu.minorthird.text.Span span)
+    public Instance extractInstance(edu.cmu.minorthird.text.TextLabels labels, edu.cmu.minorthird.text.Span span)
     {
         return extractInstance(span);
     }

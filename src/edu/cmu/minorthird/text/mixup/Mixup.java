@@ -86,8 +86,8 @@ public class Mixup
 	}
 	/** Extract subspans from each generated span using the mixup expression.
 	 */
-	public Span.Looper extract(TextEnv env, Span.Looper spanLooper) {
-		return expr.match(env, spanLooper);
+	public Span.Looper extract(TextLabels labels, Span.Looper spanLooper) {
+		return expr.match(labels, spanLooper);
 	}
 
 	public String toString() { return expr.toString(); }
@@ -303,36 +303,36 @@ public class Mixup
 		private Pattern pattern = null;
 		public Prim() { ; }
 		/** See if the predicate for this pattern succeeds for this TextToken.  */
-		public boolean matchesPrim(TextEnv env,Token token) {
-			boolean status = matchesUnnegatedPrim(env,token);
+		public boolean matchesPrim(TextLabels labels,Token token) {
+			boolean status = matchesUnnegatedPrim(labels,token);
 			return negated==!status; 
 		}
-		private boolean matchesUnnegatedPrim(TextEnv env,Token token) {
+		private boolean matchesUnnegatedPrim(TextLabels labels,Token token) {
 			if ("any".equals(function)) return true;
 			else if ("eq".equals(function)) return token.getValue().equals(argument);
 			else if ("eqi".equals(function)) return token.getValue().equalsIgnoreCase(argument);
-			else if ("a".equals(function)) return env.inDict(token,argument);
+			else if ("a".equals(function)) return labels.inDict(token,argument);
 			else if ("ai".equals(function)) {
 				final String lc = token.getValue().toLowerCase();
 				Token lcToken = new Token() {
 						public String toString() { return "[lcToken "+lc+"]"; }
 						public String getValue() { return lc; } 
 						public int getIndex() { return 0; }};
-				return env.inDict(lcToken,argument);
+				return labels.inDict(lcToken,argument);
 			}
 			else if ("re".equals(function)) {
 				return pattern.matcher(token.getValue()).find();
 			} else if ("prop".equals(function)) {
-				return value.equals( env.getProperty(token,property) );
+				return value.equals( labels.getProperty(token,property) );
 			} else if ("propDict".equals(function)) {
-				final String propVal = env.getProperty(token,property);
+				final String propVal = labels.getProperty(token,property);
 				if (propVal==null) return false;
 				Token propValToken = new Token() {
 						public String toString() { return "[token:"+propVal+"]"; }
 						public String getValue() { return propVal; } 
 						public int getIndex() { return 0; }};
 				//System.out.println("testing "+propValToken+" for membership in dict "+value);
-				return env.inDict( propValToken, value );
+				return labels.inDict( propValToken, value );
 			} else {
 				throw new IllegalStateException("illegal function '"+function+"'");
 			}
@@ -422,35 +422,35 @@ public class Mixup
 			}
 		}
 		/** See if this pattern matches span.subSpan(lo,len). */
-		public boolean matchesSubspan(TextEnv env,Span span, int lo, int len) {
+		public boolean matchesSubspan(TextLabels labels,Span span, int lo, int len) {
 			if (type!=null) {
 				if (minCount==1) {
-					return env.hasType(span.subSpan(lo,len), type);
+					return labels.hasType(span.subSpan(lo,len), type);
 				} else {
-					return len==0 || env.hasType(span.subSpan(lo,len), type);
+					return len==0 || labels.hasType(span.subSpan(lo,len), type);
 				}
 			} else {
 				if (len>maxCount && maxCount>=0) return false;
 				if (len<minCount) return false;
 				for (int i=lo; i<lo+len; i++) {
 					if (i>=span.size()) return false;
-					if (!matchesPrimList(env,span.getToken(i))) return false;
+					if (!matchesPrimList(labels,span.getToken(i))) return false;
 				}
 				if (leftMost && (len<maxCount || maxCount<0)) {
-					if (lo>0 && matchesPrimList(env,span.getToken(lo-1))) 
+					if (lo>0 && matchesPrimList(labels,span.getToken(lo-1)))
 						return false;
 				}
 				if (rightMost && (len<maxCount || maxCount<0)) {
-					if (lo+len<span.size() && matchesPrimList(env,span.getToken(lo+len))) 
+					if (lo+len<span.size() && matchesPrimList(labels,span.getToken(lo+len)))
 						return false;
 				}
 				return true;
 			}
 		}
-		private boolean matchesPrimList(TextEnv env, Token token) {
+		private boolean matchesPrimList(TextLabels labels, Token token) {
 			for (Iterator i=primList.iterator(); i.hasNext(); ) {
 				Prim prim = (Prim)i.next();
-				if (!prim.matchesPrim(env,token)) return false;
+				if (!prim.matchesPrim(labels,token)) return false;
 			}
 			return true;
 		}
@@ -487,24 +487,24 @@ public class Mixup
 				return buf.toString();
 			}
 		}
-		public Span.Looper match(TextEnv env,Span.Looper spanLooper)
+		public Span.Looper match(TextLabels labels,Span.Looper spanLooper)
 		{
 			if (expr!=null) {
-				return expr.match(env,spanLooper);
+				return expr.match(labels,spanLooper);
 			} else {
 				ProgressCounter pc = new ProgressCounter("mixup","span",spanLooper.estimatedSize());
 				Set accum = new TreeSet();
 				while (spanLooper.hasNext()) {
 					pc.progress();
 					Span span = spanLooper.nextSpan();
-					// match(env,accum,span,new int[repPrim.length],new int[repPrim.length],1,0,0);
-					fastMatch(env,span,accum);
+					// match(labels,accum,span,new int[repPrim.length],new int[repPrim.length],1,0,0);
+					fastMatch(labels,span,accum);
 				}
 				pc.finished();
 				return new BasicSpanLooper(accum.iterator());
 			}
 		}
-		private void fastMatch(TextEnv env,Span span,Set accum)
+		private void fastMatch(TextLabels labels,Span span,Set accum)
 		{
 //      log.debug("span size: " + span.size() + " - " + span.asString());
 			// there are at most span.length^2 matches of every repeated primitive
@@ -533,8 +533,8 @@ public class Mixup
 					// find all places this matches
 					int numMatches = 0;
 					if (rp.type!=null) {
-						// look up matches from the environment
-						for (Span.Looper el=env.instanceIterator(rp.type, span.getDocumentId()); el.hasNext(); ) {
+						// look up matches from the labels
+						for (Span.Looper el=labels.instanceIterator(rp.type, span.getDocumentId()); el.hasNext(); ) {
 							Span s = el.nextSpan();
 							if (span.contains(s)) {
 								loIndexBuffer[numMatches] = s.documentSpanStartIndex()-span.documentSpanStartIndex();
@@ -548,7 +548,7 @@ public class Mixup
 						for (int j=0; j<=span.size(); j++) {
 							int topLen = Math.min(maxLen[i], span.size()-j);
 							for (int k=minLen[i]; k<=topLen; k++) {
-								if (rp.matchesSubspan(env,span,j,k)) {
+								if (rp.matchesSubspan(labels,span,j,k)) {
 									loIndexBuffer[numMatches] = j;
 									lengthBuffer[numMatches] = k;
 									numMatches++;
@@ -570,11 +570,11 @@ public class Mixup
 			//
 			int[] lows = new int[repPrim.length];
 			int[] highs = new int[repPrim.length];
-			fastMatch(env,accum,span,lows,highs,1,0,0,possibleLos,possibleLens,isAny,minLen,maxLen);
+			fastMatch(labels,accum,span,lows,highs,1,0,0,possibleLos,possibleLens,isAny,minLen,maxLen);
 		}
 		
 		private void fastMatch(
-			TextEnv env, // not used
+			TextLabels labels,    // not used (passed along to subroutines - ks)
 			Set accum,            // accumulate matches
 			Span span,            // span being matched
 			int[] lows,           // lows[i] is lo index of match to repPrim[i] 
@@ -611,7 +611,7 @@ public class Mixup
 								lows[patternCursor] = spanCursor;
 								highs[patternCursor] = spanCursor+len;
 								if (DEBUG) showMatch(tab,"partial",span,lows,highs,patternCursor+1);
-								fastMatch(env,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
+								fastMatch(labels,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
 													possibleLos,possibleLens,isAny,minLen,maxLen);
 							}
 						}
@@ -621,7 +621,7 @@ public class Mixup
 								lows[patternCursor] = spanCursor;
 								highs[patternCursor] = spanCursor+len;
 								if (DEBUG) showMatch(tab,"partial",span,lows,highs,patternCursor+1);
-								fastMatch(env,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
+								fastMatch(labels,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
 													possibleLos,possibleLens,isAny,minLen,maxLen);
 						}
 					}
@@ -633,7 +633,7 @@ public class Mixup
 							lows[patternCursor] = spanCursor;
 							highs[patternCursor] = spanCursor+len;
 							if (DEBUG) showMatch(tab,"partial",span,lows,highs,patternCursor+1);
-							fastMatch(env,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
+							fastMatch(labels,accum,span,lows,highs,tab+1,spanCursor+len,patternCursor+1,
 												possibleLos,possibleLens,isAny,minLen,maxLen);
 						}
 					}
@@ -645,7 +645,7 @@ public class Mixup
 		// obsolete slower match routine, kept around as a reference implementation for debugging
 		// 
 		private void 
-		match(TextEnv env,Set accum,Span span,int[] lows,int[] highs,int tab,int spanCursor,int patternCursor)
+		match(TextLabels env,Set accum,Span span,int[] lows,int[] highs,int tab,int spanCursor,int patternCursor)
 		{
 			if (patternCursor==repPrim.length) {
 				if (spanCursor==span.size()) {
@@ -700,19 +700,19 @@ public class Mixup
 		public Expr(BasicExpr expr1,Expr expr2,String op) {
 			this.expr1 = expr1; this.expr2 = expr2; this.op = op;
 		}
-		public Span.Looper match(TextEnv env,Span.Looper spanLooper) {
+		public Span.Looper match(TextLabels labels,Span.Looper spanLooper) {
 			if (expr2==null) {
-				return expr1.match(env,spanLooper);
+				return expr1.match(labels,spanLooper);
 			} else if ("&&".equals(op)) {
-				return expr2.match(env,expr1.match(env,spanLooper));
+				return expr2.match(labels,expr1.match(labels,spanLooper));
 			} else {
 				if (!"||".equals(op)) throw new IllegalStateException("illegal operator '"+op+"'");
 				// copy the input looper
 				Set save = new TreeSet();
 				while (spanLooper.hasNext()) save.add( spanLooper.next() );
 				// union the outputs of expr1 and expr2
-				Span.Looper a = expr1.match(env,new BasicSpanLooper(save.iterator()));
-				Span.Looper b = expr2.match(env,new BasicSpanLooper(save.iterator()));
+				Span.Looper a = expr1.match(labels,new BasicSpanLooper(save.iterator()));
+				Span.Looper b = expr2.match(labels,new BasicSpanLooper(save.iterator()));
 				Set union = new TreeSet();
 				while (a.hasNext()) union.add( a.next() );
 				while (b.hasNext()) union.add( b.next() );
@@ -736,15 +736,15 @@ public class Mixup
 			Mixup mixup = new Mixup(args[0]);
 			System.out.println("normalized expression = "+mixup);
 			TextBase b = new BasicTextBase();
-			MonotonicTextEnv env = new BasicTextEnv(b);
+			MonotonicTextLabels labels = new BasicTextLabels(b);
 			for (int i=1; i<args.length; i++) {
 				b.loadDocument("arg_"+i, args[i]);
 			}
-			new BoneheadStemmer().stem(b,env);
-			//System.out.println("env="+env);
-			//env.addWord("the", "det");
-			//env.addWord("thi", "det");
-			for (Span.Looper i=mixup.extract(env, b.documentSpanIterator()); i.hasNext(); ) {
+			new BoneheadStemmer().stem(b,labels);
+			//System.out.println("labels="+labels);
+			//labels.addWord("the", "det");
+			//labels.addWord("thi", "det");
+			for (Span.Looper i=mixup.extract(labels, b.documentSpanIterator()); i.hasNext(); ) {
 				System.out.println(i.next());
 			}
 		} catch (Exception e) {

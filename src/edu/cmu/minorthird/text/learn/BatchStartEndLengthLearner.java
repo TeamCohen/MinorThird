@@ -61,22 +61,22 @@ public class BatchStartEndLengthLearner implements AnnotatorLearner
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery)
 	{
-		TextEnv answerEnv = answeredQuery.labelTokensStartEnd("startEnd");
+		TextLabels answerLabels = answeredQuery.labelTokensStartEnd("startEnd");
 		Span document = answeredQuery.getDocumentSpan();
 		for (int i=0; i<document.size(); i++) {
 			Token tok = document.getToken(i);
-			String value = answerEnv.getProperty(tok,"startEnd");
+			String value = answerLabels.getProperty(tok,"startEnd");
 			if (AnnotationExample.START.equals(value)) {
-				addInstance( fe.extractInstance(answerEnv,document.subSpan(i,1)), +1, -1);
+				addInstance( fe.extractInstance(answerLabels,document.subSpan(i,1)), +1, -1);
 			}  else if (AnnotationExample.END.equals( value )) {
-				addInstance( fe.extractInstance(answerEnv,document.subSpan(i,1)), -1, +1);
+				addInstance( fe.extractInstance(answerLabels,document.subSpan(i,1)), -1, +1);
 			} else if (AnnotationExample.NOT_START_OR_END.equals( value )) {
-				addInstance( fe.extractInstance(answerEnv,document.subSpan(i,1)), -1, -1);
+				addInstance( fe.extractInstance(answerLabels,document.subSpan(i,1)), -1, -1);
 			}
 		}
 		String inputType = answeredQuery.getInputType();
 		String id = document.getDocumentId();
-		for (Span.Looper i=answeredQuery.getEnv().instanceIterator(inputType,id); i.hasNext(); ) {
+		for (Span.Looper i=answeredQuery.getLabels().instanceIterator(inputType,id); i.hasNext(); ) {
 			Span s = i.nextSpan();
 			if (s.size()>=1) {
 				// record length

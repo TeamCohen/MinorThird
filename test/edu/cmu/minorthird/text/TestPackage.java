@@ -39,29 +39,29 @@ public class TestPackage extends TestSuite
 			b.loadDocument("test", "a b c d e f g");
 		}			
 		public void doTest() {
-			MutableTextEnv e1 = new BasicTextEnv(b);
+			MutableTextLabels e1 = new BasicTextLabels(b);
 			e1.addToType( testSpan(1,3), "x" );
 			checkXML(e1, "<root>a <x>b c d </x>e f g</root>");
 			e1.addToType( testSpan(2,1), "y" );
 			checkXML(e1, "<root>a <x>b </x><overlap value=\"x,y\">c </overlap><x>d </x>e f g</root>");
-			MutableTextEnv e2 = new BasicTextEnv(b);
+			MutableTextLabels e2 = new BasicTextLabels(b);
 			e2.addToType( testSpan(1,2), "x" );
 			e2.addToType( testSpan(4,1), "y" );
 			checkXML(e2, "<root>a <x>b c </x>d <y>e </y>f g</root>");
-			MutableTextEnv e3 = new BasicTextEnv(b);
+			MutableTextLabels e3 = new BasicTextLabels(b);
 			e3.addToType( testSpan(0,3), "x" );
 			e3.addToType( testSpan(3,1), "y" );
 			checkXML(e3, "<root><x>a b c </x><y>d </y>e f g</root>");
 			e3.addToType( testSpan(5,2), "z" );
 			checkXML(e3, "<root><x>a b c </x><y>d </y>e <z>f g</z></root>");
-			MutableTextEnv e4 = new BasicTextEnv(b);
+			MutableTextLabels e4 = new BasicTextLabels(b);
 			e4.addToType( testSpan(1,3), "x" );
 			checkXML(e4, "<root>a <x>b c d </x>e f g</root>");
 			e4.addToType( testSpan(2,3), "y" );
 			checkXML(e4, "<root>a <x>b </x><overlap value=\"x,y\">c d </overlap><y>e </y>f g</root>");
 		}
-		private void checkXML(TextEnv e,String expected) {
-			String actual = new TextEnvLoader().markupDocumentSpan("test", e);
+		private void checkXML(TextLabels e,String expected) {
+			String actual = new TextLabelsLoader().markupDocumentSpan("test", e);
 			//System.out.println("expected: '"+expected+"'");
 			//System.out.println("actual:   '"+actual+"'");
 			assertEquals(expected,actual);
@@ -83,7 +83,7 @@ public class TestPackage extends TestSuite
 			TreeSet guess = new TreeSet();
 			TreeSet truth = new TreeSet();
 			TextBase b = new BasicTextBase();
-			TextEnv e = new BasicTextEnv(b);
+			TextLabels e = new BasicTextLabels(b);
 			b.loadDocument("a-d", "a b c d");
 			b.loadDocument("e-h", "e f g h");
 			b.loadDocument("i-l", "i j k l");
@@ -202,7 +202,7 @@ public class TestPackage extends TestSuite
 	public static class MixupTest extends TestCase 
 	{
 		private TextBase b = new BasicTextBase();
-		private TextEnv e = new BasicTextEnv(b);
+		private TextLabels e = new BasicTextLabels(b);
 		
 		public MixupTest(String string) { 
 			super(string);
@@ -268,11 +268,11 @@ public class TestPackage extends TestSuite
 			//
 			// test dictionaries and multiple documents
 			//
-			MutableTextEnv numEnv = new BasicTextEnv(b);
+			MutableTextLabels numLabels = new BasicTextLabels(b);
 			String[] nums = new String[] { "one", "two", "three", "four", "five" };
 			TreeSet numSet = new TreeSet();
 			for (int i=0; i<nums.length; i++) numSet.add(nums[i]);
-			numEnv.defineDictionary( "num", numSet ); 
+			numLabels.defineDictionary( "num", numSet );
 			b.loadDocument("test2", "one fish, two fish");
 			b.loadDocument("test3", "red fish, blue fish");
 			b.loadDocument("test4", "one, two, three strikes you're out");
@@ -280,14 +280,14 @@ public class TestPackage extends TestSuite
 			try {
 				Mixup numExpr = new Mixup("... [a(num) <!a(num),re('[a-z]')>] ...");
 				checkLooper( new String[] { "one fish", "two fish", "three strikes" },
-										 numExpr.extract(numEnv, b.documentSpanIterator()) );
-				new BoneheadStemmer().stem(b,numEnv);
+										 numExpr.extract(numLabels, b.documentSpanIterator()) );
+				new BoneheadStemmer().stem(b,numLabels);
 				Mixup stemExpr = new Mixup(" ... [stem:a(num) stem:strik] ... ");
 				checkLooper( new String[] { "three strikes" },
-										 stemExpr.extract(numEnv, b.documentSpanIterator()) );
+										 stemExpr.extract(numLabels, b.documentSpanIterator()) );
 				Mixup aiExpr = new Mixup("[ai(num) any]"); 
 				checkLooper( new String[] { "Three phish" },
-										 aiExpr.extract( numEnv, b.documentSpanIterator() ) );
+										 aiExpr.extract( numLabels, b.documentSpanIterator() ) );
 			} catch (Mixup.ParseException e) {
 				throw new IllegalStateException("parse error "+e);
 			}
@@ -295,15 +295,15 @@ public class TestPackage extends TestSuite
 		private void checkProg(String[] statements, String[] expected) {
 			try {
 				MixupProgram program = new MixupProgram(statements);
-				MutableTextEnv env = new BasicTextEnv(b);
+				MutableTextLabels labels = new BasicTextLabels(b);
 				if (DEBUG) System.out.println("checking program "+program);
-				program.eval(env, b);
-				checkLooper( expected, env.instanceIterator("out") );
+				program.eval(labels, b);
+				checkLooper( expected, labels.instanceIterator("out") );
 			} catch (Mixup.ParseException e) {
 				throw new IllegalStateException("parse error"+e);
 			}
 		}
-		private void checkExpr(TextEnv e,String pattern,String[] expected) {
+		private void checkExpr(TextLabels e,String pattern,String[] expected) {
 			if (DEBUG) System.out.println("checking "+pattern);
 			
 			try {

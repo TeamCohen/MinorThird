@@ -18,26 +18,25 @@ public abstract class AbstractAnnotator implements Annotator
 {
 	private Set prereqs = new HashSet();
 
-	/** The implementation for this method annotates an
-	 * environment in-line. */
-	abstract protected void doAnnotate(MonotonicTextEnv env);
+	/** The implementation for this method annotates labels in-line. */
+	abstract protected void doAnnotate(MonotonicTextLabels labels);
 
 	/** The implementation for this method should explain how annotation
 	 * would be added to some part of the text base. */
-	abstract public String explainAnnotation(TextEnv Env,Span documentSpan);
+	abstract public String explainAnnotation(TextLabels labels,Span documentSpan);
 
-	final public void annotate(MonotonicTextEnv env) {
+	final public void annotate(MonotonicTextLabels labels) {
 		for (Iterator i=prereqs.iterator(); i.hasNext(); ) {
 			String req = (String)i.next();
-			if (!env.isAnnotatedBy(req))
-        Dependencies.runDependency(env, req, null);
-//				throw new IllegalArgumentException("env is not been annotated by "+req);
+			if (!labels.isAnnotatedBy(req))
+        Dependencies.runDependency(labels, req, null);
+//				throw new IllegalArgumentException("labels is not been annotated by "+req);
 		}
-		doAnnotate(env);
+		doAnnotate(labels);
 	}
 
-	final public TextEnv annotatedCopy(TextEnv env) {
-		MonotonicTextEnv copy = new NestedTextEnv(env);
+	final public TextLabels annotatedCopy(TextLabels labels) {
+		MonotonicTextLabels copy = new NestedTextLabels(labels);
 		annotate(copy);
 		return copy;
 	}

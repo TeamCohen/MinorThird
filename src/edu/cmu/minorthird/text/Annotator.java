@@ -1,25 +1,25 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.MonotonicTextEnv;
+import edu.cmu.minorthird.text.MonotonicTextLabels;
 import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextEnv;
+import edu.cmu.minorthird.text.TextLabels;
 
 /**
- * Something that extends a text environment with additional annotations.
+ * Something that extends a text labeling with additional annotations.
  *
  * @author William Cohen
  */
 
 public interface Annotator
 {
-	/** Add some extra information to the environment. */
-	public void annotate(MonotonicTextEnv env);
+	/** Add some extra information to the labels. */
+	public void annotate(MonotonicTextLabels labels);
 
-	/** Create a copy of the environment with some additional
+	/** Create a copy of the labels with some additional
 			information added. */
-	public TextEnv annotatedCopy(TextEnv env);
+	public TextLabels annotatedCopy(TextLabels labels);
 
 	/** Explain how annotation was added to some part of the
 	 * text base. */
-	public String explainAnnotation(TextEnv Env,Span documentSpan);
+	public String explainAnnotation(TextLabels labels,Span documentSpan);
 }

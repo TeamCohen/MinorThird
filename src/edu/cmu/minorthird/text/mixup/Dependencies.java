@@ -1,6 +1,6 @@
 package edu.cmu.minorthird.text.mixup;
 
-import edu.cmu.minorthird.text.MonotonicTextEnv;
+import edu.cmu.minorthird.text.MonotonicTextLabels;
 import edu.cmu.minorthird.text.Annotator;
 import org.apache.log4j.Logger;
 
@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * Contains static methods to run annotators (either mixup or java code)
- * see runDependency(MonotonicTextEnv, String, String)
+ * see runDependency(MonotonicTextLabels, String, String)
  * @author ksteppe
  */
 public class Dependencies
@@ -20,20 +20,20 @@ public class Dependencies
 
   /**
    * This runs the given file or the default (from <code>configFile</code>) to generate
-   * the requested annotations in the given environment.
+   * the requested annotations in the given labels.
    *
    * If no file is given and no default is registered then a null pointer will be thrown
    * Exceptions are converted to IllegalStateException objects
    *
    * note here - could catch the annotate exception stuff
    *
-   * @param env Text environment to place annotations in - must hold the text base to run against
+   * @param labels TextLabels to place annotations in - must hold the text base to run against
    * @param reqAnnotation the name of the annotations requested
    * @param file file to run in order to get annotations, if null then the configuration file is
    *        checked for a default
    *
    */
-  public static void runDependency(MonotonicTextEnv env, String reqAnnotation, String file)
+  public static void runDependency(MonotonicTextLabels labels, String reqAnnotation, String file)
   {
     log.debug("runDependency : " + reqAnnotation + " : " + file);
     try
@@ -54,8 +54,8 @@ public class Dependencies
 
 				log.info("Evaluating mixup program "+file+" to provide "+reqAnnotation);
         MixupProgram subProgram =  new MixupProgram(program);
-        subProgram.eval(env, env.getTextBase());
-				if (!env.isAnnotatedBy(reqAnnotation)) {
+        subProgram.eval(labels, labels.getTextBase());
+				if (!labels.isAnnotatedBy(reqAnnotation)) {
 					throw new IllegalArgumentException(
 						"file "+file+" did not provide expected annotation type "+reqAnnotation);
 				}
@@ -66,7 +66,7 @@ public class Dependencies
 //        String className = file.substring(0, file.lastIndexOf('.'));
         Class clazz = Dependencies.class.getClassLoader().loadClass(file);
         Annotator annotator = (Annotator)clazz.newInstance();
-        annotator.annotate(env);
+        annotator.annotate(labels);
       }
     }
     catch (ArrayIndexOutOfBoundsException e)

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Annotator based on classifiers for start, env, and length.
+ * Annotator based on classifiers for start, labels, and length.
  *
  * @author William Cohen
  */
@@ -64,9 +64,9 @@ public class StartEndLengthAnnotator extends AbstractAnnotator
 		return new FilteredFinder( end, fe, tokenFinder );
 	}
 
-	protected void doAnnotate(MonotonicTextEnv env)
+	protected void doAnnotate(MonotonicTextLabels labels)
 	{
-		Span.Looper i = env.getTextBase().documentSpanIterator();
+		Span.Looper i = labels.getTextBase().documentSpanIterator();
 		ProgressCounter pc = new ProgressCounter("annotate", "document", i.estimatedSize() );
 		while (i.hasNext()) {
 			Span document = i.nextSpan();
@@ -75,7 +75,7 @@ public class StartEndLengthAnnotator extends AbstractAnnotator
 			double[] endPred = new double[document.size()];
 			for (int j=0; j<document.size(); j++) {
 				Span tokenSpan = document.subSpan(j,1);
-				Instance instance = fe.extractInstance(env, tokenSpan);
+				Instance instance = fe.extractInstance(labels, tokenSpan);
 				startPred[j] = start.score( instance );
 				endPred[j] = end.score( instance );
 				//System.out.println(document.getDocumentId()+" "+tokenSpan+" "+j+" start:"+startPred[j]+" end: "+endPred[j]);
@@ -101,12 +101,12 @@ public class StartEndLengthAnnotator extends AbstractAnnotator
 					//System.out.println("possible length ["+lengthScore+"] "+len);
 					if (finalScore>threshold) {
 						System.out.println("output ["+finalScore+"] "+lContext+"|"+cContext+"|"+rContext);
-						// put a high-scoring combination in the environment
+						// put a high-scoring combination in the labels
 						Map m = new TreeMap();
 						m.put( "start", new Double(startPred[j]) );
 						m.put( "end", new Double(endPred[j+len-1]) );
 						m.put( "length", new Double(lengthScore) );
-						env.addToType( document.subSpan( j, len ), annotationType, new Details(finalScore,m) );
+						labels.addToType( document.subSpan( j, len ), annotationType, new Details(finalScore,m) );
 					} 
 				}
 			}
@@ -115,7 +115,7 @@ public class StartEndLengthAnnotator extends AbstractAnnotator
 		pc.finished();
 	}
 
-	public String explainAnnotation(TextEnv env,Span documentSpan) {
+	public String explainAnnotation(TextLabels labels, Span documentSpan) {
 		return "not implemented";
 	}
 

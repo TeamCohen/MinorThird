@@ -34,7 +34,7 @@
     <p>A {@link edu.cmu.minorthird.text.TextBase} is a collection of tokenized "document"
     strings, accessible as Spans.
 
-    <p>A {@link edu.cmu.minorthird.text.TextEnv} contains <em>markup</em> for
+    <p>A {@link edu.cmu.minorthird.text.TextLabels} contains <em>markup</em> for
     a {@link edu.cmu.minorthird.text.TextBase}.  This markup can consist of
       <ul>
       <li>String-valued properties of individual TextTokens (i.e.,
@@ -43,37 +43,37 @@
       TextBase.
       <li>Groupings of Spans into "types".  A Span can belong to
 	multiple types, and unlike properties, it is possible to
-	quickly find all Spans of a given type in a TextEnv, or
+	quickly find all Spans of a given type in a TextLabels, or
 	find all Spans of a given type in a specific document.
       </ul>
-    There are a couple of different varieties of TextEnv's.  An {@link
-    edu.cmu.minorthird.text.txt.ImmutableTextEnv} can only be read, not modified.
-    A {@link edu.cmu.minorthird.text.MonotonicTextEnv} can be modified by
+    There are a couple of different varieties of TextLabels's.  An {@link
+    edu.cmu.minorthird.text.txt.ImmutableTextLabels} can only be read, not modified.
+    A {@link edu.cmu.minorthird.text.MonotonicTextLabels} can be modified by
     changing attribute values, adding new attribute values, or adding
     Spans to a type; however, Spans cannot be removed from a type.  A
     plain old {@link edu.cmu.minorthird.text.TextBase} allows spans to be
     removed from a type as well.
 
-    <p>A {@link edu.cmu.minorthird.text.NestedTextEnv} is an odd sort of
-    implementation of a MonotonicTextEnv. It combines two TextEnv's,
+    <p>A {@link edu.cmu.minorthird.text.NestedTextLabels} is an odd sort of
+    implementation of a MonotonicTextLabels. It combines two TextLabels's,
     an "inner" one and an "outer" one, such that the outer one can be
     monotonically added to, but the inner one is never modified.
-    Semantically, the markup in a NestedTextEnv is the union of the
-    markup in the inner and outer TextEnv's, except that property
-    values in the outer TextEnv "shadow" values in the inner TextEnv.
+    Semantically, the markup in a NestedTextLabels is the union of the
+    markup in the inner and outer TextLabels's, except that property
+    values in the outer TextLabels "shadow" values in the inner TextLabels.
 
       This has several possible uses, for instance:
       <ol>
-      <li>One can add change a TextEnv and then "back out" the changes
-      by (a) creating NestedTextEnv with an empty "outer"
-      MonotonicTextEnv, (b) monotonically adding to this new "outer"
-      TextEnv, and then (c) discarding the NestedTextEnv and reverting
-      to the old "inner" TextEnv to undo the modifications.  
+      <li>One can add change a TextLabels and then "back out" the changes
+      by (a) creating NestedTextLabels with an empty "outer"
+      MonotonicTextLabels, (b) monotonically adding to this new "outer"
+      TextLabels, and then (c) discarding the NestedTextLabels and reverting
+      to the old "inner" TextLabels to undo the modifications.
 
-      <li>One can easily construct and view the union of two TextEnv's
+      <li>One can easily construct and view the union of two TextLabels's
       (or at least, some well-defined approximation of this), which
-      still being able to modify either underlying TextEnv.  For
-      instance, one can construct a single TextEnv which contains the
+      still being able to modify either underlying TextLabels.  For
+      instance, one can construct a single TextLabels which contains the
       output of a {@link edu.cmu.minorthird.text.txt.Mixup} program, plus some hand-labeled
       "ground truth" data, while still being able to re-run the
       program and get new output and/or edit the "ground truth".

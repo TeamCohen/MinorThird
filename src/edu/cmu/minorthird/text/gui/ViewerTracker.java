@@ -30,8 +30,8 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
     protected JScrollPane editorHolder;
     protected SpanDocument editedDoc;
     protected Span documentSpan;
-    protected TextEnv viewEnv;
-    protected MutableTextEnv editEnv;
+    protected TextLabels viewLabels;
+    protected MutableTextLabels editLabels;
     protected int contextWidth = 0;
     protected File saveAsFile = null;
 
@@ -39,16 +39,16 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
     protected JSlider contextWidthSlider;
 
     /**
-     * @param viewEnv a superset of editEnv which may include some additional read-only information
-     * @param editEnv the environment being modified (if there is one)
+     * @param viewLabels a superset of editLabels which may include some additional read-only information
+     * @param editLabels the labeling being modified (if there is one)
      * @param documentList the document Span being edited is associated with
      * the selected entry of the documentList.
      * @param spanPainter used to repaint documentList elements
      * @param statusMsg a JLabel used for status messages.
      */
     public ViewerTracker(
-            TextEnv viewEnv,
-            MutableTextEnv editEnv,
+            TextLabels viewLabels,
+            MutableTextLabels editLabels,
             JList documentList,
             SpanPainter spanPainter,
             StatusMessage statusMsg)
@@ -60,13 +60,13 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
                 throw new IllegalArgumentException("can't edit from empty list");
             }
 
-            this.viewEnv = viewEnv;
-            this.editEnv = editEnv;
+            this.viewLabels = viewLabels;
+            this.editLabels = editLabels;
             this.documentList = documentList;
             this.spanPainter = spanPainter;
             this.statusMsg = statusMsg;
             this.editorHolder = new JScrollPane();
-            saveButton = new JButton(new SaveEnvAction("Save"));
+            saveButton = new JButton(new SaveLabelsAction("Save"));
             upButton = new JButton(new MoveDocumentCursor("Up", -1));
             downButton = new JButton(new MoveDocumentCursor("Down", +1));
             contextWidthSlider = new ContextWidthSlider();
@@ -96,11 +96,9 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
         saveButton.setEnabled(saveAsFile != null);
     }
 
-    /** change the text environment */
-    public void updateViewEnv(TextEnv newEnv)
-    {
-        this.viewEnv = newEnv;
-    }
+    /** change the text labels*/
+    public void updateViewLabels(TextLabels newLabels)
+    { this.viewLabels = newLabels; }
 
     /** implement ListSelectionListener, so can use this to listen to the documentList. */
     public void valueChanged(ListSelectionEvent e)
@@ -174,9 +172,9 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
         }
     }
 
-    protected class SaveEnvAction extends AbstractAction
+    protected class SaveLabelsAction extends AbstractAction
     {
-        public SaveEnvAction(String s)
+        public SaveLabelsAction(String s)
         {
             super(s);
         }
@@ -186,7 +184,7 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
             try
             {
                 System.out.println("saving to file=" + saveAsFile);
-                new TextEnvLoader().saveTypesAsOps(editEnv, saveAsFile);
+                new TextLabelsLoader().saveTypesAsOps(editLabels, saveAsFile);
                 statusMsg.display("Saved in " + saveAsFile.getName());
             }
             catch (Exception e)

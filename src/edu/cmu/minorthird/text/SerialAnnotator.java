@@ -28,20 +28,20 @@ public class SerialAnnotator extends AbstractAnnotator
 		}
 	}
 	
-	protected void doAnnotate(MonotonicTextEnv env)
+	protected void doAnnotate(MonotonicTextLabels labels)
 	{
 		for (Iterator i=annotatorList.iterator(); i.hasNext(); ) {
 			Annotator ann = (Annotator)i.next();
-			ann.annotate(env);
+			ann.annotate(labels);
 		}
 	}
 
-	public String explainAnnotation(TextEnv env,Span documentSpan)
+	public String explainAnnotation(TextLabels labels,Span documentSpan)
 	{
 		StringBuffer buf = new StringBuffer("");
 		for (Iterator i=annotatorList.iterator(); i.hasNext(); ) {
 			Annotator ann = (Annotator)i.next();
-			buf.append(ann.explainAnnotation(env,documentSpan));
+			buf.append(ann.explainAnnotation(labels,documentSpan));
 		}
 		return buf.toString();
 	}

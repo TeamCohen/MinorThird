@@ -24,15 +24,15 @@ public abstract class ClassifyTest extends TestCase
 
   /** file loading of data */
   protected String dataFile;
-  protected String envFile;
+  protected String labelsFile;
 
   /** text base of training data */
   protected TextBase base;
-  protected TextEnv env;
+  protected TextLabels labels;
 
   /** testing data */
   protected TextBase testBase;
-  protected TextEnv testEnv;
+  protected TextLabels testLabels;
 
   /** span checking */
   String documentId;
@@ -73,8 +73,8 @@ public abstract class ClassifyTest extends TestCase
   {
     try
     {
-      Dataset trainData = createDataSet(base, env, fe);
-      Dataset testData = createDataSet(testBase, testEnv, fe);
+      Dataset trainData = createDataSet(base, labels, fe);
+      Dataset testData = createDataSet(testBase, testLabels, fe);
 
       checkClassify(learner, trainData, testData, referenceStats);
 
@@ -125,56 +125,56 @@ public abstract class ClassifyTest extends TestCase
   }
 
   /**
-   * takes the text base, environment and a feature extractor
+   * takes the text base, labels and a feature extractor
    * produces a dataset
    * @param fe
    * @return Dataset
    */
-  private Dataset createDataSet(TextBase base, TextEnv env, edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe)
+  private Dataset createDataSet(TextBase base, TextLabels labels, edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe)
   {
     Dataset data = new BasicDataset();
     for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
     {
       Span s = i.nextSpan();
-      //System.out.println( env );
-      double label = getLabel(env, s);
+      //System.out.println( labels );
+      double label = getLabel(labels, s);
 //        log.info("label: " + s.getDocumentId() + " : is : " + label);
-      data.add(new BinaryExample(fe.extractInstance(env, s), label));
+      data.add(new BinaryExample(fe.extractInstance(labels, s), label));
     }
     return data;
   }
 
-  /** extract labeling from the environment for the given span */
-  protected double getLabel(TextEnv env, Span s)
+  /** extract labeling for the given span */
+  protected double getLabel(TextLabels labels, Span s)
   {
-    double label = env.hasType(s, labelString) ? +1 : -1;
+    double label = labels.hasType(s, labelString) ? +1 : -1;
     return label;
   }
 
-  /** load environment from envFile */
-  private void loadEnv() throws IOException
+  /** load labels from file */
+  private void loadLabels() throws IOException
   {
-// set up an environment that contains the labels
-    env = new TestTextEnv(base);
-    new TextEnvLoader().importOps((BasicTextEnv)env, base, new File(envFile));
+// set up the labels
+    labels= new TestTextLabels(base);
+    new TextLabelsLoader().importOps((BasicTextLabels)labels, base, new File(labelsFile));
   }
 
 
   /**
-   * check the spans for the loaded environment
-   * The test is to ensure that the spans in the environment and the spans
+   * check the spans for the loaded labels
+   * The test is to ensure that the spans in the labels and the spans
    * in the text base are the same, with no 'off-by-one' errors.
    * @throws java.io.IOException
    */
   void checkSpans() throws IOException
   {
-    loadEnv();
+    loadLabels();
 
     Span baseSpan = base.documentSpan(documentId);
     log.info("span from " + baseSpan.getDocumentId() + " of size " + baseSpan.size());
 
 
-    Set typeSet = env.getTypes();
+    Set typeSet = labels.getTypes();
     log.info(typeSet.toString());
 
     Span checkSpan = null;
@@ -187,7 +187,7 @@ public abstract class ClassifyTest extends TestCase
       for (Span.Looper it = base.documentSpanIterator(); it.hasNext();)
       {
         String id = it.nextSpan().getDocumentId();
-        Set spanSet = ((TestTextEnv)env).getTypeSet(typeName, id);
+        Set spanSet = ((TestTextLabels)labels).getTypeSet(typeName, id);
         for (Iterator spanIt = spanSet.iterator(); spanIt.hasNext();)
         {
           Span span = (Span)spanIt.next();

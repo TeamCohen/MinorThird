@@ -1,6 +1,6 @@
 package edu.cmu.minorthird.text.gui;
 
-import edu.cmu.minorthird.text.MutableTextEnv;
+import edu.cmu.minorthird.text.MutableTextLabels;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -18,8 +18,8 @@ public class TrackedTextBaseComponent extends JComponent
 {
     protected Logger log;
     protected edu.cmu.minorthird.text.TextBase base;
-    protected edu.cmu.minorthird.text.TextEnv viewEnv;
-    protected MutableTextEnv editEnv;
+    protected edu.cmu.minorthird.text.TextLabels viewLabels;
+    protected MutableTextLabels editLabels;
     protected StatusMessage statusMsg;
     protected TextBaseViewer viewer;
     protected ViewerTracker viewerTracker;
@@ -35,17 +35,17 @@ public class TrackedTextBaseComponent extends JComponent
         log = Logger.getLogger(this.getClass().getName());
     }
 
-    public TrackedTextBaseComponent(edu.cmu.minorthird.text.TextBase base, edu.cmu.minorthird.text.TextEnv viewEnv, MutableTextEnv editEnv, StatusMessage statusMsg)
+    public TrackedTextBaseComponent(edu.cmu.minorthird.text.TextBase base, edu.cmu.minorthird.text.TextLabels viewLabels, MutableTextLabels editLabels, StatusMessage statusMsg)
     {
-        init(base, viewEnv, editEnv, statusMsg);
+        init(base, viewLabels, editLabels, statusMsg);
     }
 
-    protected void init(edu.cmu.minorthird.text.TextBase base, edu.cmu.minorthird.text.TextEnv viewEnv, MutableTextEnv editEnv, StatusMessage statusMsg)
+    protected void init(edu.cmu.minorthird.text.TextBase base, edu.cmu.minorthird.text.TextLabels viewLabels, MutableTextLabels editLabels, StatusMessage statusMsg)
     {
         log = Logger.getLogger(this.getClass().getName());
         this.base = base;
-        this.viewEnv = viewEnv;
-        this.editEnv = editEnv;
+        this.viewLabels = viewLabels;
+        this.editLabels = editLabels;
         this.statusMsg = statusMsg;
     }
 
@@ -85,12 +85,12 @@ public class TrackedTextBaseComponent extends JComponent
 				laidOut = true;
     }
 
-    /** change the text environment */
-    public void updateTextEnv(edu.cmu.minorthird.text.TextEnv newEnv)
+    /** change the text labels*/
+    public void updateTextLabels(edu.cmu.minorthird.text.TextLabels newLabels)
     {
-        this.viewEnv = newEnv;
-        viewer.updateTextEnv(newEnv);
-        viewerTracker.updateViewEnv(newEnv);
+        this.viewLabels = newLabels;
+        viewer.updateTextLabels(newLabels);
+        viewerTracker.updateViewLabels(newLabels);
     }
 
     /** add a 'save' button */

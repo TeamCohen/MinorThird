@@ -1,15 +1,15 @@
 Required:
- - view a textbase/textenv only - TextBaseEditor with read-only zoom window. 
- - view/edit a text/textenv - TextBaseEditor with std zoom window
+ - view a textbase/textlabels only - TextBaseEditor with read-only zoom window.
+ - view/edit a text/textlabels - TextBaseEditor with std zoom window
  - test a mixup program on fixed ground truth - TextBaseEditor with read-only zoom window
  plus extra pane to load/refresh a mixup program (program is stored off-line)
 
 Plan:
  - read-only option for zoom window -DONE
- - option for nested environment and mixup program
+ - option for nested labels and mixup program
  
- - Implement a 'layered' SeqEnv using an array of SeqEnv's; earlier ones will shadow the later ones (DONE)
- - Implement a TestEditor which creates a simple seqBase and simple env for testing. (DONE - main in SeqBaseEditor)
+ - Implement a 'layered' SeqLabels using an array of SeqLabel's; earlier ones will shadow the later ones (DONE)
+ - Implement a TestEditor which creates a simple seqBase and simple labels for testing. (DONE - main in SeqBaseEditor)
  - Split into SeqBaseEditor, and MixupDebugger.
  - SeqBaseEditor lets you 
  -- view a selected type of spans; -done

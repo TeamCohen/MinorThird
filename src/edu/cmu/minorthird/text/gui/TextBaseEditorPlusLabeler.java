@@ -16,17 +16,17 @@ public class TextBaseEditorPlusLabeler extends TrackedTextBaseComponent
 	ViewerTracker viewerTracker2;
     public TextBaseEditorPlusLabeler(
             TextBase base,
-            TextEnv viewEnv, // seen in viewer
-            MutableTextEnv editEnv, // changed in editor
+            TextLabels viewLabels, // seen in viewer
+            MutableTextLabels editLabels, // changed in editor
             StatusMessage statusMsg)
     {
-        super(base, viewEnv, editEnv, statusMsg);
-        viewer = new TextBaseViewer(base, viewEnv, statusMsg);
+        super(base, viewLabels, editLabels, statusMsg);
+        viewer = new TextBaseViewer(base, viewLabels, statusMsg);
         viewerTracker = 
-					new SpanLabeler(viewEnv, editEnv, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
+					new SpanLabeler(viewLabels, editLabels, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
         ((SpanLabeler) viewerTracker).addViewer(viewer);
         viewerTracker2 = 
-					new SpanEditor(viewEnv, editEnv, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
+					new SpanEditor(viewLabels, editLabels, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
         //((SpanLabeler) viewerTracker).addViewer(viewer);
         viewer.getDocumentList().addListSelectionListener(viewerTracker);
         viewer.getDocumentList().addListSelectionListener(viewerTracker2);
@@ -66,14 +66,14 @@ public class TextBaseEditorPlusLabeler extends TrackedTextBaseComponent
     }
 
 
-    /** Pop up a frame for editing the environment. */
-    public static TextBaseEditorPlusLabeler editAndLabel(MutableTextEnv env, File file)
+    /** Pop up a frame for editing the labels. */
+    public static TextBaseEditorPlusLabeler editAndLabel(MutableTextLabels labels, File file)
     {
         JFrame frame = new JFrame("TextBaseEditorPlusLabeler");
-        TextBase base = env.getTextBase();
+        TextBase base = labels.getTextBase();
 
         StatusMessage statusMsg = new StatusMessage();
-        TextBaseEditorPlusLabeler labeler = new TextBaseEditorPlusLabeler(base, env, env, statusMsg);
+        TextBaseEditorPlusLabeler labeler = new TextBaseEditorPlusLabeler(base, labels, labels, statusMsg);
         if (file != null) labeler.setSaveAs(file);
         JComponent main = new StatusMessagePanel(labeler, statusMsg);
         frame.getContentPane().add(main, BorderLayout.CENTER);
@@ -86,10 +86,8 @@ public class TextBaseEditorPlusLabeler extends TrackedTextBaseComponent
     public static void main(String[] args)
     {
 			try {
-				MutableTextEnv guessEnv = SampleTextBases.getTruthEnv();
-				editAndLabel(guessEnv, null);
-				//env = edu.cmu.minorthird.text.ann.TestExtractionProblem.getEnv();
-				//base = env.getTextBase();
+				MutableTextLabels guessLabels = SampleTextBases.getTruthLabels();
+				editAndLabel(guessLabels, null);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -69,15 +69,15 @@ public class BOWClassifierWrapper
 		File file = new File("examples/webmasterDataLines.text");
 		loader.setFirstWordIsDocumentId(true);
 		loader.loadLines(base,file);
-		MutableTextEnv env = new BasicTextEnv( base );
-		new TextEnvLoader().importOps(env,base,new File("examples/addChangeDelete.env"));
+		MutableTextLabels labels = new BasicTextLabels( base );
+		new TextLabelsLoader().importOps(labels,base,new File("examples/addChangeDelete.env"));
 
 		System.out.println("learning a test concept");
 		SpanFeatureExtractor fe = SampleFE.BAG_OF_WORDS;
 		Dataset data = new BasicDataset();
 		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			Span s = i.nextSpan();
-			double label = env.hasType(s,"delete") ? +1 : -1;
+			double label = labels.hasType(s,"delete") ? +1 : -1;
 			data.add( new BinaryExample( fe.extractInstance(s), label ) );
 		}
 		ClassifierLearner learner = new AdaBoost(new BinaryBatchVersion(new NaiveBayes()), 10);

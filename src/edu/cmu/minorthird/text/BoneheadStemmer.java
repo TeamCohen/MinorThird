@@ -13,13 +13,13 @@ public class BoneheadStemmer
 
 	public BoneheadStemmer() {;}
 
-	public void stem(TextBase base,MonotonicTextEnv env)
+	public void stem(TextBase base,MonotonicTextLabels labels)
 	{
 		for (Span.Looper i = base.documentSpanIterator(); i.hasNext(); ) {
 			Span span = i.nextSpan();
 			for (int j=0; j<span.size(); j++) {
 				Token token = span.getToken(j);
-				env.setProperty(token,STEM_PROP,stem(token.getValue())); 
+				labels.setProperty(token,STEM_PROP,stem(token.getValue()));
 			}
 		}
 	}

@@ -4,7 +4,7 @@ package edu.cmu.minorthird.text.learn;
 
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextEnv;
+import edu.cmu.minorthird.text.TextLabels;
 
 /**
  * Converts a span to an instance.  This interface is here because it's
@@ -17,5 +17,5 @@ import edu.cmu.minorthird.text.TextEnv;
 public interface SpanFeatureExtractor
 {
 	public Instance extractInstance(Span s);
-	public Instance extractInstance(TextEnv env,Span s);
+	public Instance extractInstance(TextLabels labels,Span s);
 }

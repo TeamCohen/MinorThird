@@ -33,21 +33,21 @@ public class SpanLabeler extends ViewerTracker
     final JButton addNewTypeButton = new JButton(new AddNewTypeAction("New class:"));
 
     /**
-     * @param viewEnv a superset of editEnv which may include some additional read-only information
-     * @param editEnv the environment being modified
+     * @param viewLabels a superset of editLabels which may include some additional read-only information
+     * @param editLabels the labels being modified
      * @param documentList the document Span being edited is associated with
      * the selected entry of the documentList.
      * @param spanPainter used to repaint documentList elements
-     * @param statusLabel a JLabel used for status messages.
+     * @param statusMsg a JLabel used for status messages.
      */
     public SpanLabeler(
-            TextEnv viewEnv,
-            MutableTextEnv editEnv,
+            TextLabels viewLabels,
+            MutableTextLabels editLabels,
             JList documentList,
             SpanPainter spanPainter,
             StatusMessage statusMsg)
     {
-        super(viewEnv, editEnv, documentList, spanPainter, statusMsg);
+        super(viewLabels, editLabels, documentList, spanPainter, statusMsg);
         setViewEntireDocument(true);
         newTypeField.addActionListener(addNewTypeButton.getAction());
 
@@ -141,16 +141,16 @@ public class SpanLabeler extends ViewerTracker
     private void restoreLabelProps()
 	  {
 			//System.out.println("restoring label properties");
-			for (Span.Looper i=editEnv.getTextBase().documentSpanIterator(); i.hasNext(); )
+			for (Span.Looper i=editLabels.getTextBase().documentSpanIterator(); i.hasNext(); )
 			{
 				Span s = i.nextSpan();
-				for (Iterator j=editEnv.getTypes().iterator(); j.hasNext(); )
+				for (Iterator j=editLabels.getTypes().iterator(); j.hasNext(); )
 				{
 					String t = (String)j.next();
-					if (editEnv.hasType(s,t)) 
+					if (editLabels.hasType(s,t))
 					{
 						//System.out.println("restoring "+t+" for "+s);
-						editEnv.setProperty(s,LABEL_PROP,t);
+						editLabels.setProperty(s,LABEL_PROP,t);
 					}
 				}
 			}
@@ -158,7 +158,7 @@ public class SpanLabeler extends ViewerTracker
 
     protected void loadSpanHook()
     {
-        String oldLabel = editEnv.getProperty(documentSpan, LABEL_PROP);
+        String oldLabel = editLabels.getProperty(documentSpan, LABEL_PROP);
         if (oldLabel == null) { 
 					currentTypeLabel.setText(UNKNOWN_TYPE);
 				} else {
@@ -185,7 +185,7 @@ public class SpanLabeler extends ViewerTracker
         public void actionPerformed(ActionEvent event)
         {
             String type = newTypeField.getText().trim();
-            if (!editEnv.isType(type))
+            if (!editLabels.isType(type))
             {
                 typeBox.addItem(type);
                 if (viewer != null)
@@ -219,7 +219,7 @@ public class SpanLabeler extends ViewerTracker
         {
             super();
             addItem(NULL_TYPE);
-            for (Iterator i = editEnv.getTypes().iterator(); i.hasNext();)
+            for (Iterator i = editLabels.getTypes().iterator(); i.hasNext();)
             {
                 addItem(i.next());
             }
@@ -238,15 +238,15 @@ public class SpanLabeler extends ViewerTracker
     {
 			  statusMsg.display("setting type="+type+"for "+documentSpan);
         currentTypeLabel.setText(type);
-        String oldLabel = editEnv.getProperty(documentSpan, LABEL_PROP);
+        String oldLabel = editLabels.getProperty(documentSpan, LABEL_PROP);
         if (oldLabel != null)
         {
             // clear the old label
-            editEnv.defineTypeInside(oldLabel, documentSpan, new BasicSpanLooper(Collections.EMPTY_SET.iterator()));
+            editLabels.defineTypeInside(oldLabel, documentSpan, new BasicSpanLooper(Collections.EMPTY_SET.iterator()));
         }
-        editEnv.setProperty(documentSpan, LABEL_PROP, type);
-        editEnv.addToType(documentSpan, type);
-        editEnv.closeTypeInside(type, documentSpan);
+        editLabels.setProperty(documentSpan, LABEL_PROP, type);
+        editLabels.addToType(documentSpan, type);
+        editLabels.closeTypeInside(type, documentSpan);
     }
 }
 

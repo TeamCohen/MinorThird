@@ -35,8 +35,8 @@ public abstract class AnnotatorTeacher
 		return learner.getAnnotator();
 	}
 
-	/** Environment available for training, testing */
-	abstract public TextEnv availableEnvironment();
+	/** Labels available for training, testing */
+	abstract public TextLabels availableLabels();
 
 	/** Unlabeled instances. */
 	abstract public Span.Looper documentPool();

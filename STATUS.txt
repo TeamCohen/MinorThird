@@ -22,7 +22,7 @@ SMALL TO DO:
    - it's hard to load files properly from a jar; should let MixupProgram take streams, and let library-loading
       routines work off the classpath using { InputStream s = ClassLoader.getSystemResourceAsStream("foo.txt");
      LineNumberReader r = new LineNumberReader(new InputStreamReader(s)) }
-   - get rid of (env, base) pairs
+   - get rid of (labels, base) pairs
    - maxent - stanford or openNLP? 
    - fix smoothing in logistic regression
    - better system.out i/o for ProgressCounter
@@ -147,7 +147,7 @@ RECENT CHANGES:
   - decision trees - numeric features
   - refactored the Examples/BinaryExamples/KWayExamples to move
   more functionality into the Example level
-  - clean up annotator learner - should have access to an environment, which is used in
+  - clean up annotator learner - should have access to labels, which is used in
    training (for FE) and assumed to exist at test time.
   - set up test cases for classifiers and TestPackage
   - splitters are type-safe

@@ -270,7 +270,7 @@ public class POSTagger extends StringAnnotator
     return XMLTagged.toString();
   }
 
-  public String explainAnnotation(edu.cmu.minorthird.text.TextEnv Env, edu.cmu.minorthird.text.Span documentSpan)
+  public String explainAnnotation(edu.cmu.minorthird.text.TextLabels labels, edu.cmu.minorthird.text.Span documentSpan)
   {
     return "no idea";
   }

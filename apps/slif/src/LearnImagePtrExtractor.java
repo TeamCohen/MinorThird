@@ -36,8 +36,8 @@ public class LearnImagePtrExtractor
 		public Instance extractInstance(Span s)	{
 			throw new UnsupportedOperationException("can't!");
 		}
-		public Instance extractInstance(TextEnv env, Span s)	{
-			FeatureBuffer buf = new FeatureBuffer(env,s);
+		public Instance extractInstance(TextLabels labels, Span s)	{
+			FeatureBuffer buf = new FeatureBuffer(labels,s);
 			SpanFE.from(s,buf).tokens().emit(); 
 			for (int i=0; i<windowSize; i++) {
 				SpanFE.from(s,buf).tokens().emit();
@@ -64,24 +64,24 @@ public class LearnImagePtrExtractor
 		return "predicted"+className.substring(0,1).toUpperCase()+className.substring(1);
 	}
 
-	/** Load the initial (labeled) environment */
-	static public MutableTextEnv loadEnv() throws IOException,Mixup.ParseException
+	/** Load the initial labels */
+	static public MutableTextLabels loadLabels() throws IOException,Mixup.ParseException
 	{
 		// load the data and labels
 		TextBase base = new BasicTextBase();
 		TextBaseLoader bloader = new TextBaseLoader();
 		bloader.setFirstWordIsDocumentId(true);
 		bloader.loadLines(base,new File("data/captions/lines.txt"));
-		TextEnvLoader eloader = new TextEnvLoader();
-		MutableTextEnv env = eloader.loadOps(base,new File("labels/imgptr.env"));
-		return env;
+		TextLabelsLoader eloader = new TextLabelsLoader();
+		MutableTextLabels labels = eloader.loadOps(base,new File("labels/imgptr.env"));
+		return labels;
 	}
 
 	static public void main(String argv[]) throws IOException,Mixup.ParseException
 	{
-		// load the environment and compute the features
-		MutableTextEnv env = loadEnv();
-		featureProgram.eval(env,env.getTextBase());
+		// load the labels and compute the features
+		MutableTextLabels labels = loadLabels();
+		featureProgram.eval(labels,labels.getTextBase());
 
 		if (argv.length>0 && "-expt".equals(argv[0])) {
 			String className = argv.length>=2 ? argv[1] : "regional";
@@ -89,16 +89,16 @@ public class LearnImagePtrExtractor
 			BinaryClassifierLearner learner = (BinaryClassifierLearner)Expt.toLearner(learnerName);
 			AnnotatorLearner annnotatorLearner = makeAnnotatorLearner(learner);
 			String predClassName = predictedClassName(className);
-			TextEnvExpt expt = new TextEnvExpt(env,new CrossValSplitter(10), annnotatorLearner, className, predClassName);
+			TextLabelsExperiment expt = new TextLabelsExperiment(labels,new CrossValSplitter(10), annnotatorLearner, className, predClassName);
 			expt.doExperiment();
-			TextBaseViewer.view( expt.getTestEnv() );
+			TextBaseViewer.view( expt.getTestLabels() );
 		} else if (argv.length>0 && "-save".equals(argv[0])) {
 			String[] classNames = new String[] { "regional","local" };
 			for (int i=0; i<classNames.length; i++) {
 				System.out.println("Training classifier for "+classNames[i]+" imgptrs");
 				BinaryClassifierLearner learner = new AdaBoost();
 				BatchFilteredFinderLearner annotatorLearner = makeAnnotatorLearner(learner);
-				new TextEnvAnnotatorTeacher(env,classNames[i]).train(annotatorLearner);				
+				new TextLabelsAnnotatorTeacher(labels,classNames[i]).train(annotatorLearner);
 				Classifier classifier = annotatorLearner.getClassifier();
 				IOUtil.saveSerialized((Serializable)classifier,new File("lib/"+classNames[i]+"Filter.ser"));
 			}

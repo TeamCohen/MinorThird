@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Modify a textEnv using a series of mixup expressions.
+/** Modify a textlabeling using a series of mixup expressions.
 
 <pre>
 BNF:
@@ -88,11 +88,11 @@ public class MixupProgram
 		addStatements( buf.toString() );
 	}
 
-	/** Evaluate the program against an existing environment. */
-	public void eval(MonotonicTextEnv env,TextBase textBase) {
+	/** Evaluate the program against an existing labels. */
+	public void eval(MonotonicTextLabels labels,TextBase textBase) {
 		ProgressCounter pc = new ProgressCounter("mixup program","statement",statementList.size());
 		for (int i=0; i<statementList.size(); i++) {
-			((Statement)statementList.get(i)).eval(env,textBase);
+			((Statement)statementList.get(i)).eval(labels,textBase);
 			pc.progress();
 		}
 		pc.finished();
@@ -359,50 +359,50 @@ public class MixupProgram
 			}
 		}
 
-		public void eval(MonotonicTextEnv env,TextBase textBase) {
+		public void eval(MonotonicTextLabels labels,TextBase textBase) {
 			log.info("Evaluating: "+this);
 			long start = System.currentTimeMillis();
 			if ("defDict".equals(keyword)) {
-				env.defineDictionary( type, wordSet );
+				labels.defineDictionary( type, wordSet );
 			} else if ("declareSpanType".equals(keyword)) {
-				env.declareType( type );
+				labels.declareType( type );
 			} else if (statementType==PROVIDE) {
-				env.setAnnotatedBy(annotationType);
+				labels.setAnnotatedBy(annotationType);
 			} else if (statementType==REQUIRE) {
-				if (!env.isAnnotatedBy(annotationType)) {
-          Dependencies.runDependency(env, annotationType, fileToLoad);
+				if (!labels.isAnnotatedBy(annotationType)) {
+          Dependencies.runDependency(labels, annotationType, fileToLoad);
         }
 			} else {
 				Span.Looper input = null;
 				if ("top".equals(startType)) {
 					input = textBase.documentSpanIterator();
-				} else if (env.isType(startType)) {
-					input = env.instanceIterator(startType);
+				} else if (labels.isType(startType)) {
+					input = labels.instanceIterator(startType);
 				} else {
 					throw new IllegalStateException("no type '"+startType+"' defined");
 				}
 				if (statementType==MIXUP) {
-					for (Span.Looper i=mixupExpr.extract(env,input); i.hasNext(); ) {
+					for (Span.Looper i=mixupExpr.extract(labels,input); i.hasNext(); ) {
 						Span span = i.nextSpan();
-						extendEnv( env, span );
+						extendLabels( labels, span );
 					}
 				} else if (statementType==FILTER) {
 					TreeSet accum = new TreeSet();
 					for (Span.Looper i=input; i.hasNext(); ) {
 						Span span = i.nextSpan();
-						if (!hasExtraction(mixupExpr,env,span)) {
+						if (!hasExtraction(mixupExpr,labels,span)) {
 							accum.add( span );
 						}
 					}
 					for (Iterator i=accum.iterator(); i.hasNext(); ) {
-						extendEnv( env, ((Span)i.next()) );
+						extendLabels( labels, ((Span)i.next()) );
 					}
 				} else if (statementType==TRIE) {
 					while (input.hasNext()) {
 						Span span = input.nextSpan();
 						Span.Looper output = trie.lookup( span );
 						while (output.hasNext()) {
-							extendEnv( env, output.nextSpan() );
+							extendLabels( labels, output.nextSpan() );
 						}
 					}
 				} else if (statementType==REGEX) {
@@ -411,8 +411,8 @@ public class MixupProgram
 						Span span = input.nextSpan();
 						Matcher matcher = pattern.matcher( span.asString() );
 						while (matcher.find()) {
-							extendEnv(
-								env, 
+							extendLabels(
+								labels,
 								span.charIndexProperSubSpan( matcher.start(regexGroup),matcher.end(regexGroup)));
 						}
 					}
@@ -426,20 +426,20 @@ public class MixupProgram
 
 
     // subroutine of eval - check if a mixup expression matches
-		private boolean hasExtraction(final Mixup mixupExpr,final TextEnv env,final Span span) {
+		private boolean hasExtraction(final Mixup mixupExpr,final TextLabels labels,final Span span) {
 			Span.Looper input = new BasicSpanLooper(Collections.singleton(span));
-			Span.Looper output = mixupExpr.extract(env,input);
+			Span.Looper output = mixupExpr.extract(labels,input);
 			return output.hasNext();
 		}
 		// subroutine of eval - label the span  
-		private void extendEnv(MonotonicTextEnv env,Span span) {
-			if ("defSpanType".equals(keyword)) env.addToType(span,type);
-			else if ("defSpanProp".equals(keyword)) env.setProperty(span,property,value);
+		private void extendLabels(MonotonicTextLabels labels,Span span) {
+			if ("defSpanType".equals(keyword)) labels.addToType(span,type);
+			else if ("defSpanProp".equals(keyword)) labels.setProperty(span,property,value);
 			else if ("defTokenProp".equals(keyword)) {
 				for (int j=0; j<span.size(); j++) {
 					TextToken token = span.getTextToken(j);
 					if (property==null) throw new IllegalStateException("null property");
-					env.setProperty(token,property,value);
+					labels.setProperty(token,property,value);
 				}
 			}
 		}
@@ -542,12 +542,12 @@ public class MixupProgram
 				TextBase base = new BasicTextBase();
 				TextBaseLoader loader = new TextBaseLoader();
 				loader.loadFile(base, new File(args[1]));
-				MonotonicTextEnv env = loader.getFileMarkup();
-				program.eval(env,base);
-				for (Iterator i=env.getTypes().iterator(); i.hasNext(); ) {
+				MonotonicTextLabels labels = loader.getFileMarkup();
+				program.eval(labels,base);
+				for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
 					String type = (String)i.next();
 					System.out.println("Type "+type+":");
-					for (Span.Looper j=env.instanceIterator(type); j.hasNext(); ) {
+					for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
 						Span span = j.nextSpan();
 						System.out.println( "\t'"+span.asString()+"'" );
 					}

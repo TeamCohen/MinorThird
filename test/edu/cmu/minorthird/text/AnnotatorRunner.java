@@ -31,14 +31,14 @@ public class AnnotatorRunner
       log.fatal(e, e);
       System.exit(1);
     }
-    MutableTextEnv env = new BasicTextEnv(base);
+    MutableTextLabels labels = new BasicTextLabels(base);
 
     Annotator annotator = new SigFileAnnotator();
     // Annotator annotator = new POSTagger();
-    annotator.annotate(env);
+    annotator.annotate(labels);
 
 // output the results
-    for (Span.Looper i = env.instanceIterator("sig"); i.hasNext();)
+    for (Span.Looper i = labels.instanceIterator("sig"); i.hasNext();)
     {
       Span span = i.nextSpan();
       //System.out.println( span.asString().replace('\n',' ') );

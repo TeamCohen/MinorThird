@@ -56,8 +56,8 @@ public class SampleLearners
         public Instance extractInstance(edu.cmu.minorthird.text.Span s) {
           return extractInstance(null,s);
         }
-        public Instance extractInstance(edu.cmu.minorthird.text.TextEnv env,edu.cmu.minorthird.text.Span s) {
-          FeatureBuffer buf = new FeatureBuffer(env,s);
+        public Instance extractInstance(edu.cmu.minorthird.text.TextLabels labels,edu.cmu.minorthird.text.Span s) {
+          FeatureBuffer buf = new FeatureBuffer(labels,s);
           SpanFE.from(s,buf).tokens().emit();
           SpanFE.from(s,buf).tokens().prop("cap").emit();
           SpanFE.from(s,buf).tokens().prop("name").emit();
@@ -101,8 +101,8 @@ public class SampleLearners
         public Instance extractInstance(edu.cmu.minorthird.text.Span s) {
           return extractInstance(null,s);
         }
-        public Instance extractInstance(edu.cmu.minorthird.text.TextEnv env,edu.cmu.minorthird.text.Span s) {
-          FeatureBuffer buf = new FeatureBuffer(env,s);
+        public Instance extractInstance(edu.cmu.minorthird.text.TextLabels labels,edu.cmu.minorthird.text.Span s) {
+          FeatureBuffer buf = new FeatureBuffer(labels,s);
           SpanFE.from(s,buf).tokens().emit();
           SpanFE.from(s,buf).tokens().prop("cap").emit();
           SpanFE.from(s,buf).tokens().prop("name").emit();
@@ -127,8 +127,8 @@ public class SampleLearners
           return extractInstance(null,s);
         }
 
-        public Instance extractInstance(edu.cmu.minorthird.text.TextEnv env,edu.cmu.minorthird.text.Span s) {
-          FeatureBuffer buf = new FeatureBuffer(env,s);
+        public Instance extractInstance(edu.cmu.minorthird.text.TextLabels labels,edu.cmu.minorthird.text.Span s) {
+          FeatureBuffer buf = new FeatureBuffer(labels,s);
           SpanFE.from(s,buf).tokens().emit();
           SpanFE.from(s,buf).tokens().prop("cap").emit();
           SpanFE.from(s,buf).tokens().prop("name").emit();
@@ -152,8 +152,8 @@ public class SampleLearners
         public Instance extractInstance(edu.cmu.minorthird.text.Span s) {
           return extractInstance(null,s);
         }
-        public Instance extractInstance(edu.cmu.minorthird.text.TextEnv env,edu.cmu.minorthird.text.Span s) {
-          FeatureBuffer buf = new FeatureBuffer(env,s);
+        public Instance extractInstance(edu.cmu.minorthird.text.TextLabels labels,edu.cmu.minorthird.text.Span s) {
+          FeatureBuffer buf = new FeatureBuffer(labels,s);
           SpanFE.from(s,buf).tokens().emit();
           SpanFE.from(s,buf).tokens().prop("cap").emit();
           SpanFE.from(s,buf).tokens().prop("name").emit();

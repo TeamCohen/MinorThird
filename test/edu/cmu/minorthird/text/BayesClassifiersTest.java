@@ -72,19 +72,19 @@ public class BayesClassifiersTest extends TestCase
       File dir = new File("examples/testData.dir");
       loader.loadTaggedFiles(base, dir);
 
-// set up an environment that contains the labels
-      MutableTextEnv env = new BasicTextEnv(base);
-      new TextEnvLoader().importOps(env, base, new File("examples/testData.env"));
+// set up labels
+      MutableTextLabels labels = new BasicTextLabels(base);
+      new TextLabelsLoader().importOps(labels, base, new File("examples/testData.env"));
 
 // for verification/correction of the labels, if we care...
-//TextBaseLabeler.label( env, new File("my-document-labels.env"));
+//TextBaseLabeler.label( labels, new File("my-document-labels.env"));
 
 // set up a simple bag-of-words feature extractor
       edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe = new edu.cmu.minorthird.text.learn.SpanFeatureExtractor()
       {
-        public Instance extractInstance(TextEnv env, Span s)
+        public Instance extractInstance(TextLabels labels, Span s)
         {
-          edu.cmu.minorthird.text.learn.FeatureBuffer buf = new edu.cmu.minorthird.text.learn.FeatureBuffer(env, s);
+          edu.cmu.minorthird.text.learn.FeatureBuffer buf = new edu.cmu.minorthird.text.learn.FeatureBuffer(labels, s);
           try
           { edu.cmu.minorthird.text.learn.SpanFE.from(s, buf).tokens().eq().lc().punk().usewords("examples/t1.words.text").emit(); }
           catch (IOException e)
@@ -98,15 +98,15 @@ public class BayesClassifiersTest extends TestCase
       };
 
 // check
-      log.debug(env.getTypes().toString());
+      log.debug(labels.getTypes().toString());
 
 // create a binary dataset for the class 'rr'
       Dataset data = new BasicDataset();
       for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
       {
         Span s = i.nextSpan();
-        //System.out.println( env );
-        double label = env.hasType(s, "rr") ? +1 : -1;
+        //System.out.println( labels );
+        double label = labels.hasType(s, "rr") ? +1 : -1;
         data.add(new BinaryExample(fe.extractInstance(s), label));
         //BinaryExample example = new BinaryExample( fe.extractInstance(s), label );
         //data.add( example );

@@ -6,8 +6,8 @@ import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
 import edu.cmu.minorthird.text.BasicTextBase;
-import edu.cmu.minorthird.text.BasicTextEnv;
-import edu.cmu.minorthird.text.MutableTextEnv;
+import edu.cmu.minorthird.text.BasicTextLabels;
+import edu.cmu.minorthird.text.MutableTextLabels;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.learn.SampleFE;
 import edu.cmu.minorthird.util.IOUtil;
@@ -71,15 +71,15 @@ public class BOWClassifierWrapper
 		File file = new File("examples/webmasterDataLines.txt");
 		loader.setFirstWordIsDocumentId(true);
 		loader.loadLines(base,file);
-		MutableTextEnv env = new BasicTextEnv( base );
-		new edu.cmu.minorthird.text.TextEnvLoader().importOps(env,base,new File("examples/addChangeDelete.env"));
+		MutableTextLabels labels = new BasicTextLabels( base );
+		new edu.cmu.minorthird.text.TextLabelsLoader().importOps(labels,base,new File("examples/addChangeDelete.env"));
 
 		System.out.println("learning a test concept");
 		SpanFeatureExtractor fe = SampleFE.BAG_OF_WORDS;
 		Dataset data = new BasicDataset();
 		for (edu.cmu.minorthird.text.Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			edu.cmu.minorthird.text.Span s = i.nextSpan();
-			double label = env.hasType(s,"delete") ? +1 : -1;
+			double label = labels.hasType(s,"delete") ? +1 : -1;
 			data.add( new BinaryExample( fe.extractInstance(s), label ) );
 		}
 		ClassifierLearner learner = new AdaBoost(new BinaryBatchVersion(new NaiveBayes()), 10);

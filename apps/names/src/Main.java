@@ -23,7 +23,7 @@ public class Main
 		String 
 			command=null,
 			learnerName="new CollinsPerceptronLearner("+classWindow+","+epochs+")",
-			envKey=null,
+			labelsKey=null,
 			saveFileName=null,
 			splitterName="r50",
 			show=null;
@@ -32,7 +32,7 @@ public class Main
 			String opt = args[pos++];
 			if (opt.equals("-do")) command = args[pos++];
 			else if (opt.startsWith("-lea")) learnerName = args[pos++];
-			else if (opt.startsWith("-env")) envKey = args[pos++];
+			else if (opt.startsWith("-labels")) labelsKey = args[pos++];
 			else if (opt.startsWith("-save")) saveFileName = args[pos++];
 			else if (opt.startsWith("-split")) splitterName = args[pos++];
 			else if (opt.startsWith("-mix")) mixupFileStem = args[pos++];
@@ -41,24 +41,24 @@ public class Main
 
 		try {
 
-			System.out.println("loading environment "+envKey);
-			if (envKey==null) throw new IllegalArgumentException("-env ENV must be specified");
-			MutableTextEnv env = (MutableTextEnv)FancyLoader.loadTextEnv(envKey);
+			System.out.println("loading labels "+labelsKey);
+			if (labelsKey==null) throw new IllegalArgumentException("-labels LABELS must be specified");
+			MutableTextLabels labels = (MutableTextLabels)FancyLoader.loadTextLabels(labelsKey);
 			System.out.println("loading "+mixupFileStem+".mixup...");
 			MixupProgram program = new MixupProgram(new File(mixupFileStem+".mixup"));
-			program.eval(env, env.getTextBase());
+			program.eval(labels, labels.getTextBase());
 
 			if ("train".equals(command)) {
 				SequenceClassifierLearner learner = SequenceAnnotatorExpt.toSeqLearner(learnerName);
 				if (saveFileName==null) saveFileName = "out.ann";
-				buildAnnotator(env, learner, saveFileName);
+				buildAnnotator(labels, learner, saveFileName);
 			} else if ("test".equals(command)) {
 				if (saveFileName==null) saveFileName = "out.ann";
-				testAnnotator(env, saveFileName);
+				testAnnotator(labels, saveFileName);
 			} else if ("expt".equals(command)) {
 				SequenceClassifierLearner learner = SequenceAnnotatorExpt.toSeqLearner(learnerName);
 				Splitter splitter = Expt.toSplitter(splitterName);
-				doExpt(env, splitter, learner, saveFileName, "all".equals(show));
+				doExpt(labels, splitter, learner, saveFileName, "all".equals(show));
 			} else {
 				throw new IllegalArgumentException("unknown command '"+command+"'");
 			}
@@ -66,18 +66,18 @@ public class Main
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println(
-				"usage: -do train -env KEY -mixup FILESTEM -learner LEARNER -save FILE");
+				"usage: -do train -labels KEY -mixup FILESTEM -learner LEARNER -save FILE");
 			System.out.println(
-				"       -do test -env KEY -mixup FILESTEM -save FILE");
+				"       -do test -labels KEY -mixup FILESTEM -save FILE");
 			System.out.println(
-				"       -do expt -env KEY -mixup FILESTEM -learner LEARNER -splitter SPLIT -save FILE [-show all]");
+				"       -do expt -labels KEY -mixup FILESTEM -learner LEARNER -splitter SPLIT -save FILE [-show all]");
 		}
 
 	}
 
 	/* do a train/test experiment */
 	public static void doExpt(
-		MutableTextEnv env,
+		MutableTextLabels labels,
 		Splitter splitter, 
 		SequenceClassifierLearner learner,
 		String outputFile,
@@ -85,8 +85,8 @@ public class Main
 	{
 		try {
 
-			AnnotatorTeacher teacher = new TextEnvAnnotatorTeacher(env,"true_name");
-			SpanFeatureExtractor fe = fe(env);
+			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_name");
+			SpanFeatureExtractor fe = fe(labels);
 
 			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(fe,classWindow) {
 					public Annotator getAnnotator() { return null; }
@@ -123,10 +123,10 @@ public class Main
 		
 	}
 
-	public static SpanFeatureExtractor fe(TextEnv env)
+	public static SpanFeatureExtractor fe(TextLabels labels)
 	{
 		NameFE fe = new NameFE(); 
-		Set props = env.getTokenProperties();
+		Set props = labels.getTokenProperties();
 		System.out.println("props: "+props);
 		fe.setWindowSize(featureWindow);
 		fe.setTokenPropertyFeatures( props );
@@ -136,11 +136,11 @@ public class Main
 	}
 
 	/* train and save an annotator */
-	public static void buildAnnotator(MutableTextEnv env,SequenceClassifierLearner learner,String outputFile)
+	public static void buildAnnotator(MutableTextLabels labels,SequenceClassifierLearner learner,String outputFile)
 	{
 		try {
-			AnnotatorTeacher teacher = new TextEnvAnnotatorTeacher(env,"true_name");
-			SpanFeatureExtractor fe = fe(env);
+			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_name");
+			SpanFeatureExtractor fe = fe(labels);
 
 			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(fe,classWindow) {
 					public Annotator getAnnotator() { return null; }
@@ -161,12 +161,12 @@ public class Main
 	}
 
 	/* load and use an annotator */
-	public static void testAnnotator(MutableTextEnv env,String inFile)
+	public static void testAnnotator(MutableTextLabels labels,String inFile)
 	{
 		try {
 			Annotator annotator = (Annotator)IOUtil.loadSerialized(new File(inFile));
-			annotator.annotate(env);
-			TextBaseEditor.edit(env,new File("myCorrections.env"));
+			annotator.annotate(labels);
+			TextBaseEditor.edit(labels,new File("myCorrections.env"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -178,14 +178,14 @@ public class Main
 	public static void printAllWords()
 	{
 		try {
-			MutableTextEnv env = (MutableTextEnv) FancyLoader.loadTextEnv("cspace.bsh");
+			MutableTextLabels labels = (MutableTextLabels) FancyLoader.loadTextLabels("cspace.bsh");
 			MixupProgram prog = new MixupProgram(new String[]{"defTokenProp inTrueName:t =top: ... [@true_name] ..."});
-			prog.eval(env,env.getTextBase());
-			for (Span.Looper i=env.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+			prog.eval(labels,labels.getTextBase());
+			for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span s = i.nextSpan(); 
 				for (int j=0; j<s.size(); j++) {
 					Token t = s.getToken(j);
-					String tag = (env.getProperty(t,"inTrueName")!=null) ? "name" : "word";
+					String tag = (labels.getProperty(t,"inTrueName")!=null) ? "name" : "word";
 					System.out.println(tag + " " +t.getValue());
 				}
 			}

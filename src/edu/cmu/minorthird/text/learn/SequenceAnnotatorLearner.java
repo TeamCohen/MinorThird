@@ -61,19 +61,19 @@ public abstract class SequenceAnnotatorLearner implements AnnotatorLearner
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery)
 	{
-		TextEnv answerEnv = answeredQuery.labelTokensInsideOutside("insideOutside");
+		TextLabels answerLabels = answeredQuery.labelTokensInsideOutside("insideOutside");
 		Span document = answeredQuery.getDocumentSpan();
 		Example[] sequence = new Example[document.size()];
 		for (int i=0; i<document.size(); i++) {
 			Token tok = document.getToken(i);
-			String value = answerEnv.getProperty(tok,"insideOutside");
+			String value = answerLabels.getProperty(tok,"insideOutside");
 			if (AnnotationExample.INSIDE.equals(value)) {
 				Span tokenSpan = document.subSpan(i,1);
-				BinaryExample example = new BinaryExample( fe.extractInstance(answerEnv,tokenSpan), INSIDE_LABEL);
+				BinaryExample example = new BinaryExample( fe.extractInstance(answerLabels,tokenSpan), INSIDE_LABEL);
 				sequence[i] = example;
 			} else if (AnnotationExample.OUTSIDE.equals( value )) {
 				Span tokenSpan = document.subSpan(i,1);
-				BinaryExample example = new BinaryExample( fe.extractInstance(answerEnv,tokenSpan), OUTSIDE_LABEL);
+				BinaryExample example = new BinaryExample( fe.extractInstance(answerLabels,tokenSpan), OUTSIDE_LABEL);
 				sequence[i] = example;
 			} else {
 				log.warn("some tokens not labeled in "+document.getDocumentId());
@@ -116,33 +116,33 @@ public abstract class SequenceAnnotatorLearner implements AnnotatorLearner
 			this.annotationType = annotationType;
 		}
 
-		protected void doAnnotate(MonotonicTextEnv env)
+		protected void doAnnotate(MonotonicTextLabels labels)
 		{
-			Span.Looper i = env.getTextBase().documentSpanIterator();
+			Span.Looper i = labels.getTextBase().documentSpanIterator();
 			ProgressCounter pc = new ProgressCounter("annotating", "document", i.estimatedSize() );
 			while (i.hasNext() ) {
 				Span s = i.nextSpan();
 				Instance[] sequence = new Instance[s.size()];
 				for (int j=0; j<s.size(); j++) {
 					Span tokenSpan = s.subSpan(j,1);
-					sequence[j] = fe.extractInstance(env,tokenSpan);
+					sequence[j] = fe.extractInstance(labels,tokenSpan);
 				}
-				ClassLabel[] labels = seqClassifier.classification( sequence );
-				for (int j=0; j<labels.length; j++) {
-					boolean inside = labels[j].isPositive();
-					env.setProperty( s.getToken(j), "insideOutside", (inside?"inside":"outside") );
+				ClassLabel[] classLabels = seqClassifier.classification( sequence );
+				for (int j=0; j<classLabels.length; j++) {
+					boolean inside = classLabels[j].isPositive();
+					labels.setProperty( s.getToken(j), "insideOutside", (inside?"inside":"outside") );
 					if (inside) log.debug("inside: '"+s.getToken(j).getValue()+"'");
 				}
 				pc.progress();
 			}
-			for (Span.Looper j=mergeExpr.extract(env, env.getTextBase().documentSpanIterator()); j.hasNext(); ) {
+			for (Span.Looper j=mergeExpr.extract(labels, labels.getTextBase().documentSpanIterator()); j.hasNext(); ) {
 				Span s = j.nextSpan();
-				env.addToType( s, annotationType );
+				labels.addToType( s, annotationType );
 				log.info(annotationType+": '"+s.asString()+"'");
 			}
 			pc.finished();
 		}
-		public String explainAnnotation(TextEnv env,Span documentSpan)
+		public String explainAnnotation(TextLabels labels,Span documentSpan)
 		{
 			return "not implemented";
 		}

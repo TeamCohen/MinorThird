@@ -2,7 +2,7 @@ package edu.cmu.minorthird.text.gui;
 
 import edu.cmu.minorthird.text.FancyLoader;
 import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextEnv;
+import edu.cmu.minorthird.text.TextLabels;
 import edu.cmu.minorthird.util.gui.ComponentViewer;
 import edu.cmu.minorthird.util.gui.SplitViewer;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
@@ -22,15 +22,15 @@ import java.util.ArrayList;
 
 public class SpanLooperViewer extends ComponentViewer
 {
-	private TextEnv env;
+	private TextLabels labels;
 	private Span[] spans;
 	private SpanViewer.TextViewer[] viewers=null;
 	private JList jlist;
 
-	public SpanLooperViewer(TextEnv env,Span.Looper i)
+	public SpanLooperViewer(TextLabels labels,Span.Looper i)
 	{
 		super();
-		this.env = env;
+		this.labels = labels;
 		setContent(i);
 	}
 	public void applyMarkup(MarkupPlan plan)
@@ -53,7 +53,7 @@ public class SpanLooperViewer extends ComponentViewer
 		viewers = new SpanViewer.TextViewer[tmp.size()];
 		for (int j=0; j<tmp.size(); j++) {
 			spans[j] = (Span)tmp.get(j);
-			viewers[j] = new SpanViewer.TextViewer(env,(Span)tmp.get(j));
+			viewers[j] = new SpanViewer.TextViewer(labels,(Span)tmp.get(j));
 			viewers[j].setContent(spans[j]);
 		}
 		jlist = new JList(spans);
@@ -71,18 +71,18 @@ public class SpanLooperViewer extends ComponentViewer
 	public static void main(String[] argv)
 	{
 		try {
-			final TextEnv env = FancyLoader.loadTextEnv(argv[0]);
+			final TextLabels labels = FancyLoader.loadTextLabels(argv[0]);
 			SpanLooperViewer sv;
 			if (argv.length==1) {
-				sv = new SpanLooperViewer(env,env.getTextBase().documentSpanIterator());
+				sv = new SpanLooperViewer(labels,labels.getTextBase().documentSpanIterator());
 			} else {
-				sv = new SpanLooperViewer(env,env.instanceIterator(argv[1]));				
+				sv = new SpanLooperViewer(labels,labels.instanceIterator(argv[1]));
 			}
-			MarkupPlan mp = new MarkupPlan(env);
+			MarkupPlan mp = new MarkupPlan(labels);
 			SplitViewer v = new SplitViewer(sv,mp.toGUI()) {
 					public void receiveContent(Object content) {
 						viewer1.setContent((Span)content);
-						viewer2.setContent(new MarkupPlan(env));
+						viewer2.setContent(new MarkupPlan(labels));
 					}
 					public boolean canReceive(Object content)	{
 						return (content instanceof Span);
@@ -98,7 +98,7 @@ public class SpanLooperViewer extends ComponentViewer
 			ViewerFrame f = new ViewerFrame("SpanLooperViewer", v);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("usage: envKey [spanType]");
+			System.out.println("usage: labelKey [spanType]");
 		}
 	}
 }

@@ -29,35 +29,35 @@ public class SampleTextBases {
 	};
 	
 	static private TextBase base;
-	static private MutableTextEnv truthEnv;
-	static private MonotonicTextEnv guessEnv;
+	static private MutableTextLabels truthLabels;
+	static private MonotonicTextLabels guessLabels;
 	static {
 		try {
 			base = new BasicTextBase();
 			for (int i=0; i<testStrings.length; i++) {
 				base.loadDocument("testStrings["+i+"]", testStrings[i]);
 			}
-			truthEnv = new BasicTextEnv(base);
+			truthLabels = new BasicTextLabels(base);
 			MixupProgram prog = new MixupProgram(testProgram);
-			prog.eval(truthEnv, base);
-			guessEnv = new NestedTextEnv( truthEnv );
+			prog.eval(truthLabels, base);
+			guessLabels = new NestedTextLabels( truthLabels );
 			MixupProgram guessProg = new MixupProgram(
 				new String[] { "defSpanType guess =: [ any{2} ] ..." });
-			guessProg.eval(guessEnv, base);
+			guessProg.eval(guessLabels, base);
 		} catch (Mixup.ParseException e) {
 			e.printStackTrace();
 		}
 	}
 
 	static public TextBase getTextBase() { return base; }
-	static public MutableTextEnv getTruthEnv() { return truthEnv; }
-	static public MonotonicTextEnv getGuessEnv() { return guessEnv; }
+	static public MutableTextLabels getTruthLabels() { return truthLabels; }
+	static public MonotonicTextLabels getGuessLabels() { return guessLabels; }
 
-	static public void showEnv(TextEnv env) {
-		System.out.println("env has "+env.getTypes().size()+" types");
-		for (Iterator i = env.getTypes().iterator(); i.hasNext(); ) {
+	static public void showLabels(TextLabels labels) {
+		System.out.println("labels has "+labels.getTypes().size()+" types");
+		for (Iterator i = labels.getTypes().iterator(); i.hasNext(); ) {
 			String type = (String)i.next();
-			for (Span.Looper j = env.instanceIterator(type); j.hasNext(); ) {
+			for (Span.Looper j = labels.instanceIterator(type); j.hasNext(); ) {
 				System.out.println(type+": "+j.nextSpan());
 			}
 		}

@@ -19,41 +19,33 @@ public class AnnotationExample
 	private String inputSpanProp;
 
 	private Span document;
-	private TextEnv env;
+	private TextLabels labels;
 
 	/** 
 	 * @param document give feedback to learner about this document
-	 * @param env feedback information is in this env
+	 * @param labels feedback information is in these labels
 	 * @param inputSpanType learner will learn how to extract spans of this type
 	 * @param inputSpanProp learner will classify extracted spans according to this type
 	 */
-	public AnnotationExample(Span document,TextEnv env,String inputSpanType,String inputSpanProp)
+	public AnnotationExample(Span document,TextLabels labels,String inputSpanType,String inputSpanProp)
 	{
 		this.document = document;
-		this.env = env;
+		this.labels = labels;
 		this.inputSpanType = inputSpanType;
 		this.inputSpanProp = inputSpanProp;
 	}
 
 	public Span getDocumentSpan()
-	{
-		return document;
-	}
+	{ return document; }
 
-	public TextEnv getEnv()
-	{
-		return env;
-	}
+	public TextLabels getLabels()
+	{ return labels; }
 
 	public String getInputType()
-	{
-		return inputSpanType;
-	}
+	{ return inputSpanType; }
 
 	public String getInputProp()
-	{
-		return inputSpanProp;
-	}
+	{ return inputSpanProp; }
 
 	public String toString() {
 		return "[AnnEx: document="+document+"]";
@@ -62,18 +54,18 @@ public class AnnotationExample
 	//
 	// convenience methods
 	//
-	public TextEnv labelTokensInsideOutside(String prop)
+	public TextLabels labelTokensInsideOutside(String prop)
 	{
-		MonotonicTextEnv result = new NestedTextEnv(env);
+		MonotonicTextLabels result = new NestedTextLabels(labels);
 		String documentId = document.getDocumentId();
 		labelTokens(result,result.closureIterator(inputSpanType,documentId),prop,OUTSIDE);
 		labelTokens(result,result.instanceIterator(inputSpanType,documentId),prop,INSIDE);
 		return result;
 	}
 
-	public TextEnv labelTokensStartEnd(String prop)
+	public TextLabels labelTokensStartEnd(String prop)
 	{
-		MonotonicTextEnv result = new NestedTextEnv(env);
+		MonotonicTextLabels result = new NestedTextLabels(labels);
 		String documentId = document.getDocumentId();
 		labelTokens(result,result.closureIterator(inputSpanType,documentId),prop,NOT_START_OR_END);
 		for (Span.Looper i=result.instanceIterator(inputSpanType,documentId); i.hasNext(); ) {
@@ -86,12 +78,12 @@ public class AnnotationExample
 		return result;
 	}
 
-	private void labelTokens(MonotonicTextEnv env,Span.Looper i,String prop,String value)
+	private void labelTokens(MonotonicTextLabels labels,Span.Looper i,String prop,String value)
 	{
 		while (i.hasNext()) {
 			Span s = i.nextSpan();
 			for (int j=0; j<s.size(); j++) {
-				env.setProperty( s.getToken(j), prop, value);
+				labels.setProperty( s.getToken(j), prop, value);
 			}
 		}
 	}

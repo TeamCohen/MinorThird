@@ -7,13 +7,13 @@ import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.text.Annotator;
 import edu.cmu.minorthird.text.FancyLoader;
-import edu.cmu.minorthird.text.TextEnv;
+import edu.cmu.minorthird.text.TextLabels;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
 
-/** Run an annotation-learning experiment based on a pre-labeled text
- * environment, using a sequence learning method, and showing the
+/** Run an annotation-learning experiment based on pre-labeled text
+ * , using a sequence learning method, and showing the
  * result of evaluation of the sequence-classification level.
  *
  * @author William Cohen
@@ -21,28 +21,28 @@ import edu.cmu.minorthird.util.gui.Visible;
 
 public class SequenceAnnotatorExpt
 {
-	private TextEnv env;
+	private TextLabels labels;
 	private Splitter splitter;
 	private SequenceClassifierLearner learner;
 	private String inputLabel;
 	private String tokPropFeats;
 	private SequenceDataset sequenceDataset;
 
-	public SequenceAnnotatorExpt(TextEnv env,Splitter splitter,SequenceClassifierLearner learner,String inputLabel)
+	public SequenceAnnotatorExpt(TextLabels labels,Splitter splitter,SequenceClassifierLearner learner,String inputLabel)
 	{
-		this(env,splitter,learner,inputLabel,null);
+		this(labels,splitter,learner,inputLabel,null);
 	}
 
 	public 
 	SequenceAnnotatorExpt(
-		TextEnv env,Splitter splitter,SequenceClassifierLearner learner,String inputLabel,String tokPropFeats)
+		TextLabels labels,Splitter splitter,SequenceClassifierLearner learner,String inputLabel,String tokPropFeats)
 	{
-		this.env = env;
+		this.labels = labels;
 		this.splitter = splitter;
 		this.learner = learner;
 		this.inputLabel = inputLabel;
 		this.tokPropFeats = tokPropFeats;
-		AnnotatorTeacher teacher = new TextEnvAnnotatorTeacher(env,inputLabel);
+		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,inputLabel);
 		SampleFE.ExtractionFE fe = new SampleFE.ExtractionFE(3);
 		if (tokPropFeats!=null) fe.setTokenPropertyFeatures(tokPropFeats);
 		SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(fe,3) {
@@ -82,7 +82,7 @@ public class SequenceAnnotatorExpt
 
 	public static void main(String[] args) 
 	{
-		TextEnv env=null;
+		TextLabels labels=null;
 		Splitter splitter=new RandomSplitter();
 		SequenceClassifierLearner learner=null;
 		String inputLabel=null;
@@ -92,11 +92,11 @@ public class SequenceAnnotatorExpt
 			int pos = 0;
 			while (pos<args.length) {
 				String opt = args[pos++];
-				if (opt.startsWith("-e")) {
-					env = FancyLoader.loadTextEnv(args[pos++]);
+				if (opt.startsWith("-lab")) {
+					labels = FancyLoader.loadTextLabels(args[pos++]);
 				} else if (opt.startsWith("-sp")) {
 					splitter = Expt.toSplitter(args[pos++]);
-				} else if (opt.startsWith("-l")) {
+				} else if (opt.startsWith("-lea")) {
 					learner = toSeqLearner(args[pos++]);
 				} else if (opt.startsWith("-i")) {
 					inputLabel = args[pos++];
@@ -108,8 +108,8 @@ public class SequenceAnnotatorExpt
 					usage();
 				}
 			}
-			if (env==null || learner==null || splitter==null|| inputLabel==null) usage();
-			SequenceAnnotatorExpt expt = new SequenceAnnotatorExpt(env,splitter,learner,inputLabel,tokPropFeats);
+			if (labels==null || learner==null || splitter==null|| inputLabel==null) usage();
+			SequenceAnnotatorExpt expt = new SequenceAnnotatorExpt(labels,splitter,learner,inputLabel,tokPropFeats);
 			Visible v = null; 
 			if (toShow.startsWith("ev")) v = expt.evaluation();
 			else if (toShow.startsWith("all")) v = expt.crossValidatedDataset();
@@ -121,7 +121,7 @@ public class SequenceAnnotatorExpt
 		}
 	}
 	private static void usage() {
-		System.out.println("usage: -env envKey -learn learner -input inputLabel -split splitter -show all|eval");
+		System.out.println("usage: -labels labelsKey -learn learner -input inputLabel -split splitter -show all|eval");
 	}
 }
 

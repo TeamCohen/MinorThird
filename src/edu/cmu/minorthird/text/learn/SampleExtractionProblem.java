@@ -46,17 +46,17 @@ public class SampleExtractionProblem
 		                         +"Carmen Sandiego,George Bush,Curious George,George Mason"
 	};
 	
-	static public TextEnv trainEnv() {
+	static public TextLabels trainLabels() {
 		try {
       BasicTextBase base = trainBase();
-      BasicTextEnv env = new BasicTextEnv(base);
+      BasicTextLabels labels = new BasicTextLabels(base);
 			MixupProgram prog = new MixupProgram(labelingProgram);
-			prog.eval(env, base);
+			prog.eval(labels, base);
 			for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-				env.closeTypeInside( LABEL, i.nextSpan() );
+				labels.closeTypeInside( LABEL, i.nextSpan() );
 			}
-			new TextEnvLoader().closeEnvironment(env,TextEnvLoader.CLOSE_ALL_TYPES);
-			return env;
+			new TextLabelsLoader().closeLabels(labels,TextLabelsLoader.CLOSE_ALL_TYPES);
+			return labels;
 		} catch (Mixup.ParseException e) {
 			throw new IllegalStateException("error: "+e);
 		}
@@ -71,14 +71,14 @@ public class SampleExtractionProblem
     return base;
   }
 
-  static public TextEnv testEnv() {
+  static public TextLabels testLabels() {
 		try {
       BasicTextBase base = testBase();
-      BasicTextEnv env = new BasicTextEnv(base);
+      BasicTextLabels labels = new BasicTextLabels(base);
 			MixupProgram prog = new MixupProgram(labelingProgram);
-			prog.eval(env, base);
-			new TextEnvLoader().closeEnvironment(env,TextEnvLoader.CLOSE_ALL_TYPES);
-			return env;
+			prog.eval(labels, base);
+			new TextLabelsLoader().closeLabels(labels,TextLabelsLoader.CLOSE_ALL_TYPES);
+			return labels;
 		} catch (Mixup.ParseException e) {
 			throw new IllegalStateException("error: "+e);
 		}
@@ -96,8 +96,8 @@ public class SampleExtractionProblem
   public static void main(String[] args)
 	{
 		try {
-			TextEnv trainEnv = trainEnv();
-			AnnotatorTeacher annotatorTeacher = new TextEnvAnnotatorTeacher( trainEnv, LABEL );
+			TextLabels trainLabels = trainLabels();
+			AnnotatorTeacher annotatorTeacher = new TextLabelsAnnotatorTeacher( trainLabels, LABEL );
 			//AnnotatorLearner annotatorLearner = FancyLoader.loadAnnotatorLearner( args[0] );
 			AnnotatorLearner annotatorLearner = 
 				new CMMAnnotatorLearner( SampleFE.makeExtractionFE(2), Expt.toLearner(args[0]), 2); 
@@ -105,22 +105,22 @@ public class SampleExtractionProblem
 			Annotator learnedAnnotator = annotatorTeacher.train( annotatorLearner );
 			System.out.println("Learned concept: "+learnedAnnotator);
 			System.out.println("Viewing annotated training text base...");
-			TextEnv trainEnv1 = learnedAnnotator.annotatedCopy( trainEnv );
-			//System.out.println( trainEnv1 );
-			TextBaseViewer.view( trainEnv1 );
-			for (Span.Looper i=trainEnv1.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+			TextLabels trainLabels1 = learnedAnnotator.annotatedCopy( trainLabels );
+			//System.out.println( trainLabels1 );
+			TextBaseViewer.view( trainLabels1 );
+			for (Span.Looper i=trainLabels1.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span s = i.nextSpan();
 				log.debug("extraction from train doc "+s+":\n" 
-									+ learnedAnnotator.explainAnnotation( trainEnv1, s ));
+									+ learnedAnnotator.explainAnnotation( trainLabels1, s ));
 			}
 			System.out.println("Viewing annotated test text base...");
-			TextEnv testEnv1 = learnedAnnotator.annotatedCopy( testEnv() );
-			for (Span.Looper i=testEnv1.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+			TextLabels testLabels1 = learnedAnnotator.annotatedCopy( testLabels() );
+			for (Span.Looper i=testLabels1.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span s = i.nextSpan();
 				log.debug("extraction from test doc "+s+":\n" 
-									+ learnedAnnotator.explainAnnotation( testEnv1, s ));
+									+ learnedAnnotator.explainAnnotation( testLabels1, s ));
 			}
-			TextBaseViewer.view( testEnv1 );
+			TextBaseViewer.view( testLabels1 );
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("usage: annotator-learner");

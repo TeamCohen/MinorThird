@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 
-/** Interactively edit the contents of a TextBase and MutableTextEnv.
+/** Interactively edit the contents of a TextBase and MutableTextLabels.
  *
  * @author William Cohen
  */
@@ -27,7 +27,7 @@ public class TextBaseEditor extends TrackedTextBaseComponent
         log.debug("construct");
         try
         {
-            setEnvironment(args);
+            setLabels(args);
         }
         catch (IOException e)
         {
@@ -37,22 +37,22 @@ public class TextBaseEditor extends TrackedTextBaseComponent
 
     public TextBaseEditor(
             TextBase base,
-            TextEnv viewEnv, // seen in viewer
-            MutableTextEnv editEnv, // changed in editor
+            TextLabels viewLabels, // seen in viewer
+            MutableTextLabels editLabels, // changed in editor
             StatusMessage statusMsg,
             boolean readOnly)
     {
-//        super(base, viewEnv, editEnv, statusMsg);
-        init(base, viewEnv, statusMsg, editEnv, readOnly);
+//        super(base, viewLabels, editLabels, statusMsg);
+        init(base, viewLabels, statusMsg, editLabels, readOnly);
 
     }
 
-    private void init(TextBase base, TextEnv viewEnv, StatusMessage statusMsg, MutableTextEnv editEnv, boolean readOnly)
+    private void init(TextBase base, TextLabels viewLabels, StatusMessage statusMsg, MutableTextLabels editLabels, boolean readOnly)
     {
-        super.init(base, viewEnv,  editEnv, statusMsg);
-        viewer = new TextBaseViewer(base, viewEnv, statusMsg);
+        super.init(base, viewLabels,  editLabels, statusMsg);
+        viewer = new TextBaseViewer(base, viewLabels, statusMsg);
 
-        createSpanEditor(viewEnv, editEnv, statusMsg);
+        createSpanEditor(viewLabels, editLabels, statusMsg);
         spanEditor = (SpanEditor) viewerTracker;
 
         viewer.getTruthBox().addActionListener(
@@ -64,9 +64,9 @@ public class TextBaseEditor extends TrackedTextBaseComponent
         initializeLayout();
     }
 
-    protected void createSpanEditor(TextEnv viewEnv, MutableTextEnv editEnv, StatusMessage statusMsg)
+    protected void createSpanEditor(TextLabels viewLabels, MutableTextLabels editLabels, StatusMessage statusMsg)
     {
-        viewerTracker = new SpanEditor(viewEnv, editEnv, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
+        viewerTracker = new SpanEditor(viewLabels, editLabels, viewer.getDocumentList(), viewer.getSpanPainter(), statusMsg);
     }
 
     /** Change the type of span being edited. */
@@ -93,14 +93,14 @@ public class TextBaseEditor extends TrackedTextBaseComponent
         }
     }
 
-    /** Pop up a frame for editing the environment. */
-    public static TextBaseEditor edit(MutableTextEnv env, File file)
+    /** Pop up a frame for editing the labels. */
+    public static TextBaseEditor edit(MutableTextLabels labels, File file)
     {
 //        JFrame frame = new JFrame("TextBaseEditor");
-        TextBase base = env.getTextBase();
+        TextBase base = labels.getTextBase();
 
         StatusMessage statusMsg = new StatusMessage();
-        TextBaseEditor editor = new TextBaseEditor(base, env, env, statusMsg, false);
+        TextBaseEditor editor = new TextBaseEditor(base, labels, labels, statusMsg, false);
         if (file != null) editor.setSaveAs(file);
         editor.initializeLayout();
         editor.buildFrame();
@@ -129,35 +129,35 @@ public class TextBaseEditor extends TrackedTextBaseComponent
         }
     }
 
-    private void setEnvironment(String[] args) throws IOException
+    private void setLabels(String[] args) throws IOException
     {
         boolean readOnly = checkReadOnly(args);
 
         TextBase base = null;
-        MutableTextEnv env = null;
+        MutableTextLabels labels = null;
         File saveFile = null;
 
         if (args.length == 0)
         {
             base = SampleTextBases.getTextBase();
-            env = SampleTextBases.getTruthEnv();
+            labels = SampleTextBases.getTruthLabels();
             log.info("Sample Text Bases");
-            //env = edu.cmu.minorthird.text.ann.TestExtractionProblem.getEnv();
-            //base = env.getTextBase();
+            //labels = edu.cmu.minorthird.text.ann.TestExtractionProblem.getLabels();
+            //base = labels.getTextBase();
         }
         else
         {
             log.debug("load from " + args[0]);
-            env = (MutableTextEnv) new FancyLoader().loadTextEnv(args[0]);
-            base = env.getTextBase();
+            labels = (MutableTextLabels) new FancyLoader().loadTextLabels(args[0]);
+            base = labels.getTextBase();
             if (args.length > 1)
             {
                 saveFile = new File(args[1]);
-                if (saveFile.exists()) env = new TextEnvLoader().loadOps(base, saveFile);
+                if (saveFile.exists()) labels = new TextLabelsLoader().loadOps(base, saveFile);
                 log.info("load text bases");
             }
          }
-        init(base, env,  new StatusMessage(), env, readOnly);
+        init(base, labels,  new StatusMessage(), labels, readOnly);
         this.setSaveAs(saveFile);
 
     }

@@ -62,7 +62,7 @@ public class LearnToClassifyTest extends ClassifyTest
     try
     {
       dataFile = "examples/webmasterDataLines.text";
-      envFile = "examples/addChangeDelete.env";
+      labelsFile = "examples/addChangeDelete.env";
       documentId = "msg05";
       labelString = "add";
       loadFileData();

@@ -54,13 +54,13 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery) {
-		TextEnv queryEnv = answeredQuery.getEnv();
-		for (Span.Looper i=candidateFinder.findSpans(queryEnv, answeredQuery.getDocumentSpan() ); i.hasNext(); ) {
+		TextLabels queryLabels = answeredQuery.getLabels();
+		for (Span.Looper i=candidateFinder.findSpans(queryLabels, answeredQuery.getDocumentSpan() ); i.hasNext(); ) {
 			Span candidate = i.nextSpan();
-			if (answeredQuery.getEnv().hasType( candidate, answeredQuery.getInputType() )) {
-				dataset.add( new BinaryExample( fe.extractInstance(queryEnv,candidate), +1) );
+			if (answeredQuery.getLabels().hasType( candidate, answeredQuery.getInputType() )) {
+				dataset.add( new BinaryExample( fe.extractInstance(queryLabels,candidate), +1) );
 			} else {
-				dataset.add( new BinaryExample( fe.extractInstance(queryEnv, candidate), -1) );
+				dataset.add( new BinaryExample( fe.extractInstance(queryLabels, candidate), -1) );
 			}
 		}
 	}

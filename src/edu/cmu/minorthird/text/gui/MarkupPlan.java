@@ -1,7 +1,7 @@
 package edu.cmu.minorthird.text.gui;
 
 import edu.cmu.minorthird.text.FancyLoader;
-import edu.cmu.minorthird.text.TextEnv;
+import edu.cmu.minorthird.text.TextLabels;
 import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.*;
 
 
-/** A scheme for marking spans up in an environment.
+/** A scheme for marking spans up in a labeling.
  *
  * @author William Cohen
  */
@@ -33,9 +33,9 @@ public class MarkupPlan implements Visible
 	private Map colorCode;
 	private int numTypesWithColors;
 
-	public MarkupPlan(TextEnv env)
+	public MarkupPlan(TextLabels labels)
 	{
-		types = new ArrayList(env.getTypes());
+		types = new ArrayList(labels.getTypes());
 		colorCode = new HashMap();
 	}
 	public SimpleAttributeSet getColor(String type)
@@ -118,9 +118,9 @@ public class MarkupPlan implements Visible
 	public static void main(String[] argv)
 	{
 		try {
-			TextEnv env = FancyLoader.loadTextEnv("env/seminar-subset");
+			TextLabels labels = FancyLoader.loadTextLabels("env/seminar-subset");
 			Viewer v = new PlanViewer();
-			v.setContent(new MarkupPlan(env));
+			v.setContent(new MarkupPlan(labels));
 			//v.receiveContent(s);
 			ViewerFrame f = new ViewerFrame("MarkupViewer", v);
 		} catch (Exception e) {

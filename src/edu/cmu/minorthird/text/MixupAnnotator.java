@@ -4,7 +4,7 @@ import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
 
 /**
- * Annotate an environment using a mixup program.
+ * Annotate labels using a mixup program.
  *
  * @author William Cohen
  */
@@ -14,16 +14,11 @@ public class MixupAnnotator extends AbstractAnnotator
 	private MixupProgram program;
 
 	public MixupAnnotator(MixupProgram program)
-	{
-		this.program = program;
-	}
-	protected void doAnnotate(MonotonicTextEnv env)
-	{
-		program.eval(env,env.getTextBase());
-	}
+	{ this.program = program; }
 
-	public String explainAnnotation(TextEnv env,Span documentSpan)
-	{
-		return "annotated with mixup program";
-	}
+	protected void doAnnotate(MonotonicTextLabels labels)
+	{ program.eval(labels, labels.getTextBase()); }
+
+	public String explainAnnotation(TextLabels labels, Span documentSpan)
+	{ return "annotated with mixup program"; }
 }

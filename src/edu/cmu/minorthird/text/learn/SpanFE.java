@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Typical use of this would be something like the
  * following:
  * <code><pre>
- *   SpanFE fe = new SpanFE(env) {
+ *   SpanFE fe = new SpanFE(labels) {
  *       public void extractFeatures(Span span) {
  *         from(span).tokens().emit();
  *         from(span).left().subSpan(-2,2).emit();
@@ -81,31 +81,29 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	static public final int STORE_COMPACTLY=3;
 
 	private int featureStoragePolicy = STORE_AS_COUNTS;
-	private TextEnv textEnv;
+	private TextLabels textLabels;
 	protected MutableInstance instance;
 	
 	/** Create a feature extractor */
-	public SpanFE(TextEnv textEnv)
+	public SpanFE(TextLabels textLabels)
 	{
-		this.textEnv = textEnv; 
+		this.textLabels = textLabels;
 	}
 
 	//
 	// getters and setters
 	// 
 
-	/** Set the environment this extractor works on.  This is used for
+	/** Set the labels this extractor works on.  This is used for
 	 * the 'contains' method, for instance. */
-	public void setEnv(TextEnv textEnv)
+	public void setLabels(TextLabels textLabels)
 	{ 
-		this.textEnv = textEnv; 
+		this.textLabels = textLabels;
 	}
 
-	/** Access the environment the extractor works on. */
-	public TextEnv getEnv()
-	{ 
-		return textEnv;
-	}
+	/** Access the labels the extractor works on. */
+	public TextLabels getLabels()
+	{ return textLabels; }
 
 	/** Set the policy for creating features.
 	 * @param p should be one of SpanFE.STORE_AS_BINARY, SpanFE.STORE_AS_COUNTS, SpanFE.STORE_COMPACTLY
@@ -128,10 +126,10 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	}
 
 	/** Extract an Instance from a span */
-	final public Instance extractInstance(TextEnv env,Span span)
+	final public Instance extractInstance(TextLabels labels,Span span)
 	{
 		instance = new MutableInstance(span,span.getDocumentGroupId());
-		setEnv(env);
+		setLabels(labels);
 		extractFeatures(span);
 		return instance;
 	}
@@ -227,7 +225,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	 * Each pipeline will typically start with 'start(span)'
 	 * and end with 'emit()'.
 	 */
-	abstract public void extractFeatures(TextEnv env,Span span);
+	abstract public void extractFeatures(TextLabels labels,Span span);
 
 	/** Subclass this to change the tracing behavior. */ 
 	public void trace(Result result)
@@ -318,7 +316,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 		 */
 		public SpanSetResult contains(String type) {
 			TreeSet set = new TreeSet();
-			for (Span.Looper i = fe.getEnv().instanceIterator(type,s.getDocumentId()); i.hasNext(); ) {
+			for (Span.Looper i = fe.getLabels().instanceIterator(type,s.getDocumentId()); i.hasNext(); ) {
 				Span other = i.nextSpan();
 				if (s.contains(other)) {
 					set.add( other );
@@ -427,7 +425,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			Bag stringBag = new Bag();
 			for (Iterator i=set.iterator(); i.hasNext(); ) {
 				TextToken token = (TextToken)i.next();
-				String value = fe.getEnv().getProperty(token, property);
+				String value = fe.getLabels().getProperty(token, property);
 				if (value!=null) stringBag.add( value );
 			}
 			return new StringBagResult( extend(property), fe, stringBag );
@@ -438,7 +436,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			TreeSet filteredSet = new TreeSet();
 			for (Iterator i=set.iterator(); i.hasNext(); ) {
 				TextToken token = (TextToken)i.next();
-				String value = fe.getEnv().getProperty(token, property);
+				String value = fe.getLabels().getProperty(token, property);
 				if (value!=null) filteredSet.add( token );
 			}
 			return new TokenSetResult( extend("hasProp_"+property), fe, filteredSet );
@@ -452,7 +450,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			TreeSet filteredSet = new TreeSet();
 			for (Iterator i=set.iterator(); i.hasNext(); ) {
 				TextToken token = (TextToken)i.next();
-				String value = fe.getEnv().getProperty(token, property);
+				String value = fe.getLabels().getProperty(token, property);
 				if ((targetValue==null && value==null) || (targetValue!=null && targetValue.equals(value))) 
 					filteredSet.add(token);
 			}
@@ -590,19 +588,19 @@ abstract public class SpanFE implements SpanFeatureExtractor
 
 	public static void main(String[] args) {
 //		TextBase base = SampleTextBases.getTextBase();
-		TextEnv env = SampleTextBases.getGuessEnv();
-		SpanFE fe = new SpanFE(env) {
+		TextLabels labels = SampleTextBases.getGuessLabels();
+		SpanFE fe = new SpanFE(labels) {
 				public void extractFeatures(Span span) {
 					extractFeatures(null,span);
 				}
-				public void extractFeatures(TextEnv env,Span span) {
+				public void extractFeatures(TextLabels labels,Span span) {
 					from(span).tokens().emit();
 					from(span).left().subSpan(-2,2).emit();
 					from(span).right().subSpan(0,2).emit();
 					from(span).right().contains("obj").emit();
 				}
 			};
-		for (Span.Looper j = env.instanceIterator(args[0]); j.hasNext(); ) {
+		for (Span.Looper j = labels.instanceIterator(args[0]); j.hasNext(); ) {
 			Span s = j.nextSpan();
 			String doc = s.documentSpan().asString();
 			String phrase = s.asString();

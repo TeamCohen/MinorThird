@@ -26,10 +26,10 @@ public class SampleExtractionTest extends TestCase
 
   /** text base of training data */
   protected TextBase base;
-  protected TextEnv env;
+  protected TextLabels labels;
   /** testing data */
   protected TextBase testBase;
-  protected TextEnv testEnv;
+  protected TextLabels testLabels;
   /** span checking */
   private String documentId;
   private String labelString;
@@ -61,11 +61,11 @@ public class SampleExtractionTest extends TestCase
     org.apache.log4j.BasicConfigurator.configure();
     //TODO add initializations if needed
     base = SampleExtractionProblem.trainBase();
-    env = SampleExtractionProblem.trainEnv();
+    labels = SampleExtractionProblem.trainLabels();
 
     //create test date
     testBase = SampleExtractionProblem.testBase();
-    testEnv = SampleExtractionProblem.testEnv();
+    testLabels = SampleExtractionProblem.testLabels();
     //convert to Dataset
 
     this.labelString = SampleExtractionProblem.LABEL;
@@ -95,21 +95,21 @@ public class SampleExtractionTest extends TestCase
 	// double array is <precision,recall,tolerance> for train & test
 	private void doExtractionTest(AnnotatorLearner learner, double[]expected)
 	{
-		AnnotatorTeacher annotatorTeacher = new TextEnvAnnotatorTeacher( env, labelString );
+		AnnotatorTeacher annotatorTeacher = new TextLabelsAnnotatorTeacher( labels, labelString );
 		learner.setAnnotationType( "prediction" );
 		Annotator learnedAnnotator = annotatorTeacher.train( learner );
-		TextEnv trainEnv1 = learnedAnnotator.annotatedCopy( env );
-		TextEnv testEnv1 = learnedAnnotator.annotatedCopy( testEnv );
-		checkSpans( "prediction", labelString, trainEnv1, expected[0],expected[1],expected[2]);
-		checkSpans( "prediction", labelString, testEnv1, expected[3],expected[4],expected[5]);
-		//TextBaseViewer.view( testEnv1 );
-		//TextBaseViewer.view( trainEnv1 );
+		TextLabels trainLabels1 = learnedAnnotator.annotatedCopy( labels );
+		TextLabels testLabels1 = learnedAnnotator.annotatedCopy( testLabels );
+		checkSpans( "prediction", labelString, trainLabels1, expected[0],expected[1],expected[2]);
+		checkSpans( "prediction", labelString, testLabels1, expected[3],expected[4],expected[5]);
+		//TextBaseViewer.view( testLabels1 );
+		//TextBaseViewer.view( trainLabels1 );
 	}
 	
 	private void 
-	checkSpans(String guessType,String truthType,TextEnv env,double tokRec,double tokPrec,double epsilon)
+	checkSpans(String guessType,String truthType,TextLabels labels,double tokRec,double tokPrec,double epsilon)
 	{
-		SpanDifference sd = new SpanDifference(env.instanceIterator(guessType),env.instanceIterator(truthType));
+		SpanDifference sd = new SpanDifference(labels.instanceIterator(guessType),labels.instanceIterator(truthType));
 		assertEquals( tokPrec, sd.tokenPrecision(), epsilon );
 		assertEquals( tokRec, sd.tokenRecall(), epsilon );
 	}

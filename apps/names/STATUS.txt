@@ -1,4 +1,4 @@
-need to do: add back a loadEnv that does this:
+need to do: add back a loadLabels that does this:
 
 //MixupProgram program = new MixupProgram(new File("nameFeatures.mixup"));
-//program.eval(env,base);
+//program.eval(labels,base);

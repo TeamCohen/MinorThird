@@ -29,7 +29,7 @@ public class MixupProgramTest extends TestCase
 
   private File dependJava;
 
-  private MonotonicTextEnv env;
+  private MonotonicTextLabels labels;
   private TextBase textBase;
 
   /**
@@ -67,12 +67,12 @@ public class MixupProgramTest extends TestCase
       org.apache.log4j.BasicConfigurator.configure();
       log.setLevel(Level.DEBUG);
 
-      //load text base and get fresh env
+      //load text base and get fresh labels
       this.textBase = new BasicTextBase();
       TextBaseLoader loader = new TextBaseLoader();
 		  log.debug("testData: " + testData);
       loader.loadTaggedFile(this.testData, null, textBase);
-      env = new BasicTextEnv(textBase);
+      labels = new BasicTextLabels(textBase);
 
     }
     catch (IOException e)
@@ -110,13 +110,13 @@ public class MixupProgramTest extends TestCase
     try
     {
       MixupProgram program = fromFile(code);
-      program.eval(env, textBase);
+      program.eval(labels, textBase);
 
       setUp();
       program = fromString(code);
-      program.eval(env, textBase);
+      program.eval(labels, textBase);
 
-	    new TextEnvLoader().saveTypesAsOps(env, outFile);
+	    new TextLabelsLoader().saveTypesAsOps(labels, outFile);
     }
     catch (Exception e)
     {

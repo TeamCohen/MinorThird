@@ -24,13 +24,13 @@ public class PersonNameTagger extends AbstractAnnotator
 		featureProgram = new MixupProgram(new File("nameFeatures.mixup")); 
 	}
 
-	public void doAnnotate(MonotonicTextEnv env)
+	public void doAnnotate(MonotonicTextLabels labels)
 	{
-		featureProgram.eval( env, env.getTextBase() );
-		learnedAnnotator.annotate( env );
+		featureProgram.eval( labels, labels.getTextBase() );
+		learnedAnnotator.annotate( labels );
 	}
 
-	public String explainAnnotation(TextEnv env,Span span)
+	public String explainAnnotation(TextLabels labels,Span span)
 	{
 		return "just because";
 	}
@@ -42,18 +42,18 @@ public class PersonNameTagger extends AbstractAnnotator
 			TextBaseLoader baseLoader = new TextBaseLoader();
 			TextBase base = new BasicTextBase();
 			baseLoader.loadDir(base, new File(args[1]));
-			MonotonicTextEnv env = new BasicTextEnv( base );
-			tagger.annotate( env );
-			saveType(env, "predicted_name", new File(args[2]));
+			MonotonicTextLabels labels = new BasicTextLabels( base );
+			tagger.annotate( labels );
+			saveType(labels, "predicted_name", new File(args[2]));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("usage: annotatorFile mailDirectory tags");
 		}
 	}
-	private static void saveType(TextEnv env, String type, File file) throws FileNotFoundException
+	private static void saveType(TextLabels labels, String type, File file) throws FileNotFoundException
 	{
 		PrintStream out = new PrintStream(new FileOutputStream(file));
-		for (Span.Looper j=env.instanceIterator(type); j.hasNext(); ) {
+		for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
 			Span s = j.nextSpan();
 			if (s.size()>0) {
 				int lo = s.getTextToken(0).getLo();

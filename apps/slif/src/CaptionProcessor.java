@@ -52,34 +52,34 @@ public class CaptionProcessor
 	{
 		TextBase base = new BasicTextBase();
 		base.loadDocument("theCaption",caption);
-		MonotonicTextEnv env = new BasicTextEnv(base);
-		processEnv(env,proteinFile,cellFile,labelFile);
+		MonotonicTextLabels labels = new BasicTextLabels(base);
+		processLabels(labels,proteinFile,cellFile,labelFile);
 	}
 
-	public void processEnv(MonotonicTextEnv env,String proteinFile,String cellFile, String labelFile)
+	public void processLabels(MonotonicTextLabels labels,String proteinFile,String cellFile, String labelFile)
 	{
 		if (DEBUG) System.out.println("feature construction...");
-		LearnImagePtrExtractor.featureProgram.eval(env, env.getTextBase());
+		LearnImagePtrExtractor.featureProgram.eval(labels, labels.getTextBase());
 		if (DEBUG) System.out.println("regional annotator...");
-		regionalAnnotator.annotate(env);
+		regionalAnnotator.annotate(labels);
 		if (DEBUG) System.out.println("local annotator...");
-		localAnnotator.annotate(env);
+		localAnnotator.annotate(labels);
 		if (DEBUG) System.out.println("finding cells...");
-		cellTypeProgram.eval(env, env.getTextBase());
+		cellTypeProgram.eval(labels, labels.getTextBase());
 		if (DEBUG) System.out.println("finding proteins...");
-		proteinProgram.eval(env, env.getTextBase());
+		proteinProgram.eval(labels, labels.getTextBase());
 		if (DEBUG) System.out.println("scoping...");
-		scopingProgram.eval(env, env.getTextBase());
+		scopingProgram.eval(labels, labels.getTextBase());
 
 		// figure out which image pointer 'owns' which scope
 		imgPtrForScope = new TreeMap(); 
 		imagePtrList = new ArrayList();
 		String[] ptrTypes = new String[] { "local", "regional" };
 		for (int i=0; i<ptrTypes.length; i++) {
-			for (Span.Looper j=env.instanceIterator(ptrTypes[i]); j.hasNext(); ) {
+			for (Span.Looper j=labels.instanceIterator(ptrTypes[i]); j.hasNext(); ) {
 				Span imgPtrSpan = j.nextSpan(); 
 				imagePtrList.add(imgPtrSpan);
-				Span scopeSpan = findContainingSpan(imgPtrSpan, env, ptrTypes[i]+"Scope");
+				Span scopeSpan = findContainingSpan(imgPtrSpan, labels, ptrTypes[i]+"Scope");
 				if (scopeSpan!=null) imgPtrForScope.put( scopeSpan, imgPtrSpan );
 			}
 		}
@@ -89,12 +89,12 @@ public class CaptionProcessor
 		imagePtrEntityPairs = new ArrayList();
 		String[] entityTypes = new String[] { "protein", "cell" };
 		for (int i=0; i<entityTypes.length; i++) {
-			for (Span.Looper j=env.instanceIterator(entityTypes[i]); j.hasNext(); ) {
+			for (Span.Looper j=labels.instanceIterator(entityTypes[i]); j.hasNext(); ) {
 				Span entitySpan = j.nextSpan(); 
 				if (DEBUG) System.out.println("associating "+entitySpan);
 				// find scope of each type containing span and associate imgPtrForScope(scope) & span
 				for (int k=0; k<ptrTypes.length; k++) {
-					Span containingScope = findContainingSpan(entitySpan,env,ptrTypes[k]+"Scope");
+					Span containingScope = findContainingSpan(entitySpan,labels,ptrTypes[k]+"Scope");
 					if (containingScope!=null && imgPtrForScope.get(containingScope)!=null) {
 						associate((Span)imgPtrForScope.get(containingScope), entityTypes[i], entitySpan);
 					} else {
@@ -102,12 +102,12 @@ public class CaptionProcessor
 					}
 				}//ptrType k
 				// stuff in global scope is associated with all img ptrs 
-				Span globalScope = findContainingSpan(entitySpan,env,"globalScope");
+				Span globalScope = findContainingSpan(entitySpan,labels,"globalScope");
 				if (globalScope!=null) {
 					if (DEBUG) System.out.println(" - in global scope");
 					String id = globalScope.getDocumentId();
 					for (int k=0; k<ptrTypes.length; k++) {
-						for (Span.Looper el=env.instanceIterator(ptrTypes[k],id); el.hasNext(); ) {
+						for (Span.Looper el=labels.instanceIterator(ptrTypes[k],id); el.hasNext(); ) {
 							Span imgPtrSpan = el.nextSpan();
 							associate(imgPtrSpan, entityTypes[i], entitySpan);
 						}
@@ -209,10 +209,10 @@ public class CaptionProcessor
 	}
 
 	// find a span of given type containing s
-	private Span findContainingSpan(Span s,TextEnv env,String type) 
+	private Span findContainingSpan(Span s,TextLabels labels,String type)
 	{
 		String id = s.getDocumentId();
-		for (Span.Looper j=env.instanceIterator(type,id); j.hasNext(); ) {
+		for (Span.Looper j=labels.instanceIterator(type,id); j.hasNext(); ) {
 			Span t = j.nextSpan(); 
 			if (t.contains(s)) return t;
 		}
@@ -257,15 +257,15 @@ public class CaptionProcessor
 			String caption = loadFileContent( fileNames[1]) ;
 			TextBase base = new BasicTextBase();
 			base.loadDocument( fileNames[0], caption );
-			MutableTextEnv env = new BasicTextEnv(base);
+			MutableTextLabels labels = new BasicTextLabels(base);
 			long start = System.currentTimeMillis();
-			System.out.println("processing environment with "+base.size()+" docs");
-			cp.processEnv(env,fileNames[2],fileNames[3],fileNames[4]);
+			System.out.println("processing labels with "+base.size()+" docs");
+			cp.processLabels(labels,fileNames[2],fileNames[3],fileNames[4]);
 			long end = System.currentTimeMillis();
 			System.out.println("processing time was "+((end-start)/1000.0)+" sec");
 			if (interactive) {
 				System.out.println("launching viewer...");
-				TextBaseEditor.edit( env, null );
+				TextBaseEditor.edit( labels, null );
 			}
 		}
 	}

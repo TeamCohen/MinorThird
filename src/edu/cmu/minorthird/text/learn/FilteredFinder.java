@@ -29,12 +29,12 @@ public class FilteredFinder extends AbstractSpanFinder
 		this.detailMap = new TreeMap();
 	}
 
-	public Span.Looper findSpans(TextEnv env,Span documentSpan)
+	public Span.Looper findSpans(TextLabels labels,Span documentSpan)
 	{
 		detailMap.clear();
-		for (Span.Looper i=candidateFinder.findSpans(env,documentSpan); i.hasNext(); ) {
+		for (Span.Looper i=candidateFinder.findSpans(labels,documentSpan); i.hasNext(); ) {
 			Span candidate = i.nextSpan();
-			double prediction = spanFilter.score( fe.extractInstance(env,candidate) );
+			double prediction = spanFilter.score( fe.extractInstance(labels,candidate) );
 			if (prediction > 0) {
 				detailMap.put( candidate, new Details(prediction) );
 			}
@@ -49,13 +49,13 @@ public class FilteredFinder extends AbstractSpanFinder
 	public String toString() { return "[FilteredFinder "+spanFilter+"]"; }
 
 
-	public String explainFindSpans(TextEnv env, Span documentSpan) {
+	public String explainFindSpans(TextLabels labels, Span documentSpan) {
 		StringBuffer buf = new StringBuffer("");
 		buf.append("Explaining findSpans for "+documentSpan+":\n");
-		for (Span.Looper i=candidateFinder.findSpans(env,documentSpan); i.hasNext(); ) {
+		for (Span.Looper i=candidateFinder.findSpans(labels,documentSpan); i.hasNext(); ) {
 			Span candidate = i.nextSpan();
 			buf.append("candidate: "+candidate+"\n");
-			Instance instance = fe.extractInstance(env,candidate);
+			Instance instance = fe.extractInstance(labels,candidate);
 			buf.append("instance: "+instance+"\n");
 			buf.append("classification: " + spanFilter.explain(instance) + "\n");
 			buf.append("\n");

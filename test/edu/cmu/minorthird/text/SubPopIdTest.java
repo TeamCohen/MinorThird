@@ -47,11 +47,11 @@ public class SubPopIdTest extends TestCase
 			data1.add( new BinaryExample( fe.extractInstance(s), +1 ) );
 		}
 		
-		TextEnv env = new BasicTextEnv(base);
+		TextLabels labels = new BasicTextLabels(base);
 		Dataset data2 = new BasicDataset();
 		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			Span s = i.nextSpan();
-			data2.add( new BinaryExample( fe.extractInstance(env,s), +1 ) );
+			data2.add( new BinaryExample( fe.extractInstance(labels,s), +1 ) );
 		}
 
 		checkSubPopIds(data1);

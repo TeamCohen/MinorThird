@@ -17,9 +17,9 @@ public class HeaderNameTaggerV2 extends AbstractAnnotator
 	static private final String HEADER_NAME_ANNOTATION = "headerNames_v2";
 	static private final String HEADER_NAME_PROP = "headerName";
 
-	protected void doAnnotate(MonotonicTextEnv env)
+	protected void doAnnotate(MonotonicTextLabels labels)
 	{
-		System.out.println("Annotating with HeaderNameTaggerV2: environment size="+env.getTextBase().size());
+		System.out.println("Annotating with HeaderNameTaggerV2: labels size="+labels.getTextBase().size());
 
 		// first find header areas
 		try {
@@ -28,18 +28,18 @@ public class HeaderNameTaggerV2 extends AbstractAnnotator
 				"defSpanType _headerSection =top: [...] @_startWord ... ",
 				"defSpanType _emailNameWord =_headerSection: ... [L re('^[a-z\\.]+$'){1,5}  ] eq('@') ... ", 
 			});
-			prog.eval(env, env.getTextBase() );
+			prog.eval(labels, labels.getTextBase() );
 		} catch (Mixup.ParseException e) {
 			throw new IllegalStateException("mixup error: "+e);
 		}
 
-		for (Span.Looper i=env.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+		for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 
 			Span doc = i.nextSpan();
 
 			// collect tokens appearing in the HEADER_FIELDS of this document
 			Set headerNames = new HashSet();
-			for (Span.Looper k=env.instanceIterator("_emailNameWord", doc.getDocumentId()); k.hasNext(); ) {
+			for (Span.Looper k=labels.instanceIterator("_emailNameWord", doc.getDocumentId()); k.hasNext(); ) {
 				Span span = k.nextSpan();
 				for (int h=0; h<span.size(); h++) {
 					headerNames.add( span.getToken(h).getValue() );
@@ -50,16 +50,16 @@ public class HeaderNameTaggerV2 extends AbstractAnnotator
 			for (int j=0; j<doc.size(); j++) {
 				Token token = doc.getTextToken(j);
 				if (headerNames.contains( token.getValue() )) {
-					env.setProperty( token, HEADER_NAME_PROP, "t" );
+					labels.setProperty( token, HEADER_NAME_PROP, "t" );
 				}
 			}
 		}
 
 		// provide the annotation
-		env.setAnnotatedBy( HEADER_NAME_ANNOTATION );
+		labels.setAnnotatedBy( HEADER_NAME_ANNOTATION );
 	}
 
-	public String explainAnnotation(TextEnv e, Span s)
+	public String explainAnnotation(TextLabels e, Span s)
 	{
 		return "not implemented";
 	}

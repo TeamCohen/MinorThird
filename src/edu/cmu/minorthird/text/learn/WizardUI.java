@@ -121,7 +121,7 @@ public class WizardUI
 	{
 		public PickLabelFile(Map viewerContext)
 		{
-			super("envFile",viewerContext,
+			super("labelsFile",viewerContext,
 						true,"Select Annotation File","Where are annotations stored?",
 						myFileChooser);
 		}
@@ -282,19 +282,19 @@ public class WizardUI
 					TextBase base = new BasicTextBase();
 					SpanFeatureExtractor fe = (SpanFeatureExtractor)viewerContext.get("fe");
 					String targetClass = (String)viewerContext.get("targetClass");
-					File envFile = (File)viewerContext.get("envFile");
+					File labelsFile = (File)viewerContext.get("labelsFile");
 					loader.loadFile(base,trainDataFile);
 					TextBase testBase = new BasicTextBase();
 					File testDataFile = (File)viewerContext.get("testDataFile");
 					if (testDataFile!=null) {
 						loader.loadFile(testBase,testDataFile);
 					}
-					TextEnv env = new TextEnvLoader().loadOps(base,envFile);
+					TextLabels labels = new TextLabelsLoader().loadOps(base,labelsFile);
 					ProgressCounter pc = new ProgressCounter("creating train dataset","document",base.size());
 					Dataset data = new BasicDataset();
 					for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 						Span s = i.nextSpan();
-						double label = env.hasType(s,targetClass) ? +1 : -1;
+						double label = labels.hasType(s,targetClass) ? +1 : -1;
 						data.add( new BinaryExample( fe.extractInstance(s), label ) );
 						pc.progress();
 					}
@@ -304,7 +304,7 @@ public class WizardUI
 						ProgressCounter pc2 = new ProgressCounter("creating test dataset","document",base.size());
 						for (Span.Looper i=testBase.documentSpanIterator(); i.hasNext(); ) {
 							Span s = i.nextSpan();
-							double label = env.hasType(s,targetClass) ? +1 : -1;
+							double label = labels.hasType(s,targetClass) ? +1 : -1;
 							testData.add( new BinaryExample( fe.extractInstance(s), label ) );
 							pc.progress();
 						}

@@ -72,14 +72,14 @@ public class TextBaseLoaderTest extends TestCase
 
     log.debug("loaded training set");
 
-    // set up an environment that contains the labels
-    MutableTextEnv env = loader.getEnvironment();
+    // set up the labels
+    MutableTextLabels labels = loader.getLabels();
 
 
     log.debug("passed first assertion");
     log.debug("base size = " + base.size());
     // for verification/correction of the labels, if we care...
-    // TextBaseLabeler.label( env, new File("my-document-labels.env"));
+    // TextBaseLabeler.label( labels, new File("my-document-labels.env"));
 
     // set up a simple bag-of-words feature extractor
     edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe = edu.cmu.minorthird.text.learn.SampleFE.BAG_OF_LC_WORDS; //SimpleFeatureExtractor();
@@ -91,7 +91,7 @@ public class TextBaseLoaderTest extends TestCase
     {
       log.debug("span: " + numSpans++);
       Span s = i.nextSpan();
-      double label = env.hasType(s, "delete") ? +1 : -1;
+      double label = labels.hasType(s, "delete") ? +1 : -1;
       data.add(new BinaryExample(fe.extractInstance(s), label));
     }
 
@@ -110,7 +110,7 @@ public class TextBaseLoaderTest extends TestCase
     for (Span.Looper i = testBase.documentSpanIterator(); i.hasNext();)
     {
       Span s = i.nextSpan();
-      double label = env.hasType(s, "delete") ? +1 : -1;
+      double label = labels.hasType(s, "delete") ? +1 : -1;
       testData.add(new BinaryExample(fe.extractInstance(s), label));
     }
 

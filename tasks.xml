@@ -109,7 +109,7 @@
         <exclude name="**/IOUtilTest.class"/>         <!-- data -->
         <exclude name="**/LibsvmTest.class"/>         <!-- data -->
         <exclude name="**/LearnToClassifyTest.class"/>
-        <exclude name="**/EdoTextEnvTest.class"/>
+        <exclude name="**/EdoTextLabelsTest.class"/>
         <exclude name="**/BayesClassifiersTest.class"/>
 
         <!-- long running time (>5 seconds) -->
