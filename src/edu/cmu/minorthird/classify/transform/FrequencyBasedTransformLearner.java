@@ -13,13 +13,15 @@ import java.util.*;
  * Date: Feb 05, 2004
  */
 
+/**
+ *  A simple feature filter based on their frequency of occurrence.
+ *  The frequency model is resposible for deciding 'what to count'.  If set to
+ *  "document" this filter counts the number of documents which contain a Feature;
+ *  if set to "word" this filter counts the number of times a Feature appears in
+ *  the whole dataset.
+ */
 public class FrequencyBasedTransformLearner implements InstanceTransformLearner
 {
-  /** The frequency model is resposible for deciding 'what to count'.  If set to
-   *  "document" this filter counts the number of documents which contain a Feature;
-   *  if set to "word" this filter counts the number of times a Feature appears in
-   *  the whole dataset.
-   */
   private String frequencyModel;
   private int minimumFrequency = 3;
 
@@ -49,7 +51,7 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
     {
       for (Feature.Looper i = index.featureIterator(); i.hasNext(); ) {
         Feature f = i.nextFeature();
-        if (index.size(f) > minimumFrequency) {
+        if (index.size(f) >= minimumFrequency) {
           activeFeatureSet.add(f);
         }
       }
@@ -62,14 +64,15 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
         for (int j=0; j<index.size(f); j++) {
           totalCounts += index.getExample(f,j).getWeight(f);
         }
-        if (totalCounts > minimumFrequency) {
+        if (totalCounts >= minimumFrequency) {
           activeFeatureSet.add(f);
         }
       }
     }
     else
     {
-      System.out.println( "warning: "+ frequencyModel +" ia an unknown model for frequency!" );
+      System.out.println( "warning: "+ frequencyModel +" is an unknown model for frequency!" );
+      System.exit(1);
     }
 
     // build an InstanceTransform that removes low-frequency features

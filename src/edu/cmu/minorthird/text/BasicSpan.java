@@ -3,8 +3,12 @@ package edu.cmu.minorthird.text;
 import edu.cmu.minorthird.text.gui.SpanViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
+import edu.cmu.minorthird.classify.MovieDataset;
 
 import java.io.Serializable;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 /** Implements the Span interface.
  *

@@ -3,6 +3,7 @@ package edu.cmu.minorthird.text.learn;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
+import edu.cmu.minorthird.classify.MovieDataset;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 
@@ -12,6 +13,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * A Feature Extractor which converts a Span to an Instance.
@@ -71,7 +75,7 @@ e *         from(span).tokens().emit();
 
 abstract public class SpanFE implements SpanFeatureExtractor
 {
-	/** Store features as binary, whenever possible, even if occurence counts are ignored. */ 
+	/** Store features as binary, whenever possible, even if occurence counts are ignored. */
 	static public final int STORE_AS_BINARY=1;
 
 	/** Store features as numeric counts, whenever possible */ 

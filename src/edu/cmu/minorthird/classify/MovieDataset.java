@@ -9,6 +9,7 @@ import edu.cmu.minorthird.text.learn.SpanFE;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.learn.FeatureBuffer;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import javax.swing.*;
 import java.io.File;
@@ -25,7 +26,7 @@ public class MovieDataset {
   static private Logger log = Logger.getLogger(MovieDataset.class);
 
   // set static variables
-  static private boolean MIXUP = true;
+  static private boolean MIXUP = false;
   static private String FILTER = "Freq"; // or "T1"
 
   /**
@@ -67,7 +68,8 @@ public class MovieDataset {
         TextBase base = new BasicTextBase();
         TextBaseLoader loader = new TextBaseLoader();
         File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews");
-        loader.loadTaggedFiles(base, dir);
+        //loader.loadTaggedFiles(base, dir);
+        loader.loadDir(base, dir);
         MutableTextLabels labels = new BasicTextLabels(base);
         new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels.env"));
         //TextBaseLabeler.label( labels, new File("my-document-labels.env")); // DEBUG
@@ -102,9 +104,9 @@ public class MovieDataset {
         {
           public Instance extractInstance(TextLabels labels, Span s) {
             FeatureBuffer buf = new FeatureBuffer(labels, s);
-            SpanFE.from(s,buf).tokens().eq().lc().punk().emit();
+            SpanFE.from(s,buf).tokens().eq().emit();
             //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
-            //SpanFE.from(s,buf).contains("pos").emit();
+            //SpanFE.from(s,buf).contains("pos").eq().tr(".*","pros").emit();
             return buf.getInstance();
           }
           public Instance extractInstance(Span s) {
