@@ -2,11 +2,14 @@
 
 package edu.cmu.minorthird.text;
 
+import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.io.*;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -29,6 +32,7 @@ public class TestPackage extends TestSuite
 		suite.addTest( new TrieTest("doTest") );
 		suite.addTest( new MixupTest("doTest") );
 		suite.addTest( new LabelsTest("doTest") );
+		suite.addTest( new TokenizationTest("doTest") );
 		return suite;
 	}
 
@@ -40,23 +44,33 @@ public class TestPackage extends TestSuite
 		}
 		public void doTest() 
 		{
-			TextBaseLoader tbLoader = new TextBaseLoader();
-			MutableTextLabels lab = new BasicTextLabels(b);
-			b.loadDocument("d1", "a b c b d");
+			TextBaseLoader baseLoader = new TextBaseLoader();
+			TextBase tb, childTB = null;
+			try {
+			    tb = baseLoader.load(new File("/usr0/m3rd/repository/data/tokenization_test/tokenization_test.txt"));
+			} catch(Exception e) {
+			    e.printStackTrace();
+			}
+			Tokenizer tok = new Tokenizer(1, "\n");
+			try{
+			    childTB = baseLoader.load(new File("/usr0/m3rd/repository/data/tokenization_test/tokenization_test.txt"), tok);
+			} catch(Exception e) {
+			    e.printStackTrace();
+			}
+			MutableTextLabels lab = baseLoader.getLabels();
 			try {
 				MixupProgram p = 
-					new MixupProgram(new String[]{"defSpanProp startsWith:b =: ... ['b' any]...",
-																				"defSpanProp startsWith:c =: ... ['c' any]...",
-																				"defSpanProp endsWith:b =: ... [any 'b']..."});
-				p.eval(lab,b);
-				Span.Looper looper = lab.getSpansWithProperty("startsWith");
+				    new MixupProgram(new String[]{"defTokenProp token:first =: [any] ...",
+								  "defSpanType first =: [token:first] ...",
+								  "defTokenProp token:last =: ... [any]",
+								  "defSpanType last =: ... [token:last]"});
+				p.eval(lab,childTB);
+				Span.Looper looper = lab.instanceIterator("first");
 				assertTrue( looper.hasNext() );
-				assertEquals( "b c", looper.nextSpan().asString()  ); 
-				assertTrue( looper.hasNext() );
-				assertEquals( "c b", looper.nextSpan().asString()  ); 
-				assertTrue( looper.hasNext() );
-				assertEquals( "b d", looper.nextSpan().asString()  ); 
-				assertTrue( !looper.hasNext() );
+				assertEquals( "line by line", looper.nextSpan().asString()  ); 
+				Span.Looper looper2 = lab.instanceIterator("last");
+				assertTrue( looper2.hasNext() );
+				assertEquals( "Please work lalala", looper2.nextSpan().asString()  ); 
 			} catch (Mixup.ParseException e) {
 				throw new IllegalStateException(e.toString());
 			}

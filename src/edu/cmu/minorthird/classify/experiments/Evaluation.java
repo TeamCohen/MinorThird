@@ -82,9 +82,7 @@ public class Evaluation implements Visible,Serializable,Saveable
       ClassLabel[] pred = c.classification( seq );
       for (int j=0; j<seq.length; j++) {      
         extend( pred[j], seq[j], DEFAULT_PARTITION_ID );
-	}
-      //Hack to only evaluate performace on last classification of sequence
-      //extend( pred[seq.length-1], seq[seq.length-1], DEFAULT_PARTITION_ID );
+      }
     }
   }
 

@@ -88,7 +88,7 @@
       <include name="**/*.mixup"/>
       <include name="montylingua/*"/>
       <include name="org.*"/>
-      <inlcude name="org/*"/>
+      <include name="org/*"/>
     </fileset>
   </jar>
 </target>
