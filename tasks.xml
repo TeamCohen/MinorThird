@@ -152,6 +152,47 @@
   </junit>
 </target>
 
+<target name="long-tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+  <mkdir dir="${reportsDir}"/>
+<!--  <mkdir dir="${testRootDir}"/> -->
+  <junit printsummary="yes" haltonfailure="no">
+    <!--<jvmarg value="-Xmx512m"/>-->
+<!--  not sure why, but new MixupProgramTest doesn't work with the local classpath... 
+    <classpath><path refid="classpath"/></classpath>
+-->
+    <formatter type="plain"/>
+
+    <batchtest fork="no" todir="${reportsDir}">
+      <fileset dir="${classDir}">
+        <!-- either TestPackage or *Test -->
+        <exclude name="**/TestPackage.class"/>
+        <exclude name="**/*Test.class"/>
+        <include name="**/LongTestPackage.class"/>
+
+        <exclude name="**/*$*.class"/> <!-- inner classes excluded -->
+        <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> <!-- a base class, not to be run -->
+
+	      <!-- requires test data -->
+        <exclude name="**/IOUtilTest.class"/>         <!-- data -->
+        <exclude name="**/LibsvmTest.class"/>         <!-- data -->
+        <exclude name="**/LearnToClassifyTest.class"/>
+        <exclude name="**/EdoTextLabelsTest.class"/>
+        <exclude name="**/BayesClassifiersTest.class"/>
+        <exclude name="**/TextLabelsLoaderTest.class"/>
+        <exclude name="**/SimpleTextLoaderTest.class"/>
+
+        <!-- long running time (>5 seconds) -->
+<!--      <exclude name="**/MixupProgramTest.class"/>  -->
+
+        <!-- even longer running time (>20 secs) -->
+        <exclude name="**/TextBaseLoaderTest.class"/>
+
+        <!-- VERY long running time (>1 minute) -->
+      </fileset>
+    </batchtest>
+  </junit>
+</target>
+
 <!-- commit changes to cvs.  Requires a clean build and passing all tests
 <target name="commit" depends="build">
   #### CVS login doesn't seem to work #####

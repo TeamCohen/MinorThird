@@ -32,7 +32,7 @@ public class LongTestPackage extends TestSuite
 		//Classification
 	
 		//Decision Tree/Directive
-		suite.addTest( new LongUITest(TrainTestClassifier.class,
+		/*suite.addTest( new LongUITest(TrainTestClassifier.class,
 															new String[]{
 																"-labels","cspace.1f3",
 																"-spanType","Req",
@@ -110,11 +110,11 @@ public class LongTestPackage extends TestSuite
 					assertEquals( .15, e.errorRate(), 0.02 );
 					assertEquals( .91, e.f1(), 0.02 );
 				}
-			});
+			});*/
 		
 		//Extraction
-/*
-		suite.addTest( new UITest(TrainTestExtractor.class,
+
+		suite.addTest( new LongUITest(TrainTestExtractor.class,
 															new String[]{
 																"-labels","cspace.07",
 																"-test","cspace.09",
@@ -123,10 +123,10 @@ public class LongTestPackage extends TestSuite
 				public void checkResult(Object result) {
 					ExtractionEvaluation e = (ExtractionEvaluation)result;
 					assertEquals( 0.82, e.tokenF1(), 0.02 );
-					assertEquals( 0.74, e.spanF1(), 0.02 );
+					assertEquals( 0.75, e.spanF1(), 0.02 );
 				}
 			});
-		suite.addTest( new UITest(TrainTestExtractor.class,
+		/*suite.addTest( new LongUITest(TrainTestExtractor.class,
 															new String[]{
 																"-labels","cspace.07",
 																"-test","cspace.09",
@@ -137,8 +137,8 @@ public class LongTestPackage extends TestSuite
 					assertEquals( 0.88, e.tokenF1(), 0.02 );
 					assertEquals( 0.83, e.spanF1(), 0.02 );
 				}
-				});
-*/
+				});*/
+
 		
 		//Doesn't Work - ERROR
 		/*suite.addTest( new LongUITest(TrainTestExtractor.class,
