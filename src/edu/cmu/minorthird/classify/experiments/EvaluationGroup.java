@@ -42,24 +42,29 @@ public class EvaluationGroup implements Visible,Serializable
     Viewer summaryView = new ComponentViewer() {
       public JComponent componentFor(Object o) {
         final EvaluationGroup group = (EvaluationGroup)o;
-        String[] statNames = Evaluation.summaryStatisticNames();
-        String[] columnHeads = new String[statNames.length+1];
-        columnHeads[0] = "Evaluation Id";
-        for (int j=0; j<statNames.length; j++) {
-          columnHeads[j+1] = statNames[j];
-        }
-        Object[][] table = new Object[group.members.keySet().size()][columnHeads.length];
-        int k=0;
+				String[] columnHeads = new String[group.members.keySet().size()+1];
+				columnHeads[0] = "Statistic";
+				int k=1;
         for (Iterator i=group.members.keySet().iterator(); i.hasNext(); ) {
           Object key = i.next();
-          table[k][0] = key; // should be name of key
+          columnHeads[k] = (String)key; // should be name of key
+					k++;
+				}
+        String[] statNames = Evaluation.summaryStatisticNames();
+        Object[][] table = new Object[statNames.length][columnHeads.length];
+				for (int j=0; j<statNames.length; j++) {
+					table[j][0] = statNames[j];
+				}
+        k=1;
+        for (Iterator i=group.members.keySet().iterator(); i.hasNext(); ) {
+          Object key = i.next();
           Evaluation v = (Evaluation)group.members.get(key);
           double[] ss = v.summaryStatistics();
           for (int j=0; j<ss.length; j++) {
-            table[k][j+1] = new Double(ss[j]);
+            table[j][k] = new Double(ss[j]);
           }
           k++;
-        }
+				}
         JTable jtable = new JTable(table,columnHeads);
         final Transform keyTransform = new Transform() {
           public Object transform(Object key) { return group.members.get(key); }

@@ -109,7 +109,7 @@ public abstract class Viewer extends JPanel
 		return content;
 	}
 	/** Get the object being displayed as the user sees it.  */
-	final public Object getVisibleContent()
+	public Object getVisibleContent()
 	{
 		if (namedSubViews.size()==1 && namedSubViews.get(ONLY_SUBVIEWER)!=null) {
 			Object result = ((Viewer)namedSubViews.get(ONLY_SUBVIEWER)).getVisibleContent();

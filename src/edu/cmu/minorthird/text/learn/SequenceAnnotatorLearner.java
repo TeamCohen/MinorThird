@@ -130,7 +130,12 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	 */
 	public Annotator getAnnotator()
 	{
-		seqLearner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
+		ExampleSchema schema = seqData.getSchema();
+		if (schema.getNumberOfClasses()<=1) {
+			log.error("In the constructed dataset the number of classes is "+schema.getNumberOfClasses());
+			log.error("Hint: this probably means that no spans of the specified type are present in your data");
+		}
+		seqLearner.setSchema(schema);
 		if (displayDatasetBeforeLearning) new ViewerFrame("Sequential Dataset", seqData.toGUI());
 		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
 		if (DEBUG) log.debug("learned classifier: "+seqClassifier);

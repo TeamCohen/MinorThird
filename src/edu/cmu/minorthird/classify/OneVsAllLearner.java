@@ -13,7 +13,7 @@ import java.util.*;
 public class OneVsAllLearner implements ClassifierLearner
 {
 	private ClassifierLearnerFactory learnerFactory;
-	private BinaryClassifierLearner[] innerLearner = null;
+	private ClassifierLearner[] innerLearner = null;
 	private ExampleSchema schema;
 
 	public OneVsAllLearner()
@@ -31,9 +31,9 @@ public class OneVsAllLearner implements ClassifierLearner
 	public void setSchema(ExampleSchema schema) 
 	{
 		this.schema = schema;
-		innerLearner = new BinaryClassifierLearner[schema.getNumberOfClasses()];
+		innerLearner = new ClassifierLearner[schema.getNumberOfClasses()];
 		for (int i=0; i<innerLearner.length; i++) {
-			innerLearner[i] = (BinaryClassifierLearner)learnerFactory.getLearner();
+			innerLearner[i] = (ClassifierLearner)learnerFactory.getLearner();
 			innerLearner[i].setSchema( ExampleSchema.BINARY_EXAMPLE_SCHEMA );
 		}
 	}
@@ -87,9 +87,9 @@ public class OneVsAllLearner implements ClassifierLearner
 
 	public Classifier getClassifier()
 	{
-		BinaryClassifier[] classifiers = new BinaryClassifier[ innerLearner.length ];
+		Classifier[] classifiers = new Classifier[ innerLearner.length ];
 		for (int i=0; i<innerLearner.length; i++) {
-			classifiers[i] = innerLearner[i].getBinaryClassifier();
+			classifiers[i] = innerLearner[i].getClassifier();
 		}
 		return new OneVsAllClassifier( schema.validClassNames(), classifiers );
 	}

@@ -267,7 +267,7 @@ public class DatasetLoader
 static public void main(String[] args)
 	{
 		try {
-			boolean sequential = "-sequential".equals(args[0]);
+			boolean sequential = args[0].startsWith("-seq");
 			String dbName =  sequential ? args[1] : args[0];
 			DatasetLoader loader = new DatasetLoader();
 			Dataset d = sequential ? loader.loadSequence(new File(dbName)) : loader.loadFile(new File(dbName));

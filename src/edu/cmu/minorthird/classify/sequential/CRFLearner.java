@@ -25,12 +25,14 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	static private int serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 	
-    int histsize = 1;
+	int histsize = 1;
 	ExampleSchema schema;
 	iitb.CRF.CRF crfModel;
 	java.util.Properties defaults;
 	java.util.Properties options;
 	
+	private static final boolean CONVERT_TO_MINORTHIRD_HYPERPLANE=false;
+
 	public CRFLearner()
 	{
 		defaults = new java.util.Properties();
@@ -182,36 +184,39 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		}
 	};
 	
-	public class MTFeatureGenImpl extends iitb.Model.FeatureGenImpl {
-		public MTFeatureGenImpl(String modelSpecs, int numLabels, String[] labelNames) throws Exception {
+	public class MTFeatureGenImpl extends iitb.Model.FeatureGenImpl 
+	{
+		public MTFeatureGenImpl(String modelSpecs, int numLabels, String[] labelNames) throws Exception 
+		{
 	    super(modelSpecs,numLabels,false);
 
 	    Feature features[] = new Feature[labelNames.length];
 	    for (int i = 0; i < labelNames.length; i++)
-		features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
+				features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
 	    addFeature(new iitb.Model.EdgeFeatures(model, features));
 	    addFeature(new iitb.Model.StartFeatures(model, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+			//wwc: I don't think this feature should be used for minorthird....
 	    addFeature(new iitb.Model.EndFeatures(model, new Feature("E")));
 
 	    if (histsize > 1) {
-		//uncomment this for all n-gram history features, 
-		//addFeature(new iitb.Model.EdgeHistFeatures(model, HISTORY_FEATURE,labelNames,histsize));
+				//uncomment this for all n-gram history features, 
+				//addFeature(new iitb.Model.EdgeHistFeatures(model, HISTORY_FEATURE,labelNames,histsize));
 
-		// this is for minorthird style linear history features...
-		Feature histFeatures[][] = new Feature[histsize][labelNames.length];
-		for (int k = 1; k < histsize; k++) {
-		    for (int i = 0; i < labelNames.length; i++)
-			histFeatures[k][i] = new Feature(new String[]{ HISTORY_FEATURE, Integer.toString((k+1)), labelNames[i]});
-		}		
-		addFeature(new iitb.Model.EdgeLinearHistFeatures(model, histFeatures, histsize));		
+				// this is for minorthird style linear history features...
+				Feature histFeatures[][] = new Feature[histsize][labelNames.length];
+				for (int k = 1; k < histsize; k++) {
+					for (int i = 0; i < labelNames.length; i++)
+						histFeatures[k][i] = new Feature(new String[]{ HISTORY_FEATURE, Integer.toString((k+1)), labelNames[i]});
+				}		
+				addFeature(new iitb.Model.EdgeLinearHistFeatures(model, histFeatures, histsize));		
 	    }
 	    addFeature(new MTFeatureTypes(model));
 		}
 	};
 	
 	iitb.Model.FeatureGenImpl featureGen;
-	SequenceUtils.MultiClassClassifier classifier;
-    CMM cmmClassifier;    
+	SequenceClassifier cmmClassifier = null;    
+	double[] crfWs;
 
     iitb.CRF.DataIter  allocModel(SequenceDataset dataset) throws Exception {
 	featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
@@ -229,37 +234,38 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		throw new IllegalStateException("error in CRF: "+e);
 	    }
 	}
-   SequenceClassifier doTrain(iitb.CRF.DataIter trainData) throws Exception {
+
+	SequenceClassifier doTrain(iitb.CRF.DataIter trainData) throws Exception 
+	{
 	    featureGen.train(trainData);
 	    ProgressCounter pc = new ProgressCounter("training CRF","iteration");
-	    double crfWs[] = crfModel.train(trainData);
+	    crfWs = crfModel.train(trainData);
 	    pc.finished();
 			
-	    //return this;
+			if (CONVERT_TO_MINORTHIRD_HYPERPLANE) return toMinorthirdClassifier();
+			else return this;
 			
-	    // we can use a CMM here, since the classifier is constructed to the same
-	    // beam search will work
-	    
-	    Hyperplane[] w_t;
-	    int numClasses = schema.getNumberOfClasses();
-	    w_t = new Hyperplane[numClasses];
-	    for (int i=0; i<numClasses; i++) {
-		w_t[i] = new Hyperplane();
-		w_t[i].setBias(0);
-	    }
-	    for (int fIndex = 0; fIndex < crfWs.length; fIndex++) {
-		Feature feature = (Feature)featureGen.featureIdentifier(fIndex).name;
-		int classIndex = featureGen.featureIdentifier(fIndex).stateId;
-		w_t[classIndex].increment(feature,crfWs[fIndex]);
-	    }
-	    
-	    classifier = new SequenceUtils.MultiClassClassifier(schema,w_t); 
-	    return new CMM(classifier, histsize, schema );	 
-	    // return this;
-	    }
+	 }
 
 	
-        /** Return a predicted type for each element of the sequence. */
+	private SequenceClassifier toMinorthirdClassifier()
+	{
+		Hyperplane[] w_t;
+		int numClasses = schema.getNumberOfClasses();
+		w_t = new Hyperplane[numClasses];
+		for (int i=0; i<numClasses; i++) {
+			w_t[i] = new Hyperplane();
+			w_t[i].setBias(0);
+		}
+		for (int fIndex = 0; fIndex < crfWs.length; fIndex++) {
+			Feature feature = (Feature)featureGen.featureIdentifier(fIndex).name;
+			int classIndex = featureGen.featureIdentifier(fIndex).stateId;
+			w_t[classIndex].increment(feature,crfWs[fIndex]);
+		}
+		return new CMM(new SequenceUtils.MultiClassClassifier(schema,w_t), histsize, schema );	 
+	}
+
+	/** Return a predicted type for each element of the sequence. */
 	public ClassLabel[] classification(Instance[] sequence) {
 		TestDataSequenceC seq = new TestDataSequenceC(sequence);
 		crfModel.apply(seq);
@@ -269,7 +275,8 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	
 	/** Return some string that 'explains' the classification */
 	public String explain(Instance[] sequence) {
-	    return cmmClassifier.explain(sequence);
+		if (cmmClassifier==null) cmmClassifier = toMinorthirdClassifier();
+		return cmmClassifier.explain(sequence);
 	}
 	
 	public Viewer toGUI()
@@ -282,7 +289,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 					mainPanel.add(
 						new JLabel("CRFLearner: historySize=1"),
 						BorderLayout.NORTH);
-					Viewer subView = new SmartVanillaViewer(cmm.classifier);
+					Viewer subView = new SmartVanillaViewer(toMinorthirdClassifier());
 					subView.setSuperView(this);
 					mainPanel.add(subView,BorderLayout.SOUTH);
 					mainPanel.setBorder(new TitledBorder("CRFLearner"));

@@ -23,7 +23,7 @@ import java.io.*;
 import java.util.*;
 import org.apache.log4j.*;
 
-class SequenceUtils
+public class SequenceUtils
 {
 	/** Create an array of n copies of the prototype learner. */
 	static public OnlineClassifierLearner[] duplicatePrototypeLearner(OnlineClassifierLearner prototype,int n)
@@ -43,6 +43,9 @@ class SequenceUtils
 	/** Wraps the OneVsAllClassifier, and provides a more convenient constructor. */ 
 	public static class MultiClassClassifier extends OneVsAllClassifier implements Serializable
 	{
+		static private long serialVersionUID = 1;
+		private int CURRENT_VERSION = 1;
+
 		public MultiClassClassifier(ExampleSchema schema,ClassifierLearner[] learners)
 		{
 			super(schema.validClassNames(), getBinaryClassifiers(learners));

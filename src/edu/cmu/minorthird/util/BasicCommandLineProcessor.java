@@ -10,12 +10,19 @@ import java.io.*;
  *
  * @author William Cohen
  */
-abstract public class BasicCommandLineProcessor implements CommandLineProcessor
+abstract public class BasicCommandLineProcessor implements CommandLineProcessor,Saveable
 {
 	private static Logger log = Logger.getLogger(BasicCommandLineProcessor.class);
 
+	// cache args last processed for saving
+	private String[] processedArgs = null;
+	// cache values associated with args
+	private Properties argValues = new Properties();
+
+
 	final public void processArguments(String[] args) 
 	{
+		processedArgs = args;
 		int k = consumeArguments(args,0);
 		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
 	}
@@ -146,10 +153,70 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 		usage();
 	}
 
+	/** 
+	 * A list of arguments from the command line, in order. 
+	 * For instance, if the command line includes -foo bar,
+	 * then "foo" will appear on the propertyList. 
+	 */
+	public List propertyList()
+	{
+		List result = new ArrayList();
+		argValues.clear();
+		int k=0; 
+		while (k<processedArgs.length) {
+			String opt = processedArgs[k];
+			String val = "";
+			int delta = 1;
+			if (k+1 < processedArgs.length && !processedArgs[k+1].startsWith("-")) {
+				val = processedArgs[k+1];
+				delta = 2;
+			}
+			String prop = opt.substring(1);
+			result.add(prop);
+			argValues.setProperty(prop,val);
+			k += delta;
+		}
+		return result;
+	}
+	/** 
+	 * The value assigned to a property from the command line.
+	 * For instance, if the command line includes -foo bar,
+	 * then propertyValue("foo") will return "bar".
+	 * This can only be called after propertyList has been
+	 * called.
+	 */
+	public String propertyValue(String property)
+	{
+		return argValues.getProperty(property);
+	}
+
+	// 
+	// implements Saveable
+	// 
+	private static final String CONFIG_FORMAT_NAME = "Configuration file";
+	private static final String CONFIG_FORMAT_EXT = ".config";
+	public String[] getFormatNames() { return new String[]{CONFIG_FORMAT_NAME}; };
+	public String getExtensionFor(String format) { return CONFIG_FORMAT_EXT; }
+	public void saveAs(File file, String format) throws IOException 
+	{
+		if (!format.equals(CONFIG_FORMAT_NAME)) throw new IllegalArgumentException("illegal format "+format);
+		PrintStream s = new PrintStream(new FileOutputStream(file));
+		for (Iterator i=propertyList().iterator(); i.hasNext(); ) {
+			String prop = (String)i.next();
+			s.println(prop+"="+propertyValue(prop));
+		}
+		s.close();
+		//Properties props = new Properties();
+		//props.store(new FileOutputStream(file), "auto-saved configuration file");
+	}
+	public Object restore(File file) throws IOException
+	{
+		throw new UnsupportedOperationException("Can't restore a command line processor");
+	}
 
 	/**
-	 * Test or example code.
-	 * Sample output, try invoke with arguments -scoff you -laff -family -mom gerbil  -taunt
+	 * Test and/or example code.
+	 * For sample output, invoke this with arguments -scoff you -laff -family -mom gerbil  -taunt
 	 */
 	static public void main(String[] args)
 	{

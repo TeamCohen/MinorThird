@@ -19,11 +19,11 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 	private final int CURRENT_SERIAL_VERSION = 1;
 
 	private String[] classNames;
-	private BinaryClassifier[] binaryClassifiers;
+	private Classifier[] binaryClassifiers;
 
 	/** Create a OneVsAllClassifier.
 	 */
-	public OneVsAllClassifier(String[] classNames,BinaryClassifier[] binaryClassifiers) {
+	public OneVsAllClassifier(String[] classNames,Classifier[] binaryClassifiers) {
 		if (classNames.length!=binaryClassifiers.length) {
 			throw new IllegalArgumentException("arrays must be parallel");
 		}
@@ -31,11 +31,13 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 		this.binaryClassifiers = binaryClassifiers;
 	}
 
+	public Classifier[] getBinaryClassifiers() { return binaryClassifiers; }
+
 	public ClassLabel classification(Instance instance) 
 	{
 		ClassLabel classLabel = new ClassLabel();
 		for (int i=0; i<classNames.length; i++) {
-			classLabel.add(classNames[i], binaryClassifiers[i].score(instance));
+			classLabel.add(classNames[i], binaryClassifiers[i].classification(instance).numericScore());
 		}
 		return classLabel;
 	}

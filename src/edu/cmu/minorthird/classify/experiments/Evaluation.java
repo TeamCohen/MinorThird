@@ -23,7 +23,7 @@ import java.util.zip.GZIPOutputStream;
  * @author William Cohen
  */
 
-public class Evaluation implements Visible,Serializable
+public class Evaluation implements Visible,Serializable,Saveable
 {
   private static Logger log = Logger.getLogger(Evaluation.class);
 
@@ -113,6 +113,22 @@ public class Evaluation implements Visible,Serializable
   {
     return properties.getProperty(prop,"=unassigned=");
   }
+
+	//
+	// low-level access
+	//
+	public ClassLabel getPrediction(int i)
+	{
+		return ((Entry)entryList.get(i)).predicted;
+	}
+	public ClassLabel getActual(int i)
+	{
+		return ((Entry)entryList.get(i)).actual;
+	}
+	public boolean isCorrect(int i)
+	{
+		return getPrediction(i).isCorrect(getActual(i));
+	}
 
   //
   // simple statistics
@@ -737,12 +753,25 @@ public class Evaluation implements Visible,Serializable
     }
   }
 
+	//
+	// implement Saveable
+	//
+	final static private String EVAL_FORMAT_NAME = "Minorthird Evaluation";
+	final static private String EVAL_EXT = ".eval";
+	public String[] getFormatNames() { return new String[]{EVAL_FORMAT_NAME}; }
+	public String getExtensionFor(String format) { return EVAL_EXT; }
+	public void saveAs(File file,String formatName) throws IOException { save(file);	}
+	public Object restore(File file) throws IOException	{	return load(file); }
+
   //
-  // i/o
   //
   public void save(File file) throws IOException
   {
     PrintStream out = new PrintStream(new GZIPOutputStream(new FileOutputStream(file)));
+		save(out);
+	}
+	private void save(PrintStream out) throws IOException
+	{
     out.println(StringUtil.toString( schema.validClassNames() ));
     for (Iterator i=propertyKeyList.iterator(); i.hasNext(); ) {
       String prop = (String)i.next();
@@ -762,14 +791,10 @@ public class Evaluation implements Visible,Serializable
   }
   static public Evaluation load(File file) throws IOException
   {
+		// disabled to avoid looping, since this is how we now de-serialize
     // first try loading a serialized version
-    try {
-      return (Evaluation)IOUtil.loadSerialized(file);
-    } catch (Exception ex) {
-      ;
-    }
-    LineNumberReader in =
-        new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+    //try {	return (Evaluation)IOUtil.loadSerialized(file); } catch (Exception ex) { ;  }
+    LineNumberReader in =new LineNumberReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
     String line = in.readLine();
     if (line==null) throw new IllegalArgumentException("no class list on line 1 of file "+file.getName());
     String[] classes = line.substring(1,line.length()-1).split(",");
@@ -779,11 +804,13 @@ public class Evaluation implements Visible,Serializable
       if (line.indexOf('=')>=0) {
         // property
         String[] propValue = line.split("=");
-        if (propValue.length!=2) {
-          throw new IllegalArgumentException(
-              file.getName()+" line "+in.getLineNumber()+": illegal format");
+        if (propValue.length==2) {
+					result.setProperty(propValue[0],propValue[1]);
+				} else if (propValue.length==1) {
+					result.setProperty(propValue[0],"");
+				} else {
+          throw new IllegalArgumentException(file.getName()+" line "+in.getLineNumber()+": illegal format");
         }
-        result.setProperty(propValue[0],propValue[1]);
       } else {
         String[] words = line.split(" ");
         if (words.length!=4)

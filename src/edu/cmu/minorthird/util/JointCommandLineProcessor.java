@@ -22,8 +22,22 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 
 	final public void processArguments(String[] args) 
 	{
-		int k = consumeArguments(args,0);
-		if (k<args.length) usage("illegal argument "+args[k]);
+		int k = 0;
+		while (k<args.length) {
+			int delta = consumeArguments(args,k);
+			k += delta;
+			if (delta==0) {
+				// figure out how many args to skip
+				delta++;
+				if (k+1<args.length && !args[k+1].startsWith("-")) {
+					delta++;
+					log.warn("Unknown arguments "+args[k]+" "+args[k+1]+" will be ignored");
+				} else {
+					log.warn("Unknown argument "+args[k]+" will be ignored");					
+				}
+				k += delta;
+			}
+		}
 	}
 
 	final public int consumeArguments(String[] args,int startPos)

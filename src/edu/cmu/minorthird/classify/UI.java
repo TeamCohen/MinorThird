@@ -48,7 +48,7 @@ public class UI
 
 	private static final Set LEGAL_OPS = new HashSet(Arrays.asList(new String[]{"train","test","trainTest"}));
 
-	public static class DataClassificationTask implements CommandLineProcessor.Configurable 
+	public static class DataClassificationTask implements CommandLineProcessor.Configurable,Saveable
 	{
 		private Dataset trainData=null, testData=null;
 		private String trainDataFilename=null, testDataFilename=null;
@@ -63,6 +63,7 @@ public class UI
 		private boolean showData=false, showResult=false, showTestDetails=false, useGUI=false;
 		private String op="trainTest";
 		private Object resultToShow=null, resultToSave=null;
+		private BasicCommandLineProcessor clp = new MyCLP();
 
 		public class MyCLP extends BasicCommandLineProcessor
 		{
@@ -250,16 +251,21 @@ public class UI
 						resultToShow = resultToSave = e;
 					}
 					((Evaluation)resultToSave).summarize();
+					// attach all the command-line arguments to the resultToSave, as properties
+					for (Iterator i=clp.propertyList().iterator(); i.hasNext(); ) {
+						String prop = (String)i.next();
+						((Evaluation)resultToSave).setProperty(prop,clp.propertyValue(prop));
+					}
 			} else {
 				log.error("Illegal operation: "+op);
 				return;
 			}
 			if (showResult) new ViewerFrame("Result", new SmartVanillaViewer(resultToShow));
 			if (saveAs!=null) {
-				try {
-					IOUtil.saveSerialized((Serializable)resultToSave,saveAs);
-				} catch (IOException ex) {
-					log.error("Can't save "+resultToSave.getClass()+" to "+saveAs+": "+ex);
+				if (IOUtil.saveSomehow(resultToSave,saveAs)) {
+					log.info("Result saved in "+saveAs);
+				} else {
+					log.error("Can't save "+resultToSave.getClass()+" to "+saveAs);
 				}
 			}
 		}
@@ -268,11 +274,24 @@ public class UI
 			return resultToShow;
 		}
 
+		// 
+		// implements Saveable
+		// 
+		public String[] getFormatNames() { return clp.getFormatNames(); }
+		public String getExtensionFor(String format) { return clp.getExtensionFor(format); }
+		public void saveAs(File file, String format) throws IOException { clp.saveAs(file,format); }
+		public Object restore(File file) throws IOException
+		{
+			DataClassificationTask task = new DataClassificationTask();
+			task.clp.config(file.getAbsolutePath());
+			return task;
+		}
+
 		// gui around main action
 		public void callMain(final String[] args)
 		{
 			try {
-				getCLP().processArguments(args);
+				clp.processArguments(args);
 				if (!useGUI) {
 					doMain();
 				}
@@ -357,7 +376,7 @@ public class UI
 											PrintStream oldSystemOut = System.out;
 											ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
 											System.setOut(new PrintStream(outBuffer));
-											getCLP().usage(); 
+											clp.usage(); 
 											errorArea.append(outBuffer.toString());
 											System.setOut(oldSystemOut);
 										}

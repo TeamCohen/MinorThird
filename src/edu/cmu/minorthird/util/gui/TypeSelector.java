@@ -47,7 +47,7 @@ public class TypeSelector extends ComponentViewer
 	// maps classes to the objects which will be used to instantiate these classes
 	private final Map instanceMap= new HashMap();
 	private JComboBox classBox;
-	private String name = null;
+	private String name = null; // path of setters associated with this typeSelector
 
  	public TypeSelector(Class[] validSubclasses,Class rootClass)
 	{

@@ -38,6 +38,10 @@ public class CMM implements SequenceClassifier,SequenceConstants,Visible,Seriali
 		this.historySize = historySize;
 		this.possibleClassLabels = schema.validClassNames();
 	}		
+	public Classifier getClassifier()
+	{
+		return classifier;
+	}
 
 	public ClassLabel[] classification(Instance[] sequence)
 	{

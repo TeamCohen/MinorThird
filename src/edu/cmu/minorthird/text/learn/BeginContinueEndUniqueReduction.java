@@ -108,6 +108,6 @@ public class BeginContinueEndUniqueReduction extends Extraction2TaggingReduction
 	private String makePattern(String baseTag)
 	{
 		String p = tokenProp+":"+baseTag;
-		return "... ["+p+"Begin "+p+"Continue* "+p+"End] ... || ... ["+p+"Unique] ...";
+		return "... ["+p+"Begin L "+p+"Continue* R "+p+"End] ... || ... ["+p+"Unique] ...";
 	}
 }

@@ -54,9 +54,9 @@ public class MaxEntLearner extends BatchClassifierLearner
 		return new MyClassifier(c);
 	}
 	
-	public static class MyClassifier implements Classifier,Serializable
+	public static class MyClassifier implements Classifier,Serializable,Visible
 	{
-		static private int serialVersionUID = 1;
+		static private long serialVersionUID = 1;
 		private final int CURRENT_SERIAL_VERSION = 1;
 
 		private SequenceClassifier c;
@@ -68,6 +68,19 @@ public class MaxEntLearner extends BatchClassifierLearner
 		}
 		public String explain(Instance instance) {
 			return c.explain(new Instance[]{instance});
+		}
+		public SequenceClassifier getSequenceClassifier() { return c; }
+		public Viewer toGUI()
+		{
+			Viewer v = new TransformedViewer(new SmartVanillaViewer()) {
+					public Object transform(Object o) {
+						MyClassifier mycl = (MyClassifier)o;
+						CMM cmm = (CMM)mycl.c;
+						return cmm.getClassifier();
+					}
+				};
+			v.setContent(this);
+			return v;
 		}
 	}
 }

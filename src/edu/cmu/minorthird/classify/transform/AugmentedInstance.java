@@ -49,7 +49,7 @@ public class AugmentedInstance implements Instance
 
 	final public Feature.Looper numericFeatureIterator() 
 	{ 
-		return new Feature.Looper( new UnionIterator( new MyIterator(), instance.binaryFeatureIterator() ) );
+		return new Feature.Looper( new UnionIterator( new MyIterator(), instance.numericFeatureIterator() ) );
 	}
 
 	final public Feature.Looper featureIterator() 
@@ -96,6 +96,10 @@ public class AugmentedInstance implements Instance
 		for (int i=0; i<argv.length; i++) {
 			Feature f = new Feature(argv[i]);
 			System.out.println("weight of "+f+"="+aug.getWeight(f));
+		}
+		for (Feature.Looper i=aug.featureIterator(); i.hasNext(); ) {
+			Feature f = i.nextFeature();
+			System.out.println("in aug: weight of "+f+"="+aug.getWeight(f));
 		}
 	}
 }

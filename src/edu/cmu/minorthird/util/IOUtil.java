@@ -10,6 +10,25 @@ import java.io.*;
  */
 public class IOUtil
 {
+	static public boolean saveSomehow(Object obj,File file)
+	{
+		try {
+			if (obj instanceof Saveable) {
+				Saveable saveObj = (Saveable)obj;
+				String defaultFormat = saveObj.getFormatNames()[0];
+				saveObj.saveAs( file, defaultFormat );
+				return true;
+			} else if (obj instanceof Serializable) {
+				IOUtil.saveSerialized((Serializable)obj,file);
+				return true;
+			} else {
+				return false;
+			}
+		} catch (IOException ex) {
+			return false;
+		}
+	}
+
 	static public void saveSerialized(Serializable obj,File file) throws IOException {
 		ObjectOutputStream out =
 			new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));

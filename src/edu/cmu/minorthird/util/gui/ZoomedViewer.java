@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * the zoomedIn view.  Used for getting a close up view of, say,
  * objects in a list.
  * 
- * @author William cohen
+ * @author William Cohen
  */
 
 public class ZoomedViewer extends SplitViewer
@@ -41,6 +41,12 @@ public class ZoomedViewer extends SplitViewer
 		log.info("recieving content: "+content);
 		zoomedOut.setContent(content);
 		zoomedIn.clearContent();
+	}
+
+	/** Get the object being displayed as the user sees it.  */
+	public Object getVisibleContent()
+	{
+		return zoomedOut.getVisibleContent();
 	}
 
 	public boolean canReceive(Object content)

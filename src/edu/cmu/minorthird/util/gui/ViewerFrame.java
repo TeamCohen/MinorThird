@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.log4j.*;
 
 /**
  * 
@@ -22,6 +23,8 @@ import java.util.*;
 
 public class ViewerFrame extends JFrame
 {
+	static private Logger log = Logger.getLogger(ViewerFrame.class);
+
 	private Viewer myViewer = null;
 	private String myName = null;
 	private JMenuItem saveItem=null, zoomItem=null, openItem=null;
@@ -100,6 +103,7 @@ public class ViewerFrame extends JFrame
 		saveItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
 					if (wrapper.isSaveable()) {
+						log.debug("Wrapper is saveable");
 						JFileChooser chooser = wrapper.makeFileChooser(wrapper);
 						int returnVal = chooser.showSaveDialog(ViewerFrame.this);
 						if (returnVal==JFileChooser.APPROVE_OPTION) {
@@ -204,7 +208,10 @@ public class ViewerFrame extends JFrame
 		public ContentWrapper(Object obj) 
 		{	
 			this.obj = obj;	
-			int n = (obj instanceof Serializable)?1:0;
+			int n = 0;
+			if (obj instanceof Serializable) {
+				n = 1;
+			}
 			if (obj instanceof Saveable) {
 				String[] fs = ((Saveable)obj).getFormatNames();
 				formats = new String[fs.length+n];
@@ -212,7 +219,11 @@ public class ViewerFrame extends JFrame
 			} else {
 				formats = new String[n];
 			}
-			if (formats.length>0) formats[0] = SERIALIZED_FORMAT_NAME;
+			if (obj instanceof Serializable) {
+				formats[0] = SERIALIZED_FORMAT_NAME;
+			}
+			log.debug("ContentWrapper for "+obj.getClass()+" has "+formats.length+" save format(s): "+
+								StringUtil.toString(formats));
 		}
 		public boolean isSaveable() { return formats.length>0; }
 		public String[] getFormatNames() { return formats; }

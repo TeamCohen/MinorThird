@@ -316,17 +316,8 @@ public class SpanEditor extends ViewerTracker
                 return;
             }
             Span.Looper newSpans = new BasicSpanLooper(editedSpans.iterator());
-            //System.out.println("exportType: "+exportType+" documentSpan "+documentSpan+" newSpans "+newSpans);
-            //System.out.println("editedSpans: "+editedSpans);
-						//System.out.println("current export type spans:");
-						//for (Span.Looper ii=editLabels.instanceIterator(exportType,documentSpan.getDocumentId()); ii.hasNext(); )
-						//System.out.println(" - "+ii.nextSpan());
             editLabels.defineTypeInside(exportType, documentSpan, newSpans);
-						//System.out.println("new spans type: "+exportType);
-						//for (Span.Looper ii=editLabels.instanceIterator(exportType,documentSpan.getDocumentId()); ii.hasNext(); )
-						//System.out.println(" - "+ii.nextSpan());
             //editLabels.setProperty(documentSpan.documentSpan(), EDITOR_PROP, "t");
-            //System.out.println("SE: will paint "+documentSpan+" id: "+documentSpan.getDocumentId());
             spanPainter.paintDocument(documentSpan.getDocumentId());
             editSpanCursor = -1;
             statusMsg.display("exported " + editedSpans.size() + " " + exportType + " spans");
