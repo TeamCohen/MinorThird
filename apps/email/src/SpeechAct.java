@@ -6,7 +6,32 @@ package email;
  * It follows the description in 
  * "Learning to Classify Email into "Speech Acts"", 
  * V.R.Carvalho, W.W.Cohen, T. M. Mitchell ; EMNLP 2004
- *  
+ *
+ * To use it, please:
+ * 1- add minorthird/apps/email/class to your CLASSPATH
+ * 2- from minorthird/apps/email directory, compile it using "ant build"
+ * 3- from minorhthird/ directory, run it using "java -Xmx500m email.SpeechAct directoryName"
+ *
+ * The output will be something like:
+ * C:\minorthird>java -Xmx500m email.SpeechAct dummy
+ * textbase size = 8
+ * msgId_28975_fIRMID_N03F2_1997_09_15_00_39_57     (_____ _DLV_ _PROP_ _____ _____ ___________ _DLVCMT__)
+ * msgId_547_fIRMID_N03F2_1997_08_26_15_24_57     (_REQ_ _DLV_ _PROP_ _____ _____ _REQAMDPROP _________)
+ * msgId_11137_fIRMID_N03F2_1997_09_04_23_56_57     (_REQ_ _DLV_ ______ _____ _____ _REQAMDPROP _DLVCMT__)
+ * 
+ *
+ * Reminder: it currently uses all words inside the text file (bag of lower case
+ *   words model). If you only want to use only the 
+ *   words surrounded by a <body> tag, go to the main method, and please change 
+ *   the lines:
+ *
+ *      for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
+ *      Span span = (Span)it.next();	
+ * by
+ *	    for (Iterator it = labels.instanceIterator("body"); it.hasNext();) {
+ *      Span span = (Span)it.nextSpan();
+ *
+ *
  * @author Vitor R. Carvalho
  * Jun 15, 2004
  *
@@ -61,7 +86,7 @@ public class SpeechAct {
 	
   public SpeechAct() {
     try {
-    	//all models below are based on LC_BOW only. original dataset is located
+    	//all models below are based on LC_BOW only. 
       File reqfile = new File("apps/email/models/Req_Model");//DT
       req_model = (BinaryClassifier) IOUtil.loadSerialized(reqfile);
       File dlvfile = new File("apps/email/models/Dlv_Model");//VP,batch15
@@ -107,9 +132,9 @@ public class SpeechAct {
       System.out.println("textbase size = " + textBase.size());
       //TextBaseEditor.edit(labels, new File("moomoomoo"));
       for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
+      	Span span = (Span)it.next();
 	  //for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
         //Span span = (Span)it.nextSpan();
-        Span span = (Span)it.next();
         MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
 	    boolean reqbool = sa.bclassify(sa.req_model, ins);
 	    boolean dlvbool = sa.bclassify(sa.dlv_model, ins);
@@ -134,15 +159,14 @@ public class SpeechAct {
     catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      usage();
     }
   }
   
   private static void usage() {
-    System.out.println("usage: SpeechAct directoryname");
-//    System.out.println("OR");
-//    System.out.println(
-//      "usage: SigFilePredictor -create filename1 filename2 ...");
-//    System.out.println(
-//      "PS: to create, use \"Signature and Reply Dataset\" annotation stile as in www.cs.cmu.edu/~vitor/codeAndData.html");
+    System.out.println("usage: SpeechAct directoryName");
+    System.out.println("\n\n, OR, if you have labeled data and want to create a model\n");
+    System.out.println("usage: SpeechAct -create VerbAct\n");
+    System.out.println("VerbAct = Req, Dlv, Cmt, Prop, Amd, ReqAmdProp or DlvCmt");
   }
 }
