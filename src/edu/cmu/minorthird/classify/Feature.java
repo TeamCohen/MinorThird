@@ -17,6 +17,9 @@ import java.util.*;
 
 public class Feature implements Comparable,Serializable
 {
+	static public final long serialVersionUID = 1;
+    public final int CURRENT_VERSION_NUMBER = 1;
+    
 	private String[] name;
 	private int id = -1;
 
