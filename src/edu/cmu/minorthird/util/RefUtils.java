@@ -33,7 +33,22 @@ public class RefUtils
 			try {
 				return Class.forName("edu.cmu.minorthird."+s).newInstance();
 			} catch (Exception ex2) {
-				throw new IllegalArgumentException("can't create instance of '"+s+"' or 'edu.bcmu.minorthird."+s+"'");
+			    try{
+				int i = s.lastIndexOf('.');
+				int len = s.length();
+				String s2 = s.substring(0,i) + "$" + s.substring(i+1,len);
+				return Class.forName("edu.cmu.minorthird."+s2).newInstance();
+			    } catch (Exception ex3){
+				try {
+				    int i = s.lastIndexOf('.');
+				    int len = s.length();
+				    String s2 = s.substring(0,i) + "$" + s.substring(i+1,len);
+				    return Class.forName(s2).newInstance();
+				} catch (Exception ex4){
+				    throw new IllegalArgumentException("can't create instance of '"+s+"' or 'edu.cmu.minorthird."+s+"'");
+				}
+			    }
+			    
 			}
 		}
 	}

@@ -27,22 +27,6 @@ import org.apache.log4j.*;
  */
 public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 {
-    /*private static final Class[] SELECTABLE_TYPES = new Class[]{ 
-	ClassifyCommandLineUtil.Learner.SeqLearner.class, ClassifyCommandLineUtil.Learner.ClassLearner.class,
-	KnnLearner.class, NaiveBayes.class, 
-	VotedPerceptron.class,	SVMLearner.class,
-	DecisionTreeLearner.class, AdaBoost.class,
-	BatchVersion.class, TransformingBatchLearner.class,
-	MaxEntLearner.class,
-	// transformations
-	FrequencyBasedTransformLearner.class, InfoGainTransformLearner2.class, 
-	T1InstanceTransformLearner.class, TFIDFTransformLearner.class,
-	// sequential learner
-	CollinsPerceptronLearner.class, GenericCollinsLearner.class,
-	// splitters
-	CrossValSplitter.class, RandomSplitter.class, StratifiedCrossValSplitter.class,
-	};*/
-
     private static final Set LEGAL_OPS = new HashSet(Arrays.asList(new String[]{"train","test","trainTest"}));
 
     private static Dataset safeToDataset(String s, boolean b)	
@@ -75,32 +59,17 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    throw new IllegalArgumentException("error parsing learnerName '"+s+"':\n"+e);
 	}
     }
+    /** Parameters that all experiments have 
+     *  Used so that main method only needs to check base
+     */
     public static class BaseParams extends BasicCommandLineProcessor {
 	public boolean sequential=false;
 	public String op="trainTest";
 	public Dataset trainData=null;
 	public String trainDataFilename = null;
 	public boolean showData=false;
-
-	public void seq() { sequential=true; }
-	public void data(String s) { 
-	    trainData = safeToDataset(s, sequential);  
-	    trainDataFilename = s; 
-	}
-	public void op(String s) { 
-	    if (LEGAL_OPS.contains(s)) op = s;
-	    else throw new IllegalArgumentException("Illegal op "+s+": legal ops are "+LEGAL_OPS);
-	}
-
-	//for gui
-	public String get_operation() { return op; } 		// underscore will sort this up to the top of the list
-	public void set_operation(String s) { op=s; }
-	public Object[] getAllowed_operationValues() { return LEGAL_OPS.toArray(); }	
-	public void setSequentialMode(boolean flag) { sequential=flag; }
-	public boolean getSequentialMode() { return sequential; }
-	public String getDatasetFilename() { return trainDataFilename; }
-	public void setDatasetFilename(String s) { trainData = safeToDataset(s, sequential); trainDataFilename=s; }
     }
+    /** Generalized class for Leaner... contains classifierLearner and sequentialLearner */
     public static class Learner extends BasicCommandLineProcessor{
 	public static class SequentialLnr extends ClassifyCommandLineUtil.Learner {
 	    public SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
@@ -115,6 +84,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    public void setLearner(ClassifierLearner c) { clsLearner=c; }
 	}
     }
+    /**  Parameters for Train Classifier */
     public static class TrainParams extends ClassifyCommandLineUtil {
 	public ClassifierLearner clsLearner=new NaiveBayes();
 	public SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
@@ -124,8 +94,8 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public Object resultToShow=null, resultToSave=null;
 	public boolean sequential=false;
 	public ClassifyCommandLineUtil.Learner.SequentialLnr seqLnr = new ClassifyCommandLineUtil.Learner.SequentialLnr();
-	public ClassifyCommandLineUtil.Learner.ClassifierLnr classifierLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
-	public ClassifyCommandLineUtil.Learner lnr = classifierLnr;       
+	public ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
+	public ClassifyCommandLineUtil.Learner lnr = clsLnr;       
 	public Dataset trainData=null;
 	public String trainDataFilename = null;
 	public ClassifyCommandLineUtil.BaseParams base;
@@ -134,7 +104,11 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    base = b;
 	    sequential = base.sequential;
 	}
-	public void seq() { sequential=true; }
+	public void seq() { 
+	    sequential=true; 
+	    base.sequential = true;
+	    lnr = seqLnr;
+	}
 	public void data(String s) { 
 	    trainData = safeToDataset(s, sequential);  
 	    trainDataFilename = s; 
@@ -147,7 +121,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    if (b)
 	    	lnr = seqLnr;
 	    else 
-		lnr = classifierLnr;
+		lnr = clsLnr;
 	}
 	public void learner(String s) { 
 	    if (sequential) seqLearner = toSeqLearner(s);
@@ -181,6 +155,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public boolean getShowTestDetails() { return showTestDetails; }
 	public void setShowTestDetails(boolean flag) { showTestDetails=flag; }
     }
+    /** Paramters for Test Classifier */ 
     public static class TestParams extends ClassifyCommandLineUtil {
 	public Dataset testData=null;
 	public String testDataFilename=null;
@@ -209,7 +184,9 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    base.showData=true;
 	}
 	public void showResult() { showResult=true; }
-	public void seq() { sequential=true; }
+	public void seq() { 
+	    sequential=true; 	    
+	}
 	public void showTestDetails() { showTestDetails=true; }
 	public void test(String s) {  
 	    testData = safeToDataset(s, sequential); 
@@ -228,12 +205,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public String getTestsetFilename() { return testDataFilename; }
 	public void setTestsetFilename(String s) { testData = safeToDataset(s, sequential); testDataFilename=s; }
     }
+    /** Parameters for TrainTest Classifier */
     public static class TrainTestParams extends ClassifyCommandLineUtil {
 	public Dataset trainData = null, testData=null;
 	public String trainDataFilename = null, testDataFilename=null;
 	public Splitter splitter = new RandomSplitter(0.7);
-	public ClassifierLearner clsLearner=new NaiveBayes();
-	public SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
+	//public ClassifierLearner clsLearner=new NaiveBayes();
+	//public SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
 	public File saveAs = null;
 	public String saveAsFilename=null;
 	public File loadFrom=null;
@@ -242,15 +220,23 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public Object resultToShow=null, resultToSave=null;
 	public boolean sequential=false;
 	public ClassifyCommandLineUtil.Learner.SequentialLnr seqLnr = new ClassifyCommandLineUtil.Learner.SequentialLnr();
-	public ClassifyCommandLineUtil.Learner.ClassifierLnr classifierLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
-	public ClassifyCommandLineUtil.Learner lnr = classifierLnr;
+	public ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
+	public ClassifyCommandLineUtil.Learner lnr = seqLnr;
 	public ClassifyCommandLineUtil.BaseParams base;
 
 	public void setBase(ClassifyCommandLineUtil.BaseParams b) {
 	    base = b;
 	    sequential = base.sequential;
+	    if(sequential)
+		lnr = seqLnr;
+	    else 
+		lnr = clsLnr;
 	}
-	public void seq() { sequential=true; }
+	public void seq() { 
+	    sequential=true; 
+	    base.sequential = true;
+	    lnr = seqLnr;
+	}
 	public void data(String s) { 
 	    trainData = safeToDataset(s, sequential);  
 	    trainDataFilename = s;
@@ -260,8 +246,8 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public void setSequential(boolean b){ sequential=b; }
 	public void splitter(String s) { splitter = Expt.toSplitter(s); }
 	public void learner(String s) { 
-	    if (sequential) seqLearner = toSeqLearner(s);
-	    else clsLearner = Expt.toLearner(s); 
+	    if (sequential) seqLnr.seqLearner = toSeqLearner(s);
+	    else clsLnr.clsLearner = Expt.toLearner(s); 
 	}
 	public void saveAs(String s) { saveAs = new File(s); saveAsFilename=s; }
 	public void classifierFile(String s) { loadFrom = new File(s); loadFromFilename=s; }
@@ -284,11 +270,12 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public ClassifyCommandLineUtil.Learner get_LearnerParameters() { return lnr; }
 	public void set_LearnerParameters(ClassifyCommandLineUtil.Learner learn) { 
 	    lnr = learn; 
-	    if(lnr instanceof ClassifyCommandLineUtil.Learner.SequentialLnr)
-		setSequential(true);
+	    if(lnr instanceof ClassifyCommandLineUtil.Learner.SequentialLnr){
+		seq();
+	    }
 	    else setSequential(false);
 	}
-	public String getDatasetFilename() { return trainDataFilename; }
+	public String getDatasetFilename() { return base.trainDataFilename; }
 	public void setDatasetFilename(String s) { 
 	    trainData = safeToDataset(s, sequential); 
 	    trainDataFilename=s; 

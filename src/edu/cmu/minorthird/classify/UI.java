@@ -59,13 +59,13 @@ public class UI
 	private ClassifyCommandLineUtil.TrainTestParams trainTestParams = new ClassifyCommandLineUtil.TrainTestParams();
 	private ClassifyCommandLineUtil bcp;
 
-	//private ClassifyCommandLineUtil.Learner.ClassLearner clsLearner = new ClassifyCommandLineUtil.Learner.ClassLearner();
-	//private ClassifyCommandLineUtil.Learner.SeqLearner seqLearner = new ClassifyCommandLineUtil.Learner.SeqLearner();
+	//private ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
+	//private ClassifyCommandLineUtil.Learner.SequentialLnr seqLnr = new ClassifyCommandLineUtil.Learner.SequentialLnr();
 	//private ClassifyCommandLineUtil.Learner lnr;
 
 	public Object resultToShow;
 	public boolean useGUI;
-	public Console.Task main;	
+	public Console.Task main;
 
 	// for gui
 	//public ClassifyCommandLineUtil.Learner getLearner() { return lnr; }
@@ -75,6 +75,20 @@ public class UI
 	//public ClassifyCommandLineUtil.BaseParams getBaseParameters() { return baseParams; }
 	//public void setBaseParameters(ClassifyCommandLineUtil.BaseParams p) { baseParams=p; }
 	
+	protected class OperationParams extends BasicCommandLineProcessor {
+	    public void op(String s) {
+		if (LEGAL_OPS.contains(s)) {
+		    if(s.equals("train"))
+			bcp = trainParams;
+		    else if (s.equals("test"))
+			bcp = testParams;
+		    else
+			bcp = trainTestParams;
+		}
+		else throw new IllegalArgumentException("Illegal op "+s+": legal ops are "+LEGAL_OPS);
+	    }
+	}
+
 	protected class GUIParams extends BasicCommandLineProcessor {
 	    public void gui() { useGUI=true; }
 	    public void usage() {
@@ -86,9 +100,12 @@ public class UI
 	public String getDatasetFilename() { return baseParams.trainDataFilename; }
 
 	public CommandLineProcessor getCLP() {
-	    JointCommandLineProcessor jlpTrain = new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),baseParams,trainParams});
-	    JointCommandLineProcessor jlpTest = new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),baseParams,testParams});
-	    JointCommandLineProcessor jlpTrainTest = new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),baseParams,trainTestParams});
+	    JointCommandLineProcessor jlpTrain = new JointCommandLineProcessor(new CommandLineProcessor[]
+		{new OperationParams(), new GUIParams(),baseParams,trainParams});
+	    JointCommandLineProcessor jlpTest = new JointCommandLineProcessor(new CommandLineProcessor[]
+		{new OperationParams(), new GUIParams(),baseParams,testParams});
+	    JointCommandLineProcessor jlpTrainTest = new JointCommandLineProcessor(new CommandLineProcessor[]
+		{new OperationParams(), new GUIParams(),baseParams,trainTestParams});
 	    if (baseParams.op.equals("train"))
 		return jlpTrain;
 	    else if(baseParams.op.equals("test"))
@@ -150,29 +167,36 @@ public class UI
 	    } else if ("train".equals(baseParams.op)) {
 		if (baseParams.sequential) {
 		    DatasetSequenceClassifierTeacher teacher = new DatasetSequenceClassifierTeacher((SequenceDataset)baseParams.trainData);
-		    SequenceClassifier c = teacher.train(trainParams.seqLearner);
+		    //SequenceClassifier c = teacher.train(trainParams.seqLearner);
+		    SequenceClassifier c = teacher.train(trainParams.seqLnr.seqLearner);
 		    trainParams.resultToShow = trainParams.resultToSave = c;
 		} else {
 		    ClassifierTeacher teacher = new DatasetClassifierTeacher(baseParams.trainData);
-		    Classifier c = teacher.train(trainParams.clsLearner);
+		    //Classifier c = teacher.train(trainParams.clsLearner);
+		    Classifier c = teacher.train(trainParams.clsLnr.clsLearner);
 		    trainParams.resultToShow = trainParams.resultToSave = c;
 		}
 		resultToShow=trainParams.resultToShow;
 	    } else if ("trainTest".equals(baseParams.op)) {
 		if (trainTestParams.showTestDetails && baseParams.sequential) {
+		    //CrossValidatedSequenceDataset cvd 
+		    //	= new CrossValidatedSequenceDataset(trainTestParams.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
 		    CrossValidatedSequenceDataset cvd 
-			= new CrossValidatedSequenceDataset(trainTestParams.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
+			= new CrossValidatedSequenceDataset(trainTestParams.seqLnr.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
 		    trainTestParams.resultToShow = cvd;
 		    trainTestParams.resultToSave = cvd.getEvaluation();
 		} else if (!trainTestParams.showTestDetails && baseParams.sequential) {
-		    Evaluation e = Tester.evaluate(trainTestParams.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
+		    //Evaluation e = Tester.evaluate(trainTestParams.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
+		    Evaluation e = Tester.evaluate(trainTestParams.seqLnr.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
 		    trainTestParams.resultToShow = trainTestParams.resultToSave = e;
 		} else if (trainTestParams.showTestDetails && !baseParams.sequential) {
-		    CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, baseParams.trainData, trainTestParams.splitter);
+		    //CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, baseParams.trainData, trainTestParams.splitter);
+		    CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLnr.clsLearner, baseParams.trainData, trainTestParams.splitter);
 		    trainTestParams.resultToShow = cvd;
 		    trainTestParams.resultToSave = cvd.getEvaluation();
 		} else if (!trainTestParams.showTestDetails && !baseParams.sequential) {
-		    Evaluation e = Tester.evaluate(trainTestParams.clsLearner,baseParams.trainData,trainTestParams.splitter);
+		    //Evaluation e = Tester.evaluate(trainTestParams.clsLearner,baseParams.trainData,trainTestParams.splitter);
+		    Evaluation e = Tester.evaluate(trainTestParams.clsLnr.clsLearner,baseParams.trainData,trainTestParams.splitter);
 		    trainTestParams.resultToShow = trainTestParams.resultToSave = e;
 		}
 		((Evaluation)trainTestParams.resultToSave).summarize();
@@ -219,20 +243,12 @@ public class UI
 	    trainParams.setBase(baseParams);
 	    testParams.setBase(baseParams);
 	    trainTestParams.setBase(baseParams);
-	    if (baseParams.op.equals("train")){
+	    if (baseParams.op.equals("train"))
 		bcp = trainParams;
-		if (baseParams.sequential)
-		    trainParams.lnr = trainParams.seqLnr;
-		else
-		    trainParams.lnr = trainParams.classifierLnr;
-	    }else if(baseParams.op.equals("test"))
+	    else if(baseParams.op.equals("test"))
 		bcp = testParams;
 	    else{
 		bcp = trainTestParams;
-		if (baseParams.sequential)
-		    trainTestParams.lnr = trainTestParams.seqLnr;
-		else
-		    trainTestParams.lnr = trainTestParams.classifierLnr;
 	    }
 	    
 	    try {

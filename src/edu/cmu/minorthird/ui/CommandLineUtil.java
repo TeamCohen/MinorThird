@@ -693,6 +693,10 @@ public class CommandLineUtil
 	}
 	public void output(String s) { 
 	    this.output=s; }
+	public void other(String s) {
+	    Object o = this;
+	    RefUtils.modify(o,s);
+	}
 	public void option(String s, Object o) {
 	    int i = s.indexOf("=");
 	    if(i > 0) {

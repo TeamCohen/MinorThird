@@ -16,6 +16,11 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/** Implements the console window for the gui
+ *
+ * @author Cameron Williams
+*/
+
 public class Console
     {
 	private PipedInputStream piOut;
@@ -39,6 +44,7 @@ public class Console
 	    this.task = t;
 	}
 
+	/** Constructor initializes the task, whether labels are present, and the viewButton */
 	public Console(Object t, boolean l, JButton vb)
 	{
 	    this.errorArea = new JTextArea(20,100);
