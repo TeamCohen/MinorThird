@@ -34,7 +34,6 @@ public abstract class StringAnnotator extends AbstractAnnotator
           labels.addToType(newSpan, ann.getType());
         }
       }
-      log.warn("no annotations returned for span");
 		}
 
 	}

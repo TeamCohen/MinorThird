@@ -325,7 +325,6 @@ public class MixupProgram
 						while (!(w = advance(null)).equals("\""))
 							defFile.append(w);
 						try {
-							//BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
 							LineNumberReader bReader = mixupReader(defFile.toString());
 							String s = null;
 							while ((s = bReader.readLine()) != null) {
@@ -578,6 +577,7 @@ public class MixupProgram
       return mixupReader(file);
 		else {
 			InputStream s = ClassLoader.getSystemResourceAsStream(fileName);
+			if (s==null) throw new IllegalArgumentException("No file named '"+fileName+"' found on classpath");
 			return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
 		}
 	}

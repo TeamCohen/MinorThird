@@ -126,6 +126,6 @@ public class Dependencies
 
     }
 
-    return providerProps.getProperty(reqAnnotation);
+    return providerProps.getProperty(reqAnnotation, reqAnnotation+".mixup");
   }
 }
