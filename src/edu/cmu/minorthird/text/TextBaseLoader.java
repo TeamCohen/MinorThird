@@ -661,7 +661,7 @@ public class TextBaseLoader
 		    +": '"+docBuffer.substring(entry.index)+"'");
 	}
         //spanList.add( new CharSpan(entry.index, docBuffer.length()-1, tag) );
-        spanList.add( new CharSpan(entry.index, docBuffer.length(), tag) );
+        spanList.add( new CharSpan(entry.index, docBuffer.length(), tag, curDocID) );
       }
     }
     // append stuff from end of last tag to end of line into the buffer
@@ -734,11 +734,19 @@ public class TextBaseLoader
   }
   private class CharSpan {
     public int lo,hi;
-    String type;
-    public CharSpan(int lo,int hi,String type) {
-      this.lo=lo; this.hi=hi; this.type = type;
+      String type, docID;
+      public CharSpan(int lo,int hi,String type, String docID) {
+	  this.lo=lo; this.hi=hi; this.type = type; this.docID=docID;
     }
   }
+
+    private class TokenProps {
+	public int lo,hi;
+	String type, value;
+	public TokenProps(int lo,int hi,String type,String value) {
+	    this.lo=lo; this.hi=hi; this.type = type; this.value = value;
+	}
+    }
 
   //--------------------- End Private methods --------------------------------------------------
 
@@ -875,8 +883,6 @@ public class TextBaseLoader
 
     /** Load files from a directory, stripping out any XML/SGML tags.
    *
-   * @deprecated; to be removed at end of February
-   *
    */
   public void loadWordPerLineFiles(TextBase base,File dir) throws IOException,FileNotFoundException
   {
@@ -895,7 +901,7 @@ public class TextBaseLoader
     }
   }
 
-    /**
+     /**
      *  Load a document where each word has it's own line and is follwed by three desscriptor words.
      *  The first item on each line is a word, the second a part-of-speech (POS) tag, the third a 
      *  syntactic chunk tag and the fourth the named entity tag.
@@ -904,59 +910,48 @@ public class TextBaseLoader
     {
 	if (labels == null)
 	    labels = new BasicTextLabels(base);
-	//curGrpID = "eng";
 	String id = file.getName();
-	System.out.println("ID: " + id);
 	LineNumberReader in = new LineNumberReader(new FileReader(file));
 	String line;
 	this.textBase = base;
 	StringBuffer buf = new StringBuffer("");
+	int docNum = 1, start = 0, end = 0;
+	curDocID = id + "-" + docNum;
 	List spanList = new ArrayList();
-	int pos = 0;
 
-	//creates document StringBuffer and adds all labels to spanList
 	while((line = in.readLine()) != null) {
-	    StringTokenizer st = new StringTokenizer(line);
-	    int i = 0;
-	    while(st.hasMoreTokens()) {
-		String word = st.nextToken();
-		if(i == 0) {
-		    buf.append(word);
-		    curDocID = file.getName() + "@line:" + in.getLineNumber();
-		    buf.append(" ");
-		    
-		} else if(i == 1) {
-		    spanList.add(new CharSpan(pos,buf.length()-1,word));
-		}else if(i == 3) {
-		    if(!word.equals("O")){
-			spanList.add(new CharSpan(pos,buf.length()-1,word));
-		    }
-		}
-		i++;
-	    }
-	    pos = buf.length();
+	   String[] words = line.split("\\s");
+	   //System.out.println(words[0]);
+	   if(!(words[0].equals("-DOCSTART-"))) {
+	       if(words.length > 1) {
+		   start = buf.length();
+		   buf.append(words[0]+" ");
+		   end = buf.length()-1;
+		   
+		   spanList.add(new CharSpan(start,end,words[1],curDocID));
+		   if(!words[3].equals("O"))
+		       spanList.add(new CharSpan(start,end,words[3],curDocID)); 
+	       }
+	       
+	   }else {	       
+	       base.loadDocument(curDocID, buf.toString());
+	       buf = new StringBuffer("");
+	       docNum++;
+	       curDocID = id + "-" + docNum;
+	   }
 	}
 	in.close();
 
-	//Load Document into TextBase
-	
-	base.loadDocument(id, buf.toString());	
-	if(curGrpID != null)
-	    base.setDocumentGroupId(id, curGrpID);
-
-	Set types = new TreeSet();
-	//for (Iterator j=spanList.iterator(); j.hasNext(); ) {
-	Iterator j = spanList.iterator();
-	for(int x=0; x<100; x++){
+	//Iterator j = spanList.iterator();
+	//for(int x=0; x<500; x++){
+	for (Iterator j=spanList.iterator(); j.hasNext(); ) {
 	    CharSpan charSpan = (CharSpan)j.next();
-	    
-	    types.add( charSpan.type );
-	    Span approxSpan = base.documentSpan(id).charIndexSubSpan(charSpan.lo, charSpan.hi);
-	    System.out.println(approxSpan.toString() + ": " + charSpan.type);
+	    Span approxSpan = base.documentSpan(charSpan.docID).charIndexSubSpan(charSpan.lo, charSpan.hi);
+	    //System.out.println(approxSpan.asString() + ": " + charSpan.type);
 	    labels.addToType( approxSpan, charSpan.type );
 	}
-	new TextLabelsLoader().closeLabels( labels, closurePolicy );
     }
+
 
   /**
    * Read a serialized BasicTextBase from a file.
