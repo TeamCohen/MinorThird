@@ -64,8 +64,8 @@ public class MaxEntLearner extends BatchClassifierLearner
 	
 	public static class MyClassifier implements Classifier,Serializable,Visible
 	{
-		static private long serialVersionUID = 2;
-		private final int CURRENT_SERIAL_VERSION = 2;
+		  static private final long serialVersionUID = 1;
+		  private final int CURRENT_SERIAL_VERSION = 1;
 
 		private Classifier c;
     private ExampleSchema schema;

@@ -141,7 +141,7 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 
 	public static class MultiClassClassifier implements Classifier,Visible,Serializable
 	{
-		private int serialVersionUID = 1;
+		static private final long serialVersionUID = 1;
 		private ExampleSchema schema;
 		private BinaryClassifier[] innerClassifier;
 		private int numClasses;

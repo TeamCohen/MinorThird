@@ -22,7 +22,7 @@ import java.awt.*;
 public class CRFLearner 
   implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,Visible,Serializable
 {
-  static private int serialVersionUID = 1;
+	static private final long serialVersionUID = 1;
   private final int CURRENT_SERIAL_VERSION = 1;
 	
   int histsize = 1;

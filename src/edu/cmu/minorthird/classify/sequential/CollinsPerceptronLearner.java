@@ -136,7 +136,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 
 	public static class MultiClassVPClassifier implements Classifier,Visible,Serializable
 	{
-		private int serialVersionUID = 1;
+		static private final long serialVersionUID = 1;
 		private ExampleSchema schema;
 		private Hyperplane[] s_t, w_t;
 		private int numClasses; 

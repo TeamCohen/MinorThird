@@ -43,7 +43,7 @@ public class SequenceUtils
   /** Wraps the OneVsAllClassifier, and provides a more convenient constructor. */ 
   public static class MultiClassClassifier extends OneVsAllClassifier implements Serializable
   {
-    static private long serialVersionUID = 1;
+  	static private final long serialVersionUID = 1;
     private int CURRENT_VERSION = 1;
     
     public MultiClassClassifier(ExampleSchema schema,ClassifierLearner[] learners)
