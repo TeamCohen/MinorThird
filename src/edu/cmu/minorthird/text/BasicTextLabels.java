@@ -259,8 +259,10 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	}
 
 
-	// get the set of spans with a given type in the given document
-	private Set getClosureSet(String type,String documentId) {
+	/**
+   * get the set of spans with a given type in the given document
+	 */
+  private Set getClosureSet(String type,String documentId) {
 		TreeMap documentsWithClosure = (TreeMap)closureDocumentSetMap.get(type);
 		if (documentsWithClosure==null) {
 			closureDocumentSetMap.put( type, (documentsWithClosure = new TreeMap()) );
@@ -273,25 +275,34 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	}
 
 
-	// iterate over all spans of a given type
+	/** iterate over all spans of a given type */
 	private class MyNestedSpanLooper implements Span.Looper {
 		private Iterator documentIterator;
 		private Iterator spanIterator;
 		private Span nextSpan;
-		private boolean getClosures; // if false, get documents
-		public MyNestedSpanLooper(String type,boolean getClosures) {
+    private int estimatedSize;
+//		private boolean getClosures; // if false, get documents
+
+    public MyNestedSpanLooper(String type,boolean getClosures) {
 			//System.out.println("building MyNestedSpanLooper for "+type+": "+typeDocumentSetMap);
 			Map documentMap = (Map) (getClosures? closureDocumentSetMap.get(type) : typeDocumentSetMap.get(type));
 			if (documentMap==null) {
 				nextSpan = null;
+        estimatedSize = 0;
 			} else {
+        //iterator over the documents in the map
 				documentIterator = documentMap.entrySet().iterator();
+        estimatedSize = documentMap.entrySet().size();
 				spanIterator = null;
 				advance();
 			}
 		}
+
+    /**
+     * @return Number of documents with the given type
+     */
 		public int estimatedSize() {
-			return -1;
+			return estimatedSize;
 		}
 		public boolean hasNext() {
 			return nextSpan!=null;
