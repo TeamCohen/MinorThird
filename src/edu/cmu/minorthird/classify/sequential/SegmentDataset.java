@@ -24,6 +24,7 @@ public class SegmentDataset implements Dataset
 	private ArrayList groupList = new ArrayList();
 	private Set classNameSet = new HashSet();
 	private int totalSize = 0;
+  private FeatureFactory factory = new FeatureFactory();
 
 	public SegmentDataset() {;}
 
@@ -40,7 +41,8 @@ public class SegmentDataset implements Dataset
 		if (maxWindowSize>=0 && group.getMaxWindowSize()!=maxWindowSize) {
 			throw new IllegalArgumentException("mismatched window sizes: "+maxWindowSize+", "+group.getMaxWindowSize());
 		}
-		groupList.add(group);
+    groupList.add(group);
+		//groupList.add(new CompactCandidateSegmentGroup(factory,group));
 		classNameSet.addAll( group.classNameSet() );
 		totalSize += group.size();
 	}
@@ -55,7 +57,7 @@ public class SegmentDataset implements Dataset
 	/** Add a new example to the dataset. */
 	public void add(Example example)
 	{
-		CandidateSegmentGroup g = new CandidateSegmentGroup(1,1);
+		MutableCandidateSegmentGroup g = new MutableCandidateSegmentGroup(1,1);
 		g.setSubsequence(0,1,example.asInstance(),example.getLabel());
 		addCandidateSegmentGroup(g);
 	}

@@ -109,8 +109,6 @@ public class Recommended
 		public VPSMMLearner(int maxLength) { super(20,maxLength); }
 	}
 
-	/**
-	 */
 	/** Uses the voted perceptron algorithm to learn hidden semi-Markov model (SMM)
 	 */
 	static public class VPSMMLearner2 extends SegmentAnnotatorLearner
@@ -168,6 +166,23 @@ public class Recommended
 			super(new CRFLearner(), new Recommended.TokenFE(), new BeginContinueEndUniqueReduction());
 		}
 	}
+
+	/** Uses the voted perceptron algorithm to learn hidden semi-Markov model (SMM)
+	 */
+	static public class SemiCRFAnnotatorLearner extends SegmentAnnotatorLearner
+	{
+		/**	 Extracted entities must be of length 4 or less. */
+		public SemiCRFAnnotatorLearner() 
+    { 
+      super(new SegmentCRFLearner(""), new MultitokenSpanFE(), 4); 
+    }
+		public SemiCRFAnnotatorLearner(int maxIters,int maxLen) 
+    { 
+      super(new SegmentCRFLearner("maxIters "+maxIters), new MultitokenSpanFE(), maxLen); 
+    }
+	}
+	
+
 
 	//
 	// SequenceClassifierLearners

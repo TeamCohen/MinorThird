@@ -96,7 +96,7 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 	{
 		// add examples to the SegmentDataset
 		Span document = answeredQuery.getDocumentSpan();
-		CandidateSegmentGroup g = new CandidateSegmentGroup(maxWindowSize, document.size());
+		MutableCandidateSegmentGroup g = new MutableCandidateSegmentGroup(maxWindowSize, document.size());
 		for (int lo=0; lo<document.size(); lo++) {
 			for (int len=1; len<=maxWindowSize; len++) {
 				if (len+lo<=document.size()) {
@@ -150,7 +150,7 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 			ProgressCounter pc = new ProgressCounter("tagging with segmenter", "document", i.estimatedSize() );
 			while (i.hasNext() ) {
 				Span document = i.nextSpan();
-				CandidateSegmentGroup g = new CandidateSegmentGroup(maxWindowSize, document.size());
+				MutableCandidateSegmentGroup g = new MutableCandidateSegmentGroup(maxWindowSize, document.size());
 				for (int lo=0; lo<document.size(); lo++) {
 					for (int len=1; len<=maxWindowSize; len++) {
 						if (len+lo<=document.size()) {

@@ -379,14 +379,14 @@ class CommandLineUtil
 		}
 		public void mixup(String s) { safeSetRequiredAnnotation(fe,s);	}
 		public void embed(String s) { embeddedAnnotators=s; safeSetAnnotatorLoader(fe,s);	}
-	        public void option(String s, Object o) {
-		    int i = s.indexOf("=");
-		    if(i > 0) {
-			String ans = s.substring(0,i);
-			int slen = s.length();
-			String value = s.substring(i+1,slen);
+    public void option(String s, Object o) {
+      int i = s.indexOf("=");
+      if(i > 0) {
+        String ans = s.substring(0,i);
+        int slen = s.length();
+        String value = s.substring(i+1,slen);
 			
-			try {
+        try {
 			    //Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
 			    //Object o = (Object)learner;
 			    BeanInfo info = Introspector.getBeanInfo(o.getClass());
@@ -397,46 +397,46 @@ class CommandLineUtil
 			    Method writer = null, reader = null;
 			    int x=0, len = props.length;
 			    while (!pname.equals(ans)&& x<len) {
-				pname = props[x].getDisplayName();
-				type = props[x].getPropertyType();
-				reader = props[x].getReadMethod();
-				writer = props[x].getWriteMethod();
-				x++;
+            pname = props[x].getDisplayName();
+            type = props[x].getPropertyType();
+            reader = props[x].getReadMethod();
+            writer = props[x].getWriteMethod();
+            x++;
 			    }
 			    if (x == len)
-				System.out.println("Did not find Classifier Option!");
+            System.out.println("Did not find Classifier Option!");
 
 			    if (type.equals(boolean.class)) {
-				writer.invoke(o,new Object[]{new Boolean(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new Boolean(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    } else if (type.equals(int.class)) {
-				writer.invoke(o,new Object[]{new Integer(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new Integer(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    } else if (type.equals(double.class)) {
-				writer.invoke(o,new Object[]{new Double(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new Double(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    } else if (type.equals(String.class)) {
-				writer.invoke(o,new Object[]{new String(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new String(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    }
 
-			} catch (Exception e) {
+        } catch (Exception e) {
 			    System.out.println("Cannot find class");
-			}
+        }
 			    
-		    } else
-			System.out.println ("Cannot compute option - no object defined");
-	        }
-	        public void LearnerOp(String s) { 
-		    Object o = (Object)learner;
-		    option(s, o);		    
+      } else
+        System.out.println ("Cannot compute option - no object defined");
+    }
+    public void LearnerOp(String s) { 
+      Object o = (Object)learner;
+      option(s, o);		    
 		}
-	        public void feOp(String s) {
-		    if(fe != null) {
-			Object o = (Object)fe;
-			option(s, o);			
-		    } else 
-			System.out.println("You must define a Feature Extrator before setting it's options");
+    public void feOp(String s) {
+      if(fe != null) {
+        Object o = (Object)fe;
+        option(s, o);			
+      } else 
+        System.out.println("You must define a Feature Extrator before setting it's options");
 		}
 	        
 		public void usage() {
@@ -602,10 +602,9 @@ class CommandLineUtil
 			System.out.println(" -splitter SPLITTER       specify splitter, e.g. -k5, -s10, -r70");
 			System.out.println(" [-showTestDetails]       visualize test examples along with evaluation");
 			System.out.println(" -test REPOSITORY_KEY     specify source for test data");
-			System.out.println("                         - at most one of -splitter, -test should be specified");
-			System.out.println("                           default splitter is r70");
+			System.out.println("                          - at most one of -splitter, -test should be specified");
+			System.out.println("                            default splitter is r70");
 			System.out.println(" [-SplitterOp STRING=VALUE]Extra options that can be defined with the splitter");
-			System.out.println("                           - defaults are set");
 			System.out.println("                           - ex: trainFraction=.07");
 			System.out.println();
 		}
@@ -690,14 +689,14 @@ class CommandLineUtil
 			this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); 
 			if (fe!=null) learner.setSpanFeatureExtractor(fe);
 		}
-	        public void option(String s, Object o) {
-		    int i = s.indexOf("=");
-		    if(i > 0) {
-			String ans = s.substring(0,i);
-			int slen = s.length();
-			String value = s.substring(i+1,slen);
+    public void option(String s, Object o) {
+      int i = s.indexOf("=");
+      if(i > 0) {
+        String ans = s.substring(0,i);
+        int slen = s.length();
+        String value = s.substring(i+1,slen);
 			
-			try {
+        try {
 			    //Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
 			    //Object o = (Object)learner;
 			    BeanInfo info = Introspector.getBeanInfo(o.getClass());
@@ -708,48 +707,50 @@ class CommandLineUtil
 			    Method writer = null, reader = null;
 			    int x=-1, len = props.length;
 			    while (!pname.equals(ans)&& x<len) {
-				x++;
-				pname = props[x].getDisplayName();
-				type = props[x].getPropertyType();
-				reader = props[x].getReadMethod();
-				writer = props[x].getWriteMethod();
+            x++;
+            pname = props[x].getDisplayName();
+            type = props[x].getPropertyType();
+            reader = props[x].getReadMethod();
+            writer = props[x].getWriteMethod();
 				
 			    }
 			    if (x == len)
-				System.out.println("Did not find Option!");
+            System.out.println("Did not find Option!");
 
 			    if (type.equals(boolean.class)) {
-				writer.invoke(o,new Object[]{new Boolean(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new Boolean(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    } else if (type.equals(int.class)) {
-				writer.invoke(o,new Object[]{new Integer(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new Integer(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    } else if (type.equals(double.class)) {
-				writer.invoke(o,new Object[]{new Double(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new Double(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    } else if (type.equals(String.class)) {
-				writer.invoke(o,new Object[]{new String(value)});
-				Object val = reader.invoke(o,new Object[]{});
+            writer.invoke(o,new Object[]{new String(value)});
+            Object val = reader.invoke(o,new Object[]{});
 			    }
-
-			} catch (Exception e) {
+        } catch (Exception e) {
 			    System.out.println("Cannot find class");
-			}
-			    
-		    } else
-			System.out.println ("Cannot compute option - no object defined");
-	        }
-	        public void LearnerOp(String s) { 
-		    Object o = (Object)learner;
-		    option(s, o);		    
+        }
+      } else
+        System.out.println ("Cannot compute option - no object defined");
+    }
+    public void LearnerOp(String s) { 
+      Object o = (Object)learner;
+      option(s, o);		    
 		}
-	        public void feOp(String s) {
-		    if(fe != null) {
-			Object o = (Object)fe;
-			option(s, o);			
-		    } else 
-			System.out.println("You must define a Feature Extrator before setting it's options");
+    public void feOp(String s) {
+      if(fe != null) {
+        Object o = (Object)fe;
+        option(s, o);			
+      } else 
+        System.out.println("You must define a Feature Extrator before setting it's options");
 		}
+		public void mixup(String s) { 
+			if (fe==null) fe = learner.getSpanFeatureExtractor();
+      safeSetRequiredAnnotation(fe,s);	
+    }
 		public void embed(String s) { 
 			if (fe==null) fe = learner.getSpanFeatureExtractor();
 			embeddedAnnotators=s; 

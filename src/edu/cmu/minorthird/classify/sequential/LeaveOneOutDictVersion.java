@@ -114,7 +114,8 @@ public class LeaveOneOutDictVersion implements BatchSegmenterLearner
 		}
 		public CandidateSegmentGroup transform(CandidateSegmentGroup g) 
 		{ 
-			CandidateSegmentGroup result = new CandidateSegmentGroup(g.getMaxWindowSize(), g.getSequenceLength());
+			MutableCandidateSegmentGroup result = 
+        new MutableCandidateSegmentGroup(g.getMaxWindowSize(), g.getSequenceLength());
 			for (int lo=0; lo<g.getSequenceLength(); lo++) {
 				for (int len=1; len<=g.getMaxWindowSize(); len++) {
 					Instance gInstance = g.getSubsequenceInstance(lo,lo+len);

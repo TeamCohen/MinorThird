@@ -41,6 +41,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor,
 					return pos-startPos;
 				}
 				try {
+					log.info(getClass()+" looking for method '"+arg+"'");
 					Method m = getClass().getMethod(arg,new Class[]{});
 					log.info(getClass()+" consuming '-"+arg+"'");
 					System.out.println("option: "+arg+"=");

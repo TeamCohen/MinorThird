@@ -8,104 +8,55 @@ import java.util.*;
 /**
  * A group of sliding windows associated with a sequence.
  *
+ * <p>In more detail: just as a SequenceDataset holds a set of
+ * Example[] objects, a SegmentDataset holds a set of
+ * CandidateSegmentGroup objects.  Each CandidateSegmentGroup is
+ * derived from a sequence of source objects s1....sN.  The
+ * CandidateSegmentGroup holds an instance for each subsequence of up
+ * to K adjacent source objects (the subsequence is called a
+ * <i>segment</i>, or a <i>sliding window</i>). Here K is the "maxWindowSize", and N
+ * is the "sequenceLength".
+ *
+ *<p>To illustrate, suppose the original sequence is a,b,c,d,e and K=3.
+ * Then the sliding window will hold instances created from these
+ * subsequences: a,b,c,d,e,ab,bc,cd,de,abc,bcd,cde.
+ *
  * @author William Cohen
  */
 
-public class CandidateSegmentGroup implements HasSubpopulationId
+public interface CandidateSegmentGroup extends HasSubpopulationId
 {
-	private int maxWindowSize,sequenceLength;
-	private Instance[][] window;
-	private ClassLabel[][] label;
-	private Set classNameSet;
-	private int totalSize;
-	private String subPopId = null;
+  /** Return the length of the original sequence that the segments
+   * were derived from.
+   */
+	public int getSequenceLength(); 
 
-	public CandidateSegmentGroup(int maxWindowSize,int sequenceLength) 
-	{ 
-		this.sequenceLength = sequenceLength;
-		this.maxWindowSize = maxWindowSize; 
-		window = new Instance[sequenceLength][maxWindowSize];
-		label = new ClassLabel[sequenceLength][maxWindowSize];
-		totalSize = 0;
-	}
-	public void setSubsequence(int start,int end,Instance newInstance,ClassLabel newLabel) 
-	{
-		setSubPopId( newInstance.getSubpopulationId() );
-		if (window[start][end-start-1]==null) totalSize++;
-		window[start][end-start-1] = newInstance;
-		label[start][end-start-1] = newLabel;
-	}
-	public void setSubsequence(int start,int end,Instance newInstance)
-	{
-		setSubPopId( newInstance.getSubpopulationId() );
-		window[start][end-start-1] = newInstance;
-	}
-	public int getSequenceLength() 
-	{ 
-		return sequenceLength; 
-	}
-	public int getMaxWindowSize()
-	{
-		return maxWindowSize;
-	}
-	public String getSubpopulationId()
-	{
-		return subPopId;
-	}
-	public int size()
-	{
-		return totalSize;
-	}
-	public Example getSubsequenceExample(int start,int end)
-	{
-		if (window[start][end-start-1]!=null) 
-			return new Example(window[start][end-start-1], label[start][end-start-1]);
-		else 
-			return null;
-	}
-	public ClassLabel getSubsequenceLabel(int start,int end)
-	{
-		return label[start][end-start-1];
-	}
-	public Instance getSubsequenceInstance(int start,int end)
-	{
-		return window[start][end-start-1];
-	}
-	public Set classNameSet()
-	{
-		Set result = new HashSet();
-		for (int i=0; i<label.length; i++) {
-			for (int j=0; j<label[i].length; j++) {
-				if (label[i][j]!=null) result.addAll( label[i][j].possibleLabels() );
-			}
-		}
-		return result;
-	}
+  /** Return the maximum segment length.
+   */
+	public int getMaxWindowSize();
 
-	public String toString()
-	{
-		StringBuffer buf = new StringBuffer(""); 
-		for (int lo=0; lo<window.length; lo++) {
-			for (int len=1; len<=maxWindowSize; len++) {
-				buf.append( lo+".."+(lo+len)+": ");
-				if (window[lo][len-1]==null) {
-					buf.append("NULL");
-				} else {
-					buf.append(window[lo][len-1].toString());
-					if (label[lo][len-1]!=null) buf.append(";"+label[lo][len-1]);
-				}
-				buf.append("\n");
-			}
-		}
-		return buf.toString();
-	}
+  /** Number of instances stored.
+   */
+	public int size();
 
-	private void setSubPopId(String newSubpopId)
-	{
-		if (subPopId!=null && !subPopId.equals(newSubpopId)) {
-			throw new IllegalArgumentException("grouping instances with different subPopId?");
-		}
-		subPopId = newSubpopId;
-	}
+  /** Return the example corresponding to the segment from positions start..end
+   */
+	public Example getSubsequenceExample(int start,int end);
+
+  /** Return the class label associated with getSubsequenceExample(start,end).
+   */
+	public ClassLabel getSubsequenceLabel(int start,int end);
+
+  /** Return the instance corresponding to the segment from positions start...end.
+   */
+	public Instance getSubsequenceInstance(int start,int end);
+
+  /** Return the set of strings associated with ClassLabels on any of the stored segments.
+   */
+	public Set classNameSet();
+
+  /** Return the subpopulationId for the original sequence.
+   */
+	public String getSubpopulationId();
 }
 
