@@ -342,10 +342,13 @@ public class MixupDebugger extends JComponent
 
       if (textBaseId != null)
         base = FancyLoader.loadTextBase(textBaseId);
-      else
+      else //this assumes directory of files
       {
-        TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
-        base = loader.load(new File(fileName));
+        File data = new File(fileName);
+        if (data.isDirectory())
+          base = TextBaseLoader.loadDirOfTaggedFiles(data).getTextBase();
+        else
+          base = TextBaseLoader.loadDocPerLine(data, false);
       }
 
 			MixupDebugger debugger =
