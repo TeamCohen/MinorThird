@@ -15,4 +15,3 @@ edu.cmu.minorthird.ui.Recommended$CRFAnnotatorLearner
 edu.cmu.minorthird.ui.Recommended$SemiCRFAnnotatorLearner
 edu.cmu.minorthird.classify.sequential.SegmentCollinsPerceptronLearner
 edu.cmu.minorthird.classify.sequential.SegmentCRFLearner
-

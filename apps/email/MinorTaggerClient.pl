@@ -107,7 +107,6 @@ sub sendMessage {
     my ($socket, $message) = @_;
     chomp $message;
     my $len = length $message;
-#    print "sending $len $message\n";
     print $socket "$len $message";
 }
 

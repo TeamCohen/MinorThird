@@ -592,14 +592,8 @@ public class CommandLineUtil
 	    System.out.println(" -spanType TYPE           learn how to extract the given TYPE");
 	}
 	// for gui
-	public String getSpanType() { return safeGet(spanType,"n/a");}
-	public void setSpanType(String t) { this.spanType = safePut(t,"n/a"); }
-	public Object[] getAllowedSpanTypeValues() { 
-	    return base.labeledData==null ? new String[]{} : base.labeledData.getTypes().toArray();
-	}
-	// subroutines for gui setters/getters
-	protected String safeGet(String s,String def) { return s==null?def:s; }
-	protected String safePut(String s,String def) { return def.equals(s)?null:s; }
+	public String getSpanType() {return spanType;}
+	public void setSpanType(String t) {this.spanType=t; }
     }
     
     /** Basic parameters used by almost everything. */

@@ -21,18 +21,19 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    CommandLineUtil.ExtractionSignalParams.class, CommandLineUtil.TrainExtractorParams.class,
 	    CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TrainTaggerParams.class,
 	    CommandLineUtil.TaggerSignalParams.class, CommandLineUtil.MixupParams.class,
+	    CommandLineUtil.OnlineSignalParams.class,
 	    //
 	    // main routines
 	    //
 	    ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
-	    TrainExtractor.class,	TestClassifier.class, TrainTestClassifier.class, 
+	    TrainExtractor.class, TestClassifier.class, TrainTestClassifier.class, 
 	    TrainTestExtractor.class, TrainTestTagger.class, OnlineLearner.class,
 	    RunMixup.class,
 	    //
 	    // recommended classification learners
 	    //
 	    Recommended.KnnLearner.class, Recommended.NaiveBayes.class,
-	    Recommended.VotedPerceptronLearner.class,	Recommended.SVMLearner.class,
+	    Recommended.VotedPerceptronLearner.class, Recommended.SVMLearner.class,
 	    Recommended.DecisionTreeLearner.class, Recommended.BoostedDecisionTreeLearner.class,
 	    Recommended.BoostedStumpLearner.class, Recommended.MaxEntLearner.class,
 	    //
@@ -65,6 +66,6 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    //
 	    // splitters
 	    //
-	    CrossValSplitter.class, RandomSplitter.class, 
+	    CrossValSplitter.class, RandomSplitter.class 
 	};
 }
