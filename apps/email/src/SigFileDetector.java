@@ -25,7 +25,7 @@ import edu.cmu.minorthird.classify.algorithms.trees.*;
  * Classify an incoming email message as having or not a Signature File.
  * 
  * It follows the description in "Learning to Extract Signature and Reply Lines from Email", 
- * V.R.Carvalho and W.W.Cohen, (submitted for publication in 2004)
+ * V.R.Carvalho and W.W.Cohen, CEAS (Conference of Email and Anti-Span), 2004
  *
  * Uses the last 10 last lines of email message.
  *
@@ -47,6 +47,7 @@ public class SigFileDetector
   {
   	try
   	{
+  		//File file = new File("models/sigDetectionAdaBoostModel");
   		File file = new File("apps/email/models/VPsigDetectionModel");
         //File file = new File("apps/email/models/AB99sigDetectionModel");
 		classifier = (BinaryClassifier)IOUtil.loadSerialized(file);  		

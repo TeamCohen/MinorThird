@@ -37,6 +37,6 @@ public class SigFileAnnotator extends StringAnnotator
 
   public String explainAnnotation(edu.cmu.minorthird.text.TextLabels labels, edu.cmu.minorthird.text.Span documentSpan)
   {
-    return "not implemented yet - Mythology issues";
+    return "not implemented yet - Mythology";
   }
 }

@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * 
  * It follows the description in "Learning to Extract Signature and Reply 
  * Lines from Email", 
- * V.R.Carvalho and W.W.Cohen, (submitted for publication in 2004)
+ * V.R.Carvalho and W.W.Cohen, CEAS (Conference of Email and Anti-Span), 2004
  * 
  * @author Vitor R. Carvalho
  * May 2004
@@ -110,7 +110,8 @@ public class ReplyToAnnotator extends StringAnnotator
 			log.debug(arrayOfLines[i]);
 			charBegin = wholeMessage.indexOf(arrayOfLines[i], firstCharIndex[i]-1);
 			if(charBegin<0) charBegin = firstCharIndex[i]; //just in case
-			bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length(), tag));
+			//bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length(), tag));
+			bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length()+1, tag));
 		}			
 	}
 	log.debug("\n\n");

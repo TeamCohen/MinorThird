@@ -33,7 +33,7 @@ import edu.cmu.minorthird.classify.algorithms.trees.*;
  * 
  * It follows the description in "Learning to Extract Signature and Reply 
  * Lines from Email", 
- * V.R.Carvalho and W.W.Cohen, (submitted for publication in 2004)
+ * V.R.Carvalho and W.W.Cohen, CEAS (Conference of Email and Anti-Span), 2004
  *  *
  * @author vitor|AT|cs.cmu.edu
  * May 2004
@@ -56,6 +56,7 @@ public class SigFilePredictor
   
   public SigFilePredictor(){
   	try{
+  		//File file = new File("/afs/cs.cmu.edu/user/vitor/VPsigPredictionModel");
   		File file = new File("apps/email/models/VPsigPredictionModel");
   		//File file = new File("apps/email/models/sigModel");
 		model = (BinaryClassifier)IOUtil.loadSerialized(file);  		
@@ -201,7 +202,7 @@ public static class WindowRepresentation
 				log.debug(arrayOfLines[i]);
 				charBegin = wholeMessage.indexOf(arrayOfLines[i], firstCharIndex[i]-1);
 				if(charBegin<0) charBegin = firstCharIndex[i]; //just in case
-				bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length(), tag));
+				bemlocal.add(new CharAnnotation(charBegin,arrayOfLines[i].length()+1, tag));
 			}			
 		}
 		log.debug("\n\n");
