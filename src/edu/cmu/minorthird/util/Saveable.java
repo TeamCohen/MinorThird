@@ -11,7 +11,7 @@ import java.io.*;
 public interface Saveable 
 {
 	/** List of formats in which the object can be saved. */
-	public String[] getFormatNames();
+    public String[] getFormatNames();
 
 	/** Recomended extension for the format with the given name. */
 	public String getExtensionFor(String formatName);

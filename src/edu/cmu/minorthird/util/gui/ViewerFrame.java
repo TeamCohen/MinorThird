@@ -226,7 +226,7 @@ public class ViewerFrame extends JFrame
 								StringUtil.toString(formats));
 		}
 		public boolean isSaveable() { return formats.length>0; }
-		public String[] getFormatNames() { return formats; }
+	        public String[] getFormatNames() { return formats; }
 		public String getExtensionFor(String formatName)
 		{
 			if (formatName.equals(SERIALIZED_FORMAT_NAME)) return SERIALIZED_EXT;
