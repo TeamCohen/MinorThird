@@ -21,7 +21,8 @@ $quote = $opt_q;
 
 if ($#ARGV != 1) {
 
-    die "Usage: [-f file] [-F file] [-o output file] [-q] host port\n-q single quotes the input\n-f file takes input line-by-line from file\n-F file takes the whole file as input\n";
+    die "Usage: [-F file] [-o output file]  host port 
+\nREMINDER: All input file must end with: \$\$\$ \nHost Names: roxie and velmak \nBoth hosts are running on port 9998 \n";
 
 }
 
@@ -29,17 +30,15 @@ $| = 1;
 
 $remote_host = $ARGV[0];
 
-if ($remote_host eq "applepie") {
-    $remote_host = "128.2.87.186";
-} elsif ($remote_host eq "la") {
-    $remote_host = "128.2.205.83";
-} elsif ($remote_host eq "iim") {
-    $remote_host = "128.2.178.246";
-} elsif ($remote_host eq "raff") {
+if ($remote_host eq "raff") {
     $remote_host = "128.2.205.132";
 } elsif ($remote_host eq "cammie"){
     $remote_host = "128.2.191.175";
-}
+  } elsif ($remote_host eq "roxie") {
+    $remote_host = "128.2.209.54";
+  } elsif ($remote_host eq "velmak") {
+    $remote_host = "128.2.209.57";
+  }
 
 $remote_port = $ARGV[1];
 
@@ -47,12 +46,14 @@ $socket = new IO::Socket::INET (PeerAddr => $remote_host,
                                 PeerPort => $remote_port,
                                 Proto => "tcp",
                                 Type => SOCK_STREAM)
-    or die "Can't connect to $remote_host:$remote_port : $!\n";
+    or die "Can't connect to $remote_host:$remote_port : $!\nREMINDER: Both roxie and velmak are running on port 9998 \n";
 
 #$socket = IO::Socket::INET->new("$remote_host:$remote_port") 
 #    or die "Can't connect to $remote_host:$remote_port : $!\n";
 
 *STDIN->autoflush(1);
+
+print "REMINDER: \nTo Use MinorTaggerClient your file must end with: \$\$\$ \nHost Names: roxie and velmak \nBoth hosts are running on port 9998 \n";
 
 if ($opt_f || $opt_F) {
     $fh = new FileHandle "$file";
@@ -60,9 +61,11 @@ if ($opt_f || $opt_F) {
     $fh = *STDIN;
 }
 
-if ($opt_F) {
+if ($opt_f ||$opt_F) {
     @all = <$fh>;
-    $all = join(/\n/, @all);
+    $fileText = join(/\n/, @all);
+    $exit = "\nexit";
+    $all = $fileText.$exit;
     sendMessage($socket, $all);
     print readMessage($socket);
 }
