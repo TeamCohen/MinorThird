@@ -67,19 +67,16 @@ public class LearnImagePtrExtractor
 	}
 
 	/** Load the initial labels */
-	static public MutableTextLabels loadLabels() throws IOException,Mixup.ParseException
+	static public MutableTextLabels loadLabels() throws IOException,Mixup.ParseException,java.text.ParseException
 	{
 		// load the data and labels
-		TextBase base = new BasicTextBase();
-		TextBaseLoader bloader = new TextBaseLoader();
-		bloader.setFirstWordIsDocumentId(true);
-		bloader.loadLines(base,new File("data/captions/lines.txt"));
+		TextBase base = TextBaseLoader.loadDocPerLine(new File("data/captions/lines.txt"),true);
 		TextLabelsLoader eloader = new TextLabelsLoader();
 		MutableTextLabels labels = eloader.loadOps(base,new File("labels/imgptr.env"));
 		return labels;
 	}
 
-	static public void main(String argv[]) throws IOException,Mixup.ParseException
+	static public void main(String argv[]) throws IOException,Mixup.ParseException,java.text.ParseException
 	{
 		// load the labels and compute the features
 		MutableTextLabels labels = loadLabels();
