@@ -1,0 +1,40 @@
+msg01 Please add the attached publication to the web site in the ``Publications" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.
+msg02 Please add the folder ``Publications" to the web site.
+msg03 Please change the string ``VLDB" to ``International Conference on Very Large Databases" on the ``Publications" page.
+msg04 Please add Anthony Tomasic to the web site. He is a researcher. He is a member of the Webmaster task.
+msg05 Please add this publication to my web site: Brad A. Myers. ``Mobile Devices for Control,"<i>The Fourth Symposium on Human-Computer Interaction for Mobile Devices, Mobile HCI'02</i>. (Keynote speech), September 18-20, 2002,Pisa, Italy. pp. 1-8.
+msg06 Please add the following information to my web page: CARNEGIE MUSEUM OF ART 4400 Forbes Avenue 622-3131 ADD WEBSITE:  http://www.cmoa.org/
+msg07 Please update my meeting minutes with the given attachment.  Thanks.
+msg08 Attached is a copy of the CONF 2003 experience report that I submitted today.  Thank you for your comments and helping to improve my writing and argument. Regards, -Martha
+msg09 Please delete the publication titled ``Scaling Access ..." from the web site.
+msg10 Please delete the member Anthony Tomasic
+msg11 Please change Robert Red to Regis Red on the arts and entertainment project personnel page.
+msg12 Please add the extension 3462 for Greg Johnson on the arts and entertainment project personnel page.
+msg13 Please delete the office for Robert Paul from the education technologies personnel.
+msg14 Please add Dakota Jones to the education technologies project. Her e-mail is djones@ardra.com, room 241 and extension is 3624.
+msg15 Please change Robert Paul's extension to 3655.
+msg16 Please swap the order of Jane Wallace and Mike Roberts on the eductaion technologies page.
+msg17 Please add "Project Presentation for Directors" on July23rd, 2002 to the news and events page of the education technologies project.
+msg18 Please change the full paper on Frank Allen's personal page to the attached abstract.
+msg19 Please change the Other category of the HCI budget summaries in 2003 and 2004 to 500,000 and 250,000.
+msg20 Please remove Paul Red from the Humman Assistance Personnel.
+msg21 Please add the title Manager to Jane Black's description in the personnel list of the Human Assitance project.
+msg22 Please remove the link attached to Jane Black's name in the personnel list.
+msg23 Please add the attached image to Jane Black's personal page.
+msg24 Please add the attached CV to John Riley's personal page.
+msg25 The other budget figure and the director's budget figure are incorrect for 2002 on the LET budget page. The 2002 figure for Other is 600,000 and 500,000 for the director's budget.
+msg26 Please add the included publication to Meg Ryan's page. She is the author and the title is Designing Design Tools.
+msg27 Please replace Meg Ryan's image with the attached image on her personal page.
+msg28 Please remove the Current Project Budget line from the Management and Support Office budget.
+msg29 Please change Ryan Small's name to Ryan James Small the director's page.
+msg30 The 3:30 pm conference on Tuesday on Media and Communication has been cancelled. Please remove.
+msg31 Please add the noon Arts and Entertainment Technology support staff luncheon for Monday to the schedule of upcomming events.
+msg32 Please add room 7500 as the room for the Technical Support Workshop on July 16th.
+msg33 The director's meeting on Tuesday at 10:30 am has been cancelled. Please update the website.
+msg34 The 11:30 am budget meeting on Tuesday the 15th will be held in room 1241. Please modify the website, thanks.
+msg35 The 11:30 am budget meeting on Tuesday will be held in room 6030, thanks.
+msg36 Please remove Discreet and Interactive Systems from the list of Ardra agency sponsors.
+msg37 Please add Bell South as a sponsor.
+msg38 Please add the attacheed paper as a paper currently in submission.
+msg39 Please remove the History of Computers electronic version of this paper from Frank Allen's web page.
+msg40 Please remove Frank Allen's image from the directors page.

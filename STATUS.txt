@@ -8,14 +8,25 @@ MinorThird: Modules for Identifying Names and Ontological Relationships in
 	    Text using Heuristics for Inducing Regularities in Data
 
 BUGS:
-    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
-    - 'back' in ViewerFrame 
-    - cls.util is dead code (but sticky)
+   - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
+   - 'back' in ViewerFrame, 'save' after zoom in ViewerFrame 
+   - cls.util is dead code (but sticky)
+   - performance issues loading in large files (with markup?)
 
 PRIORITIES:
 
 SMALL TO DO:
-   - slides for SpanViewer.TextViewer
+   - SVM extraction test
+   - classify tests from testpackage
+   - dictionary loading is inefficient - need MixupInterpreter to store dictionaries and tries.
+   - it's hard to load files properly from a jar; should let MixupProgram take streams, and let library-loading
+      routines work off the classpath using { InputStream s = ClassLoader.getSystemResourceAsStream("foo.txt");
+     LineNumberReader r = new LineNumberReader(new InputStreamReader(s)) }
+   - get rid of (env, base) pairs
+   - maxent - stanford or openNLP? 
+   - fix smoothing in logistic regression
+   - better system.out i/o for ProgressCounter
+   - experimental support for external learners
    - efficiency issues with loading large datasets
    - cleanup loaders: loadTaggedFiles vs loadFiles
    - colors in "details" view of ClassifiedDataset
@@ -25,7 +36,7 @@ SMALL TO DO:
    - NaiveBayes - make multi-class?
    - check that example weights are handled properly throughout .cls
    - check that explain is implemented throughout .cls
-   - one vs all learner
+   - one vs all learner, round robin learner
    - leave one out splitter
    - should there be Span.Set, Feature.Set?
    - decision rules - based on decision tree code?
@@ -39,6 +50,8 @@ BIG TO DO/EXTENSIONS:
  - how to attach a confidence to spans labeled with CMM's?
 
 CLEANUPS/DESIGN:
+
+ - edo code: Spiltter, punk => grep, get rid of stopwords,
  - CompactInstance - where to use it? maybe in loaders and feature extractors
  - Look for dead code (ExptGUI, etc)
  - Conventions to get names consistent.
@@ -54,13 +67,16 @@ CLEANUPS/DESIGN:
  - separate out feature extractor loading from classifier loading somehow? 
 
 SLIF PRIORITIES:
+
  - look at pasta protein data
  - candidate-label 100 captions for proteins -get from wizard?
  - finish imagePtr learning, cellFinding, captionUnderstanding
 
 RECENT CHANGES:
+ - space issues for saved Evaluations fixes
+ - removed duplication of learning in 'StackedLearner'
+ - sliders for SpanViewer.TextViewer
  - add progress counters to tester
- - smoothing in logistic regression
  - classifiedSequenceDataset
  - fixed bug in txt.gui.SpanLabeler
  - added charIndexProperSubSpan(lo,hi)
@@ -117,7 +133,7 @@ RECENT CHANGES:
   - moved setAnnotatedBy from textenv to MutableTextEnv
   - added provide, require to mixup
   - added dictionary loading
-  - refactored guis, see edu.cmu.minorthird.util.gui
+  - refactored guis, see com.wcohen.util.gui  
   - more documentation & guidelines
   - example of classifier learning - webmaster commands?
   - LogisticRegressor should be a BatchBinaryClassifierLearner
@@ -165,9 +181,49 @@ LONG-TERM DEVELOPMENT PLAN:
  -- active learning for extraction
  -- HMM's: conditionally & generatively trained
 
-==============================================================================
+VOTED PERCEPTRON TRAINING:
 
-Configurator consists of:
- - list of 'primitive' parameter setters (name,getX,setX,displayTool)
- - list of 'recursive' parameter setters (name,getX,setX)
+ Hyperplane h = new Hyperplane();
+ for each sequence i {
+   Example[] seq = i.nextSequence();
+   // find sequence labels l1, l2, ... such that <seq[j]+lj> has 
+   // the top score according to h
+   ClassLabel[] viterbi = BeamSearch.viterbi(h,seq);
+   for (j=0, j<seq.length; j++) {
+      if (viterbi[i]!=seq[i].label) {
+         // extended instance contains label as a feature??????????
+	 Instance seqInst1 = new ExtendedInstance(seq, "label."+seq[i].bestClassName);
+	 Instance seqInst2 = new ExtendedInstance(seq, "label."+viterbi[i].bestClassName);
+	 h.increment( seqInst1, +1 );
+	 h.increment( seqInst2, -1 );
+      }
+   }
+ }
+    
+ goal is hyperplane that contains features for <xi,yi>, and hence can
+ distinguish "good" x/y pairs from "bad" ones.  Rather than have all
+ features include yi, one could have |Y| hyperplanes with only
+ xi-based features. 
+
+ Classifier c contains |Y| hyperplanes, one per class;
+ and to score label yi for xi, use h[yi](x)
+
+ for each sequence i {
+   Example[] seq = i.nextSequence();
+   // find sequence labels l1, l2, ... such that <seq[j]+lj> has 
+   // the top score according to h
+   ClassLabel[] viterbi = BeamSearch.viterbi(c,seq);
+   for (j=0, j<seq.length; j++) {
+       if (seq[j] != viterbi[j], or seq[j-k] != viterbi[j-k] for some k such that y[i-k] is a feature for x[i]) {
+       	  y+ = seq[j];
+	  y- = viterbi[j];
+	  xj+ = InstanceFromSequence( seq[j], seq );
+	  xj- = InstanceFromSequence( seq[j], viterbi ); // will be similar, except for y labels
+	  c.h[ y+ ] += xj+;	 // strengthen hyperplane supporting correct labels
+	  c.h[ y- ] -= xj-;	 // weaken hyperplane supporting false labels
+      }
+   }
+ }
+
+==============================================================================
 

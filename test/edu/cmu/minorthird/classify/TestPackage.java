@@ -31,7 +31,7 @@ public class TestPackage extends TestSuite
 		// necessarily mean there's a bug...
 
 		/*
-			suite.addTest( new LearnerTest( "toy", new NaiveBayes(), 1.0/7.0, 1.0/7.0 ));
+		suite.addTest( new LearnerTest( "toy", new NaiveBayes(), 1.0/7.0, 1.0/7.0 ));
 		suite.addTest( new LearnerTest( "bayes", new PoissonLearner(), 1.0/7.0, 1.0/7.0  ));
 		suite.addTest( new LearnerTest( "toy", new BinaryBatchVersion(new VotedPerceptron()), 0.0, 1.0/7.0 ));
 		suite.addTest( new LearnerTest( "toy", new VotedPerceptron(), 1.0/7.0, 1.0/7.0 ));
