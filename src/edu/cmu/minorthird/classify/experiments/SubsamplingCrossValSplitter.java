@@ -23,8 +23,9 @@ public class SubsamplingCrossValSplitter implements Splitter
 	private int folds;
 	private double subsampleFraction;
 	private Iterator[] trainIt, testIt;
+    private CrossValSplitter cvs;
 
-	public SubsamplingCrossValSplitter(RandomElement random, int folds, double subsampleFraction) 
+	public SubsamplingCrossValSplitter(RandomElement random, int folds, double subsampleFraction)
 	{
 		this.random = random; 
 		this.folds = folds; 
@@ -46,23 +47,25 @@ public class SubsamplingCrossValSplitter implements Splitter
 	public void setSubsampleFraction(double d) { this.subsampleFraction=d; }
 
 	public void split(Iterator i) {
-		CrossValSplitter cvs = new CrossValSplitter(random,folds);
+		cvs = new CrossValSplitter(random,folds);
 		RandomSplitter rs = new RandomSplitter(random,subsampleFraction);
 		cvs.split( i );
 		testIt = new Iterator[folds];
 		trainIt = new Iterator[folds];		
 		for (int k=0; k<folds; k++) {
-			testIt[k] = cvs.getTest(k); 
-			rs.split( cvs.getTrain(k) );
-			trainIt[k] = rs.getTrain(0); 
+			testIt[k] = cvs.getTest(k);
+            rs.split( cvs.getTrain(k) );
+			trainIt[k] = rs.getTrain(0);
 		}
 	}
 
 	public int getNumPartitions() { return folds; }
 
-	public Iterator getTrain(int k) { return trainIt[k]; }
+	//public Iterator getTrain(int k) { return trainIt[k]; }
+    public Iterator getTrain(int k) { return cvs.getTrain(k); }
 
-	public Iterator getTest(int k) { return testIt[k]; }
+	//public Iterator getTest(int k) { return testIt[k]; }
+    public Iterator getTest(int k) { return cvs.getTest(k); }
 
 	public String toString() { return "[SubCV "+folds+";"+subsampleFraction+"]"; }
 
