@@ -1,9 +1,7 @@
 require 'npchunks';
-
 provide 'rcwangName';
 
 // [Sentence Splitter] ====================================================================================>
-
 defTokenProp SentenceEnd:1 =: ... !re('^[A-Z]') ['.'] re('^[A-Z]') any any ... || ... ['.'];
 defSpanType S =: ... [L !SentenceEnd:1+ R] ... ;
 
@@ -18,13 +16,14 @@ defTokenProp titlePunc:1 =: ... [','] ... || ... ['.'] ... ;
 defTokenProp notNameStop:1 =: ... ['@'] ... || ... ['+'] ... || ... [re('^[0-9]$')] ... ;
 
 //added by wwc for TR
+
 defTokenProp nameDictWord:1 =: ... [ai(nameDict)]...;
 defTokenProp notNameWord:1 =: ... [ai(notName)]...;
-
 // redefines NP (noun phrase)
 defSpanType NP1 =S: ... [L <NP:1, !P:CC, !'of', !G:PUNC2, !'|', !'/', !P:POS>+ R] ... ;
 
 // all possible names
+
 defSpanType CapAbrvName =: ... [re('^[A-Z]$') '.'?R] ... ;
 defSpanType LowAbrvName =: ... [re('^[a-z]$') '.'?R] ... ;
 defSpanType TitleWord =: ... [ai(titleWord) titlePunc:1?R] ... ;
@@ -32,6 +31,7 @@ defTokenProp CapWord:1 =: ... [<G:NOUN, re('^[A-Z][a-z]')>] ... ;
 defTokenProp PosName:1 =: ... [ai(nameDict)] ... ;
 
 // upper case:
+
 defTokenProp CapPosName:1 =: ... [<PosName:1, re('^[A-Z][a-z]')>] ... ;
 defTokenProp CapPosName:1 =S: ... [@CapAbrvName] CapPosName:1 ... ;
 defTokenProp CapPosName:1 =S: ... CapPosName:1 [@CapAbrvName] ... ;
@@ -48,10 +48,10 @@ defTokenProp Name:1 =NP1: L !P:DT* [CapPosName:1{1,4}] ... ;
 defTokenProp Name:1 =S: ... CapPosName:1 ['-'] CapPosName:1 ... ;
 
 // lower case:
+
 defTokenProp LowPosName:1 =: ... [<G:NOUN, PosName:1, re('^[a-z]')>] ... ;
 defTokenProp LowPosName:1 =S: ... LowPosName:1 [@LowAbrvName] LowPosName:1 ... ;
-defTokenProp LowPosName:0 =: ... [@TitleWord] ... ;
-defTokenProp LowPosName:0 =S: ... LowPosName:1 [NotNameEnd:1+] !LowPosName:1 ... ;
+defTokenProp LowPosName:0 =: ... [@TitleWord] ... ;defTokenProp LowPosName:0 =S: ... LowPosName:1 [NotNameEnd:1+] !LowPosName:1 ... ;
 defTokenProp LowPosName:0 =S: ... !LowPosName:1 [@LowAbrvName] !LowPosName:1 ... ;
 defTokenProp LowPosName:0 =S: ... !LowPosName:1 [!PosName:1] !LowPosName:1 ... ;
 defTokenProp Name:1 =S: ... @TitleWord [LowPosName:1{1,4}] ... ;
@@ -59,6 +59,7 @@ defTokenProp Name:1 =NP1: [LowPosName:1{1,4}] ;
 defTokenProp Name:1 =S: ... LowPosName:1 ['-'] LowPosName:1 ... ;
 
 // final cleanup
+
 defSpanType name1 =S: ... !notNameStop:1 [L Name:1+ R] ;
 defSpanType name1 =S: [L Name:1+ R] !notNameStop:1 ...  ;
 defSpanType name1 =S: ... !notNameStop:1 [L Name:1+ R] !notNameStop:1 ... ;
