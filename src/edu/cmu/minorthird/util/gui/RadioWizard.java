@@ -7,6 +7,7 @@ import javax.swing.border.TitledBorder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.awt.*;
 
 
 /** Wizard that picks from one of several options using radio buttons.
@@ -19,6 +20,7 @@ public class RadioWizard extends NullWizardPanel
 	private Map wizardToStringMap = new HashMap();
 	private Map buttonToWizardMap = new HashMap();
 	private ButtonGroup buttonGroup = new ButtonGroup();
+  private JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
 
 	// to pass on to a WizardViewer
 	protected Map viewerContext;
@@ -32,17 +34,20 @@ public class RadioWizard extends NullWizardPanel
 		this.viewerContext = aViewerContext;
 
 		setBorder(new TitledBorder(titleString));
-		add(new JLabel(promptString));
+		this.setLayout(new BorderLayout());
+    JPanel mainPanel = new JPanel(new GridLayout(0, 1));
+    mainPanel.add(new JLabel(promptString));
+    mainPanel.add(buttonPanel);
+    add(mainPanel, BorderLayout.NORTH);
 
 		buttonToWizardMap = new HashMap();
 		wizardToStringMap = new HashMap();
-		ButtonGroup group = new ButtonGroup();
 	}
 	public void addButton(String tag,WizardPanel wizardPanel,boolean isSelected)
 	{
 		JRadioButton button = new JRadioButton(tag, isSelected);
 		buttonGroup.add(button);
-		add(button);
+		buttonPanel.add(button);
 		buttonToWizardMap.put(button,wizardPanel);
 		wizardToStringMap.put(wizardPanel,tag);
 	}

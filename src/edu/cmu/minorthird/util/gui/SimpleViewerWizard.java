@@ -5,6 +5,7 @@ import jwf.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.util.Map;
+import java.awt.*;
 
 
 /** Simple case for a viewer wizard.
@@ -26,21 +27,29 @@ public class SimpleViewerWizard extends ViewerWizard
 		this.titleString = titleString;
 		this.promptString = promptString;
 		this.nextWizardPanel = nextWizardPanel;
+    ((SimpleViewerPanel) this.getWizardPanel()).init();
+
 	}
 	public WizardPanel buildWizardPanel() {	return new SimpleViewerPanel(); }
 	private class SimpleViewerPanel extends NullWizardPanel
 	{
 		public SimpleViewerPanel() {
-			setBorder(new TitledBorder(titleString));
-			add(new JLabel(promptString));
-		}
-		public boolean hasNext() { return true; }
+    }
+
+    private void init()
+    {
+      setBorder(new TitledBorder(titleString));
+      this.setLayout(new GridLayout(0, 1));
+      add(new JLabel(promptString));
+    }
+
+    public boolean hasNext() { return true; }
 		public boolean validateNext(java.util.List list) { return true; }
 		public WizardPanel next() { return nextWizardPanel; }
 	}
 	public void addViewer(Viewer viewer)	
-	{ 
-		viewer.setSuperView(SimpleViewerWizard.this);
+	{
+		viewer.setSuperView(this);
 		viewerContext.put(myKey, viewer.getContent());
 		getWizardPanel().add(viewer); 
 	}
