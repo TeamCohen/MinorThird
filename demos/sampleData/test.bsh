@@ -1,0 +1,17 @@
+import edu.cmu.minorthird.text.*;
+
+TextBaseLoader baseLoader = new TextBaseLoader();
+TextBase base = new BasicTextBase();
+
+//System.out.println("dataDir="+dataDir);
+
+baseLoader.loadFile(base, new File("c:/cmu/radar/minorthird/demos/sampleData/webmasterCommands.txt"));
+TextLabelsLoader labelsLoader = new TextLabelsLoader();
+labelsLoader.setClosurePolicy(TextLabelsLoader.CLOSE_ALL_TYPES);
+
+MutableTextLabels labels = labelsLoader.loadOps(base, new File("c:/cmu/radar/minorthird/demos/sampleData/webmasterCommandTypes.labels"));
+
+return new BasicTextLabels(base);
+
+
+
