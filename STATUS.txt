@@ -27,7 +27,7 @@ CLEANUPS/DESIGN:
  - linkage issues
  - remove BinaryExample?
  - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample,
- InfoGainInstanceTransform?
+ InfoGainInstanceTransform, Wizard,
  - fix mixup parser to be consistent, fix Dependency/Mixup mess, Dependency to text, remove 'requirements' in Annotator
  - fix FeatureFactory mess
  - add to mixup 'begin' ... 'end exporting a as b,c as d,...;'

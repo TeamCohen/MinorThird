@@ -34,6 +34,12 @@ public class Help
 		"TrainTagger -labels KEY -splitter SPLITTER ...",
 		"  perform a tagger-learning experiment with the data in KEY",
 		"",
+		"LabelViewer -labels KEY ...",
+		"  view annotated text",
+		"",
+		"RunMixup -labels KEY -mixup FILE [-saveAs LABELFILE] ...",
+		"  run a mixup program",
+		"",
 		"The single option -help gives detailed command-line help for a command."
 	};
 

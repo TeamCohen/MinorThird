@@ -32,13 +32,14 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		CommandLineUtil.LoadAnnotatorParams.class, CommandLineUtil.SplitterParams.class,
 		CommandLineUtil.ExtractionSignalParams.class, CommandLineUtil.TrainExtractorParams.class,
 		CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TrainTaggerParams.class,
-		CommandLineUtil.TaggerSignalParams.class,
+		CommandLineUtil.TaggerSignalParams.class, CommandLineUtil.MixupParams.class,
 		//
 		// main routines
 		//
 		ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
 		TrainExtractor.class,	TrainTestClassifier.class, 
 		TrainTestExtractor.class, TrainTestTagger.class,
+		RunMixup.class,
 		//
 		// recommended classification learners
 		//

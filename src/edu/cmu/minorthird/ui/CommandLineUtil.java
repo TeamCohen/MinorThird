@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.ui;
 
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.mixup.*;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
@@ -515,6 +516,20 @@ class CommandLineUtil
 		public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
 		public boolean getShowData() { return showData; }
 		public void setShowData(boolean flag) { this.showData=flag; }	
+	}
+
+	static public class MixupParams extends BasicCommandLineProcessor {
+		public String fileName = null;
+		// for command line processing
+		public void mixup(String s) { fileName=s; }
+		public void usage() {
+			System.out.println("mixup program parameters:");
+			System.out.println(" -mixup FILE              run mixup program in FILE (existing file, or name on classpath)");
+			System.out.println();
+		}
+		// for gui
+		public String getMixupProgramFilename() { return fileName; }
+		public void setMixupProgramFilename(String s) { mixup(s); }
 	}
 
 }

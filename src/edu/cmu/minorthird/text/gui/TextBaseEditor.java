@@ -96,7 +96,6 @@ public class TextBaseEditor extends TrackedTextBaseComponent
     /** Pop up a frame for editing the labels. */
     public static TextBaseEditor edit(MutableTextLabels labels, File file)
     {
-//        JFrame frame = new JFrame("TextBaseEditor");
         TextBase base = labels.getTextBase();
 
         StatusMessage statusMsg = new StatusMessage();
@@ -152,12 +151,6 @@ public class TextBaseEditor extends TrackedTextBaseComponent
                 readOnly = true;
                 argp++;
             }
-/*            else
-            {
-                System.out.println("illegal option " + args[argp]);
-                argp++;
-            }
-*/
         }
         return readOnly;
     }

@@ -98,12 +98,8 @@ You can put some or all of the command-line options in a file, using
 the syntax of Java property files, and set the options all at once
 using the option "-config FILENAME".
 
-Some other useful command-line programs are not in the ui package.
-For viewing text data, use the command
-
-% java edu.cmu.minorthird.text.gui.TextBaseViewer dataFile
-
-To summarize text data, use the command
+Some other useful command-line programs are not in the ui package.  To
+summarize text data, use the command
 
 % java edu.cmu.minorthird.text.SummarizeLabels dataFile
 
