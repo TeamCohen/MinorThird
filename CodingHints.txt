@@ -6,10 +6,10 @@ This does not have step-by-step instructions.  It is intended to give those with
 INTRODUCTION
 
 If you're using Minorthird you're probably doing one (or a mix from several) of:
-	Creating new learning algorithms
-	Searching for better features for learning on text
-	Using existing learners & feature extractors to classify documents or extract information 
-	(if you're doing ssomething else let us know!)
+*Creating new learning algorithms
+*Searching for better features for learning on text
+*Using existing learners & feature extractors to classify documents or extract information 
+(if you're doing something else let us know!)
 	
 In all three you'll be going through the following set of choices:
 	
@@ -28,70 +28,88 @@ If your task involves text then data will need to be in a TextBase/TextLabels pa
 LEARNING:
 
 Teachers:
-	The ClassifierTeacher and AnnotatorTeacher provide a protocol for training learners.  They provide a mechanism for batch learning, online learning, and active learning.  
+	
+The ClassifierTeacher and AnnotatorTeacher provide a protocol for training learners.  They provide a mechanism for batch learning, online learning, and active learning.  
 
 ClassifierLearner:
-	The interface which all classification learners must implement.  It accepts Examples and generates a Classifier, plus ohter methods for active learning and constraints on Examples.  There are a few abstract implementation classes of note: BatchClassifierLearner for standard one training batch learning, OnlineClassifierLearner as a base for online learning algorithms, and binary extensions of each.
+
+The interface which all classification learners must implement.  It accepts Examples and generates a Classifier, plus ohter methods for active learning and constraints on Examples.  There are a few abstract implementation classes of note: BatchClassifierLearner for standard one training batch learning, OnlineClassifierLearner as a base for online learning algorithms, and binary extensions of each.
 
 AnnotatorLearner:
-	The AnnotatorLearner interface and abstract implementations are analogous, but work with spans for documents return an Annotator and can be queried for the SpanFeatureExtractor used.  
+
+The AnnotatorLearner interface and abstract implementations are analogous, but work with spans for documents return an Annotator and can be queried for the SpanFeatureExtractor used.  
 
 ------------------------------------------------------------------------------------------------------
 FEATURE EXTRACTION:
 
 SpanFeatureExtractor:
-	This is an interface for extracting an Instance from a Span of text.  
+	
+This is an interface for extracting an Instance from a Span of text.  
 
 SpanFE:
-	An abstract class implementign SpanFeatureExtractor which provides a number of methods for a declaritive sytle of extracting features/instances from text.  Subclasses will call a number of methods such as from -get tokens from a span-, lc -lower case those tokens-, etc.  There are examples all over the code.	
+	
+An abstract class implementign SpanFeatureExtractor which provides a number of methods for a declaritive sytle of extracting features/instances from text.  Subclasses will call a number of methods such as from -get tokens from a span-, lc -lower case those tokens-, etc.  There are examples all over the code.	
 
 SampleFE:
-	SampleFE implements a few typical feature extractors as singleton instances.  If you're starting out, use an extractor from here, or use it as sample code for producing your own.
+
+SampleFE implements a few typical feature extractors as singleton instances.  If you're starting out, use an extractor from here, or use it as sample code for producing your own.
 
 Mixup:
-	Mixup is a regular expression-like language for labeling text.  Mixup can be used as a non-learning annotator in Minorthird.  It can also be used to label text with tags which will be used as features (such as part-of-speech).  I like to make the analogy that regular expressions work at on a character level while mixup works on a token level.  The Mixup language itself is described under the mixup package.
+
+Mixup is a regular expression-like language for labeling text.  Mixup can be used as a non-learning annotator in Minorthird.  It can also be used to label text with tags which will be used as features (such as part-of-speech).  I like to make the analogy that regular expressions work at on a character level while mixup works on a token level.  The Mixup language itself is described under the mixup package.
 
 ------------------------------------------------------------------------------------------------------
 LOADING DATA
 
 DatasetLoader:
-	Loads and saves datasets.  Three formats are supported: 1) minorthird style - type subpopulationid label feature=weight feature=weight ... 2) SVM light style - label feature:weight feature weight ... 3) Sequence datasets; each Example in a sequence is saved on a seperate line in the first style with an asterix (*) alone on a line seperating the sequences.  All methods are static, just call loadXyz(File) which returns a Dataset.
+
+Loads and saves datasets.  Three formats are supported: 1) minorthird style - type subpopulationid label feature=weight feature=weight ... 2) SVM light style - label feature:weight feature weight ... 3) Sequence datasets; each Example in a sequence is saved on a seperate line in the first style with an asterix (*) alone on a line seperating the sequences.  All methods are static, just call loadXyz(File) which returns a Dataset.
 
 TextBaseLoader:
-	The TBL is configured via the constructor based on your data format.  Then called load(File) and a TextBase is returned.  There are also two static methods for loading our most common data formats - a) load from a single file counting each line as one document b) load from a directory where each file is a document and there are xml labelings embedded in the text.  The code has extensive javadoc on all the format options supported and how to configure for them.
+
+The TBL is configured via the constructor based on your data format.  Then called load(File) and a TextBase is returned.  There are also two static methods for loading our most common data formats - a) load from a single file counting each line as one document b) load from a directory where each file is a document and there are xml labelings embedded in the text.  The code has extensive javadoc on all the format options supported and how to configure for them.
 
 TextLabelsLoader:
-	Loads a labeling from a file.  There is one parameter to set the closure policy on types.  Labels can be loaded from a serialized object or from a list of type operations.  The class also allows for saving the types in an xml format.
+
+Loads a labeling from a file.  There is one parameter to set the closure policy on types.  Labels can be loaded from a serialized object or from a list of type operations.  The class also allows for saving the types in an xml format.
 
 SimpleTextLoader:
-	Provides two methods for retrieving TextLabels (which also points to a TextBase) for standard data formats.  
+
+Provides two methods for retrieving TextLabels (which also points to a TextBase) for standard data formats.  
 
 ------------------------------------------------------------------------------------------------------
 TEST METHODS
 
 Splitter:
-	The Splitter interface provides an Iterator over training and test examples.  It is used by all the experimentation infrastructure to control the data available.
+
+The Splitter interface provides an Iterator over training and test examples.  It is used by all the experimentation infrastructure to control the data available.
 
 CrossValidationSplitter:
-	Handles a cross validation experiment.  It can be set by the number of folds or by the percentage of data to use for training.
+
+Handles a cross validation experiment.  It can be set by the number of folds or by the percentage of data to use for training.
 
 FixedTestSplitter:
-	All the experiment code requires a splitter implementation.  For classification a fixed test set can be used by wrapping it with a FixedTestSplitter.  The FTS requirest an iterator over examples.
+
+All the experiment code requires a splitter implementation.  For classification a fixed test set can be used by wrapping it with a FixedTestSplitter.  The FTS requirest an iterator over examples.
 
 ------------------------------------------------------------------------------------------------------
 RUNNING EXPERIMENTS
 
 classify...Tester:
-	Tester provides a few static methods for running a classification or sequence classification experiment.  The evaluate methods all return an Evaluation object.
+
+Tester provides a few static methods for running a classification or sequence classification experiment.  The evaluate methods all return an Evaluation object.
 
 text...ClassifyExperiment:
-	The main method of ClassifyExperiment takes several parameters (see usage()) and runs an experiment, displaying the results in a gui.  Their are several constructors for configuring an experiment which can the be run with the evaluate() method.
+
+The main method of ClassifyExperiment takes several parameters (see usage()) and runs an experiment, displaying the results in a gui.  Their are several constructors for configuring an experiment which can the be run with the evaluate() method.
 
 text...TextLabelsExperiment:
-	Similar to the classification, TextLabelsExperiment has a main method which takes parameters to do an annotation experiment.  The guts are in doExperiment().
+
+Similar to the classification, TextLabelsExperiment has a main method which takes parameters to do an annotation experiment.  The guts are in doExperiment().
 
 classify...Evaluation:
-	The Evaluation class stores and calculates several metrics for an experiment.  Through the toGUI() method it can produce a dialog with several panels to display the results of that experiment.
+
+The Evaluation class stores and calculates several metrics for an experiment.  Through the toGUI() method it can produce a dialog with several panels to display the results of that experiment.
 ---------------------------------------------------------------------------------------------------
 
 
