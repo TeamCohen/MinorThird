@@ -465,9 +465,13 @@ public class MixupProgram
 						Span span = input.nextSpan();
 						Matcher matcher = pattern.matcher( span.asString() );
 						while (matcher.find()) {
-							extendLabels(
-								labels,
-								span.charIndexProperSubSpan( matcher.start(regexGroup),matcher.end(regexGroup)));
+							try {
+								Span subspan = span.charIndexProperSubSpan( matcher.start(regexGroup),matcher.end(regexGroup));
+								extendLabels( labels, subspan );
+							} catch (IllegalArgumentException ex) {
+								/* there is no subspan that is properly contained by the regex match,
+									 so don't add anything */
+							}
 						}
 					}
 				} else {
