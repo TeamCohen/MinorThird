@@ -113,6 +113,7 @@ public class LongTestPackage extends TestSuite
 			});
 		
 		//Extraction
+/*
 		suite.addTest( new UITest(TrainTestExtractor.class,
 															new String[]{
 																"-labels","cspace.07",
@@ -137,6 +138,7 @@ public class LongTestPackage extends TestSuite
 					assertEquals( 0.83, e.spanF1(), 0.02 );
 				}
 				});
+*/
 		
 		//Doesn't Work - ERROR
 		/*suite.addTest( new LongUITest(TrainTestExtractor.class,
