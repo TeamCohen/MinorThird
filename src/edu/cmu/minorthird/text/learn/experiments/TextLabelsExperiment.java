@@ -40,18 +40,20 @@ public class TextLabelsExperiment implements Visible
    *               These are the training examples
    * @param splitter splitter for the documents in the labels to create test vs. train
    * @param learnerName AnnotatorLearner algorithm object to use
-   * @param inputLabel spanType in the TextLabels to use as training data. (I.e.,
+   * @param spanType spanType in the TextLabels to use as training data. (I.e.,
 	 *   the spanType to learn.
+   * @param spanProp span property in the TextLabels to use as training data. 
    * @param outputLabel the spanType that will be assigned to spans predicted
 	 * to be of type inputLabel by the learner (I.e., the output type associated
 	 * with the learned annotator.)
    */
 	public TextLabelsExperiment(
-		TextLabels labels,Splitter splitter,String learnerName,String inputType,String outputLabel) 
+		TextLabels labels,Splitter splitter,String learnerName,String spanType,String spanProp,String outputLabel) 
 	{
 		this.labels = labels;
 		this.splitter = splitter;
-		this.inputType = inputType;
+		this.inputType = spanType;
+		this.inputProp = spanProp;
 		this.outputLabel = outputLabel;
 		this.learner = toAnnotatorLearner(learnerName);
 		learner.setAnnotationType( outputLabel );
@@ -107,7 +109,7 @@ public class TextLabelsExperiment implements Visible
 			SubTextLabels trainLabels = new SubTextLabels( trainBase, labels );
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( trainLabels, inputType, inputProp );
 
-      log.info("Training annotator...");
+      log.info("Training annotator: inputType="+inputType+" inputProp="+inputProp);
 			annotators[i] = teacher.train( learner );
 
       //log.info("annotators["+i+"]="+annotators[i]);
@@ -265,7 +267,7 @@ public class TextLabelsExperiment implements Visible
 		String outputLabel="_prediction"; 
 		String learnerName="new CollinsPerceptronLearner()";
 		TextLabels labels=null;
-		String inputType=null, saveFileName=null, show=null, annotationNeeded=null;
+		String spanType=null, spanProp=null, saveFileName=null, show=null, annotationNeeded=null;
 		ArrayList featureMods = new ArrayList();
 
 		try {
@@ -279,7 +281,11 @@ public class TextLabelsExperiment implements Visible
 				} else if (opt.startsWith("-split")) {
 					splitter = Expt.toSplitter(args[pos++]);
 				} else if (opt.startsWith("-in")) {
-					inputType = args[pos++];
+					spanType = args[pos++];
+				} else if (opt.startsWith("-spanT")) {
+					spanType = args[pos++];
+				} else if (opt.startsWith("-spanP")) {
+					spanProp = args[pos++];
 				} else if (opt.startsWith("-out")) {
 					outputLabel = args[pos++];
 				} else if (opt.startsWith("-save")) {
@@ -295,11 +301,15 @@ public class TextLabelsExperiment implements Visible
 					return;
 				}
 			}
-			if (labels==null || learnerName==null || splitter==null|| inputType==null || outputLabel==null) {
+			if (labels==null || learnerName==null || splitter==null|| (spanProp==null&&spanType==null) || outputLabel==null) {
 				usage();
 				return;
 			}
-      TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,inputType,outputLabel);
+			if (spanProp!=null && spanType!=null) {
+				usage();
+				return;
+			}
+      TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,spanType,spanProp,outputLabel);
 			if (annotationNeeded!=null) {
 				expt.getFE().setRequiredAnnotation(annotationNeeded);
 				expt.getFE().setAnnotationProvider(annotationNeeded+".mixup");
@@ -343,7 +353,8 @@ public class TextLabelsExperiment implements Visible
 		String[] usageLines = new String[] {
 			"usage: options are:",
 			"       -label labelsKey   dataset to load",
-			"       -input inputType   label that defines the extraction target",
+			"       -spanType type     defines the extraction target",
+			"       -spanProp prop     defines the extraction target (specify exactly one of -spanType or -spanProp)",
 			"       -learn learner     Java code to construct the learner, which could be an ",
 			"                          an AnnotatorLearner, a BatchSequenceClassifierLearner, or an OnlineClassifierLearner",
 			"                          - a BatchSequenceClassifierLearner is used to defined a SequenceAnnotatorLearner",

@@ -2,7 +2,7 @@
 echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 echo WINDOWS setup script
 echo To run this you should:
-echo + have JAVE_HOME defined
+echo + have JAVA_HOME defined
 echo + have ANT installed
 echo + either
 echo + (a) - run all commands, including this one, from the directory containing the build.xml file, OR
