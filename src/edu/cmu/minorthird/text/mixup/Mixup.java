@@ -64,7 +64,15 @@ The name's an acronym for My Information eXtraction and Understanding Package.
 
 public class Mixup 
 {
-	/** Without constrains, the maximum number of times a mixup
+	/** Without constraints, the maximum number of times a mixup
+	 * expression can extract something from a document of length N is
+	 * O(N*N).  The maxNumberOfMatches... variables below constrain
+	 * this behavior, for efficiency.  The variable below is a threshold
+	 * after which these constraints kick in.
+	 */
+	public static int minMatchesToApplyConstraints = 5000;
+
+	/** Without constraints, the maximum number of times a mixup
 	 * expression can extract something from a document of length N is
 	 * O(N*N), since any token can be the begin or end of an extracted
 	 * span.  The maxNumberOfMatchesPerToken value limits this to
@@ -527,12 +535,14 @@ public class Mixup
 			log.debug("matching span id/size="+span.getDocumentId()+"/"+span.size());
 			log.debug("before alloc: max/free="+Runtime.getRuntime().maxMemory()+"/"+Runtime.getRuntime().freeMemory());
 			int maxRepeatedPrimMatches = span.size() * (span.size()+1);
-			if (maxNumberOfMatchesPerToken>0) {
-				maxRepeatedPrimMatches = Math.min(maxNumberOfMatchesPerToken*span.size(), maxRepeatedPrimMatches);
-			}
-			// also don't make maxRepeatedPrimMatches more than we can allocate
-			if (maxNumberOfMatches>0) {
-				maxRepeatedPrimMatches = maxNumberOfMatches;
+			if (maxRepeatedPrimMatches>minMatchesToApplyConstraints) {
+				// apply constraints
+				if (maxNumberOfMatchesPerToken>0) {
+					maxRepeatedPrimMatches = Math.min(maxNumberOfMatchesPerToken*span.size(), maxRepeatedPrimMatches);
+				}
+				if (maxNumberOfMatches>0) {
+					maxRepeatedPrimMatches = maxNumberOfMatches;
+				}
 			}
 			int[] loIndexBuffer = new int[ maxRepeatedPrimMatches ];
 			int[] lengthBuffer = new int[ maxRepeatedPrimMatches ];
@@ -563,14 +573,14 @@ public class Mixup
 						// look up matches from the labels
 						for (Span.Looper el=labels.instanceIterator(rp.type, span.getDocumentId()); el.hasNext(); ) {
 							if (numMatches>=maxRepeatedPrimMatches) {
-								log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
-								break;
+								overflowWarning(numMatches,maxRepeatedPrimMatches,span,i);
+								return;
 							}
 							Span s = el.nextSpan();
 							if (span.contains(s)) {
 								if (numMatches>=maxRepeatedPrimMatches) {
-									log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
-									break;
+									overflowWarning(numMatches,maxRepeatedPrimMatches,span,i);									
+									return;
 								}
 								loIndexBuffer[numMatches] = s.documentSpanStartIndex()-span.documentSpanStartIndex();
 								lengthBuffer[numMatches] = s.size();
@@ -584,8 +594,8 @@ public class Mixup
 							int topLen = Math.min(maxLen[i], span.size()-j);
 							for (int k=minLen[i]; k<=topLen; k++) {
 								if (numMatches>=maxRepeatedPrimMatches) {
-									log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
-									break;
+									overflowWarning(numMatches,maxRepeatedPrimMatches,span,i);
+									return;
 								}
 								if (rp.matchesSubspan(labels,span,j,k)) {
 									loIndexBuffer[numMatches] = j;
@@ -612,8 +622,16 @@ public class Mixup
 			fastMatch(labels,accum,span,lows,highs,1,0,0,possibleLos,possibleLens,isAny,minLen,maxLen);
 		}
 		
+		private void overflowWarning(int numMatches,int maxRepeatedPrimMatches,Span span,int i)
+		{
+			log.warn("mixup warning at pattern #"+(i+1)+" "+repPrim[i]+") on "+span);
+			log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
+			log.warn("size="+span.size()+" numMatches="+numMatches+" max="+maxRepeatedPrimMatches
+							 +" minConstraint="+minMatchesToApplyConstraints);
+		}
+
 		private void fastMatch(
-			TextLabels labels,    // not used (passed along to subroutines - ks)
+			TextLabels labels,    // passed along to subroutines
 			Set accum,            // accumulate matches
 			Span span,            // span being matched
 			int[] lows,           // lows[i] is lo index of match to repPrim[i] 

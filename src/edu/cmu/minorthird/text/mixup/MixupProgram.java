@@ -19,38 +19,40 @@ BNF:
   STATEMENT -> require ID [,FILE]
   STATEMENT -> defDict [+case] NAME = ID, ... , ID
   STATEMENT -> defTokenProp PROP:VALUE = GEN
-	STATEMENT -> defSpanProp PROP:VALUE = GEN
-	STATEMENT -> defSpanType TYPE2 = GEN
-	STATEMENT -> declareSpanType TYPE
-	
-	GEN -> [TYPE]: MIXUP-EXPR
-	GEN -> [TYPE]- MIXUP-EXPR
-	GEN -> [TYPE]~ re 'REGEX',NUMBER
-	GEN -> [TYPE]~ trie phrase1, phrase2, ... ;
+  STATEMENT -> defSpanProp PROP:VALUE = GEN
+  STATEMENT -> defSpanType TYPE2 = GEN
+  STATEMENT -> declareSpanType TYPE
+  
+  GEN -> [TYPE]: MIXUP-EXPR
+  GEN -> [TYPE]- MIXUP-EXPR
+  GEN -> [TYPE]~ re 'REGEX',NUMBER
+  GEN -> [TYPE]~ trie phrase1, phrase2, ... ;
 
-	statements are semicolon-separated
+  statements are semicolon-separated
   // and comments look like this (C++ style)
 
 SEMANTICS:
   execute each command in order, saving spans/tokens as types, and asserting properties
-	'=:' can be replaced with '=TYPE:', in which case the expr will be applied to
-	 each span of the given type, rather than all top-level spans
+  '=:' can be replaced with '=TYPE:', in which case the expr will be applied to
+   each span of the given type, rather than all top-level spans
 
-	 defDict FOO = bar,baz,bat stores a lowercase version of each word the dictionary
-	 defDict +case FOO = blah,Bar,baZ stores each word the dictionary, preserving case
+   defDict FOO = bar,baz,bat stores a lowercase version of each word the dictionary
+   defDict +case FOO = blah,Bar,baZ stores each word the dictionary, preserving case
 
-	 in dictionaries and tries, a double-quoted word "foo.txt" means to
-	 find foo.txt on the classpath and store all lines from the file as
-	 words (after trimming them).
+   in dictionaries and tries, a double-quoted word "foo.txt" means to
+   find foo.txt on the classpath and store all lines from the file as
+   words (after trimming them).
 
-	 TYPE: MIXUP-EXPR finds all spans inside a span of type TYPE that match the expression
-	 TYPE- MIXUP-EXPR finds all spans inside a span of type TYPE that do not contain anything matching MIXUP-EXPR
+   TYPE: MIXUP-EXPR finds all spans inside a span of type TYPE that match the expression
+   TYPE- MIXUP-EXPR finds all spans inside a span of type TYPE that do not contain anything matching MIXUP-EXPR
 
-</pre>
+</pre> <p> Mixup is matching language for modifying TextLabels.  It
+can label spans with a given TYPE (the new label for that token span)
+and assign properties to spans (much like labels, but 'invisible').
+There is more documentation for Mixup programs in the <a
+href="package-summary.html">package-level documents for Mixup.</a>
 <p>
-  Mixup provides a text matching language for modifying TextLabels.  It can label spans with a given
-TYPE (the new label for that token span) and assign properties to spans (much like labels, but 'invisible').
-A Mixup program will look something like this:
+Briefly, a Mixup program will look something like this:
 <pre>
  require "req1"; //requires that "abc" type spans have already been labeled.  If not, the default annoator
                 //for "abc" will be used.
@@ -84,13 +86,13 @@ A Mixup program will look something like this:
   defTokenProp address:x =: ... [@fullTitle any] !a(myDictionary) ...; 
           //label spans of one 'fullTitle' (the @ is needed
           //before types) and the following token, whatever it is, 
-					// which are followed by something other than a myDictionary word
+          // which are followed by something other than a myDictionary word
   defTokenProp capProp:on =req2: ... [re('^[A-Z]$')] ...; 
           //on spans of type req2, match tokens fitting the given regular expression
   defSpanType listSet =: ... [address+R] ...; 
           //label as header spans of 1 or more address tokens, going all the way to 
           //right most possible token - example: blah address1 address2 address3 blah 
-					// - will return three spans: "address3", "address2 address3", and "address1 address2 address3"
+          // - will return three spans: "address3", "address2 address3", and "address1 address2 address3"
   defSpanType adList =: ... [L address+ R] ...; //as above but only returns the longest span
   defSpanType header =: [L address* R] ...; 
           //label longest span of 0 or more address tokens at the beginning of the document

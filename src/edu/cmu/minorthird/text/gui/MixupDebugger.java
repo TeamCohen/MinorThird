@@ -36,7 +36,7 @@ public class MixupDebugger extends JComponent
     }
 
 	public
-	MixupDebugger(TextBase base,MonotonicTextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,boolean stem)
+	MixupDebugger(TextBase base,TextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,boolean stem)
 		throws IOException
 	{
 		super();
@@ -61,11 +61,10 @@ public class MixupDebugger extends JComponent
 		} catch (Exception e) {
 			errorString = e.toString();
 		}
-		programLabels = new NestedTextLabels( new NestedTextLabels( baseLabels, truthLabels) );
+		programLabels = new NestedTextLabels( new NestedTextLabels(baseLabels), truthLabels );
 		System.out.println("evaluating program from "+mixupProgramFile.getName()+"...");
-		program.eval( programLabels, base );
 		if (mixupProgramFile==null) throw new IllegalArgumentException("mixup program must be specified");
-
+		program.eval( programLabels, base );
     new TextLabelsLoader().saveTypesAsOps(programLabels, new File("test.labels"));
 		StatusMessage statusMsg = new StatusMessage();
 		JScrollPane errorPane = new JScrollPane(new JTextField(errorString));
@@ -85,7 +84,7 @@ public class MixupDebugger extends JComponent
 		JButton refreshButton =
 			new JButton(new RefreshProgramAction(
 										"Reload program from "+mixupProgramFile.getName(),
-										mixupProgramFile,base,programLabels,truthLabels,editor.getViewer(),errorPane));
+										mixupProgramFile,base,baseLabels,truthLabels,editor.getViewer(),errorPane));
 		JTextField newTypeField = new JTextField(10);
 		JButton newTypeButton =
 			new JButton(new NewTypeAction("New type:",truthLabels,editor.getViewer().getTruthBox(),newTypeField));
@@ -223,8 +222,15 @@ public class MixupDebugger extends JComponent
 				errorPane.getViewport().setView( new JTextField(e.toString()) );
 				return;
 			}
-			NestedTextLabels programLabels = new NestedTextLabels( truthLabels );
-			program.eval( programLabels, base );
+			//NestedTextLabels programLabels = new NestedTextLabels( truthLabels );
+			MonotonicTextLabels programLabels = 
+				new NestedTextLabels( new NestedTextLabels(initProgramLabels), truthLabels );
+			try {
+				program.eval( programLabels, base );
+			} catch (Exception e) {
+				errorPane.getViewport().setView( new JTextField(e.toString()) );
+				return;
+			}
 			viewer.updateTextLabels( programLabels );
 			updateTypeBox( programLabels, viewer.getGuessBox() );
 			updateTypeBox( programLabels, viewer.getTruthBox() );
@@ -278,7 +284,7 @@ public class MixupDebugger extends JComponent
 	return debug(base,baseLabels,groundTruthLabelsFile,mixupProgramFile);
     }
 
-	public static MixupDebugger debug(TextBase base,MonotonicTextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile)
+	public static MixupDebugger debug(TextBase base,TextLabels baseLabels,File groundTruthLabelsFile,File mixupProgramFile)
 	{
 		try {
 			JFrame frame = new JFrame("MixupDebugger");

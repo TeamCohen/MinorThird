@@ -143,13 +143,16 @@ with
 
 % java edu.cmu.minorthird.classify.experiments.EvaluationGroup foo*.eval
 
-SAMPLE CODE AND DEMOS
+DOCUMENTATION
 
-Some sample data can be found in minorthird/demos/sampleData. Some
+There are some 'HowTo' documents in minorthird/doc.
+
+Some sample data can be found in minorthird/demos/sampleData, and some
 sample mixup programs are in minorthird/demos/sampleMixup.  "Standard"
 mixup can be viewed in /lib/mixup.
 
-There is also some sample software in minorthird/demos/:
+Some of these are out of date - however, there is also some sample
+software in minorthird/demos/:
 
 LabelerDemo.java:
 	Loads a set of data and a set of labels, optionally runs a mixup program on the data for more labels.

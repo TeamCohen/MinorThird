@@ -11,7 +11,7 @@ import org.apache.log4j.*;
 
 /**
  *
- * Semi-markov version of GenericCollinsLearner.  <b>STATUS:</b> This is not debugged yet.
+ * Semi-markov version of GenericCollinsLearner. 
  *
  * @author William Cohen
  */

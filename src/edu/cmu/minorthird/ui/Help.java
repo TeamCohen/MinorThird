@@ -39,6 +39,10 @@ public class Help
 		"",
 		"RunMixup -labels KEY -mixup FILE [-saveAs LABELFILE] ...",
 		"  run a mixup program",
+		"DebugMixup -labels KEY -mixup FILE -edit LABELFILE ...",
+		"  run/reload a mixup program and correct label the output",
+		"EditLabels -labels KEY -edit LABELFILE ...",
+		"  labeler for textbases",
 		"",
 		"The single option -help gives detailed command-line help for a command."
 	};

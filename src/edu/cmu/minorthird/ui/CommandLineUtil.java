@@ -268,6 +268,30 @@ class CommandLineUtil
 		public void setSaveAs(String s) { saveAs( "n/a".equals(s) ? null : s ); }
 	}
 
+	/** Parameters used by all 'train' routines. */
+	public static class EditParams extends BasicCommandLineProcessor {
+		public File editFile=null;
+		private String editFileName=null;
+		public String extractedType=null,trueType=null;
+		public void extractedType(String s) { this.extractedType=s; }
+		public void trueType(String s) { this.trueType=s; }
+		public void edit(String fileName) { this.editFile = new File(fileName); this.editFileName=fileName; }
+		public void usage() {
+			System.out.println("edit parameters:");
+			System.out.println(" [-edit FILE]             stored result of hand-edited changes to labels in FILE");
+			System.out.println(" [-extracted TYPE]        debugging or labeling proposed spans of type TYPE");
+			System.out.println(" [-true TYPE]             hand-corrected labels saved as type YPE");
+			System.out.println();
+		}
+		// for gui
+		public String getEditFilename() { return editFileName==null ? "n/a" : editFileName; }
+		public void setEditFilename(String s) { edit( "n/a".equals(s) ? null : s ); }
+		public String getExtractedType() { return extractedType==null ? "n/a" : extractedType; }
+		public void setExtractedType(String s) { extractedType( "n/a".equals(s) ? null : s ); }
+		public String getTrueType() { return trueType==null ? "n/a" : trueType; }
+		public void setTrueType(String s) { trueType( "n/a".equals(s) ? null : s ); }
+	}
+
 	/** Parameters encoding the 'training signal' for classification learning. */
 	public static class ClassificationSignalParams extends ExtractionSignalParams {
 		private BaseParams base=new BaseParams();

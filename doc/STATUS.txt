@@ -1,11 +1,11 @@
 PRIORITIES:
- - SVMs
- - update svmlib to get confidences?
- - clean up mixup loading, command-line interface (--learner.fe.windowSize bsh)
+ - SVMs: update svmlib to get confidences?
  - stderr on error rates/f1's
  - vitor's bug
 
 BUGS:
+  - output issues with console window?
+  - clean up TBL so that it doesn't always try and parse xml tags
   - should precision/recall start at something other than 1.0 (max precision?)
   - graph doesn't come out if there is no range?
   - spanClosures are not stored properly (only by document); should really store tokenProps also,

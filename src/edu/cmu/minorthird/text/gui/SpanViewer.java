@@ -32,6 +32,7 @@ public class SpanViewer extends ParallelViewer implements Controllable
 		this.textViewer = new TextViewer(labels,span);
 		addSubView("Text",textViewer);
 		addSubView("Tokens",new TokenViewer(labels,span));
+		addSubView("Ids",new IdViewer(labels,span));
 		setContent(span);
 	}
 	public void applyControls(ViewerControls controls)
@@ -168,6 +169,28 @@ public class SpanViewer extends ParallelViewer implements Controllable
 			String[] colNames = new String[props.length+1];
 			colNames[0] = "token";
 			for (int j=0; j<props.length; j++) colNames[j+1] = props[j];
+			return new JScrollPane(new JTable(table,colNames));
+		}
+	}
+
+	/** View of the span's documentId and documentGroupId */
+	public static class IdViewer extends ComponentViewer
+	{																
+		private TextLabels labels;
+		private Span span;
+		public IdViewer(TextLabels labels, Span span)
+		{
+			super();
+			this.labels = labels;
+			this.span = span;
+		}
+		public JComponent componentFor(Object o)
+		{
+			Span s = (Span)o;
+			Object[][] table = new Object[1][2];
+			table[0][0] = s.getDocumentId();
+			table[0][1] = s.getDocumentGroupId();
+			String[] colNames = new String[]{"documentId","documentGroupId"};
 			return new JScrollPane(new JTable(table,colNames));
 		}
 	}
