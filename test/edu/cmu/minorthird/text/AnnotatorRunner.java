@@ -5,7 +5,6 @@ import edu.cmu.minorthird.text.learn.SigFileAnnotator;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * This class...
@@ -15,7 +14,7 @@ public class AnnotatorRunner
 {
   private static Logger log = Logger.getLogger(AnnotatorRunner.class);
 
-/*
+
   public static void main(String[] args)
   {// load the documents into a textbase
 
@@ -27,8 +26,6 @@ public class AnnotatorRunner
       //File dir = new File("C:/boulder/randomNOSig"); //put the directory with emails here.
 
       MutableTextLabels labels = null;
-      try
-      {
         labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
   //    TextBase base = labels.getTextBase();
 
@@ -51,6 +48,5 @@ public class AnnotatorRunner
     }
 
   }
-*/
 
 }
