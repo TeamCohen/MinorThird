@@ -44,8 +44,8 @@ public class RandomFilePicker
       int msg = 0;
       while (msg < numMsg)
       {
-        int person = (int)Math.round(Math.random() * (dirs.length - 1));
-        int email = (int)Math.round(Math.random() * (messages[person].length -1));
+        int person = (int)Math.floor(Math.random() * dirs.length);
+        int email = (int)Math.floor(Math.random() * messages[person].length);
 
         System.out.println("selected: [" + person + "][" + email + "] - " + messages[person][email]);
         if (!selections.add(messages[person][email]))
