@@ -452,12 +452,12 @@ public class Evaluation implements Visible,Serializable,Saveable
       ". Error Rate on Negative exs.",
       ". std. Deviation",
       "Average Precision",
-      "Maximium F1",
+      "Maximum F1",
       "Average Log Loss",
       "Recall",
       "Precision",
       "F1",
-			"Kappa" };
+      "Kappa" };
   }
 
   //

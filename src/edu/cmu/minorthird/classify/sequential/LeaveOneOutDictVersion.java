@@ -10,9 +10,6 @@ import java.awt.BorderLayout;
 import javax.swing.border.*;
 import java.io.*;
 
-// status: not quite working...somehow after the transformation is complete, the
-// weights for the newly added feature values get lost
-
 /**
  *
  * @author William Cohen

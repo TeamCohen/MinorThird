@@ -7,8 +7,8 @@ import javax.swing.*;
 import java.io.Serializable;
 
 
-/** A KWayClassifier composed of a bunch of binary classifiers,
- * each of which separates one class from the others.
+/** A Classifier composed of a bunch of binary classifiers, each of
+ * which separates one class from the others.
  *
  * @author William Cohen
  */
@@ -37,7 +37,7 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 	{
 		ClassLabel classLabel = new ClassLabel();
 		for (int i=0; i<classNames.length; i++) {
-			classLabel.add(classNames[i], binaryClassifiers[i].classification(instance).numericScore());
+			classLabel.add(classNames[i], binaryClassifiers[i].classification(instance).posWeight());
 		}
 		return classLabel;
 	}
