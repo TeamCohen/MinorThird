@@ -15,6 +15,8 @@ public abstract class AnnotatorTeacher
 {
 	final public Annotator train(AnnotatorLearner learner)
 	{
+		learner.reset();
+
 		// unsupervised training
 		learner.setDocumentPool( documentPool() );
 

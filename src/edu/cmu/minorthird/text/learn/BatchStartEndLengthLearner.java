@@ -11,6 +11,8 @@ import java.util.Map;
 /**
  * Learn a StartEndLengthAnnotator from examples.
  *
+ * This has not been extensively tested.
+ *
  * @author William Cohen
  */
 
@@ -24,7 +26,7 @@ public class BatchStartEndLengthLearner implements AnnotatorLearner
 	private int totalPosSpans = 0;
 	// default
 	private String annotationType = "_prediction";
-	private static final boolean SAVE_DATA = true;
+	private static final boolean SAVE_DATA = false;
   private Dataset startData = SAVE_DATA ? new BasicDataset() : null;
   private Dataset endData = SAVE_DATA ? new BasicDataset() : null;
 
@@ -34,6 +36,15 @@ public class BatchStartEndLengthLearner implements AnnotatorLearner
 		this.fe = fe;
 		this.startLearner = startLearner;
 		this.endLearner = endLearner;
+		reset();
+	}
+
+	public void reset() {
+		spanLengthMap = new HashMap();
+		totalPosSpans = 0;
+		annotationType = "_prediction";
+		startData = SAVE_DATA ? new BasicDataset() : null;
+		endData = SAVE_DATA ? new BasicDataset() : null;
 	}
 
 	public String getAnnotationType() { return annotationType; }

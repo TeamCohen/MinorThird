@@ -53,6 +53,10 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
     seqLearner = new CollinsPerceptronLearner();
   }
 
+	public void reset() {
+		seqData = new SequenceDataset();
+	}
+
 	/** Specify the type of annotation produced by this annotator - that is, the
 	 * type associated with spans produced by it. */
 	public void setAnnotationType(String s) { annotationType=s; }

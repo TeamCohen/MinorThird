@@ -36,6 +36,10 @@ public class BatchInsideOutsideLearner implements AnnotatorLearner
 	// temporary storage
 	private Span.Looper documentLooper;
 
+	public void reset() {
+		classifierLearner.reset();
+	}
+
 	/** Accept the pool of unlabeled documents. */
 	public void setDocumentPool(Span.Looper documentLooper) {
 		this.documentLooper = documentLooper;

@@ -22,6 +22,12 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 
 	private Dataset dataset = new BasicDataset(); // buffer
 
+	public void reset() 
+	{
+		dataset = new BasicDataset();
+	}
+			
+
   /**
    * No-arg constructor.
    * prefered: Only by the Wizard

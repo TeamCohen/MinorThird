@@ -11,6 +11,8 @@ import edu.cmu.minorthird.text.Annotator;
 
 public interface AnnotatorLearner
 {
+	public void reset();
+
 	/** Accept a pool of documents. */
 	public void setDocumentPool(Span.Looper documents);
 	
