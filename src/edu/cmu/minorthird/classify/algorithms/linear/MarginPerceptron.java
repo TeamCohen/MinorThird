@@ -20,6 +20,7 @@ public class MarginPerceptron extends OnlineBinaryClassifierLearner
 	private boolean voteAfterTrainingComplete;
 	private boolean trainingComplete;
 	private double numExamples;
+  int numExamplesAdded;
 
 	public MarginPerceptron() { this(1.0,false,false); }
 

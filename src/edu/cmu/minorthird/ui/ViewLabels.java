@@ -19,7 +19,7 @@ public class ViewLabels
 		    m.base.processArguments(args);
 		    m.viewLabels.processArguments(args);
 		    if (m.base.labels!=null) 
-			new ViewerFrame("ViewLabels"+StringUtil.toString(args),new SmartVanillaViewer(m.base.labels));
+          new ViewerFrame("ViewLabels"+StringUtil.toString(args),new SmartVanillaViewer(m.base.labels));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

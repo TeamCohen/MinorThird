@@ -181,8 +181,18 @@ public class EvaluationGroup implements Visible,Serializable,Saveable
         try {
             EvaluationGroup group = new EvaluationGroup();
             for (int i=0; i<args.length; i++) {
+              try {
                 Evaluation v = Evaluation.load(new File(args[i]));
                 group.add( args[i], v );
+              } catch (IOException ex) {
+                try {	
+                  Evaluation v =(Evaluation)IOUtil.loadSerialized(new File(args[i]));
+                  group.add( args[i], v );                  
+                } catch (Exception ex2) {
+                  System.out.println("usage: EvaluationGroup serializedFile1 serializedFile2 ...");
+                  ex2.printStackTrace();
+                }
+              }
             }
             ViewerFrame f = new ViewerFrame("From file "+args[0], group.toGUI());
         } catch (Exception e) {

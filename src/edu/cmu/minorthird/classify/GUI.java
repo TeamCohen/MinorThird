@@ -67,7 +67,7 @@ public class GUI
 			GridBagConstraints gbc = fillerGBC();
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc = new GridBagConstraints();
-			p.add( new JLabel("Class label: "+e.getLabel()), gbc );
+			p.add( new JLabel("Class label: "+e.getLabel().toDetails()), gbc );
 			
 			gbc = fillerGBC();
 			gbc.gridy = 1;

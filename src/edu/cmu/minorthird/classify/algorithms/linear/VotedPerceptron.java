@@ -15,22 +15,22 @@ import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
  */
 
 /*
-voted perceptron: maintain weight vectors S_t and W_t
-as follows:
+  voted perceptron: maintain weight vectors S_t and W_t
+  as follows:
 
-   W_t = d_t x_t + W_{t-1}
-   S_t = W_t + S_{t-1}
+  W_t = d_t x_t + W_{t-1}
+  S_t = W_t + S_{t-1}
 
-where d_t = (prediction error on x_t) ? y_t : 0
+  where d_t = (prediction error on x_t) ? y_t : 0
 
-prediction score of averaged perceptron on x is inner product <S_t,x> 
-prediction score of perceptron on x is inner product <W_t,x> 
+  prediction score of averaged perceptron on x is inner product <S_t,x> 
+  prediction score of perceptron on x is inner product <W_t,x> 
 
-for kernels, compute for each x after training on x1,..,x_T
+  for kernels, compute for each x after training on x1,..,x_T
 
-for t = 1...T
-    KW_t(x) = KW_{t-1}(x) + d_t K(x_t,x)
-    KS_t(x) = KS_{t-1}(x) + KW_t(x)
+  for t = 1...T
+  KW_t(x) = KW_{t-1}(x) + d_t K(x_t,x)
+  KS_t(x) = KS_{t-1}(x) + KW_t(x)
 */
 
 public class VotedPerceptron extends OnlineBinaryClassifierLearner
@@ -39,7 +39,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 	private boolean ignoreWeights=false;
 
 	public VotedPerceptron() { 
-	    this(false); 
+    this(false); 
 	}
 
 	/** If ignoreWeights is true, treat all weights as binary. For
@@ -49,7 +49,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 
 	public void reset() 
 	{
-	    super.reset();
+    super.reset();
 		s_t = new Hyperplane();
 		w_t = new Hyperplane();
 		if (ignoreWeights) {
@@ -69,11 +69,11 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 
 	public Classifier getClassifier() 
 	{
-	    if(c != null) {
-		c.increment(s_t);
-		return c;
-	    }
-	    return s_t;
+    if(c != null) {
+      c.increment(s_t);
+      return c;
+    }
+    return s_t;
 	}
 
 	public String toString() { return "VotedPerceptron"; }

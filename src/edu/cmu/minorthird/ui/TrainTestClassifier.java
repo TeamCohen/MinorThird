@@ -28,11 +28,11 @@ public class TrainTestClassifier extends UIMain
 
 	// private data needed to train a classifier
 
-	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
-	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
-	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	private Object result = null;
+	protected CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
+	protected CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
+	protected CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
+	protected CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
+	protected Object result = null;
 
 	// for GUI
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }

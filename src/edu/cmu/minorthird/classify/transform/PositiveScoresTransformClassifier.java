@@ -135,6 +135,8 @@ public class PositiveScoresTransformClassifier implements Classifier,Serializabl
 	}
 
 	
+  private static void usage() { System.out.println("PositiveScoresTransformClassifier dataset"); }
+
 	public static void main(String[] args) {
 		if ((args.length < 1)|| (args.length>1)) {
 		  System.out.println("Usage: PositiveScoresTransformClassifier classname");
