@@ -16,12 +16,22 @@ import java.util.*;
 import org.apache.log4j.*;
 
 /** Allows one to adjust the parameters of a learned extractor. 
+ *
+ * 
+ * @author William Cohen
  */
 
 public class ExtractorTweaker 
 {
   private CMMTweaker cmmTweaker = new CMMTweaker();
 	static private Logger log = Logger.getLogger(ExtractorTweaker.class);
+
+  //
+  // the getNewBias, getOldBias are here if anyone wants to use the
+  // tweak(annotator,biasValue) interface as part of their own
+  // optimization routine.  Notice there's no easy way to find out
+  // what the existing bias is.
+  //
 
   /** Return the value of bias term before the last tweak.
    */
@@ -79,8 +89,27 @@ public class ExtractorTweaker
     public void lowBias(String s) { lo=StringUtil.atof(s); loSpecified=true; }
     public void hiBias(String s) { hi=StringUtil.atof(s); hiSpecified=true; }
     public void beta(String s) { beta=StringUtil.atof(s); }
+    public void usage() { for (int i=0; i<USAGE.length; i++) System.out.println(USAGE[i]); }
   }
   public CommandLineProcessor getCLP() { return new MyCLP(); }
+
+  static private final String[] USAGE = {
+    "ExtractorTweaker: modify the recall/precision of a previously-learned extractor",
+    "",
+    "Parameters:",
+    " -loadFrom FILE                where to load a previously-learner extractor from",
+    " [-saveAs FILE]                where to save the 'tweaked' version of the extractor",
+    " [-newBias NUM]                new value that replaces the hyperplane_bias term of the NEG hyperplane",
+    "",
+    "If -newBias is NOT specified, then ExtractorTweaker will try and find a 'good' value",
+    "on its own, using bisection search, guided by the following additional parameters:",
+    "  -labels KEY -spanType TYPE [-beta BETA]",  
+    "where -labels KEY -spanType TYPE specifies the dataset to use in opimizing the extractor",
+    "and -beta BETA determines the function to optimize, namely token-level F_beta (default, beta=1)",
+    "It seems to work ok to optimize performance on the dataset used for training.",
+    "",
+  };
+
 
   private void doMain() throws IOException
   {
@@ -113,6 +142,10 @@ public class ExtractorTweaker
     }
     if (toFile!=null) IOUtil.saveSerialized((Serializable)tweaked, toFile);
   }
+
+  //
+  // a function to optimize - returns token-level F_beta
+  //
 
   private class AnnTester implements ScalarSolver.Function
   {
