@@ -947,9 +947,10 @@ public class TextBaseLoader
 	for (Iterator j=spanList.iterator(); j.hasNext(); ) {
 	    CharSpan charSpan = (CharSpan)j.next();
 	    Span approxSpan = base.documentSpan(charSpan.docID).charIndexSubSpan(charSpan.lo, charSpan.hi);
-	    //System.out.println(approxSpan.asString() + ": " + charSpan.type);
+	    //System.out.println(approxSpan.asString() + ": -" + charSpan.type + "-");
 	    labels.addToType( approxSpan, charSpan.type );
 	}
+	new TextLabelsLoader().closeLabels( labels, closurePolicy );
     }
 
 
