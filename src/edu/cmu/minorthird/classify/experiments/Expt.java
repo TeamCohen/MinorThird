@@ -147,6 +147,9 @@ public class Expt implements CommandLineProcessor.Configurable
 			int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
 			return new StratifiedCrossValSplitter(folds);
 		}
+    if (splitterName.startsWith("l")) {
+      return new LeaveOneOutSplitter();
+    }
 		throw new IllegalArgumentException("illegal splitterName '"+splitterName+"'");
 	}
 
