@@ -196,7 +196,7 @@ public class Recommended
 		// the real code (ie not config code)
 		//
 		/** Make sure the required annotation is present. */
-		protected void requireMyAnnotation(TextLabels labels)
+		public void requireMyAnnotation(TextLabels labels)
 		{
 			if (requiredAnnotation!=null) {
 				labels.require(requiredAnnotation,requiredAnnotationFileToLoad);

@@ -3,12 +3,17 @@ package edu.cmu.minorthird.ui;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.util.*;
+import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.*;
 
 import org.apache.log4j.Logger;
 import java.util.*;
 import java.io.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.*;
+import java.awt.event.*;
 
 
 /**
@@ -24,17 +29,6 @@ class CommandLineUtil
 	//
 	// misc utilities
 	//
-
-
-	/** Main UI program */
-	public interface UIMain 
-	{
-		/** Do the main action */
-		public void doMain();
-		/** Return the result of the action. */
-		public Object getMainResult(); 
-	}
-
 
 	/** Build a classification dataset from the necessary inputs. 
 	*/
@@ -181,8 +175,10 @@ class CommandLineUtil
 	/** Basic parameters used by almost everything. */
 	public static class BaseParams extends BasicCommandLineProcessor {
 		public MutableTextLabels labels=null;
+		private String repositoryKey="";
 		public boolean showLabels=false, showResult=false;
 		public void labels(String repositoryKey) { 
+			this.repositoryKey = repositoryKey;
 			this.labels = (MutableTextLabels)FancyLoader.loadTextLabels(repositoryKey); 
 		}
 		public void showLabels() { this.showLabels=true; }
@@ -194,6 +190,13 @@ class CommandLineUtil
 			System.out.println(" [-showResult]            interactively view final result of this operation");
 			System.out.println();
 		}
+		// for GUI
+		public String getLabels() { return repositoryKey; }
+		public void setLabels(String key) { labels(key); }
+		public boolean getShowLabels() { return showLabels; }
+		public void setShowLabels(boolean flag ) { showLabels=flag; }
+		public boolean getShowResult() { return showResult; }
+		public void setShowResult(boolean flag ) { showResult=flag; }
 	}
 	
 	/** Parameters used by all 'train' routines. */

@@ -18,7 +18,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class ApplyAnnotator implements CommandLineUtil.UIMain
+public class ApplyAnnotator extends UIMain
 {
   private static Logger log = Logger.getLogger(ApplyAnnotator.class);
 
@@ -29,7 +29,7 @@ public class ApplyAnnotator implements CommandLineUtil.UIMain
 	private CommandLineUtil.LoadAnnotatorParams load = new CommandLineUtil.LoadAnnotatorParams();
 	private Evaluation result = null;
 
-	private CommandLineProcessor getCLP()
+	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,load});
 	}
@@ -82,13 +82,6 @@ public class ApplyAnnotator implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		ApplyAnnotator main = new ApplyAnnotator();
-		try {
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Use option -help for help");
-		}
+		new ApplyAnnotator().callMain(args);
 	}
 }

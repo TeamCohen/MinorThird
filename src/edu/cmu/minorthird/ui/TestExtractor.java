@@ -19,7 +19,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TestExtractor implements CommandLineUtil.UIMain
+public class TestExtractor extends UIMain
 {
   private static Logger log = Logger.getLogger(TestExtractor.class);
 
@@ -31,7 +31,7 @@ public class TestExtractor implements CommandLineUtil.UIMain
 	private CommandLineUtil.TestExtractorParams test = new CommandLineUtil.TestExtractorParams();
 	private TextLabels annLabels = null;
 
-	private CommandLineProcessor getCLP()
+	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,test});
 	}
@@ -90,13 +90,6 @@ public class TestExtractor implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		try {
-			TestExtractor main = new TestExtractor();
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("use option -help for help");
-		}
+		new TestExtractor().callMain(args);
 	}
 }

@@ -18,7 +18,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainExtractor implements CommandLineUtil.UIMain
+public class TrainExtractor extends UIMain
 {
   private static Logger log = Logger.getLogger(TrainExtractor.class);
 
@@ -30,7 +30,7 @@ public class TrainExtractor implements CommandLineUtil.UIMain
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private Annotator ann = null;
 
-	private CommandLineProcessor getCLP()
+	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,train});
 	}
@@ -79,13 +79,6 @@ public class TrainExtractor implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		try {
-			TrainExtractor main = new TrainExtractor();
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("use option -help for help");
-		}
+		new TrainExtractor().callMain(args);
 	}
 }

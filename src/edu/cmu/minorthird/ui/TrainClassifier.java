@@ -18,7 +18,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainClassifier implements CommandLineUtil.UIMain
+public class TrainClassifier extends UIMain
 {
   private static Logger log = Logger.getLogger(TrainClassifier.class);
 
@@ -30,7 +30,7 @@ public class TrainClassifier implements CommandLineUtil.UIMain
 	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
 	private Annotator ann = null;
 
-	private CommandLineProcessor getCLP()
+	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,train});
 	}
@@ -85,13 +85,6 @@ public class TrainClassifier implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		try {
-			TrainClassifier main = new TrainClassifier();
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("use option -help for help");
-		}
+		new TrainClassifier().callMain(args);
 	}
 }

@@ -18,7 +18,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TestClassifier implements CommandLineUtil.UIMain
+public class TestClassifier extends UIMain
 {
   private static Logger log = Logger.getLogger(TestClassifier.class);
 
@@ -30,7 +30,7 @@ public class TestClassifier implements CommandLineUtil.UIMain
 	private CommandLineUtil.TestClassifierParams test = new CommandLineUtil.TestClassifierParams();
 	private Evaluation result = null;
 
-	private CommandLineProcessor getCLP()
+	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,test});
 	}
@@ -97,13 +97,6 @@ public class TestClassifier implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		TestClassifier main = new TestClassifier();
-		try {
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Use option -help for help");
-		}
+		 new TestClassifier().callMain(args);
 	}
 }

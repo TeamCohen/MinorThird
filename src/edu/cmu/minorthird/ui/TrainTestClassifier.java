@@ -22,7 +22,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainTestClassifier implements CommandLineUtil.UIMain
+public class TrainTestClassifier extends UIMain
 {
   private static Logger log = Logger.getLogger(TrainTestClassifier.class);
 
@@ -35,7 +35,7 @@ public class TrainTestClassifier implements CommandLineUtil.UIMain
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
 	private Evaluation result = null;
 
-	private CommandLineProcessor getCLP()
+	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,save,signal,train,trainTest});
 	}
@@ -106,13 +106,6 @@ public class TrainTestClassifier implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		try {
-			TrainTestClassifier main = new TrainTestClassifier();
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Use option -help for help");
-		}
+		new TrainTestClassifier().callMain(args);
 	}
 }

@@ -19,7 +19,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class TrainTestExtractor implements CommandLineUtil.UIMain
+public class TrainTestExtractor extends UIMain
 {
   private static Logger log = Logger.getLogger(TrainTestExtractor.class);
 
@@ -30,11 +30,16 @@ public class TrainTestExtractor implements CommandLineUtil.UIMain
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
 	TextLabelsExperiment expt; // the main result
-
-	private CommandLineProcessor getCLP()
+	
+	// for command-line ui
+	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{base,signal,train,trainTest});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,signal,train,trainTest});
 	}
+
+	// for GUI
+	public CommandLineUtil.BaseParams getBaseParameters() { return base; }
+	public void setBaseParameters(CommandLineUtil.BaseParams base) { this.base=base; }
 
 	//
 	// do the experiment
@@ -74,13 +79,7 @@ public class TrainTestExtractor implements CommandLineUtil.UIMain
 
 	public static void main(String args[])
 	{
-		try {
-			TrainTestExtractor main = new TrainTestExtractor();
-			main.getCLP().processArguments(args);
-			main.doMain();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Use option -help for help");
-		}
+		new TrainTestExtractor().callMain(args);
 	}
+
 }

@@ -18,40 +18,57 @@ public class StringUtil
 	/** Convert an array to a string. */
 	static public String toString(Object[] x)
 	{
+		return toString(x,"[","]",",");
+	}
+
+	/** Convert an array to a string. */
+	static public String toString(double[] x)
+	{
+		return toString(x,"[","]",",");
+	}
+	
+  /** Convert an array to a string. */
+	static public String toString(int[] x)
+	{
+		return toString(x,"[","]",",");
+	}
+
+	static public String toString(Object[] x,String prefix,String suffix,String sep)
+	{
 		StringBuffer buf = new StringBuffer("");
-		buf.append("[");
+		buf.append(prefix);
 		for (int i=0; i<x.length; i++) {
-			if (i>0) buf.append(",");
+			if (i>0) buf.append(sep);
 			if (x[i]==null) buf.append("null");
 			else buf.append(x[i].toString());
 		}
-		buf.append("]");
+		buf.append(suffix);
 		return buf.toString();
 	}
 
 	/** Convert an array of doubles to a string. */
-	static public String toString(double[] x)
+	static public String toString(double[] x,String prefix,String suffix,String sep)
 	{
 		StringBuffer buf = new StringBuffer("");
-		buf.append("[");
+		buf.append(prefix);
 		for (int i=0; i<x.length; i++) {
-			if (i>0) buf.append(",");
+			if (i>0) buf.append(sep);
 			buf.append(Double.toString(x[i]));
 		}
-		buf.append("]");
+		buf.append(suffix);
 		return buf.toString();
 	}
 
 	/** Convert an array of ints to a string. */
-	static public String toString(int[] x)
+	static public String toString(int[] x,String prefix,String suffix,String sep)
 	{
 		StringBuffer buf = new StringBuffer("");
-		buf.append("[");
+		buf.append(prefix);
 		for (int i=0; i<x.length; i++) {
-			if (i>0) buf.append(",");
+			if (i>0) buf.append(sep);
 			buf.append(Integer.toString(x[i]));
 		}
-		buf.append("]");
+		buf.append(suffix);
 		return buf.toString();
 	}
 
