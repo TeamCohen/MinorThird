@@ -1,7 +1,6 @@
 package ksteppe.enron;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -16,10 +15,8 @@ public class RandomFilePicker
     if (args.length !=4)
       usage();
 
-    File base;
+    File base= new File(args[2]);
     File dest = new File(args[3]);
-
-    base = new File(args[2]);
 
     int numChunks = Integer.parseInt(args[0]);
     int numMsg = Integer.parseInt(args[1]);
@@ -44,6 +41,21 @@ public class RandomFilePicker
         exempted.add(new Integer(i));
       }
     }
+
+    String exemptFile = dest.getAbsoluteFile() + "exempted";
+    File f = new File(exemptFile);
+    try
+    {
+      f.createNewFile();
+      PrintWriter out = new PrintWriter(new FileWriter(f));
+      for (Iterator it = exempted.iterator(); it.hasNext();)
+      {
+        out.println(dirs[((Integer)it.next()).intValue()].getName());
+      }
+      out.close();
+    }
+    catch (IOException e)
+    { e.printStackTrace();  //To change body of catch statement use Options | File Templates. }
 
     for (int chunk = 0; chunk < numChunks; chunk++)
     {
