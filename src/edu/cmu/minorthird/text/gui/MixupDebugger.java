@@ -356,12 +356,13 @@ public class MixupDebugger extends JComponent
         File data = new File(fileName);
         if (data.isDirectory())
         {
-          TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE,  TextBaseLoader.FILE_NAME, false);
+          TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE,  false);
           base = loader.load(data);
         }
-//          base = TextBaseLoader.loadDirOfTaggedFiles(data).getTextBase();
-        else
-          base = TextBaseLoader.loadDocPerLine(data, false);
+        else {
+	    TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE,  false);
+	    base = loader.load(data);
+	}
       }
 
 			MixupDebugger debugger =

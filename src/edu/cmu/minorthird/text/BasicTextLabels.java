@@ -196,6 +196,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 
 	/** Assert that Span span has the given value of the given property */
 	public void setProperty(Span span,String prop,String value) {
+	    
 		getPropMap(span).put(prop,value);
 		spanPropertySet.add(prop);
 		TreeSet set = (TreeSet)spansWithSomePropertyByDocId.get(span.getDocumentId());

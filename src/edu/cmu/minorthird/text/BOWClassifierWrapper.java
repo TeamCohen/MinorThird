@@ -75,8 +75,8 @@ public class BOWClassifierWrapper
 		edu.cmu.minorthird.text.TextBase base = new BasicTextBase();
 		edu.cmu.minorthird.text.TextBaseLoader loader = new edu.cmu.minorthird.text.TextBaseLoader();
 		File file = new File("examples/webmasterDataLines.txt");
-		loader.setFirstWordIsDocumentId(true);
-		loader.loadLines(base,file);
+		//loader.setFirstWordIsDocumentId(true);
+		//loader.loadLines(base,file);
 		MutableTextLabels labels = new BasicTextLabels( base );
 		new edu.cmu.minorthird.text.TextLabelsLoader().importOps(labels,base,new File("examples/addChangeDelete.env"));
 

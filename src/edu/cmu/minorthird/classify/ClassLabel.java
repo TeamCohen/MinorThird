@@ -44,6 +44,27 @@ public class ClassLabel implements Serializable
 	public ClassLabel(String label) { this(label,1.0); }
 	public ClassLabel(String label,double weight) { add(label,weight); }
 
+    /** Create a positive binary label, with the associated score (in logits). */
+    static public ClassLabel multiPosLabel(String label, double score)
+	{
+		ClassLabel result = new ClassLabel(label,score);
+		String negLabel = "NOT" + label;
+		return result;
+	}
+
+    /** Create a positive binary label, with the associated score (in logits). */
+    static public ClassLabel multiNegLabel(String label, double score)
+	{
+		ClassLabel result = new ClassLabel(label,score);
+		return result;
+	}
+
+    /** Create a binary label, either positive or negative, as appropriate, with the associated score (in logits). */
+    static public ClassLabel multiLabel(String name, double score)
+	{
+	    return (score>=0?multiPosLabel(name, score):multiNegLabel(name, score));
+	}
+
 	/** Create a positive binary label, with the associated score (in logits). */
 	static public ClassLabel positiveLabel(double score)
 	{

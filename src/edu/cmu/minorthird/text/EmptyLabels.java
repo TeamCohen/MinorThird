@@ -43,4 +43,8 @@ public class EmptyLabels implements TextLabels
 	private Span.Looper nullLooper() { return new BasicSpanLooper( EMPTY_SET ); }
 
 	public String toString() { return "[EmptyLabels]"; }
+    public void setProperty(Span span,String prop,String value) 
+    {
+	System.out.println("Not used");
+    }
 }

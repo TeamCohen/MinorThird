@@ -68,8 +68,7 @@ public class TextBaseLoaderTest extends TestCase
     try
     {
       log.info("----------------- SeminarSet -----------------");
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
-      loader.setLabelsInFile(true);
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, true);
       File dataLocation = new File(Globals.DATA_DIR + "seminar-subset");
       TextBase textBase = loader.load(dataLocation);
       TextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
@@ -287,7 +286,7 @@ public class TextBaseLoaderTest extends TestCase
       TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, TextBaseLoader.FILE_NAME,
                                                   TextBaseLoader.NONE, TextBaseLoader.DIRECTORY_NAME, false, true);
 
-      log.info("loader labels: " + loader.isLabelsInFile());
+      //log.info("loader labels: " + loader.isLabelsInFile());
       File dir = new File(Globals.DATA_DIR + "20newgroups/20news-bydate-train");
       TextBase base = loader.load(dir);
   //    loader.loadLabeledDir(base, dir);

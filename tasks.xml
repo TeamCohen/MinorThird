@@ -87,6 +87,8 @@
     <fileset dir="${libDir}">
       <include name="**/*.mixup"/>
       <include name="montylingua/*"/>
+      <include name="org.*"/>
+      <inlcude name="org/*"/>
     </fileset>
   </jar>
 </target>

@@ -58,7 +58,18 @@ public class TrainClassifier extends UIMain
 		// construct the dataset
 		Dataset d = 
 			CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
-		if (train.showData) new ViewerFrame("Dataset", d.toGUI());
+		if (train.showData) {
+		    System.out.println("Trying to show the Dataset");
+		    new ViewerFrame("Dataset", d.toGUI());
+		}
+
+		/*Dataset seqDataset = 
+			CommandLineUtil.toSeqDataset(base.labels,train.fe,signal.spanProp,"combined");
+		
+		if (train.showData) {
+		    System.out.println("Trying to create Sequential Dataset");
+		    new ViewerFrame("SequenceDataset", seqDataset.toGUI());
+		    }*/
 
 		// train the classifier
 		classifier = new DatasetClassifierTeacher(d).train(train.learner);

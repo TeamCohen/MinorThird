@@ -112,6 +112,37 @@ public class CommandLineUtil
 
     /** Build a classification dataset from the necessary inputs. 
      */
+    static public Dataset toSeqDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType)
+    {
+	NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
+	safeLabels.shadowProperty(spanProp);
+
+	Span.Looper candidateLooper =  textLabels.getTextBase().documentSpanIterator();
+
+	if(spanType.equals("combined")) {
+	    Dataset seqDataset = new BasicDataset();
+	    int counter = 0;
+	    for (Span.Looper i=candidateLooper; i.hasNext(); ) {
+		
+		Span s = i.nextSpan();
+		System.out.println("Span1 Document ID: " + s.getDocumentId() + "  Counter: " + counter);
+		    Set types = textLabels.getTypes();
+		    for(Iterator typeIterator=types.iterator(); typeIterator.hasNext(); ) {
+			String type = (String)typeIterator.next();
+			int classLabel1 = textLabels.hasType(s,type) ? +1 : -1;
+			if(classLabel1>0)
+			    seqDataset.add( new Example(fe.extractInstance(safeLabels,s), ClassLabel.multiLabel(type, classLabel1)));
+		    }
+		    counter++;
+	    }
+	    
+	    return seqDataset;
+	}
+	throw new IllegalArgumentException("either spanProp or spanType must be specified");
+    }
+
+    /** Build a classification dataset from the necessary inputs. 
+     */
     static public Dataset 
 	toDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType,String candidateType)
     {
@@ -126,6 +157,7 @@ public class CommandLineUtil
 	    textLabels.instanceIterator(candidateType) : textLabels.getTextBase().documentSpanIterator();
 
 	// binary dataset - anything labeled as in this type is positive
+		
 	if (spanType!=null) {
 	    Dataset dataset = new BasicDataset();
 	    for (Span.Looper i=candidateLooper; i.hasNext(); ) {
@@ -157,7 +189,7 @@ public class CommandLineUtil
 	    }
 	    System.out.println("Number of examples by class: "+countByClass);
 	    return dataset;
-	}
+	}	
 	throw new IllegalArgumentException("either spanProp or spanType must be specified");
     }
 
@@ -256,12 +288,12 @@ public class CommandLineUtil
 
     /** Basic parameters used by almost everything. */
     public static class BaseParams extends BasicCommandLineProcessor {
-	public TextLabels labels=null;
+	public MonotonicTextLabels labels=null;
 	private String repositoryKey="";
 	public boolean showLabels=false, showResult=false;
 	public void labels(String repositoryKey) { 
 	    this.repositoryKey = repositoryKey;
-	    this.labels = (TextLabels)FancyLoader.loadTextLabels(repositoryKey); 
+	    this.labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(repositoryKey); 
 	}
 	public void showLabels() { this.showLabels=true; }
 	public void showResult() { this.showResult=true; }
@@ -625,6 +657,47 @@ public class CommandLineUtil
 	public void setShowTestDetails(boolean flag) { this.showTestDetails=flag; }
     }
 
+    /** Separate comma separated spanType and puts them in a Vector */
+    private static Vector separateTypes(String types, Vector typeVector)
+    {
+	String type = new String("");
+	int commaIndex = types.indexOf(",");
+	if(commaIndex > -1) {
+	    type = types.substring(0,commaIndex);
+	    typeVector.add(type);
+	    typeVector = separateTypes(types.substring(commaIndex+1,types.length()), typeVector);
+	} else {
+	    typeVector.add(types);
+	}
+	return typeVector;
+    }
+
+    /** Creates a Mixup program that defines a SpanProp from a list of Span Types */
+    private static String createSpanProp(String spanTypes, BaseParams base)
+    {
+	System.out.println("Creating Span Prop");
+	String property = new String("_property");
+	int catIndex = spanTypes.indexOf(":");
+	if(catIndex > -1)
+	    property = spanTypes.substring(0,catIndex);
+
+	Vector types = new Vector();
+	types = separateTypes(spanTypes.substring(catIndex+1,spanTypes.length()), types);
+
+	for(int i=0; i<types.size(); i++) {
+	    for(Span.Looper sl = base.labels.instanceIterator((String)types.get(i)); sl.hasNext();){
+		Span s = sl.nextSpan();
+		for(int t=0; t<s.size(); t++) {
+		    Token tk = s.getToken(t);
+		    base.labels.setProperty(tk,property,(String)types.get(i));
+		}
+		base.labels.setProperty(s,property,(String)types.get(i));
+	    }
+	}
+
+	return property;
+    }
+
     /** Parameters encoding the 'training signal' for extraction learning. */
     public static class ExtractionSignalParams extends BasicCommandLineProcessor {
 	private BaseParams base=new BaseParams();
@@ -634,12 +707,21 @@ public class CommandLineUtil
 	public String spanType=null;
 	public String spanProp=null;
 	public void spanType(String s) { this.spanType=s; }
-	public void spanProp(String s) { this.spanProp=s; }
+	public void spanProp(String s) { 
+	    if(s.indexOf(',') == -1)
+		this.spanProp=s; 
+	    else {
+		this.spanProp = createSpanProp(s, base);
+	    }
+	}
 	public void usage() {
 	    System.out.println("extraction 'signal' parameters:");
 	    System.out.println(" -spanType TYPE           learn how to extract the given TYPE");
 	    System.out.println(" -spanProp PROP           learn how to extract spans with the given property");
 	    System.out.println("                          and label them with the given property");
+	    System.out.println(" -spanProp PROPERTY:SpanType1,SpanType2");           
+	    System.out.println("                          learn how to extract spans with the named property and span types");
+	    System.out.println("                          and label them with the name property");
 	}
 	// for gui
 	public String getSpanType() { return safeGet(spanType,"n/a");}

@@ -124,6 +124,11 @@ public class SubTextLabels implements TextLabels,Visible
 		}
 		return new BasicSpanLooper( list.iterator() );
 	}
+    /** Assert that Span span has the given value of the given property */
+    public void setProperty(Span span,String prop,String value) 
+    {
+	System.out.println("Not used");
+    }
 
 	public Viewer toGUI() 
 	{

@@ -95,4 +95,7 @@ public interface TextLabels
 	 * if the span doesn't have the stated type. */
 	public Details getDetails(Span span,String type);
 
+    /** Assert that Span span has the given value of the given property */
+    public void setProperty(Span span,String prop,String value);
+
 }

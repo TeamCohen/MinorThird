@@ -25,10 +25,14 @@ public class SimpleTextLoader
 
     try
     {
-      if (!file.isDirectory())
-        base = TextBaseLoader.loadDocPerLine(file, false);
-      else
-        tempLabels = TextBaseLoader.loadDirOfTaggedFiles(file);
+	if (!file.isDirectory()) {
+	    TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, false);
+	    base = loader.load(file);
+	}else {
+	    TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, true);
+	    base = loader.load(file);
+	    tempLabels = loader.getLabels();
+	}
 
       if (base == null)
         base = tempLabels.getTextBase();
