@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.experiments;
 
+import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
@@ -18,13 +19,11 @@ import java.awt.event.*;
  * @author William Cohen
  */
 
-public class EvaluationGroup implements Visible,Serializable
+public class EvaluationGroup implements Visible,Serializable,Saveable
 {
   private final Map members = new HashMap();
-  private Evaluation someEvaluation=null;
-    private Object[][] table;
-    private String[] columnHeads;
-    private JTable jtable;
+  private Evaluation someEvaluation=null; 
+    private SummaryViewer sv;
 
   /** Add an evaluation to the group */
   public void add(String name,Evaluation evaluation)
@@ -37,43 +36,13 @@ public class EvaluationGroup implements Visible,Serializable
     return members.toString();
   }
 
-  public Viewer toGUI()
-  {
-    if (members.keySet().size()==0)
-      return new VanillaViewer("empty EvaluationGroup");
-
-    ParallelViewer main = new ParallelViewer();
-
-    class SummaryControls extends ViewerControls
-    {
-	// how to sort
-	private JRadioButton exportButton;
-	public void initialize()
-	{
-	    ButtonGroup group = new ButtonGroup();;
-	    exportButton = addButton("Export to file",group);			
-	}
-	private JRadioButton addButton(String s,ButtonGroup group)
-	{
-	    JRadioButton button = new JRadioButton(s);
-	    group.add(button);
-	    add(button);
-	    button.addActionListener(this);
-	    return button;
-	}
-    };
-
     // summary view
-    class SummaryViewer extends ComponentViewer implements Controllable{
-	private SummaryControls controls = null;
+    class SummaryViewer extends ComponentViewer {
 	private EvaluationGroup group = null;
-	    
-	public void applyControls(ViewerControls controls)	
-	{	
-	    this.controls = (SummaryControls)controls;	
-	    setContent(group, true);
-	    revalidate();
-	}
+	public Object[][] table;
+	public String[] columnHeads;
+	public JTable jtable;
+
 	public JComponent componentFor(Object o) {
 	    group = (EvaluationGroup)o;
 	    columnHeads = new String[group.members.keySet().size()+1];
@@ -99,39 +68,7 @@ public class EvaluationGroup implements Visible,Serializable
 		}
 		k++;
 	    }
-	    jtable = new JTable(table,columnHeads);
-
-	    if(controls!=null) {
-		if(controls.exportButton.isSelected()) {
-		    try {
-			String name1 = columnHeads[1].substring(0,columnHeads[1].indexOf("."));
-			String name2 = columnHeads[2].substring(0,columnHeads[2].indexOf("."));
-			File evaluation = new File(name1 + "_" + name2 + ".txt");
-			FileWriter out = new FileWriter(evaluation);
-	    
-			for(int i=0; i<columnHeads.length; i++) {
-			    out.write(columnHeads[i]);
-			    out.write(", ");
-			}
-			out.write("\n");
-			int columns = jtable.getColumnCount();
-			int rows = jtable.getRowCount();
-			for(int x=0; x<rows; x++) {
-			    for(int y=0; y<columns; y++) {
-				out.write(table[x][y].toString());
-				out.write("\t ");		   
-			    }
-			    out.write("\n");
-			}
-			out.flush();
-			out.close();
-		    } catch (Exception e) {
-			System.out.println("Error Opening Excel File");
-			e.printStackTrace();
-		    }
-
-		}
-	    }
+	    jtable = new JTable(table,columnHeads);	    
 
 	    final Transform keyTransform = new Transform() {
 		    public Object transform(Object key) { return group.members.get(key); }
@@ -140,16 +77,17 @@ public class EvaluationGroup implements Visible,Serializable
 	    JScrollPane scroll = new JScrollPane(jtable);	
 	    return scroll;
 	}
-	/*public void actionPerformed(ActionEvent event) {
-	    // Create Excel Spreadsheet
-	    // create a new file
-	    System.out.println("Action Performed!!!");
-	    
-	    }*/
 	
     };
 
-    main.addSubView( "Summary", new ControlledViewer(new SummaryViewer(), new SummaryControls()) );
+  public Viewer toGUI()
+  {
+    if (members.keySet().size()==0)
+      return new VanillaViewer("empty EvaluationGroup");
+
+    ParallelViewer main = new ParallelViewer();
+    sv = new SummaryViewer();    
+    main.addSubView( "Summary", new ZoomedViewer(sv, new Evaluation.PropertyViewer()) );
 
     // for zooming in to a particular experiment
     Viewer indexViewer = new IndexedViewer() {
@@ -189,6 +127,46 @@ public class EvaluationGroup implements Visible,Serializable
     main.setContent(this);
     return main;
   }
+
+    //
+    // Implement Saveable interface. 
+    //
+    private static final String FORMAT_NAME = "Evaluation Group";
+    public String[] getFormatNames() { return new String[] {FORMAT_NAME}; } 
+    public String getExtensionFor(String s) { return ".xls"; }
+    public void saveAs(File file,String format) throws IOException {
+	if (!format.equals(FORMAT_NAME)) throw new IllegalArgumentException("illegal format "+format);
+	try {
+	    String name1 = sv.columnHeads[1].substring(0,sv.columnHeads[1].indexOf("."));
+	    String name2 = sv.columnHeads[2].substring(0,sv.columnHeads[2].indexOf("."));
+	    //File evaluation = new File(name1 + "_" + name2 + ".txt");
+	    //FileWriter out = new FileWriter(evaluation);
+	    PrintStream out = new PrintStream(new FileOutputStream(file));
+	    
+	    for(int i=0; i<sv.columnHeads.length; i++) {
+		out.print(sv.columnHeads[i]);
+		out.print("\t");
+	    }
+	    out.print("\n");
+	    int columns = sv.jtable.getColumnCount();
+	    int rows = sv.jtable.getRowCount();
+	    for(int x=0; x<rows; x++) {
+		for(int y=0; y<columns; y++) {
+		    out.print(sv.table[x][y].toString());
+		    out.print("\t ");		   
+		}
+		out.print("\n");
+	    }
+	    out.flush();
+	    out.close();
+	} catch (Exception e) {
+	    System.out.println("Error Opening Excel File");
+	    e.printStackTrace();
+	}	
+    }
+    public Object restore(File file) throws IOException {
+	throw new UnsupportedOperationException("Cannot load EvaluationGroup object");
+    }
 
   //
   // test routine
