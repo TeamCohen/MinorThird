@@ -4,4 +4,5 @@ Bug list:
 	checking graphic counter in finished can NPE
 2 - KNOWN - MixupProgram
 	mixup file must be in classpath directory or it can't be loaded
-	
+3 - FIXED - TextBaseLoader
+	loadTaggedFile didn't close it's reader.  Does now.

@@ -1,12 +1,19 @@
 OBTAINING THE CODE
 
-1. login in to the server, using your cs password:
+If you only need read access to the source (you are working on an application 
+which uses minorthird but don't need to personally change minorthird) you can use 
+anonymous access (anything as a password):
 
-   % cvs -d :ext:yourusername@raff.cald.cs.cmu.edu:/usr1/cvsroot login
+cvsroot= :pserver:anonymous@raff.cald.cs.cmu.edu/usr1/cvsroot
+with module "minorthird"
 
-2. check out the minorthird module: in your home directory, type:
- 
-   % cvs -d :ext:yourusername@raff.cald.cs.cmu.edu:/usr1/cvsroot co minorthird
+If you want write access to the source (you plan to change or add to our software) 
+you need an account on the Raff computer.  You can then use the following cvsroot to 
+access minorthird:
+
+cvsroot= :ext:<your user name>@raff.cald.cs.cmu.edu/usr1/cvsroot
+with module "minorthird"
+
 
 To do this you'll need CVS, which is generally installed on
 unix systems.  For windows I recommend using the cygwin package,
