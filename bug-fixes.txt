@@ -6,6 +6,8 @@ Bug list:
 	Edo reports that using TextBaseLoader.saveSerialized results in bad output
 		may be that he was using it for the wrong thing
 
+15 - FIXED (3/2/04) - TextBaseLoader
+	multiple spaces after docid
 1 - FIXED - ProgressCounter
 	checking graphic counter in finished can NPE
 2 - FIXED - MixupProgram
