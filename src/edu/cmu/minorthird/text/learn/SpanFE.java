@@ -3,9 +3,7 @@ package edu.cmu.minorthird.text.learn;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
-import edu.cmu.minorthird.classify.MovieDataset;
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 
 import java.io.*;
 import java.util.Iterator;
@@ -13,9 +11,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * A Feature Extractor which converts a Span to an Instance.
