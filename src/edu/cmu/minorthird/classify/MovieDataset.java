@@ -150,7 +150,7 @@ public class MovieDataset {
       }
       else if (FILTER.equals("Info-Gain"))
       {
-        int featureToKeep = 5000;  String model = "document"; // or "word"
+        int featureToKeep = 10000;  String model = "document"; // or "word"
         System.out.println("Filter Features with Info-Gain");
         InfoGainTransformLearner filter = new InfoGainTransformLearner( model );
         InfoGainInstanceTransform infoGain = (InfoGainInstanceTransform)filter.batchTrain( data );

@@ -256,7 +256,7 @@ public class SampleDatasets
             if (isTest) return toyBayesTest();
             else return toyBayesTrain();
         } else if ("movies".equals(name)) {
-            if (isTest) return MovieDataset.MovieReviewsData();
+            if (isTest) { System.exit(1); return null; } // Movie Data Set is only training!
             else return MovieDataset.MovieReviewsData();
         } else if ("bayesExtreme".equals(name)) {
             if (isTest) return toyBayesExtremeTest();
