@@ -50,8 +50,8 @@ public class NestedTextEnv implements MonotonicTextEnv
 		 
 	public void setAnnotatedBy(String s) { outer.setAnnotatedBy(s); }
 
-	public void addWord(String word,String dict) {
-		outer.addWord(word,dict); 
+	public void defineDictionary(String dictName,Set dict) {
+		outer.defineDictionary(dictName, dict);
 	}
 
 	public boolean inDict(Token token,String dict) {

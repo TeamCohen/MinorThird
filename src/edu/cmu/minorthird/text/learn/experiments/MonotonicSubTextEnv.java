@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
 import edu.cmu.minorthird.text.*;
+import java.util.Set;
 
 /** A subset of another TextEnv that can be added to.
  * Additions are propogated back to the underlying MonotonicTextEnv
@@ -18,8 +19,8 @@ public class MonotonicSubTextEnv extends SubTextEnv implements MonotonicTextEnv
 		this.monotonicEnv = env;
 	}
 
-	public void addWord(String word,String dict) {
-		monotonicEnv.addWord( word, dict );
+	public void defineDictionary(String dictName,Set dict) {
+		monotonicEnv.defineDictionary( dictName, dict );
 	}
 		
 	public void setProperty(Token token,String prop,String value) {

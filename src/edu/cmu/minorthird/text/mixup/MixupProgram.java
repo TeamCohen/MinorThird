@@ -45,6 +45,8 @@ public class MixupProgram
 	private static Logger log = Logger.getLogger(MixupProgram.class);
 
 	private ArrayList statementList = new ArrayList();
+	// maps dictionary names to the sets they correspond to 
+	private HashMap dictionaryMap = new HashMap();
 
 	public MixupProgram() {;}
 
@@ -162,7 +164,8 @@ public class MixupProgram
 
 		// encodes the statement properties
 		private String keyword, property, type, startType, value;
-		private List wordList;
+		// set of words, for a dictionary
+		private Set wordSet = null;
 		// encode generator
 		private int statementType;
 		// for statementType = MIXUP or FILTER
@@ -248,7 +251,7 @@ public class MixupProgram
 
 			if ("defDict".equals(keyword)) {
 				type = propOrType;
-				wordList = new ArrayList();
+				wordSet = new HashSet();
 				while (true) {
 					String w =  advance(null);
 					// read in each line of the file name embraced by double quotes	
@@ -261,12 +264,12 @@ public class MixupProgram
 							LineNumberReader bReader = mixupReader(defFile.toString());
 							String s = null;
 							while ((s = bReader.readLine()) != null)
-								wordList.add( s.toLowerCase() );
+								wordSet.add( s.toLowerCase() );
 							bReader.close();
 						} catch (IOException ioe) {
 							parseError("Error when reading " + defFile.toString() + ": " + ioe);
 						}
-					} else wordList.add( w );
+					} else wordSet.add( w );
 					String sep = advance(null);
 					if (sep==null) break;
 					else if (!",".equals(sep)) parseError("expected comma");
@@ -343,10 +346,7 @@ public class MixupProgram
 			log.info("Evaluating: "+this);
 			long start = System.currentTimeMillis();
 			if ("defDict".equals(keyword)) {
-				for (Iterator i=wordList.iterator(); i.hasNext(); ) {
-					String w = (String)i.next(); 
-					env.addWord( w, type );
-				}
+				env.defineDictionary( type, wordSet );
 			} else if ("declareSpanType".equals(keyword)) {
 				env.declareType( type );
 			} else if (statementType==PROVIDE) {
@@ -471,11 +471,7 @@ public class MixupProgram
 		}
 		public String toString() {
 			if ("defDict".equals(keyword)) {
-				if (wordList.size()<10) {
-					return keyword + " " +type + " = " + wordList;
-				} else {
-					return keyword + " " + type + " = "+ wordList.subList(0,10)+"..."; 
-				}
+				return keyword + " " +type + " = ... ";
 			} else if (statementType==DECLARE) {
 				return keyword + " " + type;
 			} else if (statementType==PROVIDE) {

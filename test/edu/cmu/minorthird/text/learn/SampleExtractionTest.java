@@ -5,6 +5,8 @@ import edu.cmu.minorthird.classify.ClassifierLearner;
 import edu.cmu.minorthird.classify.StackedLearner;
 import edu.cmu.minorthird.classify.experiments.RandomSplitter;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
+import edu.cmu.minorthird.classify.algorithms.svm.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.*;
 import junit.framework.Test;
@@ -83,22 +85,23 @@ public class SampleExtractionTest extends TestCase
    */
   public void testSampleExtractionTest()
   {
-		SpanFeatureExtractor fe = SampleFE.makeExtractionFE(3);
-		ClassifierLearner classifierLearner =
-			new StackedLearner(	new BatchVersion(new NaiveBayes()), new RandomSplitter(0.8) );
-		AnnotatorLearner cmmLearner = new CMMAnnotatorLearner( fe, classifierLearner, 3 );
-		doExtractionTest(cmmLearner);
+		SpanFeatureExtractor fe = SampleFE.makeExtractionFE(2);
+		doExtractionTest( new CMMAnnotatorLearner( fe, new VotedPerceptron(), 2),
+										 new double[]{0.93, 0.8, 0.1, 0.75, 0.6, 0.1});
+		doExtractionTest( new CMMAnnotatorLearner(fe, new SVMLearner(), 3), 
+											new double[]{1.0,1.0,0.05,1.0,1.0,0.05} );
   }
 
-	private void doExtractionTest(AnnotatorLearner learner)
+	// double array is <precision,recall,tolerance> for train & test
+	private void doExtractionTest(AnnotatorLearner learner, double[]expected)
 	{
 		AnnotatorTeacher annotatorTeacher = new TextEnvAnnotatorTeacher( env, labelString );
 		learner.setAnnotationType( "prediction" );
 		Annotator learnedAnnotator = annotatorTeacher.train( learner );
 		TextEnv trainEnv1 = learnedAnnotator.annotatedCopy( env );
 		TextEnv testEnv1 = learnedAnnotator.annotatedCopy( testEnv );
-		checkSpans( "prediction", labelString, trainEnv1, 1.0, 1.0, 0.05);
-		checkSpans( "prediction", labelString, testEnv1, 1.0, 0.888, 0.05);
+		checkSpans( "prediction", labelString, trainEnv1, expected[0],expected[1],expected[2]);
+		checkSpans( "prediction", labelString, testEnv1, expected[3],expected[4],expected[5]);
 		//TextBaseViewer.view( testEnv1 );
 		//TextBaseViewer.view( trainEnv1 );
 	}

@@ -1,6 +1,6 @@
 package edu.cmu.minorthird.text;
 
-
+import java.util.Set;
 
 /** Maintains assertions about 'types' and 'properties' of contiguous
  * Spans of these Seq's.  Assertions can never be deleted from a
@@ -11,8 +11,8 @@ package edu.cmu.minorthird.text;
 
 public interface MonotonicTextEnv extends TextEnv
 {
-	/** Add a word to the dictionary named by the string 'dict'. */
-	public void addWord(String word,String dict);
+	/** Associate a dictionary with this environment. */
+	public void defineDictionary(String dictName, Set dictionary);
 
 	/** Assert that TextToken textToken has the given value of the given property. */
 	public void setProperty(Token token,String prop,String value);

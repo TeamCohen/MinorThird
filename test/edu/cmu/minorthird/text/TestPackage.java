@@ -270,7 +270,9 @@ public class TestPackage extends TestSuite
 			//
 			MutableTextEnv numEnv = new BasicTextEnv(b);
 			String[] nums = new String[] { "one", "two", "three", "four", "five" };
-			for (int i=0; i<nums.length; i++) numEnv.addWord(nums[i], "num");
+			TreeSet numSet = new TreeSet();
+			for (int i=0; i<nums.length; i++) numSet.add(nums[i]);
+			numEnv.defineDictionary( "num", numSet ); 
 			b.loadDocument("test2", "one fish, two fish");
 			b.loadDocument("test3", "red fish, blue fish");
 			b.loadDocument("test4", "one, two, three strikes you're out");

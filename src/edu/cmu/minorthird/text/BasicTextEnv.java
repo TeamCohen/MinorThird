@@ -61,26 +61,18 @@ public class BasicTextEnv implements MutableTextEnv, Serializable
 	//
 
 	/** Returns true if the value of the Token is in the named dictionary. */
-	public boolean inDict(Token token,String dict) {
+	public boolean inDict(Token token,String dictName) {
 		if (token.getValue()==null) throw new IllegalArgumentException("null token.value?");
-		return getDict(dict).contains(token.getValue());
+		Set set = (Set)textTokenDictMap.get(dictName);
+		if (set==null) throw new IllegalArgumentException("undefined dictionary "+dictName);
+		return set.contains(token.getValue());
 	}
 
-	/** Add a word to the dictionary named by the string 'dict'. */
-	public void addWord(String word,String dict) {
-		if (word==null) throw new IllegalArgumentException("null word?");
-		getDict(dict).add(word);
+	/** Associate a dictionary with this environment. */
+	public void defineDictionary(String dictName, Set dictionary) {
+		textTokenDictMap.put(dictName,dictionary);
 	}
 
-
-	private TreeSet getDict(String dict) {
-		TreeSet set = (TreeSet)textTokenDictMap.get(dict);
-		if (set==null) {
-			set = new TreeSet();
-			textTokenDictMap.put(dict,set);
-		}
-		return set;
-	}
 
 	//
 	// maintain assertions about properties of Tokens
