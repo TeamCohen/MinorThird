@@ -6,12 +6,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *  vitor@cs.cmu.edu
- *- Dec 2003 version 1
  *
  * Reads in a file in String format, classify it as having or not a signature file and
  * predicts where the Sig file starts
  * Use the tail_lines variable below to change Precision/Recall relation. See comments below.
+ *
+ * @author vitor@cs.cmu.edu
+ *
  */
 public class SigFilePredictor
 {
@@ -42,12 +43,12 @@ public class SigFilePredictor
   private static Logger log = Logger.getLogger(SigFilePredictor.class);
 
   /**
-    - receive string or file from interface.
-  - preprocess message: get last lines of message and exclude header. return a string
-  - for all features :try to detect feature regexp on the this string.
-    if so, featureArray field to true.
-  - after all features, output heuristic classification (using OR function)
-  - given true, predict where the sig field starts
+    Receive string or file from interface.  Preprocess message: get
+    last lines of message and exclude header. Return a string.  For
+    all features: try to detect feature regexp on the this string.  If
+    so, set featureArray field to true.  After all features, output
+    heuristic classification (using OR function). Given true, predict
+    where the sig field starts.
   */
   public static int Predict(String wholeMessage)
   {

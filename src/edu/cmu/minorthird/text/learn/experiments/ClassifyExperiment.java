@@ -34,7 +34,7 @@ public class ClassifyExperiment
    * @param labels The labels and base to be annotated in the example
    *               These are the training examples
    * @param splitter splitter for the documents in the labels to create test vs. train
-   * @param learner ClassifierLearner algorithm object to use
+   * @param learnerName ClassifierLearner algorithm object to use
    * @param inputLabel spanType in the TextLabels to treat as 'positive'.
    */
 	public ClassifyExperiment(

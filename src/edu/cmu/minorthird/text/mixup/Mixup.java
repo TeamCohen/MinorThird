@@ -48,8 +48,8 @@ SEMANTICS:
     test* is 0+ tokens matching test
     test{3,7} is between 3 and 7 tokens matching test		
    	... is equal to any*
-		@foo matches a span of type foo
-		@foo? matches a span of type foo or the empty sequence
+		<code>@foo</code> matches a span of type foo
+		<code>@foo?</code> matches a span of type foo or the empty sequence
 		L means sequence can't be extended to left and still match
 		R means sequence can't be extended to right and still match
 	expr || expr is union

@@ -17,7 +17,7 @@ import java.io.Serializable;
  * single type T to sequential classification of tokens as 'inside a
  * span of type T' or 'outside a span of type T'.
  *
- * @AUTHOR William Cohen
+ * @author William Cohen
  */
 
 public class SequenceAnnotatorLearner implements AnnotatorLearner
