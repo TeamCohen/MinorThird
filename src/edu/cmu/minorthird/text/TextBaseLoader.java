@@ -320,7 +320,15 @@ public class TextBaseLoader
 
 	for (Iterator j=spanList.iterator(); j.hasNext(); ) {
 	    CharSpan charSpan = (CharSpan)j.next();
-	    Span approxSpan = textBase.documentSpan(curDocID).charIndexSubSpan(charSpan.lo, charSpan.hi);
+	    Span approxSpan; // = textBase.documentSpan(curDocID).subSpan(charSpan.lo, charSpan.hi-charSpan.lo-1); 	   
+	    boolean flag = false;
+	    for(int i = charSpan.lo; i<charSpan.hi; i++) {
+		if(docText.charAt(i) != ' ')
+		    flag = true;
+	    }
+	    if(flag)
+		approxSpan = textBase.documentSpan(curDocID).charIndexSubSpan(charSpan.lo, charSpan.hi);	      
+	    else approxSpan = textBase.documentSpan(curDocID).charIndexSubSpan(charSpan.lo, charSpan.hi).getLeftBoundary();
 
 	    if (log.isDebugEnabled())
 		{

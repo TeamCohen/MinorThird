@@ -388,7 +388,8 @@ public class CommandLineUtil
 	public String getCandidateType() { return safeGet(candidateType,"top"); }
 	public void setCandidateType(String s) { candidateType = safePut(s,"top"); }
 	public Object[] getAllowedCandidateTypeValues() { 
-	    return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
+	    return getAllowedSpanTypeValues();
+	    //return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
 	}
     }
 
