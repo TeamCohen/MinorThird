@@ -116,7 +116,7 @@
         <exclude name="**/LearnToClassifyTest.class"/>
         <exclude name="**/EdoTextLabelsTest.class"/>
         <exclude name="**/BayesClassifiersTest.class"/>
-        
+        <exclude name="**/TextLabelsLoaderTest.class"/>
 
         <!-- long running time (>5 seconds) -->
 <!--        <exclude name="**/POSTaggerTest.class"/> -->

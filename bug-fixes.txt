@@ -4,6 +4,7 @@ Bug list:
 	checking graphic counter in finished can NPE
 2 - KNOWN - MixupProgram
 	mixup file must be in classpath directory or it can't be loaded
+	*causing MixupProgramTest to fail
 3 - FIXED - TextBaseLoader
 	loadTaggedFile didn't close it's reader.  Does now.
 4 - KNOWN - TextBaseLoader
@@ -19,5 +20,8 @@ Bug list:
 	didn't load single files properly
 9 - FIXED - FancyLoader
 	didn't associated labels and text base
+10 - FIXED - EdoTextLabelsTest
+	wrong document for span checking
+
 	
 	
