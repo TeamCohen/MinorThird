@@ -378,10 +378,17 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			stringBag.add( s.asString() );
 			return new StringBagResult( extend("eq"), fe, stringBag );
 		}
-		/** Find the length of the span. */
+		/** Make length of the span a feature. Eg feature is #tokens=3 for a 3-token span. */
 		public StringBagResult size() {
 			Bag stringBag  = new Bag();
 			stringBag.add( "#tokens", s.size() );
+			return new StringBagResult( name, fe, stringBag );
+		}
+		/** Make exact length of span a feature. Eg, feature is #tokens.3=1 for a 3-token span,
+		 * #tokens_2=1 for a two-token span. */
+		public StringBagResult exactSize() {
+			Bag stringBag  = new Bag();
+			stringBag.add( "#tokens_"+s.size() );
 			return new StringBagResult( name, fe, stringBag );
 		}
 	}

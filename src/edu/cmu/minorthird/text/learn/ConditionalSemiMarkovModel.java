@@ -11,18 +11,16 @@ import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Logger;
 import java.util.*;
 
-//
-// comments: a problem with this is that if score(Carmen Sandiego,+)=4 and
-// score(Carmen,-)=3 and score(Sandiego,-)=3, then it's better to pick
-// <<Carmen,-1><Sandiego,-1>> over <<Carmen Sandiego>+1>
-// 
-//
-
 /**
  * Learn to annotate based on a conditional semi-markov model
  * learned from examples.
  *
  * @author William Cohen
+ */
+
+/*
+	status/limitations: this only learns one label types, with a single
+	binary classifier.
  */
 
 public class ConditionalSemiMarkovModel 
@@ -283,14 +281,15 @@ public class ConditionalSemiMarkovModel
 			extractFeatures(new EmptyLabels(),span);
 		}
 		public void extractFeatures(TextLabels labels,Span span) {
-			from(span).eq().emit();
+			//from(span).eq().emit();
 			from(span).tokens().eq().lc().emit();
 			from(span).eq().charTypePattern().emit();
 			from(span).size().emit();
+			from(span).exactSize().emit();
 			for (int i=0; i<windowSize; i++) {
+				from(span).left().token(-(i+1)).eq().emit();
 				from(span).left().token(-(i+1)).eq().charTypePattern().emit();
-				from(span).left().token(-(i+1)).eq().charTypePattern().emit();
-				from(span).right().token(i).eq().charTypePattern().emit();
+				from(span).right().token(i).eq().emit();
 				from(span).right().token(i).eq().charTypePattern().emit();
 			}
 		}
