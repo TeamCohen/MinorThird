@@ -447,10 +447,12 @@ class CommandLineUtil
 		public void learner(String s) { 
 			this.learnerName = s;
 			this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); 
+			if (fe!=null) learner.setSpanFeatureExtractor(fe);
 		}
 		public void output(String s) { this.output=s; }
 		public CommandLineProcessor fe(String s) { 
 			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
+			if (learner!=null) learner.setSpanFeatureExtractor(fe);
 			if (this.fe instanceof CommandLineProcessor.Configurable) {
 				return ((CommandLineProcessor.Configurable)this.fe).getCLP();
 			} else {

@@ -19,6 +19,8 @@ import java.util.*;
 public class BeamSearcher implements SequenceConstants, Serializable
 {
 	static private int serialVersionUID = 1;
+	private final int CURRENT_SERIAL_VERSION = 1;
+
 	static private Logger log = Logger.getLogger(BeamSearcher.class);
 	static private final boolean DEBUG = false;
 

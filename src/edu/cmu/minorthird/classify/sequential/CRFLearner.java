@@ -19,8 +19,12 @@ import java.util.*;
  * @author Sunita Sarawagi
  */
 
-public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier
+public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,Serializable
 {
+	static private int serialVersionUID = 1;
+	private final int CURRENT_SERIAL_VERSION = 1;
+
+
 	ExampleSchema schema;
 	iitb.CRF.CRF crfModel;
 	java.util.Properties defaults;

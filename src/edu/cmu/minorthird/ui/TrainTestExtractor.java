@@ -29,7 +29,7 @@ public class TrainTestExtractor extends UIMain
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	ExtractionEvaluation evaluation; // the main result
+	private Object result = null;
 	
 	// for command-line ui
 	public CommandLineProcessor getCLP()
@@ -74,12 +74,12 @@ public class TrainTestExtractor extends UIMain
 		TextLabelsExperiment expt = new TextLabelsExperiment( base.labels,trainTest.splitter,train.learner,
 																		 signal.spanType,signal.spanProp,"_predicted" );
 		expt.doExperiment();
-		evaluation = expt.getEvaluation();
+		ExtractionEvaluation evaluation = expt.getEvaluation();
 
-		if (base.showResult) {
-			if (trainTest.showTestDetails) new ViewerFrame("Experimental Result",expt.toGUI());
-			else new ViewerFrame("Experimental Result",evaluation.toGUI());
-		}
+		if (trainTest.showTestDetails) result = expt;
+		else result = evaluation;
+
+		if (base.showResult) new ViewerFrame("Experimental Result",new SmartVanillaViewer(result));
 
 		if (save.saveAs!=null) {
 			try {
@@ -91,7 +91,7 @@ public class TrainTestExtractor extends UIMain
 
 	}
 
-	public Object getMainResult() { return evaluation; }
+	public Object getMainResult() { return result; }
 
 	public static void main(String args[])
 	{

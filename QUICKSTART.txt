@@ -43,6 +43,10 @@ Then use these commands:
      % cvs login
      (anything as a password)
      % cvs checkout minorthird
+     % cvs update -dP
+
+The 'update -dP' command is needed to remove deleted-from-cvs files
+and directories.
 
 If you want write access to the source (you plan to change or add to
 our software) you need an account on the Raff computer.  You can then
@@ -109,7 +113,8 @@ file in 'myprogram.mixup' and run the command
 % java edu.cmu.minorthird.text.gui.MixupDebugger -textBase data -truth mylabels.labels -mixup myprogam.mixup
 
 For experiments with the classification toolkit (not using text) look
-at edu.cmu.minorthird.classify.experiments.Expt.
+at edu.cmu.minorthird.classify.UI, which has a look-and-feel similar
+to the programs in edu.cmu.minorthird.ui.
 
 For a demo of labeling a dataset, cd to minorthird/demos, compile
 LabelerDemo.java (with "javac LabelerDemo.java") and type

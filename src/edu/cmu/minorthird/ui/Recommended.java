@@ -126,9 +126,7 @@ public class Recommended
 	static public class MEMMLearner extends CMMAnnotatorLearner
 	{
 		public MEMMLearner(int historySize) { 
-			super(new Recommended.TokenFE(), 
-						new TransformingBatchLearner(new FrequencyBasedTransformLearner(5),new LogisticRegressor()),
-						historySize);
+			super(new Recommended.TokenFE(), new MaxEntLearner(),	historySize);
 		}
 		public MEMMLearner() { this(1); }
 	}

@@ -2,6 +2,8 @@ UI tweaks:
 
   show javadocs in TypeSelector
 
+  LabelViewer => ViewLabels?
+
   add TrainTagger, TestTagger?
   progress counter & threads for dataset loading?   
   test shadowType

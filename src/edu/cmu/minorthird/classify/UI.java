@@ -36,13 +36,14 @@ public class UI
 		VotedPerceptron.class,	SVMLearner.class,
 		DecisionTreeLearner.class, AdaBoost.class,
 		BatchVersion.class, TransformingBatchLearner.class,
+		MaxEntLearner.class,
 		// transformations
 		FrequencyBasedTransformLearner.class, InfoGainTransformLearner2.class, 
 		T1InstanceTransformLearner.class, TFIDFTransformLearner.class,
 		// sequential learner
 		CollinsPerceptronLearner.class, GenericCollinsLearner.class,
 		// splitters
-		CrossValSplitter.class, RandomSplitter.class, 
+		CrossValSplitter.class, RandomSplitter.class, StratifiedCrossValSplitter.class,
 	};
 
 	private static final Set LEGAL_OPS = new HashSet(Arrays.asList(new String[]{"train","test","trainTest"}));
