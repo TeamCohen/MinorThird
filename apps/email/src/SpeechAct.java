@@ -125,6 +125,41 @@ public class SpeechAct {
     return model.classification(mi).isPositive();
   }
   
+  //------------------------------------------
+  public Instance getInstance(String str){
+	TextLabels tl = new BasicTextLabels(str);
+	return fe.extractInstance(tl, tl.getTextBase().documentSpan("nullId"));		
+  }
+  public boolean isMeeting(String str) {
+    return bclassify(meet_model, getInstance(str));    
+  }
+  
+  public boolean isRequest(String str) {
+    return bclassify(req_model, getInstance(str));    
+  }
+  
+  public boolean isDelivery(String str) {
+    return bclassify(dlv_model, getInstance(str));    
+  }
+  
+  public boolean isCommitment(String str) {
+    return bclassify(cmt_model, getInstance(str));    
+  }
+  
+  public boolean isProposal(String str) {
+    return bclassify(prop_model, getInstance(str));    
+  }
+  
+  public boolean isDirective(String str) {
+    return bclassify(reqamdprop_model, getInstance(str));    
+  }
+  
+  public boolean isCommissive(String str) {
+    return bclassify(dlvcmt_model, getInstance(str));    
+  }
+  
+  //------------------------------------------
+  
   TextLabels readBsh(File dir, File envfile) throws Exception{
   	System.out.println("reading data files...");
   	TextLabels lala = TextBaseLoader.loadDirOfTaggedFiles(dir);
