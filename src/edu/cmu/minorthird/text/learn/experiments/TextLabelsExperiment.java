@@ -247,6 +247,7 @@ public class TextLabelsExperiment implements Visible
 			System.out.println(sdAll.toSummary());
 			extractionEval.extend(tag1,sdAll,isOverallMeasure);
 		}
+		if (isOverallMeasure) extractionEval.measureTotalSize(labels.getTextBase());
 	}
 	private Span.Looper propertyIterator(TextLabels labels,String prop,String value)
 	{
