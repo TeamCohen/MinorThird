@@ -169,35 +169,65 @@ public class SpeechAct {
         usage();
         return;
       }
-      File dir = new File(args[0]);
-      SpeechAct sa = new SpeechAct();
-      MutableTextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
-      TextBase textBase = labels.getTextBase();
-      System.out.println("textbase size = " + textBase.size());
-      //TextBaseEditor.edit(labels, new File("moomoomoo"));
-      for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
-      	Span span = (Span)it.next();
-	  //for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
-        //Span span = (Span)it.nextSpan();
-        MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
-	    boolean reqbool = sa.bclassify(sa.req_model, ins);
-	    boolean dlvbool = sa.bclassify(sa.dlv_model, ins);
-	    boolean propbool = sa.bclassify(sa.prop_model, ins);
-	    boolean cmtbool = sa.bclassify(sa.cmt_model, ins);
-	    boolean amdbool = sa.bclassify(sa.amd_model, ins);
-	   	boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
-	    boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
+      
+      boolean create = false;
+	  String opt = args[0];
+      if ((opt.startsWith("-create")) || (opt.startsWith("create"))) {
+        SpeechAct sa = new SpeechAct();
+		sa.createModel(args);
+	  }
+	  else {
+	  	File dir;
+	  	String outputFileName = "";
+	  	StringBuffer reqBuf = new StringBuffer("Requests or Proposals\n");
+	  	boolean sophie = false; 
+	  	
+	  	//list only the requests in a directory - Sophie's request
+	  	if ((opt.startsWith("-sophie")) || (opt.startsWith("sophie"))) {
+	  		//to Sophie - usage: SpeechAct -reqSophie tmpdirectory outputFileName
+	  		sophie = true; 
+	  		dir = new File(args[1]);//directory name
+	  		outputFileName = args[2];//output file name
+	  	}
+	    else{
+	    	dir = new File(args[0]);
+	    }
+
+        SpeechAct sa = new SpeechAct();
+        MutableTextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
+        TextBase textBase = labels.getTextBase();
+        System.out.println("textbase size = " + textBase.size());
+        //TextBaseEditor.edit(labels, new File("moomoomoo"));
+        for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
+      	  Span span = (Span)it.next();
+	      //for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
+          //Span span = (Span)it.nextSpan();
+          MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
+	      boolean reqbool = sa.bclassify(sa.req_model, ins);
+	      boolean dlvbool = sa.bclassify(sa.dlv_model, ins);
+	      boolean propbool = sa.bclassify(sa.prop_model, ins);
+	      boolean cmtbool = sa.bclassify(sa.cmt_model, ins);
+	      boolean amdbool = sa.bclassify(sa.amd_model, ins);
+	   	  boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
+	      boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
+
+		  if((sophie)&&(reqamdpropbool)){
+		  	reqBuf.append(span.getDocumentId()+"\n");
+	 	  }
 
 	    
-	    String reqs = reqbool?   "_REQ_":"_____";
-	    String dlvs = dlvbool?   "_DLV_":"_____";
-	    String props = propbool? "_PROP_":"______";
-	    String cmts = cmtbool?   "_CMT_":"_____";
-	   	String amds = amdbool?   "_AMD_":"_____";
-		String reqamdprops = reqamdpropbool? "_REQAMDPROP":"___________";
-	    String dlvcmts = dlvcmtbool? "_DLVCMT__":"_________";
-	    System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+")\n");
-       // String spanString = span.asString();
+	      String reqs = reqbool?   "_REQ_":"_____";
+	      String dlvs = dlvbool?   "_DLV_":"_____";
+	      String props = propbool? "_PROP_":"______";
+	      String cmts = cmtbool?   "_CMT_":"_____";
+	   	  String amds = amdbool?   "_AMD_":"_____";
+		  String reqamdprops = reqamdpropbool? "_REQAMDPROP":"___________";
+	      String dlvcmts = dlvcmtbool? "_DLVCMT__":"_________";
+	      System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+")\n");
+         // String spanString = span.asString();
+        }
+        //kludge
+        if(sophie) LineProcessingUtil.writeToOutputFile(outputFileName, reqBuf);
       }
     }
     catch (Exception e) {
