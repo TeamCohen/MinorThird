@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /*package*/ abstract class DecisionTree extends BinaryClassifier implements Serializable,Visible
 {
-	static private int serialVersionUID = 1;
+	static private final long serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 
 	/** Print routine */

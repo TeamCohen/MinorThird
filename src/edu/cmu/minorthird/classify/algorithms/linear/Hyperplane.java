@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 public class Hyperplane extends BinaryClassifier implements Visible, Serializable
 {
-	static private int serialVersionUID = 1;
+	static private final long serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 
 	/** 
