@@ -1,10 +1,9 @@
 package edu.cmu.minorthird.classify.experiments.sentiments;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.transform.T1InstanceTransformLearner;
-import edu.cmu.minorthird.classify.transform.InstanceTransform;
-import edu.cmu.minorthird.classify.transform.T1InstanceTransform;
+import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.gui.TextBaseLabeler;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
 import edu.cmu.minorthird.text.learn.SpanFE;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
@@ -30,22 +29,21 @@ public class MovieDataset {
       // load the documents into a textbase
       TextBase base = new BasicTextBase();
       TextBaseLoader loader = new TextBaseLoader();
-      File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews-100");
+      File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews");
 
       loader.loadTaggedFiles(base, dir);
 
       // set up labels
       MutableTextLabels labels = new BasicTextLabels(base);
-      new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
+      new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels.env"));
 
       // for verification/correction of the labels, if we care...
       //TextBaseLabeler.label( labels, new File("my-document-labels.env"));
 
-
       // apply mixup file to get candidates, if there is one
-      File mixupFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/bigrams.mixup");
-      MixupProgram p = new MixupProgram(mixupFile);
-      p.eval(labels,labels.getTextBase());
+//      File mixupFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/sentiments.mixup");
+//      MixupProgram p = new MixupProgram(mixupFile);
+//      p.eval(labels,base);
 
 
       // set up a simple bag-of-words feature extractor
@@ -61,7 +59,11 @@ public class MovieDataset {
           log.error(e, e);
           } */
           //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
-          SpanFE.from(s,buf).contains("bigram").eq().lc().punk().emit();
+          SpanFE.from(s,buf).tokens().eq().lc().punk().emit();
+          //SpanFE.from(s,buf).tokens().eq().lc().punk().emit();
+          //SpanFE.from(s,buf).contains("pos").emit();
+          //SpanFE.from(s,buf).contains("vs").emit();
+          //SpanFE.from(s,buf).contains("bigram").eq().emit();
           return buf.getInstance();
         }
         public Instance extractInstance(Span s) {
@@ -76,15 +78,16 @@ public class MovieDataset {
       System.out.println("Create Movie Reviews Dataset");
       for (Span.Looper i = base.documentSpanIterator(); i.hasNext();) {
         Span s = i.nextSpan();
-        double label = labels.hasType(s, "Pos") ? +1 : -1;
+        double label = labels.hasType(s, "POS") ? +1 : -1;
+        //data.add(new BinaryExample(fe.extractInstance(labels,s), label));
         data.add(new BinaryExample(fe.extractInstance(s), label));
       }
 
-      // Filter here, if you like ...
-/*      System.out.println("Filter Features");
+/*      // Filter here, if you like ...
+      System.out.println("Filter Features");
       T1InstanceTransformLearner learner = new T1InstanceTransformLearner();
-      learner.setREF_LENGTH(100.0);
-      learner.setPDF("Poisson");
+      learner.setREF_LENGTH(650.0);
+      learner.setPDF("Negative-Binomial");
       //learner.setPDF("Negative-Binomial");
       InstanceTransform t1stat = learner.batchTrain( data );
       //((T1InstanceTransform)t1stat).setALPHA(0.05);
@@ -92,10 +95,46 @@ public class MovieDataset {
       ((T1InstanceTransform)t1stat).setSAMPLE(5000);
       data = t1stat.transform( data );*/
 
+      System.out.println("Filter Features");
+      FrequencyBasedTransformLearner filter = new FrequencyBasedTransformLearner(4,"word");
+      AbstractInstanceTransform ait = (AbstractInstanceTransform)filter.batchTrain( data );
+      data = ait.transform( data );
+
+      // DEBUG
+      BasicFeatureIndex fidx = new BasicFeatureIndex(data);
+      System.out.println( "examples="+data.size() );
+      System.out.println( "features="+fidx.numberOfFeatures() );
+
+
     } catch (Exception e) {
       log.error(e, e);
       System.exit(1);
     }
+
+
+    // load from file
+/*    Dataset data = new BasicDataset();
+    try {
+    // load from file
+      File countFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movies-cnt-ing.id");
+      data = DatasetLoader.loadFile(countFile);
+      // Filter
+      System.out.println("Filter Features");
+      T1InstanceTransformLearner filter = new T1InstanceTransformLearner();
+      filter.setREF_LENGTH(600.0);
+      //filter.setPDF("Poisson");
+      //filter.setPDF("Negative-Binomial");
+      InstanceTransform t1stat = filter.batchTrain( data );
+      //((T1InstanceTransform)t1stat).setALPHA(0.05);
+      //((T1InstanceTransform)t1stat).setMIN_WORDS(50);
+      //((T1InstanceTransform)t1stat).setSAMPLE(10000);
+      data = t1stat.transform( data );
+      //System.out.println( "Filtered Dataset:\n" + data );
+
+    } catch (Exception e) {
+      log.error(e, e);
+      System.exit(1);
+    }*/
 
     return data;
   }

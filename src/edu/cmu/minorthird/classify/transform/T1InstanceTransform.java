@@ -79,6 +79,7 @@ public class T1InstanceTransform implements InstanceTransform {
     // loop features
     for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
       Feature f = i.nextFeature();
+      //System.out.println("feature: "+f);
       // Sample T1 values
       double[] T1array = sampleT1Values( f );
       // compute p-value for Feature f

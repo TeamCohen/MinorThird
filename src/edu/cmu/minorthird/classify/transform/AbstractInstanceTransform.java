@@ -15,11 +15,12 @@ abstract public class AbstractInstanceTransform implements InstanceTransform
 	{ 
 		if (example instanceof BinaryExample)
 			return new BinaryExample( transform(example.asInstance()), ((BinaryExample)example).getNumericLabel() );
-		else
+    else
 			return new Example( transform(example.asInstance()), example.getLabel() );
-	}
+  }
 
-	final public Dataset transform(Dataset dataset) 
+
+	final public Dataset transform(Dataset dataset)
 	{ 
 		Dataset transformed = new BasicDataset();
 		for (Example.Looper i = dataset.iterator(); i.hasNext(); ) {

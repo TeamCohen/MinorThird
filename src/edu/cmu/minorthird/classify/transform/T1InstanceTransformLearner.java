@@ -41,6 +41,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
     // loop features
     for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
       Feature f = i.nextFeature();
+      System.out.println("feature: "+f);
 
       // fill array of <counts_ex(feature), length_ex> for POS class
       double[] xPos = new double[ index.size(f,"POS") ];

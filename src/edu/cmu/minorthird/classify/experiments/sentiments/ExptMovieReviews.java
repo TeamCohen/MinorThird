@@ -1,9 +1,7 @@
 package edu.cmu.minorthird.classify.experiments.sentiments;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.transform.T1InstanceTransformLearner;
-import edu.cmu.minorthird.classify.transform.InstanceTransform;
-import edu.cmu.minorthird.classify.transform.T1InstanceTransform;
+import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.classify.algorithms.linear.PoissonLearner;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
@@ -81,11 +79,11 @@ public class ExptMovieReviews extends TestCase
       //TextBaseLabeler.label( labels, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
 
 
-      // apply mixup file to get candidates, if there is one
+/*      // apply mixup file to get candidates, if there is one
       File mixupFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/sentiments.mixup");
       MixupProgram p = new MixupProgram(mixupFile);
       p.eval(labels,base);
-
+*/
       // set up a simple bag-of-words feature extractor
       System.out.println("extract features");
       SpanFeatureExtractor fe = new SpanFeatureExtractor() {
@@ -97,8 +95,10 @@ public class ExptMovieReviews extends TestCase
           } catch (IOException e) {
           log.error(e, e);
           } */
-          SpanFE.from(s,buf).contains("bigram").eq().emit();
           SpanFE.from(s, buf).tokens().eq().lc().punk().emit();
+          //SpanFE.from(s,buf).contains("bigram").eq().emit();
+          //SpanFE.from(s,buf).contains("pro").eq().emit();
+          //SpanFE.from(s,buf).contains("vs").eq().emit();
           return buf.getInstance();
         }
         public Instance extractInstance(Span s) {
@@ -110,10 +110,8 @@ public class ExptMovieReviews extends TestCase
       //log.debug(labels.getTypes().toString());
 
 
-      //
       // debug mixup
-      //
-      try {
+/*      try {
 
         JFrame frame = new JFrame("TextBaseEditor");
 
@@ -128,11 +126,7 @@ public class ExptMovieReviews extends TestCase
       } catch (Exception e) {
         e.printStackTrace();
       }
-      //
-      //
-      //
-
-
+*/
 
 
       // create a binary dataset for the class 'Pos'
@@ -142,42 +136,52 @@ public class ExptMovieReviews extends TestCase
       {
         Span s = i.nextSpan();
         //System.out.println( labels );
+        //double label = labels.hasType(s, "POS") ? +1 : -1;
         double label = labels.hasType(s, "Pos") ? +1 : -1;
+        //data.add(new BinaryExample(fe.extractInstance(labels,s), label));
         data.add(new BinaryExample(fe.extractInstance(s), label));
-        //BinaryExample example = new BinaryExample( fe.extractInstance(s), label );
-        //data.add( example );
       }
 
       //Dataset data = MovieDataset.MovieReviewsData();
-
+/*      Dataset data = new BasicDataset();
+      File countFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movies-cnt.id");
+      data = DatasetLoader.loadFile(countFile);
+*/
 
       // Filter
-      System.out.println("Filter Features");
+/*      System.out.println("Filter Features");
       T1InstanceTransformLearner filter = new T1InstanceTransformLearner();
       //filter.setREF_LENGTH(100.0);
       //filter.setPDF("Poisson");
       //filter.setPDF("Negative-Binomial");
-
       InstanceTransform t1stat = filter.batchTrain( data );
       //((T1InstanceTransform)t1stat).setALPHA(0.05);
       //((T1InstanceTransform)t1stat).setMIN_WORDS(50);
       //((T1InstanceTransform)t1stat).setSAMPLE(10000);
-
       data = t1stat.transform( data );
-      //System.out.println( "Filtered Dataset:\n" + data );
+*/      //System.out.println( "Filtered Dataset:\n" + data );
+
+/*      System.out.println("Filter Features");
+      FrequencyBasedTransformLearner filter = new FrequencyBasedTransformLearner(4);
+      AbstractInstanceTransform ait = (AbstractInstanceTransform)filter.batchTrain( data );
+      data = ait.transform( data );
+*/      //System.out.println( "Filtered Dataset:\n" + data );
 
       ViewerFrame f = new ViewerFrame("Pos data", data.toGUI());
       //System.exit(0);
+      BasicFeatureIndex fidx = new BasicFeatureIndex(data);
+      System.out.println( "examples="+data.size() );
+      System.out.println( "features="+fidx.numberOfFeatures() );
 
 
       // pick a learning algorithm
       System.out.println("Classify Examples");
-      ClassifierLearner learner = new NaiveBayes();
+      ClassifierLearner learner = new PoissonLearner();
 
 
       // do a 10-fold cross-validation experiment
       System.out.println("Evaluate");
-      Evaluation v = Tester.evaluate(learner, data, new StratifiedCrossValSplitter(10));
+      Evaluation v = Tester.evaluate(learner, data, new CrossValSplitter(3));//StratifiedCrossValSplitter(10));
 
 
       // display the results

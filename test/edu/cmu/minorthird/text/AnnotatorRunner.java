@@ -20,20 +20,20 @@ public class AnnotatorRunner
 
     try
     {
-  //    TextBase base = new BasicTextBase();
-  //    TextBaseLoader loader = new TextBaseLoader();
+      //    TextBase base = new BasicTextBase();
+      //    TextBaseLoader loader = new TextBaseLoader();
       File dir = new File("C:/radar/extract/src/com/wcohen/text/ann/samplemail"); //put the directory with emails here.
       //File dir = new File("C:/boulder/randomNOSig"); //put the directory with emails here.
 
       MutableTextLabels labels = null;
-        labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
-  //    TextBase base = labels.getTextBase();
+      labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
+      //    TextBase base = labels.getTextBase();
 
       Annotator annotator = new SigFileAnnotator();
       // Annotator annotator = new POSTagger();
       annotator.annotate(labels);
 
-  // output the results
+      // output the results
       for (Span.Looper i = labels.instanceIterator("sig"); i.hasNext();)
       {
         Span span = i.nextSpan();
@@ -48,5 +48,4 @@ public class AnnotatorRunner
     }
 
   }
-
 }

@@ -9,43 +9,77 @@ import java.util.*;
 /**
  * @author William Cohen
  * Date: Nov 21, 2003
+ * @author Edoardo Airoldi
+ * Date: Feb 05, 2004
  */
 
 public class FrequencyBasedTransformLearner implements InstanceTransformLearner
 {
-	private int minimumFrequency = 3;
+  /** The frequency model is resposible for deciding 'what to count'.  If set to
+   *  "document" this filter counts the number of documents which contain a Feature;
+   *  if set to "word" this filter counts the number of times a Feature appears in
+   *  the whole dataset.
+   */
+  private String frequencyModel;
+  private int minimumFrequency = 3;
 
-	/** This will "learn" an InstanceTransform that discards instances
-	 * which appear in minimumFrequency or fewer examples. */
-	public FrequencyBasedTransformLearner(int minimumFrequency)
-	{
-		this.minimumFrequency = minimumFrequency;
-	}
+  /** This will "learn" an InstanceTransform that discards instances
+   * which appear in minimumFrequency or fewer examples. */
+  public FrequencyBasedTransformLearner(int minimumFrequency)
+  {
+    this.frequencyModel = "document"; // Default
+    this.minimumFrequency = minimumFrequency;
+  }
+  public FrequencyBasedTransformLearner(int minimumFrequency, String frequencyModel)
+  {
+    this.frequencyModel = frequencyModel;
+    this.minimumFrequency = minimumFrequency;
+  }
 
-	/** The schema's not used here... */
-	public void setSchema(ExampleSchema schema) {;}
+  /** The schema's not used here... */
+  public void setSchema(ExampleSchema schema) {;}
 
-	public InstanceTransform batchTrain(Dataset dataset)
-	{
-		final Set activeFeatureSet = new HashSet();
+  public InstanceTransform batchTrain(Dataset dataset)
+  {
+    final Set activeFeatureSet = new HashSet();
 
-		// figure out what features are high-frequency
-		DatasetIndex index = new DatasetIndex(dataset);
-		for (Feature.Looper i = index.featureIterator(); i.hasNext(); ) {
-			Feature f = i.nextFeature();
-			if (index.size(f) > minimumFrequency) {
-				activeFeatureSet.add(f);
-			}
-		}
-		
-		// build an InstanceTransform that removes low-frequency features
-		return new AbstractInstanceTransform() {
-				public Instance transform(Instance instance) {
-					return new MaskedInstance(instance, activeFeatureSet);
-				}
-				public String toString() {
-					return "[InstanceTransform: features appear >= "+minimumFrequency+" times]";
-				}
-			};
-	}
+    // figure out what features are high-frequency
+    DatasetIndex index = new DatasetIndex(dataset);
+    if ( frequencyModel.equals("document") )
+    {
+      for (Feature.Looper i = index.featureIterator(); i.hasNext(); ) {
+        Feature f = i.nextFeature();
+        if (index.size(f) > minimumFrequency) {
+          activeFeatureSet.add(f);
+        }
+      }
+    }
+    else if ( frequencyModel.equals("word") )
+    {
+      for (Feature.Looper i = index.featureIterator(); i.hasNext(); ) {
+        Feature f = i.nextFeature();
+        double totalCounts=0.0;
+        for (int j=0; j<index.size(f); j++) {
+          totalCounts += index.getExample(f,j).getWeight(f);
+        }
+        if (totalCounts > minimumFrequency) {
+          activeFeatureSet.add(f);
+        }
+      }
+    }
+    else
+    {
+      System.out.println( "warning: "+ frequencyModel +" ia an unknown model for frequency!" );
+    }
+
+    // build an InstanceTransform that removes low-frequency features
+    return new AbstractInstanceTransform() {
+      public Instance transform(Instance instance) {
+        return new MaskedInstance(instance, activeFeatureSet);
+      }
+      public String toString() {
+        return "[InstanceTransform: model = "+frequencyModel+", features appear >= "+minimumFrequency+" times]";
+      }
+    };
+  }
 }
