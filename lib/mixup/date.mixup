@@ -2,6 +2,13 @@ provide 'date';
 //require 'pos';
 //require 'npchunks';
 
+///////////////////////////////////////////////////////////////////////
+//  Date is defined here as any expression referring to a specific day.
+//  included: July 1st, next Monday, yesterday
+//  not included: when you are ready, or - next semester
+///////////////////////////////////////////////////////////////////////
+
+
 defDict monthName = january, jan, february, feb, march, mar, april, apr, may, june, jun, july, jul, 
 	            august, aug, september, sep, sept, october, oct, november, nov, december, dec;	
 
