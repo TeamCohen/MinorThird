@@ -72,7 +72,7 @@ if ((!$file) || $opt_v) {
 }
 
 while ($line = <$fh>) {
-    if ($line =~ /^\s*exit\s*$/) {
+   if ($line =~ /^\s*exit\s*$/) {
         last;
     }
     if ($line =~ /^\s*quit\s*$/) {
