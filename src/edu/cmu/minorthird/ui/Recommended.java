@@ -238,6 +238,7 @@ public class Recommended
 	 */
 	public static class DocumentFE extends LabeledSpanFE implements Serializable {
 		public void extractFeatures(TextLabels labels, Span s){
+			requireMyAnnotation(labels);
 			from(s).tokens().eq().lc().emit();
 		}
 	}
@@ -392,6 +393,5 @@ public class Recommended
 				if (useLast) from(span).token(-1).prop(p).emit();
 			}
 		}
-		
 	}
 }
