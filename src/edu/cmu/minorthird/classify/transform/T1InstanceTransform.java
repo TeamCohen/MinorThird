@@ -19,6 +19,7 @@ public class T1InstanceTransform implements InstanceTransform {
 
   private double ALPHA; // tolerance level for the FDR in selecting features
   private int MIN_WORDS; // minimum number of features to keep, EVEN IF NOT significant
+  private int MAX_WORDS; // minimum number of features to keep, EVEN IF NOT significant
   private int SAMPLE; // points sampled to estimate T1's PDF, and compute p-values
 
   private Map T1values;
@@ -32,6 +33,7 @@ public class T1InstanceTransform implements InstanceTransform {
   public T1InstanceTransform() {
     this.ALPHA = 0.05;
     this.MIN_WORDS = 50;  // 0,...,49
+    this.MAX_WORDS = Integer.MAX_VALUE;
     this.SAMPLE = 2500;
     this.T1values = new TreeMap();
     this.muPosExamples = new TreeMap();
@@ -111,7 +113,7 @@ public class T1InstanceTransform implements InstanceTransform {
       double line = ((double)j) * ALPHA / ((double)pValue.size());
       if ( line>((Pair)pValue.get(j-1)).value ) greatestIndexBeforeAccept = j-1;
     }
-    greatestIndexBeforeAccept = Math.min( pValue.size()-1,Math.max( greatestIndexBeforeAccept,MIN_WORDS ) );
+    greatestIndexBeforeAccept = Math.min( MAX_WORDS,Math.min( pValue.size()-1,Math.max( greatestIndexBeforeAccept,MIN_WORDS ) ) );
     System.out.println("Retained "+greatestIndexBeforeAccept+" fetures, out of "+pValue.size());
     for (int j=0; j<=greatestIndexBeforeAccept; j++) {
       availableFeatures.put( ((Pair)pValue.get(j)).feature,new Integer(1) );
@@ -172,6 +174,11 @@ public class T1InstanceTransform implements InstanceTransform {
   /** Set MIN_WORDS to the desired number */
   public void setMIN_WORDS(int number) {
     this.MIN_WORDS = number;
+  }
+
+  /** Set MAX_WORDS to the desired number */
+  public void setMAX_WORDS(int number) {
+    this.MAX_WORDS = number;
   }
 
   /** Set SAMPLE SIZE to the desired level */

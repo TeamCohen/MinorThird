@@ -9,19 +9,19 @@ import org.apache.log4j.Logger;
  * Date: Feb 6, 2004
  */
 
-public class InfoGainInstanceTransform implements InstanceTransform
+public class OrderBasedInstanceTransform implements InstanceTransform
 {
   static private Logger log = Logger.getLogger(InfoGainInstanceTransform.class);
 
   private int TOP_FEATURES;
-  private ArrayList igValues;
+  private ArrayList values;
 
 
   /** Constructor */
-  public InfoGainInstanceTransform ()
+  public OrderBasedInstanceTransform()
   {
     this.TOP_FEATURES = 100;  // or max number of features if < 100
-    this.igValues = new ArrayList();
+    this.values = new ArrayList();
   }
 
 
@@ -52,13 +52,12 @@ public class InfoGainInstanceTransform implements InstanceTransform
     };
 
     // collect features to keep
-    Collections.sort( igValues, VAL_COMPARATOR);
-    int maxIndex = Math.min( igValues.size(),TOP_FEATURES );
+    Collections.sort( values, VAL_COMPARATOR);
+    int maxIndex = Math.min( values.size(),TOP_FEATURES );
     Set availableFeatures = new HashSet();
     for (int j=0; j<maxIndex; j++)
     {
-      System.out.println( ((Pair)igValues.get(j)).feature+" "+((Pair)igValues.get(j)).value );
-      availableFeatures.add( ((Pair)igValues.get(j)).feature );
+      availableFeatures.add( ((Pair)values.get(j)).feature );
     }
     // create masked dataset
     BasicDataset maskeDataset = new BasicDataset();
@@ -98,10 +97,10 @@ public class InfoGainInstanceTransform implements InstanceTransform
   }
 
   /** Adds the Info-Gain score of feature f to the InstanceTransform */
-  public void addFeatureIG(double infoGain, Feature f)
+  public void addFeatureVal(double infoGain, Feature f)
   {
     Pair p = new Pair( infoGain,f );
-    igValues.add( p );
+    values.add( p );
   }
 
 }

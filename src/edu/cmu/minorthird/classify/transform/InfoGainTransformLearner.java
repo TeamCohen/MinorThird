@@ -55,9 +55,7 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
       double dCntPos = (double)index.size("POS");
       double dCntNeg = (double)dataset.size() -dCntPos;
       double totalEntropy = Entropy( dCntPos/(dCntPos+dCntNeg),dCntNeg/(dCntPos+dCntNeg) );
-      //System.out.println("dCntPos="+dCntPos+" dCntNeg="+dCntNeg+" totEnt="+totalEntropy+"\n");
 
-      // loop features
       for (Feature.Looper i=index.featureIterator(); i.hasNext(); )
       {
         Feature f = i.nextFeature();
@@ -74,10 +72,6 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
         double entropyWithoutF =
             Entropy( dCntWithoutF[1]/(dCntWithoutF[0]+dCntWithoutF[1]),dCntWithoutF[0]/(dCntWithoutF[0]+dCntWithoutF[1]) );
 
-        //System.out.println("feature="+f+" dCntWithF+="+dCntWithF[1]+" dCntWithF-="+dCntWithF[0]);
-        //System.out.println("dCntWithoutF+="+dCntWithoutF[1]+" dCntWithoutF-="+dCntWithoutF[0]);
-        //System.out.println("entropyWithF="+entropyWithF+" entropyWithoutF="+entropyWithoutF+"\n");
-
         double wf = (dCntWithF[0]+dCntWithF[1]) / (double)dataset.size();
         double infoGain = totalEntropy -wf*entropyWithF -(1.0-wf)*entropyWithoutF;
         filter.addFeatureIG( infoGain,f );
@@ -86,6 +80,12 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
 
     else if(frequencyModel.equals("word"))
     {
+      //System.out.println("dCntPos="+dCntPos+" dCntNeg="+dCntNeg+" totEnt="+totalEntropy+"\n");
+      //System.out.println("feature="+f+" dCntWithF+="+dCntWithF[1]+" dCntWithF-="+dCntWithF[0]);
+      //System.out.println("dCntWithoutF+="+dCntWithoutF[1]+" dCntWithoutF-="+dCntWithoutF[0]);
+      //System.out.println("entropyWithF="+entropyWithF+" entropyWithoutF="+entropyWithoutF+"\n");
+      //System.out.println("feature: "+((Pair)igValues.get(j)).feature+", ig="+((Pair)igValues.get(j)).value);
+
       /*for (Example.Looper j=dataset.iterator(); j.hasNext(); )
       {
         Example e = j.nextExample();
@@ -152,7 +152,6 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
   /** compute the entropy of a binary attribute */
   public double Entropy(double P1, double P2 )
   {
-    //System.out.println("P1="+P1+" P2="+P2);
     double entropy;
     if (P1==0.0 | P2==0.0)
     {

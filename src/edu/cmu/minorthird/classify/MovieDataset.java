@@ -13,6 +13,8 @@ import org.apache.log4j.Level;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.*;
@@ -27,7 +29,8 @@ public class MovieDataset {
 
   // set static variables
   static private boolean MIXUP = false;
-  static private String FILTER = "Freq"; // or "T1"
+  static private boolean DUMP_WORDS = true;
+  static private String FILTER = "Info-Gain"; // "Freq" or "T1" or "Info-Gain" or "Top"
 
   /**
    * Creates the dataset of movie reviews, with method = "parse".
@@ -65,11 +68,9 @@ public class MovieDataset {
       try {
         // load the documents and labels
         System.out.println("Load Texts");
-        TextBase base = new BasicTextBase();
-        TextBaseLoader loader = new TextBaseLoader();
+        TextBaseLoader loader = new TextBaseLoader(1); // DOC_PER_FILE
         File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews");
-        //loader.loadTaggedFiles(base, dir);
-        loader.loadDir(base, dir);
+        TextBase base = loader.load( dir );
         MutableTextLabels labels = new BasicTextLabels(base);
         new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels.env"));
         //TextBaseLabeler.label( labels, new File("my-document-labels.env")); // DEBUG
@@ -104,7 +105,7 @@ public class MovieDataset {
         {
           public Instance extractInstance(TextLabels labels, Span s) {
             FeatureBuffer buf = new FeatureBuffer(labels, s);
-            SpanFE.from(s,buf).tokens().eq().emit();
+            SpanFE.from(s,buf).tokens().eq().punk().emit();
             //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
             //SpanFE.from(s,buf).contains("pos").eq().tr(".*","pros").emit();
             return buf.getInstance();
@@ -129,23 +130,41 @@ public class MovieDataset {
       // filter features
       if (FILTER.equals("T1"))
       {
-        System.out.println("Filter Features");
+        System.out.println("Filter Features with T1");
         T1InstanceTransformLearner filter = new T1InstanceTransformLearner();
         filter.setREF_LENGTH(660.0);
-        filter.setPDF("Negative-Binomial");
+        //filter.setPDF("Negative-Binomial");
         T1InstanceTransform t1stat = (T1InstanceTransform)filter.batchTrain( data );
-        t1stat.setALPHA(0.05);
-        t1stat.setMIN_WORDS(50);
+        t1stat.setALPHA(0.01);
+        t1stat.setMIN_WORDS(50);  t1stat.setMAX_WORDS(500);
         t1stat.setSAMPLE(2500);
         data = t1stat.transform( data );
       }
       else if (FILTER.equals("Freq"))
       {
         int minFreq =4;  String model = "word"; // or "document"
-        System.out.println("Filter Features");
-        FrequencyBasedTransformLearner filter = new FrequencyBasedTransformLearner(minFreq,model);
+        System.out.println("Filter Features by Frequency");
+        FrequencyBasedTransformLearner filter = new FrequencyBasedTransformLearner( minFreq,model );
         AbstractInstanceTransform ait = (AbstractInstanceTransform)filter.batchTrain( data );
         data = ait.transform( data );
+      }
+      else if (FILTER.equals("Info-Gain"))
+      {
+        int featureToKeep = 5000;  String model = "document"; // or "word"
+        System.out.println("Filter Features with Info-Gain");
+        InfoGainTransformLearner filter = new InfoGainTransformLearner( model );
+        InfoGainInstanceTransform infoGain = (InfoGainInstanceTransform)filter.batchTrain( data );
+        infoGain.setNumberOfFeatures( featureToKeep );
+        data = infoGain.transform( data );
+      }
+      else if (FILTER.equals("Top"))
+      {
+        int featureToKeep = 16165;  String model = "word"; // or "word"
+        System.out.println("Filter Features with Top="+featureToKeep);
+        OrderBasedTransformLearner filter = new OrderBasedTransformLearner( model );
+        OrderBasedInstanceTransform infoGain = (OrderBasedInstanceTransform)filter.batchTrain( data );
+        infoGain.setNumberOfFeatures( featureToKeep );
+        data = infoGain.transform( data );
       }
       else
       {
@@ -156,6 +175,25 @@ public class MovieDataset {
       BasicFeatureIndex fidx = new BasicFeatureIndex(data);
       System.out.println( "Dataset:\n # examples = "+data.size() );
       System.out.println( " # features = "+fidx.numberOfFeatures() );
+
+      if (DUMP_WORDS)
+      {
+        File featureFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/features.txt");
+        try
+        {
+          PrintStream out = new PrintStream(new FileOutputStream(featureFile));
+          for (Feature.Looper i=fidx.featureIterator(); i.hasNext(); )
+          {
+            Feature f = i.nextFeature();
+            out.println( f );
+          }
+        }
+        catch (Exception e)
+        {
+          log.error(e, e);
+          System.exit(1);
+        }
+      }
     }
 
     return data;

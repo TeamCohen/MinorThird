@@ -1,0 +1,43 @@
+// author: Edoardo Airoldi (eairoldi@cs.cmu.edu)
+
+// define baseline dictionaries for positive/negative reviews
+// from: Pang et al. (2002)
+//
+defDict p1 = dazzling, brilliant, phenomenal, excellent, fantastic;
+defDict n1 = suck, terrible, awful, unwatchable, hideous;
+defDict p2 = gripping, mesmerizing, riveting, spectacular, cool, awesome, thrilling, badass, excellent, moving, exciting;
+defDict n2 = bad, cliched, sucks, boring, stupid, slow;
+defDict p3 = love, wondeful, best, great, superb, still, beautiful, ?, !;
+defDict n3 = bad, worst, stupid, waste, boring;
+
+
+// define references to relevant semantic groups in identifying sentiments
+//
+defDict object = atmosphere, artist, artists, action, actions, attempt, film, movie, plot, script, scene, scenes, animation, animators, director, character, characters, performance, comedy, drama, idea, ideas;
+
+defDict positive = recommend, recommended, beautiful, good, best, better, blast, brilliant, clever, decent, delightful, delivers, 
+defDict negative = atrocious, asleep, awful, bad, blame, bored, bother, bothered, cheap, cheesy, cliche, complicated, crap, conventional, worse, worst,
+defDict ambiguous = deserves,  
+defDict doubt = believes, beliefs, guess, guessing, hope, hoping, bet, 
+defDict preposition = anyhow, however, 
+
+defDict amplifier = absent, authentic, bold, 
+defDict amplifier = not, don, wouldn, t, 
+defDict irrelevant = starring;
+
+defDict ble = acceptable, affable, agreeable, believable, enjoyable, horrible, incomprehensible, laughable, memorable, palpable, passable, predictable, terrible, unstoppable;
+
+defDict ing = amazing, anything, astounding, boring, breaking, breathtaking, complicating, destroying, disappointing, embarrassing, endearing, ending, entertaining, excruciating, fascinating, fumbling, gaining, gripping, grunting, hoping, ingenious, insulting, intimidating, moving, needing, nothing, outstanding, promising, rambling, redeeming, refreshing, rewarding, riveting, satisfying, shaking, suffering, supporting, surprising, touching, unassuming, unconvincing, understanding, unentertaining, uninteresting, uninvolving, uplifting, winning;
+
+defDict ly = badly, basically, beautifully, blatantly, brilliantly, calmly, chiefly, continuously, darkly, definitely, deliciously, droppingly, easily, elegantly, extremely, embarrassingly, emotionally, especially, eventually, excruciatingly, extremely, fortunately, frankly, highly, immensely, impossibly, laughably, luckily, masterfully, melancholy, nicely, notoriously, obviously, officially, painfully, perfectly, periodically, poorly, potentially, really, respectively, ridiculously, rightfully, sadly, slightly, sorely, subtly, supposedly, surprisingly, terribly, thankfully, timely, unfortunately, unusually, vividly, wily, wondefully;
+
+
+// capture positive/negative feelings
+//
+defSpanType pro = top: ... [a(pos1)] ... || ... [a(amplifier) a(pos1)] ...;
+defSpanType vs = top: ... [a(neg1)] ... || ... [a(amplifier) a(neg1)] ...;
+
+
+// capture al bigrams
+//
+defSpanType bigram = top: ... [ any any ] ... ;

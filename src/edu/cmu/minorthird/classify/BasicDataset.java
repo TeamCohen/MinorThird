@@ -61,7 +61,7 @@ public class BasicDataset implements Visible,Dataset
 		return copy;
 	}
 
-	public String toString() 
+	public String toString()
 	{
 		StringBuffer buf = new StringBuffer("");
 		for (Example.Looper i=this.iterator(); i.hasNext(); ) {
