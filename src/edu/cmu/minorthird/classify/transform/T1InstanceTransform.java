@@ -57,11 +57,6 @@ public class T1InstanceTransform implements InstanceTransform {
   /** Create a transformed copy of a dataset. */
   public Dataset transform(Dataset dataset){
     BasicFeatureIndex index = new BasicFeatureIndex(dataset);
-    /*int N = 0;
-    for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
-      Feature f = i.nextFeature();
-      N += 1;
-    } */
 
     final Comparator VAL_COMPARATOR = new Comparator() {
       public int compare(Object o1, Object o2) {
@@ -77,9 +72,9 @@ public class T1InstanceTransform implements InstanceTransform {
     List pValue = new ArrayList();
 
     // loop features
-    for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
+    for (Feature.Looper i=index.featureIterator(); i.hasNext(); )
+    {
       Feature f = i.nextFeature();
-      //System.out.println("feature: "+f);
       // Sample T1 values
       double[] T1array = sampleT1Values( f );
       // compute p-value for Feature f
@@ -89,7 +84,6 @@ public class T1InstanceTransform implements InstanceTransform {
 
     // FDR correction to decide which features to retain
     TreeMap availableFeatures = selectFeaturesViaFDR( pValue,VAL_COMPARATOR );
-
     // create transformed dataset
     BasicDataset maskeDataset = createMaskedDataset( dataset,availableFeatures );
 

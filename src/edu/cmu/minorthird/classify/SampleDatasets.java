@@ -4,7 +4,6 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.algorithms.linear.LogisticRegressor;
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
-import edu.cmu.minorthird.classify.experiments.sentiments.MovieDataset;
 import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;

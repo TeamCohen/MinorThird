@@ -41,7 +41,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
     // loop features
     for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
       Feature f = i.nextFeature();
-      System.out.println("feature: "+f);
+      //System.out.println("feature: "+f); // DEBUG
 
       // fill array of <counts_ex(feature), length_ex> for POS class
       double[] xPos = new double[ index.size(f,"POS") ];
@@ -92,8 +92,6 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
         if ( ((Double)mudeltaPos.get("delta")).doubleValue()==0.0 ||
             ((Double)mudeltaNeg.get("delta")).doubleValue()==0.0) { T1Filter.setFeaturePdf( f,"Poisson"); }
         else { T1Filter.setFeaturePdf( f,"Negative-Binomial"); }
-        //System.out.println("   mu - " + f.toString() + ":" + mudeltaPos.get("mu") + "," + mudeltaNeg.get("mu"));
-        //System.out.println("delta - " + f.toString() + ":" + mudeltaPos.get("delta") + "," + mudeltaNeg.get("delta"));
       }
     }
     return T1Filter;
