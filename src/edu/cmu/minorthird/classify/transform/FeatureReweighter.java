@@ -8,8 +8,8 @@ import edu.cmu.minorthird.classify.Instance;
  * Date: Nov 21, 2003
  */
 
-public interface FeatureReweighter {
-
-    /** New weight for feature f in the given instance. */
-    public double reweight(Feature f, Instance instance);
+public interface FeatureReweighter 
+{
+	/** New weight for feature f in the given instance. */
+	public double reweight(Feature f, Instance instance);
 }

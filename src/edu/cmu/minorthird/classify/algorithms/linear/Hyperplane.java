@@ -25,9 +25,16 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 {
 	public static final Feature BIAS_TERM = new Feature("_hyperplaneBias");
 	protected TObjectDoubleHashMap hyperplaneWeights = new TObjectDoubleHashMap();
-	//protected Map hyperplaneWeights = new HashMap();
+	private boolean ignoreWeights = false;
 
 	public Hyperplane() { ; }
+
+	/** After this call is made, the hyperplane will ignore feature weights.
+	 * Specifically in calls to increment(instance,delta) or increment(hyperplane,delta),
+	 * feature weights will be assumed to be zero.  For backward compatibility with
+	 * an old buggy version.
+	 */
+	public void startIgnoringWeights() { this.ignoreWeights=true; }
 
 	/** Inner product of hyperplane and instance weights. */
 	public double score(Instance instance) 
@@ -59,7 +66,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 
 
 	/** Increment one feature from the hyperplane by delta */
-	public void increment(Feature f,double delta) {
+	public void increment(Feature f, double delta) {
 		double d = hyperplaneWeights.get(f);
 		hyperplaneWeights.put(f, d+delta);
 	}
@@ -79,7 +86,8 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	public void increment(Instance instance, double delta) {
 		for (Feature.Looper i=instance.featureIterator(); i.hasNext(); ) {
 			Feature f = i.nextFeature();
-			increment( f, delta );
+			double w = ignoreWeights? 1: instance.getWeight(f);
+			increment( f, w * delta );
 		}
 		incrementBias( delta );
 	}

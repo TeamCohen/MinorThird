@@ -36,13 +36,23 @@ for t = 1...T
 public class VotedPerceptron extends OnlineBinaryClassifierLearner
 {
 	private Hyperplane s_t,w_t;
+	private boolean ignoreWeights=false;
 
-	public VotedPerceptron() { reset(); }
+	public VotedPerceptron() { this(false); }
+
+	/** If ignoreWeights is true, treat all weights as binary. For
+	 * backward compatibility with an older buggy version.
+	 */
+	public VotedPerceptron(boolean ignoreWeights) { this.ignoreWeights = ignoreWeights; reset(); }
 
 	public void reset() 
 	{
 		s_t = new Hyperplane();
 		w_t = new Hyperplane();
+		if (ignoreWeights) {
+			s_t.startIgnoringWeights();
+			w_t.startIgnoringWeights();
+		}
 	}
 
 	public void addExample(Example example)

@@ -5,6 +5,7 @@ package edu.cmu.minorthird.classify.transform;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.gui.*;
 
 import java.util.*;
 
@@ -48,6 +49,8 @@ public class TransformingBatchLearner extends BatchClassifierLearner
 	{
 		final InstanceTransform transformer = transformLearner.batchTrain(dataset);
 		final Classifier classifier = classifierLearner.batchTrain(transformer.transform(dataset));
+		//ViewerFrame f1 = new ViewerFrame("classifier", new SmartVanillaViewer(classifier));
+		//ViewerFrame f2 = new ViewerFrame("dataset", new SmartVanillaViewer(transformer.transform(dataset)));
 
 		return new TransformingClassifier(classifier,transformer);
 	}
