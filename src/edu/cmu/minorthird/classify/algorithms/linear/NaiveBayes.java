@@ -89,4 +89,6 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner
 	private double getFeaturePriorPseudoCount() {
 		return 1.0;
 	}
+
+    public String toString() { return "[NaiveBayes]"; }
 }

@@ -100,6 +100,15 @@ public class Mixup
 	String[] tmp = new String[] { "re", "eq", "eqi", "a", "ai", "any", "prop", "propDict" };
 	for (int i=0; i<tmp.length; i++) legalFunctions.add(tmp[i]);
     }
+    private final static int RE = 0;
+    private final static int EQ = 1;
+    private final static int EQI = 2;
+    private final static int A = 3;
+    private final static int AI = 4;
+    private final static int ANY = 5;
+    private final static int PROP = 6;
+    private final static int PROPDICT = 7;
+    private final static int ELIPSE = 9;
 
     private Expr expr;
 
@@ -217,8 +226,19 @@ public class Mixup
 	    Prim prim = new Prim();
 	    if ("!".equals(token)) {
 		prim.negated = true;	advance();
-	    }
-	    prim.function = token;
+	    }	 
+	    prim.funcString = token;
+	    int funcLength = token.length();
+	    char firstLetter = token.charAt(0);
+	    if("a".equals(token)) prim.function = A;
+	    else if("eq".equals(token)) prim.function = EQ;
+	    else if("ai".equals(token)) prim.function = AI;
+	    else if("re".equals(token)) prim.function = RE;
+	    else if("any".equals(token)) prim.function = ANY;
+	    else if("eqi".equals(token)) prim.function = EQI;
+	    else if("...".equals(token)) prim.function = ELIPSE;
+	    else if("prop".equals(token)) prim.function = PROP;
+	    else if("propDict".equals(token)) prim.function = PROPDICT;
 	    advance();
 	    if ("(".equals(token)) {
 		advance(); // to argument
@@ -227,8 +247,9 @@ public class Mixup
 		if (!")".equals(token)) parseError("expected close paren");
 		advance(); // past prim
 	    } else if (":".equals(token)) {
-		prim.property = prim.function;
-		prim.function = "prop";
+		prim.property = prim.funcString;
+		prim.function = PROP;
+		prim.funcString = "prop";
 		advance(); // to property value
 		if ("a".equals(token)) {
 		    advance(); // to '('
@@ -237,7 +258,8 @@ public class Mixup
 			advance(); // past value
 		    } else {
 			advance(); // to dictionary name
-			prim.function = "propDict";
+			prim.function = PROPDICT;
+			prim.funcString = "propDict";
 			prim.value = token;
 			advance();
 			if (!")".equals(token)) parseError("expected close paren");
@@ -320,7 +342,8 @@ public class Mixup
     //
     private static class Prim {
 	public boolean negated = false;
-	public String function = null;
+	public int function = -1;
+	public String funcString = "";
 	public String argument = "";
 	public String property = "", value="";
 	private Pattern pattern = null;
@@ -331,37 +354,24 @@ public class Mixup
 	    return negated==!status; 
 	}
 	private boolean matchesUnnegatedPrim(TextLabels labels,Token token) {
-	    int funcLength = function.length();
-	    char firstLetter = function.charAt(0);
-	    //else if ("a".equals(function)) return labels.inDict(token,argument);
-	    if(funcLength == 1) return labels.inDict(token,argument); //a 	    
-	    else if(funcLength == 2) { 					
-		//else if ("eq".equals(function)) return token.getValue().equals(argument);
-		if (firstLetter == 'e') return token.getValue().equals(argument); //eq
-		//else if ("ai".equals(function)) {
-		else if (firstLetter == 'a') { //ai
-		    final String lc = token.getValue().toLowerCase();
-		    Token lcToken = new Token() {
-			    public String toString() { return "[lcToken "+lc+"]"; }
-			    public String getValue() { return lc; } 
-			    public int getIndex() { return 0; }};
-		    return labels.inDict(lcToken,argument);
-		}
-		//else if ("re".equals(function)) {
-		else { //re
-		    return pattern.matcher(token.getValue()).find();
-		}
-	    }			 
-	    else if(funcLength == 3) { 
-		if(firstLetter == 'a') return true;  //any	    
-		//else if ("eqi".equals(function)) return token.getValue().equalsIgnoreCase(argument);	    	    	     
-		else return token.getValue().equalsIgnoreCase(argument); //eqi
-	    }
-	    //else if ("prop".equals(function)) {
-	    else if (funcLength == 4) { //prop
+	    if(function == A) return labels.inDict(token,argument); //a 		
+	    if (function == EQ) return token.getValue().equals(argument); //eq
+	    else if (function == AI) { //ai
+		final String lc = token.getValue().toLowerCase();
+		Token lcToken = new Token() {
+			public String toString() { return "[lcToken "+lc+"]"; }
+			public String getValue() { return lc; } 
+			public int getIndex() { return 0; }};
+		return labels.inDict(lcToken,argument);
+	    } else if (function == RE){ //re
+		return pattern.matcher(token.getValue()).find();
+	    }	    		
+	    else if(function == ANY) return true;  //any	    	    	    	     
+	    else if(function == EQI) return token.getValue().equalsIgnoreCase(argument); //eqi	    
+	    else if (function == PROP) { //prop
 		return value.equals( labels.getProperty(token,property) );
 	    } 
-	    else if(funcLength > 4){ //propDict
+	    else if(function == PROPDICT){ //propDict
 		final String propVal = labels.getProperty(token,property);
 		if (propVal==null) return false;
 		Token propValToken = new Token() {
@@ -371,15 +381,16 @@ public class Mixup
 		//System.out.println("testing "+propValToken+" for membership in dict "+value);
 		return labels.inDict( propValToken, value );
 	    } else {
-		throw new IllegalStateException("illegal function '"+function+"'");
+		throw new IllegalStateException("illegal function '"+funcString+"'");
 	    }
 	}
 	/** Expand some syntactic sugar-like abbreviations. */
 	public void expandShortcuts() {
 	    // expand the 'const' abbreviation to eq('const')
-	    if (function.startsWith("'") && function.endsWith("'")) {
-		argument = function;
-		function = "eq";
+	    if (funcString.startsWith("'") && funcString.endsWith("'")) {
+		argument = funcString;
+		function = EQ;
+		funcString = "eq";
 	    }
 	    // unquote a quoted argument
 	    if (argument.startsWith("'") && argument.endsWith("'")) {
@@ -387,19 +398,19 @@ public class Mixup
 		argument = argument.replaceAll("\\\\'","'");
 	    }
 	    // precompile a regex
-	    if ("re".equals(function)) pattern = Pattern.compile(argument);
+	    if (RE == function) pattern = Pattern.compile(argument);
 	    // check for correctness
 	}
 	/** is this a legal function? */
 	public boolean checkFunction()
 	{
-	    return legalFunctions.contains(function);
+	    return legalFunctions.contains(funcString);
 	}
 	public String toString() {
 	    StringBuffer buf = new StringBuffer("");
 	    if (negated) buf.append("!");
-	    if (!"prop".equals(function)) {
-		buf.append(function);
+	    if (PROP != function) {
+		buf.append(funcString);
 		if (argument!=null) buf.append("(" + argument + ")");
 	    } else {
 		buf.append(property+":"+value);
@@ -413,6 +424,8 @@ public class Mixup
 	public boolean leftMost=false;
 	public boolean rightMost=false;
 	public List primList = new ArrayList();
+	public boolean[] whereIMatch;
+	public Span whatIIndexed = null;
 	public int minCount;
 	public int maxCount; // -1 indicates infinity
 	String type = null;  // non-null for @type and @type?
@@ -421,8 +434,9 @@ public class Mixup
 	    // expand the 'const' abbreviation to eq('const')
 	    if (primList.size()==1) {
 		Prim prim = (Prim)primList.get(0);
-		if ("...".equals(prim.function)) {
-		    prim.function = "any";
+		if (ELIPSE == prim.function) {
+		    prim.function = ANY;
+		    prim.funcString = "any";
 		    minCount = 0;
 		    maxCount = -1;
 		    return;
@@ -432,7 +446,7 @@ public class Mixup
 	public boolean checkFunction() {
 	    for (Iterator i=primList.iterator(); i.hasNext(); ) {
 		Prim prim = (Prim)i.next();
-		if ("...".equals(prim.function) && primList.size()!=1) return false;
+		if ("...".equals(prim.funcString) && primList.size()!=1) return false;
 		if (!prim.checkFunction()) return false;
 	    }
 	    return true;
@@ -459,6 +473,16 @@ public class Mixup
 		return buf.toString();
 	    }
 	}
+	/** Indexes where tokens match in the PrimList */
+	public void index(Span s, TextLabels labels)
+	{
+	    whatIIndexed = s;
+	    whereIMatch = new boolean[s.size()];
+	    for(int i=0; i<s.size(); i++) {
+		whereIMatch[i] = matchesPrimList(labels, s.getToken(i));
+	    }
+	}
+
 	/** See if this pattern matches span.subSpan(lo,len). */
 	public boolean matchesSubspan(TextLabels labels,Span span, int lo, int len) {
 	    if (type!=null) {
@@ -468,22 +492,33 @@ public class Mixup
 		    return len==0 || labels.hasType(span.subSpan(lo,len), type);
 		}
 	    } else {
+		int x = 0;
+		String span1 = span.asString();
+		String span2 = "";
+		if(whatIIndexed != null)
+		    span2 = whatIIndexed.asString();
+		if(!span1.trim().equals(span2.trim())) {		    
+		    index(span, labels);		    
+		} //else System.out.println("Same Span!!!");
 		if (len>maxCount && maxCount>=0) return false;
 		if (len<minCount) return false;
 		int spanSize = span.size();
 		for (int i=lo; i<lo+len; i++) {
 		    if (i>=spanSize) return false;
-		    if (!matchesPrimList(labels,span.getToken(i))) return false;
+		    //if (!matchesPrimList(labels,span.getToken(i))) return false;
+		    if(!whereIMatch[i]) return false;
 		}
 		if (leftMost && (len<maxCount || maxCount<0)) {
-		    if (lo>0 && matchesPrimList(labels,span.getToken(lo-1)))
+		    if (lo>0 && /*matchesPrimList(labels,span.getToken(lo-1))*/whereIMatch[lo-1])
 			return false;
 		}
 		if (rightMost && (len<maxCount || maxCount<0)) {
-		    if (lo+len<spanSize && matchesPrimList(labels,span.getToken(lo+len)))
+		    if (lo+len<spanSize && /*matchesPrimList(labels,span.getToken(lo+len))*/ whereIMatch[lo+len])
 			return false;
 		}
 		return true;
+		
+		    
 	    }
 	}
 	private boolean matchesPrimList(TextLabels labels, Token token) {
@@ -580,7 +615,7 @@ public class Mixup
 		// see if repPrim[i] is "any"
 		if (rp.primList.size()==1) {
 		    Prim prim = (Prim)rp.primList.get(0);
-		    isAny[i] = ("any".equals(prim.function) && !prim.negated);
+		    isAny[i] = (ANY == prim.function && !prim.negated);
 		}
 		if (!isAny[i]) {
 		    // find all places this matches
