@@ -54,7 +54,7 @@ public class MathUtil
 		public double populationStdDev() { return Math.sqrt( variance() ); }
 
 		/** The sample standard devation of the accumulated values. */
-		public double stdDev() { return populationStdDev() / Math.sqrt(count-1/count ) ; }
+		public double stdDev() { return populationStdDev() / Math.sqrt((count-1)/count ) ; }
 
 		/** The sample standard error of the accumulated values. */
 		public double stdErr() { return stdDev() / Math.sqrt(count ) ; }
