@@ -197,6 +197,10 @@ public class TextBaseLoader
 	return (TextBase)textBase;
     }
 
+    public void setLabelsInFile(boolean b) {
+	this.use_markup = b;
+    }
+
     public TextBase retokenize(TextBase tb, Tokenizer tokenizer) throws IOException, ParseException
     {
 	if (labels == null)
@@ -370,7 +374,7 @@ public class TextBaseLoader
 	    Span approxSpan; // = textBase.documentSpan(curDocID).subSpan(charSpan.lo, charSpan.hi-charSpan.lo-1); 	   
 	    boolean flag = false;
 	    for(int i = charSpan.lo; i<charSpan.hi; i++) {
-		if(docText.charAt(i) != ' ')
+		if(docText.charAt(i) != ' ' && docText.charAt(i) != '\n')
 		    flag = true;
 	    }
 	    if(flag)
