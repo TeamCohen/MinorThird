@@ -90,7 +90,7 @@ NB: This section will change very soon as a better set of demos and samples are 
 
 HOW SAMPLE FILES ARE STORED
 
-What is env/seminar-subset anyway?  I wanted a scheme in which
+What is test.bsh anyway?  I wanted a scheme in which
  - data files could be stored outside of cvs
  - labelings of data files and mixup programs could be stored inside of cvs 
  - one could specify a datafile with a single short key
@@ -99,10 +99,6 @@ The scheme I came up with is the following. The file
 minorthird/config/data.properties defines three directory locations:
 dataDir, for large datasets; labelDir, for data files that are used to
 construct labelings; and scriptDir, for beanShell scripts that load in
-a datafile.  The edu.cmu.minorthird.text.txt.ScriptLoader object takes the name of
+a datafile.  The edu.cmu.minorthird.text.FancyLoader object takes the name of
 a file in the scriptDir, runs it, are returns the result.
-env/seminar-subset is a script (in radar/extract/lib/loaders/env) that
-returns a small labeled dataset.  In this case, the dataset is one of
-two small sample ones stored in cvs under radar/extract/data, the
-default dataDir.
 
