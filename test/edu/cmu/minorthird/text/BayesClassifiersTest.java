@@ -70,6 +70,7 @@ public class BayesClassifiersTest extends TestCase
       TextBase base = new BasicTextBase();
       TextBaseLoader loader = new TextBaseLoader();
       File dir = new File("examples/testData.dir");
+
       loader.loadTaggedFiles(base, dir);
 
 // set up labels

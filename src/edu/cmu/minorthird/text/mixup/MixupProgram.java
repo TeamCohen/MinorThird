@@ -595,7 +595,7 @@ public class MixupProgram
 				TextBase base = new BasicTextBase();
 				TextBaseLoader loader = new TextBaseLoader();
 				loader.loadFile(base, new File(args[1]));
-				MonotonicTextLabels labels = loader.getFileMarkup();
+				MonotonicTextLabels labels = loader.getLabels();
 				program.eval(labels,base);
 				for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
 					String type = (String)i.next();

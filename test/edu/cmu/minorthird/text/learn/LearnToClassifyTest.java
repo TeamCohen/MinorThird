@@ -76,13 +76,18 @@ public class LearnToClassifyTest extends ClassifyTest
 
   }
 
-  private void loadFileData() throws IOException
+  private void loadFileData() throws Exception
   {
-    base = new BasicTextBase();
-    TextBaseLoader loader = new TextBaseLoader();
     File file = new File(dataFile);
-    loader.setFirstWordIsDocumentId(true);
-    loader.loadLines(base, file);
+
+//    base = new BasicTextBase();
+//    TextBaseLoader loader = new TextBaseLoader();
+//    loader.setFirstWordIsDocumentId(true);
+//    loader.loadLines(base, file);
+
+    TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.IN_FILE);
+    base = loader.load(file);
+
   }
 
   /**

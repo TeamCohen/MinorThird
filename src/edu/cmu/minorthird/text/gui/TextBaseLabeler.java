@@ -68,7 +68,7 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
                 if (f.isDirectory())
                 {
                     baseLoader.loadTaggedFiles(base, f);
-                    guessLabels = truthLabels = baseLoader.getFileMarkup();
+                    guessLabels = truthLabels = baseLoader.getLabels();
                 }
                 else
                 {

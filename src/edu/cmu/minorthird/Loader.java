@@ -19,5 +19,6 @@ public interface Loader
    * @param f File to load - some implementations will load only files, some directories
    *    etc.
    */
-  public void load(File f) throws IOException;
+//  public void load(File f) throws IOException;
+//  public Object load(File f, FileChooser fc);
 }

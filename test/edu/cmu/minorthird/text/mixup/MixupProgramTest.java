@@ -40,7 +40,7 @@ public class MixupProgramTest extends TestCase
   {
     super(name);
     simpleFile = new File("lib/mixup/date.mixup");
-    testData = new File("data/seminar-subset/cmu.andrew.official.career-center-1495_0");
+    testData = new File("demos/sampleData/seminar-subset/cmu.andrew.official.career-center-1495_0");
 
     dependFile = new File("lib/mixup/names2.mixup");
     dependExplict = new File("lib/mixup/names.mixup");
@@ -68,14 +68,21 @@ public class MixupProgramTest extends TestCase
       log.setLevel(Level.DEBUG);
 
       //load text base and get fresh labels
-      this.textBase = new BasicTextBase();
-      TextBaseLoader loader = new TextBaseLoader();
-		  log.debug("testData: " + testData);
-      loader.loadTaggedFile(this.testData, null, textBase);
+      log.debug("testData: " + testData);
+
+//      this.textBase = new BasicTextBase();
+//      TextBaseLoader loader = new TextBaseLoader();
+//      loader.loadTaggedFile(this.testData, null, textBase);
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
+      loader.setLabelsInFile(true);
+      textBase = loader.load(this.testData);
+
+
       labels = new BasicTextLabels(textBase);
 
+
     }
-    catch (IOException e)
+    catch (Exception e)
     {
       log.error(e, e);  //To change body of catch statement use Options | File Templates.
       fail();

@@ -143,9 +143,9 @@ public class DatasetLoader implements Loader
 	static private Example parseLine(String line, File file,LineNumberReader in)
 	{
 		String[] arr = line.split("\\s+");
+    if (arr.length<3)
+      throw new IllegalArgumentException("too few values at line#"+in.getLineNumber()+" of "+file.getName());
 		for (int i=0; i<3; i++) arr[i] = stringCoder.decode(arr[i]);
-		if (arr.length<3) 
-			throw new IllegalArgumentException("too few values at line#"+in.getLineNumber()+" of "+file.getName());
 		String subpopulationId = arr[1];
 		String source = file.getName()+":"+in.getLineNumber();
 		if ("NUL".equals(arr[1])) subpopulationId = null;
@@ -241,8 +241,8 @@ public class DatasetLoader implements Loader
    * @param f
    * @throws IOException
    */
-  public void load(File f) throws IOException
+  public Object load(File f) throws IOException
   {
-    loadFile(f);
+    return loadFile(f);
   }
 }

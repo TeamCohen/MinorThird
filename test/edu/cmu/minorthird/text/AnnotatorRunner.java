@@ -18,32 +18,37 @@ public class AnnotatorRunner
   public static void main(String[] args)
   {// load the documents into a textbase
 
-    TextBase base = new BasicTextBase();
-    TextBaseLoader loader = new TextBaseLoader();
-    File dir = new File("C:/radar/extract/src/com/wcohen/text/ann/samplemail"); //put the directory with emails here.
-    //File dir = new File("C:/boulder/randomNOSig"); //put the directory with emails here.
     try
     {
-      loader.loadTaggedFiles(base, dir);
+  //    TextBase base = new BasicTextBase();
+  //    TextBaseLoader loader = new TextBaseLoader();
+      File dir = new File("C:/radar/extract/src/com/wcohen/text/ann/samplemail"); //put the directory with emails here.
+      //File dir = new File("C:/boulder/randomNOSig"); //put the directory with emails here.
+
+      MutableTextLabels labels = null;
+      try
+      {
+        labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
+  //    TextBase base = labels.getTextBase();
+
+      Annotator annotator = new SigFileAnnotator();
+      // Annotator annotator = new POSTagger();
+      annotator.annotate(labels);
+
+  // output the results
+      for (Span.Looper i = labels.instanceIterator("sig"); i.hasNext();)
+      {
+        Span span = i.nextSpan();
+        //System.out.println( span.asString().replace('\n',' ') );
+        System.out.println(span.toString().replace('\n', ' '));
+      }
+
     }
-    catch (IOException e)
+    catch (Exception e)
     {
       log.fatal(e, e);
-      System.exit(1);
     }
-    MutableTextLabels labels = new BasicTextLabels(base);
 
-    Annotator annotator = new SigFileAnnotator();
-    // Annotator annotator = new POSTagger();
-    annotator.annotate(labels);
-
-// output the results
-    for (Span.Looper i = labels.instanceIterator("sig"); i.hasNext();)
-    {
-      Span span = i.nextSpan();
-      //System.out.println( span.asString().replace('\n',' ') );
-      System.out.println(span.toString().replace('\n', ' '));
-    }
   }
 
 

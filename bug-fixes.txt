@@ -6,3 +6,8 @@ Bug list:
 	mixup file must be in classpath directory or it can't be loaded
 3 - FIXED - TextBaseLoader
 	loadTaggedFile didn't close it's reader.  Does now.
+4 - KNOWN - TextBaseLoader
+	Edo reports that using TextBaseLoader.saveSerialized results in bad output
+		may be that he was using it for the wrong thing
+5 - FIXED - DatasetLoader
+	parseLine checked the array size after indexing the array instead of before
