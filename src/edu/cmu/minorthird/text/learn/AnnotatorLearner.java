@@ -38,4 +38,9 @@ public interface AnnotatorLearner
 	 * if no such feature extractor exists. 
 	 */
 	public SpanFeatureExtractor getSpanFeatureExtractor();
+
+	/** Set the feature extractor used by this annotator.  This may 
+	 * have no action if no such feature extractor exists.
+	 */
+	public void setSpanFeatureExtractor(SpanFeatureExtractor fe);
 }

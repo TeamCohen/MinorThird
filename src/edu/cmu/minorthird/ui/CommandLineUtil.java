@@ -103,6 +103,7 @@ class CommandLineUtil
 			interp.eval("import edu.cmu.minorthird.classify.sequential.*;");
 			interp.eval("import edu.cmu.minorthird.text.learn.*;");
 			interp.eval("import edu.cmu.minorthird.text.*;");
+			interp.eval("import edu.cmu.minorthird.ui.*;");
 			if (!s.startsWith("new"))	s = "new "+s;
 			Object o = interp.eval(s);
 			if (!expectedType.isInstance(o)) {
@@ -150,12 +151,22 @@ class CommandLineUtil
 		}
 		public void showLabels() { this.showLabels=true; }
 		public void showResult() { this.showResult=true; }
+		public void usage() {
+			System.out.println("basic parameters:");
+			System.out.println(" -labels REPOSITORY_KEY   load text from REPOSITORY_KEY ");
+			System.out.println(" [-showLabels]            interactively view textBase loaded by -labels");
+			System.out.println(" [-showResult]            interactively view final result of this operation");
+		}
 	}
 	
 	/** Parameters used by all 'train' routines. */
 	public static class SaveParams extends BasicCommandLineProcessor {
 		public File saveAs=null;
 		public void saveAs(String fileName) { this.saveAs = new File(fileName); }
+		public void usage() {
+			System.out.println("save parameters:");
+			System.out.println(" [-saveAs FILE]           save final result of this operation in FILE");
+		}
 	}
 
 	/** Parameters encoding the 'training signal' for classification learning. */
@@ -166,16 +177,42 @@ class CommandLineUtil
 		public void candidateType(String s) { this.candidateType=s; }
 		public void spanProp(String s) { this.spanProp=s; }
 		public void spanType(String s) { this.spanType=s; }
+		public void usage() {
+			System.out.println("classification 'signal' parameters:");
+			System.out.println(" -spanType TYPE           create binary dataset, where candidates that");
+			System.out.println("                          are marked with spanType TYPE are positive");
+			System.out.println(" -spanProp PROP           create multi-class dataset, where candidates");
+			System.out.println("                          are given a class determine by the spanProp PROP");
+			System.out.println("                          - exactly one of spanType, spanProp should be specified");
+			System.out.println(" [-candidate TYPE]        classify all spans of the given TYPE");
+			System.out.println("                          - default is to classify all document spans");
+		}
 	}
 
 	/** Parameters for training a classifier. */
 	public static class TrainClassifierParams extends BasicCommandLineProcessor {
 		public boolean showData=false;
-		public ClassifierLearner learner;
-		public SpanFeatureExtractor fe = new SampleFE.BagOfLowerCaseWordsFE();
+		public ClassifierLearner learner = new Recommended.NaiveBayes();
+		public SpanFeatureExtractor fe = new Recommended.DocumentFE();
 		public void showData() { this.showData=true; }
 		public void learner(String s) { this.learner = (ClassifierLearner)newObjectFromBSH(s,ClassifierLearner.class); }
-		public void fe(String s) { this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); }
+		public CommandLineProcessor fe(String s) { 
+			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
+			if (this.fe instanceof CommandLineProcessor.Configurable) {
+				return ((CommandLineProcessor.Configurable)this.fe).getCLP();
+			} else {
+				return null;
+			}
+		}
+		public void usage() {
+			System.out.println("classification training parameters:");
+			System.out.println(" [-learner BSH]           Bean-shell code to create a ClassifierLearner");
+			System.out.println("                          - default is \"new Recommended.NaiveBayes()\"");
+			System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
+			System.out.println("                          - default is \"new Recommended.DocumentFE()\"");
+			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
+			System.out.println("                            immediately following command-line arguments are passed to it");
+		}
 	}
 
 	/** Parameters for testing a stored classifier. */
@@ -188,6 +225,25 @@ class CommandLineUtil
 		public void loadFrom(String s) {
 			this.loadFrom = new File(s);
 		}
+		public void usage() {
+			System.out.println("classifier testing parameters:");
+			System.out.println(" -loadFrom FILE           file containing serialized ClassifierAnnotator");
+			System.out.println("                          - as learned by TrainClassifier.");
+			System.out.println(" [-showData]              - interactively view the test dataset");
+		}
+	}
+
+	/** Parameters for testing a stored classifier. */
+	public static class TestExtractorParams extends BasicCommandLineProcessor {
+		public boolean showExtractor=false;
+		public File loadFrom;
+		public void showExtractor() { this.showExtractor=true; }
+		public void loadFrom(String s) {this.loadFrom = new File(s);}
+		public void usage() {
+			System.out.println("extractor testing parameters:");
+			System.out.println(" -loadFrom FILE           file containing serialized Annotator, learned by TrainExtractor.");
+			System.out.println(" [-showExtractor]         interactively view the loaded extractor");
+		}
 	}
 
 	/** Parameters for doing train/test evaluation of a classifier. */
@@ -196,6 +252,12 @@ class CommandLineUtil
 		public TextLabels labels=null;
 		public void splitter(String s) { this.splitter = toSplitter(s); }
 		public void test(String s) { this.labels = FancyLoader.loadTextLabels(s); }
+		public void usage() {
+			System.out.println("train/test experimentation parameters:");
+			System.out.println(" -splitter SPLITTER       specify splitter, e.g. -k5, -s10, -r70");
+			System.out.println(" -test REPOSITORY_KEY     specify source for test data");
+			System.out.println(" -test REPOSITORY_KEY     - exactly one of -splitter, -test should be specified");
+		}
 	}
 
 	/** Parameters encoding the 'training signal' for extraction learning. */
@@ -207,7 +269,24 @@ class CommandLineUtil
 	/** Parameters for training an extractor. */
 	public static class TrainExtractorParams extends BasicCommandLineProcessor {
 		public AnnotatorLearner learner;
+		public SpanFeatureExtractor fe = null;
 		public void learner(String s) { this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); }
+		public CommandLineProcessor fe(String s) { 
+			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
+			if (this.fe instanceof CommandLineProcessor.Configurable) {
+				return ((CommandLineProcessor.Configurable)this.fe).getCLP();
+			} else {
+				return null;
+			}
+		}
+		public void usage() {
+			System.out.println("extraction training parameters:");
+			System.out.println(" [-learner BSH]           Bean-shell code to create an AnnotatorLearner ");
+			//System.out.println("                          - default is \"new Recommended.NaiveBayes()\"");
+			System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
+			System.out.println("                          - default is \"new Recommended.TokenFE()\"");
+			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
+			System.out.println("                            immediately following command-line arguments are passed to it");
+		}
 	}
-
 }

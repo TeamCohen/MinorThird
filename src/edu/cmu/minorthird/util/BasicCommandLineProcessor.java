@@ -37,7 +37,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 					log.info(getClass()+" consuming '-"+arg+"'");
 					Object result = m.invoke(this, new Object[]{});
 					pos += 1;
-					if (result instanceof CommandLineProcessor) {
+					if (result instanceof CommandLineProcessor && result!=null) {
 						pos += ((CommandLineProcessor)result).consumeArguments(args,pos);
 					}
 				} catch (NoSuchMethodException ex) {
@@ -61,8 +61,10 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 			}			
 			return pos-startPos;
 		} catch (IllegalAccessException iax) {
+			usage("error: "+iax);
 			return 0;
-		} catch (InvocationTargetException iax) {
+		} catch (InvocationTargetException itx) {
+			usage("error: "+itx);
 			return 0;
 		}
 	}
@@ -79,6 +81,8 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 	{
 		Method[] genericMethods = Object.class.getMethods();
 		Set stopList = new HashSet();
+		stopList.add("usage");
+		stopList.add("help");
 		for (int i=0; i<genericMethods.length; i++) {
 			Class[] params = genericMethods[i].getParameterTypes();
 			if (params.length==0 || params.length==1 && params[0].equals(String.class)) {

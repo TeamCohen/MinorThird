@@ -31,6 +31,11 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 		int pos=startPos;
 		boolean somethingConsumed=true;
 		while (pos<args.length && somethingConsumed) {
+			if ("-help".equals(args[pos]) || "--help".equals(args[pos])) {
+				help();
+				pos++;
+				continue;
+			}
 			somethingConsumed = false;
 			for (int i=0; !somethingConsumed && i<subprocessor.length; i++) {
 				int k = subprocessor[i].consumeArguments(args,pos);

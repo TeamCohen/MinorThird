@@ -1,7 +1,7 @@
 package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.text.mixup.Dependencies;
-import edu.cmu.minorthird.text.gui.TextLabelsViewer;
+import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.util.gui.*;
 import java.io.Serializable;
 import java.util.*;
@@ -359,6 +359,9 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 
 	public Viewer toGUI() 
 	{
-		return new TextLabelsViewer(this);
+		//return new TextLabelsViewer(this);
+		TextLabelsViewer sv = new TextLabelsViewer(this);
+		MarkupControls mc = new MarkupControls(this);
+		return new ControlledViewer(sv,mc);
 	}
 }

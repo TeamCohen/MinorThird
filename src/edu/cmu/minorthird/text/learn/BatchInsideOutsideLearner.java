@@ -79,6 +79,7 @@ public class BatchInsideOutsideLearner implements AnnotatorLearner
 	}
 
   public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
+  public void setSpanFeatureExtractor(SpanFeatureExtractor fe)  { this.fe = fe; }
 
 	/** Return the learned annotator
 	 */

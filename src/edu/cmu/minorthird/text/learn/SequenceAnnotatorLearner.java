@@ -133,6 +133,11 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		return fe;
 	}
 
+	public void setSpanFeatureExtractor(SpanFeatureExtractor fe)
+	{
+		this.fe = fe;
+	}
+
 	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable,Visible
 	{
 		private static final long serialVersionUID = 1;

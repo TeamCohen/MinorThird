@@ -109,7 +109,12 @@ public class TrainTestClassifier
 	public static void main(String args[])
 	{
 		TrainTestClassifier main = new TrainTestClassifier();
-		main.getCLP().processArguments(args);
-		main.trainTestClassifier();
+		try {
+			main.getCLP().processArguments(args);
+			main.trainTestClassifier();
+		} catch (Exception e) {
+			System.out.println("Error: "+e);
+			main.getCLP().usage();
+		}
 	}
 }

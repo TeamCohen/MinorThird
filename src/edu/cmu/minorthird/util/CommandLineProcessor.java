@@ -16,9 +16,9 @@ public interface CommandLineProcessor
 	 * corresponding methods are considered errors.
 	 * If an error occurs, then x.usage(msg) is called.
 	 *
-	 * <p>
-	 * If function like -foo happens to return a CommandLineProcessor,
-	 * that processor is invoked on the arguments immediately after foo.
+	 * <p> If function like -foo happens to return a non-null
+	 * CommandLineProcessor, that processor is invoked on the arguments
+	 * immediately after foo.
 	 */
 	public void processArguments(String[] args);
 
@@ -34,4 +34,13 @@ public interface CommandLineProcessor
 	/** Give usage() information. 
 	 */
 	public void usage();
+
+	/** Interface for objects that can be configured with command-line arguments.
+	 * Configuration for x is done by calling <code>x.getCLP().processArgs(ags).</code>
+	 */
+	public interface Configurable 
+	{
+		/** Produce a command-line processor that configures this object. */
+		public CommandLineProcessor getCLP();
+	}
 }

@@ -106,6 +106,7 @@ public class ConditionalSemiMarkovModel
 		public String getAnnotationType()	{	return annotationType;}
 
 		public SpanFeatureExtractor getSpanFeatureExtractor()  { return fe; }
+		public void setSpanFeatureExtractor(SpanFeatureExtractor fe)  { this.fe = fe; }
 		
 		/** Learning takes place here.
 		 */

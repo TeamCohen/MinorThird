@@ -717,7 +717,7 @@ public class TextBaseLoader implements Loader
 		if (file.isDirectory())
       loadTaggedFiles(base,file);
 		else {
-			loadLines(base,file);
+			doLoadLines(base,file);
 			labels = new BasicTextLabels(base);
 		}
 	}
@@ -803,6 +803,11 @@ public class TextBaseLoader implements Loader
    * @deprecated; to be removed at end of February
 	 */
   public void loadLines(TextBase base, File file) throws IOException, FileNotFoundException
+	{
+		doLoadLines(base,file);
+	}
+
+  private void doLoadLines(TextBase base, File file) throws IOException, FileNotFoundException
   {
     LineNumberReader in = new LineNumberReader(new FileReader(file));
     String line;

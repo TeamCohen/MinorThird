@@ -28,7 +28,6 @@ public class TrainExtractor
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams();
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
-	private SpanFeatureExtractor fe = new SampleFE.ExtractionFE();
 
 	private CommandLineProcessor getCLP()
 	{
@@ -48,6 +47,8 @@ public class TrainExtractor
 			throw new IllegalArgumentException("-learner must be specified");
 		if (signal.spanType==null) 
 			throw new IllegalArgumentException("-spanType must be specified");
+
+		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
 
 		// echo the input
 		Viewer vl = new SmartVanillaViewer();

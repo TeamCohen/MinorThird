@@ -54,6 +54,8 @@ public class TrainTestExtractor
 		if (trainTest.splitter!=null && trainTest.labels!=null) 
 			throw new IllegalArgumentException("only one of -splitter or -test can be specified");
 
+		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
+
 		// echo the input
 		Viewer vl = new SmartVanillaViewer();
 		vl.setContent(base.labels);

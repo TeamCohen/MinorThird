@@ -27,7 +27,6 @@ public class TestClassifier
 	private CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.TestClassifierParams test = new CommandLineUtil.TestClassifierParams();
-	private SpanFeatureExtractor fe = new SampleFE.BagOfLowerCaseWordsFE();
 
 	private CommandLineProcessor getCLP()
 	{
