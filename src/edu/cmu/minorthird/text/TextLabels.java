@@ -13,6 +13,11 @@ public interface TextLabels
 	/** See if the TextLabels contains a particular type of annotation */
 	public boolean isAnnotatedBy(String s);
 
+	/** Ensure that this TextLabels contains a particular type of
+	 * annotation.  If the annotation is not present, then either load
+	 * it (if possible) or throw an error. */
+	public void require(String annotationType,String fileToLoad);
+
 	/** Returns the TextBase which is annotated by this TextLabels, or null if that
 	 * isn't set yet. */
 	public TextBase getTextBase();
@@ -83,9 +88,4 @@ public interface TextLabels
 	 * if the span doesn't have the stated type. */
 	public Details getDetails(Span span,String type);
 
-	/** Ensure that this TextLabels contains a particular type of
-	 * annotation.  If the annotation is not present, then either load
-	 * it (if possible) or throw an error.  fileToLoad may be null. */
-
-	public void require(String annotationType,String fileToLoad);
 }

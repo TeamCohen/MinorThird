@@ -18,6 +18,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
   static private final long serialVersionUID = 1;
 	private final int CURRENT_VERSION_NUMBER = 1;
 
+  private static Logger log = Logger.getLogger(BasicTextLabels.class);
 	private static final Set EMPTY_SET = new HashSet();
 
 	private Map textTokenPropertyMap = new HashMap();
@@ -30,10 +31,10 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	private Map textTokenDictMap = new HashMap();
 	private Set annotatedBySet = new HashSet();
 	private Map detailMap = new TreeMap();
+	private AnnotatorLoader loader = new DefaultAnnotatorLoader();
 
-  // don't serialize this
+  // don't serialize this, it's too big!
 	transient private TextBase textBase = null;
-  private static Logger log = Logger.getLogger(BasicTextLabels.class);
 
   public BasicTextLabels() { this.textBase = null; }
 	public BasicTextLabels(TextBase textBase) { this.textBase = textBase; }
@@ -65,16 +66,20 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 
 	public void setAnnotatedBy(String s) { annotatedBySet.add(s); }
  
+	public void setAnnotatorLoader(AnnotatorLoader newLoader) { this.loader=newLoader; }
+	public AnnotatorLoader getAnnotatorLoader() { return loader; }
+
 	public void require(String annotationType,String fileToLoad)
 	{
 		if (!isAnnotatedBy(annotationType)) {
-			Dependencies.runDependency(this,annotationType,fileToLoad);
-		}
-		if (!isAnnotatedBy(annotationType)) {
-			throw new IllegalStateException("couldn't provide annotation type: "+annotationType);
+			Annotator annotator = loader.findAnnotator(annotationType,fileToLoad);
+			if (annotator==null) 
+				throw new IllegalArgumentException("can't find annotator "+annotationType);
+			annotator.annotate(this);
+			if (!isAnnotatedBy(annotationType)) 
+				throw new IllegalStateException("didn't provide annotation type: "+annotationType);
 		}
 	}
-
 
 	//
 	// maintain dictionaries

@@ -16,6 +16,9 @@ import org.apache.log4j.Level;
 
 public class BasicSpan implements Span,Serializable,Visible
 {
+	static private Logger log = Logger.getLogger(BasicSpan.class);
+	static private final boolean DEBUG = log.isDebugEnabled();
+
   static private final long serialVersionUID = 1;
 	private final int CURRENT_VERSION_NUMBER = 1;
 
@@ -155,41 +158,38 @@ public class BasicSpan implements Span,Serializable,Visible
 
 	/** Converts from a span in character offsets within a document
 	 * Span to a token span for that document Span. */
-	private Span charIndexSubSpan(int lo,int hi,boolean proper) {
-		int beginInDocument = 0;
-		if (documentSpanStartIndex()>0) {
-			// adjust so chars are relative to start of first token
-			beginInDocument = getTextToken(0).getLo();
-			lo += beginInDocument;
-			hi += beginInDocument;
-		} else {
-			// it's important to NOT adjust values here, since a top-level span can start with white space
-			;
-		}
-
+	private Span charIndexSubSpan(int lo,int hi,boolean proper) 
+	{
 		// find token that start & end closest to lo and hi
 		int minStartDist = Integer.MAX_VALUE;
 		int minEndDist = Integer.MAX_VALUE;
 		int firstTextToken = -1, lastTextToken = -1;
 		for (int i=0; i<size(); i++) {
 			if (!proper) {
+				if (DEBUG) log.debug("considering token '"+getTextToken(i)
+														 +"' from lo="+getTextToken(i).getLo()
+														 +" to hi="+getTextToken(i).getHi());
 				int startDist = distance( getTextToken(i).getLo(), lo );
 				int endDist = distance( getTextToken(i).getHi(), hi );
 				// <= prefers later start, end tokens
 				if (startDist<=minStartDist) {
 					minStartDist = startDist;
 					firstTextToken = i;
+					if (DEBUG) log.debug("minStartDist => "+minStartDist+" for token "+getTextToken(i));
 				}
 				if (endDist<=minEndDist) {
 					minEndDist = endDist;
 					lastTextToken = i;
+					if (DEBUG) log.debug("minEndDist => "+minEndDist+" for token "+getTextToken(i));
 				}
 			} else {
 				if (getTextToken(i).getLo()>=lo && firstTextToken<0) {
 					firstTextToken = i;
+					if (DEBUG) log.debug("firstTextToken => "+getTextToken(i));
 				}
 				if (getTextToken(i).getHi()<=hi) {
 					lastTextToken = i;
+					if (DEBUG) log.debug("lastTextToken => "+getTextToken(i));
 				}
 			}
 		} 

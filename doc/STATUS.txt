@@ -1,19 +1,25 @@
 PRIORITIES:
- - serializable CRFs, SVMs
- - tune/fix GenericCollinsLearner, ConditionalSemiMarkovModel
- - try randomizing order of examples on each pass in VotedPerceptron?
- - stderr on error rates?
+ - SVMs
+ - update svmlib to get confidences?
+ - clean up mixup loading, command-line interface (--learner.fe.windowSize bsh)
+ - stderr on error rates/f1's
+ - richard's bug
+ - vitor's bug
+
+BUGS:
+  - should precision/recall start at something other than 1.0 (max precision?)
+  - graph doesn't come out if there is no range?
+  - spanClosures are not stored properly (only by document); should really store tokenProps also,
+  and CWA isn't even tracked for span properties
+  - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
+  - performance issues loading in large files (with markup?)
 
 UI tweaks:
-
-  show javadocs in TypeSelector?
-  LabelViewer => ViewLabels?
-
   add TrainTagger, TestTagger?
-  progress counter & threads for dataset loading?   
-  test shadowType?
   capture output dynamically?
-  generic loader class, loadable interface, for "Save As..." in gui?
+  progress counter & threads for dataset loading?   
+  generic Saveable interface, for "Save As..." in gui?
+  unify reflection for TypeSelector, CommandLineProcessor?
 
 LARGER PROJECTS:
 
@@ -29,76 +35,23 @@ MEDIUM TASKS:
  LabelImporter imp = monotonicTextLabels.getImporter(); // build something that imports new stuff into textLabels
  labelImporter.importSpanType(type,otherLabels);  // import a span type from text labels with a compatible textBase
 
-BUGS:
-   - should precision/recall start at something other than 1.0 (max precision?)
-   - graph doesn't come out if there is no range?
-   - spanClosures are not stored properly (only by document); should really store tokenProps also,
-   and CWA isn't even tracked for span properties
-   - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
-   - performance issues loading in large files (with markup?)
-
 CLEANUPS/DESIGN:
 
-  src/edu/cmu/minorthird/classify/algorithms/linear/LogisticRegressor.java -removed, use MaxEntLearne
-  src/edu/cmu/minorthird/ui/ExperimentWizard.java -removed, use ui
-
-
- - fix FeatureFactory mess
- step 1 - eliminate Feature.Factory
-    src/edu/cmu/minorthird/classify/DatasetLoader.java -done
-    src/edu/cmu/minorthird/classify/SampleDatasets.java -done
-    src/edu/cmu/minorthird/classify/StackedLearner.java -done
-    src/edu/cmu/minorthird/classify/sequential/CRFLearner.java
-    src/edu/cmu/minorthird/classify/sequential/InstanceFromSequence.java -done
-    src/edu/cmu/minorthird/text/learn/ConditionalSemiMarkovModel.java -done
-    src/edu/cmu/minorthird/text/learn/SpanFE.java -done
- step 2 - remove example.compress, use factory.compress in datasets -done
- step 3 - use FeatureFactory's in SpanFE's 
- step 4 - intern string names as well in FeatureFactory
-
+ - clean up AnnotationExample - should some of code go in Extraction2TaggingReduction?
+ - should change CommandLineProcessor so it uses the same reflection methods as TypeSelector,
+   and allows --X --Y foo if setX is defined for an object that supports setY
+  - should have default FE's in SequenceAnnotatorLearner, SegmentAnnotatorLearner, ClassifierAnnotatorLearner?
+   that are called by UI.Recommended
  - clean up util.Loader?
-
- - work out better way to handle histories in training: they should not have to be specified twice
  - linkage issues
- - remove BinaryExample?
-   [new scheme: data is the same for binary/kWay - binary data is just a special case.
-    but since classifiers/classifier learners that are binary only are easier to implement,
-    we allow a subclass for these.]
-
-     src/edu/cmu/minorthird/classify/algorithms/trees/AdaBoost.java -done
-     src/edu/cmu/minorthird/classify/algorithms/trees/DecisionTreeLearner.java -done
-     src/edu/cmu/minorthird/classify/BinaryExample.java -done
-     src/edu/cmu/minorthird/classify/DatasetLoader.java -done
-     src/edu/cmu/minorthird/classify/FeatureFactory.java -done
-     src/edu/cmu/minorthird/classify/OneVsAllLearner.java -done
-     src/edu/cmu/minorthird/classify/SampleDatasets.java -done
-     src/edu/cmu/minorthird/classify/sequential/GenericCollinsLearner.java -done
-     src/edu/cmu/minorthird/classify/sequential/SequenceDataset.java -done
-     src/edu/cmu/minorthird/classify/transform/AbstractInstanceTransform.java -done
-     src/edu/cmu/minorthird/classify/transform/InfoGainInstanceTransform.java -done
-     src/edu/cmu/minorthird/classify/transform/OrderBasedInstanceTransform.java  -done
-     src/edu/cmu/minorthird/classify/transform/T1InstanceTransform.java  -done
-     src/edu/cmu/minorthird/text/learn/BatchFilteredFinderLearner.java -done
-     src/edu/cmu/minorthird/text/learn/BatchInsideOutsideLearner.java -deleted
-     src/edu/cmu/minorthird/text/learn/BatchStartEndLengthLearner.java -deleted
-     src/edu/cmu/minorthird/text/learn/ConditionalSemiMarkovModel.java -deleted
-     src/edu/cmu/minorthird/text/learn/experiments/ClassifyExperiment.java -deleted
-     src/edu/cmu/minorthird/text/learn/SampleFE.java -deleted?
-     src/edu/cmu/minorthird/text/MovieDataset.java -deleted
-     src/edu/cmu/minorthird/ui/CommandLineUtil.java -done
-
-
  - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample,
- InfoGainInstanceTransform, Wizard,
+    InfoGainInstanceTransform
  - fix mixup parser to be consistent, fix Dependency/Mixup mess, Dependency to text, remove 'requirements' in Annotator
  - add to mixup 'begin' ... 'end exporting a as b,c as d,...;'
  - transform.MaskedInstance could be more efficient
  - classify.algorithm.random, classify.algorithm.active are misplaced
  - explanations are messy in text - structure them?
  - edo code: Spiltter, punk => grep, get rid of stopwords in file?
- - CompactInstance - where to use it? maybe in loaders and feature extractors?
-   current scheme runs out of memory with multiple repeated learning experiments in
-   same JVM?
  - Conventions to get names consistently used.
  - SpanFE cleanup: no defaults, features for whole span, no feature buffer 
  - Text GUI rewrite: labeler, viewer
@@ -126,6 +79,8 @@ Spring cleaning:
     removed prerequistings from text.AbstractAnnotator, it's now in Dependencies
 
 RECENT CHANGES:
+ - made "Feature(String s)" split on .'s not spaces
+ - added LeaveOneOutDictionary stuff
  - set default #epochs to 1, not 4
  - added completeTraining() call in classifiers
  - modified GenericCollinsLearner to be more like CollinsPerceptronLearner

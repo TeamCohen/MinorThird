@@ -140,7 +140,7 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
         editorPane.setKeymap(keymap);
         editorHolder.getViewport().setView(editorPane);
         editorHolder.repaint();
-        statusMsg.display("editing " + documentSpan);
+        statusMsg.display("editing " + documentSpan.getDocumentId()+" "+documentSpan);
         editorPane.requestFocus();
         // any subclass-dependent processing
         loadSpanHook();

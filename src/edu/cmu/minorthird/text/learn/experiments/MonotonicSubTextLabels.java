@@ -14,6 +14,10 @@ public class MonotonicSubTextLabels extends SubTextLabels implements MonotonicTe
 {
 	private MonotonicTextLabels monotonicLabels;
 
+	public void setAnnotatorLoader(AnnotatorLoader newLoader) { monotonicLabels.setAnnotatorLoader(newLoader); }
+
+	public AnnotatorLoader getAnnotatorLoader() { return monotonicLabels.getAnnotatorLoader(); }
+
 	public MonotonicSubTextLabels(SubTextBase subBase,MonotonicTextLabels labels) {
 		super(subBase,labels);
 		this.monotonicLabels = labels;

@@ -345,7 +345,17 @@ public class SpanEditor extends ViewerTracker
         {
             int lo = editorPane.getSelectionStart();
             int hi = editorPane.getSelectionEnd();
+						// compensate for the fact that the document being viewed
+						// doesn't start at char position zero
+						lo = editedDoc.toLogicalCharIndex(lo);
+						hi = editedDoc.toLogicalCharIndex(hi);
             Span span = documentSpan.charIndexSubSpan(lo, hi);
+						int spanLo = -1, spanHi = -1;
+						if (span.size()>0) {
+							spanLo = span.getTextToken(0).getLo();
+							spanHi = span.getTextToken(span.size()-1).getHi();
+						}
+						//System.out.println("spanSize="+span.size()+" lo="+lo+" hi="+hi+" spanLo="+spanLo+" spanHi="+spanHi);
             // figure out if we need to move the selected span
             int correction = 0;
             if (editSpanCursor>=0 && (span.compareTo(getEditSpan(editSpanCursor)) < 0))

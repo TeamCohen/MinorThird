@@ -58,6 +58,11 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 		 
 	public void setAnnotatedBy(String s) { outer.setAnnotatedBy(s); }
 
+	public void setAnnotatorLoader(AnnotatorLoader newLoader) { outer.setAnnotatorLoader(newLoader); }
+
+	public AnnotatorLoader getAnnotatorLoader() { return outer.getAnnotatorLoader(); }
+
+
 	public void defineDictionary(String dictName,Set dict) {
 		outer.defineDictionary(dictName, dict);
 	}

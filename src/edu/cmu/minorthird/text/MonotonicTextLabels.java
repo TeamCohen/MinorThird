@@ -32,4 +32,11 @@ public interface MonotonicTextLabels extends TextLabels
 
 	/** Record that this TextLabels was annotated with some type of annotation. */
 	public void setAnnotatedBy(String s);
+
+	/** Specify the AnnotatorLoader used to find Annotations when a 'require'
+	 * call is made. */
+	public void setAnnotatorLoader(AnnotatorLoader loader);
+
+	/** Get the current AnnotatorLoader. */
+	public AnnotatorLoader getAnnotatorLoader();
 }

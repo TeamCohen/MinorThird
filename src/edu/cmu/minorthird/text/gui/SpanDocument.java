@@ -77,6 +77,14 @@ public class SpanDocument extends DefaultStyledDocument
     setCharacterAttributes(getLength() - rightContextChars, rightContextChars, HiliteColors.gray, true);
   }
 
+	/** Convert a character index in the text being displayed to a char index in the
+	 * actual document which the display is a part of
+	 */
+	public int toLogicalCharIndex(int charIndex)
+	{
+		return charIndex + beginContextSpanInDocument;
+	}
+
   /** Highlight a subspan of the current span. */
   public void highlight(edu.cmu.minorthird.text.Span subspan, AttributeSet attributeSet)
   {
