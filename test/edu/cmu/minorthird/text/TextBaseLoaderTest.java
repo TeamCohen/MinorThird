@@ -58,22 +58,87 @@ public class TextBaseLoaderTest extends TestCase
     //TODO clean up resources if needed
   }
 
+  /**
+   * read the seminar-subset data into a labels
+   * then takes the smaller version, and checks that labels are as expected
+   */
   public void testSeminarSet()
   {
     try
     {
+      log.info("----------------- SeminarSet -----------------");
       TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
       loader.setLabelsInFile(true);
       File dataLocation = new File(Globals.DATA_DIR + "seminar-subset");
       TextBase textBase = loader.load(dataLocation);
-
       TextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
+
+      dataLocation = new File(Globals.DATA_DIR + "tblTest");
+      labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
+      log.info("labels: " + labels.toString());
+
+      log.debug("types::: " + labels.getTypes());
+
+      //now check that it's right
+      textBase = labels.getTextBase();
+      assertEquals(4, textBase.size());
+      assertNotNull(textBase.documentSpan("cil-2.txt"));
+
+      checkType(labels, "stime", "cil-2.txt", "4:00", 1);
+      checkType(labels, "stime", "cil-5.txt", "12:00pm", 1);
+      checkType(labels, "stime", "cil-22.txt", "4:30 pm", 1);
+      checkType(labels, "stime", "cil-28.txt", "12:00pm", 1);
+      checkType(labels, "location", "cil-2.txt", "Adamson Wing, Baker Hall", 1);
+      checkType(labels, "location", "cil-5.txt", "3005 Hamburg Hall", 1);
+      checkType(labels, "location", "cil-22.txt", "Wean 7500", 1);
+      checkType(labels, "location", "cil-28.txt", "Student Center, Room 207", 1);
+      checkType(labels, "speaker", "cil-2.txt", "George W. Cobb", 1);
+      checkType(labels, "speaker", "cil-5.txt", "Karen Schriver", 1);
+      checkType(labels, "speaker", "cil-22.txt", "Bruce Sherwood", 1);
+      checkType(labels, "speaker", "cil-28.txt", "David Banks", 1);
+
+      assertEquals(2, getNumLables(labels, "sentence", "cil-2.txt"));
+      assertEquals(2, getNumLables(labels, "sentence", "cil-5.txt"));
+      assertEquals(3, getNumLables(labels, "sentence", "cil-22.txt"));
+      assertEquals(4, getNumLables(labels, "sentence", "cil-28.txt"));
     }
     catch (Exception e)
     {
       log.fatal(e, e);
       fail();
     }
+    log.info("----------------- SeminarSet -----------------");
+  }
+
+  /**
+   * returns the number of times the given type appears in the doc
+   */
+  private int getNumLables(TextLabels labels, String type, String doc)
+  {
+    int i = 0;
+    for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); )
+    {
+      log.debug(l.nextSpan().asString());
+      i++;
+    }
+
+    return i;
+  }
+
+  /**
+   * asserts that the type has the specified value and that it appears (with that value!) the
+   * specified number of times
+   */
+  private void checkType(TextLabels labels, String type, String doc, String value, int num)
+  {
+    int i = 0;
+    for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); i++)
+    {
+      Span s = l.nextSpan();
+      log.debug("span type: " + type + " : " + s.asString());
+      assertEquals(new String(value), s.asString());
+    }
+    assertEquals(num, i);
   }
 
   public void testLoadLabeledFile()
@@ -94,6 +159,42 @@ public class TextBaseLoaderTest extends TestCase
 
   }
 
+  /**
+   * loads webmaster-noid.base and checks that msgs 1-3 have expected text
+   */
+  public void testLinesNoId()
+  {
+    try
+    {
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.NONE);
+      File dataLocation = new File(Globals.DATA_DIR + "webmaster-noid.base");
+      TextBase base = loader.load(dataLocation);
+
+      Span.Looper l = base.documentSpanIterator();
+      while (l.hasNext())
+      {
+        log.info("*" + l.nextSpan().getDocumentId() + "*");
+      }
+
+      String msg1 = "Please add the attached publication to the web site in the ``Publications\" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO\" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.";
+      String msg2 = "Please add the folder ``Publications\" to the web site.";
+      String msg3 = "Please change the string ``VLDB\" to ``International Conference on Very Large Databases\" on the ``Publications\" page.";
+
+      assertEquals(msg1, base.documentSpan("webmaster-noid.base@line:1").asString());
+      assertEquals(msg2, base.documentSpan("webmaster-noid.base@line:2").asString());
+      assertEquals(msg3, base.documentSpan("webmaster-noid.base@line:3").asString());
+    }
+    catch (Exception e)
+    {
+      log.fatal(e, e);
+      fail();
+    }
+
+  }
+
+  /**
+   * loads webmasterCommands.base and checks that msgs 1-3 have expected text
+   */
   public void testLines()
   {
     try
@@ -102,7 +203,15 @@ public class TextBaseLoaderTest extends TestCase
       File dataLocation = new File(Globals.DATA_DIR + "webmasterCommands.base");
       TextBase base = loader.load(dataLocation);
 
-      base = TextBaseLoader.loadDocPerLine(dataLocation, true);
+      base = TextBaseLoader.loadDocPerLine(dataLocation, false);
+
+      String msg1 = "Please add the attached publication to the web site in the ``Publications\" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO\" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.";
+      String msg2 = "Please add the folder ``Publications\" to the web site.";
+      String msg3 = "Please change the string ``VLDB\" to ``International Conference on Very Large Databases\" on the ``Publications\" page.";
+
+      assertEquals(msg1, base.documentSpan("msg01").asString());
+      assertEquals(msg2, base.documentSpan("msg02").asString());
+      assertEquals(msg3, base.documentSpan("msg03").asString());
     }
     catch (Exception e)
     {
@@ -148,28 +257,6 @@ public class TextBaseLoaderTest extends TestCase
 
       Example.Looper it = data.iterator();
       log.debug("got looper: " + it);
-
-//      TextBase testBase = loader.load(new File("c:\\cmu/radar/extractionGroup/extract/examples/20newgroups/20news-bydate-test"));
-//      labels = loader.getLabels();
-//      log.debug("loaded test data");
-//
-//      Dataset testData = extractDataset(testBase, labels, fe);
-
-      // pick a learning algorithm
-      //ClassifierLearner learner = new AdaBoost(new DecisionTreeLearner(), 10);
-      //ClassifierLearner learner = new DecisionTreeLearner();
-      ClassifierLearner learner = new VotedPerceptron();
-      //ClassifierLearner learner = new NaiveBayes();
-      //ClassifierLearner learner = new AdaBoost(new BinaryBatchVersion(new NaiveBayes()), 10);
-
-      // do a 10-fold cross-validation experiment
-//      Evaluation v = Tester.evaluate(learner, data, testData);
-  //    Evaluation v = Tester.evaluate(learner, data, new CrossValSplitter(10));
-
-      //need to determine an appropriate result
-
-      // display the results
-//      ViewerFrame f = new ViewerFrame("Results of 10-fold CV on 'delete'", v.toGUI());
 
       }
     catch (Exception e)
