@@ -6,6 +6,7 @@ import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
 import org.apache.log4j.Logger;
@@ -46,6 +47,17 @@ public class ConditionalSemiMarkovModel
 			this( new CSMMSpanFE(), new VotedPerceptron(), 5);
 		}
 
+		public CSMMLearner(int epochs)
+		{
+			this( new CSMMSpanFE(), new VotedPerceptron(), epochs);
+		}
+
+		public CSMMLearner(String annotation)
+		{
+			this();
+			((CSMMSpanFE)fe).setRequiredAnnotation(annotation,annotation+".mixup");
+		}
+
 		public CSMMLearner(
 			SpanFeatureExtractor fe,OnlineBinaryClassifierLearner classifierLearner,int epochs)
 		{
@@ -73,6 +85,8 @@ public class ConditionalSemiMarkovModel
 
 			log.debug("processing "+exampleList.size()+" examples for "+epochs+" epochs");
 
+			ProgressCounter pc = new ProgressCounter("training CSMM", "document", epochs*exampleList.size()); 
+
 			for (int i=0; i<epochs; i++) {
 
 				for (Iterator j=exampleList.iterator(); j.hasNext(); ) {
@@ -82,7 +96,7 @@ public class ConditionalSemiMarkovModel
 					if (DEBUG) log.debug("updating from "+doc);
 
 					// get best segmentation, given current classifier
-					Segments viterbi = bestSegments(doc,fe,classifierLearner.getBinaryClassifier());
+					Segments viterbi = bestSegments(doc,example.getLabels(),fe,classifierLearner.getBinaryClassifier());
 					if (DEBUG) log.debug("viterbi solution:\n" + viterbi);
 
 					// train classifier on any false positives
@@ -110,6 +124,8 @@ public class ConditionalSemiMarkovModel
 					}
 
 
+					pc.progress();
+
 				}//epoch
 
 				if (DEBUG) {
@@ -117,6 +133,8 @@ public class ConditionalSemiMarkovModel
 						new ViewerFrame("classifier after epoch "+i, 
 														new SmartVanillaViewer( classifierLearner.getBinaryClassifier() ));
 				}
+
+				pc.finished();
 
 			}//all epochs
 
@@ -127,7 +145,7 @@ public class ConditionalSemiMarkovModel
 		// build an example from a span and its context
 		private BinaryExample exampleFor(AnnotationExample example, Span span, Span prevSpan, double numberLabel)
 		{
-			Instance instance =  fe.extractInstance(span);
+			Instance instance =  fe.extractInstance(example.getLabels(),span);
 			String prevLabel;
 			if (prevSpan!=null && prevSpan.getRightBoundary().equals(span.getLeftBoundary())) {
 				prevLabel = ExampleSchema.POS_CLASS_NAME;
@@ -153,6 +171,7 @@ public class ConditionalSemiMarkovModel
 	} // class CSMMLearner
 
 
+	// annotate a document using a learned model
 	static public class CSMMAnnotator extends AbstractAnnotator	
 	{
 		private SpanFeatureExtractor fe;
@@ -168,7 +187,7 @@ public class ConditionalSemiMarkovModel
 		{
 			for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span doc = i.nextSpan();
-				Segments viterbi = bestSegments(doc,fe,classifier);				
+				Segments viterbi = bestSegments(doc,labels,fe,classifier);				
 				for (Iterator j=viterbi.iterator(); j.hasNext(); ) {
 					Span span = (Span)j.next();
 					labels.addToType( span, annotationType );
@@ -187,8 +206,12 @@ public class ConditionalSemiMarkovModel
 
 	static private int[] maxSegmentSize = new int[]{ 1, 5 };
 
-	// viterbi
-	static public Segments bestSegments(Span documentSpan,SpanFeatureExtractor fe,BinaryClassifier classifier)
+	//
+	// viterbi algorithm
+	//
+	
+	static public Segments bestSegments(
+		Span documentSpan,TextLabels labels,SpanFeatureExtractor fe,BinaryClassifier classifier)
 	{
 		// for t=0..size, y=0 or 1, fty[t][y] is the highest score that
 		// can be obtained with a segmentation of the tokens from 0..t
@@ -212,7 +235,7 @@ public class ConditionalSemiMarkovModel
 				for (int lastY=0; lastY<2; lastY++) {
 					for (int lastT=Math.max(0, t-maxSegmentSize[y]); lastT<t; lastT++) {
 						Span segment = documentSpan.subSpan(lastT, t-lastT);
-						double segmentScore = score(lastY,y,lastT,t,segment,fe,classifier);
+						double segmentScore = score(labels,lastY,y,lastT,t,segment,fe,classifier);
 						if (segmentScore + fty[lastT][lastY] > fty[t][y]) {
 							fty[t][y] = segmentScore + fty[lastT][lastY];
 							trace[t][y] = new BackPointer(segment,lastT,lastY);
@@ -221,6 +244,8 @@ public class ConditionalSemiMarkovModel
 				}
 			}
 		}
+
+		// use the back pointers to find the best segmentation that ends at t==documentSize
 		int y = (fty[documentSpan.size()][1] > fty[documentSpan.size()][0]) ? 1 : 0;
 		Set result = new TreeSet();
 		for (BackPointer bp = trace[documentSpan.size()][y]; bp!=null; bp=trace[bp.lastT][bp.lastY]) {
@@ -251,10 +276,12 @@ public class ConditionalSemiMarkovModel
 
 	// used by viterbi
 	static private double 
-	score(int lastY,int y,int lastT,int t,Span segment,SpanFeatureExtractor fe,BinaryClassifier cls)
+	score(TextLabels labels,int lastY,int y,int lastT,int t,Span segment,SpanFeatureExtractor fe,BinaryClassifier cls)
 	{
 		String prevLabel = lastY==1 ? ExampleSchema.POS_CLASS_NAME : ExampleSchema.NEG_CLASS_NAME;
-		Instance segmentInstance = new InstanceFromSequence(fe.extractInstance(segment),new String[]{prevLabel});
+		//System.out.println("score with labels "+labels.getClass());
+ 		Instance segmentInstance = 
+			new InstanceFromSequence(fe.extractInstance(labels,segment),new String[]{prevLabel});
 		if (DEBUG) log.debug("score: "+cls.score(segmentInstance)+"\t"+segment);
 		//return cls.score(segmentInstance);
 		if (y==1) return cls.score( segmentInstance );
@@ -273,24 +300,62 @@ public class ConditionalSemiMarkovModel
 		}
 	}
 	
+	//
+	// convert a span to an instance
+	//
 	static public class CSMMSpanFE extends SpanFE
 	{
-		private int windowSize = 2;
+		private int windowSize = 5;
+		private String requiredAnnotation = null;
+		private String requiredAnnotationFileToLoad = null;
+
 		public CSMMSpanFE() { super(new EmptyLabels()); }
+		public void setRequiredAnnotation(String requiredAnnotation,String requiredAnnotationFileToLoad)
+		{
+			this.requiredAnnotation = requiredAnnotation;
+			this.requiredAnnotationFileToLoad = requiredAnnotationFileToLoad;
+		}
 		public void extractFeatures(Span span) {
 			extractFeatures(new EmptyLabels(),span);
 		}
-		public void extractFeatures(TextLabels labels,Span span) {
-			//from(span).eq().emit();
+		public void extractFeatures(TextLabels labels,Span span) 
+		{
+			if (requiredAnnotation!=null) labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
+
+			// exact text of span
+			from(span).eq().lc().emit();
+			from(span).eq().charTypePattern().emit();
+			// tokens in the span
 			from(span).tokens().eq().lc().emit();
 			from(span).eq().charTypePattern().emit();
+			// length properties
 			from(span).size().emit();
 			from(span).exactSize().emit();
+			// first and last tokens
+			from(span).token(0).eq().lc().emit();
+			from(span).token(0).eq().charTypePattern().lc().emit();
+			from(span).token(-1).eq().lc().emit();
+			from(span).token(-1).eq().charTypePattern().lc().emit();
+			// window to left and right
 			for (int i=0; i<windowSize; i++) {
 				from(span).left().token(-(i+1)).eq().emit();
 				from(span).left().token(-(i+1)).eq().charTypePattern().emit();
 				from(span).right().token(i).eq().emit();
 				from(span).right().token(i).eq().charTypePattern().emit();
+			}
+			// properties
+			for (Iterator i=labels.getTokenProperties().iterator(); i.hasNext(); ) {
+				String p = (String)i.next();
+				// tokens
+				from(span).tokens().prop(p).emit();
+				// first & last
+				from(span).token(0).prop(p).emit();
+				from(span).token(-1).prop(p).emit();
+				// window
+				for (int j=0; j<windowSize; j++) {
+					from(span).left().token(-(j+1)).prop(p).emit();
+					from(span).right().token(j).prop(p).emit();
+				}
 			}
 		}
 	}

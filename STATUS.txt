@@ -1,10 +1,10 @@
 
 BUGS:
    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
+   - TextBaseViewer, CollinsPerceptronLearner on empty documents?
    - 'back' in ViewerFrame, 'save' after zoom in ViewerFrame 
    - classify.util is dead code (but sticky)
    - performance issues loading in large files (with markup?)
-   - Richard's bug with undefined "bar" spans in "defSpan foo =bar: ..."
 
 CLEANUPS/DESIGN:
 
@@ -13,6 +13,8 @@ CLEANUPS/DESIGN:
  - explanations are messy
  - edo code: Spiltter, punk => grep, get rid of stopwords in file?
  - CompactInstance - where to use it? maybe in loaders and feature extractors?
+   current scheme runs out of memory with multiple repeated learning experiments in
+   same JVM.
  - Look for dead code (ExptGUI, etc)
  - Conventions to get names consistently used.
  - SpanFE cleanup: no defaults, features for whole span. 
@@ -25,6 +27,9 @@ CLEANUPS/DESIGN:
 
 RECENT CHANGES:
 
+ - added textEnv.require("annotationType") - which would throw an error for immutable text environment
+ - changed BeamSearch semantics: if there are two history-equivalent entries with different scores, 
+ the one with a lower score is dropped
  - dictionary loading is inefficient - changed MixupInterpreter to store dictionaries and tries.
  - MixupProgram now takes streams, and uses library-loading to load relative to classpath
  - added (failing) SVM extraction test

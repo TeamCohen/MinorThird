@@ -15,6 +15,7 @@ public class AnnotatorRunner
 {
   private static Logger log = Logger.getLogger(AnnotatorRunner.class);
 
+/*
   public static void main(String[] args)
   {// load the documents into a textbase
 
@@ -50,6 +51,6 @@ public class AnnotatorRunner
     }
 
   }
-
+*/
 
 }

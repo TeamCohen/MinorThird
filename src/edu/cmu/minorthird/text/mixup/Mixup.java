@@ -68,7 +68,8 @@ public class Mixup
 
 	// tokenize: words, single-quoted strings, "&&", "||", "..." or single non-word chars
 	static public final Pattern tokenizerPattern = 
-	  Pattern.compile("\\s*(\\w+|'([^']|\\\\')*'|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
+	//Pattern.compile("\\s*(\\w+|'([^']|\\\\')*'|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
+	Pattern.compile("\\s*((\\w+)|('(\\\\'|[^\\'])*')|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
 
 	// legal functions
 	private static Set legalFunctions; 

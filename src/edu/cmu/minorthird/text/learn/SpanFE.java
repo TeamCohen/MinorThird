@@ -130,7 +130,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	{
 		instance = new MutableInstance(span,span.getDocumentGroupId());
 		setLabels(labels);
-		extractFeatures(span);
+		extractFeatures(labels,span);
 		return instance;
 	}
 

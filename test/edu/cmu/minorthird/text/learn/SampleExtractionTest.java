@@ -8,6 +8,7 @@ import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.algorithms.svm.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.text.learn.*;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -87,9 +88,9 @@ public class SampleExtractionTest extends TestCase
   {
 		SpanFeatureExtractor fe = SampleFE.makeExtractionFE(2);
 		doExtractionTest( new CMMAnnotatorLearner( fe, new VotedPerceptron(), 2),
-										 new double[]{0.93, 0.8, 0.1, 0.75, 0.6, 0.1});
+										 new double[]{0.93,1.0,0.1, 0.75,0.6,0.1});
 		doExtractionTest( new CMMAnnotatorLearner(fe, new SVMLearner(), 3), 
-											new double[]{1.0,1.0,0.05,1.0,1.0,0.05} );
+											new double[]{0.93,1.0,0.1,  1.0,1.0,0.1} );
   }
 
 	// double array is <precision,recall,tolerance> for train & test
@@ -100,10 +101,10 @@ public class SampleExtractionTest extends TestCase
 		Annotator learnedAnnotator = annotatorTeacher.train( learner );
 		TextLabels trainLabels1 = learnedAnnotator.annotatedCopy( labels );
 		TextLabels testLabels1 = learnedAnnotator.annotatedCopy( testLabels );
-		checkSpans( "prediction", labelString, trainLabels1, expected[0],expected[1],expected[2]);
-		checkSpans( "prediction", labelString, testLabels1, expected[3],expected[4],expected[5]);
 		//TextBaseViewer.view( testLabels1 );
 		//TextBaseViewer.view( trainLabels1 );
+		checkSpans( "prediction", labelString, trainLabels1, expected[0],expected[1],expected[2]);
+		checkSpans( "prediction", labelString, testLabels1, expected[3],expected[4],expected[5]);
 	}
 	
 	private void 

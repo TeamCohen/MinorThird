@@ -125,6 +125,7 @@ public class SampleFE
 		}
 		public Instance extractInstance(TextLabels labels, Span s)
 		{
+			if (requiredAnnotation!=null) labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
 			if (tokenPropertyFeatures==null) setTokenPropertyFeatures( labels.getTokenProperties() );
 
 			FeatureBuffer buf = new FeatureBuffer(labels,s);
