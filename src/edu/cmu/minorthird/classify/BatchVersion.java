@@ -50,6 +50,7 @@ public class BatchVersion extends BatchClassifierLearner
 			pc1.progress();
 		}
 		pc1.finished();
+    innerLearner.completeTraining();
 		classifier = innerLearner.getClassifier();
 		return classifier;
 	}
