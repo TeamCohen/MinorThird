@@ -900,18 +900,23 @@ class CommandLineUtil
 			//File userEditedLabelFile = new File("labels.env");
 			//TextBaseEditor.edit(labels, userEditedLabelFile);
 			
-			(new File("./xml-" + key)).mkdir();
+			//(new File("./xml-" + key)).mkdir();
+			File f = new File("./xml3-"+key);
+			FileOutputStream fos = new FileOutputStream(f);
+			PrintWriter outfile = new PrintWriter(fos);
 			//int num =0;
 			for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
 			    {
 				String doc = i.nextSpan().getDocumentId();
-				File f = new File("./xml-"+key+"/xml-" + doc);
-				FileOutputStream fos = new FileOutputStream(f);
-				PrintWriter outfile = new PrintWriter(fos);
+				//File f = new File("./xml-"+key+"/xml-" + key);
+				//FileOutputStream fos = new FileOutputStream(f);
+				//PrintWriter outfile = new PrintWriter(fos);
 				str = x.createXMLmarkup(doc ,labels);
-				outfile.print(str);
-				outfile.close();
-				} 
+				outfile.println(str);
+				outfile.println();
+				//outfile.close();
+			    } 
+			outfile.close();
 		    }		  		    
 		    catch (Exception e) {
 			e.printStackTrace();
