@@ -66,18 +66,25 @@ public class TextLabelsLoaderTest extends TestCase
   {
     try
     {
-      labelsFile = Globals.DATA_DIR + "webmasterCommands.closeDocs.labels";
-      testImportOps(); //loads up the labels object
+      labelsFile = Globals.DATA_DIR + "webmasterCommands.closeSome.labels";
+      loadLabels(); //loads up the labels object
 
       File outFile = new File(Globals.DATA_DIR + "webmaster.closeDocs.testOut");
       TextLabelsLoader saver = new TextLabelsLoader();
       saver.setClosurePolicy(TextLabelsLoader.CLOSE_TYPES_IN_LABELED_DOCS);
       saver.saveTypesAsOps(labels, outFile);
       BufferedReader in = new BufferedReader(new FileReader(outFile));
+
       String line = "";
+      int closures = 0;
       while (in.ready())
-      { line = in.readLine(); }
-      assertEquals("setClosure CLOSE_TYPES_IN_LABELED_DOCS", line);
+      {
+        line = in.readLine();
+        if (line.startsWith("closeType"))
+          closures++;
+      }
+
+      assertEquals(16, closures);
     }
     catch (Exception e)
     {
@@ -86,26 +93,62 @@ public class TextLabelsLoaderTest extends TestCase
     }
   }
 
+  public void testClosureOperations()
+  {
+    log.info("------------- testClosureOperations -----------------");
+    try
+    {
+      labelsFile = Globals.DATA_DIR + "webmasterCommands.closeSome.labels";
+      loadLabels();
+
+      Span.Looper it = labels.closureIterator("addToDatabaseCommand");
+      assertEquals(6, it.estimatedSize());
+
+      it = labels.closureIterator("changeExistingTupleCommand");
+      assertEquals(4, it.estimatedSize());
+
+      it = labels.closureIterator("otherCommand");
+      assertEquals(3, it.estimatedSize());
+
+    }
+    catch (Exception e)
+    {
+      log.error(e, e);
+      fail(e.getMessage());
+    }
+    log.info("------------- testClosureOperations -----------------");
+  }
+
   public void testClosurePolicies()
   {
-    testImportOps(); //loads up the labels object
-    Span.Looper it = labels.closureIterator("addToDatabaseCommand");
-    assertEquals(40, it.estimatedSize());
+    log.info("------------- testClosurePolicies -----------------");
+    try
+    {
+      loadLabels(TextLabelsLoader.CLOSE_ALL_TYPES); //loads up the labels object
+      Span.Looper it = labels.closureIterator("addToDatabaseCommand");
+      assertEquals(40, it.estimatedSize());
 
-    labelsFile = Globals.DATA_DIR + "webmasterCommands.closeAll.labels";
-    testImportOps(); //loads up the labels object
-    it = labels.closureIterator("addToDatabaseCommand");
-    assertEquals(40, it.estimatedSize());
+      labelsFile = Globals.DATA_DIR + "webmasterCommands.closeAll.labels";
+      loadLabels(); //loads up the labels object
+      it = labels.closureIterator("addToDatabaseCommand");
+      assertEquals(40, it.estimatedSize());
 
-    labelsFile = Globals.DATA_DIR + "webmasterCommands.closeDocs.labels";
-    testImportOps(); //loads up the labels object
-    it = labels.closureIterator("addToDatabaseCommand");
-    assertEquals(19, it.estimatedSize());
+      labelsFile = Globals.DATA_DIR + "webmasterCommands.closeDocs.labels";
+      loadLabels(); //loads up the labels object
+      it = labels.closureIterator("addToDatabaseCommand");
+      assertEquals(19, it.estimatedSize());
 
-    labelsFile = Globals.DATA_DIR + "webmasterCommands.closeNone.labels";
-    testImportOps(); //loads up the labels object
-    it = labels.closureIterator("addToDatabaseCommand");
-    assertEquals(0, it.estimatedSize());
+      labelsFile = Globals.DATA_DIR + "webmasterCommands.closeNone.labels";
+      loadLabels(); //loads up the labels object
+      it = labels.closureIterator("addToDatabaseCommand");
+      assertEquals(0, it.estimatedSize());
+    }
+    catch (Exception e)
+    {
+      log.fatal(e, e);
+      fail();
+    }
+    log.info("------------- testClosurePolicies -----------------");
   }
 
   /**
@@ -115,20 +158,34 @@ public class TextLabelsLoaderTest extends TestCase
   {
     try
     {
-      TextBase base = TextBaseLoader.loadDocPerLine(new File(dataFile), false);
-
-      TextLabelsLoader loader = new TextLabelsLoader();
-      File labelFile = new File(this.labelsFile);
-      labels = new BasicTextLabels();
-      labels.setTextBase(base);
-      loader.importOps(labels, base, labelFile);
-
+      loadLabels(TextLabelsLoader.CLOSE_ALL_TYPES);
     }
     catch (Exception e)
     {
       log.error(e, e);
       fail();
     }
+  }
+
+  private void loadLabels() throws Exception
+  { loadLabels(-1); }
+
+  /**
+   * convinence for loading the labels into the class level labels object
+   * @param closurePolicy TLL policy to load with
+   */
+  private void loadLabels(int closurePolicy) throws Exception
+  {
+    TextBase base = TextBaseLoader.loadDocPerLine(new File(dataFile), false);
+    TextLabelsLoader loader = new TextLabelsLoader();
+
+    File labelFile = new File(this.labelsFile);
+    if (closurePolicy > -1)
+      loader.setClosurePolicy(closurePolicy);
+
+    labels = new BasicTextLabels();
+    labels.setTextBase(base);
+    loader.importOps(labels, base, labelFile);
   }
 
   /**
