@@ -183,7 +183,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 														doMain(); 
 														double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
 																												
-														errorArea.append("\nTotal time for task: "+elapsedTime+" sec");
+														errorArea.append("\nTotal time for task: "+elapsedTime+" sec");														//piOut.close();														//poOut.close();
 														System.setOut(oldSystemOut);													} //end try													catch (Exception e) {
 														System.out.println("Error: " + e.toString());
 														errorArea.append("Error: " + e.toString());													} //end catch													viewButton.setEnabled(getMainResult()!=null);
