@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Minorthird Project Page</title>
+  </head>
+
+  <body bgcolor="white">
+
+<hr>
+
+<table>
+<tr><td><img src="logo.jpg" align="left" alt="minorthird logo">
+    <td>
+		<font size=+1>MinorThird</font> is a collection of Java classes for storing
+		text, annotating text, and learning to extract
+		entities and categorize text.  It was written
+		primarily by <a href="http://wcohen.com">William
+		W. Cohen</a>, a professor at <a
+		href="http://www.cmu.edu">Carnegie Mellon
+		University</a> in the <a
+		href="http://www.cald.cs.cmu.edu">Center for Automated
+		Learning and Discovery</a>. Contributions have been
+		made by many other colleagues and students including
+		<a href="http://www.cs.cmu.edu/~eairoldi">Edoardo
+		Airoldi</a>, <a
+		href="http://www.cs.cmu.edu/~vitor">Vitor Rocha de
+		Carvalho</a>, Einat Minkov, <a
+		href="http://www.it.iitb.ac.in/~sunita/">Sunita
+		Sarawagi</a>, Kevin Steppe, and Richard Wang.  The
+		development of Minorthird was primarily funded by the
+		<a href="http://www.darpa.mil/ipto/">Information
+		Processing Technology Office (IPTO)</a> of the <a
+		href="http://www.darpa.mil/">Defense Advanced Research
+		Projects Agency (DARPA)</a>. Additional funding was
+		provided by the <a href="http://www.nsf.gov">National
+		Science Foundation</a> Grant No. EIA-0131884 to the <a
+		href="http://www.niss.org/">National Institute of
+		Statistical Sciences</a>, and by a contract from the
+		<a href="http://www.aro.army.mil/">Army Research
+		Office</a> to the <a
+		href="http://www.cylab.cmu.edu/">Center for Computer
+		and Communications Security (CyLab)</a> at Carnegie
+		Mellon University.  </td></tr></table>
+
+<h3>Licensing and Use</h3>
+
+Minorthird is distributed under the <a
+href="http://www.opensource.org/licenses/bsd-license.php">BSD
+license.</a> The best place to obtain software is from the <a
+href="http://sourceforge.net/projects/minorthird/">the SourceForge
+Minorthird project page</a>.  Minorthird requires <a
+href="http://java.sun.com/">Java</a> 1.4 or higher to run, <a
+href="http://ant.apache.org/">Apache Ant</a> to compile, and not much
+else.
+
+<p>If you publish results obtained with Minorthird, please acknowledge
+this with a citation:
+
+<ul>
+<li>Cohen, William W.  <i>Minorthird: Methods for Identifying Names
+and Ontological Relations in Text using Heuristics for Inducing
+Regularities from Data.</i>,  http://minorthird.sourceforge.net, 2004.
+</ul>
+
+
+<h3>What's Different About MinorThird</h3>
+
+<p>
+Minorthird's toolkit of learning methods is integrated tightly
+with the tools for manually and programmatically annotating text.
+Additionally, Minorthird differs from existing NLP and learning
+toolkits in a number of ways:
+
+<ul>
+<li> Unlike many NLP packages (eg GATE, Alembic) it combines tools for
+ annotating and visualizing text with state-of-the art learning
+ methods.
+
+<li> Unlike many other learning packages, it contains methods to
+ visualize both training data and the performance of classifiers,
+ which facilitates debugging.  Unlike other learning packages less
+ tightly integrated with text manipulation tools, it is possible to
+ track and visualize the transformation of text data into machine
+ learning data.
+
+<li> Unlike many packages (including WEKA), it is open-source, and
+ available for both commercial and research purposes.
+
+<li> Unlike any open-source learning systems I know of, it is
+ architected to support active learning and on-line learning, which
+ should facilitate integration of learning methods into agents.
+</ul>
+
+<p>
+In Minorthird, a collection of documents are stored in a database
+called a "TextBase".  Logical assertions about documents in a TextBase
+can be made, and stored in a special "TextLabels" object. "TextLabels"
+are a type of "stand off annotation"---unlike XML markup (for
+instance), the annotations are completely independent of the text.
+This means that the text can be stored in its original form, and that
+many different types of (perhaps incompatible) annotations can be
+associated with the same TextBase.
+
+<p>
+Each TextLabels annotation asserts a category or property for a word,
+a document, or a subsequence of words. (In Minorthird, a sequence of
+adjacent words is called a "span".)  As an example, these annotations
+might be produced by human labelers; they might be produced by a
+hand-writted program, or annotations by a learned program.  TextLabels
+might encode syntactic properties (like shallow parses or part of
+speech tags) or semantic properties (like the functional role that
+entities play in a sentence).  TextLabels can be nested, much like
+variable-binding environments can be nested in a programming language,
+which enables sets of hypothetical or temporary labels to be added in
+a local scope and then discarded.
+
+<p>
+Annotated TextBases are accessed in a single uniform way. However,
+they are stored in one of several schemes. A Minorthird "repository"
+can be configured to hold a bunch of TextLabels and their associated
+TextBases.
+          
+<p>
+Moderately complex hand-coded annotation programs can be implemented
+with a special-purpose annotation language called Mixup, which is part
+of Minorthird.  Mixup is based on a the widely used notion of cascaded
+finite state transducers, but includes some powerful features,
+including a GUI debugging environment, escape to Java, and a kind of
+subroutine call mechanism.  Mixup can also be used to generate
+features for learning algorithms, and all the text-based learning
+tools in Minorthird are closely integrated with Mixup. For instance,
+feature extractors used in a learned named-entity recognition package
+might call a Mixup program to perform initial preprocessing of text.
+
+<p>
+Minorthird contains a number of methods for learning to extract and
+label spans from a document, or learning to classify spans (based on
+their content or context within a document).  A special case of
+classifying spans is classifying entire documents.  Minorthird
+includes a number of state-of-the-art sequential learning methods
+(like conditional random fields, and discriminative training methods
+for training hidden Markov models).
+
+<p>
+One practical difficulty in using learning techniques to solve NLP
+problems is that the input to learners is the result of a complex
+chain of transformations, which begin with text and end with very
+low-level representations.  Verifying the correctness of this chain of
+derivations can be difficult.  To address this problem, Minorthird
+also includes a number of tools for visualizing transformed data
+and relating it to the text from which it was derived.
+    
+
+
+    <hr>
+    <address><a href="mailto:wcohen@cs.cmu.edu"></a></address>
+<!-- Created: Mon May 10 15:12:48 Eastern Daylight Time 2004 -->
+<!-- hhmts start -->
+Last modified: Mon May 10 16:19:39 Eastern Daylight Time 2004
+<!-- hhmts end -->
+  </body>
+</html>

@@ -1,0 +1,12 @@
+Using the scp client on your machine you may upload content to your
+project web space by using the following path as your destination:
+username@shell.sourceforge.net:/home/groups/p/pr/projectname/htdocs
+
+Whereby you replace username with the username you use to login to the
+SourceForge.net web site, and you replace p/pr/projectname with the
+UNIX name of your project, preceded by the first; and first and second
+letters of that project name. For instance, if your username is
+myusername and your project name is foobar, you would use the
+following as your destination path for SCP:
+myusername@shell.sourceforge.net:/home/groups/f/fo/foobar/htdocs
+
