@@ -30,5 +30,7 @@ public class KnnLearner extends OnlineClassifierLearner
 	public Classifier getClassifier() {	return new KnnClassifier(index, schema, k);	}
 
 	public void setSchema(ExampleSchema schema) { this.schema = schema; }
+
+	public String toString() { return "[KnnLearner k:"+k+"]"; }
 }
 

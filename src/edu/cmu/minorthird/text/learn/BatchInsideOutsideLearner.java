@@ -110,7 +110,7 @@ public class BatchInsideOutsideLearner implements AnnotatorLearner
 
 		protected void doAnnotate(MonotonicTextLabels labels) {
 			Span.Looper i = labels.getTextBase().documentSpanIterator();
-			ProgressCounter pc = new ProgressCounter("annotating", "document", i.estimatedSize() );
+			//ProgressCounter pc = new ProgressCounter("annotating", "document", i.estimatedSize() );
 			while (i.hasNext() ) {
 				Span s = i.nextSpan();
 				for (int j=0; j<s.size()-1; j++) {

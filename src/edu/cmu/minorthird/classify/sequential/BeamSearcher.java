@@ -4,11 +4,11 @@ package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.util.MathUtil;
+import edu.cmu.minorthird.util.StringUtil;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 /** 
  * A conditional markov model classifier.
@@ -29,7 +29,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
 	private int beamSize = 10;
 
 	// caches current beam search
-	transient private ArrayList beam = new ArrayList();
+	transient private Beam beam = new Beam();
 	transient private Instance[] instances;
 	transient private String[] history;
 
@@ -38,6 +38,8 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		this.classifier = classifier;
 		this.historySize = historySize;
 		this.possibleClassLabels = schema.validClassNames();
+		if (possibleClassLabels.length<2) 
+			throw new IllegalArgumentException("possibleClassLabels.length="+possibleClassLabels.length+" <2 ???");
 	}
 
 	public int getMaxBeamSize() { return beamSize; }
@@ -56,17 +58,23 @@ public class BeamSearcher implements SequenceConstants, Serializable
 	{
 		this.instances = sequence;
 
+		if (DEBUG) log.debug("searching over a "+sequence.length+"-instance sequence");
+		if (DEBUG) log.debug("beamSize="+beamSize+" classes="+StringUtil.toString(possibleClassLabels));
+
+		if (possibleClassLabels.length<2) 
+			throw new IllegalStateException("possibleClassLabels.length="+possibleClassLabels.length+" <2 ???");
+
 		history = new String[historySize];
-		beam = new ArrayList();
+		beam = new Beam();
 		beam.add( new BeamEntry() );
 
 		for (int i=0; i<instances.length; i++) {
 			if (DEBUG) log.debug("predicting class for instance["+i+"]: "+instances[i].getSource());
 
-			ArrayList nextBeam = new ArrayList();
+			Beam nextBeam = new Beam();
 
 			for (int j=0; j<Math.min( beam.size(), beamSize); j++) {
-				BeamEntry entry = (BeamEntry)beam.get(j);
+				BeamEntry entry = beam.get(j);
 				if (DEBUG) log.debug("beam entry["+j+"]: "+entry);
 
 				// classify example based on this history
@@ -74,14 +82,14 @@ public class BeamSearcher implements SequenceConstants, Serializable
 				ClassLabel label = classifier.classification(beamInstance);
 				if (DEBUG) log.debug("class for "+beamInstance+" => "+label);
 
-				// add other possible classifications to the beam for the next iteration
+				// add all possible classifications to the beam for the next iteration
 				for (int el=0; el<possibleClassLabels.length; el++) {
 					double w = label.getWeight(possibleClassLabels[el]);
 					nextBeam.add( entry.extend( possibleClassLabels[el], w ) ); 
 					if (DEBUG) log.debug("extending beam with "+possibleClassLabels[el]+" score: "+w);
 				}
 			}
-			Collections.sort(nextBeam);
+			nextBeam.sort();
 			beam = nextBeam;
 		}
 	}
@@ -98,7 +106,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
 	public ClassLabel[] viterbi(int k)
 	{
 		ClassLabel[] result = new ClassLabel[instances.length];
-		BeamEntry entry = (BeamEntry)beam.get(k);	
+		BeamEntry entry = beam.get(k);	
 		for (int i=0; i<instances.length; i++) {
 			result[i] = entry.toClassLabel(i);
 		}
@@ -109,7 +117,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
 	{
 		StringBuffer buf = new StringBuffer("");
 		doSearch(sequence);
-		BeamEntry targetEntry = (BeamEntry)beam.get(0);	
+		BeamEntry targetEntry = beam.get(0);	
 		BeamEntry entry = new BeamEntry();
 		for (int i=0; i<sequence.length; i++) {
 			buf.append("Classification for instance "+i+" is "
@@ -119,6 +127,31 @@ public class BeamSearcher implements SequenceConstants, Serializable
 			buf.append("\nRunning total score: "+entry.score+"\n\n");
 		}
 		return buf.toString();
+	}
+
+	/** The search space. */
+	private class Beam 
+	{
+		private ArrayList list = new ArrayList();
+		// maps last historySize labels -> 
+		private HashMap keyMap = new HashMap();
+		
+		public BeamEntry get(int i)	{	return (BeamEntry)list.get(i); }
+
+		public void add(BeamEntry entry)
+		{
+			BeamKey key = new BeamKey(entry); 
+			BeamEntry existingEntry = (BeamEntry) keyMap.get( key );
+			if (existingEntry==null || existingEntry.score<entry.score) {
+				if (existingEntry!=null) list.remove( existingEntry );
+				list.add( entry );
+				keyMap.put( key, entry );
+			}
+		}
+
+		public int size()	{ return list.size(); }
+		
+		public void sort() { Collections.sort(list); }
 	}
 
 	/** A single entry in the beam */
@@ -163,14 +196,42 @@ public class BeamSearcher implements SequenceConstants, Serializable
 			fillHistory(history);
 			return new InstanceFromSequence(instance,history);
 		}
-
-		private void fillHistory(String[] history)
+		public void fillHistory(String[] history)
 		{
 			InstanceFromSequence.fillHistory( history, labels, labels.length );
 		}
 		public String toString()
 		{
 			return "[entry: "+labels+";"+scores+"; score:"+score+"]";
+		}
+	}
+
+	/** Used to look for BeamEntry's that should be combined. BeamEntrys
+	 * should be combined in the beam (with the higher score being
+	 * retained) if their history is the same. */
+	private class BeamKey
+	{
+		private String[] keyHistory = new String[historySize];
+		public BeamKey(BeamEntry entry)
+		{
+			entry.fillHistory(keyHistory);
+		}
+		public int hashCode()
+		{
+			int h = 73643674;
+			for (int i=0; i<keyHistory.length; i++) 
+				h = h^keyHistory.hashCode();
+			return h;
+		}
+		public boolean equals(Object o)
+		{
+			if (!(o instanceof BeamKey)) return false;
+			BeamKey b = (BeamKey)o;
+			if (!(b.keyHistory.length==keyHistory.length)) return false;
+			for (int i=0; i<b.keyHistory.length; i++) {
+				if (!keyHistory[i].equals(b.keyHistory[i])) return false;
+			}
+			return true;
 		}
 	}
 }

@@ -42,8 +42,8 @@ defSpanType extracted_date =: ... [ eqi('the') re('^[0-9]+(st|nd|rd|th)$')] ...;
 //
 
 defTokenProp monthTok:1 =: ... [ai(monthWord)] ... || ... [a(monthNum)] ...;
-defSpanType extracted_date =: ... [ a(dayNum) a(dateSep) monthTok:1 a(dateSep) a(yearNum)] ...;
-defSpanType extracted_date =: ... [ a(dayNum) a(dateSep) monthTok:1] !a(dateSep) ...;
+defSpanType extracted_date =: ... [ monthTok:1 a(dateSep) a(dayNum) a(dateSep) a(yearNum)] ...;
+defSpanType extracted_date =: ... [ monthTok:1 a(dateSep) a(dayNum) ] !a(dateSep) ...;
 
 defTokenProp alreadyExtracted:1 =: ... [@extracted_date]...;
 

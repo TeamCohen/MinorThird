@@ -8,7 +8,9 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
-import edu.cmu.minorthird.classify.algorithms.linear.LogisticRegressor;
+import edu.cmu.minorthird.classify.algorithms.linear.*;
+import edu.cmu.minorthird.classify.algorithms.trees.*;
+import edu.cmu.minorthird.classify.algorithms.knn.*;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 
@@ -30,9 +32,8 @@ public class TestPackage extends TestSuite
 		// if we don't get these, something has changed---which doesn't
 		// necessarily mean there's a bug...
 
-		/*
 		suite.addTest( new LearnerTest( "toy", new NaiveBayes(), 1.0/7.0, 1.0/7.0 ));
-		suite.addTest( new LearnerTest( "bayes", new PoissonLearner(), 1.0/7.0, 1.0/7.0  ));
+		//suite.addTest( new LearnerTest( "bayes", new PoissonLearner(), 1.0/7.0, 1.0/7.0  ));
 		suite.addTest( new LearnerTest( "toy", new BinaryBatchVersion(new VotedPerceptron()), 0.0, 1.0/7.0 ));
 		suite.addTest( new LearnerTest( "toy", new VotedPerceptron(), 1.0/7.0, 1.0/7.0 ));
 		suite.addTest( new LearnerTest( "toy", new DecisionTreeLearner(5,2), 1.0/7.0, 1.0/7.0 ));
@@ -42,7 +43,6 @@ public class TestPackage extends TestSuite
 		suite.addTest( new LearnerTest( "num", new DecisionTreeLearner(5,2), 0.05, 0.10 ) );
 		suite.addTest( new LearnerTest( "sparseNum", new DecisionTreeLearner(5,2), 0.0, 0.10 ) );
 		suite.addTest( new LogisticRegressionTest() );
-		*/
 		suite.addTest( new XValTest(10,1) );
 		suite.addTest( new XValTest(3,5) );
 		return suite;

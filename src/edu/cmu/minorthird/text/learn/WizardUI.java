@@ -39,6 +39,7 @@ public class WizardUI
 			TextBaseLoader.class,
 			// learners
 			NaiveBayes.class,
+			BBMira.class,
 			VotedPerceptron.class,
 			PoissonLearner.class,
 			LogisticRegressor.class,

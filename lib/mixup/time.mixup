@@ -10,6 +10,8 @@ defTokenProp Time:1 =: ... [re('^[0-9]+$') Time:Unit+R] ... ;
 defTokenProp Time:1 =: ... [re('^[0-9]+(am|pm)$')] ... ;
 defTokenProp Time:1 =: ... 'at' [re('^[0-9]+$')] ...;
 
+defTokenProp Time:1 =: ... [eqi('noon')] ... ;
+
 defSpanType extracted_time =: ... [L Time:1+R] ... ;
 
 

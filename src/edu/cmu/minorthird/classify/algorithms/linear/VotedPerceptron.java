@@ -58,4 +58,6 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 	{
 		return s_t;
 	}
+
+	public String toString() { return "[VotedPerceptron]"; }
 }
