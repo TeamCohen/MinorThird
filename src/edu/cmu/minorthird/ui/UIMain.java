@@ -160,8 +160,11 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 															PrintStream oldSystemOut = System.out;
 															ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
 															System.setOut(new PrintStream(outBuffer));
+															long startTime = System.currentTimeMillis();
 															doMain(); 
+															double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
 															errorArea.append(outBuffer.toString());
+															errorArea.append("\ntime: "+elapsedTime+" sec");
 															System.setOut(oldSystemOut);
 														} catch (Exception e) {
 															System.out.println("Error:"+e.toString());

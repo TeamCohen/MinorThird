@@ -6,7 +6,6 @@ UI tweaks:
   progress counter & threads for dataset loading?   
   test shadowType
   clear progress bars after they finish?
-  output summary of textLabels after load?
   output total time in UI after command completion?
   capture output dynamically?
   generic loader class, loadable interface, for "Save As..." ?
