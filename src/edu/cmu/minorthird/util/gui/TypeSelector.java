@@ -124,6 +124,9 @@ public class TypeSelector extends ComponentViewer
 	{
 		public JComponent componentFor(final Object o) 
 		{
+//      if (o instanceof Configurable) //custom property editor
+//        return ((Configurable)(o)).guiConfigure();
+
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridBagLayout());
 			int row=0;

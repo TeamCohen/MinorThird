@@ -10,12 +10,13 @@ import java.util.*;
 
 /**
  * A set of examples for learning.
- * ks42 - this is easily compressed
+ *
  * @author William Cohen
  */
 
 public class BasicDataset implements Visible,Dataset
 {
+  //ks42 - these are easily compressed if needed
 	protected ArrayList examples = new ArrayList();
 	protected Set classNameSet = new TreeSet();
 	

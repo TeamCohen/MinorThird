@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.text.mixup;
 
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.util.SimpleTextLoader;
 import edu.cmu.minorthird.util.ProgressCounter;
 import org.apache.log4j.Logger;
 
@@ -573,7 +574,8 @@ public class MixupProgram
 	static private LineNumberReader mixupReader(String fileName) throws IOException, FileNotFoundException
 	{
 		File file = new File(fileName);
-		if (file.exists()) return new LineNumberReader(new BufferedReader(new FileReader(file)));
+		if (file.exists())
+      return mixupReader(file);
 		else {
 			InputStream s = ClassLoader.getSystemResourceAsStream(fileName);
 			return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
@@ -581,7 +583,7 @@ public class MixupProgram
 	}
 	static private LineNumberReader mixupReader(File file) throws IOException, FileNotFoundException
 	{
-		return mixupReader(file.getName());
+		return new LineNumberReader(new BufferedReader(new FileReader(file)));
 	}
 
 
@@ -593,11 +595,9 @@ public class MixupProgram
 			MixupProgram program = new MixupProgram(new File(args[0]));
 			System.out.println("program:\n" + program.toString());
 			if (args.length>1) {
-				TextBase base = new BasicTextBase();
-				TextBaseLoader loader = new TextBaseLoader();
-				loader.loadFile(base, new File(args[1]));
-				MonotonicTextLabels labels = loader.getLabels();
-				program.eval(labels,base);
+				MonotonicTextLabels labels = (MonotonicTextLabels)SimpleTextLoader.load(args[1], false);
+
+				program.eval(labels, labels.getTextBase());
 				for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
 					String type = (String)i.next();
 					System.out.println("Type "+type+":");

@@ -47,9 +47,17 @@ public class Dependencies
 
       if (file.endsWith("mixup"))
       {
-        InputStream inStream = Dependencies.class.getClassLoader().getResourceAsStream(file);
+        File f = new File(file);
+        InputStream inStream;
+        if (f.exists())
+          inStream = new FileInputStream(f);
+        else
+          inStream = Dependencies.class.getClassLoader().getResourceAsStream(file);
+
+        log.debug("got stream " + inStream);
         byte[] chars = new byte[inStream.available()];
         inStream.read(chars);
+
         String program = new String(chars);
 
 				log.info("Evaluating mixup program "+file+" to provide "+reqAnnotation);

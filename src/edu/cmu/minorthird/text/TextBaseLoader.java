@@ -1,14 +1,13 @@
 package edu.cmu.minorthird.text;
 
+import edu.cmu.minorthird.util.Loader;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.text.ParseException;
-
-import edu.cmu.minorthird.util.Loader;
 
 /**
  * Configurable Loader.<br>
@@ -357,6 +356,40 @@ public class TextBaseLoader implements Loader
 		out.flush();
 		out.close();
 	}
+
+/* not yet implementing
+  public JComponent guiConfigure()
+  {
+    JPanel panel = new JPanel(new GridLayout(0, 2));
+
+    String[] styles = {"Document per File", "Document per Line in file"};
+    String[] sources = {"No Source", "Directory Name", "File Name", "In File"};
+
+    //style first
+    panel.add(new JLabel(""));
+    JComboBox docStyleBox = new JComboBox(styles);
+    docStyleBox.addActionListener();
+
+    panel.add(new JLabel(""));
+    JComboBox docSourceBox = new JComboBox(sources);
+    docSourceBox.addActionListener();
+
+    panel.add(new JLabel(""));
+    JComboBox grpSourceBox = new JComboBox(sources);
+    grpSourceBox.addActionListener();
+
+    panel.add(new JLabel(""));
+    JCheckBox labelsCheck = new JCheckBox();
+    labelsCheck.addActionListener();
+
+    panel.add(new JLabel(""));
+    JCheckBox recurseCheck = new JCheckBox();
+    recurseCheck.addActionListener();
+
+
+    return panel;
+  }
+*/
 
   //--------------------- Public methods ---------------------------------------------------
 
@@ -884,6 +917,7 @@ public class TextBaseLoader implements Loader
 
 		}
 	}
+
 
   //--------------------- Deprecated methods -----------------------------------------------
 
