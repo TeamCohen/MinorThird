@@ -36,7 +36,7 @@ SEMANTICS:
 	  eqi('foo') check lowercase version of token is foo
 	  'foo' or eq('foo') checks a token is equal to 'foo'
     a(bar) checks a token is in dictionary 'bar'
-		ai(bar) checks that the lowercase version of the token is in dictionary 'bar' (i=ignore case)
+		ai(bar) checks that the token is in dictionary 'bar', ignoring case
 	  color:red checks that the token has property 'color' set to 'red'
 	  color:a(primaryColor) checks that the token's  property 'color' is in the dictionary 'primaryColor'
 	  !test is negation of test

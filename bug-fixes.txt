@@ -2,5 +2,6 @@ Bug list:
 	
 1 - FIXED - ProgressCounter
 	checking graphic counter in finished can NPE
-	
+2 - KNOWN - MixupProgram
+	mixup file must be in classpath directory or it can't be loaded
 	
