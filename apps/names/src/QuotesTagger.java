@@ -36,7 +36,6 @@ public class QuotesTagger extends AbstractAnnotator
 				boolean isQuote = false;
 				
 				Token token = doc.getTextToken(j);
-				String x = labels.getProperty(token, "notQuote");
 				
 				if ((token.getValue().toLowerCase().equals("\"")) || 
 				   ((token.getValue().toLowerCase().equals("\'")) && (labels.getProperty(token, "notQuote")==null))) 
