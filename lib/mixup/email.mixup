@@ -1,0 +1,5 @@
+provide 'email';
+
+defTokenProp email:t =top ~re'\b([A-z\.\-_]+@[A-z\.\-_]+[A-z]+)',1;
+
+defSpanType extracted_email =: ... [L email:t+ R] ... ;
