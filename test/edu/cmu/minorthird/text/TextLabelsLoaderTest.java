@@ -1,13 +1,13 @@
 package edu.cmu.minorthird.text;
 
+import edu.cmu.minorthird.util.Globals;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  *
@@ -18,8 +18,8 @@ import java.io.IOException;
 public class TextLabelsLoaderTest extends TestCase
 {
   Logger log = Logger.getLogger(this.getClass());
-  private String dataFile = "demos/sampleData/webmasterCommands.txt";
-  private String labelsFile = "demos/sampleData/webmasterCommandTypes.labels";
+  private String dataFile = Globals.DATA_DIR + "webmasterCommands.base";
+  private String labelsFile = Globals.DATA_DIR + "webmasterCommands.labels";
 
   /**
    * Standard test class constructior for TextLabelsLoaderTest
@@ -64,11 +64,7 @@ public class TextLabelsLoaderTest extends TestCase
   {
     try
     {
-      TextBase base = new BasicTextBase();
-      TextBaseLoader baseLoader = new TextBaseLoader();
-      File file = new File(dataFile);
-      baseLoader.setFirstWordIsDocumentId(true);
-      baseLoader.loadLines(base, file);
+      TextBase base = TextBaseLoader.loadDocPerLine(new File(dataFile), false);
 
       TextLabelsLoader loader = new TextLabelsLoader();
       File labelFile = new File(this.labelsFile);
@@ -76,7 +72,7 @@ public class TextLabelsLoaderTest extends TestCase
       labels.setTextBase(base);
       loader.importOps(labels, base, labelFile);
     }
-    catch (IOException e)
+    catch (Exception e)
     {
       log.error(e, e);
       fail();

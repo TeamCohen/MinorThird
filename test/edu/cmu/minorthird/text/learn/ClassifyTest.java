@@ -120,6 +120,7 @@ public abstract class ClassifyTest extends AbstractClassificationChecks
     loadLabels();
 
     Span baseSpan = base.documentSpan(documentId);
+//    log.info("baseSpan for " + documentId + " is " + baseSpan);
     log.info("span from " + baseSpan.getDocumentId() + " of size " + baseSpan.size());
 
 

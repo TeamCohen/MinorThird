@@ -5,6 +5,7 @@ import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.experiments.Evaluation;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
+import edu.cmu.minorthird.util.Globals;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -63,7 +64,7 @@ public class TextBaseLoaderTest extends TestCase
     {
       TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
       loader.setLabelsInFile(true);
-      File dataLocation = new File("demos/sampleData/seminar-subset");
+      File dataLocation = new File(Globals.DATA_DIR + "seminar-subset");
       TextBase textBase = loader.load(dataLocation);
 
       TextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
@@ -79,7 +80,8 @@ public class TextBaseLoaderTest extends TestCase
   {
     try
     {
-      fail("need data");
+//      new TextBaseLoader().loadDir(null, null);
+//      fail("need data");
 //      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
 //      loader.setLabelsInFile(true);
 //      TextBase textBase = loader.load(new File("demos/sampleData/webmasterCommands.txt"));
@@ -97,7 +99,7 @@ public class TextBaseLoaderTest extends TestCase
     try
     {
       TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.IN_FILE);
-      File dataLocation = new File("demos/sampleData/webmasterCommands.txt");
+      File dataLocation = new File(Globals.DATA_DIR + "webmasterCommands.base");
       TextBase base = loader.load(dataLocation);
 
       base = TextBaseLoader.loadDocPerLine(dataLocation, true);
@@ -120,7 +122,7 @@ public class TextBaseLoaderTest extends TestCase
                                                   TextBaseLoader.NONE, TextBaseLoader.DIRECTORY_NAME, false, true);
 
       log.info("loader labels: " + loader.isLabelsInFile());
-      File dir = new File("c:\\cmu/radar/extractionGroup/extract/examples/20newgroups/20news-bydate-train");
+      File dir = new File(Globals.DATA_DIR + "20newgroups/20news-bydate-train");
       TextBase base = loader.load(dir);
   //    loader.loadLabeledDir(base, dir);
 

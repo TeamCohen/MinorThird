@@ -8,6 +8,7 @@ import java.io.File;
 import edu.cmu.minorthird.text.learn.ClassifyTest;
 import edu.cmu.minorthird.text.BasicTextBase;
 import edu.cmu.minorthird.text.TextBaseLoader;
+import edu.cmu.minorthird.util.Globals;
 
 /**
  *
@@ -50,15 +51,12 @@ public class EdoTextLabelsTest extends ClassifyTest
   {
     try
     {
-      dataFile = "examples/testData.dir";
-      labelsFile = "examples/testData.env";
+      dataFile = Globals.DATA_DIR + "bayes-testData";
+      labelsFile = Globals.DATA_DIR + "bayes-testData.labels";
       labelString = "rr";
-//    documentId = "ph1.text";
+      documentId = "ph1.txt";
 
-      base = new BasicTextBase();
-      TextBaseLoader loader = new TextBaseLoader();
-      File dir = new File(dataFile);
-      loader.loadTaggedFiles(base, dir);
+      base = TextBaseLoader.loadDirOfTaggedFiles(new File(dataFile)).getTextBase();
 
 // check
       super.checkSpans();

@@ -6,6 +6,7 @@ import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.classify.experiments.Evaluation;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
+import edu.cmu.minorthird.util.Globals;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -67,15 +68,13 @@ public class BayesClassifiersTest extends TestCase
 
     try
     { // load the documents into a textbase
-      TextBase base = new BasicTextBase();
-      TextBaseLoader loader = new TextBaseLoader();
-      File dir = new File("examples/testData.dir");
 
-      loader.loadTaggedFiles(base, dir);
+      File dir = new File(Globals.DATA_DIR + "bayes-testData");
+      TextBase base = TextBaseLoader.loadDirOfTaggedFiles(dir).getTextBase();
 
 // set up labels
       MutableTextLabels labels = new BasicTextLabels(base);
-      new TextLabelsLoader().importOps(labels, base, new File("examples/testData.env"));
+      new TextLabelsLoader().importOps(labels, base, new File(Globals.DATA_DIR + "bayes-testData.labels"));
 
 // for verification/correction of the labels, if we care...
 //TextBaseLabeler.label( labels, new File("my-document-labels.env"));

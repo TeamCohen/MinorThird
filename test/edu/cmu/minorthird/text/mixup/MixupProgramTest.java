@@ -2,6 +2,7 @@ package edu.cmu.minorthird.text.mixup;
 
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.util.IOUtil;
+import edu.cmu.minorthird.util.Globals;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -40,7 +41,7 @@ public class MixupProgramTest extends TestCase
   {
     super(name);
     simpleFile = new File("lib/mixup/date.mixup");
-    testData = new File("demos/sampleData/seminar-subset/cmu.andrew.official.career-center-1495_0");
+    testData = new File(Globals.DATA_DIR + "seminar-subset/cmu.andrew.official.career-center-1495_0");
 
     dependFile = new File("lib/mixup/names2.mixup");
     dependExplict = new File("lib/mixup/names.mixup");
@@ -112,10 +113,12 @@ public class MixupProgramTest extends TestCase
 	  return new MixupProgram(new String(IOUtil.readFile(f)));
   }
 
+  /** run the mixup in "code" and put the results in "outFile" */
   public void runCode(File code, File outFile)
   {
     try
     {
+      log.debug("loading mixup from " + code);
       MixupProgram program = fromFile(code);
       program.eval(labels, textBase);
 

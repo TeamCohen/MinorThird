@@ -5,10 +5,9 @@ import junit.framework.TestSuite;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
-import edu.cmu.minorthird.text.BasicTextBase;
 import edu.cmu.minorthird.text.TextBaseLoader;
+import edu.cmu.minorthird.util.Globals;
 
 /**
  *
@@ -61,8 +60,8 @@ public class LearnToClassifyTest extends ClassifyTest
   {
     try
     {
-      dataFile = "demos/sampleData/webmasterCommands.txt";
-      labelsFile = "demos/sampleData/webmasterCommandTypes.labels";
+      dataFile = Globals.DATA_DIR + "webmasterCommands.base";
+      labelsFile = Globals.DATA_DIR + "webmasterCommands.labels";
       documentId = "msg05";
       labelString = "add";
       loadFileData();
