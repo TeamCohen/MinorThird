@@ -47,7 +47,7 @@
 	find all Spans of a given type in a specific document.
       </ul>
     There are a couple of different varieties of TextLabels's.  An {@link
-    edu.cmu.minorthird.text.txt.ImmutableTextLabels} can only be read, not modified.
+    edu.cmu.minorthird.text.ImmutableTextLabels} can only be read, not modified.
     A {@link edu.cmu.minorthird.text.MonotonicTextLabels} can be modified by
     changing attribute values, adding new attribute values, or adding
     Spans to a type; however, Spans cannot be removed from a type.  A
@@ -74,7 +74,7 @@
       (or at least, some well-defined approximation of this), which
       still being able to modify either underlying TextLabels.  For
       instance, one can construct a single TextLabels which contains the
-      output of a {@link edu.cmu.minorthird.text.txt.Mixup} program, plus some hand-labeled
+      output of a {@link edu.cmu.minorthird.text.Mixup} program, plus some hand-labeled
       "ground truth" data, while still being able to re-run the
       program and get new output and/or edit the "ground truth".
       </ol>
