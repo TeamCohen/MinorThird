@@ -3,6 +3,8 @@
 package edu.cmu.minorthird.classify.experiments;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedClassifier;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedDataset;
 import edu.cmu.minorthird.classify.sequential.SequenceClassifier;
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.*;
@@ -83,6 +85,19 @@ public class Evaluation implements Visible,Serializable,Saveable
       }
     }
   }
+
+   /** Test the classifier on the examples in the dataset and store the results. */
+   public void extend(SemiSupervisedClassifier c,SemiSupervisedDataset d, int cvID)
+   {
+     ProgressCounter pc = new ProgressCounter("classifying","example",d.size());
+     for (Example.Looper i=d.iterator(); i.hasNext(); ) {
+       Example ex = i.nextExample();
+       ClassLabel p = c.classification( ex );
+       extend(p,ex,cvID);
+       pc.progress();
+     }
+     pc.finished();
+   }
 
   /** Record the result of predicting the give class label on the given example */
   public void extend(ClassLabel predicted, Example example, int cvID)

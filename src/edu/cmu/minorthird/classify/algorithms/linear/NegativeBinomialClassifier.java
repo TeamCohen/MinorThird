@@ -41,7 +41,6 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements Visi
    /** Inner product of PoissonClassifier and instance weights. */
    public double score(Instance instance)
    {
-      //System.out.println("instanceID="+instance.getSource());
       double totCnt = 0.0;
       for ( Feature.Looper i=instance.featureIterator(); i.hasNext(); )
       {
@@ -55,7 +54,6 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements Visi
          score += logOddsNB( f,instance.getWeight(f),totCnt/SCALE );
       }
       score += +Math.log(priorPos/priorNeg);
-      //System.out.println("score="+score);
       return score;
    }
 
@@ -139,17 +137,13 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements Visi
          TreeMap mdp = (TreeMap) pmsFeatureGivenPos.get(f);
          mPos = ((Double)mdp.get("mu")).doubleValue();
          dPos = ((Double)mdp.get("delta")).doubleValue();
-         //System.out.println("f:"+f+" m-:"+mNeg+" d-:"+dNeg+" m+:"+mPos+" d+:"+dPos);
 
          // compute log-odds
          if (dPos==0.0 || dNeg==0.0)
          {
             logOdds = x*(Math.log(mPos/mNeg)) -w*(mPos-mNeg);
-            //logOdds = x*(Math.log(mPos/mNeg)) -mPos+mNeg;
-            //System.out.println("f="+f+" <"+x+"*"+(Math.log(mPos/mNeg))+"-w*"+(+mPos-mNeg)+">");
-            // = sum_f { -mu(+) +mu(-) + f_counts * [ log mu(+) - log mu(-) ] } + log Pr(+) - log Pr(-)
          }
-         else //if (false)
+         else
          {
             logOdds = Arithmetic.logGamma(x+mPos/dPos) -Arithmetic.logGamma(mPos/dPos)
                 -Arithmetic.logGamma(x+mNeg/dNeg) +Arithmetic.logGamma(mNeg/dNeg)
@@ -159,7 +153,6 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements Visi
       }
       catch (Exception e)
       {
-         //System.out.println("warning: feature \""+f+"\" not in training set!");
          logOdds = 0.0;
       }
       return logOdds;

@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedDataset;
 import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
@@ -106,7 +107,7 @@ public class SampleDatasets
   /** Makes test-data for generative Bayesian models */
   private static Dataset makeUnlabeledBayesData( String[] pos, String[] neg, String[] unlabeled )
   {
-    Dataset result = new BasicDataset();
+    SemiSupervisedDataset result = new SemiSupervisedDataset();
     for (int i=0; i<pos.length; i++) {
       result.add( makeLabeledBayesExample(new ClassLabel("POS"), pos[i]) );
     }
@@ -114,7 +115,7 @@ public class SampleDatasets
       result.add( makeLabeledBayesExample(new ClassLabel("NEG"), neg[i]) );
     }
     for (int i=0; i<unlabeled.length; i++) {
-      ((BasicDataset)result).addUnlabeled( makeUnlabeledBayesExample(unlabeled[i]) );
+      result.addUnlabeled( makeUnlabeledBayesExample(unlabeled[i]) );
     }
     return result;
   }
