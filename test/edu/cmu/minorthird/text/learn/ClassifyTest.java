@@ -1,12 +1,8 @@
 package edu.cmu.minorthird.text.learn;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.experiments.Evaluation;
-import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.text.*;
-import junit.framework.TestCase;
-import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
 import java.io.File;
@@ -18,10 +14,8 @@ import java.util.Set;
  * This class...
  * @author ksteppe
  */
-public abstract class ClassifyTest extends TestCase
+public abstract class ClassifyTest extends AbstractClassificationChecks
 {
-  Logger log = Logger.getLogger(this.getClass());
-
   /** file loading of data */
   protected String dataFile;
   protected String labelsFile;
@@ -39,10 +33,7 @@ public abstract class ClassifyTest extends TestCase
   protected String labelString;
 
   /** defaults for testing */
-  protected final static edu.cmu.minorthird.text.learn.SpanFeatureExtractor DEFAULT_SFE = edu.cmu.minorthird.text.learn.SampleFE.BAG_OF_WORDS;
-  protected final static ClassifierLearner DEFAULT_LEARNER = new NaiveBayes();
-  private double delta = 0.001;
-  private boolean checkStandardStatsOnly = false;
+  protected final static SpanFeatureExtractor DEFAULT_SFE = edu.cmu.minorthird.text.learn.SampleFE.BAG_OF_WORDS;
 
   public ClassifyTest(String s)
   {
@@ -55,21 +46,17 @@ public abstract class ClassifyTest extends TestCase
    * check against given data
    */
   public void classify(double[] referenceData)
-  {
-    checkClassify(DEFAULT_SFE, DEFAULT_LEARNER, referenceData);
-  }
+  { checkClassifyText(DEFAULT_SFE, DEFAULT_LEARNER, referenceData); }
 
   /** run default classification but output evaluation with no check */
   public void benchMarkClassify()
-  {
-    classify(null);
-  }
+  { classify(null); }
 
   /**
    * Base test for classification
    * send null referenceData to get a print out
    */
-  public void checkClassify(edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe, ClassifierLearner learner, double[] referenceStats)
+  public void checkClassifyText(SpanFeatureExtractor fe, ClassifierLearner learner, double[] referenceStats)
   {
     try
     {
@@ -83,44 +70,6 @@ public abstract class ClassifyTest extends TestCase
     {
       log.fatal(e, e);
       fail();
-    }
-  }
-
-  /**
-   *
-   * @param learner
-   * @param trainData
-   * @param testData
-   * @param referenceStats should be error, precision, recall, ??
-   */
-  public void checkClassify(ClassifierLearner learner, Dataset trainData, Dataset testData, double[] referenceStats)
-  {
-    Evaluation v = Tester.evaluate(learner, trainData, testData);
-
-
-    double[] stats;
-    if (checkStandardStatsOnly)
-    {
-      stats = new double[4];
-      stats[0] = v.errorRate();
-      stats[1] = v.averagePrecision();
-      stats[2] = v.maxF1();
-      stats[3] = v.averageLogLoss();
-    }
-    else
-      stats = v.summaryStatistics();
-
-    checkStats(stats, referenceStats);
-  }
-
-  protected void checkStats(double[] stats, double[] referenceStats)
-  {
-    for (int i = 0; i < stats.length; i++)
-    {
-      double stat = stats[i];
-      log.info("stat("+i+") = " + stat);
-      if (referenceStats != null)
-        assertEquals(referenceStats[i], stat, delta);
     }
   }
 
@@ -213,22 +162,7 @@ public abstract class ClassifyTest extends TestCase
         assertEquals(checkSpan, s);
       }
     }
-
   }
 
-  public double getDelta()
-  {
-    return delta;
-  }
-
-  public void setDelta(double delta)
-  {
-    this.delta = delta;
-  }
-
-  protected void setCheckStandards(boolean b)
-  {
-    checkStandardStatsOnly = b;
-  }
 
 }

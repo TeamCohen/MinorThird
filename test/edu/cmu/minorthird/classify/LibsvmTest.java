@@ -1,7 +1,7 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
-import edu.cmu.minorthird.text.learn.ClassifyTest;
+import edu.cmu.minorthird.classify.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import libsvm.*;
@@ -17,7 +17,7 @@ import java.util.StringTokenizer;
  *
  * @author ksteppe
  */
-public class LibsvmTest extends ClassifyTest
+public class LibsvmTest extends AbstractClassificationChecks
 {
   Logger log = Logger.getLogger(this.getClass());
   private static final String trainFile = "../example2/a1a.dat";
@@ -101,7 +101,7 @@ public class LibsvmTest extends ClassifyTest
 
       //create the SVMLearner
 
-      //send expectations to checkClassify()
+      //send expectations to checkClassifyText()
       double[] expect = new double[]{0.16472337693061612, 0.5532531341004251, 0.6413123436810357, 1.3132616875183545};
 
       super.setCheckStandards(true);

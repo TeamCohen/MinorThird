@@ -1,6 +1,5 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.text.learn.ClassifyTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.log4j.Logger;
@@ -11,7 +10,7 @@ import org.apache.log4j.Logger;
  *
  * @author ksteppe
  */
-public class SampleDatasetsClassificationTest extends ClassifyTest
+public class SampleDatasetsClassificationTest extends AbstractClassificationChecks
 {
   Logger log = Logger.getLogger(this.getClass());
 
