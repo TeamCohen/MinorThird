@@ -373,6 +373,7 @@ public class TextBaseLoader
 	while((line = in.readLine()) != null) {
 	   String[] words = line.split("\\s");
 	   if(!(words[0].equals("-DOCSTART-"))) {
+	       tokenPropList = new ArrayList();
 	       if(words.length > 2) {
 		   start = buf.length();
 		   buf.append(words[0]+" ");
@@ -387,7 +388,7 @@ public class TextBaseLoader
 	       this.tokenizer = new Tokenizer(Tokenizer.SPLIT, " ");
 	       addDocument(buf.toString());
 	       spanList = new ArrayList();
-	       tokenPropList = new ArrayList();
+	       tokenPropList = null;
 	       buf = new StringBuffer("");
 	       docNum++;
 	       curDocID = id + "-" + docNum;
@@ -441,15 +442,17 @@ public class TextBaseLoader
 	    labels.addToType( approxSpan, charSpan.type );
 
 	}
-	if(tokenPropList.size() > 0) {	    	    
-	    Document doc = textBase.getDocument(curDocID);
-	    TextToken[] tokens = tokenizer.splitIntoTokens(doc,docText);
-	    Iterator itr = tokenPropList.iterator();
-	    if(tokens.length > 0) {		
-		for(int x=0; x<tokens.length; x++) {
-		    String nextPOS = (String)itr.next();
-		    if(nextPOS != null && tokens[x] != null) {
-			labels.setProperty(tokens[x], "POS", nextPOS);
+	if(tokenPropList != null) {
+	    if(tokenPropList.size() > 0) {	    	    
+		Document doc = textBase.getDocument(curDocID);
+		TextToken[] tokens = tokenizer.splitIntoTokens(doc,docText);
+		Iterator itr = tokenPropList.iterator();
+		if(tokens.length > 0) {		
+		    for(int x=0; x<tokens.length; x++) {
+			String nextPOS = (String)itr.next();
+			if(nextPOS != null && tokens[x] != null) {
+			    labels.setProperty(tokens[x], "POS", nextPOS);
+			}
 		    }
 		}
 	    }
