@@ -137,7 +137,7 @@ public class PositiveScoresTransformClassifier implements Classifier,Serializabl
 	
 	public static void main(String[] args) {
 		if ((args.length < 1)|| (args.length>1)) {
-          usage();
+		  System.out.println("Usage: PositiveScoresTransformClassifier classname");
           return;
         }
 		String mytag = args[0];
@@ -157,9 +157,9 @@ public class PositiveScoresTransformClassifier implements Classifier,Serializabl
 	     }
 	       
 	     //only works for linear classifiers 
-//	     ClassifierLearner learner = new VotedPerceptron();
+	     ClassifierLearner learner = new VotedPerceptron();
 //	     ClassifierLearner learner = new MarginPerceptron();	        	        
-         ClassifierLearner learner = new NaiveBayes();
+//       ClassifierLearner learner = new NaiveBayes();
 	     Splitter split = Expt.toSplitter("k2");
 	       	       
 	     Evaluation v = new Evaluation(dataset.getSchema()); 
