@@ -18,7 +18,7 @@ public class OneVsAllLearner implements ClassifierLearner
 
 	public OneVsAllLearner()
 	{
-		this(new ClassifierLearnerFactory("new VotedPerceptron()"));
+		this(new ClassifierLearnerFactory("new SVMLearner()"));
 	}
 
 	/** 

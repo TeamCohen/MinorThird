@@ -23,6 +23,12 @@ public class KWayMixtureLearner extends BatchClassifierLearner
    private String PARAMETERIZATION;
 
    // constructors
+   public KWayMixtureLearner()
+   {
+      this.SCALE=10.0;
+      this.MODEL="Poisson";
+      this.PARAMETERIZATION="default";
+   }
    public KWayMixtureLearner(String model)
    {
       this.SCALE=10.0;
