@@ -27,7 +27,7 @@ public class BasicSpan implements Span,Serializable,Visible
  	private int loTextTokenIndex;
 	private int spanLen;
 	private TextToken[] textTokens;
-    private String text = "";
+    private String text = null;
 
 	/** Constructor assumes that the textTokens are all from the documentId.
 	 */
@@ -39,10 +39,6 @@ public class BasicSpan implements Span,Serializable,Visible
 		this.loTextTokenIndex = loTextTokenIndex;
 		this.spanLen = spanLen;
 		this.documentGroupId = documentGroupId==null ? documentId : documentGroupId;
-
-		for(int i=loTextTokenIndex; i<loTextTokenIndex+spanLen; i++) {
-		    text = text + textTokens[i].getValue();
-		}
 	}
 
 	public String getDocumentId() {
@@ -112,13 +108,13 @@ public class BasicSpan implements Span,Serializable,Visible
 
 	/** Find the string contained in a Span. */
 	public String asString() {
-	    /*if (size()<=0) return "";
-		else {
-		    
-		    TextToken lo = getTextToken(0);
-			TextToken hi = getTextToken(size()-1);
-			return lo.getDocument().substring( lo.getLo(), hi.getHi() );
-			}*/
+	    if (size()<=0) return "";
+	    else if(text == null){
+		
+		TextToken lo = getTextToken(0);
+		TextToken hi = getTextToken(size()-1);
+		text = lo.getDocument().substring( lo.getLo(), hi.getHi() );
+	    }
 	    return text;
 	}
 	
