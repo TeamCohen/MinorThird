@@ -2,17 +2,20 @@ OBTAINING THE CODE
 
 If you only need read access to the source (you are working on an application 
 which uses minorthird but don't need to personally change minorthird) you can use 
-anonymous access (anything as a password):
+anonymous access:
 
-cvsroot= :pserver:anonymous@raff.cald.cs.cmu.edu/usr1/cvsroot
-with module "minorthird"
+>cvsroot= :pserver:anonymous@raff.cald.cs.cmu.edu:/usr1/cvsroot
+>cvs login
+(anything as a password)
+>cvs checkout minorthird
 
 If you want write access to the source (you plan to change or add to our software) 
 you need an account on the Raff computer.  You can then use the following cvsroot to 
 access minorthird:
 
-cvsroot= :ext:<your user name>@raff.cald.cs.cmu.edu/usr1/cvsroot with module "minorthird"
-Using command line cvs you'll need to have the environment CVS_RSH=ssh set.
+>CVS_RSH=ssh
+>cvsroot=:ext:<your user name>@raff.cald.cs.cmu.edu:/usr1/cvsroot 
+>cvs checkout minorthird
 
 To do this you'll need CVS, which is generally installed on
 unix systems.  For windows I recommend using the cygwin package,
@@ -25,10 +28,9 @@ http://www.tortoisecvs.org
 
 OTHER STUFF YOU'LL NEED
 
-To compile the code and run it, you'll need to have java (v 1.4 or
+To compile the code and run it, you'll need to have java (v jdk1.4 or
 later) installed, plus a 'make'-like system called 'ant'.  Java is
-available from http://java.sun.com.  The latest issue was last seen at
-'http://java.sun.com/j2se/1.4.2/download.html' and generally is found
+available from http://java.sun.com and generally is found
 by looking for the 'Java 2 Standard Edition' SDK (software
 developement kit). Ant is an Apache project which can be found at
 http://ant.apache.org.  To install it, you'll want to
@@ -45,47 +47,75 @@ COMPILING THE CODE
 We recommend that you set an environment variable "MINORTHIRD" to where ever
 you placed the project.
 
+0. set MINORTHIRD variable
 1. cd to MINORTHIRD
-2. on unix with bash run
-   % . script/setup.sh
+2. on unix with bash source the setup
+   % source script/setup.sh
    or on windows run
    % script\setup
 3. to compile the code type the command
-   % ant build-clean
-
+   % ant clean build
 4. to build the javadocs (in MINORTHIRD/javadoc) type the command
    % ant javadoc
+5. you can run the tests to be sure things are working
+   % ant tests
 
 SAMPLE COMMANDS
 
-The directory minorthird/demos contains a number of examples and data.
+Sample data can be found in /demos/sampleData
+Sample mixup programs are in /demos/sampleMixup.  "Standard" mixup can be viewed in /lib/mixup.
 
-There are some java classes with command-line interfaces, currently in
-a bit of a mess wrt consistency.  For a demo of viewing a dataset, use
-the command
+Wizard:
 
-% java edu.cmu.minorthird.text.gui.TextBaseViewer env/seminar-subset
+There is a simple wizard to lead beginning users through the process of running an experiment.  The wizard is run by:
+>java edu.cmu.minorthird.ui.WizardUI
+It will walk you through the process of selecting:
+	Type of experiment
+	Learner, and if necessary, feature extractor
+	Training data
+	Class/label to learn
+	Test method and test data
+	Viewing the experiment.
+
+There isn't any explanation text in the wizard, but the defaults selections work, and will give you 
+an idea of what is needed to run an experiment on what the results look like.  Consider it to be a walk 
+through on setting up an experiment rather than the interface to minorthird.
+
+DEMOS in /demos:
+
+LabelerDemo.java:
+	Loads a set of data and a set of labels, optionally runs a mixup program on the data for more labels.
+	The data and labels are displayed by TextBaseEditor; the labels can be edited.
+	
+mixupDemo.bat:
+	Runs three progressively more powerful mixup files on a sample data file
+	After each run it launches the MixupDebugger, which displays the labelling on the data
+	
+NumericDemo.java:
+	Loads a training and test datasets; trains and tests a NaiveBayes classifier on the given data.
+	The Evaluation.toGUI is used to produce a graphical display of the results.
+
+
+There are some java classes with command-line interfaces, with are somewhat inconsistent currently.  
+
+For viewing a dataset, use the command
+
+% java edu.cmu.minorthird.text.gui.TextBaseViewer dataFile
 
 For a demo of labeling a dataset, use the command
 
-% java edu.cmu.minorthird.text.gui.TextBaseEditor env/seminar-subset mylabels.labels
+% java edu.cmu.minorthird.text.gui.TextBaseEditor dataFile mylabels.labels
 
 This will create a file 'mylabels.labels' which saves your edits of the 
-initially labeled documents associated with the tag 'seminar-subset.env'.
+initially labeled documents .
 
-For a demo of using the 'mixup' language to label a document, create a mixup
+For using the 'mixup' language to label a document, create a mixup
 file in 'myprogram.mixup' and run the command
 
-% java edu.cmu.minorthird.text.gui.MixupDebugger -textBase env/seminar-subset -truth mylabels.env -mixup myprogam.mixup
+% java edu.cmu.minorthird.text.gui.MixupDebugger -textBase data -truth mylabels.labels -mixup myprogam.mixup
 
-Another sample command mixup program finds cell names:
-
-% cp lib/labels/captions/cell.env myCellEdits.env  
-% java edu.cmu.minorthird.text.gui.MixupDebugger -textBase env/captions -truth myCellEdits.env -mixup lib/labels/captions/cell.mixup -stem
-
--------------------------------------------
-NB: This section will change very soon as a better set of demos and samples are compiled.  Look for changes in the immediate future.
--------------------------------------------
+To run an annotation experiment use edu.cmu.minorthird.text.learn.expirements.TextLabelsLoader (has good usage info)
+or for a sequence learner try Main, under the apps/Names directory (must be compiled seperately).
 
 HOW SAMPLE FILES ARE STORED
 
@@ -101,3 +131,4 @@ construct labelings; and scriptDir, for beanShell scripts that load in
 a datafile.  The edu.cmu.minorthird.text.FancyLoader object takes the name of
 a file in the scriptDir, runs it, are returns the result.
 
+We recommend using beanShell only for loading data.
