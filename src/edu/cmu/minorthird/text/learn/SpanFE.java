@@ -391,10 +391,18 @@ abstract public class SpanFE implements SpanFeatureExtractor
 
 		/** Move to the first span in the set. 
 		 */
-		public SpanResult first() {	return new SpanResult( extend("first"), fe, (Span)set.first() ); }
+		public SpanSetResult first() {	
+			TreeSet newSet = new TreeSet();
+			if (set.size()>0) newSet.add(set.first());
+			return new SpanSetResult( extend("first"), fe, newSet);
+		}
 		/** Move to the last span in the set. 
 		 */
-		public SpanResult last() { return new SpanResult( extend("last"), fe, (Span)set.last() ); 	}
+		public SpanSetResult last() { 
+			TreeSet newSet = new TreeSet();
+			if (set.size()>0) newSet.add(set.last());
+			return new SpanSetResult( extend("last"), fe, newSet);
+		}
 		/** Find the set of all tokens contained by any span in the set. 
 		 */
 		public TokenSetResult tokens() {
