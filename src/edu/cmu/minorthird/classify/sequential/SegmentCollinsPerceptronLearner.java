@@ -57,7 +57,8 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 
 		for (int epoch=0; epoch<numberOfEpochs; epoch++) 
 		{
-			dataset.shuffle();
+			// shuffling seems to lower performance by a lot - why?
+			//dataset.shuffle();
 
 			// statistics for curious researchers
 			int sequenceErrors = 0;

@@ -18,6 +18,9 @@ import java.io.*;
 
 public class LeaveOneOutDictTransformLearner 
 {
+  // leave one subpopulation out vs leave one span out
+	static private boolean idIsSubpopulation=true; 
+
 	final public static String[] DEFAULT_PATTERN = new String[]{"eq","lc"};
 
 	private String[] featurePattern;
@@ -63,13 +66,13 @@ public class LeaveOneOutDictTransformLearner
 	// and a null code for an instance, so it will match anything
 	static private String instanceId(Instance instance)
 	{
-	    return instance.getSubpopulationId();// +":"+Integer.toString(instance.hashCode());
-	    /*		if (instance instanceof Example) {
-		    return instance.getSubpopulationId() +":"+Integer.toString(instance.hashCode());
+		if (idIsSubpopulation) {
+			return instance.getSubpopulationId();
+		} else if (instance instanceof Example) {
+			return instance.getSubpopulationId()+":"+Integer.toString(instance.hashCode());
 		} else {
-			return null;
+			return null; // test case, lookup anything
 		}
-	    */
 	}
 
 	static private String getFeatureValue(Instance instance,String[] featurePattern)
