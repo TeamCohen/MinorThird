@@ -36,6 +36,8 @@ public interface TextBase
    */
   public void loadDocument(String documentId, String text);
 
+    public void loadDocument(String documentId, String documentString, int charOffset);
+
 	/** Tokenize a string. */
 	public String[] splitIntoTokens(String string);
 
@@ -58,4 +60,9 @@ public interface TextBase
 
     /**Tokenize a text base differently*/
     public TextBase retokenize(Tokenizer tok);
+
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    public TextLabels importLabels(TextLabels parentLabels);
+
+    
 }

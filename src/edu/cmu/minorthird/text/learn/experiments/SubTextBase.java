@@ -48,6 +48,10 @@ public class SubTextBase implements TextBase
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
 
+    public void loadDocument(String documentId, String string, int offset){
+	throw new UnsupportedOperationException("SubTextBase is read-only");
+    }
+
     public Document getDocument(String documentId){
 		throw new UnsupportedOperationException("You cannot retrieve a document from SubTextBase");
 	}
@@ -81,5 +85,11 @@ public class SubTextBase implements TextBase
 	TextBase tb = new BasicTextBase();
 	tb = base.retokenize(new Tokenizer());
 	return tb;
+    }
+
+    public TextLabels importLabels(TextLabels parentLabels) 
+    {
+	TextLabels childLabels = base.importLabels(parentLabels);
+	return childLabels;
     }
 }

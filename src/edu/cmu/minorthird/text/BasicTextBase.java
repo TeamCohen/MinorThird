@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  * tokenization.
  *
  * @author William Cohen
+ * @author Cameron Williams
  */
 
 public class BasicTextBase implements TextBase, Serializable
@@ -55,6 +56,12 @@ public class BasicTextBase implements TextBase, Serializable
 	loadRegex(documentId, documentString, regexPattern); 
     }
 
+    public void loadDocument(String documentId, String documentString, int charOffset)
+    {
+	String regexPattern = tokenizer.regexPattern;
+	loadRegex(documentId, documentString, charOffset, regexPattern); 
+    }
+
     /** Load all substrings of a string that match group 1 of a given regex pattern.
      */
     protected void loadRegex(String documentId, String string, String regexPattern)
@@ -63,6 +70,22 @@ public class BasicTextBase implements TextBase, Serializable
 	
 	tokenizer.regexPattern = regexPattern;
 	Document document = new Document(documentId, string);
+	
+	TextToken[] tokenArray = tokenizer.splitIntoTokens(document, string);
+	
+	document.setTokens(tokenArray);
+
+	documentMap.put(documentId, document);
+    }
+
+    /** Load all substrings of a string that match group 1 of a given regex pattern.
+     */
+    protected void loadRegex(String documentId, String string, int charOffset, String regexPattern)
+    {
+	//create the document and add the tokens to that document
+	
+	tokenizer.regexPattern = regexPattern;
+	Document document = new Document(documentId, string, charOffset);
 	
 	TextToken[] tokenArray = tokenizer.splitIntoTokens(document, string);
 	
@@ -116,11 +139,23 @@ public class BasicTextBase implements TextBase, Serializable
 	public Object next() {
 	    String documentId = (String)k.next();
 	    TextToken[] textTokens = getTokenArray(documentId);
-	    return new BasicSpan(documentId,textTokens,0,textTokens.length,(String)documentGroupMap.get(documentId));
+	    Span s = new BasicSpan(documentId,textTokens,0,textTokens.length,(String)documentGroupMap.get(documentId));
+	    int offset = getOffset(documentId);
+	    //System.out.println("The Offset is: " + offset);
+	    s.setCharOffset(getOffset(documentId));
+	    return s;
 	}
 	public int estimatedSize() { return documentMap.keySet().size(); }
     }
 
+    private int getOffset(String documentId) {
+	Document document = (Document)documentMap.get(documentId);
+	if (document!=null)
+	    return document.charOffset;
+	else
+	    return -1;
+    }
+    
     private TextToken[] getTokenArray(String documentId)
     {
 	Document document = (Document)documentMap.get(documentId);
@@ -130,14 +165,45 @@ public class BasicTextBase implements TextBase, Serializable
 	    return null;
     }
 
+    /** Separate the tokens in a text Base differently */
     public TextBase retokenize(Tokenizer tok)
     {
 	TextBase tb = new BasicTextBase();
 	Object[] docs = documentMap.values().toArray();
 	for(int i=0; i<docs.length; i++) {
 	    tb.loadDocument(((Document)docs[i]).getId(),((Document)docs[i]).getText(),tok);
-	    }
+	}
 	return tb;
+    }
+
+    public static class IllegalArgumentException extends Exception {
+	public IllegalArgumentException(String s) { super(s); }
+    }
+
+    /** Import Labels from a TextBase with the same documents (such as a retokenized textBase */
+    public TextLabels importLabels(TextLabels parentLabels){
+	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
+	MutableTextLabels childLabels = new BasicTextLabels(this);
+	Span.Looper docIterator = documentSpanIterator();
+	Set types = parentLabels.getTypes();     
+	while(docIterator.hasNext()) {
+	    Span docSpan = docIterator.nextSpan();
+	    String docID = docSpan.getDocumentId();
+	    Iterator typeIterator = types.iterator();
+	    while(typeIterator.hasNext()) {
+		String type = (String)typeIterator.next();
+		Set spansWithType = ((BasicTextLabels)parentLabels).getTypeSet(type, docID);
+		Iterator spanIterator = spansWithType.iterator();
+		while(spanIterator.hasNext()) {
+		    Span s = (Span)spanIterator.next();
+		    Span approxSpan = docSpan.charIndexSubSpan(s.getLoChar(), s.getHiChar());
+		    if(docSpan.contains(approxSpan)) {
+			childLabels.addToType(approxSpan, type);
+		    }
+		}
+	    }
+	}
+	return childLabels;
     }
 
     //
