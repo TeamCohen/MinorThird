@@ -12,7 +12,7 @@ import java.util.*;
 
 public class OneVsAllLearner implements ClassifierLearner
 {
-    private ClassifierLearnerFactory learnerFactory;
+    protected ClassifierLearnerFactory learnerFactory;
     protected BatchClassifierLearner learner;
     protected String learnerName;
     protected ArrayList innerLearner = null;
@@ -58,7 +58,6 @@ public class OneVsAllLearner implements ClassifierLearner
 	//this(new ClassifierLearnerFactory("new VotedPerceptron()"));
 	//try{
 	this("new MaxEntLearner()");
-	System.out.println("How about this function?");
     }
 
     /** 
@@ -69,7 +68,6 @@ public class OneVsAllLearner implements ClassifierLearner
 	this.learnerFactory = learnerFactory;
     }
     public OneVsAllLearner(String learnerName) {
-	System.out.println("We get to this function!!!!");
 	this.learnerName = learnerName;
 	learnerFactory = new ClassifierLearnerFactory(learnerName);
 	try {

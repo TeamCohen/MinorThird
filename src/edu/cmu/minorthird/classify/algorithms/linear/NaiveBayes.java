@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.io.*;
 
 /**
  * Naive Bayes algorithm.  If feature weights are word counts then this 
@@ -27,7 +28,7 @@ import java.util.Set;
  *  = sum_f log [Pr(f|+) - Pr(f|-)] + log Pr(+) - log Pr(-i)
  */
 
-public class NaiveBayes extends OnlineBinaryClassifierLearner
+public class NaiveBayes extends OnlineBinaryClassifierLearner implements Serializable
 {
     private static Logger log = Logger.getLogger(NaiveBayes.class);
 

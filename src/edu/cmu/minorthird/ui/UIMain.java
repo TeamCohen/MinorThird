@@ -62,7 +62,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
 	try {
 	    getCLP().processArguments(args);
 	    if (!useGUI) {
-		//if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
+		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (base.showLabels) new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(base.labels));
 		doMain();
 	    }

@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.algorithms.knn;
 
 import edu.cmu.minorthird.classify.*;
+import java.io.*;
 
 /**
  * Learn an Knn Classifier.
@@ -10,7 +11,7 @@ import edu.cmu.minorthird.classify.*;
  * @author William Cohen
  */
 
-public class KnnLearner extends OnlineClassifierLearner
+public class KnnLearner extends OnlineClassifierLearner implements Serializable
 {
 	private DatasetIndex index;
 	private ExampleSchema schema;

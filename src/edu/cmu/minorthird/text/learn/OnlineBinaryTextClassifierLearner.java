@@ -18,7 +18,7 @@ import java.io.*;
  * @author Cameron Williams
  */
 
-public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator implements OnlineTextClassifierLearner
+public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator implements OnlineTextClassifierLearner, Serializable
 {
     // internal state       
     private SpanFeatureExtractor fe = null;

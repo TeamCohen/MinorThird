@@ -328,7 +328,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker
 	try {	    	    
 	    try {
 		//Annotator ann = (Annotator)textLearner;
-		IOUtil.saveSerialized((Serializable)ann,file);
+		IOUtil.saveSerialized((Serializable)textLearner,file);
 	    } catch (IOException e) {
 		throw new IllegalArgumentException("can't save to "+file+": "+e);
 	    }

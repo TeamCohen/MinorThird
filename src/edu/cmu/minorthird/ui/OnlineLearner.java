@@ -25,23 +25,25 @@ public class OnlineLearner extends UIMain
 
     // private data needed to train a classifier
 
-    protected CommandLineUtil.OnlineBaseParams unlabeledData = new CommandLineUtil.OnlineBaseParams();   
-    private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
+    protected CommandLineUtil.OnlineBaseParams labeledData = new CommandLineUtil.OnlineBaseParams();   
+    private CommandLineUtil.OnlineSignalParams signal = new CommandLineUtil.OnlineSignalParams(labeledData);
     private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
+    private CommandLineUtil.TestClassifierParams test = new CommandLineUtil.TestClassifierParams();
     OnlineTextClassifierLearner textLearner = null;
     private Classifier classifier = null;
 
-    public CommandLineUtil.OnlineBaseParams get_UnlabeledDataParameters() { return unlabeledData; }
-    public void set_UnlabeledDataParameters(CommandLineUtil.OnlineBaseParams unlabeledData) { this.unlabeledData=unlabeledData; }
-    public CommandLineUtil.ClassificationSignalParams getSignalParameters() { return signal; } 
-    public void setSignalParameters(CommandLineUtil.ClassificationSignalParams p) { signal=p; } 
+    public CommandLineUtil.OnlineBaseParams get_LabeledDataParameters() { return labeledData; }
+    public void set_LabeledDataParameters(CommandLineUtil.OnlineBaseParams labeledData) { this.labeledData=labeledData; }
+    public CommandLineUtil.OnlineSignalParams getSignalParameters() { return signal; } 
+    public void setSignalParameters(CommandLineUtil.OnlineSignalParams p) { signal=p; } 
     public CommandLineUtil.TrainClassifierParams getAdditionalParameters() { return train; } 
-    public void setAdditionalParameters(CommandLineUtil.TrainClassifierParams p) { train=p; } 
-
+    public void setAdditionalParameters(CommandLineUtil.TrainClassifierParams p) { train=p; }
+    public CommandLineUtil.TestClassifierParams getTextLearnerParameters() { return test; } 
+    public void setTextLearnerParameters(CommandLineUtil.TestClassifierParams p) { test=p; } 
 
     public CommandLineProcessor getCLP()
     {
-	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,unlabeledData,signal,train});
+	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,labeledData,signal,train,test});
     }
 
     //
@@ -56,15 +58,24 @@ public class OnlineLearner extends UIMain
 	    throw new IllegalArgumentException("-spanType must be specified");
 	if(!(train.learner instanceof OnlineBinaryClassifierLearner))
 	    throw new IllegalArgumentException("The learner must be an OnlineBinaryClassifierLearner");
-	if(unlabeledData.unlabeledData == null)
-	    throw new IllegalArgumentException("You must specify some unlabeled Data");
 	    
 	String outputType = signal.getOutputType(train.output);
-	textLearner = new OnlineBinaryTextClassifierLearner((OnlineBinaryClassifierLearner)train.learner,signal.spanType, base.labels, train.fe);
+	if(test.loadFrom == null)
+	    textLearner = new OnlineBinaryTextClassifierLearner((OnlineClassifierLearner)train.learner,signal.spanType, labeledData.labeledData, train.fe);
+	else {
+	    try { 
+		OnlineBinaryTextClassifierLearner obtcl = (OnlineBinaryTextClassifierLearner)IOUtil.loadSerialized(test.loadFrom);
+		textLearner = (OnlineTextClassifierLearner)obtcl;
+	    } catch (IOException ex) {
+		throw new IllegalArgumentException("can't load annotator from "+test.loadFrom+": "+ex);
+	    }
+	}
+
+
 	TextLabels annLabels;	    
-	annLabels = textLearner.annotatedCopy((TextLabels)unlabeledData.unlabeledData);
+	annLabels = textLearner.annotatedCopy((TextLabels)base.labels);
 		
-	OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, unlabeledData.unlabeledData, unlabeledData.repositoryKey, textLearner);
+	OnlineLearnerEditor editor = OnlineLearnerEditor.edit(annLabels, (MutableTextLabels)base.labels, base.repositoryKey, textLearner);
     }
 
     public Object getMainResult() { return textLearner.getClassifier(); }

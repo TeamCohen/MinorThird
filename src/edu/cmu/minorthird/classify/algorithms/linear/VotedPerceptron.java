@@ -4,6 +4,8 @@ import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
 
+import java.io.*;
+
 /**
  * Voted perceptron algorithm.  As described in "Large Margin
  * Classification Using the Perceptron Algorithm", Yoav Freund and
@@ -33,7 +35,7 @@ import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
   KS_t(x) = KS_{t-1}(x) + KW_t(x)
 */
 
-public class VotedPerceptron extends OnlineBinaryClassifierLearner
+public class VotedPerceptron extends OnlineBinaryClassifierLearner implements Serializable
 {
     private Hyperplane s_t,w_t,c=null;
 	private boolean ignoreWeights=false;
