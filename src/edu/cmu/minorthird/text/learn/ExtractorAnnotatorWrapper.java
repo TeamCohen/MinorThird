@@ -22,6 +22,14 @@ public class ExtractorAnnotatorWrapper
 		annotator = (ExtractorAnnotator)IOUtil.loadSerialized(file);
 	}
 
+	/** Construct from an InputStream containing a serialized extractor, as
+	 * would be learned by TrainExtractor.
+	 */
+	public ExtractorAnnotatorWrapper(InputStream stream) throws IOException
+	{
+		annotator = (ExtractorAnnotator)IOUtil.loadSerialized(stream);
+	}
+
 	/** Construct from an annotator that implements the
 	 * ExtractorAnnotator interface.
 	 */
