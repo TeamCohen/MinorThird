@@ -1,0 +1,74 @@
+
+//=============================================================================
+// Extract phrases about cells from biomedical captions.
+//
+// known current bugs:
+//  need better sentence-starting rules, not using stems
+//  (sentence start should be based on linguistically proper use of ":")
+//  need to discard things with unbalanced parens
+// undesirable examples:	
+//  "in Hela-tet Of f cells" extracts "f cells"
+//  "in contrast cells" extracts "in contrast cells"
+//  "respective cells" extracts "respective cells"
+//=============================================================================
+
+// words that might start a plural noun phrase about cells
+defDict pluralStart = ,, no, with, within, from, of, the, these, all, in, on, only, for, by, to, other, 
+	have, indicate, represent, show, and, or;
+
+// end of a plural noun phrase about cells - ie, a plural cell-related noun
+defDict pluralEnd = cells,strains,clones;
+
+// end of a singular noun phrase about cells
+defDict singEnd = cell,strain,clone;
+
+// start of a singular noun phrase about cells
+defDict singStart = ,, with, from, of, the, in, on, or, a, an, each, to, other, indicate, represent, 
+	and, or, per;
+
+// numbers
+defDict number = one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve,
+	thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+
+// simplify syntax for these, since there's no good way to quote them
+defDict openParen = (;
+defDict closeParen = );
+
+// 'context' is anything near a cell end.  This is used to restrict search
+
+defSpanType end =: ... [a(pluralEnd)] ... || ... [a(singEnd)] ...;
+defSpanType context =: any+ [ any{15} @end any{2}] ... ||  [ any{,15} @end any{2}] ... ;
+
+// the start of a sentence might have a panel label like (a) before it.
+
+defSpanType sentStart =context: ... ['.' a(openParen) !a(closeParen){1,4} a(closeParen)] ... ;
+defSpanType sentStart =context: ... ['.' ] re('^[A-Z]') ... ;
+
+// something to ignore (not extract) that precedes a plural noun phrase
+
+defSpanType ignoredPluralStart =context: ... [stem:a(pluralStart)] <!a(number),!re('^[0-9]+$')> ...;
+defSpanType ignoredPluralStart =context: ... [stem:a(pluralStart) a(number) ] ...; 
+defSpanType ignoredPluralStart =context: ... [stem:a(pluralStart) re('^[0-9]+$') ] ...; 
+defSpanType ignoredPluralStart =context: ... [@sentStart] ...;
+
+// something to ignore (not extract) that precedes a singular noun phrase
+
+defSpanType ignoredSingStart =context: ... [stem:a(singStart)] ...;
+defSpanType ignoredSingStart =context: ... [@sentStart] ...;
+
+// don't allow 'breaks' (commands, periods, etc) in the adjectives that qualify a 
+// cell-related noun.
+
+defDict breakPunct = ,, .;
+defSpanType qualifiers =context: 
+	... [<!stem:a(pluralStart),!stem:a(pluralEnd),!stem:a(singStart),!stem:a(singEnd),!a(breakPunct)>{1,8}] ...;
+
+// finally define noun phrases as start,qualifiers,end
+
+defSpanType cell =context: ... @ignoredPluralStart [@qualifiers a(pluralEnd)] ... ;
+defSpanType cell =context: ... @ignoredSingStart [@qualifiers a(singEnd)] ... ;
+
+// other cases seem to be like 'strain XY123' and 'strain XY123-fobar'
+
+defSpanType cell =context: ... ['strain' re('^[A-Z]+[0-9]+$') '-' any] ... ;
+defSpanType cell =context: ... ['strain' re('^[A-Z]+[0-9]+$') !'-'] ... ;

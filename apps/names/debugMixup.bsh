@@ -1,0 +1,22 @@
+import com.wcohen.txt.*;
+import com.wcohen.txt.gui.*;
+
+// load the documents into a textbase - there should be one document per line
+TextBase base = new BasicTextBase();
+TextBaseLoader loader = new TextBaseLoader();
+File dir = new File("9-7-97");
+loader.loadTaggedFiles(base,dir);
+TextEnv baseEnv = new BasicTextEnv(base);
+TextEnvLoader envLoader = new TextEnvLoader();
+envLoader.setClosurePolicy(TextEnvLoader.CLOSE_TYPES_IN_LABELED_DOCS);
+envLoader.importOps(baseEnv, base, new File("9-7-97-names-corrected.env"));
+
+
+// pick the mixup program to edit
+File mixupFile = new File("nameFeatures.mixup");
+
+// decide where we will store any labeled added by hand 
+
+File userEditedLabelFile = new File("my-labels.env");
+MixupDebugger.debug(base, baseEnv, userEditedLabelFile, mixupFile);
+

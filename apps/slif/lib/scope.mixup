@@ -1,0 +1,28 @@
+ 
+//=============================================================================
+// Compute scope of image pointers
+//
+//=============================================================================
+
+defTokenProp inImgPtr:local =top: ... [@local] ... ;
+defTokenProp inImgPtr:regional =top: ... [@regional] ... ;
+
+// global = words up to first regional image pointer
+defSpanType globalScope =top: [!inImgPtr:regional+ R] inImgPtr:regional ... ;
+
+// regional = words starting at a regional image pointer,
+// ending at the next one (or the end of the document)
+defSpanType regionalScope =top: ... [@regional !inImgPtr:regional+R] ... ;
+
+//
+// local scope = words from local image pointer up to a common word
+//
+defDict common = 
+	all,whole,into,on,by,in,the,a,an,of,
+	less,more,with,for,from,between,whereas,is,was,are,were,through;
+defTokenProp startScope:t =top: ... [ai(common)]... ;
+defTokenProp startScope:t =top: ... !eq('-') [re('ing$')] ... ;
+defTokenProp startScope:t =top: ... [inImgPtr:regional] ... ;
+defTokenProp startScope:t =top: ... [inImgPtr:local] ... ;
+defSpanType localScope =top: ... [L !startScope:t+ @local] ... ;
+

@@ -1,0 +1,15 @@
+import edu.cmu.minorthird.text.*;
+
+TextBaseLoader baseLoader = new TextBaseLoader();
+TextBase base = new BasicTextBase();
+
+System.out.println("dataDir="+dataDir);
+
+baseLoader.loadDir(base, new File(dataDir,"enron/bunch-1"));
+TextEnvLoader envLoader = new TextEnvLoader();
+envLoader.setClosurePolicy(TextEnvLoader.CLOSE_ALL_TYPES);
+MutableTextEnv env = envLoader.loadOps(base, new File(labelDir,"enron/bunch-1-names-corrected.env"));
+return env;
+
+
+

@@ -1,0 +1,24 @@
+// A simple learning algorithm for image pointers
+// based on filtering candidates
+
+import com.wcohen.txt.*;
+import com.wcohen.txt.ann.*;
+import com.wcohen.txt.mixup.*;
+import com.wcohen.cls.*;
+import com.wcohen.cls.linear.*;
+
+SpanFeatureExtractor fe = new SpanFeatureExtractor() {
+		public Instance extractInstance(Span s) {
+			FeatureBuffer buf = new FeatureBuffer();
+			SpanFE.from(s,buf).tokens().emit(); 
+			SpanFE.from(s,buf).left().subspan(-2,2).emit(); 
+			SpanFE.from(s,buf).right().subspan(0,2).emit(); 
+			return buf.getInstance();
+		}
+	};
+SpanFinder candidateFinder = new MixupFinder( new Mixup("... [eq('(') !eq(')'){1,15} eq(')')] ...") );
+ClassifierLearner classifierLearner = new PerceptronBatchLearner(); 
+AnnotatorLearner annotatorLearner = 
+	new BatchFilteredFinderLearner( fe, classifierLearner, candidateFinder );
+
+return annotatorLearner;

@@ -1,0 +1,19 @@
+
+ - learn classifiers for imageptr's,  -done
+				     
+ - caption processing: given a string s
+ -- load classifiers for imageptr's, reconstruct annotators
+ -- find imgptr's with annotators
+ -- compute local/regional scopes with mixup code, ensure at
+ most one local/regional imgptr is in each local/regional scope
+ -- find cells with mixup code
+ -- load proteins with importOps
+ -- for each cell, protein span s
+      for each local/regional scope span t containing s
+          find local/regional imgptr u for scope span t
+	  associate t and u
+	  associate u and s
+
+tasks:
+ - write mixup code to compute scope (as a function of a span) -done
+ - write code to annotate a caption

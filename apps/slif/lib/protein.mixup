@@ -1,0 +1,16 @@
+//=============================================================================
+// Extract protein names from a caption.
+//=============================================================================
+
+// simple method using a big rote list
+
+defSpanType protein =~ trie "f3proteins.txt";
+
+// fancy method using dictionaries
+
+//require 'proteinPatterns','proteinPatterns.mixup';
+//defDict sureProtein = "sureProteinWords.txt";
+//defDict possibleProtein = "possibleProteinWords.txt";
+//defTokenProp possibleProteinToken:t =top: 
+//	... [a(sureProtein)]... || [a(possibleProtein)] ... || ... [proteinPattern:t] ... ;
+//defSpanType protein =top: ... [L possibleProteinToken:t* a(sureProtein) possibleProteinToken:t* R] ... ;

@@ -1,0 +1,63 @@
+provide 'nameFeatures_v2';
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// second version of features for names
+//
+// version 1 was tuned for cspace data, version 2 is tuned for enron data
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// use the HeaderNameTagger class
+require 'headerNames_v2', 'HeaderNameTaggerV2';
+
+// part of the header section field
+defTokenProp headerWord:t =top: ... [@_headerSection] ... ;
+
+// part of an email address
+defTokenProp emailNameWord:t =top: ... [@_emailNameWord] ... ;
+
+// part of the 'subject' field
+defTokenProp subjectWord:t =top~ re '\nSubject:\s*([^\n]+)',1;
+
+// begins a new sentence, maybe
+//   A-Z[a-z]+ is a capitalized word
+//   [AI]\s is one of the words "A" or "I"
+defTokenProp startWord:t =top~ re '[\.\!\?]  (([A-Z][a-z]+)|([AI]))',1;
+
+// begins a new paragraph, probably
+defTokenProp startWord:t =top~ re '\n\n\s*(([A-Z][a-z]+)|([AI]))',1;
+
+// signoff at end of message, maybe
+defTokenProp signoff:t =top~ re '\n\n\s*[\-]*\s*([\w ]+)s*[\-]*\s*\n*$',1;
+//
+//// dictionaries
+defDict common = "commonWords.txt","commonEmailWords.txt";
+defDict first = "firstNames.txt","nicknames.txt";
+defDict last = "lastNames.txt";
+defDict roster = "rosterNames.txt";
+
+// some properties to exploit
+defTokenProp common:t =top: ... [ai(common)]...;
+defTokenProp punc:t =top: ... [re('^\W$')]...;
+defTokenProp first:t =top: ... [ai(first)]...;
+defTokenProp last:t =top: ... [ai(last)]...;
+defTokenProp name:t =top: ... [first:t] ... || ... [last:t] ...;
+defTokenProp rosterName:t =top: ... [ai(roster)] ... ;
+defTokenProp sureFirst:t =top: ... [<first:t,!last:t,!common:t,!emailWord:t>] ... ;
+defTokenProp sureLast:t =top: ... [<last:t,!first:t,!common:t,!emailWord:t>] ... ;
+defTokenProp sureName:t =top: ... [<name:t,!common:t,!emailWord:t>] ... ;
+defTokenProp sureName:t =top: ... [<rosterName:t,!common:t,!emailWord:t>] ... ;
+//
+//// words for which the actual token values can be used as features
+defTokenProp anchor:t =top: ... [<common:t>] ... || ... [<punc:t>] ...;
+//
+// for testing
+//defSpanType sureNameSpan =top: ... [L <sureName:t,!emailWord:t>+ R] ... ;
+//defSpanType rosterNameSpan =top: ... [L <rosterName:t,!emailWord:t,!common:t>+ R] ... ;
+//defSpanType headerNameSpan =top: ... [L headerName:t+ R] ... ;
+
+//defSpanType _startWord =top~ re '\n\n\s*(\S+)',1;
+//defSpanType _headerSection =top: [...] @_startWord ... ;
+//defSpanType _emailNameWord =_headerSection: ... [L re('^[a-z\.]+$')+  ] eq('@') ... ;
+

@@ -1,0 +1,35 @@
+import com.wcohen.txt.*;
+import com.wcohen.txt.gui.*;
+
+String arg = System.getProperty("arg","1");
+String dirName = "bunch-"+arg;
+String envFile = "bunch-"+arg+"-names.env";
+String myEnvFile = "bunch-"+arg+"-names-corrected.env";
+
+System.out.println("dir: "+dirName);
+System.out.println("machine labels: "+envFile);
+System.out.println("label file exists: "+new File(envFile).exists());
+System.out.println("my labels: "+myEnvFile);
+
+// load the documents into a textbase - there should be one document per line
+TextBase base = new BasicTextBase();
+TextBaseLoader loader = new TextBaseLoader();
+File dir = new File(dirName);
+loader.loadDir(base,dir);
+TextEnvLoader envLoader = new TextEnvLoader();
+envLoader.setClosurePolicy(TextEnvLoader.CLOSE_TYPES_IN_LABELED_DOCS);
+MutableTextEnv baseEnv = envLoader.loadOps(base, new File(envFile));
+baseEnv.declareType("true_name");
+
+File oldFile = new File(myEnvFile);
+if (oldFile.exists()) {
+    envLoader.importOps(baseEnv, base, oldFile);
+}
+
+// decide where we will store any labeled added by hand 
+System.out.println("Known types: "+baseEnv.getTypes());
+
+TextBaseEditor.edit(baseEnv, oldFile);
+
+
+

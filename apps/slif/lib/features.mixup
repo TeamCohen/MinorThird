@@ -1,0 +1,11 @@
+//============================================================================
+// compute features for learning
+//============================================================================
+
+defTokenProp cap:other =top: ... [any] ... ; 
+defTokenProp cap:punc =top: ... [re('^[^a-zA-Z0-9]$')] ... ; 
+defTokenProp cap:digit =top: ... [re('^[0-9]+$')] ... ; 
+defTokenProp cap:lc =top: ... [re('^[a-z]+$')] ... ; 
+defTokenProp cap:uc =top: ... [re('^[A-Z]+$')] ... ; 
+defTokenProp cap:initCap =top: ... [re('^[A-Z][a-z]')] ... ;
+provide imagePointerFeatures ;
