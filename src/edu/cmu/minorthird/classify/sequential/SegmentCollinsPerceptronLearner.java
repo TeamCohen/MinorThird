@@ -25,8 +25,9 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 	private static final boolean DEBUG = log.isDebugEnabled();
 
 	private int numberOfEpochs;
-
+    private boolean updatedViterbi = false;
 	public SegmentCollinsPerceptronLearner(int epochs) { this.numberOfEpochs = epochs; }
+	public SegmentCollinsPerceptronLearner(int epochs, boolean updatedViterbi) { this(epochs); this.updatedViterbi=updatedViterbi;}
 	public SegmentCollinsPerceptronLearner() { this.numberOfEpochs = 5; }
 
 	public void setSchema(ExampleSchema schema)	{	;	}
@@ -54,7 +55,8 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 		ProgressCounter pc =
 			new ProgressCounter("training semi-markov voted-perceptron",
 													"sequence",numberOfEpochs*dataset.getNumberOfSegmentGroups());
-
+		if (updatedViterbi)
+		    c.setVoteMode(true);    
 		for (int epoch=0; epoch<numberOfEpochs; epoch++) 
 		{
 			// shuffling seems to lower performance by a lot - why?
