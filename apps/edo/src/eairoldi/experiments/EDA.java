@@ -186,7 +186,8 @@ public class EDA
   static public void main(String[] argv) {
 
      // define file's locations here
-     String path = "C:\\Archive-Projects\\Text-Models\\m3rd-data\\";
+     String path = "/usr0/edo/m3rd-data";  // roxie.cald
+     //String path = "C:\\Archive-Projects\\Text-Models\\m3rd-data";  /// lab7.privacy
      String fout = path+"eda.txt";
 
      try {
