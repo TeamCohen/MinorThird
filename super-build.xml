@@ -168,7 +168,7 @@
     <mail mailhost="ux13.sp.cs.cmu.edu" mailport="25"
         subject="minorthird auto-build" encoding="plain">
       <from name="mnr3rd on raff" address="ksteppe@cs.cmu.edu"/>
-      <to address="ksteppe@cs.cmu.edu"/>
+      <to address="ksteppe@cs.cmu.edu, wcohen@cs.cmu.edu"/>
 
       <message> Auto Build and Test </message>
       <fileset dir="/usr1/ksteppe/minorthird/output">
