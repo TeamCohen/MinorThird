@@ -75,15 +75,20 @@
   <delete dir="${testRootDir}"/>
 </target>
 
+<target name="javadocs" depends="javadoc" description="alias for ant javadocs"/>
 <target name="javadoc" description="rebuild java docs">
   <delete dir="${javadoc}"/>
-  <mkdir dir="${javadoc}/com/"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/"/>
+  <!-- 
   <mkdir dir="${javadoc}/edu/cmu/minorthird/"/>
   <mkdir dir="${javadoc}/edu/cmu/minorthird/classify"/>
   <mkdir dir="${javadoc}/edu/cmu/minorthird/text"/>
   <mkdir dir="${javadoc}/edu/cmu/minorthird/text/learn"/>
   <mkdir dir="${javadoc}/edu/cmu/minorthird/text/gui"/>
   <javadoc sourcepath="${src}" destdir="${javadoc}" packagenames="edu.cmu.minorthird.wcohen.*,edu.cmu.minorthird.classify.*,edu.cmu.minorthird.text.*,edu.cmu.minorthird.text.learn.*,edu.cmu.minorthird.text.gui.*"/>
+  -->
+  <javadoc sourcepath="${src}" destdir="${javadoc}" classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
+
 </target>
 
 <target name="tests" depends="build, build-test" description="Run the tests, halting on failure">
