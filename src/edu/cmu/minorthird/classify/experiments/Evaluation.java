@@ -963,7 +963,7 @@ public class Evaluation implements Visible,Serializable,Saveable
 
             for (int i=0; i<p.values.length; i++) {
                 lc.addPoint( p.values[i][1], p.values[i][0] );
-                System.out.println(p.values[i][0]+" "+p.values[i][1]);  // Uncomment for MATLAB
+                //System.out.println(p.values[i][0]+" "+p.values[i][1]);  // Uncomment for MATLAB
             }
             // compute area under the curve
             double area = 0.0;
