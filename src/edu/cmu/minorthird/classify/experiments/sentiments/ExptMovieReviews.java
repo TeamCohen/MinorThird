@@ -64,12 +64,12 @@ public class ExptMovieReviews extends TestCase
             // load the documents into a textbase
             TextBase base = new BasicTextBase();
             TextBaseLoader loader = new TextBaseLoader();
-            File dir = new File("/usr1/edo/Min3rd-Datasets/movie-reviews-100"); // /Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004
+            File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews-100"); // /Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004
             loader.loadTaggedFiles(base, dir);
 
             // load labels
             MutableTextLabels labels = new BasicTextLabels(base);
-            new TextLabelsLoader().importOps(labels, base, new File("/usr1/edo/Min3rd-Datasets/movie-labels-100.env"));
+            new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
 
             // for verification/correction of the labels, if we care...
             //TextBaseLabeler.label( labels, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels-100.env"));
@@ -111,33 +111,32 @@ public class ExptMovieReviews extends TestCase
                 //data.add( example );
             }
 
+            //Dataset data = MovieDataset.MovieReviewsData();
 
             // Filter
-            System.out.println("filter examples");
+            System.out.println("Filter Features");
             T1InstanceTransformLearner filter = new T1InstanceTransformLearner();
             InstanceTransform t1Statistics = new T1InstanceTransform();
             T1InstanceTransformLearner.setREF_LENGTH(500.0);
             t1Statistics = filter.batchTrain( data );
-            //System.out.println( "old data:\n" + data );
             data = t1Statistics.transform( data );
-            System.out.println( "new data:\n" + data );
+            //System.out.println( "Filtered Dataset:\n" + data );
 
             ViewerFrame f = new ViewerFrame("Pos data", data.toGUI());
             //System.exit(0);
 
 
             // pick a learning algorithm
-            System.out.println("classify examples");
+            System.out.println("Classify Examples");
             ClassifierLearner learner = new NaiveBayes();
 
 
             // do a 10-fold cross-validation experiment
-            System.out.println("evaluate");
+            System.out.println("Evaluate");
             Evaluation v = Tester.evaluate(learner, data, new StratifiedCrossValSplitter(10));
 
 
             // display the results
-            System.out.println("show results");
             f = new ViewerFrame("Results of 10-fold CV on 'Pos'", v.toGUI());
 
 

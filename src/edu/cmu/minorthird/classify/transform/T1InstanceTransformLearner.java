@@ -173,7 +173,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
         T1InstanceTransformLearner learner = new T1InstanceTransformLearner();
         InstanceTransform t1Statistics = new T1InstanceTransform();
         t1Statistics = learner.batchTrain( dataset );
-        System.out.println( "old data:\n" + dataset );
+        //System.out.println( "old data:\n" + dataset );
         dataset = t1Statistics.transform( dataset );
         System.out.println( "new data:\n" + dataset );
     }

@@ -107,11 +107,11 @@ public class PoissonLearner implements BinaryClassifierLearner
             //System.out.println(numGivenNeg);
             //System.out.println("feature:" + f + ", " + ngp + " " + ngn);
             //System.out.println(c.getScale());
-            double pweight = estimatedProb( ngp, numPos/c.getScale(), featurePrior, 1.0 );
-            double nweight = estimatedProb( ngn, numNeg/c.getScale(), featurePrior, 1.0 );
+            double pweight = estimatedProb( ngp, numPos/c.getScale(), featurePrior, 1.0/c.getScale() );
+            double nweight = estimatedProb( ngn, numNeg/c.getScale(), featurePrior, 1.0/c.getScale() );
             c.increment( f, -pweight +nweight );
-            pweight = estimatedProb( ngp, numPos/c.getScale(), featurePrior, 1.0, LOG );
-            nweight = estimatedProb( ngn, numNeg/c.getScale(), featurePrior, 1.0, LOG );
+            pweight = estimatedProb( ngp, numPos/c.getScale(), featurePrior, 1.0/c.getScale(), LOG );
+            nweight = estimatedProb( ngn, numNeg/c.getScale(), featurePrior, 1.0/c.getScale(), LOG );
             c.increment( f, pweight - nweight, LOG );
 		}
         c.incrementBias( +estimatedProb(numPos, numPos+numNeg, 0.5, 1.0, LOG ) );

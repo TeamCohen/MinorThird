@@ -4,6 +4,7 @@ import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.random.NegativeBinomial;
 import edu.cmu.minorthird.classify.algorithms.random.Poisson;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import java.util.*;
 
@@ -151,11 +152,15 @@ public class T1InstanceTransform implements InstanceTransform {
         greatestIndexBeforeAccept = Math.min( pValue.size()-1,Math.max( greatestIndexBeforeAccept,MIN_WORDS ) );
         //System.out.println("max-index:" + greatestIndexBeforeAccept);
 
-        ArrayList usefulFeatures = new ArrayList();
+//        ArrayList usefulFeatures = new ArrayList();
+      //log.setLevel(Level.DEBUG);
+
         TreeMap availableFeatures = new TreeMap();
+      //log.debug("num avail features = " + greatestIndexBeforeAccept);
         for (int j=0; j<=greatestIndexBeforeAccept; j++) {
-            usefulFeatures.add( new Feature( ((Pair)pValue.get(j)).key) );
+//            usefulFeatures.add( new Feature( ((Pair)pValue.get(j)).key) );
             availableFeatures.put( new Feature( ((Pair)pValue.get(j)).key),new Integer(1) );
+          //log.debug("added available feature: " + pValue.get(j));
         }
 
         // create transformed dataset
@@ -164,7 +169,21 @@ public class T1InstanceTransform implements InstanceTransform {
             Example e = i.nextExample();
             Instance mi = new MaskedInstance( e.asInstance(),availableFeatures );
             //System.out.println( mi );
-            maskeDataset.add( new Example( new CompactInstance(mi),e.getLabel()) );
+
+//            maskeDataset.add( new Example( new CompactInstance(mi),e.getLabel()) );
+          Example ex = new Example(mi, e.getLabel());
+          maskeDataset.add( ex ); //new Example ( mi, e.getLabel()));
+          /*log.debug("new example: " );//+ ex);
+          log.debug("..." + ex.binaryFeatureIterator().estimatedSize());
+          for (Feature.Looper l = ex.binaryFeatureIterator(); l.hasNext();)
+          {
+            log.debug("binary looper - " + l.nextFeature());
+          }
+          log.debug("..." + ex.numericFeatureIterator().estimatedSize());
+          for (Feature.Looper l = ex.numericFeatureIterator(); l.hasNext();)
+          {
+            log.debug("looper - " + l.nextFeature());
+          }*/
 
             /*MutableInstance mi = new MutableInstance();
             for (Feature.Looper j=e.featureIterator(); j.hasNext(); ) {
@@ -173,6 +192,7 @@ public class T1InstanceTransform implements InstanceTransform {
             }
             maskeDataset.add( new Example(new CompactInstance(mi),e.getLabel()) );*/
         }
+        //log.info("new daataset: " + maskeDataset);
         return maskeDataset;
     }
 
