@@ -36,7 +36,7 @@ public class ReplyToAnnotator extends StringAnnotator
 	
   public ReplyToAnnotator(){
   	try{
-  		File file = new File("models/VPreplyModel");
+  		File file = new File("apps/email/models/VPreplyModel");
 		model = (BinaryClassifier)IOUtil.loadSerialized(file);  		
   	}
   	catch (Exception e){

@@ -49,7 +49,7 @@ public class SigFileDetector
   	{
   		//File file = new File("/afs/cs.cmu.edu/user/vitor/sigDetectionAdaBoostModel");
   		//File file = new File("models/sigDetectionAdaBoostModel");
-  		File file = new File("models/VPsigDetectionModel");
+  		File file = new File("apps/email/models/VPsigDetectionModel");
         //File file = new File("models/AB99sigDetectionModel");
 		classifier = (BinaryClassifier)IOUtil.loadSerialized(file);  		
   	}

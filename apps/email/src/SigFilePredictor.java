@@ -57,7 +57,7 @@ public class SigFilePredictor
   public SigFilePredictor(){
   	try{
   		//File file = new File("/afs/cs.cmu.edu/user/vitor/VPsigPredictionModel");
-  		File file = new File("models/VPsigPredictionModel");
+  		File file = new File("apps/email/models/VPsigPredictionModel");
   		//File file = new File("sigModel");
 		model = (BinaryClassifier)IOUtil.loadSerialized(file);  		
   	}
@@ -822,7 +822,7 @@ public static class WindowRepresentation
     //ViewerFrame frame = new ViewerFrame("numeric demo", eval.toGUI());
     
     System.out.println("training the Model...");
-    ClassifierLearner learner = new BatchVersion(new VotedPerceptron(), 5); 
+    ClassifierLearner learner = new BatchVersion(new VotedPerceptron(), 15); 
     Classifier cl = new DatasetClassifierTeacher(dataset).train(learner);
 	System.out.println("saving model in file..."+modelName);
 	IOUtil.saveSerialized((Serializable)cl, new File(modelName));
