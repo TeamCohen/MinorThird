@@ -2,8 +2,6 @@
 
 package edu.cmu.minorthird.classify.algorithms.random;
 
-import eairoldi.random.BasicRWrapper;
-
 /**
  * @author Edoardo Airoldi
  * Date: Jan 10, 2005
@@ -12,7 +10,7 @@ import eairoldi.random.BasicRWrapper;
 public class ProbabilityFactory
 {
     private static int FLAG = 0;
-    private static BasicRWrapper rw;
+    private static RWrapper rw;
     private static Class rwShadow;
 
     public ProbabilityFactory()
@@ -21,8 +19,7 @@ public class ProbabilityFactory
         {
             try {
                 rwShadow = Class.forName("eairoldi.random.BasicRWrapper");
-                BasicRWrapper rw = (BasicRWrapper) rwShadow.newInstance();
-                this.rw = new BasicRWrapper(); // Note: initialized once at the first call!
+                this.rw = (RWrapper) rwShadow.newInstance(); // Note: initialized once at the first call!
                 FLAG += 1;
             } catch (Exception x) {
                 System.out.println("error: R in Minorthird is not properly installed!");

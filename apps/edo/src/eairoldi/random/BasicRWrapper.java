@@ -12,8 +12,9 @@ import org.rosuda.JRI.Rengine;
 import org.rosuda.JRI.REXP;
 import edu.cmu.minorthird.classify.algorithms.random.Estimate;
 import edu.cmu.minorthird.classify.algorithms.random.Estimators;
+import edu.cmu.minorthird.classify.algorithms.random.RWrapper;
 
-public class BasicRWrapper
+public class BasicRWrapper implements RWrapper
 {
    private Rengine re;
 
