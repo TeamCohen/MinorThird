@@ -11,3 +11,5 @@ Bug list:
 		may be that he was using it for the wrong thing
 5 - FIXED - DatasetLoader
 	parseLine checked the array size after indexing the array instead of before
+6 - KNOWN - DatasetLoader/ClassLabel
+	Edo reports seeing [NEG 1.0] as a binary label instead of [NEG -1.0]
