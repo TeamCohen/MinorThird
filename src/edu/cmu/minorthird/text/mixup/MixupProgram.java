@@ -365,6 +365,7 @@ public class MixupProgram
 						regex = advance(null);
 						if (regex.startsWith("'")) {
 							regex = regex.substring(1,regex.length()-1);
+							regex = regex.replaceAll("\\\\'","'");
 						}
 						token = advance(Collections.singleton(","));
 						token = advance(null);

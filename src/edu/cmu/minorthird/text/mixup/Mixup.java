@@ -348,6 +348,7 @@ public class Mixup
 			// unquote a quoted argument
 			if (argument.startsWith("'") && argument.endsWith("'")) {
 				argument = argument.substring(1,argument.length()-1);
+				argument = argument.replaceAll("\\\\'","'");
 			}
 			// precompile a regex
 			if ("re".equals(function)) pattern = Pattern.compile(argument);
