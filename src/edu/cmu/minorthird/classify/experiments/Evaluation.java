@@ -62,7 +62,7 @@ public class Evaluation implements Visible,Serializable
   /** Test the classifier on the examples in the dataset and store the results. */
   public void extend(Classifier c,Dataset d, int cvID)
   {
-    ProgressCounter pc = new ProgressCounter("classifying","examples",d.size());
+    ProgressCounter pc = new ProgressCounter("classifying","example",d.size());
     for (Example.Looper i=d.iterator(); i.hasNext(); ) {
       Example ex = i.nextExample();
       ClassLabel p = c.classification( ex );

@@ -26,11 +26,14 @@ public class RepositoryLoader implements Loader, FilenameFilter
     return FancyLoader.loadTextLabels(scriptName);
   }
 
+  /**
+   * Currently accepts all files
+   */
   public boolean accept(File dir, String name)
   {
-    if (name.endsWith(".bsh"))
+//    if (name.endsWith(".bsh"))
       return true;
-    else
-      return false;
+//    else
+//      return false;
   }
 }
