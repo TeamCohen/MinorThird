@@ -5,8 +5,8 @@ echo To run this you should:
 echo + have JAVE_HOME defined
 echo + have ANT installed
 echo + either
-echo + (a) run all commands, including this one, from the radar/extract directory, OR
-echo + (b) define MINORTHIRD to be the radar/extract directory
+echo + (a) - run all commands, including this one, from the directory containing the build.xml file, OR
+echo + (b) - define MINORTHIRD to be that directory
 echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 if "%MINORTHIRD%"=="" set MINORTHIRD=.
 set CLASSPATH=%CLASSPATH%;.

@@ -4,8 +4,8 @@ echo To run this you should:
 echo + have JAVA_HOME defined
 echo + have ANT installed
 echo + either
-echo + - run all commands, including this one, from the radar/extract directory, OR
-echo + - define MINORTHIRD to be the radar/extract directory
+echo + - run all commands, including this one, from the directory containing the build.xml file, OR
+echo + - define MINORTHIRD to be that directory
 echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 echo
 export CLASSPATH="${CLASSPATH};.;${MINORTHIRD-.}/class;${MINORTHIRD-.}/lib;${MINORTHIRD-.}/lib/minorThirdIncludes.jar"
