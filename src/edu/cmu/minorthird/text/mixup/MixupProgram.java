@@ -263,8 +263,9 @@ public class MixupProgram
 							//BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
 							LineNumberReader bReader = mixupReader(defFile.toString());
 							String s = null;
-							while ((s = bReader.readLine()) != null)
-								wordSet.add( s.toLowerCase() );
+							while ((s = bReader.readLine()) != null) {
+								wordSet.add( s.trim() );
+							}
 							bReader.close();
 						} catch (IOException ioe) {
 							parseError("Error when reading " + defFile.toString() + ": " + ioe);
