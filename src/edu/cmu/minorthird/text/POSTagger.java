@@ -13,13 +13,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- *  Written by Richard Wang <rcwang@cmu.edu> (Only this code)
- * Reads in a file, tags each word with its corresponding parts-of-speech,
- * output to a file in XML format. This code is very simple, and more features
- * will be added later.
+ * Adds part of speech tags to a TextLabels. 
  *
- * set CLASSPATH = C:\radar\montytagger-1.2-java\montytagger.jar;C:\radar\montytagger-1.2-java
- * run "java POSTagger" from montytagger-1.2-java directory.
+ * @author Richard Wang rcwang@cmu.edu
  */
 
 public class POSTagger extends StringAnnotator

@@ -44,7 +44,7 @@ public class SubPopIdTest extends TestCase
 		Dataset data1 = new BasicDataset();
 		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			Span s = i.nextSpan();
-			data1.add( new BinaryExample( fe.extractInstance(s), +1 ) );
+			data1.add( new BinaryExample( fe.extractInstance(new EmptyLabels(), s), +1 ) );
 		}
 		
 		TextLabels labels = new BasicTextLabels(base);

@@ -63,6 +63,7 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
         double dCntWithF[] = new double[2];    // [0] neg, [1] pos
         double dCntWithoutF[] = new double[2]; // [0] neg, [1] pos
         dCntWithF[0] = (double)index.size(f,"NEG");
+				dCntWithF[0] = (double)index.size(f,ExampleSchema.NEG_CLASS_NAME);
         dCntWithF[1] = (double)index.size(f) -dCntWithF[0];
         dCntWithoutF[0] = dCntNeg -dCntWithF[0];
         dCntWithoutF[1] = dCntPos -dCntWithF[1];

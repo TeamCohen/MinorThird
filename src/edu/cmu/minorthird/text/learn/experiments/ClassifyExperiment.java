@@ -23,13 +23,21 @@ import org.apache.log4j.Logger;
 public class ClassifyExperiment
 {
   private static Logger log = Logger.getLogger(ClassifyExperiment.class);
+	private SampleFE.AnnotatedSpanFE fe = null;
 
-	protected SampleFE.AnnotatedSpanFE fe = SampleFE.BAG_OF_LC_WORDS;
+	/** Subclass this to use a different feature extractor in the main
+	 */
+	protected SampleFE.AnnotatedSpanFE createFE() { return SampleFE.BAG_OF_LC_WORDS; }
 
 	private TextLabels labels, testLabels;
 	private Splitter splitter;
 	private ClassifierLearner learner;
 	private String inputLabel;
+
+	/**
+	 * Default constructor.
+	 */
+	public ClassifyExperiment() {;}
 
   /**
    * @param labels The labels and base to be annotated in the example
@@ -58,6 +66,14 @@ public class ClassifyExperiment
 		this.learner = learner;
 		this.testLabels = testLabels;
 	}
+
+	public void setFE(SampleFE.AnnotatedSpanFE fe) 
+	{ 
+		this.fe = fe; 
+		System.out.println("fe = "+fe);
+	}
+	public SampleFE.AnnotatedSpanFE getFE() { return fe; 	}
+
 
 	private Dataset toDataset() 
 	{
@@ -105,11 +121,12 @@ public class ClassifyExperiment
 		return new CrossValidatedDataset( learner, toDataset(), splitter );
 	}
 
-	public SampleFE.AnnotatedSpanFE getFE() { 
-		return fe; 
+	public static void main(String[] args) 
+	{
+		new ClassifyExperiment().doMain(args);
 	}
 
-	public static void main(String[] args) 
+	protected void doMain(String[] args) 
 	{
 		Splitter splitter=null; //new RandomSplitter(0.7);
 		String learnerName="new BatchVersion(new VotedPerceptron())";
@@ -151,6 +168,7 @@ public class ClassifyExperiment
 
       log.info("splitter: " + splitter);
       ClassifyExperiment expt = new ClassifyExperiment(labels,splitter,learnerName,inputLabel,testLabels);
+			expt.setFE( this.createFE() );
 			if (annotationNeeded!=null) {
 				expt.getFE().setRequiredAnnotation(annotationNeeded);
 				expt.getFE().setAnnotationProvider(annotationNeeded+".mixup");
@@ -166,10 +184,12 @@ public class ClassifyExperiment
 			usage();
 		}
 	}
-	private static void usage() {
+	protected static void usage() {
 		System.out.println(
 			"usage: -label labelsKey -learn learner -in inputLabel [-split splitter -test testLabels -show all]");
 		System.exit(-1);
 	}
+
+
 }
 
