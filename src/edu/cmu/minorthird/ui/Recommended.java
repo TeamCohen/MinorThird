@@ -160,7 +160,7 @@ public class Recommended
 	static public class CRFAnnotatorLearner extends SequenceAnnotatorLearner
 	{
 		public CRFAnnotatorLearner() { 
-			super(new CRFLearner(), new Recommended.TokenFE());
+			super(new CRFLearner(), new Recommended.TokenFE(), new BeginContinueEndUniqueReduction());
 		}
 	}
 

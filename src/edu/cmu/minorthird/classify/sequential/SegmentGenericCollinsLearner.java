@@ -95,7 +95,7 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 				CandidateSegmentGroup g = i.nextCandidateSegmentGroup();
 				Segmentation viterbi = 
 					new SegmentCollinsPerceptronLearner.ViterbiSearcher(c,schema,maxSegmentSize).bestSegments(g);
-				if (DEBUG) log.debug("viterbi:\n"+viterbi);
+				if (DEBUG) log.debug("viterbi "+maxSegmentSize+"\n"+viterbi);
 				Segmentation correct = correctSegments(g,schema,maxSegmentSize);
 				if (DEBUG) log.debug("correct segments:\n"+correct);
 
@@ -109,7 +109,7 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 					accumNeg[k] = new Hyperplane();
 				}
 
-				int fp = compareSegmentsAndIncrement(schema, viterbi, correct, accumNeg, -1, g);
+				int fp = compareSegmentsAndIncrement(schema, viterbi, correct, accumNeg, +1, g);
 				if (fp>0) errorOnThisSequence = true;
 				int fn = compareSegmentsAndIncrement(schema, correct, viterbi, accumPos, +1, g);
 				if (fn>0) errorOnThisSequence = true;
@@ -170,7 +170,7 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 				errors++;
 				history[0] = previousClass;
 				Instance instance = new InstanceFromSequence( g.getSubsequenceExample(seg.lo,seg.hi), history);
-				if (DEBUG) log.debug("update "+delta+" for: "+instance.getSource());
+				if (DEBUG) log.debug("class "+schema.getClassName(seg.y)+" update "+delta+" for: "+instance.getSource());
 				accum[seg.y].increment( instance, delta );
 			}
 		}

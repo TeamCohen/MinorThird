@@ -201,14 +201,13 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	{
 	    try {
 		schema = dataset.getSchema();
-		doTrain(allocModel(dataset));
-		return this;
+		return doTrain(allocModel(dataset));
 	    } catch (Exception e) {
 		e.printStackTrace();
 		throw new IllegalStateException("error in CRF: "+e);
 	    }
 	}
-    void doTrain(iitb.CRF.DataIter trainData) throws Exception {
+   SequenceClassifier doTrain(iitb.CRF.DataIter trainData) throws Exception {
 	    featureGen.train(trainData);
 	    ProgressCounter pc = new ProgressCounter("training CRF","iteration");
 	    double crfWs[] = crfModel.train(trainData);
@@ -233,7 +232,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		w_t[classIndex].increment(Feature.Factory.getFeature(fname),crfWs[fIndex]);
 	    }
 	    classifier = new SequenceUtils.MultiClassClassifier(schema,w_t); 
-			//return new CMM(classifier, 1, schema );	 
+			return new CMM(classifier, 1, schema );	 
     }
 
 	
