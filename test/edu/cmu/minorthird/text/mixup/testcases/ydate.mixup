@@ -16,7 +16,7 @@ defDict dateOther = week, weekend, year, month;
 defDict dtDayWord = today, tomorrow, yesterday, weekend; // May prefer to eliminate today
 defDict datePrefix = this, next, some, following, after, before, until, till, by, through, beginning, starting, every, from;
 defDict qttyWord = $, USD, dollars, dollar, unit, units, %, precent, precents;
-defDict midWord = or, -, and, to, &;
+defDict midWord = or, -, and, to, & ;
 defDict fromWord = between, btw, bw, bt, from;
 
 defDict monthNo = 1,2,3,4,5,6,7,8,9,10,11,12;

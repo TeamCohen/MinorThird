@@ -91,7 +91,7 @@ public class Mixup
     // tokenize: words, single-quoted strings, "&&", "||", "..." or single non-word chars
     static public final Pattern tokenizerPattern = 
 	//Pattern.compile("\\s*(\\w+|'([^']|\\\\')*'|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
-	Pattern.compile("\\s*((\\n)|(\\w+)|(\\/\\/)|('(\\\\'|[^\\'])*')|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
+	Pattern.compile("\\s*((\\n)|(\\w+)|(\\/\\/)|('(\\\\'|[^\\'])*')|\\&\\&|\\|\\||\\.\\.\\.|\\\\\\;|\\W)\\s*");
 
     // legal functions
     private static Set legalFunctions; 
@@ -181,7 +181,7 @@ public class Mixup
 	    if((token.equals(";"))) {
 		token = null;
 		return null;
-	    }  
+	    }   
 	    if (set != null && !set.contains(token)){
 		System.out.println("Token at Error: " + token);
 		parseError("statement error: expected one of: " + setContents(set) + " in " + token);

@@ -286,9 +286,11 @@ public class MixupProgram
 		log.debug("marker: " + marker);
 		if (marker != null)
 		    {
+			
 			fileToLoad = tok.advance(null);
 			if (fileToLoad.charAt(0) == '\'')
 			    fileToLoad = fileToLoad.substring(1, fileToLoad.length() - 1);
+			tok.advance(null);
 		    }
 		return;
 	    }
