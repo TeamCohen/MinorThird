@@ -17,7 +17,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 	final public void processArguments(String[] args) 
 	{
 		int k = consumeArguments(args,0);
-		if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
+		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
 	}
 
 	final public int consumeArguments(String[] args,int startPos)
@@ -42,6 +42,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 					if (result instanceof CommandLineProcessor && result!=null) {
 						pos += ((CommandLineProcessor)result).consumeArguments(args,pos);
 					}
+					//For when a label follows the argument
 				} catch (NoSuchMethodException ex) {
 					try {
 						Method ms = getClass().getMethod(arg,new Class[]{String.class});

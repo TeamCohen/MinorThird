@@ -49,7 +49,7 @@ public class TypeSelector extends ComponentViewer
 	private JComboBox classBox;
 	private String name = null;
 
-	public TypeSelector(Class[] validSubclasses,Class rootClass)
+ 	public TypeSelector(Class[] validSubclasses,Class rootClass)
 	{
 		this(validSubclasses,null,rootClass);
 	}
