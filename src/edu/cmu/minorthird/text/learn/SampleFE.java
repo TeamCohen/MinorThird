@@ -7,7 +7,8 @@ import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.util.StringUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 
-import java.util.Set;
+import java.util.*;
+import java.io.*;
 
 /**
  * Some sample feature extractors.
@@ -20,7 +21,7 @@ public class SampleFE
 	 */
 	public static final AnnotatedSpanFE BAG_OF_WORDS = new BagOfWordsFE();
 
-	public static class BagOfWordsFE extends AnnotatedSpanFE {
+	public static class BagOfWordsFE extends AnnotatedSpanFE implements Serializable {
 		public void extractFeatures(TextLabels labels, Span s){
 			from(s).tokens().emit();
 		}
@@ -30,7 +31,7 @@ public class SampleFE
 	 */
 	public static final AnnotatedSpanFE BAG_OF_LC_WORDS = new BagOfLowerCaseWordsFE();
 
-	public static class BagOfLowerCaseWordsFE extends AnnotatedSpanFE {
+	public static class BagOfLowerCaseWordsFE extends AnnotatedSpanFE implements Serializable {
 		public void extractFeatures(TextLabels labels, Span s){
 			from(s).tokens().eq().lc().emit();
 		}
@@ -143,8 +144,11 @@ public class SampleFE
 	}
 
 	/** A feature extractor that pre-loads a mixup file or some other type of annotation. */
-	public static abstract class AnnotatedSpanFE extends SpanFE
+	public static abstract class AnnotatedSpanFE extends SpanFE implements Serializable
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		protected String requiredAnnotation = null;
 		protected String requiredAnnotationFileToLoad = null;
 

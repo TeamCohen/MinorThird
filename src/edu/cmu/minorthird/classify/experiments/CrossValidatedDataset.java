@@ -100,6 +100,8 @@ public class CrossValidatedDataset
 		return main;
 	}
 
+	public Evaluation getEvaluation() { return v; }
+
 	public static void main(String[] args)
 	{
 		Dataset train = SampleDatasets.sampleData("toy",false);
