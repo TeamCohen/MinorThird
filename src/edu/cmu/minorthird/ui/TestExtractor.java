@@ -30,7 +30,7 @@ public class TestExtractor extends UIMain
     private ExtractionEvaluation extractionEval = null;
     // for test set splitting
     boolean doSplit = true;
-    private static int num_partitions = 10;
+    private static int num_partitions = 5;
     private MonotonicTextLabels[] subLabels;
 
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
@@ -80,14 +80,14 @@ public class TestExtractor extends UIMain
         log.info("Evaluating test partitions...");
 
         // split to partitions and evaluate
-        if (doSplit && num_partitions>1){
+        if (num_partitions<2) doSplit=false;
+        if (doSplit){
             log.info("Creating test partition...");
             CrossValSplitter splitter = new CrossValSplitter(num_partitions);
             splitter.split(annFullLabels.getTextBase().documentSpanIterator());
-            subLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
 
-			for (int i=0; i<splitter.getNumPartitions(); i++)
-            {
+            subLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
+            for (int i=0; i<splitter.getNumPartitions(); i++) {
                try {
 				SubTextBase testBase = new SubTextBase(annFullLabels.getTextBase(), splitter.getTest(i) );
 				subLabels[i] = new MonotonicSubTextLabels(testBase, (MonotonicTextLabels)annFullLabels );
@@ -101,7 +101,7 @@ public class TestExtractor extends UIMain
         measurePrecisionRecall("OverallTest",annFullLabels,true);
 
         // sample statistics
-        if (doSplit && num_partitions>1) extractionEval.printAccStats();
+        if (doSplit) extractionEval.printAccStats();
 
 		// echo the labels after annotation
 		if (base.showResult) {
