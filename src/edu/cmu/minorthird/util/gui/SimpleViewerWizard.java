@@ -16,7 +16,7 @@ import java.awt.*;
 public class SimpleViewerWizard extends ViewerWizard
 {
 	private String titleString,promptString;
-	private WizardPanel nextWizardPanel;
+	protected WizardPanel nextWizardPanel;
 
 	public SimpleViewerWizard(
 		String key,Map viewerContext,
@@ -31,7 +31,7 @@ public class SimpleViewerWizard extends ViewerWizard
 
 	}
 	public WizardPanel buildWizardPanel() {	return new SimpleViewerPanel(); }
-	private class SimpleViewerPanel extends NullWizardPanel
+	protected class SimpleViewerPanel extends NullWizardPanel
 	{
 		public SimpleViewerPanel() {
     }

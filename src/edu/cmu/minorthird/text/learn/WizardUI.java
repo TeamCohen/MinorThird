@@ -1,27 +1,24 @@
 package edu.cmu.minorthird.text.learn;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.algorithms.knn.KnnLearner;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
 import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
 import edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
-import edu.cmu.minorthird.text.learn.SampleFE;
-import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
+import edu.cmu.minorthird.classify.experiments.RandomSplitter;
+import edu.cmu.minorthird.text.TextBaseLoader;
 import edu.cmu.minorthird.util.gui.*;
-import jwf.*;
+import jwf.NullWizardPanel;
+import jwf.WizardPanel;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.*;
 
 
 /**
@@ -32,12 +29,6 @@ import java.util.Map;
 
 public class WizardUI
 {
-	private static JFileChooser myFileChooser;
-	static {
-		myFileChooser = new JFileChooser();
-		myFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-	};
-		
 
 	/** A special type selector.
 	 */
@@ -63,11 +54,22 @@ public class WizardUI
 			// feature extractors
 			SampleFE.BagOfWordsFE.class,
 			SampleFE.BagOfLowerCaseWordsFE.class,
+      //AnnotatorLearners
+      BatchFilteredFinderLearner.class,
+//      BatchInsideOutsideLearner.class,
+//      BatchStartEndLengthLearner.class,
+//      CMMAnnotatorLearner.class
 		};
 		public MyTypeSelector(Class rootClass) { super(myClasses,rootClass); }
 	}
 
+  public static final String TEXT_CAT_TASK = "text categorization task";
+  public static final String TEXT_EXTRACT_TASK = "text extraction task";
+  public static final String TASK_KEY = "task";
+  private static final String FIXED_TEST = "fixed test";
+  private static final String CROSS_VALIDATION = "cross validation";
 
+  private static PickLoader pickLoader;
 	//
 	// define the steps of the wizard
 	//
@@ -75,13 +77,16 @@ public class WizardUI
 	/** pick the task to perform. */
 	private static class PickTask extends RadioWizard
 	{
-		public PickTask(Map viewerContext)
+    public PickTask(Map viewerContext)
 		{
-			super("task",viewerContext,"Select Task","Please select a task:");
-			addButton("Perform a text categorization experiment",
-								new PickLoader(viewerContext).getWizardPanel(),true);
-//			addButton("Perform an extraction experiment",
-//								new PickLoader(viewerContext).getWizardPanel(),true);
+			super(TASK_KEY, viewerContext, "Select Task","Please select a task:");
+      pickLoader = new PickLoader(viewerContext);
+
+      WizardPanel classifyLearner = new PickLearner(viewerContext).getWizardPanel();
+      WizardPanel annotatorLearner = new PickAnnotatorLearner(viewerContext).getWizardPanel();
+
+      addButton("Perform a text categorization experiment", TEXT_CAT_TASK, classifyLearner, true);
+			addButton("Perform an extraction experiment", TEXT_EXTRACT_TASK, annotatorLearner, false);
 		}
 	}
 
@@ -110,10 +115,10 @@ public class WizardUI
 		public PickTrainDataFile(Map viewerContext)
 		{
 			super("trainDataFile",viewerContext,
-						true,"Select Training Data","Where is the training data?",
-						myFileChooser);
+						true,"Select Training Data","Where is the training data?");
+      this.nextWizardPanel = new PickLabelFile(viewerContext);
 		}
-		public WizardPanel next() { return new PickLabelFile(viewerContext); }
+
 	}
 
 	/** Pick a label file. */
@@ -122,11 +127,32 @@ public class WizardUI
 		public PickLabelFile(Map viewerContext)
 		{
 			super("labelsFile",viewerContext,
-						true,"Select Annotation File","Where are annotations stored?",
-						myFileChooser);
+						true,"Select Annotation File","Where are annotations stored?");
+      this.nextWizardPanel = new PickFeatureExtractor(viewerContext).getWizardPanel();
 		}
-		public WizardPanel next() { return new PickLearner(viewerContext).getWizardPanel(); }
+
+    public boolean validateNext(java.util.List list)
+    {
+      if (((File)viewerContext.get("trainDataFile")).isDirectory())
+        return true;
+      else
+        return super.validateNext(list);
+    }
 	}
+
+  /** pick an annotator algorithm. */
+  private static class PickAnnotatorLearner extends SimpleViewerWizard
+  {
+    public PickAnnotatorLearner(Map viewerContext)
+    {
+      super("annotator learner",viewerContext,
+            "Configure Annotator Learner","Choose a annotation learner:",
+            pickLoader.getWizardPanel());
+      MyTypeSelector selector = new MyTypeSelector(AnnotatorLearner.class);
+      selector.setContent(SampleLearners.CMM);
+      addViewer(selector);
+    }
+  }
 
 	/** pick a learning algorithm. */
 	private static class PickLearner extends SimpleViewerWizard
@@ -135,7 +161,7 @@ public class WizardUI
 		{
 			super("learner",viewerContext,
 						"Configure Learner","Choose a classification learning algorithm:",
-						new PickFeatureExtractor(viewerContext).getWizardPanel());
+						pickLoader.getWizardPanel());
 			MyTypeSelector selector = new MyTypeSelector(ClassifierLearner.class);
 			selector.setContent(new AdaBoost());
 			addViewer(selector);
@@ -159,53 +185,74 @@ public class WizardUI
 	/** pick a test scheme algorithm. */
 	private static class PickTestMethod extends RadioWizard
 	{
-		public PickTestMethod(Map viewerContext)
+    public PickTestMethod(Map viewerContext)
 		{
 			super("testMethod",viewerContext,"Test method","Choose a testing scheme:");
-			addButton( "Cross validation or random split", new PickSplitter(viewerContext).getWizardPanel(), true );
+			addButton( "Cross validation or random split", CROSS_VALIDATION, new PickSplitter(viewerContext).getWizardPanel(), true );
 			// adding this button causes a stack overflow, why?
-			addButton( "Fixed test set", new PickTestDataFile(viewerContext), false );
+			addButton( "Fixed test set", FIXED_TEST, new PickTestDataFile(viewerContext), false );
 		}
 	}
 
 	/** Pick a training-data file. */
 	private static class PickTestDataFile extends FileChooserWizard
 	{
+
 		public PickTestDataFile(Map viewerContext)
 		{
 			super("testDataFile",viewerContext,
-						true,"Select Testing Data","Where is the test data?",
-						myFileChooser);
+						true,"Select Testing Data","Where is the test data?");
+      this.nextWizardPanel = new PickTargetClass(viewerContext);
 		}
-		public WizardPanel next() { return new PickTargetClass(viewerContext); }
 	}
 
 
 	/** pick a cross-validation scheme. */
 	private static class PickSplitter extends SimpleViewerWizard
 	{
+    private PickTargetClass classification = new PickTargetClass(viewerContext);
+    private PickLabelTargets extraction = new PickLabelTargets(viewerContext);
+
 		public PickSplitter(Map viewerContext)
 		{
 			super("splitter",viewerContext,
 						"Cross Validation","Choose a cross-validation scheme:",
-						new PickTargetClass(viewerContext));
+						null);
+      this.nextWizardPanel = classification;
 			MyTypeSelector selector = new MyTypeSelector(Splitter.class);
 			selector.setContent(new CrossValSplitter(5));
 			addViewer(selector);
 		}
+
+    public WizardPanel buildWizardPanel()
+    { return new MyPanel(); }
+
+    protected class MyPanel extends SimpleViewerPanel
+    {
+      public WizardPanel next()
+      {
+        if (viewerContext.get(TASK_KEY).equals(TEXT_EXTRACT_TASK))
+          return extraction;
+        else
+          return classification;
+      }
+    }
 	}
+
 	/** pick a cross-validation scheme. */
 	private static class PickTargetClass extends NullWizardPanel
 	{
-		private Map viewerContext;
+		protected Map viewerContext;
 		private JTextField textField;
-		public PickTargetClass(Map viewerContext)
+
+    public PickTargetClass(Map viewerContext)
 		{
 			this.viewerContext = viewerContext;
 			setBorder(new TitledBorder("Target Class"));
 			add(new JLabel("What class do you want to try to learn?"));
 			textField = new JTextField(10);
 			add(textField);
+
 		}
 		public boolean validateNext(java.util.List list) {
 			list.add("You need to pick a target class.");
@@ -215,126 +262,27 @@ public class WizardUI
 		public WizardPanel next()
 		{
 			viewerContext.put("targetClass",textField.getText().trim());
-			return new RunExperiment(viewerContext);
+			return new ExperimentWizard(viewerContext);
 		}
 	}
 
-	private static class RunExperiment extends NullWizardPanel
-	{
-		private Map viewerContext;
-		private Evaluation evaluation = null;
-		private JButton resultButton;
-		private JRadioButton someDetail,moreDetail,mostDetail;
+  private static class PickLabelTargets extends PickTargetClass
+  {
+    private JTextField outputField = new JTextField(10);
 
-		public RunExperiment(Map viewerContext)
-		{ 
-			this.viewerContext=viewerContext; 
-			setBorder(new TitledBorder("Run Experiment"));
+    public PickLabelTargets(Map viewerContext)
+    {
+      super(viewerContext);
+      add(new JLabel("What label do you want to output?"));
+      add(outputField);
+    }
 
-			JPanel detailPanel = new JPanel();
-			detailPanel.setBorder(new TitledBorder("Result Format"));
-			ButtonGroup group = new ButtonGroup();
-			someDetail = new JRadioButton("Some detail",true);
-			moreDetail = new JRadioButton("More detail",false);
-			mostDetail = new JRadioButton("Most detail",false);
-			JRadioButton[] buttons = new JRadioButton[]{someDetail,moreDetail,mostDetail};
-			for (int i=0; i<buttons.length; i++) {
-				detailPanel.add(buttons[i]);
-				group.add(buttons[i]);
-			}
-
-			JPanel runPanel = new JPanel();
-			runPanel.setBorder(new TitledBorder("Experiment Progress"));
-			JProgressBar progressBar1 = new JProgressBar();
-			JProgressBar progressBar2 = new JProgressBar();
-			runPanel.add(new JButton(new AbstractAction("Start Experiment") {
-					public void actionPerformed(ActionEvent ev) {
-						new MyThread().start();
-					}
-				}));
-			ProgressCounter.setGraphicContext(new JProgressBar[]{progressBar1,progressBar2});
-			runPanel.add(progressBar1);
-			runPanel.add(progressBar2);
-			resultButton = new JButton(new AbstractAction("View Results") {
-					public void actionPerformed(ActionEvent event) {
-						if (evaluation!=null) {
-							ViewerFrame f = new ViewerFrame("Experimental Results",evaluation.toGUI());
-						}
-					}
-				});
-			resultButton.setEnabled(false);
-			runPanel.add( resultButton );
-			add(runPanel);
-
-			add(detailPanel);
-
-		}
-		private class MyThread extends Thread
-		{
-			public void run() {
-				try {
-					System.out.println(viewerContext.toString());
-					TextBaseLoader loader = (TextBaseLoader)viewerContext.get("textBaseLoader");
-					File trainDataFile = (File)viewerContext.get("trainDataFile");
-					ClassifierLearner learner = (ClassifierLearner)viewerContext.get("learner");
-					String testMethod = (String)viewerContext.get("testMethod");
-					Splitter splitter = (Splitter)viewerContext.get("splitter");
-					TextBase base = new BasicTextBase();
-					SpanFeatureExtractor fe = (SpanFeatureExtractor)viewerContext.get("fe");
-					String targetClass = (String)viewerContext.get("targetClass");
-					File labelsFile = (File)viewerContext.get("labelsFile");
-					loader.loadFile(base,trainDataFile);
-					TextBase testBase = new BasicTextBase();
-					File testDataFile = (File)viewerContext.get("testDataFile");
-					if (testDataFile!=null) {
-						loader.loadFile(testBase,testDataFile);
-					}
-					TextLabels labels = new TextLabelsLoader().loadOps(base,labelsFile);
-					ProgressCounter pc = new ProgressCounter("creating train dataset","document",base.size());
-					Dataset data = new BasicDataset();
-					for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-						Span s = i.nextSpan();
-						double label = labels.hasType(s,targetClass) ? +1 : -1;
-						data.add( new BinaryExample( fe.extractInstance(s), label ) );
-						pc.progress();
-					}
-					pc.finished();
-					Dataset testData = new BasicDataset();
-					if (testDataFile!=null) {
-						ProgressCounter pc2 = new ProgressCounter("creating test dataset","document",base.size());
-						for (Span.Looper i=testBase.documentSpanIterator(); i.hasNext(); ) {
-							Span s = i.nextSpan();
-							double label = labels.hasType(s,targetClass) ? +1 : -1;
-							testData.add( new BinaryExample( fe.extractInstance(s), label ) );
-							pc.progress();
-						}
-						pc.finished();
-						splitter = new FixedTestSetSplitter(testData.iterator());
-					}
-					Expt expt = new Expt(learner,data,splitter);
-					if (someDetail.isSelected()) {
-						final Evaluation e = Tester.evaluate(learner,data,splitter);
-						resultButton.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent ev) {
-									ViewerFrame f = new ViewerFrame("Result",e.toGUI());
-								}
-							});
-					} else {
-						boolean saveTrainPartitions = mostDetail.isSelected();
-						final CrossValidatedDataset cd = new CrossValidatedDataset(learner,data,splitter,saveTrainPartitions);
-						resultButton.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent ev) {
-									ViewerFrame f = new ViewerFrame("Result", cd.toGUI());
-								}
-							});
-					}
-					resultButton.setEnabled(true);
-				} catch (IOException e) {
-					;
-				}
-			}
-		}
-	}
+    public WizardPanel next()
+    {
+      viewerContext.put("outputLabel", outputField.getText().trim());
+      return super.next();
+    }
+  }
 
 
 	//
@@ -345,7 +293,6 @@ public class WizardUI
 	public static void main(String args[])
 	{
 		Map viewerContext = new HashMap();
-		edu.cmu.minorthird.util.gui.WizardFrame f =
-			new edu.cmu.minorthird.util.gui.WizardFrame("Text Learning Wizard",new PickTask(viewerContext));
+		new edu.cmu.minorthird.util.gui.WizardFrame("Text Learning Wizard",new PickTask(viewerContext));
 	}
 }

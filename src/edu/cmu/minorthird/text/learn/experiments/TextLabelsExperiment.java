@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
+
 /** Run an annotation-learning experiment based on a pre-labeled
  * text .
  *
@@ -31,7 +33,17 @@ public class TextLabelsExperiment
 	private MonotonicTextLabels fullTestLabels;
 	private String outputLabel;
 	private Annotator[] annotators;
+  private static Logger log = Logger.getLogger(TextLabelsExperiment.class);
 
+  /**
+   * NB: William, this desperately needs some javadoc
+   * @param labels The labels and base to be annotated in the example
+   *               These are the training examples
+   * @param splitter Splitter on the documents in the labels to create test vs. train
+   * @param learner AnnotatorLearner algorithm object to use
+   * @param inputLabel
+   * @param outputLabel
+   */
 	public TextLabelsExperiment(TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputLabel,String outputLabel) {
 		this.labels = labels;
 		this.splitter = splitter;
@@ -51,28 +63,35 @@ public class TextLabelsExperiment
 			for (Iterator j=splitter.getTest(i); j.hasNext(); ) 
 				allTestDocuments.add( j.next() );
 		}
+
 		SubTextBase fullTestBase = new SubTextBase( labels.getTextBase(), allTestDocuments.iterator() );
 		fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, labels ) );
 
 		for (int i=0; i<splitter.getNumPartitions(); i++) {
-			System.out.println("For partition "+(i+1)+" of "+splitter.getNumPartitions());
-			System.out.println("Creating teacher and train partition...");
+			log.info("For partition "+(i+1)+" of "+splitter.getNumPartitions());
+			log.info("Creating teacher and train partition...");
+
 			SubTextBase trainBase = new SubTextBase( labels.getTextBase(), splitter.getTrain(i) );
 			SubTextLabels trainLabels = new SubTextLabels( trainBase, labels );
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( trainLabels, inputLabel );
-			System.out.println("Training annotator...");
+
+      log.info("Training annotator...");
 			annotators[i] = teacher.train( learner );
-			System.out.println("annotators["+i+"]="+annotators[i]);
-			System.out.println("Creating test partition...");			
+
+      log.info("annotators["+i+"]="+annotators[i]);
+			log.info("Creating test partition...");
 			SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
-			for (Iterator j=splitter.getTest(i); j.hasNext(); ) allTestDocuments.add( j.next() );
+			for (Iterator j=splitter.getTest(i); j.hasNext(); )
+      { allTestDocuments.add( j.next() ); }
 			MonotonicTextLabels ithTestLabels = new MonotonicSubTextLabels( testBase, fullTestLabels );
-			System.out.println("Labeling test partition...");			
+
+      log.info("Labeling test partition...");
 			annotators[i].annotate( ithTestLabels );
-			System.out.println("Evaluating test partition...");
+
+			log.info("Evaluating test partition...");
 			measurePrecisionRecall( ithTestLabels );
 		}
-		System.out.println("Overall performance measure");
+		log.info("Overall performance measure");
 		measurePrecisionRecall( fullTestLabels );
 	}
 
@@ -167,7 +186,8 @@ public class TextLabelsExperiment
 				}
 			}
 			if (labels==null || learner==null || splitter==null|| inputLabel==null || outputLabel==null) usage();
-			TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learner,inputLabel,outputLabel);
+
+      TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learner,inputLabel,outputLabel);
 			expt.doExperiment();
 			if (saveFileName!=null) {
 				new TextLabelsLoader().saveTypesAsOps( expt.getTestLabels(), new File(saveFileName) );

@@ -43,18 +43,28 @@ public class RadioWizard extends NullWizardPanel
 		buttonToWizardMap = new HashMap();
 		wizardToStringMap = new HashMap();
 	}
-	public void addButton(String tag,WizardPanel wizardPanel,boolean isSelected)
+
+  /**
+   * Add a Radiobutton to the panel
+   * @param label text to display with the button
+   * @param actionName name to be stored in the context map when selected
+   * @param wizardPanel wizard panel to use next if this button is selected
+   * @param isSelected whether it should appear selected
+   */
+  public void addButton(String label, String actionName, WizardPanel wizardPanel, boolean isSelected)
 	{
-		JRadioButton button = new JRadioButton(tag, isSelected);
+		JRadioButton button = new JRadioButton(label, isSelected);
 		buttonGroup.add(button);
 		buttonPanel.add(button);
 		buttonToWizardMap.put(button,wizardPanel);
-		wizardToStringMap.put(wizardPanel,tag);
+		wizardToStringMap.put(wizardPanel,actionName);
 	}
+
 	public boolean canFinish() { return false; }
 	public boolean validateFinish(java.util.List list) { return false; }
 	public boolean hasNext() { return true; }
 	public boolean validateNext(java.util.List list) { return true; }
+
 	public WizardPanel next()
 	{
 		for (Iterator i=buttonToWizardMap.keySet().iterator(); i.hasNext(); ) {		

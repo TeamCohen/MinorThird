@@ -22,15 +22,51 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 
 	private Dataset dataset = new BasicDataset(); // buffer
 
-	public BatchFilteredFinderLearner(
+  /**
+   * No-arg constructor.
+   * prefered: Only by the Wizard
+   * Builds a copyFrom of SampleLearners.FILTERED_BIGRAM
+   */
+  public BatchFilteredFinderLearner()
+  {
+    BatchFilteredFinderLearner copy = (BatchFilteredFinderLearner)SampleLearners.FILTERED_BIGRAM;
+    copyFrom(copy);
+  }
+
+  public BatchFilteredFinderLearner(
 		SpanFeatureExtractor fe,BinaryClassifierLearner classifierLearner,SpanFinder candidateFinder)
 	{
-		this.fe = fe;
-		this.classifierLearner = classifierLearner;
-		this.candidateFinder = candidateFinder;
-	}
+    init(fe, classifierLearner, candidateFinder);
+  }
 
-	public String getAnnotationType() { return annotationType; }
+  /**
+   * Initialize variables
+   * @param fe SpanFeatureExtractor
+   * @param classifierLearner BinaryClassifierLearner
+   * @param candidateFinder SpanFinder
+   */
+  public void init(SpanFeatureExtractor fe, BinaryClassifierLearner classifierLearner, SpanFinder candidateFinder)
+  {
+    this.fe = fe;
+    this.classifierLearner = classifierLearner;
+    this.candidateFinder = candidateFinder;
+  }
+
+  public void copyFrom(BatchFilteredFinderLearner copy)
+  {
+    init(copy.getSpanFeatureExtractor(), copy.getClassifierLearner(), copy.getCandidateFinder());
+    this.annotationType = copy.annotationType;
+    this.filter = copy.getClassifier();
+  }
+
+  protected Object clone() throws CloneNotSupportedException
+  {
+    BatchFilteredFinderLearner newObj = new BatchFilteredFinderLearner();
+    newObj.copyFrom(this);
+    return newObj;
+  }
+
+  public String getAnnotationType() { return annotationType; }
 
 	public void setAnnotationType(String s) { annotationType=s; }
 
@@ -78,5 +114,23 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 	public Classifier getClassifier() {
 		return filter;
 	}
+
+  public SpanFinder getCandidateFinder()
+  { return candidateFinder; }
+
+  public void setCandidateFinder(SpanFinder candidateFinder)
+  { this.candidateFinder = candidateFinder; }
+
+  public BinaryClassifierLearner getClassifierLearner()
+  { return classifierLearner; }
+
+  public void setClassifierLearner(BinaryClassifierLearner classifierLearner)
+  { this.classifierLearner = classifierLearner; }
+
+  public SpanFeatureExtractor getSpanFeatureExtractor()
+  { return fe; }
+
+  public void setSpanFeatureExtractor(SpanFeatureExtractor fe)
+  { this.fe = fe; }
 }
 

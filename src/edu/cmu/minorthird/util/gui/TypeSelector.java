@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.util.gui;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -130,6 +131,8 @@ public class TypeSelector extends ComponentViewer
 				BeanInfo info = Introspector.getBeanInfo(o.getClass());
 				PropertyDescriptor[] props = info.getPropertyDescriptors();
 				for (int i=0; i<props.length; i++) {
+          log.setLevel(Level.DEBUG);
+          log.debug("inspecting property: " + props[i].getShortDescription());
 					final String pname = props[i].getDisplayName();
 					final Class type = props[i].getPropertyType();
 					final Method reader = props[i].getReadMethod();
