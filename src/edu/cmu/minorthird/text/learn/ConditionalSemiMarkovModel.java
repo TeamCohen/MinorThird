@@ -8,6 +8,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
+import edu.cmu.minorthird.classify.algorithms.random.RandomElement;
 
 import com.wcohen.ss.*;
 import com.wcohen.ss.api.*;
@@ -62,32 +63,53 @@ public class ConditionalSemiMarkovModel
 		
 		public CSMMLearner()
 		{
-			this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5);
+			this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5,"");
 		}
 		public CSMMLearner(int epochs)
 		{
-			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, 5);
+			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, 5,"");
 		}
 
 		public CSMMLearner(int epochs, int maxSegmentSize)
 		{
-			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, maxSegmentSize);
+			this( new CSMMSpanFE(), new VotedPerceptron(), epochs, maxSegmentSize,"");
 		}
 
 		public CSMMLearner(String annotation)
 		{
-			this();
-			((CSMMSpanFE)fe).setRequiredAnnotation(annotation,annotation+".mixup");
+		    this( new CSMMSpanFE(), new VotedPerceptron(), 5, 5,annotation);
 		}
 		public CSMMLearner(String dictionaryFile, String distanceNames, int maxSegmentSize)
 		{
-			this( new CSMMWithDictionarySpanFE(dictionaryFile, distanceNames), new VotedPerceptron(), 5, maxSegmentSize);
+			this(dictionaryFile, distanceNames, 5, maxSegmentSize);
 		}
-
+	        public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize) 
+	        {
+		this(dictionaryFile, distanceNames, epoch, maxSegmentSize,"");
+	        }
+		public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize, String mixFile)
+		{
+			this(dictionaryFile, distanceNames, epoch, maxSegmentSize,false,mixFile);
+		}
+	        public CSMMLearner(String dictionaryFile, String distanceNames,
+				   int epochSize, int maxSegmentSize, 
+				   boolean addTraining,boolean doCrossVal,
+				   String mixFile) {
+		    this(new CSMMWithDictionarySpanFE(dictionaryFile, distanceNames, addTraining,doCrossVal), 
+			  new VotedPerceptron(), epochSize, maxSegmentSize,mixFile);
+		}
+	        public CSMMLearner(String dictionaryFile, String distanceNames, int epoch, int maxSegmentSize, boolean addTraining,String mixFile) {
+		    this(dictionaryFile, distanceNames, epoch, maxSegmentSize,addTraining,true,mixFile);
+		}
 		public CSMMLearner(
-			SpanFeatureExtractor fe,OnlineBinaryClassifierLearner classifierLearner,int epochs,int maxSegSz)
+			SpanFeatureExtractor fe,OnlineBinaryClassifierLearner classifierLearner,int epochs,int maxSegSz,String annotation)
 		{
 			this.fe = fe;
+			if (annotation.length() > 0) {
+			    System.out.println("Reading annotations");
+			    ((CSMMSpanFE)fe).setRequiredAnnotation(annotation,annotation+".mixup");
+			    ((CSMMSpanFE)fe).setTokenPropertyFeatures("*"); // use all defined properties
+			}
 			this.classifierLearner = classifierLearner;
 			this.epochs = epochs;
 			this.maxSegmentSize[1] = maxSegSz;
@@ -117,7 +139,8 @@ public class ConditionalSemiMarkovModel
 			log.debug("processing "+exampleList.size()+" examples for "+epochs+" epochs");
 
 			ProgressCounter pc = new ProgressCounter("training CSMM", "document", epochs*exampleList.size()); 
-
+			
+			if (fe.getClass().getName().endsWith("CSMMWithDictionarySpanFE")) ((CSMMWithDictionarySpanFE)fe).train(exampleList.iterator());
 			for (int i=0; i<epochs; i++) {
 
 				for (Iterator j=exampleList.iterator(); j.hasNext(); ) {
@@ -330,14 +353,14 @@ public class ConditionalSemiMarkovModel
 	static private double 
 	score(TextLabels labels,int lastY,int y,int lastT,int t,Span segment,SpanFeatureExtractor fe,BinaryClassifier cls)
 	{
+	    if (y == 0)	return 0;
 		String prevLabel = lastY==1 ? ExampleSchema.POS_CLASS_NAME : ExampleSchema.NEG_CLASS_NAME;
 		//System.out.println("score with labels "+labels.getClass());
  		Instance segmentInstance = 
 			new InstanceFromSequence(fe.extractInstance(labels,segment),new String[]{prevLabel});
 		if (DEBUG) log.debug("score: "+cls.score(segmentInstance)+"\t"+segment);
-		//return cls.score(segmentInstance);
-		if (y==1) return cls.score( segmentInstance );
-		else return 0;
+		//		System.out.println("score" + cls.score(segmentInstance)+"\t"+segment + " instance " + segmentInstance);
+		return cls.score( segmentInstance );
 	}
 
 	private static class BackPointer {
@@ -391,63 +414,109 @@ public class ConditionalSemiMarkovModel
 				// first & last tokens
 				from(span).token(0).prop(p).emit();
 				from(span).token(-1).prop(p).emit();
-			}
-		}
-	}
-
-	static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
-	{
-		SoftDictionary dictionary;
-		StringDistance distances[];
-		Feature features[];
-		// distanceNames has to be "/" separated list of distance functions that
-		// we want to apply 
-		public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) 
-		{
-			super();
-			try {
-		    dictionary = new SoftDictionary();
-		    dictionary.load(new File(dictionaryFile));
-		    distances = DistanceLearnerFactory.buildArray(distanceNames);
-		    // now create features corresponding to each distance function.
-		    features = new Feature[distances.length];
-		    for (int d = 0; d < distances.length; d++) {
-					// train anything that's also a distance learner
-					if (distances[d] instanceof StringDistanceLearner) {
-						distances[d] = dictionary.getTeacher().train( (StringDistanceLearner)distances[d] );
-					}
-					// save the feature name
-					features[d] =  Feature.Factory.getFeature(distances[d].toString());
-		    }
-			} catch (IOException e) {
-		    e.printStackTrace();
-			}
-		}
-		public void extractFeatures(TextLabels labels,Span span) {
-			super.extractFeatures(labels,span);
-			StringWrapper spanString = new BasicStringWrapper(span.asString());
-			Object closestMatch = dictionary.lookup(spanString);
-			if (closestMatch != null) {
-		    // create various types of similarity measures.
-		    for (int d = 0; d < distances.length; d++) {
-					double score = distances[d].score(spanString, (StringWrapper)closestMatch);
-					if (score != 0) {
-			    // instance has been created by the parent.
-						instance.addNumeric(features[d], score);
-					}
-		    }
+				from(span).subSpan(1,span.size()-2).tokens().prop(p).emit();
 			}
 		}
 	};
-   
-	// a proposed segmentation of a document
-	static public class Segments
-	{
-		private Set spanSet;
-		public Segments(Set spanSet)	{	this.spanSet = spanSet;	}
-		public Span.Looper iterator() {	return new BasicSpanLooper(spanSet.iterator());	}
-		public boolean contains(Span span) { return spanSet.contains(span);	}
-		public String toString() { return "[Segments: "+spanSet.toString()+"]"; }
-	}
 
-}
+    /**
+     * Feature extractor for providing distance-based features on terms
+     * Dictionary can be specified either as an external file or by using the training spans.
+     * - Sunita Sarawagi
+     */
+    static public class CSMMWithDictionarySpanFE extends CSMMSpanFE
+    {
+	boolean addTrainingSegsToDictionary;
+	boolean useCrossVal;
+	SoftDictionary dictionary;
+	StringDistance distances[];
+	Feature features[];
+	// distanceNames has to be "/" separated list of distance functions that
+	// we want to apply 
+	public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames) {
+	    this(dictionaryFile,distanceNames,false,false);
+	} 
+	public CSMMWithDictionarySpanFE(String dictionaryFile, String distanceNames, boolean addTraining, boolean useCrossValArg) { 
+	    super();
+	    try {
+		addTrainingSegsToDictionary = addTraining;
+		useCrossVal = useCrossValArg;
+		dictionary = new SoftDictionary();
+		distances = DistanceLearnerFactory.buildArray(distanceNames);
+		if (dictionaryFile.length() > 0) {
+		    dictionary.load(new File(dictionaryFile));
+		    trainDistances();
+		}
+		// now create features corresponding to each distance function.
+		features = new Feature[distances.length];
+		for (int d = 0; d < distances.length; d++) {
+		    // save the feature name
+		    features[d] =  Feature.Factory.getFeature(distances[d].toString());
+		}
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
+	}
+	public void trainDistances() {
+	    for (int d = 0; d < distances.length; d++) {
+		// train anything that's also a distance learner
+		if (distances[d] instanceof StringDistanceLearner) {
+		    distances[d] = dictionary.getTeacher().train( (StringDistanceLearner)distances[d] );
+		}
+	    }
+	}
+	public void train(Iterator iter) {
+	    if (!addTrainingSegsToDictionary)
+		return;
+	    int numAdded = 0;
+	    float total = 0;
+	    for (; iter.hasNext(); ) {
+		AnnotationExample example = (AnnotationExample)iter.next();
+		String id = example.getDocumentSpan().getDocumentId();
+		String type = example.getInputType();
+		for (Span.Looper i=example.getLabels().instanceIterator( type, id ); i.hasNext(); ) {
+		    String thisSeg = ((Span)i.nextSpan()).asString();
+		    /**
+		     * Uncomment for reporting distances..
+		     
+		    float dist = (float)dictionary.lookupDistance(thisSeg);
+		    System.out.println("Match " + thisSeg + " => " + dictionary.lookup(thisSeg)+ " at " + dictionary.lookupDistance(thisSeg));
+		    if (dist > 0)
+			total += dist;
+		    */
+		    numAdded++;
+		    dictionary.put(id,thisSeg,null);
+		}
+	    }
+	    trainDistances();
+	    //	    System.out.println("Average distance " + total/numAdded + " over " + numAdded);
+	}
+	public void extractFeatures(TextLabels labels,Span span) {
+	    super.extractFeatures(labels,span);
+	    StringWrapper spanString = new BasicStringWrapper(span.asString());
+	    String id = ((addTrainingSegsToDictionary && useCrossVal)?span.getDocumentId():null);
+	    Object closestMatch = dictionary.lookup(id,spanString);
+	    if (closestMatch != null) {
+		// create various types of similarity measures.
+		for (int d = 0; d < distances.length; d++) {
+		    double score = distances[d].score(spanString, (StringWrapper)closestMatch);
+		    if (score != 0) {
+			// instance has been created by the parent.
+			instance.addNumeric(features[d], score);
+		    }
+		}
+	    }
+	}
+    };
+
+    // a proposed segmentation of a document
+    static public class Segments
+    {
+	private Set spanSet;
+	public Segments(Set spanSet)	{	this.spanSet = spanSet;	}
+	public Span.Looper iterator() {	return new BasicSpanLooper(spanSet.iterator());	}
+	public boolean contains(Span span) { return spanSet.contains(span);	}
+	public String toString() { return "[Segments: "+spanSet.toString()+"]"; }
+    }
+
+};
