@@ -45,19 +45,11 @@ public class TestPackage extends TestSuite
 		public void doTest() 
 		{
 			TextBaseLoader baseLoader = new TextBaseLoader();
-			TextBase tb, childTB = null;
-			try {
-			    tb = baseLoader.load(new File("/usr0/m3rd/repository/data/tokenization_test/tokenization_test.txt"));
-			} catch(Exception e) {
-			    e.printStackTrace();
-			}
+			TextBase b = new BasicTextBase(), childTB = null;
+			b.loadDocument("letters", "a b c d\ne f g h\ni j k l\nm n o p\nr s t u");
 			Tokenizer tok = new Tokenizer(1, "\n");
-			try{
-			    childTB = baseLoader.load(new File("/usr0/m3rd/repository/data/tokenization_test/tokenization_test.txt"), tok);
-			} catch(Exception e) {
-			    e.printStackTrace();
-			}
-			MutableTextLabels lab = baseLoader.getLabels();
+			childTB = b.retokenize(tok);
+			MutableTextLabels lab = new BasicTextLabels();
 			try {
 				MixupProgram p = 
 				    new MixupProgram(new String[]{"defTokenProp token:first =: [any] ...",
@@ -67,10 +59,10 @@ public class TestPackage extends TestSuite
 				p.eval(lab,childTB);
 				Span.Looper looper = lab.instanceIterator("first");
 				assertTrue( looper.hasNext() );
-				assertEquals( "line by line", looper.nextSpan().asString()  ); 
+				assertEquals( "a b c d", looper.nextSpan().asString()  ); 
 				Span.Looper looper2 = lab.instanceIterator("last");
 				assertTrue( looper2.hasNext() );
-				assertEquals( "Please work lalala", looper2.nextSpan().asString()  ); 
+				assertEquals( "r s t u", looper2.nextSpan().asString()  ); 
 			} catch (Mixup.ParseException e) {
 				throw new IllegalStateException(e.toString());
 			}

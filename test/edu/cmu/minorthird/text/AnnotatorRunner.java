@@ -25,7 +25,9 @@ public class AnnotatorRunner
       File dir = new File("C:/radar/extract/src/com/wcohen/text/ann/samplemail"); 
 
       MutableTextLabels labels = null;
-      labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
+      TextBaseLoader loader = new TextBaseLoader();
+      loader.load(dir);
+      labels = loader.getLabels();
 
      //for sig annotations:
       //Annotator annotator = new SigFileAnnotator();

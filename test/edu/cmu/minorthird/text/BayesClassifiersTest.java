@@ -71,7 +71,8 @@ public class BayesClassifiersTest extends TestCase
     { // load the documents into a textbase
 
       File dir = new File(Globals.DATA_DIR + "bayes-testData");
-      TextBase base = TextBaseLoader.loadDirOfTaggedFiles(dir).getTextBase();
+      TextBaseLoader loader = new TextBaseLoader();
+      TextBase base = loader.load(dir);
 
 // set up labels
       MutableTextLabels labels = new BasicTextLabels(base);

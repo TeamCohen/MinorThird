@@ -176,7 +176,8 @@ public class TextLabelsLoaderTest extends TestCase
    */
   private void loadLabels(int closurePolicy) throws Exception
   {
-    TextBase base = TextBaseLoader.loadDocPerLine(new File(dataFile), false);
+      TextBaseLoader tbloader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
+    TextBase base = tbloader.load(new File(dataFile));
     TextLabelsLoader loader = new TextLabelsLoader();
 
     File labelFile = new File(this.labelsFile);

@@ -19,6 +19,7 @@ import java.util.Iterator;
  * This class is responsible for...
  *
  * @author ksteppe
+
  */
 public class TextBaseLoaderTest extends TestCase
 {
@@ -71,10 +72,13 @@ public class TextBaseLoaderTest extends TestCase
       TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, true);
       File dataLocation = new File(Globals.DATA_DIR + "seminar-subset");
       TextBase textBase = loader.load(dataLocation);
-      TextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
+      //TextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
+      TextLabels labels = loader.getLabels();
 
       dataLocation = new File(Globals.DATA_DIR + "tblTest");
-      labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
+      textBase = loader.load(dataLocation);
+      labels = loader.getLabels();
+      //labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
       log.info("labels: " + labels.toString());
 
       log.debug("types::: " + labels.getTypes());
@@ -154,7 +158,7 @@ public class TextBaseLoaderTest extends TestCase
   {
     try
     {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.IN_FILE, true);
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, true);
       TextBase textBase = loader.load(new File(Globals.DATA_DIR + "xmlLines.base"));
       TextLabels labels = loader.getLabels();
 
@@ -191,7 +195,7 @@ public class TextBaseLoaderTest extends TestCase
   {
     try
     {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.NONE);
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
       File dataLocation = new File(Globals.DATA_DIR + "webmaster-noid.base");
       TextBase base = loader.load(dataLocation);
 
@@ -223,11 +227,11 @@ public class TextBaseLoaderTest extends TestCase
   {
     try
     {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.IN_FILE);
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
       File dataLocation = new File(Globals.DATA_DIR + "webmasterCommands.base");
       TextBase base = loader.load(dataLocation);
 
-      base = TextBaseLoader.loadDocPerLine(dataLocation, false);
+      //base = TextBaseLoader.loadDocPerLine(dataLocation, false);
 
       checkWebMasterLines(base);
     }
@@ -258,7 +262,8 @@ public class TextBaseLoaderTest extends TestCase
   {
     try
     {
-      TextBase base = TextBaseLoader.loadDocPerLine(new File(Globals.DATA_DIR + "blankLines.base"), false);
+	TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
+      TextBase base = loader.load(new File(Globals.DATA_DIR + "blankLines.base"));
       //check that I can get a token from every document
       Span.Looper it = base.documentSpanIterator();
       while (it.hasNext())
@@ -283,8 +288,7 @@ public class TextBaseLoaderTest extends TestCase
   {
     try
     {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, TextBaseLoader.FILE_NAME,
-                                                  TextBaseLoader.NONE, TextBaseLoader.DIRECTORY_NAME, false, true);
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, false, true);
 
       //log.info("loader labels: " + loader.isLabelsInFile());
       File dir = new File(Globals.DATA_DIR + "20newgroups/20news-bydate-train");

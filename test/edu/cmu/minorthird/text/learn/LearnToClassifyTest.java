@@ -84,7 +84,7 @@ public class LearnToClassifyTest extends ClassifyTest
 //    loader.setFirstWordIsDocumentId(true);
 //    loader.loadLines(base, file);
 
-    TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.IN_FILE);
+    TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
     base = loader.load(file);
 
   }

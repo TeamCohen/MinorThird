@@ -56,7 +56,8 @@ public class EdoTextLabelsTest extends ClassifyTest
       labelString = "rr";
       documentId = "ph1.txt";
 
-      base = TextBaseLoader.loadDirOfTaggedFiles(new File(dataFile)).getTextBase();
+      TextBaseLoader loader = new TextBaseLoader();
+      base = loader.load(new File(dataFile));
 
 // check
       super.checkSpans();

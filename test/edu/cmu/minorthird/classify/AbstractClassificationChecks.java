@@ -39,6 +39,7 @@ abstract public class AbstractClassificationChecks extends TestCase
 
 
     double[] stats;
+    //System.out.println("Average Log Loss: " + );
     if (checkStandardStatsOnly)
     {
       stats = new double[4];
@@ -63,6 +64,8 @@ abstract public class AbstractClassificationChecks extends TestCase
     {
       double stat = stats[i];
       log.info("stat("+i+") = " + stat);
+      System.out.println("Predictedstat("+i+") = " + stat);
+      System.out.println("Referencestat("+i+") = " + referenceStats[i]);
       if (referenceStats != null)
         assertEquals(referenceStats[i], stat, delta);
     }
