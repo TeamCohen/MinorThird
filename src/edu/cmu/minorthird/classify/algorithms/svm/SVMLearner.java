@@ -13,6 +13,9 @@ import org.apache.log4j.Logger;
  * Parameterization is done via a svm_parameter object (see initParameters or libsvm
  * docs for examples/info).
  *
+ * There are a few setParameterXXX methods to do some changes.  Use these after calling new SVMLearner()
+ * and before starting training.
+ *
  * @author ksteppe
  */
 public class SVMLearner extends BatchBinaryClassifierLearner
@@ -90,4 +93,39 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     parameters.weight = new double[0];
   }
 
+
+  //C, gamma, kernel_type
+  /**
+   * @param type integer from the svm_parameter class
+   */
+  public void setParameterSVMType(int type)
+  { parameters.svm_type = type; }
+
+  /**
+   * Default kernel type is linear
+   * @param type integer from the svm_parameter class
+   */
+  public void setParameterKernelType(int type)
+  { parameters.kernel_type = type; }
+
+  /**
+   * The default for Gamma is 0, which works for a linear kernel, but not for
+   * other types of kernels
+   * @param gamma double to be used as the gamma parameter.  Default is 0
+   */
+  public void setParameterGamma(double gamma)
+  { parameters.gamma = gamma; }
+
+  /**
+   * @param c double to be used as the C parameter.  Default is 1
+   */
+  public void setParameterC(double c)
+  { parameters.C = c; }
+
+  /**
+   * Get the underlying svm_model object.  See libsvm for documentation details
+   * @return
+   */
+  public svm_model getModel()
+  { return model; }
 }
