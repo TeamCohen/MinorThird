@@ -67,6 +67,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	public void setAnnotatedBy(String s) { annotatedBySet.add(s); }
  
 	public void setAnnotatorLoader(AnnotatorLoader newLoader) { this.loader=newLoader; }
+
 	public AnnotatorLoader getAnnotatorLoader() { return loader; }
 
 	public void require(String annotationType,String fileToLoad)

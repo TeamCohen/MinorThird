@@ -421,9 +421,7 @@ public class MixupProgram
 			} else if (statementType==PROVIDE) {
 				labels.setAnnotatedBy(annotationType);
 			} else if (statementType==REQUIRE) {
-				if (!labels.isAnnotatedBy(annotationType)) {
-					labels.require(annotationType,fileToLoad);
-        }
+				labels.require(annotationType,fileToLoad);
 			} else {
 				Span.Looper input = null;
 				if ("top".equals(startType)) {

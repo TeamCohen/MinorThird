@@ -1,4 +1,4 @@
-/* Copyright 2003, Carnegie Mellon, All Rights Reserved */
+/* Copyright 2004, Carnegie Mellon, All Rights Reserved */
 
 package edu.cmu.minorthird.text;
 
@@ -9,6 +9,8 @@ import java.io.*;
 
 /**
  * Default version of AnnotatorLoader.
+ *
+ * @author William Cohen
  */
 
 public class DefaultAnnotatorLoader extends AnnotatorLoader
