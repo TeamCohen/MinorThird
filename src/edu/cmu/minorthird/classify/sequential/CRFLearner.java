@@ -128,9 +128,6 @@ public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConsta
 	    super(m);
 	    numStates = model.numStates();
 	}
-	public int num() {
-	    return Feature.Factory.nextHigherID()*numStates;
-	}
 	void advance() {
 	    stateId++;
 	    if (stateId < numStates)
