@@ -1,7 +1,11 @@
 package edu.cmu.minorthird.classify.experiments.sentiments;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.transform.T1InstanceTransformLearner;
+import edu.cmu.minorthird.classify.transform.InstanceTransform;
+import edu.cmu.minorthird.classify.transform.T1InstanceTransform;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.mixup.MixupProgram;
 import edu.cmu.minorthird.text.learn.SpanFE;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.learn.FeatureBuffer;
@@ -37,6 +41,13 @@ public class MovieDataset {
       // for verification/correction of the labels, if we care...
       //TextBaseLabeler.label( labels, new File("my-document-labels.env"));
 
+
+      // apply mixup file to get candidates, if there is one
+      File mixupFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/bigrams.mixup");
+      MixupProgram p = new MixupProgram(mixupFile);
+      p.eval(labels,labels.getTextBase());
+
+
       // set up a simple bag-of-words feature extractor
       System.out.println("Extract Features");
       SpanFeatureExtractor fe = new SpanFeatureExtractor()
@@ -49,7 +60,8 @@ public class MovieDataset {
           } catch (IOException e) {
           log.error(e, e);
           } */
-          SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
+          //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("use").emit();
+          SpanFE.from(s,buf).contains("bigram").eq().lc().punk().emit();
           return buf.getInstance();
         }
         public Instance extractInstance(Span s) {
@@ -69,12 +81,16 @@ public class MovieDataset {
       }
 
       // Filter here, if you like ...
-      /*T1InstanceTransformLearner T1learner = new T1InstanceTransformLearner();
-      InstanceTransform t1Statistics = new T1InstanceTransform();
-      t1Statistics = T1learner.batchTrain( data );
-      System.out.println( "old data:\n" + data );
-      data = t1Statistics.transform( data );
-      System.out.println( "new data:\n" + data );*/
+/*      System.out.println("Filter Features");
+      T1InstanceTransformLearner learner = new T1InstanceTransformLearner();
+      learner.setREF_LENGTH(100.0);
+      learner.setPDF("Poisson");
+      //learner.setPDF("Negative-Binomial");
+      InstanceTransform t1stat = learner.batchTrain( data );
+      //((T1InstanceTransform)t1stat).setALPHA(0.05);
+      //((T1InstanceTransform)t1stat).setMIN_WORDS(50);
+      ((T1InstanceTransform)t1stat).setSAMPLE(5000);
+      data = t1stat.transform( data );*/
 
     } catch (Exception e) {
       log.error(e, e);

@@ -20,27 +20,25 @@ public class T1InstanceTransform implements InstanceTransform {
   private double ALPHA; // tolerance level for the FDR in selecting features
   private int MIN_WORDS; // minimum number of features to keep, EVEN IF NOT significant
   private int SAMPLE; // points sampled to estimate T1's PDF, and compute p-values
-  private double REF_LENGTH; // word-length of the reference document
 
-  private String PDF; // model for T1: can be "Poisson" or "Negative-Binomial"
   private Map T1values;
 
   private Map muPosExamples;
   private Map deltaPosExamples;
   private Map muNegExamples;
   private Map deltaNegExamples;
+  private Map featurePdf; // model for f: can be "Poisson" or "Negative-Binomial"
 
   public T1InstanceTransform() {
     this.ALPHA = 0.05;
     this.MIN_WORDS = 50;  // 0,...,49
     this.SAMPLE = 2500;
-    this.REF_LENGTH = T1InstanceTransformLearner.getREF_LENGTH(); // for REF_LENGTH-word-long documents
-    this.PDF = "Poisson";
     this.T1values = new TreeMap();
     this.muPosExamples = new TreeMap();
     this.muNegExamples = new TreeMap();
     this.deltaPosExamples = new TreeMap();
     this.deltaNegExamples = new TreeMap();
+    this.featurePdf = new TreeMap();
   }
 
 
@@ -119,6 +117,7 @@ public class T1InstanceTransform implements InstanceTransform {
       if ( line>((Pair)pValue.get(j-1)).value ) greatestIndexBeforeAccept = j-1;
     }
     greatestIndexBeforeAccept = Math.min( pValue.size()-1,Math.max( greatestIndexBeforeAccept,MIN_WORDS ) );
+    System.out.println("Retained "+greatestIndexBeforeAccept+" fetures, out of "+pValue.size());
     for (int j=0; j<=greatestIndexBeforeAccept; j++) {
       availableFeatures.put( ((Pair)pValue.get(j)).feature,new Integer(1) );
     }
@@ -128,17 +127,17 @@ public class T1InstanceTransform implements InstanceTransform {
   private double[] sampleT1Values(Feature f)
   {
     double[] T1array = new double[ SAMPLE ];
-    if ( this.PDF.equals("Poisson") ) {
-      // Sample T1 values from the ML Poisson
+    String s = (String)featurePdf.get(f);
+    // Sample from PDF of Feature f
+    if ( s.equals("Poisson") ) {
       Poisson Xp = new Poisson( getPosMu(f) );
       Poisson Xn = new Poisson( getNegMu(f) );
       for (int cnt=0; cnt<SAMPLE; cnt++) {
         T1array[cnt] = T1( Xp.nextInt(),Xn.nextInt() );
       }
-    } else if ( this.PDF.equals("Negative-Binomial") ) {
-      // Sample T1 values from the MOME Negative-Binomial
-      TreeMap npPos = mudelta2np( getPosMu(f),getPosDelta(f),1 );
-      TreeMap npNeg = mudelta2np( getNegMu(f),getNegDelta(f),1 );
+    } else if ( s.equals("Negative-Binomial") ) {
+      TreeMap npPos = mudelta2np( getPosMu(f),getPosDelta(f),1.0 );
+      TreeMap npNeg = mudelta2np( getNegMu(f),getNegDelta(f),1.0 );
       NegativeBinomial Xp = new NegativeBinomial( ((Integer)(npPos.get("n"))).intValue(),((Double)(npPos.get("p"))).doubleValue() );
       NegativeBinomial Xn = new NegativeBinomial( ((Integer)(npNeg.get("n"))).intValue(),((Double)(npNeg.get("p"))).doubleValue() );
       for (int cnt=0; cnt<SAMPLE; cnt++) {
@@ -155,7 +154,7 @@ public class T1InstanceTransform implements InstanceTransform {
     Arrays.sort( t1array );
     int newLength = 0;
     for (int j=0; j<t1array.length; j++) {
-      if ( new Double(t1array[j]).isNaN() ) {//|| new Double(T1array[j]).isInfinite() ) {
+      if ( new Double(t1array[j]).isNaN() ) {
         newLength = j;
         break;
       } else {
@@ -190,12 +189,6 @@ public class T1InstanceTransform implements InstanceTransform {
     this.ALPHA = desiredLevel;
   }
 
-  /** Set PDF to the desired distribution:
-   * can be "Poisson" or "Negative-Binomial".  */
-  public void setPDF(String desiredPDF) {
-    this.PDF = desiredPDF;
-  }
-
 
   //
   // Other Stuff
@@ -216,9 +209,9 @@ public class T1InstanceTransform implements InstanceTransform {
     }
   }
 
-  /** Get the current value of PDF */
-  public String getPDF() {
-    return this.PDF;
+  /** Set the PDF for feature f */
+  public void setFeaturePdf(Feature f,String pdf) {
+    featurePdf.put(f, new String(pdf));
   }
 
   /** Set the value of T1 corresponding to feature f */
@@ -292,13 +285,15 @@ public class T1InstanceTransform implements InstanceTransform {
   }
 
   public TreeMap mudelta2np(double mu, double delta, double omega) {
+    //System.out.println("mu="+mu +", delta="+delta);
     TreeMap np = new TreeMap();
     // from mu,delta to n
-    int n = (int)Math.round(mu/delta);
+    int n = (int)Math.ceil(new Double(mu/delta).doubleValue());
     np.put( "n", new Integer(n) );
     // from mu,delta to p
     double p = omega*delta;
     np.put( "p", new Double(p) );
+    //System.out.println("n="+n +", p="+p +", omega="+omega);
     return np;
   }
 
