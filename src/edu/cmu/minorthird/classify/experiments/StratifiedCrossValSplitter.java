@@ -17,21 +17,21 @@ import java.util.List;
  * Date: Dec 8, 2003
  */
 
-public class StratifiedCrossValSpiltter implements Splitter {
+public class StratifiedCrossValSplitter implements Splitter {
 
-    static private Logger log = Logger.getLogger(StratifiedCrossValSpiltter.class);
+    static private Logger log = Logger.getLogger(StratifiedCrossValSplitter.class);
 
     private RandomElement random;
     private int folds;
     private List strata;
 
-    public StratifiedCrossValSpiltter(RandomElement random, int folds) {
+    public StratifiedCrossValSplitter(RandomElement random, int folds) {
         this.random = random; this.folds = folds;
     }
-    public StratifiedCrossValSpiltter(int folds) {
+    public StratifiedCrossValSplitter(int folds) {
         this(new RandomElement(), folds);
     }
-    public StratifiedCrossValSpiltter() {
+    public StratifiedCrossValSplitter() {
         this(new RandomElement(), 5);
     }
 
