@@ -13,28 +13,43 @@ public class QuotesTagger extends AbstractAnnotator
 	protected void doAnnotate(MonotonicTextLabels labels)
 	{
 		
+		// first mark single quotes that are used for abbreviations, to eliminate them later
+		try {
+			MixupProgram prog = new MixupProgram
+			(new String[] { "defTokenProp notQuote:t =~ re '\\S(\\')\\S',1"});
+			prog.eval(labels, labels.getTextBase() );
+		} catch (Mixup.ParseException e) {
+			throw new IllegalStateException("mixup error: "+e);
+		}		
+		
+
+
 		for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) 
 		{
 			Span doc = i.nextSpan();
 			
-			double count = 0;	
-			boolean flag = false;		
-
+			double counter = 0;	
+			
 
 			for (int j=0; j<doc.size(); j++)
 			{
+				boolean isQuote = false;
+				
 				Token token = doc.getTextToken(j);
-
-				if (token.getValue().toLowerCase().equals("\""))
- 				{
-					count++;
-					flag = true;	
+				String x = labels.getProperty(token, "notQuote");
+				
+				if ((token.getValue().toLowerCase().equals("\"")) || 
+				   ((token.getValue().toLowerCase().equals("\'")) && (labels.getProperty(token, "notQuote")==null))) 
+				{
+					isQuote = true;								
+					counter++;
 				}
 
-				if (count%2>0)
+				if (counter%2>0 && !isQuote)
 				{
 					labels.setProperty( token, QUOTE_PROP,"t" );
 				}
+				
 			}
 
 
