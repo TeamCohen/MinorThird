@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
 import edu.cmu.minorthird.util.gui.*;
+import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.text.*;
 import java.io.*;
 import java.util.*;
@@ -21,14 +22,26 @@ public class ExtractionEvaluation implements Visible,Serializable
 
 	private Map tagToStatsMap = new TreeMap();
 	private String overallTag = null;
+    private accStats acc_s = new accStats();
+
 
 	private static class Stats implements Serializable {
 		static private final long serialVersionUID = 1;
 		private final int CURRENT_VERSION_NUMBER = 1;
 		double tp,tr,tf1,sp,sr,sf1;
 	}
-	
-	public double spanF1() 
+
+    private static class accStats {
+		 MathUtil.Accumulator tp    = new MathUtil.Accumulator();
+         MathUtil.Accumulator tr    = new MathUtil.Accumulator();
+         MathUtil.Accumulator tf1   = new MathUtil.Accumulator();
+         MathUtil.Accumulator sp    = new MathUtil.Accumulator();
+         MathUtil.Accumulator sr    = new MathUtil.Accumulator();
+         MathUtil.Accumulator sf1   = new MathUtil.Accumulator();
+	}
+
+
+    public double spanF1()
 	{ 
 		if (overallTag==null) throw new IllegalStateException("no overall measure stored");
 		else return ((Stats)tagToStatsMap.get(overallTag)).sf1;
@@ -38,12 +51,12 @@ public class ExtractionEvaluation implements Visible,Serializable
 		if (overallTag==null) throw new IllegalStateException("no overall measure stored");
 		else return ((Stats)tagToStatsMap.get(overallTag)).sr;
 	}
-	public double spanPrecision() 
+	public double spanPrecision()
 	{ 
 		if (overallTag==null) throw new IllegalStateException("no overall measure stored");
 		else return ((Stats)tagToStatsMap.get(overallTag)).sp;
 	}
-	public double tokenF1() 
+	public double tokenF1()
 	{ 
 		if (overallTag==null) throw new IllegalStateException("no overall measure stored");
 		else return ((Stats)tagToStatsMap.get(overallTag)).tf1;
@@ -59,6 +72,33 @@ public class ExtractionEvaluation implements Visible,Serializable
 		else return ((Stats)tagToStatsMap.get(overallTag)).tp;
 	}
 
+    // get stdErr
+    public MathUtil.Accumulator acc_sr()
+	{
+        return acc_s.sr;
+	}
+    public MathUtil.Accumulator acc_sp()
+	{
+        return acc_s.sp;
+	}
+    public MathUtil.Accumulator acc_sf1()
+	{
+        return acc_s.sf1;
+	}
+    public MathUtil.Accumulator acc_tr()
+	{
+        return acc_s.tr;
+	}
+    public MathUtil.Accumulator acc_tp()
+	{
+        return acc_s.tp;
+	}
+    public MathUtil.Accumulator acc_tf1()
+	{
+        return acc_s.tf1;
+	}
+
+
 	public void extend(String tag,SpanDifference sd,boolean isOverallMeasure)
 	{
 		Stats s = new Stats();
@@ -69,8 +109,20 @@ public class ExtractionEvaluation implements Visible,Serializable
 		s.sr = sd.spanRecall();
 		s.sf1 = f1(s.sp,s.sr);
 		tagToStatsMap.put(tag, s);
-		if (isOverallMeasure) overallTag = tag;
+
+        if (isOverallMeasure) {
+            overallTag = tag; }
+        else {
+           acc_s.tp.add(s.tp);
+           acc_s.tr.add(s.tr);
+           acc_s.tf1.add(s.tf1);
+           acc_s.sp.add(s.sp);
+           acc_s.sr.add(s.sr);
+           acc_s.sf1.add(s.sf1);
+        }
 	}
+
+
 	private double f1(double p,double r)
 	{
 		if (Double.isNaN(p)) return 0;
@@ -78,6 +130,19 @@ public class ExtractionEvaluation implements Visible,Serializable
 		else if (p==0 && r==0) return 0;
 		else return 2*p*r/(p+r);
 	}
+
+    //a simple display of stdErr for now
+    public void printAccStats()
+	{
+        System.out.println("\n \n Test Partitions Statistics: \n");
+        System.out.println("\t\t n \t stdErr");
+        System.out.println("tokenPrecision \t" + acc_s.tp.numberOfValues() + "\t" + acc_s.tp.stdErr());
+        System.out.println("tokenRecall \t" + acc_s.tr.numberOfValues() + "\t" + acc_s.tr.stdErr());
+        System.out.println("tokenF1 \t" + acc_s.tf1.numberOfValues() + "\t" + acc_s.tf1.stdErr());
+        System.out.println("spanPrecision \t" + acc_s.sp.numberOfValues() + "\t" + acc_s.sp.stdErr());
+        System.out.println("spanRecall \t" + acc_s.sr.numberOfValues() + "\t" + acc_s.sr.stdErr());
+        System.out.println("spanF1 \t\t" + acc_s.sf1.numberOfValues() + "\t" + acc_s.sf1.stdErr());
+    }
 
 	public Viewer toGUI()
 	{
@@ -108,5 +173,11 @@ public class ExtractionEvaluation implements Visible,Serializable
 		v.setContent(this);
 		return v;
 	}
+
+      /**
+        private double trun(double d)
+     {
+         return (int)d * 10000/10000.;
+     }   **/
 }
 
