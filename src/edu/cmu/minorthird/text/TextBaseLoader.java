@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Configurable Loader.
+ * Configurable Text Loader.
  * <p>
  * Usage:
  * Configure a loader object using the constructors or the get/set methods.
@@ -171,7 +171,9 @@ public class TextBaseLoader implements Loader
   }
 
   /**
-   * One document per file in a directory, labels are embedded in the data
+   * One document per file in a directory, labels are embedded in the data as xml tags
+   * NB: Don't use this if the data isn't labbed - it will remove things that look like <just a note>
+   * which could cause problems.
    *
    * Returns the TextLabels object, the textbase is embedded
    */
@@ -533,11 +535,10 @@ public class TextBaseLoader implements Loader
    */
   private void addDocument(String docText)
   {
-//    if (log.isDebugEnabled())
-//      log.debug("add doc (" + curDocID + ") " + docText);
+//    docText = docText.trim(); //might or might not want this
 
     //Blank documents are dropped
-    if (docText.trim().length() == 0)
+    if (docText.length() == 0)
     {
       log.warn("Text for document " + curDocID + " is length zero or all white space, it will not be added to the text base.");
       return;
@@ -648,13 +649,13 @@ public class TextBaseLoader implements Loader
     else
     {
       curDocID = line.substring(0, spaceIndex);
-      if (!secondWordIsGroupId)
+      int i = spaceIndex + 1;
+      for (; i < line.length() && line.charAt(i) == ' '; i++) {}
+      line = line.substring(i, line.length());
+
+      if (secondWordIsGroupId)
       {
-        line = line.substring(spaceIndex + 1, line.length());
-      }
-      else
-      {
-        int spaceIndex2 = line.indexOf(' ', spaceIndex + 1);
+        int spaceIndex2 = line.indexOf(' ');
         if (spaceIndex < 0)
         {
           curGrpID = line.substring(spaceIndex + 1, line.length());
@@ -662,8 +663,11 @@ public class TextBaseLoader implements Loader
         }
         else
         {
-          curGrpID = line.substring(spaceIndex + 1, spaceIndex2);
-          line = line.substring(spaceIndex2 + 1, line.length());
+          curGrpID = line.substring(0, spaceIndex2);
+          i = spaceIndex2 + 1;
+          for (; i < line.length() && line.charAt(i) == ' '; i++) {}
+          line = line.substring(i, line.length());
+
         }
       }
     }
