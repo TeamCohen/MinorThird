@@ -1,0 +1,15 @@
+// look for capitalized tokens
+defTokenProp capitalized:t =: ... [re('^[A-Z][a-z]+$')] ... ;
+
+// look for small words that might be uncapitalized inside an entity name
+defDict commonFiller = the,of,and,to,a,in,that,as,by,but,for,with,or,at,which,from,an,on;
+defTokenProp fillerWord:t =: ... capitalized:t [a(commonFiller)] capitalized:t ... ;
+
+// a "nameWord" is capitalized, or a filler btwn capitalized words
+defTokenProp nameWord:t =: ... [fillerWord:t] ... || ... [capitalized:t] ... ;
+
+// a "candidate name" is a longest sequence of nameWords that doesn't cross a 'break'
+defSpanType candidate =: ... [L nameWord:t{2,} R] ... ;
+
+
+

@@ -1,0 +1,81 @@
+
+import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.gui.*;
+import edu.cmu.minorthird.text.mixup.*;
+
+import java.util.*;
+import java.io.*;
+
+/**
+ * Example of how to label data with the text package.
+ * Invoke this with arguments: DATADIR LABELFILE [mixupFile].
+ *
+ * For a demo, add demos\sampleMixup\ to your classpath
+ * and invoke it with no arguments.
+ * 
+ * @author wcohen
+ */
+public class LabelerDemo
+{
+  public static void main(String[] args)
+  {
+    //Usage check
+    if (args.length != 0 && args.length<2) {
+      usage();
+      return;
+    }
+
+    try
+    {
+			String[] myArgs = args.length>0 ? args : 
+												new String[]{ "sampleData/seminar-subset", "human.labels", "toyName.mixup" };
+
+      File dataDir = new File(myArgs[0]);
+      File labelFile = new File(myArgs[1]);
+			File mixupFile = myArgs.length>2 ? new File(myArgs[2]) : null;
+			
+			// load the data
+			TextBaseLoader baseLoader = new TextBaseLoader();
+			TextBase base = new BasicTextBase();
+			//This detects XML markup, and makes it available with
+			//getFileMarkup().  If you don't have XML markup, use
+			//"baseLoader.loadDir(base,dataDir)" instead.
+			baseLoader.loadTaggedFiles(base,dataDir);
+			
+			// load previous markup, if it exists
+			TextLabelsLoader labelLoader = new TextLabelsLoader(); 
+			labelLoader.setClosurePolicy(TextLabelsLoader.CLOSE_TYPES_IN_LABELED_DOCS);
+			MutableTextLabels labels = new BasicTextLabels(base);
+			if (labelFile.exists()) labelLoader.importOps(labels,base,labelFile); 
+
+			// apply mixup file to get candidates, if there is one
+			if (mixupFile!=null) {
+				try {
+					MixupProgram p = new MixupProgram(mixupFile);
+					p.eval(labels,base);
+				} catch (Exception e) {
+					System.out.println(
+						"couldn't mixup load file - are you sure "+mixupFile.getName()+" is on your classpath?");
+					System.out.println(
+						"error was: "+e);
+					labels.declareType("candidate");
+				}
+			} else {
+				labels.declareType("candidate");
+			}
+			labels.declareType("corrected");
+			
+			TextBaseEditor editor = TextBaseEditor.edit(labels,labelFile);
+			editor.getViewer().getGuessBox().setSelectedItem("candidate");
+			editor.getViewer().getTruthBox().setSelectedItem("corrected");
+		} catch (Exception e) {
+			e.printStackTrace();
+			usage();
+		}
+	}
+
+  private static void usage()
+  {
+    System.out.println("usage: LabelerDemo directoryOfFilesToLabel labelFile [mixupFile]");
+  }
+}
