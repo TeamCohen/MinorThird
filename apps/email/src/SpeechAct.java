@@ -80,6 +80,7 @@ public class SpeechAct {
   private BinaryClassifier reqamdprop_model;
   private BinaryClassifier dlvcmt_model;
   private Classifier meet_model;
+  private Classifier ddata_model;
   private static Logger log = Logger.getLogger(SpeechAct.class);
   // serialization stuff
   static public final long serialVersionUID = 1;
@@ -106,6 +107,8 @@ public class SpeechAct {
       dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
       File meetfile = new File("apps/email/models/meet_Model");//maxent
       meet_model = (Classifier) IOUtil.loadSerialized(meetfile);
+      File ddatafile = new File("apps/email/models/ddata_Model");//vp15
+      ddata_model = (Classifier) IOUtil.loadSerialized(ddatafile);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -132,6 +135,10 @@ public class SpeechAct {
   }
   public boolean isMeeting(String str) {
     return bclassify(meet_model, getInstance(str));    
+  }
+  
+  public boolean isDData(String str) {
+    return bclassify(ddata_model, getInstance(str));    
   }
   
   public boolean isRequest(String str) {
@@ -255,6 +262,7 @@ public class SpeechAct {
 	   	  boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
 	      boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
 	      boolean meetbool = sa.bclassify(sa.meet_model, ins);
+	      boolean ddatabool = sa.bclassify(sa.ddata_model, ins);
 
 		  if((sophie)&&(reqamdpropbool)){
 		  	reqBuf.append(span.getDocumentId()+"\n");
@@ -269,7 +277,8 @@ public class SpeechAct {
 		  String reqamdprops = reqamdpropbool? "_REQAMDPROP":"___________";
 	      String dlvcmts = dlvcmtbool? "_DLVCMT__":"_________";
 	      String meets = meetbool? "__MEET___":"_________";
-	      System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+" "+meets+")\n");
+	      String ddatas = ddatabool? "__dDATA___":"_________";
+	      System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+" "+meets+" "+ddatas+")\n");
          // String spanString = span.asString();
         }
         //kludge
