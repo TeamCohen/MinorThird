@@ -124,9 +124,12 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
     public class SemiMTFeatureGenImpl extends iitb.Model.NestedFeatureGenImpl {
 	public SemiMTFeatureGenImpl(int numLabels, String[] labelNames, java.util.Properties options) throws Exception {
 	    super(numLabels,options,false);
-	    addFeature(new iitb.Model.EdgeFeatures(model, HISTORY_FEATURE+".1.",labelNames));
-	    addFeature(new iitb.Model.StartFeatures(model, HISTORY_FEATURE+".1."+NULL_CLASS_NAME));
-	    addFeature(new iitb.Model.EndFeatures(model));
+	    Feature features[] = new Feature[labelNames.length];
+	    for (int i = 0; i < labelNames.length; i++)
+		features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
+	    addFeature(new iitb.Model.EdgeFeatures(model, features));
+	    addFeature(new iitb.Model.StartFeatures(model, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+	    addFeature(new iitb.Model.EndFeatures(model, new Feature("E")));
 	    addFeature(new NestedMTFeatureTypes(model));
 	}
     };
