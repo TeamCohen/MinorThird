@@ -333,7 +333,7 @@ public class Recommended
 	/** An extraction-oriented feature extractor to apply to multi-token spans. */
 	public static class MultitokenSpanFE extends TokenFE implements CommandLineProcessor.Configurable,Serializable
 	{
-		private boolean useFirst=true,useLast=true,useLength=true;
+		private boolean useFirst=true,useLast=true,useLength=true,useInternal=true;
 		//
 		// getters/setters for gui configuration
 		//
@@ -346,6 +346,9 @@ public class Recommended
 		/** Generate features for the length of the span. */
 		public void setUseLength(boolean flag) { useLength=flag; }
 		public boolean getUseLength() { return useLength; }
+		/** Generate features for the span itself */
+		public void setUseInternal(boolean flag) { useInternal=flag; }
+		public boolean getUseInternal() { return useInternal; }
 		//
 		// command-line configuration
 		//
@@ -360,7 +363,10 @@ public class Recommended
 			public void noLast() { useLast = false; }
 			public void length() { useLength = true; }
 			public void noLength() { useLength = false; }
+			public void internal() { useInternal = true; }
+			public void noInternal() { useInternal = false; }		
 		}
+
 		//
 		// 'real' code
 		//
@@ -368,9 +374,11 @@ public class Recommended
 		{
 			super.extractFeatures(labels,span);
 			// text of span & its charTypePattern
-			from(span).eq().lc().emit();
-			if (useCharType) from(span).eq().charTypes().emit();
-			if (useCharTypePattern) from(span).eq().charTypePattern().emit();
+			if (useInternal) {
+				from(span).eq().lc().emit();
+				if (useCharType) from(span).eq().charTypes().emit();
+				if (useCharTypePattern) from(span).eq().charTypePattern().emit();
+			}
 			// length properties of span
 			if (useLength) {
 				from(span).size().emit();

@@ -116,24 +116,41 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 		Segmentation segments,Segmentation otherSegments,double delta,CandidateSegmentGroup g)
 	{
 		int errors = 0;
+		// first, work out the name of the previous class for each segment
+		Map map = previousClassMap(segments,schema);
+		Map otherMap = previousClassMap(otherSegments,schema);
 		String[] history = new String[1];
-		Segmentation.Segment previousSeg = null;
 		for (Iterator j=segments.iterator(); j.hasNext(); ) {
 			Segmentation.Segment seg = (Segmentation.Segment)j.next();
-			if (DEBUG) log.debug("checking segment: "+seg);
-			if (!otherSegments.contains(seg) && seg.lo>=0) {
+			String previousClass = (String) map.get(seg);
+			if (seg.lo>=0 && (!otherSegments.contains(seg) || !otherMap.get(seg).equals(previousClass))) {
 				errors++;
-				if (previousSeg==null) history[0] = HISTORY_FEATURE+".1."+NULL_CLASS_NAME;
-				else history[0] = HISTORY_FEATURE+".1."+schema.getClassName(previousSeg.y);
+				history[0] = previousClass;
 				Instance instance = new InstanceFromSequence( g.getSubsequenceExample(seg.lo,seg.hi), history);
 				if (DEBUG) log.debug("update "+delta+" for: "+instance.getSource());
 				classifier.update( schema.getClassName( seg.y ), instance, delta ); 
 			}
-			previousSeg = seg;
 		}
 		return errors;
 	}
 
+	/** Build a mapping from segment to string name of previous segment.
+	 * This should let you look up segments which are logically
+	 * equivalent, as well as ones which are pointer-equivalent (==)
+	 */
+	private Map previousClassMap(Segmentation segments,ExampleSchema schema)
+	{
+		// use a treemap so that logically equivalent segments be mapped to same previousClass
+		Map map = new TreeMap(); 
+		Segmentation.Segment previousSeg = null;
+		for (Iterator j=segments.iterator(); j.hasNext(); ) {
+			Segmentation.Segment seg = (Segmentation.Segment)j.next();
+			String previousClassName = previousSeg==null ? NULL_CLASS_NAME : schema.getClassName(previousSeg.y);
+			map.put( seg, previousClassName);
+			previousSeg = seg;
+		}
+		return map;
+	}
 
 	/** Collect the correct segments for this example.  These are defined as 
 	 * all segments with non-NEGATIVE labels, and all unit-length negative labels
@@ -276,11 +293,11 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 		static private final long serialVersionUID = 1;
 		private final int CURRENT_VERSION_NUMBER = 1;
 
-		private CollinsPerceptronLearner.MultiClassVPClassifier c;
+		private Classifier c;
 		private ExampleSchema schema;
 		private int maxSegSize;
 
-		public ViterbiSegmenter(CollinsPerceptronLearner.MultiClassVPClassifier c,ExampleSchema schema,int maxSegSize) 
+		public ViterbiSegmenter(Classifier c,ExampleSchema schema,int maxSegSize) 
 		{
 			this.c = c;
 			this.schema = schema;

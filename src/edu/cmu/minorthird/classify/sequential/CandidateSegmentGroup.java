@@ -11,13 +11,14 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class CandidateSegmentGroup
+public class CandidateSegmentGroup implements HasSubpopulationId
 {
 	private int maxWindowSize,sequenceLength;
 	private Instance[][] window;
 	private ClassLabel[][] label;
 	private Set classNameSet;
 	private int totalSize;
+	private String subPopId = null;
 
 	public CandidateSegmentGroup(int maxWindowSize,int sequenceLength) 
 	{ 
@@ -29,12 +30,14 @@ public class CandidateSegmentGroup
 	}
 	public void setSubsequence(int start,int end,Instance newInstance,ClassLabel newLabel) 
 	{
+		setSubPopId( newInstance.getSubpopulationId() );
 		if (window[start][end-start-1]==null) totalSize++;
 		window[start][end-start-1] = newInstance;
 		label[start][end-start-1] = newLabel;
 	}
 	public void setSubsequence(int start,int end,Instance newInstance)
 	{
+		setSubPopId( newInstance.getSubpopulationId() );
 		window[start][end-start-1] = newInstance;
 	}
 	public int getSequenceLength() 
@@ -44,6 +47,10 @@ public class CandidateSegmentGroup
 	public int getMaxWindowSize()
 	{
 		return maxWindowSize;
+	}
+	public String getSubpopulationId()
+	{
+		return subPopId;
 	}
 	public int size()
 	{
@@ -91,6 +98,14 @@ public class CandidateSegmentGroup
 			}
 		}
 		return buf.toString();
+	}
+
+	private void setSubPopId(String newSubpopId)
+	{
+		if (subPopId!=null && !subPopId.equals(newSubpopId)) {
+			throw new IllegalArgumentException("grouping instances with different subPopId?");
+		}
+		subPopId = newSubpopId;
 	}
 }
 

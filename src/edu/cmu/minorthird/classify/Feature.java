@@ -31,14 +31,14 @@ public class Feature implements Comparable,Serializable
 		this.id = id;
 	}
 
-	/** Create a feature. The parts of this name are delimited by spaces. */
+	/** Create a feature. The parts of this name are delimited by periods. */
 	public Feature(String name) {
-		StringTokenizer tok = new StringTokenizer(name);
-		List list = new ArrayList();
-		while (tok.hasMoreTokens()) {
-			list.add( tok.nextToken() );
-		}
-		this.name = (String[])list.toArray(new String[list.size()]);
+		this(name.split("\\."));
+	}
+
+	/** Create a feature. The parts of this name are delimited by periods. */
+	public Feature(String name,int id) {
+		this(name.split("\\."),id);
 	}
 
 	/** Implements Comparable */
