@@ -169,6 +169,7 @@ public class Expt
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.trees.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
+			interp.eval("import edu.cmu.minorthird.classify.transform.*;");
 			return (ClassifierLearner)interp.eval(learnerName);
 		} catch (bsh.EvalError e) {
 			throw new IllegalArgumentException("error parsing learnerName '"+learnerName+"':\n"+e);

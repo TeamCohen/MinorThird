@@ -15,13 +15,17 @@ public class DatasetIndex
 {
 	private TreeMap indexByFeature;
 	private TreeMap indexByClass;
+	private int sumFeatureValues;
+	private int exampleCount;
 
 	public DatasetIndex()
 	{
 		indexByFeature = new TreeMap();
 		indexByClass = new TreeMap();
+		sumFeatureValues = 0;
 	}
 
+	/** Construct an index of a dataset. */
 	public DatasetIndex(Dataset data)
 	{
 		this();
@@ -30,15 +34,19 @@ public class DatasetIndex
 		}
 	}
 
+	/** Add a single example to the index. */
 	public void addExample(Example e)
 	{
 		classIndex(e.getLabel().bestClassName()).add(e);
 		for (Feature.Looper j=e.featureIterator(); j.hasNext(); ) {
 			Feature f = j.nextFeature();
 			featureIndex(f).add(e);
+			sumFeatureValues++;
 		}
+		exampleCount++;
 	}
 
+	/** Iterate over all features indexed. */
 	public Feature.Looper featureIterator()
 	{
 		return new Feature.Looper(indexByFeature.keySet());
@@ -50,25 +58,25 @@ public class DatasetIndex
 		return featureIndex(f).size();
 	}
 
-	/** Number of examples with the given class label */
+	/** Number of examples with the given class label. */
 	public int size(String label)
 	{
 		return classIndex(label).size();
 	}
 
-	/** Get i-th example containing feature f */
+	/** Get i-th example containing feature f. */
 	public Example getExample(Feature f,int i)
 	{
 		return (Example) featureIndex(f).get(i);
 	}
 
-	/** Get i-th example with given class label */
+	/** Get i-th example with given class label. */
 	public Example getExample(String label,int i)
 	{
 		return (Example) classIndex(label).get(i);
 	}
 
-	/** Get all examples with a common feature. */
+	/** Get all examples with a feature in common with the given instance. */
 	public Example.Looper getNeighbors(Instance instance)
 	{
 		HashSet set = new HashSet();
@@ -81,6 +89,20 @@ public class DatasetIndex
 		}
 		return new Example.Looper(set);
 	}
+
+	//
+	// statistics about the dataset
+	//
+
+	/** Number of features indexed. */
+	public int numberOfFeatures() { return indexByFeature.keySet().size(); }
+
+	/** Average number of non-zero feature values in examples. */
+	public double averageFeaturesPerExample() { return sumFeatureValues/((double)exampleCount); }
+
+	//
+	// subroutines
+	//
 
 	protected List featureIndex(Feature f)
 	{
@@ -116,6 +138,10 @@ public class DatasetIndex
 		buf.append("\nindex]");
 		return buf.toString();
 	}
+
+	//
+	// main
+	//
 
 	static public void main(String[] args)
 	{

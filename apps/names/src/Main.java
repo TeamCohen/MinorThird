@@ -121,6 +121,11 @@ public class Main
 			SequenceDataset sequenceDataset = dummy.getSequenceDataset();
 			//ViewerFrame fd = new ViewerFrame("Name Learning Result",sequenceDataset.toGUI());
 
+			DatasetIndex index = new DatasetIndex(sequenceDataset);
+			System.out.println("Dataset: examples "+sequenceDataset.size()
+												 +" features: "+index.numberOfFeatures()
+												 +" avg features/examples: "+index.averageFeaturesPerExample());
+
 			Evaluation e = null;
 			if (!explore) {
 				e = Tester.evaluate(learner,sequenceDataset,splitter);

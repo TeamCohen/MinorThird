@@ -8,7 +8,10 @@ BUGS:
 
 CLEANUPS/DESIGN:
 
- - edo code: Spiltter, punk => grep, get rid of stopwords,
+ - transform.MaskedInstance could be more efficient
+ - classify.algorithm.random is misplaced
+ - explanations are messy
+ - edo code: Spiltter, punk => grep, get rid of stopwords in file?
  - CompactInstance - where to use it? maybe in loaders and feature extractors?
  - Look for dead code (ExptGUI, etc)
  - Conventions to get names consistently used.

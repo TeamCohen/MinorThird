@@ -70,7 +70,7 @@ public class LogisticRegressor extends BatchBinaryClassifierLearner
 			Example e = i.nextExample();
 			for (Feature.Looper j=e.featureIterator(); j.hasNext(); ) {
 				Feature fj = j.nextFeature();
-				double a = MathUtil.abs( e.getWeight(fj) )+EPSILON;
+				double a = MathUtil.abs( e.getWeight(fj) );
 				if (a>=scaleFactor) scaleFactor = a;
 			}
 		}
@@ -145,11 +145,13 @@ public class LogisticRegressor extends BatchBinaryClassifierLearner
 			// update lambda
 			lambda.increment( delta );
 
-			if (DEBUG) log.debug("q:     "+StringUtil.toString(q));
-			log.info("wPos:  "+wPos);
-			log.info("wNeg:  "+wNeg);
-			log.info("delta: "+delta);
-			log.info("lambda: "+lambda);
+			if (DEBUG) {
+				log.debug("q:     "+StringUtil.toString(q));
+				log.debug("wPos:  "+wPos);
+				log.debug("wNeg:  "+wNeg);
+				log.debug("delta: "+delta);
+				log.debug("lambda: "+lambda);
+			}
 
 			pc.progress();
 

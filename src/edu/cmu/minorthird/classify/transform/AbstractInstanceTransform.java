@@ -2,22 +2,32 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import edu.cmu.minorthird.classify.Dataset;
-import edu.cmu.minorthird.classify.Example;
-import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.*;
 
 /**
  * @author William Cohen
  * Date: Nov 21, 2003
  */
 
-abstract public class AbstractInstanceTransform {
+abstract public class AbstractInstanceTransform implements InstanceTransform
+{
+	final public Example transform(Example example) 
+	{ 
+		if (example instanceof BinaryExample)
+			return new BinaryExample( transform(example.asInstance()), ((BinaryExample)example).getNumericLabel() );
+		else
+			return new Example( transform(example.asInstance()), example.getLabel() );
+	}
 
-    final public Example transform(Example example) { return null; }
+	final public Dataset transform(Dataset dataset) 
+	{ 
+		Dataset transformed = new BasicDataset();
+		for (Example.Looper i = dataset.iterator(); i.hasNext(); ) {
+			transformed.add( transform(i.nextExample()) );
+		}
+		return transformed;
+	}
 
-    final public Dataset transform(Dataset dataset) { return null; }
 
-    // I like including this..
-    abstract public Instance transform(Instance instance);
-
+	abstract public Instance transform(Instance instance);
 }

@@ -74,6 +74,7 @@ public class SequenceAnnotatorExpt
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
 			interp.eval("import edu.cmu.minorthird.classify.sequential.*;");
+			interp.eval("import edu.cmu.minorthird.classify.transform.*;");
 			return (SequenceClassifierLearner)interp.eval(learnerName);
 		} catch (bsh.EvalError e) {
 			throw new IllegalArgumentException("error parsing learnerName '"+learnerName+"':\n"+e);
