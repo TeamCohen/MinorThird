@@ -1,0 +1,15 @@
+defSpanType notFMI =- ... [@FMI] ... ;
+defSpanType notGel =- ... [@1dGel] ... || ... [@2dGel] ... ;
+
+defTokenProp number:t =: ... [ re('^\d+$') ] ... ;
+defTokenProp direction:t =: ... [ re('^[A-Z]\w*ern$') ] ... ;
+defTokenProp blotty:t =: ... [ re('blot') ] ... ;
+
+defTokenProp color:t =~ trie green,red,yellow;
+defTokenProp fluory:t =: ... [ re('fluor') ] ... ;
+defTokenProp locally:t =: ... [ re('local') ] ... ;
+defTokenProp antiSomething:t =: ... [ re('^anti') ] ... ;
+
+defTokenProp fmiKW:t =~ trie micrograph,fluorescence,fluorescent,gfp,immunofluorescence,protein,proteins;
+defTokenProp blotKW:t =~ trie blot,lane,lanes,markers;
+

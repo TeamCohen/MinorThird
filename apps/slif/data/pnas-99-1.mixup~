@@ -1,0 +1,2 @@
+defSpanType notFMI =- ... [@FMI] ... ;
+defSpanType notGel =- ... [@1dGel] ... || ... [@2dGel] ... ;

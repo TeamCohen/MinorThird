@@ -1,0 +1,13 @@
+import edu.cmu.minorthird.text.*;
+
+TextLabels a = FancyLoader.loadTextLabels("pnas-99-1");
+TextBase b = a.getTextBase();
+for (Span.Looper i=b.documentSpanIterator(); i.hasNext(); ) {
+  Span s = i.nextSpan();
+  String id = s.getDocumentId();
+  int k = id.indexOf("_figures_");
+  if (k<0) throw new IllegalArgumentException("bad document id: "+id);
+  b.setDocumentGroupId(id, id.substring(0,k));
+}
+return a;
+
