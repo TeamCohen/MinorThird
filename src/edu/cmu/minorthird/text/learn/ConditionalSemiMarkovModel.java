@@ -16,19 +16,22 @@ import com.wcohen.ss.lookup.*;
 import org.apache.log4j.*;
 import java.util.*;
 import java.io.*;
+import javax.swing.*;
+import java.awt.BorderLayout;
+import javax.swing.border.*;
 
 import com.wcohen.ss.*;
 import com.wcohen.ss.api.*;
 import com.wcohen.ss.lookup.*;
 /**
- * Learn to annotate based on a conditional semi-markov model
+ * Learn to annotate based on a conditional semi-markov model,
  * learned from examples.
  *
  * @author William Cohen
  */
 
 /*
-	status/limitations: this only learns one label types, with a single
+	status/limitations: this only learns one label type, with a single
 	binary classifier.
  */
 
@@ -197,12 +200,32 @@ public class ConditionalSemiMarkovModel
 
 
 	// annotate a document using a learned model
-	static public class CSMMAnnotator extends AbstractAnnotator	
+	static public class CSMMAnnotator extends AbstractAnnotator	implements Visible
 	{
 		private SpanFeatureExtractor fe;
 		private BinaryClassifier classifier;
 		private String annotationType;
 		private int[] maxSegSize;
+		public Viewer toGUI()
+		{
+			Viewer v = new ComponentViewer() {
+					public JComponent componentFor(Object o) {
+						CSMMAnnotator ann = (CSMMAnnotator)o;
+						JPanel mainPanel = new JPanel();
+						mainPanel.setLayout(new BorderLayout());
+						mainPanel.add(
+							new JLabel("CSMM: segsize "+StringUtil.toString(maxSegSize)),
+							BorderLayout.NORTH);
+						Viewer subView = new SmartVanillaViewer(ann.classifier);
+						subView.setSuperView(this);
+						mainPanel.add(subView,BorderLayout.SOUTH);
+						mainPanel.setBorder(new TitledBorder("Conditional Semi-Markov-Model"));
+						return new JScrollPane(mainPanel);
+					}
+				};
+			v.setContent(this);
+			return v;
+		}
 		public 
 		CSMMAnnotator(SpanFeatureExtractor fe,BinaryClassifier classifier,String annotationType,int[] maxSegSize)
 		{

@@ -5,7 +5,7 @@ import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.gui.TextBaseViewer;
+import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.util.ProgressCounter;
 
@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
  * @author William Cohen
 */
 
-public class TextLabelsExperiment
+public class TextLabelsExperiment implements Visible
 {
 	private SampleFE.ExtractionFE fe = new SampleFE.ExtractionFE();
 	private int classWindowSize = 3;
@@ -31,6 +31,7 @@ public class TextLabelsExperiment
 	private AnnotatorLearner learner;
 	private String inputLabel;
 	private MonotonicTextLabels fullTestLabels;
+	private MonotonicTextLabels[] testLabels;
 	private String outputLabel;
 	private Annotator[] annotators;
   private static Logger log = Logger.getLogger(TextLabelsExperiment.class);
@@ -86,6 +87,7 @@ public class TextLabelsExperiment
 
 		SubTextBase fullTestBase = new SubTextBase( labels.getTextBase(), allTestDocuments.iterator() );
 		fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, labels ) );
+		testLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
 
 		for (int i=0; i<splitter.getNumPartitions(); i++) {
 			log.info("For partition "+(i+1)+" of "+splitter.getNumPartitions());
@@ -109,13 +111,13 @@ public class TextLabelsExperiment
       //log.info("annotators["+i+"]="+annotators[i]);
 			log.info("Creating test partition...");
 			SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
-			MonotonicTextLabels ithTestLabels = new MonotonicSubTextLabels( testBase, fullTestLabels );
+			testLabels[i] = new MonotonicSubTextLabels( testBase, fullTestLabels );
 
       log.info("Labeling test partition...");
-			annotators[i].annotate( ithTestLabels );
+			annotators[i].annotate( testLabels[i] );
 
 			log.info("Evaluating test partition...");
-			measurePrecisionRecall("Test partition "+(i+1)+":",ithTestLabels );
+			measurePrecisionRecall("Test partition "+(i+1)+":",testLabels[i]);
 
       //step progress counter
       progressCounter.progress();
@@ -126,6 +128,21 @@ public class TextLabelsExperiment
     //end progress counter
     progressCounter.finished();
   }
+
+	public Viewer toGUI()
+	{
+		ParallelViewer v = new ParallelViewer();
+		for (int i=0; i<annotators.length; i++) {
+			final int index = i;
+			v.addSubView( "Annotator "+(i+1), new TransformedViewer(new SmartVanillaViewer()) {
+					public Object transform(Object o) {
+						return annotators[index];
+					}
+				});
+		}
+		v.setContent( this );
+		return v;
+	}
 
 	private void measurePrecisionRecall(String tag,TextLabels labels)
 	{
@@ -224,6 +241,9 @@ public class TextLabelsExperiment
 			}
 			if (show!=null) {
 				TextBaseViewer.view( expt.getTestLabels() );
+				if (show.startsWith("all")) {
+					new ViewerFrame("Experiment", expt.toGUI());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
