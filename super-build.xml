@@ -68,6 +68,7 @@
         <!-- either TestPackage or *Test -->
         <include name="**/TestPackage.class"/>
         <include name="**/*Test.class"/>
+        <include name="**/LongTestPackage.class"/>
 
         <exclude name="**/*$*.class"/> <!-- inner classes excluded -->
         <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> <!-- a base class, not to be run -->

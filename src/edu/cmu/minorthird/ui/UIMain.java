@@ -10,7 +10,8 @@ import edu.cmu.minorthird.classify.*;
 import org.apache.log4j.Logger;
 import java.util.*;
 import java.io.*;
-import javax.swing.*;
+import javax.swing.*;import javax.swing.event.*;
+import javax.swing.text.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -20,7 +21,11 @@ import java.awt.event.*;
  */
 
 public abstract class UIMain implements CommandLineProcessor.Configurable
-{
+{	PipedInputStream piOut;
+    PipedInputStream piErr;
+    PipedOutputStream poOut;
+    PipedOutputStream poErr;
+	JTextArea errorArea;	
 	private static final Class[] SELECTABLE_TYPES = new Class[]
 	{
 		//
@@ -132,9 +137,37 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							// another panel for error messages and other outputs
 							JPanel errorPanel = new JPanel();
 							errorPanel.setBorder(new TitledBorder("Error messages and output"));
-							final JTextArea errorArea = new JTextArea(20,100);
+							errorArea = new JTextArea(20,100);
 							errorArea.setFont( new Font("monospaced",Font.PLAIN,12) );
 							errorPanel.add(new JScrollPane(errorArea));
+							//pack();
+							setVisible(true);							// Set up System.out
+							try {
+								piOut = new PipedInputStream();
+							} catch (Exception e) {
+								e.printStackTrace();
+								System.out.println("Use option -help for help");
+							} 
+							try {
+								poOut = new PipedOutputStream(piOut);
+							}
+							catch (Exception e) {
+								e.printStackTrace();
+								System.out.println("Use option -help for help");
+							}
+							System.setOut(new PrintStream(poOut, true));
+							// Set up System.err
+							piErr = new PipedInputStream();
+							try {
+								poErr = new PipedOutputStream(piErr);
+							} catch (Exception e) {
+								e.printStackTrace();
+								System.out.println("Use option -help for help");
+							}
+							System.setErr(new PrintStream(poErr, true));
+							// Create reader threads
+							new ReaderThread(piOut).start();
+							new ReaderThread(piErr).start();
 
 							// a control panel for controls
 							JPanel subpanel2 = new JPanel();
@@ -271,6 +304,41 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 			"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n" +
 			"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n" +
 			"and foo, where foo is a directory.\n");
-	}
+	}		class ReaderThread extends Thread {
+            PipedInputStream pi;
+    
+            ReaderThread(PipedInputStream pi) {
+                this.pi = pi;
+            }
+    
+            public void run() {
+                final byte[] buf = new byte[1024];
+                try {
+                    while (true) {
+                        final int len = pi.read(buf);
+                        if (len == -1) {
+                            break;
+                        }
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                errorArea.append(new String(buf, 0, len));
+    
+                                // Make sure the last line is always visible
+                                errorArea.setCaretPosition(errorArea.getDocument().getLength());
+    
+                                // Keep the text area down to a certain character size
+                                int idealSize = 1000;
+                                int maxExcess = 500;
+                                int excess = errorArea.getDocument().getLength() - idealSize;
+                                if (excess >= maxExcess) {
+                                    errorArea.replaceRange("", 0, excess);
+                                }
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                }
+            }
+        }
 }
 
