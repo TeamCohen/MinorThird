@@ -350,7 +350,7 @@ public class MixupDebugger extends JComponent
       TextBase base;
 
       if (textBaseId != null)
-        base = FancyLoader.loadTextBase(textBaseId);
+        base = FancyLoader.loadTextLabels(textBaseId).getTextBase();
       else //this assumes directory of files
       {
         File data = new File(fileName);
