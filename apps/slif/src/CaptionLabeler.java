@@ -22,11 +22,16 @@ import java.awt.event.ActionListener;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 
+/**
+ * Label PNAS caption/figure pairs
+ */
+
 public class CaptionLabeler
 {
   List figures = new ArrayList();
   Map figureMap = new HashMap(); // absolute caption path => figure
   List classNames = new ArrayList();
+  String rootDirName = "";
   File saveTo;
 
   /** A single figure */
@@ -84,7 +89,8 @@ public class CaptionLabeler
       final Map cbMap = new HashMap();
       for (int i=0; i<cl.classNames.size(); i++) {
         final String cn = (String)cl.classNames.get(i);
-        final boolean cv = f.labeling.get(cn)==null ? false : (Boolean)f.labeling.get(cn)==Boolean.TRUE;
+        final boolean cv = f.labeling.get(cn)==null ? false : ((Boolean)f.labeling.get(cn)).booleanValue();
+        System.out.println(f.id()+" class "+cn+" labeling: "+f.labeling.get(cn)+" => "+cv); 
         final JCheckBox cb = new JCheckBox(cn,cv);
         cb.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
@@ -170,37 +176,70 @@ public class CaptionLabeler
     {
       Viewer v = new ComponentViewer() {
           public JComponent componentFor(Object o) {
+
             JPanel panel = new JPanel();
+            int colNum = 0;
             panel.setLayout(new GridBagLayout());
+
             panel.add(
               new JButton(new AbstractAction("Next") {
                 public void actionPerformed(ActionEvent ev) {
                   // pretend I got a 'done' signal
                   setSubViews(top, nextBottomView());                  
                 }}),
-              col(0));
+              col(colNum++));
+
             panel.add(
               new JButton(new AbstractAction("Back") {
                 public void actionPerformed(ActionEvent ev) {
                   // pretend I got a 'done' signal
                   setSubViews(top, prevBottomView());                  
                 }}),
-              col(1));
+              col(colNum++));
+
             panel.add(
               new JButton(new AbstractAction("Save") {
                 public void actionPerformed(ActionEvent ev) {
                   cl.saveLabels();
                 }}),
-              col(2));
+              col(colNum++));
+
             final JTextField tf = new JTextField(10);
             panel.add(
-              new JButton(new AbstractAction("New Label") {
+              new JButton(new AbstractAction("New Label:") {
                 public void actionPerformed(ActionEvent ev) {
                   cl.requireLabels(new String[]{tf.getText()});
                   setSubViews(top,fig.toGUI());
                 }}),
-              col(3));
-            panel.add(tf, col(4));
+              col(colNum++));
+            panel.add(tf, col(colNum++));
+
+            final JTextField tf2 = new JTextField(20);
+            tf2.setText("-filename substr-");
+            final JComboBox box = new JComboBox();
+            panel.add(
+              new JButton(new AbstractAction("Check Captions:") {
+                  public void actionPerformed(ActionEvent ev) {
+                    List figIndices = cl.getMatchingFigures( tf2.getText() );
+                    box.removeAllItems();
+                    for (Iterator i=figIndices.iterator(); i.hasNext(); ) {
+                      box.addItem(i.next());
+                    }
+                  }
+                }),
+              col(colNum++));
+            box.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ex) {
+                  Integer figIndex = (Integer)box.getSelectedItem();
+                  if (figIndex!=null) {
+                    Figure newFig = cl.getFigure(figIndex.intValue());
+                    prevFigs.add(newFig);
+                    setSubViews(top,newFig.toGUI());
+                  }
+                }
+              });
+            panel.add(tf2,col(colNum++));
+            panel.add(box,col(colNum++));
             return panel;
           }
         };
@@ -244,6 +283,19 @@ public class CaptionLabeler
     f.labeled = true;
   }
 
+  /** Get all figures with ids containing a substring */
+  public List getMatchingFigures(String substring)
+  {
+    List accum = new ArrayList();
+    for (int i=0; i<figures.size(); i++) {
+      Figure f = getFigure(i);
+      if (f.id().indexOf(substring)>=0) {
+        accum.add(new Integer(i));
+      }
+    }
+    return accum;
+  }
+
   /** Get a random unlabeled figure */
   public Figure getRandomUnlabeledFigure()
   {
@@ -269,6 +321,8 @@ public class CaptionLabeler
   public Figure getFigure(int i) { return (Figure)figures.get(i); }
 
   public void saveToFile(File file) { saveTo = file; }
+
+  public void setRootDirName(String r) { rootDirName=r; }
 
   public void loadLabels(File file)
   {
@@ -317,7 +371,7 @@ public class CaptionLabeler
             String s = (String)classNames.get(j);
             Boolean b = (Boolean)f.labeling.get(s);
             if (b!=null) {
-              out.println(f.captionFile.getAbsolutePath()+"\t"+s+"\t"+b);
+              out.println(f.id()+"\t"+s+"\t"+b);
               totLabs++;
             }
           }
@@ -330,6 +384,53 @@ public class CaptionLabeler
       ex.printStackTrace();
       System.out.println("continuing...");
     }
+  }
+
+  public void saveToMinorthird(String stem) 
+  {
+    System.out.println("saving in minorthird format to "+stem);
+    try {
+      File dirFile = new File(stem);
+      if (!dirFile.mkdir()) throw new IllegalArgumentException("can't create directory '"+stem+"'");
+      PrintStream out = new PrintStream(new FileOutputStream(stem+".labels"));
+      int totLabs = 0, totFigs = 0;
+      for (int i=0; i<figures.size(); i++) {
+        Figure f = getFigure(i);
+        String mId = minorthirdId(f);
+        PrintStream outF = new PrintStream(new FileOutputStream(new File(dirFile,mId)));
+        outF.print(f.caption);
+        outF.close();
+        if (f.labeled) {
+          totFigs++;
+          for (int j=0; j<classNames.size(); j++) {
+            String s = (String)classNames.get(j);
+            Boolean b = (Boolean)f.labeling.get(s);
+            if (Boolean.TRUE.equals(b)) {
+              out.println("addToType "+mId+" 0 -1 "+s);
+              totLabs++;
+            }
+          }
+        }
+      }
+      for (int i=0; i<figures.size(); i++) {
+        Figure f = getFigure(i);
+        String mId = minorthirdId(f);
+        out.println("closeAllTypes "+mId);
+      }
+      System.out.println("saved "+totLabs+" labels for "+classNames.size()+" classes");
+      System.out.println(totFigs+"/"+figures.size()+" figures labeled");
+      out.close();
+    } catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+      System.out.println("continuing...");
+    }
+  }
+  public String minorthirdId(Figure f)
+  {
+    String clId = f.id();
+    String rootPath = new File(rootDirName).getAbsolutePath();
+    String p = (clId.startsWith(rootPath)) ? clId.substring(rootPath.length()) : clId;
+    return p.replaceAll("[\\W]","_");
   }
 
   /** Load all figures from a slif database */
@@ -389,24 +490,37 @@ public class CaptionLabeler
 		}
 	}
 
-	/**
+	/** Main program, see usage statement for usage.
 	 */
 
 	static public void main(String argv[]) throws IOException
 	{
     if (argv.length==0) {
       System.out.println("usage: CaptionLabeler slif-db-root file-to-save-in");
+      System.out.println("       slif-db-root is the root of a PNAS-spider-produced directory");
+      System.out.println("       file-to-save-in may already exist");
+      System.out.println("usage: CaptionLabeler -convert slif-db-root file-to-save-in minorthird-stem");
+      System.out.println("       convert captionLabeler's format to standard minorthird format");
+      System.out.println("       saved in a directory/.label file pair");
     }
     CaptionLabeler cl = new CaptionLabeler();
-    cl.loadFigures(new File(argv[0]));
-    System.out.println("loaded "+cl.figures.size()+" figs from "+argv[0]);
-    String labelFileName = argv.length>1 ? argv[1] : "captionLabels.txt";
-    File labelFile = new File(labelFileName);
-    if (labelFile.exists()) cl.loadLabels(labelFile);
-    else cl.requireLabels(new String[]{"FMI","1dGel","2dGel","DIC","tissue","clad","graph"});
-    cl.saveToFile(labelFile);
-    //Figure f = (Figure)cl.getRandomUnlabeledFigure();
-    //new ViewerFrame("figure",f.toGUI());
-    new ViewerFrame(argv[0], cl.toGUI());
+    if ("-convert".equals(argv[0])) {
+      cl.setRootDirName(argv[1]);
+      cl.loadFigures(new File(argv[1]));
+      cl.loadLabels(new File(argv[2]));
+      cl.saveToMinorthird(argv[3]);
+    } else {
+      cl.setRootDirName(argv[0]);
+      cl.loadFigures(new File(argv[0]));
+      System.out.println("loaded "+cl.figures.size()+" figs from "+argv[0]);
+      String labelFileName = argv.length>1 ? argv[1] : "captionLabels.txt";
+      File labelFile = new File(labelFileName);
+      if (labelFile.exists()) cl.loadLabels(labelFile);
+      else cl.requireLabels(new String[]{"FMI","1dGel","2dGel","DIC","tissue","clad","graph"});
+      cl.saveToFile(labelFile); // mark output file for saving
+      //Figure f = (Figure)cl.getRandomUnlabeledFigure();
+      //new ViewerFrame("figure",f.toGUI());
+      new ViewerFrame(argv[0], cl.toGUI());
+    }
   }
 }
