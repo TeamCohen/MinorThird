@@ -31,13 +31,14 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TestExtractorParams.class, 
 		CommandLineUtil.LoadAnnotatorParams.class, CommandLineUtil.SplitterParams.class,
 		CommandLineUtil.ExtractionSignalParams.class, CommandLineUtil.TrainExtractorParams.class,
-		CommandLineUtil.TestClassifierParams.class, 
+		CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TrainTaggerParams.class,
+		CommandLineUtil.TaggerSignalParams.class,
 		//
 		// main routines
 		//
 		ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
 		TrainExtractor.class,	TrainTestClassifier.class, 
-		TrainTestExtractor.class,
+		TrainTestExtractor.class, TrainTestTagger.class,
 		//
 		// recommended classification learners
 		//
@@ -45,6 +46,10 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		Recommended.VotedPerceptronLearner.class,	Recommended.SVMLearner.class,
 		Recommended.DecisionTreeLearner.class, Recommended.BoostedDecisionTreeLearner.class,
 		Recommended.BoostedStumpLearner.class, 
+		//
+		// recommended sequence learners
+		//
+		Recommended.VPTagLearner.class, 
 		//
 		// recommended annotator learners
 		//
@@ -57,7 +62,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		//
 		// splitters
 		//
-		CrossValSplitter.class, RandomSplitter.class, StratifiedCrossValSplitter.class,
+		CrossValSplitter.class, RandomSplitter.class, 
 	};
 
 	//

@@ -12,5 +12,9 @@ import edu.cmu.minorthird.classify.ExampleSchema;
 public interface SequenceClassifierLearner
 {
 	public void setSchema(ExampleSchema schema);
+
+	/** Return the number of previous predictions used as features in
+	 * learning. */
+	public int getHistorySize();
 }
 

@@ -27,7 +27,7 @@ public class TestClassifier extends UIMain
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
 	private CommandLineUtil.TestClassifierParams test = new CommandLineUtil.TestClassifierParams();
-	private Evaluation result = null;
+	private Object result = null;
 
 	// for gui
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
@@ -62,34 +62,29 @@ public class TestClassifier extends UIMain
 		// do the testing and show the result
 		Dataset d = 
 			CommandLineUtil.toDataset(base.labels,ann.getFE(),signal.spanProp,signal.spanType,signal.candidateType);
-		Evaluation result = null;
-		if (test.showData &&  !test.showClassifier) {
-			new ViewerFrame("Dataset", d.toGUI());
-		} else if (test.showClassifier && !test.showData) {
-			Viewer vc = new SmartVanillaViewer();
-			vc.setContent(ann.getClassifier());
-			new ViewerFrame("Dataset", vc);
-		} 
-		if (test.showClassifier && test.showData) {
-			ClassifiedDataset cd = new ClassifiedDataset(ann.getClassifier(), d);
-			Viewer cdv = new SmartVanillaViewer();
-			cdv.setContent(cd);
-			new ViewerFrame("Classified Dataset", cdv);			
-		} 
-		result = new Evaluation(d.getSchema());
-		result.extend( ann.getClassifier(), d, 0 );
+		Evaluation evaluation = null;
+		if (test.showData) new ViewerFrame("Dataset", d.toGUI());
+		if (test.showClassifier) new ViewerFrame("Classifier", new SmartVanillaViewer(ann.getClassifier()));
+		evaluation = new Evaluation(d.getSchema());
+		evaluation.extend( ann.getClassifier(), d, 0 );
+		if (test.showTestDetails) {
+			result = new ClassifiedDataset(ann.getClassifier(), d);
+		} else {
+			result = evaluation;
+		}
+
 		if (base.showResult) {
-			new ViewerFrame("Evaluation", result.toGUI());
+			new ViewerFrame("Result", new SmartVanillaViewer(result));
 		}
 
 		if (save.saveAs!=null) {
 			try {
-				IOUtil.saveSerialized((Serializable)result,save.saveAs);
+				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
 			} catch (IOException e) {
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
 		}
-		CommandLineUtil.summarizeEvaluation(result);
+		CommandLineUtil.summarizeEvaluation(evaluation);
 	}
 
 	public Object getMainResult() { return result; }

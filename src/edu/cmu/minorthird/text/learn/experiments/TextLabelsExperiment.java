@@ -79,8 +79,10 @@ public class TextLabelsExperiment implements Visible
 		annotators = new Annotator[ splitter.getNumPartitions() ];
 		Set allTestDocuments = new TreeSet();
 		for (int i=0; i<splitter.getNumPartitions(); i++) {
-			for (Iterator j=splitter.getTest(i); j.hasNext(); ) 
+			for (Iterator j=splitter.getTest(i); j.hasNext(); ) {
+				//System.out.println("adding test case to allTestDocuments");
 				allTestDocuments.add( j.next() );
+			}
 		}
     //Progress counter
     ProgressCounter progressCounter = 
@@ -114,7 +116,8 @@ public class TextLabelsExperiment implements Visible
 			SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
 			testLabels[i] = new MonotonicSubTextLabels( testBase, fullTestLabels );
 
-      log.info("Labeling test partition...");
+      log.info("Labeling test partition, size="+testLabels[i].getTextBase().size());  
+			//new ViewerFrame("annotator"+(i+1), new SmartVanillaViewer(annotators[i]));
 			annotators[i].annotate( testLabels[i] );
 
 			log.info("Evaluating test partition...");
@@ -157,6 +160,8 @@ public class TextLabelsExperiment implements Visible
 
 	private void measurePrecisionRecall(String tag,TextLabels labels)
 	{
+		//System.out.println("output label = "+outputLabel);
+		//System.out.println("input label = "+inputLabel);
 		SpanDifference sd =
 			new SpanDifference( 
 				labels.instanceIterator(outputLabel),

@@ -56,7 +56,8 @@ public class TrainClassifier extends UIMain
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
 
 		// construct the dataset
-		Dataset d = CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
+		Dataset d = 
+			CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
 		if (train.showData) new ViewerFrame("Dataset", d.toGUI());
 
 		// train the classifier

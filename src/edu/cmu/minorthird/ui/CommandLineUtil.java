@@ -6,6 +6,7 @@ import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.sequential.*;
 
 import org.apache.log4j.Logger;
 import java.util.*;
@@ -30,6 +31,33 @@ class CommandLineUtil
 	// misc utilities
 	//
 
+	/** Build a sequential classification dataset from the necessary inputs. 
+	 */
+	static public SequenceDataset 
+	toSequenceDataset(TextLabels labels,SpanFeatureExtractor fe,int historySize,String tokenProp)
+	{
+		NestedTextLabels safeLabels = new NestedTextLabels(labels);
+		safeLabels.shadowProperty(tokenProp);
+
+		SequenceDataset seqData = new SequenceDataset();
+		seqData.setHistorySize(historySize);
+		for (Span.Looper j=labels.getTextBase().documentSpanIterator(); j.hasNext(); ) {
+			Span document = j.nextSpan();
+			Example[] sequence = new Example[document.size()];
+			for (int i=0; i<document.size(); i++) {
+				Token tok = document.getToken(i);
+				String value = labels.getProperty(tok, tokenProp);
+				if (value==null) value = "NONE";
+				Span tokenSpan = document.subSpan(i,1);
+				Example example = new Example( fe.extractInstance(safeLabels,tokenSpan), new ClassLabel(value) );
+				sequence[i] = example;
+			}
+			seqData.addSequence( sequence );
+		}
+		return seqData;
+	}
+
+
 	/** Build a classification dataset from the necessary inputs. 
 	*/
   static public Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType)
@@ -42,8 +70,11 @@ class CommandLineUtil
   static public Dataset 
 	toDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType,String candidateType)
   {
-		// use this to give a summary
+		// use this to print out a summary
 		Map countByClass = new HashMap();
+
+		NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
+		safeLabels.shadowProperty(spanProp);
 
 		Span.Looper candidateLooper = 
 			candidateType!=null ? 
@@ -56,7 +87,7 @@ class CommandLineUtil
 				Span s = i.nextSpan();
 				int classLabel = textLabels.hasType(s,spanType) ? +1 : -1;
 				String className = classLabel<0 ? ExampleSchema.NEG_CLASS_NAME : ExampleSchema.POS_CLASS_NAME;
-				dataset.add( new BinaryExample( fe.extractInstance(textLabels,s), classLabel) );
+				dataset.add( new BinaryExample( fe.extractInstance(safeLabels,s), classLabel) );
 				Integer cnt = (Integer)countByClass.get( className );
 				if (cnt==null) countByClass.put( className, new Integer(1) );
 				else countByClass.put( className, new Integer(cnt.intValue()+1) );
@@ -73,7 +104,7 @@ class CommandLineUtil
 				if (className==null) {
 					log.warn("no span property "+spanProp+" for document "+s.getDocumentId()+" - will be ignored");
 				} else {
-					dataset.add( new Example( fe.extractInstance(textLabels,s), new ClassLabel(className)) );
+					dataset.add( new Example( fe.extractInstance(safeLabels,s), new ClassLabel(className)) );
 				}
 				Integer cnt = (Integer)countByClass.get( className );
 				if (cnt==null) countByClass.put( className, new Integer(1) );
@@ -285,6 +316,7 @@ class CommandLineUtil
 			System.out.println("classification training parameters:");
 			System.out.println(" [-learner BSH]           Bean-shell code to create a ClassifierLearner");
 			System.out.println("                          - default is \"new Recommended.NaiveBayes()\"");
+			System.out.println(" [-showData]              interactively view the constructed training dataset");
 			System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
 			System.out.println("                          - default is \"new Recommended.DocumentFE()\"");
 			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
@@ -295,7 +327,7 @@ class CommandLineUtil
 		}
 		// for gui
 		public boolean getShowData() { return showData; }
-		public void setShowData(boolean flag) { this.showData=flag; }
+		public void setShowData(boolean flag) { this.showData=flag; }	
 		public ClassifierLearner getLearner() { return learner; }
 		public void setLearner(ClassifierLearner learner) { this.learner=learner; }
 		public String getOutput() { return output; } 
@@ -308,13 +340,16 @@ class CommandLineUtil
 	public static class TestClassifierParams extends LoadAnnotatorParams {
 		public boolean showClassifier=false;
 		public boolean showData=false;
+		public boolean showTestDetails=false;
 		public void showClassifier() { this.showClassifier=true; }
 		public void showData() { this.showData=true; }
+		public void showTestDetails() { this.showTestDetails=true; }
 		public void usage() {
 			System.out.println("classifier testing parameters:");
 			System.out.println(" -loadFrom FILE           file containing serialized ClassifierAnnotator");
 			System.out.println("                          - as learned by TrainClassifier.");
 			System.out.println(" [-showData]              interactively view the test dataset");
+			System.out.println(" [-showTestDetails]       visualize test examples along with evaluation");
 			System.out.println(" [-showClassifier]        interactively view the classifier");
 			System.out.println();
 		}
@@ -323,6 +358,8 @@ class CommandLineUtil
 		public void setShowClassifier(boolean flag) { this.showClassifier=flag; }
 		public boolean getShowData() { return showData; }
 		public void setShowData(boolean flag) { this.showData=flag; }
+		public boolean getShowTestDetails() { return showTestDetails; }
+		public void setShowTestDetails(boolean flag) { this.showTestDetails=flag; }
 	}
 
 	/** Parameters for testing a stored classifier. */
@@ -331,7 +368,7 @@ class CommandLineUtil
 		public void showExtractor() { this.showExtractor=true; }
 		public void usage() {
 			System.out.println("extractor testing parameters:");
-			System.out.println(" -loadFrom FILE           file containing serialized Annotator, learned by TrainExtractor.");
+			System.out.println(" -loadFrom FILE           file holding serialized Annotator, learned by TrainExtractor.");
 			System.out.println(" [-showExtractor]         interactively view the loaded extractor");
 			System.out.println();
 		}
@@ -359,11 +396,14 @@ class CommandLineUtil
 	public static class SplitterParams extends BasicCommandLineProcessor {
 		public Splitter splitter=new RandomSplitter(0.70); 
 		public TextLabels labels=null;
+		public boolean showTestDetails=false;
 		public void splitter(String s) { this.splitter = toSplitter(s); }
+		public void showTestDetails() { this.showTestDetails = true; }
 		public void test(String s) { this.labels = FancyLoader.loadTextLabels(s); }
 		public void usage() {
 			System.out.println("train/test experimentation parameters:");
 			System.out.println(" -splitter SPLITTER       specify splitter, e.g. -k5, -s10, -r70");
+			System.out.println(" [-showTestDetails]       visualize test examples along with evaluation");
 			System.out.println(" -test REPOSITORY_KEY     specify source for test data");
 			System.out.println("                         - at most one of -splitter, -test should be specified");
 			System.out.println("                           default splitter is r70");
@@ -371,6 +411,8 @@ class CommandLineUtil
 		}
 		public Splitter getSplitter() { return splitter; }
 		public void setSplitter(Splitter splitter) { this.splitter=splitter; }
+		public boolean getShowTestDetails() { return showTestDetails; }
+		public void setShowTestDetails(boolean flag) { this.showTestDetails=flag; }
 	}
 
 	/** Parameters encoding the 'training signal' for extraction learning. */
@@ -391,6 +433,27 @@ class CommandLineUtil
 		public void setSpanType(String t) { this.spanType = "n/a".equals(t)?null:t; } 
 		public Object[] getAllowedSpanTypeValues() { 
 			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
+		}
+	}
+
+	/** Parameters encoding the 'training signal' for learning a token-tagger. */
+	public static class TaggerSignalParams extends BasicCommandLineProcessor {
+		private BaseParams base=new BaseParams();
+		/** Not recommended, but required for bean-shell like visualization */
+		public TaggerSignalParams() {;}
+		public TaggerSignalParams(BaseParams base) {this.base=base;}
+		public String tokenProp=null;
+		public void tokenProp(String s) { this.tokenProp=s; }
+		public void usage() {
+			System.out.println("tagger 'signal' parameters:");
+			System.out.println(" -tokenProp TYPE          create a sequential dataset, where tokens are");
+			System.out.println("                          given the class associated with this token property");
+		}
+		// for gui
+		public String getTokenProp() { return tokenProp==null?"n/a": tokenProp; }
+		public void setTokenProp(String t) { this.tokenProp = "n/a".equals(t)?null:t; } 
+		public Object[] getAllowedTokenPropValues() { 
+			return base.labels==null ? new String[]{} : base.labels.getTokenProperties().toArray();
 		}
 	}
 
@@ -420,7 +483,7 @@ class CommandLineUtil
 			System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
 			System.out.println("                          - default is \"new Recommended.TokenFE()\"");
 			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
-			System.out.println("                            immediately following command-line arguments are passed to it");
+			System.out.println("                            immediately following arguments are passed to it");
 			System.out.println(" [-output STRING]         the type or property that is produced by the learned");
 			System.out.println("                            Annotator - default is \"_prediction\"");
 			System.out.println();
@@ -430,7 +493,48 @@ class CommandLineUtil
 		public void setLearner(AnnotatorLearner learner) { this.learner=learner; }
 		public String getOutput() { return output; }
 		public void setOutput(String s) { this.output=s; }
-		//public SpanFeatureExtractor getFeatureExtractor() { return fe; }
-		//public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
 	}
+
+	/** Parameters for training an extractor. */
+	public static class TrainTaggerParams extends BasicCommandLineProcessor {
+		public SequenceClassifierLearner learner = new Recommended.VPTagLearner();
+		public SpanFeatureExtractor fe = new Recommended.TokenFE();
+		public String output="_prediction";
+		public boolean showData=false;
+		public void showData() { this.showData=true; }
+		public void learner(String s) { 
+			this.learner = (SequenceClassifierLearner)newObjectFromBSH(s,SequenceClassifierLearner.class); 
+		}
+		public void output(String s) { this.output=s; }
+		public CommandLineProcessor fe(String s) { 
+			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
+			if (this.fe instanceof CommandLineProcessor.Configurable) {
+				return ((CommandLineProcessor.Configurable)this.fe).getCLP();
+			} else {
+				return null;
+			}
+		}
+		public void usage() {
+			System.out.println("tagger training parameters:");
+			System.out.println(" [-learner BSH]           Bean-shell code to create an SequenceClassifierLearner ");
+			System.out.println(" [-showData]              interactively view the constructed training dataset");
+			System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
+			System.out.println("                          - default is \"new Recommended.TokenFE()\"");
+			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
+			System.out.println("                            immed. following command-line arguments are passed to it");
+			System.out.println(" [-output STRING]         the type or property that is produced by the learned");
+			System.out.println("                            Annotator - default is \"_prediction\"");
+			System.out.println();
+		}
+		// for gui
+		public SequenceClassifierLearner getLearner() { return learner; }
+		public void setLearner(SequenceClassifierLearner learner) { this.learner=learner; }
+		public String getOutput() { return output; }
+		public void setOutput(String s) { this.output=s; }
+		public SpanFeatureExtractor getFeatureExtractor() { return fe; }
+		public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
+		public boolean getShowData() { return showData; }
+		public void setShowData(boolean flag) { this.showData=flag; }	
+	}
+
 }

@@ -148,6 +148,29 @@ public class Recommended
 	}
 
 	//
+	// SequenceClassifierLearners
+	//
+
+	public static class CMMTagLearner extends CMMLearner
+	{
+		public CMMTagLearner(int historySize) { 
+			super(
+				new StackedLearner(
+					new TransformingBatchLearner(new FrequencyBasedTransformLearner(5),new LogisticRegressor()),
+					new RandomSplitter(0.70)),
+				historySize);
+		}
+		public CMMTagLearner() { this(1); }
+	}
+
+	public static class VPTagLearner extends CollinsPerceptronLearner
+	{
+		public VPTagLearner() { super(1,5); }
+		public VPTagLearner(int historySize) { this(historySize,5); }
+		public VPTagLearner(int historySize,int numberOfEpochs) { super(historySize,numberOfEpochs); }
+	}
+
+	//
 	// feature extractors
 	//
 

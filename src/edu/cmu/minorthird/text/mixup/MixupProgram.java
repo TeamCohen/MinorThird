@@ -128,7 +128,7 @@ public class MixupProgram
 	/** Create a MixupProgram from the contents of a file. */
 	public MixupProgram(File file) throws Mixup.ParseException, FileNotFoundException, IOException {
 		//LineNumberReader in = new LineNumberReader(new FileReader(file));
-		LineNumberReader in = mixupReader(file);
+		LineNumberReader in = file.exists() ? mixupReader(file) : mixupReader(file.getName());
 		StringBuffer buf = new StringBuffer();
 		String line;
 		while ((line = in.readLine())!=null) {

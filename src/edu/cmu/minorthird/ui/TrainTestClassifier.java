@@ -32,7 +32,7 @@ public class TrainTestClassifier extends UIMain
 	private CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
 	private CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	private Evaluation result = null;
+	private Object result = null;
 
 	// for GUI
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
@@ -65,7 +65,10 @@ public class TrainTestClassifier extends UIMain
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
 
 		// construct the dataset
-		Dataset d = CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
+		Dataset d = 
+			CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
+
+		// show the data if necessary
 		if (train.showData) new ViewerFrame("Dataset", d.toGUI());
 
 		// construct the splitter, if necessary
@@ -77,30 +80,30 @@ public class TrainTestClassifier extends UIMain
 
 		// do the experiment
 		CrossValidatedDataset cvd = null;
-		if (train.showData && (base.showResult || useGUI)) {
+		Evaluation evaluation = null;
+		if (trainTest.showTestDetails) {
 			cvd = new CrossValidatedDataset(train.learner,d,trainTest.splitter);
-			result = cvd.getEvaluation();
+			evaluation = cvd.getEvaluation();
+			result = cvd;
 		} else {
-			result = Tester.evaluate(train.learner,d,trainTest.splitter);
+			cvd = null;
+			evaluation = Tester.evaluate(train.learner,d,trainTest.splitter);
+			result = evaluation;
 		}
 
 		if (base.showResult) {
-			if (cvd!=null) {
-				new ViewerFrame("CrossValidatedDataset", cvd.toGUI());
-			} else {
-				new ViewerFrame("Evaluation", result.toGUI());
-			}
+			new ViewerFrame("Result", new SmartVanillaViewer(result));
 		}
 
 		if (save.saveAs!=null) {
 			try {
-				IOUtil.saveSerialized((Serializable)result,save.saveAs);
+				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
 			} catch (IOException e) {
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
 		}
 
-		CommandLineUtil.summarizeEvaluation(result);
+		CommandLineUtil.summarizeEvaluation(evaluation);
 	}
 
 	public Object getMainResult() { return result; }

@@ -1,8 +1,7 @@
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.Splitter;
-
-import java.util.Iterator;
+import edu.cmu.minorthird.classify.*;
+import java.util.*;
 
 /**
  * Provides exactly one 'split', between the entire set given, and
@@ -13,13 +12,20 @@ import java.util.Iterator;
 
 public class FixedTestSetSplitter implements Splitter
 {
-	private Iterator testIterator,trainIterator;
+	private List testList,trainList;
 
-	public FixedTestSetSplitter(Iterator testIterator) { this.testIterator=testIterator; }
-	public void split(Iterator i) { this.trainIterator = i; }
+	public FixedTestSetSplitter(Iterator testIterator) { testList = iteratorToList(testIterator);	}
+	public void split(Iterator i) { trainList = iteratorToList(i); }
 	public int getNumPartitions() { return 1; }
-	public Iterator getTrain(int k) { return trainIterator; }
-	public Iterator getTest(int k) { return testIterator; }
+	public Iterator getTrain(int k) { return trainList.iterator(); }
+	public Iterator getTest(int k) { return testList.iterator(); }
+
+	private List iteratorToList(Iterator i)
+	{
+		List result = new ArrayList();
+		while (i.hasNext()) result.add(i.next());
+		return result;
+	}
 }
 	
 

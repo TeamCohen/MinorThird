@@ -13,6 +13,8 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 	private ClassifierLearner baseLearner;
 	private int historySize;
 
+	public int getHistorySize() { return historySize; }
+
 	public CMMLearner(ClassifierLearner baseLearner,int historySize)
 	{
 		this.baseLearner = baseLearner;

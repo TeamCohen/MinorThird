@@ -15,10 +15,10 @@ public interface Splitter
 	/** Return the number of partitions produced by the last call to split() */
 	public int getNumPartitions();
 
-	/** Return an iterator over the training cases in the k-th split */
+	/** Return an iterator over the training cases in the k-th split. */
 	public Iterator getTrain(int k);
 
-	/** Return an iterator over the test cases in the k-th split */
+	/** Return an iterator over the test cases in the k-th split. */
 	public Iterator getTest(int k);
 }
 	

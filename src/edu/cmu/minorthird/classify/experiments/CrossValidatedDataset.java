@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
  * @author William Cohen
  */
 
-public class CrossValidatedDataset
+public class CrossValidatedDataset implements Visible
 {
 	static private Logger log = Logger.getLogger(CrossValidatedDataset.class);
 

@@ -59,6 +59,7 @@ public class TrainTestExtractor extends UIMain
 		// set up the splitter
 		if (trainTest.labels!=null) {
 			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
+			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
 
 		expt = new TextLabelsExperiment( base.labels, trainTest.splitter, train.learner, signal.spanType, "_predicted");

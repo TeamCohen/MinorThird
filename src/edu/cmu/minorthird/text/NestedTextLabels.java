@@ -5,6 +5,8 @@ import java.util.Set;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.text.gui.*;
 
+import org.apache.log4j.*;
+
 /** A TextLabels which is defined by two TextLabels's.
  *
  * <p> Operationally, new assertions are passed to the 'outer' TextLabels.
@@ -24,11 +26,11 @@ import edu.cmu.minorthird.text.gui.*;
 
 public class NestedTextLabels implements MonotonicTextLabels,Visible
 {
-//	private static final Set EMPTY_SET = new HashSet();
+	private static final Logger log = Logger.getLogger(NestedTextLabels.class);
 
 	private MonotonicTextLabels outer;
 	private TextLabels inner;
-//	private Set shadowedDocumentTypePair = new HashSet();
+	private Set shadowedProperties = new HashSet();
 
 	/** Create a NestedTextLabels. */
 	public NestedTextLabels(MonotonicTextLabels outer,TextLabels inner) {
@@ -72,17 +74,31 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
       throw new IllegalArgumentException("undefined dictionary " + dictionary);
 	}
 
+	/** Effectively, remove the property from this TextLabels. 
+	 * Specifically ensure that for this property (a) calls to setProperty 
+	 * do nothing but cause a warning (b) calls to getProperty return null.
+	 */
+	public void shadowProperty(String prop) {
+		shadowedProperties.add(prop);
+	}
+
 	public void setProperty(Token token,String prop,String value) {
-		outer.setProperty(token,prop,value); 
+		if (shadowedProperties.contains(prop)) log.warn("Property "+prop+" has been shadowed");
+		else outer.setProperty(token,prop,value); 
 	}
 
 	public String getProperty(Token token,String prop) {
-		String r = outer.getProperty(token,prop);
-		return r!=null ? r : inner.getProperty(token,prop);
+		if (shadowedProperties.contains(prop)) return null;
+		else {
+			String r = outer.getProperty(token,prop);
+			return r!=null ? r : inner.getProperty(token,prop);
+		}
 	}
 
 	public Set getTokenProperties() {
-		return setUnion( outer.getTokenProperties(), inner.getTokenProperties() );
+		Set set = setUnion( outer.getTokenProperties(), inner.getTokenProperties() );
+		set.removeAll ( shadowedProperties );
+		return set;
 	}
 
 	public void setProperty(Span span,String prop,String value){

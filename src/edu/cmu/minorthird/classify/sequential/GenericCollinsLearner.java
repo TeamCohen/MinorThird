@@ -25,6 +25,8 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	private int numberOfEpochs;
 	private String[] history;
 
+	public int getHistorySize() { return historySize; }
+
 	public GenericCollinsLearner()
 	{
 		this(3,5);

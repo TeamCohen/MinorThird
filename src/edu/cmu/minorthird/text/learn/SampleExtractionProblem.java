@@ -52,6 +52,8 @@ public class SampleExtractionProblem
 		"defSpanProp subject:politics =: [@political]",
 		"defSpanProp subject:me =: [...'William' 'Cohen'...]",
 		"defSpanProp subject:other =top- [@political] || [...'William' 'Cohen'...]",
+		// used for tagger-learning tests 
+		"defTokenProp partOfName:true =: ... [@trueName] ... ",
 	};
 	
 	static public TextLabels trainLabels() {
