@@ -35,18 +35,20 @@ public class LabelerDemo
 			File mixupFile = myArgs.length>2 ? new File(myArgs[2]) : null;
 			
 			// load the data
-			TextBaseLoader baseLoader = new TextBaseLoader();
-			TextBase base = new BasicTextBase();
+//			TextBaseLoader baseLoader = new TextBaseLoader();
+//			TextBase base = new BasicTextBase();
 			//This detects XML markup, and makes it available with
 			//getFileMarkup().  If you don't have XML markup, use
 			//"baseLoader.loadDir(base,dataDir)" instead.
-			baseLoader.loadTaggedFiles(base,dataDir);
-			
+//			baseLoader.loadTaggedFiles(base,dataDir);
+			TextBase base = TextBaseLoader.loadDirOfTaggedFiles(dataDir).getTextBase();
+
 			// load previous markup, if it exists
 			TextLabelsLoader labelLoader = new TextLabelsLoader(); 
 			labelLoader.setClosurePolicy(TextLabelsLoader.CLOSE_TYPES_IN_LABELED_DOCS);
 			MutableTextLabels labels = new BasicTextLabels(base);
-			if (labelFile.exists()) labelLoader.importOps(labels,base,labelFile); 
+			if (labelFile.exists()) labelLoader.importOps(labels,base,labelFile);
+      //NB: markup from files is tossed out??
 
 			// apply mixup file to get candidates, if there is one
 			if (mixupFile!=null) {
