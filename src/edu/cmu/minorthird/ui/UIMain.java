@@ -21,16 +21,43 @@ import java.awt.event.*;
 
 public abstract class UIMain implements CommandLineProcessor.Configurable
 {
-	private static final Class[] SELECTABLE_TYPES = new Class[]{
+	private static final Class[] SELECTABLE_TYPES = new Class[]
+	{
+		//
+		// bunches of parameters
+		//
 		CommandLineUtil.BaseParams.class, CommandLineUtil.SaveParams.class, 
 		CommandLineUtil.ClassificationSignalParams.class, CommandLineUtil.TrainClassifierParams.class, 
 		CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TestExtractorParams.class, 
 		CommandLineUtil.LoadAnnotatorParams.class, CommandLineUtil.SplitterParams.class,
 		CommandLineUtil.ExtractionSignalParams.class, CommandLineUtil.TrainExtractorParams.class,
 		CommandLineUtil.TestClassifierParams.class, 
+		//
+		// main routines
+		//
 		ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
 		TrainExtractor.class,	TrainTestClassifier.class, 
-		TrainTestExtractor.class
+		TrainTestExtractor.class,
+		//
+		// recommended classification learners
+		//
+		Recommended.KnnLearner.class, Recommended.NaiveBayes.class,
+		Recommended.VotedPerceptronLearner.class,	Recommended.SVMLearner.class,
+		Recommended.DecisionTreeLearner.class, Recommended.BoostedDecisionTreeLearner.class,
+		Recommended.BoostedStumpLearner.class, 
+		//
+		// recommended annotator learners
+		//
+		Recommended.VPHMMLearner.class, Recommended.VPCMMLearner.class, 
+		Recommended.MEMMLearner.class, Recommended.SVMLearner.class, 
+		//
+		// recommend feature extractors
+		//
+		Recommended.DocumentFE.class, Recommended.TokenFE.class, Recommended.MultitokenSpanFE.class,
+		//
+		// splitters
+		//
+		CrossValSplitter.class, RandomSplitter.class, StratifiedCrossValSplitter.class,
 	};
 
 	protected boolean useGUI=false;

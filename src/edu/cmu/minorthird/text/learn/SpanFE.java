@@ -80,36 +80,17 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	static public final int STORE_COMPACTLY=3;
 
 	private int featureStoragePolicy = STORE_AS_COUNTS;
-	private TextLabels textLabels;
+	private TextLabels textLabels = new EmptyLabels();
 	protected MutableInstance instance;
 	
 	/** Create a feature extractor */
-	public SpanFE(TextLabels textLabels)
-	{
-		this.textLabels = textLabels;
-	}
-
-	/** Create a feature extractor */
 	public SpanFE()
 	{
-		this(new EmptyLabels());
 	}
-
 
 	//
 	// getters and setters
 	// 
-
-	/** Set the labels this extractor works on.  This is used for
-	 * the 'contains' method, for instance. */
-	public void setLabels(TextLabels textLabels)
-	{ 
-		this.textLabels = textLabels;
-	}
-
-	/** Access the labels the extractor works on. */
-	public TextLabels getLabels()
-	{ return textLabels; }
 
 	/** Set the policy for creating features.
 	 * @param p should be one of SpanFE.STORE_AS_BINARY, SpanFE.STORE_AS_COUNTS, SpanFE.STORE_COMPACTLY
@@ -135,7 +116,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	final public Instance extractInstance(TextLabels labels,Span span)
 	{
 		instance = new MutableInstance(span,span.getDocumentGroupId());
-		setLabels(labels);
+		textLabels = labels;
 		extractFeatures(labels,span);
 		return instance;
 	}
@@ -322,7 +303,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 		 */
 		public SpanSetResult contains(String type) {
 			TreeSet set = new TreeSet();
-			for (Span.Looper i = fe.getLabels().instanceIterator(type,s.getDocumentId()); i.hasNext(); ) {
+			for (Span.Looper i = fe.textLabels.instanceIterator(type,s.getDocumentId()); i.hasNext(); ) {
 				Span other = i.nextSpan();
 				if (s.contains(other)) {
 					set.add( other );
@@ -458,7 +439,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			Bag stringBag = new Bag();
 			for (Iterator i=set.iterator(); i.hasNext(); ) {
 				TextToken token = (TextToken)i.next();
-				String value = fe.getLabels().getProperty(token, property);
+				String value = fe.textLabels.getProperty(token, property);
 				if (value!=null) stringBag.add( value );
 			}
 			return new StringBagResult( extend(property), fe, stringBag );
@@ -469,7 +450,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			TreeSet filteredSet = new TreeSet();
 			for (Iterator i=set.iterator(); i.hasNext(); ) {
 				TextToken token = (TextToken)i.next();
-				String value = fe.getLabels().getProperty(token, property);
+				String value = fe.textLabels.getProperty(token, property);
 				if (value!=null) filteredSet.add( token );
 			}
 			return new TokenSetResult( extend("hasProp_"+property), fe, filteredSet );
@@ -483,7 +464,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			TreeSet filteredSet = new TreeSet();
 			for (Iterator i=set.iterator(); i.hasNext(); ) {
 				TextToken token = (TextToken)i.next();
-				String value = fe.getLabels().getProperty(token, property);
+				String value = fe.textLabels.getProperty(token, property);
 				if ((targetValue==null && value==null) || (targetValue!=null && targetValue.equals(value))) 
 					filteredSet.add(token);
 			}
@@ -619,10 +600,10 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	}
 
 
-	public static void main(String[] args) {
-//		TextBase base = SampleTextBases.getTextBase();
+	public static void main(String[] args) 
+	{
 		TextLabels labels = SampleTextBases.getGuessLabels();
-		SpanFE fe = new SpanFE(labels) {
+		SpanFE fe = new SpanFE() {
 				public void extractFeatures(Span span) {
 					extractFeatures(null,span);
 				}

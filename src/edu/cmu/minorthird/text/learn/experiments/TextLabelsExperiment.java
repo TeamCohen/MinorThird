@@ -83,7 +83,8 @@ public class TextLabelsExperiment implements Visible
 				allTestDocuments.add( j.next() );
 		}
     //Progress counter
-    ProgressCounter progressCounter = new ProgressCounter("Text Labels Experiment", splitter.getNumPartitions());
+    ProgressCounter progressCounter = 
+			new ProgressCounter("train/test experiment", "fold", splitter.getNumPartitions());
 
 		SubTextBase fullTestBase = new SubTextBase( labels.getTextBase(), allTestDocuments.iterator() );
 		fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, labels ) );

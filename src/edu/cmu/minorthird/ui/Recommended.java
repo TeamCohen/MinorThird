@@ -246,7 +246,9 @@ public class Recommended
 			if ("*".equals(commaSeparatedTokenPropertyList)) tokenPropertyFeatures = null;
 			else tokenPropertyFeatures = commaSeparatedTokenPropertyList.split(",\\s*");
 		}
-		public String getTokenPropertyFeatures() { return StringUtil.toString(tokenPropertyFeatures); }
+		public String getTokenPropertyFeatures() { 
+			return tokenPropertyFeatures==null ? "*" : StringUtil.toString(tokenPropertyFeatures); 
+		}
 		public void setTokenPropertyFeatures(Set propertySet) 
 		{
 			tokenPropertyFeatures = (String[])propertySet.toArray(new String[propertySet.size()]);

@@ -40,6 +40,12 @@ public class TrainTestExtractor extends UIMain
 	// for GUI
 	public CommandLineUtil.BaseParams getBaseParameters() { return base; }
 	public void setBaseParameters(CommandLineUtil.BaseParams base) { this.base=base; }
+	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; }
+	public void setSignalParameters(CommandLineUtil.ExtractionSignalParams base) { this.signal=signal; }
+	public CommandLineUtil.TrainExtractorParams getTrainingParameters() { return train; }
+	public void setTrainingParameters(CommandLineUtil.TrainExtractorParams train) { this.train=train; }
+	public CommandLineUtil.SplitterParams getSplitterParameters() { return trainTest; }
+	public void setSplitterParameters(CommandLineUtil.SplitterParams trainTest) { this.trainTest=trainTest; }
 
 	//
 	// do the experiment

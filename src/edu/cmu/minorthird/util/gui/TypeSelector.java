@@ -25,7 +25,7 @@ import java.util.List;
 public class TypeSelector extends ComponentViewer
 {
 	static private boolean DEBUG = false;
-	Logger log = Logger.getLogger(TypeSelector.class);
+	private static Logger log = Logger.getLogger(TypeSelector.class);
 
 //	private final Class[] validSubclasses;
   private List validSubclasses;
@@ -182,7 +182,7 @@ public class TypeSelector extends ComponentViewer
 //      if (o instanceof Configurable) //custom property editor
 //        return ((Configurable)(o)).guiConfigure();
 
-      log.setLevel(Level.DEBUG);
+      //log.setLevel(Level.DEBUG);
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridBagLayout());
 			int row=0;

@@ -321,6 +321,8 @@ class CommandLineUtil
 			System.out.println("                           default splitter is r70");
 			System.out.println();
 		}
+		public Splitter getSplitter() { return splitter; }
+		public void setSplitter(Splitter splitter) { this.splitter=splitter; }
 	}
 
 	/** Parameters encoding the 'training signal' for extraction learning. */
@@ -332,14 +334,21 @@ class CommandLineUtil
 			System.out.println(" -spanType TYPE           create a binary dataset, where subsequences that");
 			System.out.println("                          are marked with spanType TYPE are positive");
 		}
+		// for gui
+		public String getSpanType() { return spanType; }
+		public void setSpanType(String t) { this.spanType=t; }
 	}
 
 	/** Parameters for training an extractor. */
 	public static class TrainExtractorParams extends BasicCommandLineProcessor {
 		public AnnotatorLearner learner = new Recommended.VPHMMLearner();
+		private String learnerName;
 		public SpanFeatureExtractor fe = null;
 		public String output="_prediction";
-		public void learner(String s) { this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); }
+		public void learner(String s) { 
+			this.learnerName = s;
+			this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); 
+		}
 		public void output(String s) { this.output=s; }
 		public CommandLineProcessor fe(String s) { 
 			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
@@ -361,5 +370,12 @@ class CommandLineUtil
 			System.out.println("                            Annotator - default is \"_prediction\"");
 			System.out.println();
 		}
+		// for gui
+		public AnnotatorLearner getLearner() { return learner; }
+		public void setLearner(AnnotatorLearner learner) { this.learner=learner; }
+		public String getOutput() { return output; }
+		public void setOutput(String s) { this.output=s; }
+		//public SpanFeatureExtractor getFeatureExtractor() { return fe; }
+		//public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
 	}
 }

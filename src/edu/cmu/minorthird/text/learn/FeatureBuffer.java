@@ -34,7 +34,7 @@ public class FeatureBuffer extends SpanFE
 	private Span span=null;
 
 	public FeatureBuffer(TextLabels labels,Span span) {
-		super(labels);
+		super();
 		this.instance = new MutableInstance(span,span.getDocumentGroupId());
 	}
 

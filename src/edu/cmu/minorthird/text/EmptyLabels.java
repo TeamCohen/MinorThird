@@ -39,4 +39,6 @@ public class EmptyLabels implements TextLabels
 		throw new IllegalStateException("annotationType "+annotationType+" not present");
 	}
 	private Span.Looper nullLooper() { return new BasicSpanLooper( EMPTY_SET ); }
+
+	public String toString() { return "[EmptyLabels]"; }
 }
