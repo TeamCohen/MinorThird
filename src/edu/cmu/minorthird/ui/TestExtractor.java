@@ -25,15 +25,13 @@ public class TestExtractor extends UIMain
 {
   private static Logger log = Logger.getLogger(TestExtractor.class);
 
-    //private TextLabels annLabels;   //added by Einat
-
 	// private data needed to train a extractor
-
-    private MonotonicTextLabels[] subLabels;   //added - Einat
-    private MonotonicTextLabels fullTestLabels;  //added - Einat
     private ExtractorAnnotator ann = null;
     private ExtractionEvaluation extractionEval = null;
-    private static int testSplits = 10;
+    // for test set splitting
+    boolean doSplit = true;
+    private static int num_partitions = 10;
+    private MonotonicTextLabels[] subLabels;
 
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.ExtractionSignalParams signal = new CommandLineUtil.ExtractionSignalParams(base);
@@ -74,72 +72,49 @@ public class TestExtractor extends UIMain
 			vx.setContent(ann);
 			new ViewerFrame("Annotator",vx);
 		}
-		TextLabels annLabels = ann.annotatedCopy(base.labels);
-
-        // added by Einat
-
-        CrossValSplitter splitter = new CrossValSplitter(testSplits);
-        splitter.split(annLabels.getTextBase().documentSpanIterator());
-
-		Set allTestDocuments = new TreeSet();
-		for (int i=0; i<splitter.getNumPartitions(); i++) {
-			for (Iterator j=splitter.getTest(i); j.hasNext(); ) {
-				//System.out.println("adding test case to allTestDocuments");
-				allTestDocuments.add( j.next() );
-			}
-		}
-
-        try {
-			// for most splitters, the test set will be a subset of the original TextBase
-			SubTextBase fullTestBase = new SubTextBase(annLabels.getTextBase(), allTestDocuments.iterator() );
-			fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, annLabels ) );
-			subLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
-		} catch (SubTextBase.UnknownDocumentException ex) {
-			if (annLabels==null) throw new IllegalArgumentException("exception: "+ex);
-		}
-
-        log.info("Creating test partition...");
-			for (int i=0; i<splitter.getNumPartitions(); i++)
-            {
-               try {
-				SubTextBase testBase = new SubTextBase(annLabels.getTextBase(), splitter.getTest(i) );
-				subLabels[i] = new MonotonicSubTextLabels(testBase, fullTestLabels );
-			    } catch (SubTextBase.UnknownDocumentException ex) {
-				// do nothing since testLabels[i] is already set
-			    }
-            }
+        TextLabels annFullLabels = ann.annotatedCopy(base.labels);
 
         extractionEval = new ExtractionEvaluation();
 
         System.out.println("Compare "+ann.getSpanType()+" to "+signal.spanType+":");
         log.info("Evaluating test partitions...");
 
-        for (int i=0; i<10; i++){
-            measurePrecisionRecall("TestPartition"+(i+1),subLabels[i],false);
-        }
-        measurePrecisionRecall("OverallTest",annLabels,true);
+        // split to partitions and evaluate
+        if (doSplit && num_partitions>1){
+            log.info("Creating test partition...");
+            CrossValSplitter splitter = new CrossValSplitter(num_partitions);
+            splitter.split(annFullLabels.getTextBase().documentSpanIterator());
+            subLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
 
-        extractionEval.printAccStats();
+			for (int i=0; i<splitter.getNumPartitions(); i++)
+            {
+               try {
+				SubTextBase testBase = new SubTextBase(annFullLabels.getTextBase(), splitter.getTest(i) );
+				subLabels[i] = new MonotonicSubTextLabels(testBase, (MonotonicTextLabels)annFullLabels );
+			    } catch (SubTextBase.UnknownDocumentException ex) {
+				// do nothing since testLabels[i] is already set
+			    }
+                measurePrecisionRecall("TestPartition"+(i+1),subLabels[i],false);
+            }
+        }
+
+        measurePrecisionRecall("OverallTest",annFullLabels,true);
+
+        // sample statistics
+        if (doSplit && num_partitions>1) extractionEval.printAccStats();
 
 		// echo the labels after annotation
 		if (base.showResult) {
 			Viewer va = new SmartVanillaViewer();
-			va.setContent(annLabels);
+			va.setContent(annFullLabels);
 			new ViewerFrame("Annotated Textbase",va);
 			new ViewerFrame("Performance Results", extractionEval.toGUI());
 		}
-        /**
-		if (save.saveAs!=null) {
-			try {
-				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
-			} catch (IOException e) {
-				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
-			}
-		}**/
+
 
         if (save.saveAs!=null) {
 			try {
-				(new TextLabelsLoader()).saveTypesAsOps(annLabels, save.saveAs);
+				(new TextLabelsLoader()).saveTypesAsOps(annFullLabels, save.saveAs);
 			} catch (IOException e) {
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
