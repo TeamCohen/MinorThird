@@ -31,7 +31,7 @@ public class MovieDataset {
   // set static variables
   static private boolean MIXUP = false;
   static private boolean DUMP_WORDS = false;
-  static private String FILTER = "Info-Gain"; // "Freq" or "T1" or "Info-Gain" or "Top"
+  static private String FILTER = ""; // "Freq" or "T1" or "Info-Gain" or "Top"
 
   /**
    * Creates the dataset of movie reviews, with method = "parse".
@@ -52,7 +52,7 @@ public class MovieDataset {
     {
       try {
         // load counts from file
-        File fileOfCounts = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/mv-cnt-docu.txt");
+        File fileOfCounts = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/Extract.Sentiments/Min3rd-Datasets/mv-cnt-docu.txt");
         data = DatasetLoader.loadFile(fileOfCounts);
       } catch (Exception e) {
         log.error(e, e);
@@ -70,10 +70,10 @@ public class MovieDataset {
         // load the documents and labels
         System.out.println("Load Texts");
         TextBaseLoader loader = new TextBaseLoader(1); // DOC_PER_FILE
-        File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-reviews");
+        File dir = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/Extract.Sentiments/Min3rd-Datasets/movie-reviews");
         TextBase base = loader.load( dir );
         MutableTextLabels labels = new BasicTextLabels(base);
-        new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/movie-labels.env"));
+        new TextLabelsLoader().importOps(labels, base, new File("/Users/eairoldi/cmu.research/Text.Learning.Group/Extract.Sentiments/Min3rd-Datasets/movie-labels.env"));
         //TextBaseLabeler.label( labels, new File("my-document-labels.env")); // DEBUG
 
         // load Mixup file to get candidates
@@ -184,7 +184,7 @@ public class MovieDataset {
 
       if (DUMP_WORDS)
       {
-        File featureFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/UAI.2004/Min3rd-Datasets/features.txt");
+        File featureFile = new File("/Users/eairoldi/cmu.research/Text.Learning.Group/Extract.Sentiments/Min3rd-Datasets/features.txt");
         try
         {
           PrintStream out = new PrintStream(new FileOutputStream(featureFile));
