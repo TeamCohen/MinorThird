@@ -1,0 +1,66 @@
+package edu.cmu.minorthird.text;
+
+import edu.cmu.minorthird.text.mixup.Mixup;
+import edu.cmu.minorthird.text.mixup.MixupProgram;
+
+import java.util.Iterator;
+
+/** Some sample inputs to facilitate testing.
+ *
+ * @author William Cohen
+ */
+
+public class SampleTextBases {
+
+	static private String[] testStrings = {
+		"Zhone Technologies Acquires NEC eLUMINANT",
+		"Reuters to Acquire Multex",
+		"Tumbleweed and Valicert Announce Merger Agreement",
+		"TruSecure Corporation Acquires Vigilinx"
+	};
+
+	static private String[] testProgram = {
+		"defDict companyWord = Reuters, Multex, TruSecure, Vigilinx ",
+		"defSpanType company =: ... [a(companyWord)] ... ",
+		"defTokenProp vp:t =: ( ... ['to'? re('^Acquires?') ] ... || ... ['Announce'] ...)",
+		"defSpanType subj =: [!vp:t+] vp:t ...",
+		"defSpanType obj =: !vp:t+ vp:t+ [!vp:t+]",
+		"defSpanType start =top: ( [any{5}] any+ || [any{,5}])",
+	};
+	
+	static private TextBase base;
+	static private MutableTextEnv truthEnv;
+	static private MonotonicTextEnv guessEnv;
+	static {
+		try {
+			base = new BasicTextBase();
+			for (int i=0; i<testStrings.length; i++) {
+				base.loadDocument("testStrings["+i+"]", testStrings[i]);
+			}
+			truthEnv = new BasicTextEnv(base);
+			MixupProgram prog = new MixupProgram(testProgram);
+			prog.eval(truthEnv, base);
+			guessEnv = new NestedTextEnv( truthEnv );
+			MixupProgram guessProg = new MixupProgram(
+				new String[] { "defSpanType guess =: [ any{2} ] ..." });
+			guessProg.eval(guessEnv, base);
+		} catch (Mixup.ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
+	static public TextBase getTextBase() { return base; }
+	static public MutableTextEnv getTruthEnv() { return truthEnv; }
+	static public MonotonicTextEnv getGuessEnv() { return guessEnv; }
+
+	static public void showEnv(TextEnv env) {
+		System.out.println("env has "+env.getTypes().size()+" types");
+		for (Iterator i = env.getTypes().iterator(); i.hasNext(); ) {
+			String type = (String)i.next();
+			for (Span.Looper j = env.instanceIterator(type); j.hasNext(); ) {
+				System.out.println(type+": "+j.nextSpan());
+			}
+		}
+	}
+}
+

@@ -1,0 +1,54 @@
+provide 'date';
+
+//
+// hand-coded date extraction from emails
+//
+
+// stuff like 'this afternoon', 'tomorrow morning', 'next week'
+
+defDict monthWord = 
+	january, jan, february, feb, march, mar, april, apr, may, june, jun, july, jul, 
+	august, aug, september, sep, sept, october, oct, november, nov, december, dec;	
+defDict dayWord =
+	monday, mon, tuesday, tue, wednesday, wed, thursday, thu, thur, friday, fri, saturday, sat, sunday, sun;
+defDict dateOther = 
+	week,weekend,semester,year,month;
+defDict datePartOfDay = 
+	morning,afternoon,evening,night;
+
+defDict commonWord = may,sun,jan,sat; // stuff above that might not be part of a date
+
+
+defTokenProp dateNoun:1 =: 
+	... [ai(monthWord)] ... || ... [ai(dayWord)] ... || ... [ai(dateOther)] ... || ... [ai(datePartOfDay)] ...;
+
+defDict monthNum = 1,2,3,4,5,6,7,8,9,10,11,12;
+defDict dayNum = 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;
+defDict yearNum = 95,96,97,98,99,00,01,02,03,04,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004;
+
+defDict dateDet = this,next,some,following;
+defDict dateSep = -,/;
+defDict tomorrowWord = tomorrow;
+
+defSpanType extracted_date =: ... [ eqi('today') ] ... || ...[eqi('tonight')]... || ...[eqi('tonite')] ...;
+defSpanType extracted_date =: ... [ ai(dateDet) dateNoun:1 ] ...;
+defSpanType extracted_date =: ... [ eqi('tomorrow') a(datePartOfDay)?R ] ... ;
+defSpanType extracted_date =: ... [ eqi('the') 'following' dateNoun:1 ] ... ;
+defSpanType extracted_date =: ... [ eqi('the') dateNoun:1 'after' 'next'] ... ;
+defSpanType extracted_date =: ... [ eqi('the') re('^[0-9]+(st|nd|rd|th)$')] ...;
+
+//
+// days in day/month/yr format
+//
+
+defTokenProp monthTok:1 =: ... [ai(monthWord)] ... || ... [a(monthNum)] ...;
+defSpanType extracted_date =: ... [ a(dayNum) a(dateSep) monthTok:1 a(dateSep) a(yearNum)] ...;
+defSpanType extracted_date =: ... [ a(dayNum) a(dateSep) monthTok:1] !a(dateSep) ...;
+
+defTokenProp alreadyExtracted:1 =: ... [@extracted_date]...;
+
+//
+// words like 'april' or 'wednesday' all alone; note 'May' and other common words don't count
+//
+defSpanType extracted_date =: ... [ <ai(monthWord),!a(commonWord),!alreadyExtracted:1> ] ...;
+defSpanType extracted_date =: ... [ <ai(dayWord),!alreadyExtracted:1> ] ...;

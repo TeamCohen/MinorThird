@@ -1,0 +1,173 @@
+[need to back out changes in CompactInstance.toString(), test changes to database]
+
+ACRONYMS:
+
+Klinger: Knowledgeable Learning for Information Gathering and Extraction in RADAR
+
+MinorThird: Modules for Identifying Names and Ontological Relationships in
+	    Text using Heuristics for Inducing Regularities in Data
+
+BUGS:
+    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
+    - 'back' in ViewerFrame 
+    - cls.util is dead code (but sticky)
+
+PRIORITIES:
+
+SMALL TO DO:
+   - slides for SpanViewer.TextViewer
+   - efficiency issues with loading large datasets
+   - cleanup loaders: loadTaggedFiles vs loadFiles
+   - colors in "details" view of ClassifiedDataset
+   - filter by class in dataset view of ClassifiedDataset
+   - learning curve experiments
+   - make SpanLooperViewer use ViewerControls
+   - NaiveBayes - make multi-class?
+   - check that example weights are handled properly throughout .cls
+   - check that explain is implemented throughout .cls
+   - one vs all learner
+   - leave one out splitter
+   - should there be Span.Set, Feature.Set?
+   - decision rules - based on decision tree code?
+   - winnow, mira, aggressive perceptrons
+
+BIG TO DO/EXTENSIONS:
+
+ - more wizards
+ - evaluate performance on some more sample problems
+ - CSMM, CRF?
+ - how to attach a confidence to spans labeled with CMM's?
+
+CLEANUPS/DESIGN:
+ - CompactInstance - where to use it? maybe in loaders and feature extractors
+ - Look for dead code (ExptGUI, etc)
+ - Conventions to get names consistent.
+ - Eliminate data directory, move to examples/data?
+ - cls class should be smaller, with 'meta' (containing boost, stack,
+ active, batch/online adaptors, etc) split off
+ - SpanFE cleanup: no defaults, features for whole span. 
+ - Text GUI rewrite
+
+ To evaluate:
+ - replace 'eq.foo' with 'has.foo and 'countOf.foo=K'?
+ - should Hyperplane extend MutableInstance ?
+ - separate out feature extractor loading from classifier loading somehow? 
+
+SLIF PRIORITIES:
+ - look at pasta protein data
+ - candidate-label 100 captions for proteins -get from wizard?
+ - finish imagePtr learning, cellFinding, captionUnderstanding
+
+RECENT CHANGES:
+ - add progress counters to tester
+ - smoothing in logistic regression
+ - classifiedSequenceDataset
+ - fixed bug in txt.gui.SpanLabeler
+ - added charIndexProperSubSpan(lo,hi)
+ - added save in GUI frames
+ - added WizardUI
+ - optimized ParallelViewer
+ - changed recieveContent to setContent
+ - finished extraction test
+ - fixed einat's bug, more work on cls.seq
+ - added jwf.jar, jwf-docs to docs, src TypeSelector.java
+ - CrossValidatedDataset (builds on classified dataset)
+ - FixedTestSetSplitter, for a single train/test partition
+ - Preparing to cleanup & unify evaluation code for extraction:
+   - remove cls.expt.DatasetSplitter -done, need to cvs
+   - move Splitter interface into cls -done, need to cvs
+   - added cls.generic interfaces, attached interfaces to node - done, need to cvs cls.generic
+  - code to do span-level precision/recall added to SpanDifference, textbaseViewer      
+  - must batch load Container (changed TextBase API); significant performance enhancement
+  - added Container class representing top level container or document
+  - made classifier tests a bit more forgiving
+  - added SmartVanillaViewer, integrated with Dataset so that classifications can be seen
+  - visible decision trees & boosted classifiers
+  - extend evaluation to non-binary learning tasks
+  - add ExampleSchema inference to dataset creation, pass schemas in to learners
+  - added a ControlableViewer, which can interrogate a toolbar and
+  - added a ControlPanel Toolbar specialization, which exports
+  - added a ControlledViewer, which couples as a ControlableViewer and a ControlPanel.
+  - cleaned up Binary/KWay example mess
+  - cls.expt.ClassifiedDataset added
+  - added more output to evaluation code, started ClassifiedDataset.java, fixed maxF1 bug
+  - StackedLearner, extended form of calibrated learner
+  - added reset to classifiers to fix cross-validation bug
+  - added serialization utilities
+  - made classifiers serializable
+  - added subpopulation control in textbaseloader
+  - add language model package in .txt
+  - added properties to Evaluations
+  - some bug fixes and extra monitoring for running extraction-learning experiments
+  - fixed precision/recall curves for Evaluation
+  - refactored SplitViewer out of ZoomedViewer
+  - added txt.gui.SpanViewer, txt.gui.SpanLooperViewer, txt.gui.MarkupPlan
+  - added MessageViewer, started new txt.gui.SpanViewer
+  - probably bug fixed in decision tree learner
+  - added knn, as simple example of a multi-class learner
+  - added conditional markov models							 
+  - added active learning
+  - dataset is an interface
+  - added escaping for dataset chars
+  - added file loading scheme for tries
+  - added some new viewer code, fixed a list selection bug by using awt events
+  - added PoissonLearner, PoissonClassifier, and modified SampleDatasets to add test data for Numeric Features
+  - problem with pr graphs fixed - JFreeGraph doesn't like duplicated x values
+  - modified importOps so that '-1' is means maximal length
+  - moved setAnnotatedBy from textenv to MutableTextEnv
+  - added provide, require to mixup
+  - added dictionary loading
+  - refactored guis, see edu.cmu.minorthird.util.gui
+  - more documentation & guidelines
+  - example of classifier learning - webmaster commands?
+  - LogisticRegressor should be a BatchBinaryClassifierLearner
+  - add special UnivariateLogisticRegressor subclass with an instance that just holds "x"
+  - BatchVersion(OnlineBinaryClassifierLearner learner) - creates dataset & trains
+  - keep word counts in SpanFE
+  - added calibrated binary classifier, online learner, logistic regression
+  - new scoring for classifiers: classLabel() holds all information for scores, as well 
+    as isPositive, isNegative, isCorrect()
+  - bug fix: mixup debugger - can't add spans until after an "import"
+  - decision trees - numeric features
+  - refactored the Examples/BinaryExamples/KWayExamples to move
+  more functionality into the Example level
+  - clean up annotator learner - should have access to an environment, which is used in
+   training (for FE) and assumed to exist at test time.
+  - set up test cases for classifiers and TestPackage
+  - splitters are type-safe
+  - boosting/decision trees 
+  -- ant tests to confirm independence of cls, txt-ann, bb
+  -- cls.Instance includes a 'getSubpopulationId' which is an string naming the "subpopulation"
+    (strata); use Pradeep's CrossValHandler to handle cross-validation of subpopulation's.
+  -- cls.expt.RandomSplitter and new CrossValSplitter respect subpopulation's
+  -- cls.expt.SimpleRandomSplitter doesn't respect subpopulation's
+  -- re-organized learning code in cls:
+   --- Classifier is almost a marker interface, with BinaryClassifier and KWayClassifier being the
+       'real' interfaces of interest.  There are similar splits for Example and ClassifierLearner.
+   ---- Hyperplanes, VotedPerceptron, NaiveBayes are now in cls.linear
+  -- allow optional spanTypes, eg @foo? for optional occurance of foo
+  -- implement "defSpanType foo =bar- EXPR
+  - Classifier{Learner} is abstract, with KWay and Binary as subclasses
+  - generic text progress counter
+  - start-end-length annotator
+  - allow regex's as an alternative deftype, eg defSpanType foo =bar~ re 'in ([a-z]+)',1
+   - simple learning expt for txt.ann & cls
+   -- cls.expt includes a generic Splitter object which splits any iterator into folds, train/test splits, 
+   etc; 
+
+
+==============================================================================
+
+LONG-TERM DEVELOPMENT PLAN:
+
+ -- test cases for extraction learning
+ -- active learning for classification
+ -- active learning for extraction
+ -- HMM's: conditionally & generatively trained
+
+==============================================================================
+
+Configurator consists of:
+ - list of 'primitive' parameter setters (name,getX,setX,displayTool)
+ - list of 'recursive' parameter setters (name,getX,setX)
+

@@ -1,0 +1,63 @@
+<0.19.9.94.13.10.39.jm7l+@andrew.cmu.edu.0>
+Type:     cmu.andrew.org.cil
+Who:      <speaker>George W. Cobb</speaker>, Mount Holyoke College
+Topic:    Three Ways to Gum up a Statistics Course
+Dates:    21-Sep-94
+Time:     <stime>4:00</stime>
+PostedBy: Joseph S. Mertz on 19-Sep-94 at 13:10 from andrew.cmu.edu
+Abstract: 
+
+Statistics Seminar: Wednesday Sept 21, <stime>4:00</stime>  -- <location>Adamson Wing, Baker Hall</location>
+ Speaker: <speaker>George W. Cobb</speaker>, Mount Holyoke College
+ Title: Three Ways to Gum up a Statistics Course
+<paragraph><sentence>My talk will be in two parts</sentence>.  <sentence>In the first part, I shall offer some 
+general comments and observations on the state of undergraduate 
+statistics education in the US -- some trends, some obstacles to reform, 
+and some hopeful signs</sentence>.</paragraph>
+
+<paragraph><sentence>Among the trends and hopeful signs is this one:  increasing numbers of 
+statistics teachers use hands-on activities to generate data and teach 
+statistical ideas</sentence>.  <sentence>In the second part my talk I shall describe three 
+sets of activities that I developed last year in an elementary linear
+models course</sentence>.  <sentence>All three use inexpensive, everyday equipment, are quick
+and simple to set up, and can be adapted for use in teaching over a range
+of educational levels, from kindergarten to graduate statistics courses</sentence>.</paragraph>
+
+<paragraph><sentence>The first cluster of activities, "Bears in space," uses an inclined plane 
+as a launch pad and a simple catapult built from popsicle sticks and 
+rubber bands to launch Gummy Bears</sentence>.  <sentence>As many as four factors affecting 
+the launch distance can be varied</sentence>.  <sentence>I have used this equipment for 
+teaching various aspects of experimental design (randomization, blocking, 
+factorial crossing, Latin squares) and analysis (interaction, polynomial 
+contrasts, residual plots)</sentence>.  <sentence>At a more advanced level, or in an 
+industrial/engineering setting, it can be used to teach response surface 
+design and analysis</sentence>.  <sentence>At the kindergarten/primary school level, it can be 
+used to elicit conjectures and illustrate the cycle of hypothsis-
+observation-revision/refinement</sentence>.</paragraph>
+
+<paragraph><sentence>The second cluster, "Slime-based Statistics," starts with a recipe for 
+making "slime" from white glue and laundry borax</sentence>.  <sentence>In one activity, 
+"Slime Circles," students design an experiment to study the relationship 
+between the volume of a sphere of slime and the diameter of the circular 
+puddle that it forms</sentence>.  <sentence>I have used this activity for teaching basic ideas 
+of design, simple linear regression, and transformation for linearity</sentence>.  
+<sentence>In a second activity, "Slime Races," students record the relationship 
+between elapsed time and the distance traveled by the leading edge of a 
+blob of slime as it oozes down a steeply sloping board</sentence>.  <sentence>The activity 
+lends itself to repeated measures designs</sentence>.  <sentence>A third activity, "Slop 'till 
+You Drop," can be used to teach survival analysis</sentence>.  <sentence>A blob of slime is 
+impaled on a nail at the top end of a vertical board, and observed as it 
+stretches and ultimately breaks</sentence>.  <sentence>Its length when it breaks is the 
+response value</sentence>.  <sentence>Censoring occurs if the blob touches the board or 
+reaches the bottom before it breaks</sentence>.</paragraph>
+
+<paragraph><sentence>The third cluster uses one inch pieces of Gummy Worms, and leads to two 
+kinds of activities</sentence>.  <sentence>In an elementary course students can generate a 
+"splatterplot" by throwing worm fragments at a Cartesian coordinate 
+system drawn on a blackboard</sentence>.  (<sentence>Depending on conditions, a large fraction 
+of the fragments fall off before their position can be recorded</sentence>.  <sentence>You get 
+a plot more quickly and easily, though less enthusiastically, if students 
+toss the pieces of worm at a coordinate system drawn on newsprint and 
+lying on the floor</sentence>.)  <sentence>At a more advanced level, students can design an 
+experiment and use logistic regression to analyze factors that affect the 
+chance that a worm fragment will stick when it hits the board</sentence>.</paragraph>

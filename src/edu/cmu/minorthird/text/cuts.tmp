@@ -1,0 +1,6 @@
+	public SortedSet toSet(Span.Looper i) {
+		SortedSet result = new TreeSet();
+		while (i.hasNext()) result.add(i.nextSpan());
+		return result;
+	}
+

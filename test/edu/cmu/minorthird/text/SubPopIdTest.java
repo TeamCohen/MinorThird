@@ -1,0 +1,72 @@
+/* Copyright 2003, Carnegie Mellon, All Rights Reserved */
+
+package edu.cmu.minorthird.text;
+
+import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.learn.CVSplitterTest;
+import edu.cmu.minorthird.text.learn.SampleFE;
+import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.apache.log4j.Logger;
+
+/**
+ *
+ * @author William Cohen
+ */
+
+public class SubPopIdTest extends TestCase
+{
+	private static Logger log = Logger.getLogger(CVSplitterTest.class);
+
+	public SubPopIdTest(String name) { super(name); }
+	public SubPopIdTest() { super("SubPopIdTest"); }
+  public static Test suite() { return new TestSuite(SubPopIdTest.class); }
+	
+	public void testSubPop()
+	{
+		TextBase base = new BasicTextBase();
+
+		base.loadDocument("b1","Mud Club");
+		base.setDocumentGroupId("b1","bar");
+		base.loadDocument("b2","CBGB's");
+		base.setDocumentGroupId("b2","bar");
+
+		base.loadDocument("f1","Mud Pie");
+		base.setDocumentGroupId("f1","foo");
+		base.loadDocument("f2","PBJ's");
+		base.setDocumentGroupId("f2","foo");
+
+		SpanFeatureExtractor fe = SampleFE.BAG_OF_WORDS;
+
+		Dataset data1 = new BasicDataset();
+		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
+			Span s = i.nextSpan();
+			data1.add( new BinaryExample( fe.extractInstance(s), +1 ) );
+		}
+		
+		TextEnv env = new BasicTextEnv(base);
+		Dataset data2 = new BasicDataset();
+		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
+			Span s = i.nextSpan();
+			data2.add( new BinaryExample( fe.extractInstance(env,s), +1 ) );
+		}
+
+		checkSubPopIds(data1);
+		checkSubPopIds(data2);
+	}
+	public void checkSubPopIds(Dataset d)
+	{
+		for (Example.Looper i=d.iterator(); i.hasNext(); ) {
+			Example e = i.nextExample();
+			Span span = (Span)e.getSource();
+			// make sure bi is in 'bar', and fi is in 'food'
+			assertEquals( span.getDocumentId().substring(0,1),  e.getSubpopulationId().substring(0,1) );
+			assertTrue( !span.getDocumentId().equals(e.getSubpopulationId()) );
+			log.debug( "id: "+span.getDocumentId()+" subpop: "+e.getSubpopulationId() );
+		}
+	}
+}
+

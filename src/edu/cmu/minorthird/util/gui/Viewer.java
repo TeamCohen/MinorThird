@@ -1,0 +1,237 @@
+/* Copyright 2003, Carnegie Mellon, All Rights Reserved */
+
+package edu.cmu.minorthird.util.gui;
+
+import org.apache.log4j.Logger;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+/**
+ * 
+ * Visualize an object, and obey certain rules for propogating events.
+ *
+ * <p>Specifically, a Viewer has a superview, which is also a viewer,
+ * and displays some 'content'.  The canReceive(), clearContent(), and
+ * receiveContent() methods are used for displaying content.  Viewers
+ * also send signals via the sendSignal() method.  Signals are passed
+ * up to a superview, its superview, and so on, until a Viewer is
+ * found that canHandle() that signal, at which point the signal is
+ * trapped, and processed.
+ *
+ * <p>Viewers are intended to be used for linked display components.
+ * 
+ * @author William cohen
+ *
+ */
+
+public abstract class Viewer extends JPanel
+{
+	static private Logger log = Logger.getLogger(Viewer.class);
+	static private final boolean DEBUG = false;
+
+	static private final String ONLY_SUBVIEWER = "*main*";
+
+	static protected final int SET_CONTENT=1;
+	static protected final int TEXT_MESSAGE=2;
+	static protected final int OBJECT_SELECTED=3;
+	static protected final int OBJECT_UPDATED=4;
+
+	private Viewer superView = null;
+	private Object content="empty view";
+
+	/** Maps String 'names' of subviews to viewers. */
+	protected Map namedSubViews = new TreeMap();
+
+	public Viewer()
+	{
+		this(null);
+	}
+	public Viewer(Object content)
+	{
+		initialize();
+		if (content!=null) setContent(content);
+	}
+
+	
+	//
+	// setters & getters
+  //
+
+	/** Declare this viewer to be the only subview of superView. */
+	final public void setSuperView(Viewer superView) 
+	{
+		//if (namedSubViews.keySet().size()>1) 
+		//throw new IllegalStateException("superview already has a subview");
+		setSuperView(superView,ONLY_SUBVIEWER);
+	}
+
+	/** Declare this viewer to be the only subview of superView. */
+	final public void setSuperView(Viewer superView,String title) 
+	{ 
+		//if (namedSubViews.get(title)!=null) 
+		//throw new IllegalStateException("superview already has a subview named "+title);
+		this.superView = superView; 
+		superView.namedSubViews.put(title,this);
+	}
+	final public Viewer getSuperView() 
+	{ 
+		return superView; 
+	}
+	final public void setContent(Object content)
+	{
+		setContent(content,false);
+	}
+	final public void setContent(Object content,boolean forceUpdate)
+	{
+		if (content!=this.content || forceUpdate) {
+			this.content = content; 
+			receiveContent(content);
+			sendSignal(SET_CONTENT,content);
+		}
+	}
+	final public Object getContent()
+	{
+		return content;
+	}
+		
+
+	//
+	// signalling
+	//
+
+	/** Send a signal. */
+	final protected void sendSignal(int signal,Object argument)
+	{
+		if (DEBUG) log.debug("signal sent by "+this+": "+signal+","+argument);
+		if (superView!=null) {
+			ArrayList senders = new ArrayList();
+			senders.add(this);
+			superView.hearBroadcast(signal,argument,senders);
+		}
+	}
+
+	/** Listen to passing signals, and either handle them, or propogare them upward. */
+	final private void hearBroadcast(int signal,Object argument,ArrayList senders)
+	{
+		if (canHandle(signal,argument,senders)) {
+			if (DEBUG) log.debug("signal claimed by "+this+": "+signal+","+argument+","+senders);
+			handle(signal,argument,senders);
+		} else if (superView!=null) {
+			if (DEBUG) log.debug("signal forwarded to "+superView+": "+signal+","+argument+","+senders);
+			senders.add(this);
+			superView.hearBroadcast(signal,argument,senders);
+		}
+	}
+
+	//
+	// abstract actions
+	//
+
+	/** Called at creation time. Initialize the layout of this view. */
+	abstract protected void initialize();
+
+	/** Called when new content obtained. So load it into the viewer. */
+	abstract public void receiveContent(Object obj);
+	
+	/** Called when no content should be displayed. */
+	abstract public void clearContent();
+	
+	/** See if proposed content is displayable. */
+	abstract public boolean canReceive(Object obj);
+	
+	/** Handle a signal from a subview. */
+	abstract protected void handle(int signal,Object argument,ArrayList senders);
+
+	/** Offer to handle a signal. */
+	abstract protected boolean canHandle(int signal,Object argument,ArrayList senders);
+
+	/** Provide a set of subview names */
+	public Set getSubViewNames() 
+	{ 
+		Viewer onlySubviewer = (Viewer)namedSubViews.get(ONLY_SUBVIEWER);
+		if (onlySubviewer!=null) return onlySubviewer.getSubViewNames();
+		else return namedSubViews.keySet();
+	}
+
+	/** Retrieve a subview by name. */
+	public Viewer getNamedSubView(String name) 
+	{ 
+		Viewer onlySubviewer = (Viewer)namedSubViews.get(ONLY_SUBVIEWER);
+		if (onlySubviewer!=null) return onlySubviewer.getNamedSubView(name);
+		else return (Viewer)namedSubViews.get(name);
+	}
+
+	//
+	// utility functions
+	//
+	/** Useful default case for a GridBagConstraint.
+	 */
+	protected static GridBagConstraints fillerGBC()
+	{
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = gbc.weighty = 1.0;
+		gbc.gridx = gbc.gridy = 0;
+		return gbc;
+	}
+
+	/** Add a list selection listener which sends the appropriate viewer signal.
+	 * The transformer is used to re-map the selected value.
+	 */
+	protected void monitorSelections(final JList jlist,final Transform transformer)
+	{
+		jlist.addMouseListener(
+			new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					int index = jlist.locationToIndex(e.getPoint());
+					sendSignal( OBJECT_SELECTED, transformer.transform( jlist.getModel().getElementAt(index) ));
+				}
+			});
+	}
+
+	/** Add a list selection listener which sends the appropriate viewer signal.
+	 */
+	protected void monitorSelections(final JList jlist)
+	{
+		monitorSelections(jlist, IDENTITY_TRANSFORM);
+	}
+
+
+	/** Add a list selection listener which sends the appropriate viewer
+	 * signal.  The transformer is used to re-map the selected value.
+	 */
+	protected void monitorSelections(final JTable jtable,final int colIndex,final Transform transformer)
+	{
+		jtable.addMouseListener(
+			new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					int rowIndex = jtable.rowAtPoint(e.getPoint());
+					sendSignal( OBJECT_SELECTED, transformer.transform( jtable.getModel().getValueAt(rowIndex,colIndex) ));
+				}
+			});
+	}
+
+	/** Add a list selection listener which sends the appropriate viewer
+	 * signal.
+	 */
+	protected void monitorSelections(final JTable jtable,final int colIndex)
+	{
+		monitorSelections(jtable,colIndex,IDENTITY_TRANSFORM);
+	}
+
+	protected interface Transform {
+		public Object transform(Object o);
+	}
+
+	final private Transform IDENTITY_TRANSFORM = new Transform() {
+			public Object transform(Object o) { return o; }
+		};
+}
+

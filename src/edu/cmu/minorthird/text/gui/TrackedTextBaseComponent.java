@@ -1,0 +1,118 @@
+package edu.cmu.minorthird.text.gui;
+
+import edu.cmu.minorthird.text.MutableTextEnv;
+import org.apache.log4j.Logger;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+
+/** A TextBaseViewer augmented with a ViewerTracker component.
+ *
+ * @author William Cohen
+ */
+
+public class TrackedTextBaseComponent extends JComponent
+{
+    protected Logger log;
+    protected edu.cmu.minorthird.text.TextBase base;
+    protected edu.cmu.minorthird.text.TextEnv viewEnv;
+    protected MutableTextEnv editEnv;
+    protected StatusMessage statusMsg;
+    protected TextBaseViewer viewer;
+    protected ViewerTracker viewerTracker;
+
+	  // after Kevin's refactoring of components in this package,
+	  // initLayout was sometimes called zero times, sometimes once.
+	  // after William's fixes, this went to once or twice.
+	  // this flag keeps initLayout code from happening more than once.
+   	private boolean laidOut = false;
+
+    protected TrackedTextBaseComponent()
+    {
+        log = Logger.getLogger(this.getClass().getName());
+    }
+
+    public TrackedTextBaseComponent(edu.cmu.minorthird.text.TextBase base, edu.cmu.minorthird.text.TextEnv viewEnv, MutableTextEnv editEnv, StatusMessage statusMsg)
+    {
+        init(base, viewEnv, editEnv, statusMsg);
+    }
+
+    protected void init(edu.cmu.minorthird.text.TextBase base, edu.cmu.minorthird.text.TextEnv viewEnv, MutableTextEnv editEnv, StatusMessage statusMsg)
+    {
+        log = Logger.getLogger(this.getClass().getName());
+        this.base = base;
+        this.viewEnv = viewEnv;
+        this.editEnv = editEnv;
+        this.statusMsg = statusMsg;
+    }
+
+    public TextBaseViewer getViewer()
+    {
+        return viewer;
+    }
+
+    public ViewerTracker getViewerTracker()
+    {
+        return viewerTracker;
+    }
+
+    /** Layout stuff - assumes that viewer and viewerTracker are
+     * already created.
+     */
+    protected void initializeLayout()
+    {
+			  if (laidOut) return;
+
+        setPreferredSize(new Dimension(800, 600));
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc;
+
+        viewer.setMinimumSize(new Dimension(200, 200));
+        viewerTracker.setMinimumSize(new Dimension(200, 50));
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, viewer, viewerTracker);
+        splitPane.setDividerLocation(400);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        add(splitPane, gbc);
+				
+				laidOut = true;
+    }
+
+    /** change the text environment */
+    public void updateTextEnv(edu.cmu.minorthird.text.TextEnv newEnv)
+    {
+        this.viewEnv = newEnv;
+        viewer.updateTextEnv(newEnv);
+        viewerTracker.updateViewEnv(newEnv);
+    }
+
+    /** add a 'save' button */
+    public void setSaveAs(File file)
+    {
+        viewerTracker.setSaveAs(file);
+    }
+
+    protected void buildFrame()
+    {
+        JComponent main = new StatusMessagePanel(this, this.statusMsg);
+
+        JFrame frame = new JFrame(this.getClass().getName());
+        frame.getContentPane().add(main, BorderLayout.CENTER);
+        frame.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                System.exit(0);
+            }
+        });
+        frame.pack();
+        frame.setVisible(true);
+    }
+}

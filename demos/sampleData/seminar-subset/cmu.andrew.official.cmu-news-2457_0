@@ -1,0 +1,28 @@
+<0.11.2.95.15.21.13.ed47+@andrew.cmu.edu.0>
+Type:     cmu.andrew.official.cmu-news
+Topic:    CIL Education Seminar
+Dates:    17-Feb-9
+Time:     <stime>12:00 PM</stime> - <etime>1:00 PM</etime>
+PostedBy: Edmund J. Delaney on 11-Feb-95 at 15:21 from andrew.cmu.edu
+Abstract: 
+
+CENTER FOR INNOVATION IN LEARNING (CIL)
+EDUCATION SEMINAR SERIES
+
+"Using a Cognitive Architecture to Design Instructions"
+
+<speaker>Joe Mertz</speaker>
+Center for Innovation in Learning, CMU
+
+Friday, February 17
+<stime>12:00pm</stime>-<etime>1:00pm</etime>
+<location>Student Center Room 207</location> (CMU)
+<paragraph> ABSTRACT: <sentence>In my talk, I will describe how a cognitive model was used
+ as a simulated student to help design instructions for training
+ circuit board assemblers</sentence>.  <sentence>The model was built in the Soar cognitive
+ architecture, and was initially endowed with only minimal prerequisite
+ knowledge of the task, and an ability to learn instructions</sentence>.  <sentence>Lessons
+ for teaching expert assembly skills were developed by iteratively
+ drafting and testing instructions on the simulated student</sentence>.</paragraph>
+
+<paragraph><sentence>Please direct questions to Pamela Yocca at 268-7675</sentence>. </paragraph>

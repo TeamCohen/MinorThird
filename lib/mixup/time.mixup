@@ -1,0 +1,15 @@
+provide 'time';
+
+defDict timeSep = :;
+defTokenProp Time:Unit =: ... ['p' '.' 'm' '.'] ... || ... [eqi('pm')] ... ;
+defTokenProp Time:Unit =: ... ['a' '.' 'm' '.'] ... || ... [eqi('am')] ... ;
+
+defTokenProp Time:1 =: ... [re('^[0-9]+$') a(timeSep) re('^[0-9]+(am|pm)?$')] ... ;
+defTokenProp Time:1 =: ... Time:1 [Time:Unit+R] ... ;
+defTokenProp Time:1 =: ... [re('^[0-9]+$') Time:Unit+R] ... ;
+defTokenProp Time:1 =: ... [re('^[0-9]+(am|pm)$')] ... ;
+defTokenProp Time:1 =: ... 'at' [re('^[0-9]+$')] ...;
+
+defSpanType extracted_time =: ... [L Time:1+R] ... ;
+
+

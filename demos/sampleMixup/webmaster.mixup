@@ -1,0 +1,199 @@
+require 'npchunks','rich\np.mixup';
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// WebMaster entities extraction - first version 
+// 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+defSpanType NP1 =: ... [L NP:1+R] ... ;
+//
+// sentences
+//
+defTokenProp fullStop:t =: ... [<!quoted:t,'.'>] <!quoted:t,capitalized:t>  ... ;  
+defSpanType sentence =: ... [ L !fullStop:t* R ] ... ; 
+
+defDict closing = Regards,Sincerely,Thanks;
+
+//
+// Action
+//
+defDict addWord2 = add, insert, append;
+defDict addWord3 = added, inserted, appended;
+defDict deleteWord2 = delete, remove, cancel, unlink;
+defDict deleteWord3 = deleted, removed, cancelled, canceled, unlinked;
+defDict changeWord2 = replace, change, modify, swap, move, correct, update, confirm;
+defDict changeWord3 = replaced, changed, modified, swapped, moved, incorrect, corrected, wrong, updated, confirmed;
+defTokenProp addVerb:t =: ... [ai(addWord2)] ... || ... [ai(addWord3)] ...;
+defTokenProp deleteVerb:t =: ... [ai(deleteWord2)] ... || ... [ai(deleteWord3)] ...;
+defTokenProp changeVerb:t =: ... [ai(changeWord2)] ... || ... [ai(changeWord3)] ...;
+
+defSpanType action =:...[addVerb:t]...||...[deleteVerb:t]...||...[changeVerb:t]...;
+
+//
+// Attribute
+//
+//defDict suffix = on, of, to, from;
+//defTokenProp suffix:p =: ... [!ai(prefix)] ... || ... [!P:NN+R] ...;
+defSpanType attr =:
+... ai(addWord2) [!P:NN+R] [P:NN+R] !N:POS...|| ... ai(deleteWord2) [!P:NN+R] [P:NN+R] !N:POS...|| 
+... ai(changeWord2) [!P:NN+R] [P:NN+R] !N:POS ...|| 
+... ai(addWord2) [!P:NN+R] P:NN? P:POS 's' [P:NN+R]...|| ... ai(deleteWord2) [!P:NN+R] P:NN? P:POS 's' [P:NN+R]...|| 
+... ai(changeWord2) [!P:NN+R] P:NN? P:POS 's' [P:NN+R]...;
+
+//
+// Attachments
+//
+defDict attachobjs = publication, abstract, report, paper, draft, link, cv, picture, pic, image, photo, file;
+defTokenProp attachmentNoun:p =: ... [re('^[Aa]ttach(ment|ed)$')] ... || ... [re('^[Ee]nclose(d)$')] ... || ... [re('^[Ii]nclude(d)$')] ... ;
+//would like to insert optional space btw the expressions - any{1,6}?
+defSpanType attachobj =sentence: ... attachmentNoun:p [ai(attachobjs)]... || ...[ai(attachobjs)] attachmentNoun:p... ;
+
+//
+// Webpage
+//
+defDict prefix = on, the, of, to, from;
+defDict wpage = page, webpage, folder;
+defTokenProp prefix:p =: ... [ai(prefix)] ... ;
+defSpanType webpage =:...ai(prefix) [!prefix:p{1,5}] ai(wpage) ... ;
+
+//
+// email
+//
+defDict emailsep = @, at;
+defSpanType email =:...[P:NN '.'?R '_'?R P:NN?R ai(emailsep) P:NN '.' P:NN '.'?R '_'?R P:NN?R]...;
+
+//
+// person's title
+//
+defDict prstitle = manager, researcher, director, chairman, scientist, staff; 
+defSpanType ptitle =: ...[ai(prstitle)]... ;
+
+//
+// PersonName
+//
+defDict closingWord = Regards,Sincerely,Thanks;
+defSpanType quotedString =: ... '`' '`' [ !'"'+ ] '"' ...;
+defTokenProp capitalized:t =: ... [ re('^[A-Z][a-z]+$') ] ... ;
+defTokenProp quoted:t =: ... [@quotedString] ...;
+defSpanType nameFiller =: ... [re('^[A-Z]$') '.'] ...;
+defSpanType nameFiller =: ... ['de'] ... ;
+defSpanType nameFiller =: ... ['van'] ... ;
+defSpanType nameFiller =: ... ['bar'] ... ;
+defSpanType PersonName =: ... [L <capitalized:t,!quoted:t>{2,} R] ...;
+defSpanType PersonName =: ... a(closingWord) re('^[,-]$')+ [L <capitalized:t>+ R] ...;
+defSpanType PersonName =: ... [L <capitalized:t,!quoted:t>+ @nameFiller <capitalized:t,!quoted:t>+ R] ...;
+
+defDict allnames = "rich/allnames.new.txt";
+defTokenProp Name:1 =: ... [ai(allnames)] ... ;
+defTokenProp Name:1 =: ... [Name:1 re('^[A-Za-z]$') '.'?R Name:1?R] ... ;
+defSpanType PersonName2 =: ... [L Name:1+R] ... ;
+
+//
+// projects's title
+//
+defSpanType project =: ...'the' [P:NN+R] 'project'... ;
+
+//
+// room
+//
+defDict room1 = room, rm, r, office;
+defDict roomv = cafeteria;
+
+defSpanType room =:...ai(room1) 'is'?  ':'? '.'? [P:CD]...||...[ai(roomv)]...;
+
+///
+// phone
+//
+defDict telnum = extension, ext, number, num, no, num, tel, telephone, phone;
+
+// add also dashes / dots / brackets formats
+defSpanType phone =:...ai(telnum) '.'? 'is'? ':'? [re('[0-9]{2,5}')]...
+		  ||...ai(telnum) 'to'? [re('[0-9]{2,5}')]...
+		  ||...ai(telnum) 'from'? [re('[0-9]{2,5}')]...; 
+defSpanType phone =:...re('^[xX]$') [re('[0-9]{2,5}')]...;
+
+//
+// date
+//
+defDict dateMonth = january, jan, february, feb, march, mar, april, apr, may, june, jun, july, jul, august, aug, september, sep, sept, october, oct, november, nov, december, dec;
+defDict dateDay = monday, mon, tuesday, tue, wednesday, wed, thursday, thu, thur, friday, fri, saturday, sat, sunday, sun;
+defDict dateOther = today, tomorrow, day, days, week, weeks, weekday, weekdays, weekend, weekends, holiday, holidays, month, months, semester, semesters, year, years;
+defTokenProp Date:1 =: ... [ai(dateMonth)] ... || ... [ai(dateDay)] ... || ... [ai(dateOther)] ... ;
+
+defDict dateJJ = this, next, following, upcoming, first, second, third, fourth, fifth, one, two, three, four, five, on, from, starting, beginning;
+defTokenProp Date:JJ =: ... [ai(dateJJ)] ... ;
+defTokenProp Date:1 =: ... [L Date:JJ+] Date:1 ... ;
+defTokenProp Date:1 =: ... [re('^[0-9]+$')] ai(dateOther) ... ;
+defTokenProp Date:1 =: ... ai(dateMonth) [re('^[0-9][0-9]$')] ... ;
+defTokenProp Date:1 =: ... [re('^[0-9]+(st|nd|rd|th)$')] ... ;
+defTokenProp Date:1 =: ... [re('^20[0-9][0-9]$')] ... ;
+
+defDict dateSep = /, -;
+defDict dateSym = ,, ., of;
+defTokenProp Date:1 =: ... [re('[0-9][0-9]') a(dateSep) re('[0-9][0-9]')] ... ;
+defTokenProp Date:1 =: ... [re('^[0-9]+$') a(dateSep) re('^[0-9]+$') a(dateSep) re('^[0-9]+$')] ... ;
+defTokenProp Date:1 =: ... Date:1 [ai(dateSym)] Date:1 ... ;
+
+defSpanType date =: ... [L Date:1+R] ... ;
+
+//
+// time
+//
+defDict timeSep = :;
+defTokenProp Time:Unit =: ... ['p' '.' 'm' '.'] ... || ... ['pm'] ... ;
+defTokenProp Time:Unit =: ... ['a' '.' 'm' '.'] ... || ... ['am'] ... ;
+
+defTokenProp Time:1 =: ... [re('^[0-9]+$') a(timeSep) re('^[0-9]+(am|pm)?$')] ... ;
+defTokenProp Time:1 =: ... Time:1 [Time:Unit+R] ... ;
+defTokenProp Time:1 =: ... [re('^[0-9]+$') Time:Unit+R] ... ;
+defTokenProp Time:1 =: ... [re('^[0-9]+(am|pm)$')] ... ;
+defTokenProp Time:1 =: ... 'at' [re('^[0-9]+$')] ...;
+
+defSpanType time =: ... [L Time:1+R] ... ;
+
+//
+//nouns
+//
+// a quoted string 
+
+// nb. need some external scheme for marking open/close quotes
+defSpanType quotedNoun =: ... '`' '`' [ !'"'+ ] '"' ...;
+defSpanType quotedNoun =: ... 'this' any{1,6} ':' [ ... ];
+// this attachment, the attached
+defTokenProp capitalized:t =: ... [ re('^[A-Z][a-z]+$') ] ... ;
+defTokenProp quoted:t =: ... [@quotedNoun] ...;
+// stuff like 'my web page'
+//defDict pageWord = page,site;
+//defSpanType myPageNoun =: ... ['my' 'web'? a(pageWord)] ...  ;
+//defSpanType myPageNoun =: ... ['the' 'web'? a(pageWord)] ...  ;
+// any noun
+defSpanType noun =: ... [ @personNoun ] ... || ... [ @attachmentNoun ] ... || ... [@quotedNoun] ... ;
+defTokenProp inNoun:t =: ... [@noun] ... ;
+
+
+//
+// type indicators
+//
+//defDict pubWord = publication,paper;
+//defDict memberWord = member,person;
+//defDict stringWord = string,text;
+//defDict folderWord = folder,page,directory,section;
+// elimate ambiguity with 'my web page':
+// folderTokens are folderWord's that are not in the phrase 'my web page'
+// (or something similar)
+//defTokenProp inMyPage:t =: ... [@myPageNoun] ... ;
+//defTokenProp folderToken:t =: ... [<a(folderWord),!inMyPage:t>] ... ;
+
+// a publication
+//defSpanType publicationFiller =sentence: 
+//	... a(pubWord) <!inNoun:t>* [@noun] ... || ... [@noun] <!inNoun:t>* a(pubWord)  ...;
+// a string
+//defSpanType stringFiller =sentence: ... a(stringWord) <!inNoun:t>* [@quotedNoun] ... ;
+// a member of a group
+//defSpanType memberFiller =sentence: ... a(memberWord) <!inNoun:t>* [@personNoun] ... ;
+// a folder
+//defSpanType folderFiller =sentence: 
+//  ... folderToken:t <!inNoun:t>* [@noun] ... || ... [@noun] <!inNoun:t>* folderToken:t  ...;
+

@@ -1,0 +1,134 @@
+<description>Build file for MinorThird</description>
+<property name="src" location="src"/>
+<property name="testDir" location="test"/>
+<property name="javadoc" location="javadoc"/>
+<property name="classDir" location="class"/>
+<property name="jarsDir" location="lib"/>
+<property name="reportsDir" location="testReports"/>
+<property name="testRootDir" location="testRoot"/>
+<!-- <property name="MINORTHIRD" value="."/> -->
+<!-- <property name="cvsRoot" value=":pserver:cvs@bb.isri.cmu.edu:/usr0/cvs"/> -->
+
+
+<path id="classpath">
+  <fileset dir="${jarsDir}">
+    <include name="**/*.jar"/>
+  </fileset>
+  <pathelement path="${classDir}"/>
+</path>
+
+<target name="init">
+  <!-- Create the time stamp -->
+  <tstamp/>
+  <!-- Create the build directory structure used by build -->
+  <mkdir dir="${classDir}"/>
+</target>
+
+<target name="build" depends="init"
+  description="build the source ">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath"/>
+</target>
+
+<target name="build-test" depends="init, build">
+  <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath"/>
+</target>
+
+<target name="build-classify" depends="clean,init"
+  description="build the edu.cmu.minorthird.classify source ">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="${src}" destdir="${classDir}" debug="on" excludes="**/text/**" classpathref="classpath"/>
+</target>
+
+<target name="build-clean" depends="clean,build" description="compile the source from scratch">
+</target>
+
+<target name="dist" depends="clean, tests" description="generate the distribution">
+  <!-- Put everything in ${classDir} into the minorThird-${DSTAMP}.jar file -->
+  <jar jarfile="${classDir}/minorThird-${DSTAMP}.jar" basedir="${classDir}">
+    <fileset dir="${classDir}">
+      <include name="edu/cmu/minorthird/**.class"/>
+    </fileset>
+  </jar>
+  <!-- copy the file to lib, then run merge.pl -->
+</target>
+
+<target name="dist-classify" depends="build-classify" description="generate a distribution of the cls stuff only">
+  <!-- Put everything in ${classDir} into the mtClassify-${DSTAMP}.jar file -->
+  <jar jarfile="${classDir}/mtClassify-${DSTAMP}.jar" basedir="${classDir}">
+    <fileset dir="${classDir}">
+      <include name="edu/cmu/minorthird/classify/**.class"/>
+    </fileset>
+  </jar>
+</target>
+
+<target name="clean" description="clean up">
+  <!-- Delete the ${classDir} and ${dist} directory trees -->
+  <delete dir="${classDir}"/>
+  <delete dir="${reportsDir}"/>
+  <delete dir="${testRootDir}"/>
+</target>
+
+<target name="javadoc" description="rebuild java docs">
+  <delete dir="${javadoc}"/>
+  <mkdir dir="${javadoc}/com/"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/classify"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/text"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/text/learn"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/text/gui"/>
+  <javadoc sourcepath="${src}" destdir="${javadoc}" packagenames="edu.cmu.minorthird.wcohen.*,edu.cmu.minorthird.classify.*,edu.cmu.minorthird.text.*,edu.cmu.minorthird.text.learn.*,edu.cmu.minorthird.text.gui.*"/>
+</target>
+
+<target name="tests" depends="build, build-test" description="Run the tests, halting on failure">
+  <mkdir dir="${reportsDir}"/>
+<!--  <mkdir dir="${testRootDir}"/> -->
+  <junit printsummary="yes" haltonfailure="no">
+    <!--<jvmarg value="-Xmx512m"/>-->
+    <classpath>
+      <path refid="classpath"/>
+    </classpath>
+    <formatter type="plain"/>
+
+    <batchtest fork="no" todir="${reportsDir}">
+      <fileset dir="${classDir}">
+        <!-- either TestPackage or *Test -->
+        <include name="**/TestPackage.class"/>
+        <include name="**/*Test.class"/>
+
+        <exclude name="**/*$*.class"/> <!-- inner classes excluded -->
+        <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> <!-- a base class, not to be run -->
+
+	      <!-- requires test data -->
+        <exclude name="**/IOUtilTest.class"/>         <!-- data -->
+        <exclude name="**/LibsvmTest.class"/>         <!-- data -->
+        <exclude name="**/LearnToClassifyTest.class"/>
+        <exclude name="**/EdoTextEnvTest.class"/>
+        <exclude name="**/BayesClassifiersTest.class"/>
+
+        <!-- long running time (>5 seconds) -->
+<!--        <exclude name="**/POSTaggerTest.class"/> -->
+        <exclude name="**/MixupProgramTest.class"/>
+
+        <!-- even longer running time (>20 secs) -->
+        <exclude name="**/TextBaseLoaderTest.class"/>
+
+        <!-- VERY long running time (>1 minute) -->
+      </fileset>
+    </batchtest>
+  </junit>
+</target>
+
+<!-- commit changes to cvs.  Requires a clean build and passing all tests
+<target name="commit" depends="build">
+  #### CVS login doesn't seem to work #####
+  <cvs 	cvsroot="${cvsRoot}"
+      command= "-d ${cvsRoot} login"
+      />
+  #### will need to specify no comment or bring it from the command line ####
+  <cvs 	cvsroot="${cvsRoot}"
+      command= "commit"
+      />
+</target>
+-->
+

@@ -1,0 +1,35 @@
+<0.4.11.94.08.50.56.sp3y+@andrew.cmu.edu.0>
+Type:     cmu.andrew.org.che.chegsa
+Topic:    Fwd: CS/PSC Seminar 11/11
+Dates:    11-Nov-94
+Time:     <stime>4:00 PM</stime>
+PostedBy: Scott Thomas Probst on 4-Nov-94 at 08:50 from andrew.cmu.edu
+Abstract: 
+
+November 11, 1994		(next week)
+<stime>4:00 p.m</stime>.
+<location>3rd Floor Conference room
+Mellon Institute Building</location>
+The ScaLAPACK and LAPACK projects: Numerical Linear Algebra Software for
+High Performance Machines
+
+<speaker>James Demmel</speaker>
+Computer Science Division and Mathematics Dept.
+University of California - Berkeley
+
+<paragraph><sentence>The goal of the LAPACK and ScaLAPACK projects is to produce very fast, very
+reliable software to solve standard problems of numerical linear algebra,
+including solving linear systems of equations, solving least squares
+problems, and finding eigenvalues</sentence>. <sentence>The October 94 LAPACK release (about 800K
+lines in Fortran, 1M lines in C) runs on uniprocessors and shared memory
+parallel computers, and ScaLAPACK (next release November 94) runs on
+distributed memory computers</sentence>. <sentence>We describe the design issues involved in
+attaining high speed and portability at the same time, as well as new
+algorithms and open problems</sentence>. <sentence>We also discuss the role of this work in
+ongoing work at Berkeley in building a unified parallel programming
+environment, called Castle</sentence>.</paragraph>  
+
+<paragraph><sentence>LAPACK and ScaLAPACK are joint work with the University of Tennessee, Oak
+Ridge National Lab, Argonne National Lab, the Numerical Algorithms Group
+Ltd., Rice University, University of Illinois, UCLA, and the University of
+Kentucky</sentence>.</paragraph>

@@ -1,0 +1,121 @@
+require 'pos';
+provide 'npchunks';
+
+// for now...
+defSpanType S =: [...];
+
+// A Noun Phrase Chunker =============================================================>
+defTokenProp P:CC =: ... [@CC] ... ;
+defTokenProp P:CD =: ... [@CD '%'?R] ... ;
+defTokenProp P:DT =: ... [@DT] ... ;
+defTokenProp P:EX =: ... [@EX] ... ;
+defTokenProp P:FW =: ... [@FW] ... ;
+defTokenProp P:IN =: ... [@IN] ... ;
+defTokenProp P:JJ =: ... [@JJ] ... ;
+defTokenProp P:JJR =: ... [@JJR] ... ;
+defTokenProp P:JJS =: ... [@JJS] ... ;
+defTokenProp P:LS =: ... [@LS] ... ;
+defTokenProp P:MD =: ... [@MD] ... ;
+defTokenProp P:NN =S: ... [@NN '.'?R] ... ;
+defTokenProp P:NNS =: ... [@NNS] ... ;
+defTokenProp P:NNP =S: ... [@NNP '.'?R] ... ;
+defTokenProp P:NNPS =: ... [@NNPS] ... ;
+defTokenProp P:PDT =: ... [@PDT] ... ;
+defTokenProp P:POS =: ... [@POS 's'?R] ... ;
+defTokenProp P:PRP =: ... [@PRP] ... ;
+defTokenProp P:PRPS =: ... [@PRPS] ... ;
+defTokenProp P:RB =: ... [@RB] ... ;
+defTokenProp P:RBR =: ... [@RBR] ... ;
+defTokenProp P:RBS =: ... [@RBS] ... ;
+defTokenProp P:RP =: ... [@RP] ... ;
+defTokenProp P:TO =: ... [@TO] ... ;
+defTokenProp P:UH =: ... [@UH] ... ;
+defTokenProp P:VB =: ... [@VB] ... ;
+defTokenProp P:VBD =: ... [@VBD] ... ;
+defTokenProp P:VBG =: ... [@VBG] ... ;
+defTokenProp P:VBN =: ... [@VBN] ... ;
+defTokenProp P:VBP =: ... [@VBP] ... ;
+defTokenProp P:VBZ =: ... [@VBZ] ... ;
+defTokenProp P:WDT =: ... [@WDT] ... ;
+defTokenProp P:WP =: ... [@WP] ... ;
+defTokenProp P:WPS =: ... [@WPS] ... ;
+defTokenProp P:WRB =: ... [@WRB] ... ;
+
+// correction
+defTokenProp P:CD =: ... [re('^[0-9]+$')] ... ;
+
+// groups
+defTokenProp G:PUNC =: ... [@.] ... || ... [@,] ... || ... [@"] ... || ... [@:] ... || ... [@(] ... || ... [@)] ... || ... [@SYM] ... ;
+defTokenProp G:NOUN =: ... [P:NN] ... || ... [P:NNS] ... || ... [P:NNP] ... || ... [P:NNPS] ... ;
+defTokenProp G:ADJ =: ... [P:JJ] ... || ... [P:JJR] ... || ... [P:JJS] ... ;
+defTokenProp G:VERB =: ... [P:VBG] ... || ... [P:VBD] ... || ... [P:VBN] ... ;
+defTokenProp G:ADVERB =: ... [P:RB] ... || ... [P:RBR] ... || ... [P:RBS] ... ;
+defTokenProp G:WH =: ... [P:WDT] ... || ... [P:WP] ... || ... [P:WPS] ... ;
+
+// must not be in a noun phrase
+defTokenProp NP:0 =: ... [P:EX] ... ;
+defTokenProp NP:0 =: ... [P:IN] ... ;
+defTokenProp NP:0 =: ... [P:LS] ... ;
+defTokenProp NP:0 =: ... [P:MD] ... ;
+defTokenProp NP:0 =: ... [P:PDT] ... ;
+defTokenProp NP:0 =: ... [P:PRP] ... ;
+defTokenProp NP:0 =: ... [P:RP] ... ;
+defTokenProp NP:0 =: ... [P:TO] ... ;
+defTokenProp NP:0 =: ... [P:UH] ... ;
+defTokenProp NP:0 =: ... [P:VB] ... ;
+defTokenProp NP:0 =: ... [P:VBP] ... ;
+defTokenProp NP:0 =: ... [P:VBZ] ... ;
+defTokenProp NP:0 =: ... [P:WDT] ... ;
+defTokenProp NP:0 =: ... [P:WP] ... ;
+defTokenProp NP:0 =: ... [P:WPS] ... ;
+defTokenProp NP:0 =: ... [P:WRB] ... ;
+defTokenProp NP:0 =: ... [G:PUNC] ... ;
+
+// must be in a noun phrase
+defTokenProp NP:1 =: ... [P:CD] ... ;
+defTokenProp NP:1 =: ... [P:DT] ... ;
+defTokenProp NP:1 =: ... [G:NOUN] ... ;
+defTokenProp NP:1 =: ... [P:POS] ... ;
+
+// others
+defTokenProp NP:1 =: ... [<!NP:0, !P:DT> '-' <!NP:0, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [<P:IN, !P:DT> '-' <!NP:0, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [<!NP:0, !P:DT> '-' <P:IN, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [P:CD+R @: P:CD+R] ... ;
+defTokenProp NP:1 =: ... [P:PRPS <!NP:0, !P:DT>] ... ;
+
+// adjectives
+defTokenProp NP:1 =: ... [P:JJ <!NP:0, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [P:JJR <!NP:0, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [!NP:0 P:JJS <!NP:0, !P:DT>] ... ;
+
+// verbs
+defTokenProp NP:1 =: ... [<NP:1, !G:NOUN> P:VBN <NP:1, !P:DT>] ... ;
+defTokenProp NP:1 =: ... G:WH [P:VBN <NP:1, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [<NP:1, !G:NOUN> P:VBD <NP:1, !P:DT>] ... ;
+defTokenProp NP:1 =: ... G:WH [P:VBD <NP:1, !P:DT>] ... ;
+defTokenProp NP:1 =: ... [NP:1 P:VBG <NP:1, !P:DT>] ... ;
+defTokenProp NP:1 =: ... G:WH [P:VBG <NP:1, !P:DT>] ... ;
+
+// adverbs
+defTokenProp NP:1 =: ... [NP:1 G:ADVERB '-'? P:VBG NP:1] ... ;
+defTokenProp NP:1 =: ... G:WH [G:ADVERB '-'? P:VBG NP:1] ... ;
+defTokenProp NP:1 =: ... [NP:1 G:ADVERB '-'? G:ADJ NP:1] ... ;
+defTokenProp NP:1 =: ... G:WH [G:ADVERB '-'? G:ADJ NP:1] ... ;
+
+// others
+defTokenProp NP:1 =: ... [@( NP:1+ @)] ... ;
+defTokenProp NP:1 =: ... ['<' NP:1+ '>'] ... ;
+defTokenProp NP:0 =: ... [P:DT] !NP:1 ... ;
+defTokenProp NP:0 =: ... NP:1 [P:CC] !NP:1 ... ;
+defTokenProp NP:1 =: ... NP:1 ['of'] NP:1 ... ;
+defTokenProp NP:1 =: ... NP:1 [P:CC] NP:1 ... ;
+defTokenProp NP:0 =: ... !NP:1 [<!G:NOUN, !P:CD>] !NP:1 ... ;
+defTokenProp NP:2 =: ... [<!'of', !P:CC, NP:1>] P:DT ... ;
+
+// noun phrase chunking
+// defSpanType NP0 =: ... [NP:0+R] ... ;
+// defSpanType NP1 =: ... [L NP:1+R] ... ;
+defSpanType NP =: ... [L NP:1+R NP:2?R] ... ;
+defSpanType NP =: ... [NP:2] ... ;
+defTokenProp NP:1 =: ... [NP:2] ... ;
