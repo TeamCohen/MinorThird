@@ -21,19 +21,19 @@ package email;
  * 
  *
  * Reminder: it currently uses all words inside the text file (bag of lower case
- *   words model). If you only want to use only the 
- *   words surrounded by a <body> tag, go to the main method, and please change 
- *   the lines:
+ *   words model). If you want to use only the words surrounded by a <body> tag, 
+ *   go to the main method, and please change the following lines:
  *
+ * comment:
  *      for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
  *      Span span = (Span)it.next();	
- * by
+ * and uncomment:
  *	    for (Iterator it = labels.instanceIterator("body"); it.hasNext();) {
  *      Span span = (Span)it.nextSpan();
  *
  *
  * @author Vitor R. Carvalho
- * Jun 15, 2004
+ * Created Jun 15, 2004
  *
   */
 
@@ -144,10 +144,11 @@ public class SpeechAct {
           //ClassifierLearner learner = new  BatchVersion(new VotedPerceptron(), 15);
           ClassifierLearner learner = new  Recommended.DecisionTreeLearner();
 
-		  Splitter split = Expt.toSplitter("k5");
-		  Evaluation eval = Tester.evaluate(learner, dataset, split);
+          //if you want to do crosssvalidation tests
+		  //Splitter split = Expt.toSplitter("k5");
+		  //Evaluation eval = Tester.evaluate(learner, dataset, split);
 		  //ViewerFrame frame = new ViewerFrame("numeric demo", eval.toGUI());
-		  eval.summarize();
+		  //eval.summarize();
 
 		  System.out.println("training the Model...");
 		  Classifier cl = new DatasetClassifierTeacher(dataset).train(learner);
@@ -201,7 +202,7 @@ public class SpeechAct {
         //TextBaseEditor.edit(labels, new File("moomoomoo"));
         for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
       	  Span span = (Span)it.next();
-	      //for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
+	      //for (Iterator it = labels.instanceIterator("body"); it.hasNext();) {
           //Span span = (Span)it.nextSpan();
           MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
 	      boolean reqbool = sa.bclassify(sa.req_model, ins);
