@@ -1040,13 +1040,18 @@ public class CommandLineUtil
 		//TextBaseEditor.edit(labels, userEditedLabelFile);
 			
 		//(new File("./xml-" + key)).mkdir();
-		File f = new File("./xml3-"+key);
+		
+		//int num =0;
+		File f = new File(key + "-xml");
 		FileOutputStream fos = new FileOutputStream(f);
 		PrintWriter outfile = new PrintWriter(fos);
-		//int num =0;
+		
 		for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
 		    {
 			String doc = i.nextSpan().getDocumentId();
+			f = new File(key + "-xml/" + doc );
+			fos = new FileOutputStream(f);
+			outfile = new PrintWriter(fos);			
 			//File f = new File("./xml-"+key+"/xml-" + key);
 			//FileOutputStream fos = new FileOutputStream(f);
 			//PrintWriter outfile = new PrintWriter(fos);
