@@ -1,32 +1,6 @@
-OBTAINING THE CODE
-
-If you only need read access to the source (you are working on an application 
-which uses minorthird but don't need to personally change minorthird) you can use 
-anonymous access:
-
->cvsroot= :pserver:anonymous@raff.cald.cs.cmu.edu:/usr1/cvsroot
->cvs login
-(anything as a password)
->cvs checkout minorthird
-
-If you want write access to the source (you plan to change or add to our software) 
-you need an account on the Raff computer.  You can then use the following cvsroot to 
-access minorthird:
-
->CVS_RSH=ssh
->cvsroot=:ext:<your user name>@raff.cald.cs.cmu.edu:/usr1/cvsroot 
->cvs checkout minorthird
-
-To do this you'll need CVS, which is generally installed on
-unix systems.  For windows I recommend using the cygwin package,
-easily installed from http://cygwin.com, which provides most of
-the basic unix functionality.  http://www.cvshome.org has all
-the documentation you'll ever want on CVS, and then some.
-
-For a Windows explorer integrated CVS client, TortoiseCVS is recommended from
-http://www.tortoisecvs.org
-
-OTHER STUFF YOU'LL NEED
+==============================================================================
+WHAT YOU NEED BEFORE YOU INSTALL
+==============================================================================
 
 To compile the code and run it, you'll need to have java (v jdk1.4 or
 later) installed, plus a 'make'-like system called 'ant'.  Java is
@@ -42,93 +16,170 @@ http://ant.apache.org.  To install it, you'll want to
 
  3. add $ANT_HOME/bin to your path (plus $JAVA_HOME/bin)
 
+To download the code, you'll need CVS, which is generally installed on
+unix systems.  For windows I recommend using the cygwin package,
+easily installed from http://cygwin.com, which provides most of the
+basic unix functionality.  http://www.cvshome.org has all the
+documentation you'll ever want on CVS, and then some.
+
+For a Windows explorer integrated CVS client, TortoiseCVS is
+recommended, from http://www.tortoisecvs.org
+
+==============================================================================
+OBTAINING THE MINORTHIRD CODE
+==============================================================================
+
+If you only need read access to the source (you are working on an
+application which uses minorthird but don't need to personally change
+minorthird) you can use anonymous CVS access.
+
+Set these environment variables:
+
+    CVS_RSH=ssh
+    cvsroot=:pserver:anonymous@raff.cald.cs.cmu.edu:/usr1/cvsroot
+
+Then use these commands:
+
+     % cvs login
+     (anything as a password)
+     % cvs checkout minorthird
+
+If you want write access to the source (you plan to change or add to
+our software) you need an account on the Raff computer.  You can then
+use the following to access minorthird:
+
+    % cvs -d :ext:you@raff.cald.cs.cmu.edu:/usr1/cvsroot checkout minorthird
+
+==============================================================================
 COMPILING THE CODE
+==============================================================================
 
-We recommend that you set an environment variable "MINORTHIRD" to where ever
-you placed the project.
+We recommend that you set the environment variable "MINORTHIRD" to
+whereever you placed the project.
 
-0. set MINORTHIRD variable
-1. cd to MINORTHIRD
-2. on unix with bash source the setup
+1. set MINORTHIRD variable
+2. cd to MINORTHIRD
+3. on unix with bash source the setup
    % source script/setup.sh
    or on windows run
    % script\setup
-3. to compile the code type the command
-   % ant clean build
-4. to build the javadocs (in MINORTHIRD/javadoc) type the command
+4. to compile the code type the command
+   % ant build-clean
+5. to build the javadocs (in MINORTHIRD/javadoc) type the command
    % ant javadoc
-5. you can run the tests to be sure things are working
+6. you can run the tests to be sure things are working
    % ant tests
 
-SAMPLE COMMANDS
+==============================================================================
+USING MINORTHIRD
+==============================================================================
 
-Sample data can be found in /demos/sampleData
-Sample mixup programs are in /demos/sampleMixup.  "Standard" mixup can be viewed in /lib/mixup.
+Minorthird is partly an SDK - it toolkit for developing programs.  To
+use it in this way, you should look over the javadocs.
 
-Wizard:
+Some of the most important functionality in minorthird is in a handful
+of of programs with command-line interfaces which are located in the
+package edu.cmu.minorthird.ui.  The command
 
-There is a simple wizard to lead beginning users through the process of running an experiment.  The wizard is run by:
->java edu.cmu.minorthird.ui.WizardUI
-It will walk you through the process of selecting:
-	Type of experiment
-	Learner, and if necessary, feature extractor
-	Training data
-	Class/label to learn
-	Test method and test data
-	Viewing the experiment.
+ % java -Xmx500M edu.cmu.minorthird.ui.Help
 
-There isn't any explanation text in the wizard, but the defaults selections work, and will give you 
-an idea of what is needed to run an experiment on what the results look like.  Consider it to be a walk 
-through on setting up an experiment rather than the interface to minorthird.
+will quickly list these programs.  To get help on a particular program,
+for instance TrainTestExtractor program, type 
 
-DEMOS in /demos:
+ % java -Xmx500M edu.cmu.minorthird.ui.TrainTestExtractor -help
 
-LabelerDemo.java:
-	Loads a set of data and a set of labels, optionally runs a mixup program on the data for more labels.
-	The data and labels are displayed by TextBaseEditor; the labels can be edited.
-	
-mixupDemo.bat:
-	Runs three progressively more powerful mixup files on a sample data file
-	After each run it launches the MixupDebugger, which displays the labelling on the data
-	
-NumericDemo.java:
-	Loads a training and test datasets; trains and tests a NaiveBayes classifier on the given data.
-	The Evaluation.toGUI is used to produce a graphical display of the results.
+The ui-package programs can generally be invoked either using
+command-line options, or using a simple GUI interface. To use the GUI
+interface, use 
 
+ % java -Xmx500M edu.cmu.minorthird.ui.TrainTestExtractor -gui
 
-There are some java classes with command-line interfaces, with are somewhat inconsistent currently.  
+You can put some or all of the command-line options in a file, using
+the syntax of Java property files, and set the options all at once
+using the option "-config FILENAME".
 
-For viewing a dataset, use the command
+Some other useful command-line programs are not in the ui package.
+For viewing text data, use the command
 
 % java edu.cmu.minorthird.text.gui.TextBaseViewer dataFile
 
-For a demo of labeling a dataset, use the command
+To summarize text data, use the command
 
-% java edu.cmu.minorthird.text.gui.TextBaseEditor dataFile mylabels.labels
-
-This will create a file 'mylabels.labels' which saves your edits of the 
-initially labeled documents .
+% java edu.cmu.minorthird.text.SummarizeLabels dataFile
 
 For using the 'mixup' language to label a document, create a mixup
 file in 'myprogram.mixup' and run the command
 
 % java edu.cmu.minorthird.text.gui.MixupDebugger -textBase data -truth mylabels.labels -mixup myprogam.mixup
 
-To run an annotation experiment use edu.cmu.minorthird.text.learn.expirements.TextLabelsLoader (has good usage info)
-or for a sequence learner try Main, under the apps/Names directory (must be compiled seperately).
+For experiments with the classification toolkit (not using text) look
+at edu.cmu.minorthird.classify.experiments.Expt.
 
-HOW SAMPLE FILES ARE STORED
+For a demo of labeling a dataset, cd to minorthird/demos, compile
+LabelerDemo.java (with "javac LabelerDemo.java") and type
 
-What is test.bsh anyway?  I wanted a scheme in which
- - data files could be stored outside of cvs
- - labelings of data files and mixup programs could be stored inside of cvs 
- - one could specify a datafile with a single short key
+% java LabelerDemo
 
-The scheme I came up with is the following. The file
-minorthird/config/data.properties defines three directory locations:
-dataDir, for large datasets; labelDir, for data files that are used to
-construct labelings; and scriptDir, for beanShell scripts that load in
-a datafile.  The edu.cmu.minorthird.text.FancyLoader object takes the name of
-a file in the scriptDir, runs it, are returns the result.
+You can also try out
 
-We recommend using beanShell only for loading data.
+% java edu.cmu.minorthird.text.gui.TextBaseEditor DATAFILE LABELFILE
+
+SAMPLE CODE AND DEMOS
+
+Some sample data can be found in minorthird/demos/sampleData. Some
+sample mixup programs are in minorthird/demos/sampleMixup.  "Standard"
+mixup can be viewed in /lib/mixup.
+
+There is also some sample software in minorthird/demos/:
+
+LabelerDemo.java:
+	Loads a set of data and a set of labels, optionally runs a mixup program on the data for more labels.
+	The data and labels are displayed by TextBaseEditor; the labels can be edited.  With no arguments
+	this runs on some hard-wired sample inputs (if you run in the minorthird/demos directory).
+	
+mixupDemo.bat:
+	Runs three progressively more powerful mixup files on a sample data file
+	After each run it launches the MixupDebugger, which displays the labelling on the data
+	[William, 3/21/04 - this doesn't seem to work]
+	
+NumericDemo.java:
+	Loads a training and test datasets; trains and tests a NaiveBayes classifier on the given data.
+	The Evaluation.toGUI is used to produce a graphical display of the results.
+
+There are some java classes with command-line interfaces, with are somewhat inconsistent currently.  
+
+LOADING DATA INTO MINORTHIRD
+
+Minorthird usually starts with a collection of documents (a
+"TextBase") that has been annotated (with "TextLabels").  There are
+several ways to load data into minorthird.  
+
+The simplest is to prepare a directory containing one file per
+document, with XML tags embedded in the documents to indicate the
+labels.  An example of this is
+minorthird/demo/sampleData/seminar-subset.  To load this into one of
+the ui programs, use the options -labels DIR where DIR is the
+directory name.
+
+The most flexible is to use the minorthird repository mechanism.  The
+easiest way to get started is to copy over an existing repository,
+like the one on /afs/cs/project/extract-learn/repository.  The
+configure minorthird by changing the parameter
+"edu.cmu.minorthird.repository" in the file
+minorthird/config/data.properties to point to the directory you saved
+the repository in.
+
+The repository has three subdirectories. A data directory, for large
+datasets; a label directory, for data files that are used to construct
+labelings; and a loader directory, for beanShell scripts that
+construct TextLabels objects from these resources.  The name of a
+script in the loader directory is called a "repository key", and
+defines some (perhaps arbitrary) slice of labeled data.  Any of these
+subdirectories can be reconfigured if you need.
+
+A handful of toy sample datasets are provided in demos/sampleData.  A
+handful of very small debugging datasets are built-in to the code, so
+they will show up no matter how badly your repository configuration is
+dorked up. These have names like sample1.train.  Sample1 is a toy
+extraction problem; sample2 is a version of the same task, but labeled
+for tagger-learning; sample3 is a toy classification problem.
