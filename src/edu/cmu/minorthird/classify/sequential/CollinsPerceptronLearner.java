@@ -148,7 +148,11 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			this.numClasses = schema.getNumberOfClasses();
 			reset();
 		}
+
 		public void setVoteMode(boolean flag) { voteMode=flag; }
+
+    public Hyperplane[] getHyperplanes() { return voteMode? s_t : w_t ; }
+    public ExampleSchema getSchema() { return schema; }
 
 		public void update(String className, Instance instance, double delta)
 		{

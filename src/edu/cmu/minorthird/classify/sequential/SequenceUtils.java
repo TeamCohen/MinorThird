@@ -54,7 +54,8 @@ public class SequenceUtils
     {
       super(schema.validClassNames(), classifiers);
     }
-    static private BinaryClassifier[] getBinaryClassifiers(ClassifierLearner[] learners) 
+    public ExampleSchema getSchema() { return new ExampleSchema(getClassNames()); }
+    static public BinaryClassifier[] getBinaryClassifiers(ClassifierLearner[] learners) 
     {
       BinaryClassifier[] result = new BinaryClassifier[learners.length];
       for (int i=0; i<learners.length; i++) {

@@ -200,6 +200,10 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		}
 
 		public String getSpanType() { return annotationType; }
+    public SpanFeatureExtractor getSpanFeatureExtractor() { return fe; }
+    public Extraction2TaggingReduction getReduction() { return reduction; }
+
+    public SequenceClassifier getSequenceClassifier() { return seqClassifier; }
 
 		protected void doAnnotate(MonotonicTextLabels labels)
 		{

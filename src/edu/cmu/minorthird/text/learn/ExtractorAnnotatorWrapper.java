@@ -38,6 +38,8 @@ public class ExtractorAnnotatorWrapper
 		this.annotator = annotator;
 	}
 
+  public ExtractorAnnotator getAnnotator() { return annotator; }
+
 	/** Apply the wrapped annotator to a string, and return all
 	 * substrings extracted. 
 	 */
