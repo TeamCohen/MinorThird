@@ -68,14 +68,17 @@
   </jar>
 </target>
 
-<target name="dist" description="generate the distribution" depends="clean,build,tests">
+<target name="dist" description="generate the distribution" depends="openJars">
   <mkdir dir="${distDir}"/>
   <!-- Put everything in ${classDir} into the minorThird-${DSTAMP}.jar file -->
   <jar jarfile="${distDir}/minorThird-${DSTAMP}.jar" basedir="${classDir}">
+    <manifest>
+      <attribute name="Main-Class" value="edu.cmu.minorthird.Minorthird"/>
+    </manifest>
     <fileset dir="${classDir}">
       <include name="edu/cmu/minorthird/**.class"/>
     </fileset>
-    <fileset dir="${tmpDir}" includes="**/*.class"/>
+    <fileset dir="${tmpDir}" includes="**/*"/>
     <fileset dir="${configDir}">
       <include name="*.properties"/>
       <include name="*.config"/>
