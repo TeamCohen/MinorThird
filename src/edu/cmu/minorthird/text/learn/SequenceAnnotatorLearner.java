@@ -138,7 +138,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		this.fe = fe;
 	}
 
-	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable,Visible
+	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable,Visible,ExtractorAnnotator
 	{
 		private static final long serialVersionUID = 1;
 		private static Mixup mergeExpr;
@@ -159,6 +159,8 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 			this.fe = fe;
 			this.annotationType = annotationType;
 		}
+
+		public String getSpanType() { return annotationType; }
 
 		protected void doAnnotate(MonotonicTextLabels labels)
 		{

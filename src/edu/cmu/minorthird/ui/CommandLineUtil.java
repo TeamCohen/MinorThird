@@ -335,7 +335,9 @@ class CommandLineUtil
 	public static class TrainExtractorParams extends BasicCommandLineProcessor {
 		public AnnotatorLearner learner = new Recommended.VPHMMLearner();
 		public SpanFeatureExtractor fe = null;
+		public String output="_prediction";
 		public void learner(String s) { this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); }
+		public void output(String s) { this.output=s; }
 		public CommandLineProcessor fe(String s) { 
 			this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
 			if (this.fe instanceof CommandLineProcessor.Configurable) {
@@ -352,6 +354,8 @@ class CommandLineUtil
 			System.out.println("                          - default is \"new Recommended.TokenFE()\"");
 			System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
 			System.out.println("                            immediately following command-line arguments are passed to it");
+			System.out.println(" [-output STRING]         the type or property that is produced by the learned");
+			System.out.println("                            Annotator - default is \"_prediction\"");
 			System.out.println();
 		}
 	}

@@ -10,15 +10,30 @@ import java.util.*;
  */
 public interface CommandLineProcessor 
 {
-	/** Loop thru the command-line arguments.
-	 * Option pairs like "-foo bar" cause a call to x.foo("bar").  Options
-	 * like "-gorp" cause a call to x.gorp().  Options without
-	 * corresponding methods are considered errors.
-	 * If an error occurs, then x.usage(msg) is called.
+	/** Loop thru the command-line arguments.  Option pairs like "-foo
+	 * bar" should cause a call to x.foo("bar"), where x is this
+	 * CommandLineProcessor.  Options like "-gorp" cause a call to
+	 * x.gorp().  Options without corresponding methods are considered
+	 * errors.  If an error occurs, then x.usage(msg) is called.
 	 *
-	 * <p> If function like -foo happens to return a non-null
-	 * CommandLineProcessor, that processor is invoked on the arguments
-	 * immediately after foo.
+	 * <p>If function like -foo happens to return a non-null
+	 * CommandLineProcessor, that processor is should be invoked on the
+	 * arguments immediately after foo.
+	 *
+	 * <p>The optional "-config FILE" should cause a Properties object
+	 * to be loaded from FILE, and the property/value pairs in the
+	 * Properties object to be treated as if they were option/argument
+	 * pairs.  The order of lines in the property file may not be
+	 * preserved, however, and duplicated keys will be ignored.
+	 *
+	 * <p>For instance, calling -config FILE for a FILE containing
+	 *<code><pre>
+	 *baz=
+	 *foo=bar
+	 *</pre></code>
+	 * would be the same as the command options <code>-foo bar -baz</code>
+	 * or possibly <code>-baz -foo bar</code>
+	 * 
 	 */
 	public void processArguments(String[] args);
 

@@ -162,10 +162,7 @@ public class TextLabelsExperiment implements Visible
 				labels.instanceIterator(inputLabel),
 				labels.closureIterator(inputLabel) );
 		System.out.println(tag);
-		double tokenF = 2*sd.tokenPrecision()*sd.tokenRecall()/(sd.tokenPrecision()+sd.tokenRecall());
-		System.out.println("TokenPrecision: "+sd.tokenPrecision()+" TokenRecall: "+sd.tokenRecall()+" F: "+tokenF);
-		double spanF = 2*sd.spanPrecision()*sd.spanRecall()/(sd.spanPrecision()+sd.spanRecall());
-		System.out.println("SpanPrecision:  "+sd.spanPrecision() +" SpanRecall:  "+sd.spanRecall()+" F: "+spanF);
+		System.out.println(sd.toSummary());
 	}
 
 	public AnnotatorLearner toAnnotatorLearner(String s)

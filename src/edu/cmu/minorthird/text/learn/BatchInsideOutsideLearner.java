@@ -95,7 +95,7 @@ public class BatchInsideOutsideLearner implements AnnotatorLearner
 		return new InsideOutsideAnnotator( (BinaryClassifier)classifierLearner.getClassifier(), fe, annotationType );
 	}
 
-	private static class InsideOutsideAnnotator extends AbstractAnnotator
+	private static class InsideOutsideAnnotator extends AbstractAnnotator implements ExtractorAnnotator
 	{
 		private BinaryClassifier classifier;
 		private String annotationType;
@@ -115,6 +115,8 @@ public class BatchInsideOutsideLearner implements AnnotatorLearner
 			this.fe = fe;
 			this.annotationType = annotationType;
 		}
+
+		public String getSpanType() { return annotationType; }
 
 		protected void doAnnotate(MonotonicTextLabels labels) {
 			Span.Looper i = labels.getTextBase().documentSpanIterator();

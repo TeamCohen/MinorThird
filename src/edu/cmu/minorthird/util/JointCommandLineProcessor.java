@@ -36,6 +36,15 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 				pos++;
 				continue;
 			}
+			if ("-config".equals(args[pos]) || "--config".equals(args[pos])) {
+				if (pos+1<args.length) {
+					BasicCommandLineProcessor.config(args[pos+1],this);
+					pos+=2;
+				} else {
+					usage("missing argument for -config");
+				}
+				continue;
+			}
 			somethingConsumed = false;
 			for (int i=0; !somethingConsumed && i<subprocessor.length; i++) {
 				int k = subprocessor[i].consumeArguments(args,pos);

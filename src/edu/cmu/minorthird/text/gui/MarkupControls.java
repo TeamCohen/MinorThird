@@ -59,7 +59,6 @@ public class MarkupControls extends ViewerControls
 				public void actionPerformed(ActionEvent e) {
 					if (guessBox.getSelectedIndex()==0 || truthBox.getSelectedIndex()==0) {
 						sd = null;
-						System.out.println("cleared sd");
 					} else {
 						String guess = guessBox.getSelectedItem().toString();
 						String truth = truthBox.getSelectedItem().toString();
@@ -67,7 +66,6 @@ public class MarkupControls extends ViewerControls
 							labels.instanceIterator(guess), 
 							labels.instanceIterator(truth), 
 							labels.closureIterator(truth));
-						System.out.println("created  "+sd); 
 					}
 				}
 			};
@@ -131,6 +129,7 @@ public class MarkupControls extends ViewerControls
 		return box;
 	}
 
+  // for an interactive test, below
 	private static class TestViewer extends VanillaViewer implements Controllable
 	{
 		public TestViewer() { super("yow"); }

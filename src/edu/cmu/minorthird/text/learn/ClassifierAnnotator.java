@@ -11,7 +11,7 @@ import java.io.*;
  * An annotator that uses a learned Classifier to mark up document spans.
  */
 
-public class ClassifierAnnotator extends AbstractAnnotator implements Serializable
+public class ClassifierAnnotator extends AbstractAnnotator implements Serializable 
 {
 	static private final long serialVersionUID = 1;
 	private final int CURRENT_VERSION_NUMBER = 1;
@@ -30,10 +30,23 @@ public class ClassifierAnnotator extends AbstractAnnotator implements Serializab
 	{ 
 		this(fe,c,spanType,spanProp,null);
 	}
+
+	/** The feature extractor applied to candidate spans. */
 	public SpanFeatureExtractor getFE() { return fe; }
+
+	/* The classifier used on Instances extracted from candidate spans
+	 * by the SpanFeatureExtractor getFE() */
 	public Classifier getClassifier() { return c; }
+	
+	/** If non-null, the property used to encode the output of the classifier. */
 	public String getSpanProperty() { return spanProp; }
+
+	/** If non-null, the spanType used to encode the positive predictions of
+	 * the classifier (which should be a BinaryClassifier). */
 	public String getSpanType() { return spanType; }
+
+	/** If non-null, the spanType corresponding to candidate spans to be
+	 * classified.  If null, the document spans will be classified. */
 	public String getCandidateType() { return candidateType; }
 
 	public void doAnnotate(MonotonicTextLabels labels)

@@ -203,7 +203,7 @@ public class ConditionalSemiMarkovModel
 
 
 	// annotate a document using a learned model
-	static public class CSMMAnnotator extends AbstractAnnotator	implements Visible
+	static public class CSMMAnnotator extends AbstractAnnotator	implements Visible,ExtractorAnnotator
 	{
 		private SpanFeatureExtractor fe;
 		private BinaryClassifier classifier;
@@ -237,6 +237,7 @@ public class ConditionalSemiMarkovModel
 			this.annotationType = annotationType;
 			this.maxSegSize = maxSegSize;
 		}
+		public String getSpanType() { return annotationType; }
 		public void doAnnotate(MonotonicTextLabels labels)
 		{
 			ProgressCounter pc = new ProgressCounter("annotating","document",labels.getTextBase().size());

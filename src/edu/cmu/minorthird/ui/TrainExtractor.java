@@ -47,6 +47,7 @@ public class TrainExtractor implements CommandLineUtil.UIMain
 		if (signal.spanType==null) throw new IllegalArgumentException("-spanType must be specified");
 
 		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
+		train.learner.setAnnotationType( train.output );
 
 		// echo the input
 		if (base.showLabels) {

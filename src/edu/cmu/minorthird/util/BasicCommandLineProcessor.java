@@ -3,6 +3,7 @@ package edu.cmu.minorthird.util;
 import org.apache.log4j.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.io.*;
 
 /**
  * A lightweight command-line processing tool.
@@ -69,6 +70,34 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor
 		}
 	}
 
+
+	/** Implements the -config option.
+	 */
+	public void config(String fileName)
+	{
+		config(fileName,this);
+	}
+
+	/** Implements the -config option for the given clp.  This is static
+	 * so that JointCommandLineProcessor can use it also.
+	 */
+	static public void config(String fileName,CommandLineProcessor clp)
+	{
+		Properties props = new Properties();
+		try {
+			props.load(new FileInputStream(new File(fileName)));
+		} catch (IOException ex) {
+			clp.usage("error: "+ex);
+		}
+		ArrayList list = new ArrayList();
+		for (Enumeration i=props.propertyNames(); i.hasMoreElements(); ) {
+			String key = (String)i.nextElement();
+			String val = props.getProperty(key);
+			list.add("-"+key);
+			if (!"".equals(val)) list.add(val);
+		}
+		clp.processArguments((String[])list.toArray(new String[list.size()]));
+	}
 
 	public void usage(String errorMessage) 
 	{

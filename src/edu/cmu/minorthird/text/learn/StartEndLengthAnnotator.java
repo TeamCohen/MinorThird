@@ -18,7 +18,7 @@ import java.util.TreeMap;
  * @author William Cohen
  */
 
-public class StartEndLengthAnnotator extends AbstractAnnotator
+public class StartEndLengthAnnotator extends AbstractAnnotator implements ExtractorAnnotator
 {
 	private double threshold = 0.5;
 
@@ -53,6 +53,8 @@ public class StartEndLengthAnnotator extends AbstractAnnotator
 
 	public void setThreshold(double t) { this.threshold=t; }
 	public double getThreshold() { return threshold; }
+
+	public String getSpanType() { return annotationType; }
 
 	/** Return something that finds beginnings (for debugging). */
 	public SpanFinder getStartFinder() {

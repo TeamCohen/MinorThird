@@ -54,9 +54,9 @@ public class TestExtractor implements CommandLineUtil.UIMain
 		}
 		
 		// load the annotator
-		Annotator ann = null;
+		ExtractorAnnotator ann = null;
 		try {
-			ann = (Annotator)IOUtil.loadSerialized(test.loadFrom);
+			ann = (ExtractorAnnotator)IOUtil.loadSerialized(test.loadFrom);
 		} catch (IOException ex) {
 			throw new IllegalArgumentException("can't load annotator from "+test.loadFrom+": "+ex);
 		}
@@ -69,13 +69,21 @@ public class TestExtractor implements CommandLineUtil.UIMain
 
 		annLabels = ann.annotatedCopy(base.labels);
 
+		
+		SpanDifference sd = 
+			new SpanDifference(
+				annLabels.instanceIterator(signal.spanType),
+				annLabels.instanceIterator(ann.getSpanType()),
+				annLabels.closureIterator(signal.spanType));
+		System.out.println("Compare "+ann.getSpanType()+" to "+signal.spanType+":");
+		System.out.println(sd.toSummary());
+
 		// echo the labels after annotation
 		if (base.showResult) {
 			Viewer va = new SmartVanillaViewer();
 			va.setContent(annLabels);
 			new ViewerFrame("Annotated Textbase",va);
 		}
-		
 	}
 
 	public Object getMainResult() { return annLabels; }

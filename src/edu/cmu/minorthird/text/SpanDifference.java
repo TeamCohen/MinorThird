@@ -308,4 +308,15 @@ public class SpanDifference
 		return "[SpanDiff: token p/r="+tokenPrecision()+"/"+tokenRecall()
 			       +" span p/r="+spanPrecision()+"/"+spanRecall()+"]"; 
 	}
+	/** Return a string containing all the summary statistics
+	 * printed moderately neatly on two lines. */
+
+	public String toSummary()
+	{
+		double tokenF = 2*tokenPrecision()*tokenRecall()/(tokenPrecision()+tokenRecall());
+		double spanF = 2*spanPrecision()*spanRecall()/(spanPrecision()+spanRecall());
+		return 
+			"TokenPrecision: "+tokenPrecision()+" TokenRecall: "+tokenRecall()+" F: "+tokenF+"\n"
+			+"SpanPrecision:  "+spanPrecision() +" SpanRecall:  "+spanRecall()+" F: "+spanF;
+	}
 }
