@@ -61,6 +61,7 @@ public class SpeechAct {
 	
   public SpeechAct() {
     try {
+    	//all models below are based on LC_BOW only. original dataset is located
       File reqfile = new File("apps/email/models/Req_Model");//DT
       req_model = (BinaryClassifier) IOUtil.loadSerialized(reqfile);
       File dlvfile = new File("apps/email/models/Dlv_Model");//VP,batch15
@@ -73,7 +74,7 @@ public class SpeechAct {
       amd_model = (BinaryClassifier) IOUtil.loadSerialized(amdfile);
       File reqamdpropfile = new File("apps/email/models/ReqAmdProp_Model");//DT
       reqamdprop_model = (BinaryClassifier) IOUtil.loadSerialized(reqamdpropfile);
-      File dlvcmtfile = new File("apps/email/models/DlvCmt_Model");//DT
+      File dlvcmtfile = new File("apps/email/models/DlvCmt_Model");//VP,batch15
       dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
     }
     catch (Exception e) {
@@ -111,9 +112,22 @@ public class SpeechAct {
         //Span span = (Span)it.nextSpan();
         Span span = (Span)it.next();
         MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
-	    clo = sa.bclassify(sa.req_model, ins);
-	    String outt = clo? "__REQ__":"_______";
-	    System.out.println("docId = "+span.getDocumentId()+"   class: "+outt);
+	    boolean reqbool = sa.bclassify(sa.req_model, ins);
+	    boolean dlvbool = sa.bclassify(sa.dlv_model, ins);
+	    boolean propbool = sa.bclassify(sa.req_model, ins);
+	    boolean cmtbool = sa.bclassify(sa.dlv_model, ins);
+	    boolean amdbool = sa.bclassify(sa.req_model, ins);
+	   	boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
+	    boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
+	    
+	    String reqs = reqbool?   "_REQ_":"_____";
+	    String dlvs = dlvbool?   "_DLV_":"_____";
+	    String props = propbool? "_PROP_":"______";
+	    String cmts = cmtbool?   "_CMT_":"_____";
+	   	String amds = amdbool?   "_AMD_":"_____";
+		String reqamdprops = reqamdpropbool? "_REQAMDPROP":"___________";
+	    String dlvcmts = dlvcmtbool? "_DLVCMT__":"_________";
+	    System.out.print("docId = "+span.getDocumentId()+"\n\t\t("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+"\n");
        // String spanString = span.asString();
       }
     }
