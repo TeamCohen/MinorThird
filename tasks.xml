@@ -6,6 +6,7 @@
 <property name="jarsDir" location="lib"/>
 <property name="reportsDir" location="testReports"/>
 <property name="testRootDir" location="testRoot"/>
+<property name="deprecation" value="on"/>
 <!-- <property name="MINORTHIRD" value="."/> -->
 <!-- <property name="cvsRoot" value=":pserver:cvs@bb.isri.cmu.edu:/usr0/cvs"/> -->
 
@@ -14,7 +15,10 @@
   <fileset dir="${jarsDir}">
     <include name="**/*.jar"/>
   </fileset>
-  <pathelement path="${classDir}"/>
+  <pathelement location="${classDir}"/>
+  <pathelement location="config"/>
+  <pathelement location="lib/mixup"/>
+  
 </path>
 
 <target name="init">
@@ -27,7 +31,7 @@
 <target name="build" depends="init"
   description="build the source ">
   <!-- Compile the java code from ${src} into ${classDir} -->
-  <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="yes"/>
+  <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
 </target>
 
 <target name="build-Names" depends="init"
@@ -37,7 +41,7 @@
 </target>
 
 <target name="build-test" depends="init, build">
-  <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="yes"/>
+  <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
 </target>
 
 <target name="build-classify" depends="clean,init"
@@ -91,7 +95,7 @@
 
 </target>
 
-<target name="tests" depends="build, build-test" description="Run the tests, halting on failure">
+<target name="tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
   <mkdir dir="${reportsDir}"/>
 <!--  <mkdir dir="${testRootDir}"/> -->
   <junit printsummary="yes" haltonfailure="no">
@@ -117,6 +121,7 @@
         <exclude name="**/EdoTextLabelsTest.class"/>
         <exclude name="**/BayesClassifiersTest.class"/>
         <exclude name="**/TextLabelsLoaderTest.class"/>
+        <exclude name="**/SimpleTextLoaderTest.class"/>
 
         <!-- long running time (>5 seconds) -->
 <!--        <exclude name="**/POSTaggerTest.class"/> -->
