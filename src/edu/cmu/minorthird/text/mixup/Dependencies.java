@@ -4,12 +4,8 @@ import edu.cmu.minorthird.text.MonotonicTextEnv;
 import edu.cmu.minorthird.text.Annotator;
 import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 /**
  * Contains static methods to run annotators (either mixup or java code)
@@ -18,9 +14,9 @@ import java.util.StringTokenizer;
  */
 public class Dependencies
 {
-  private static Map providerMap;
   private static Logger log = Logger.getLogger(Dependencies.class);
   private static String configFile = "annotators.config";
+  private static Properties providerProps;
 
   /**
    * This runs the given file or the default (from <code>configFile</code>) to generate
@@ -103,38 +99,25 @@ public class Dependencies
    * @return name of the default provider (file or java class) for the required
    *        annotation
    */
-  protected static String getDependency(String reqAnnotation)
+  protected static String getDependency(String reqAnnotation) throws IOException
   {
 
-    if (providerMap == null)
+    if (providerProps == null)
     {
-      providerMap = new HashMap();
+      //read Properties file
+
       InputStream inStream =
 			  ClassLoader.getSystemResourceAsStream(configFile);
 //			  Dependencies.class.getClassLoader().getResourceAsStream(configFile);
       log.debug("in stream = " + inStream);
       if (inStream == null)
       { throw new IllegalStateException("can't find " + configFile + " on classpath"); }
-      BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
-      try
-      {
-        while (in.ready())
-        {
-          String line = in.readLine();
-          if (line.startsWith("#"))
-            continue;
-          StringTokenizer tokenizer = new StringTokenizer(line, " :,");
-          String provides = tokenizer.nextToken();
-          String service = tokenizer.nextToken();
-          providerMap.put(provides, service);
-        }
-      }
-      catch (Exception e)
-      {
-        log.error(e, e);
-      }
+
+      providerProps = new Properties();
+      providerProps.load(inStream);
+
     }
 
-    return (String)providerMap.get(reqAnnotation);
+    return providerProps.getProperty(reqAnnotation);
   }
 }

@@ -61,16 +61,18 @@ public class DependenciesTest extends TestCase
     {
       log.debug("first call");
       Dependencies.getDependency("names");
+
+      assertEquals("names.mixup", Dependencies.getDependency("names"));
+      assertEquals("date.mixup", Dependencies.getDependency("date"));
+      assertEquals("time.mixup", Dependencies.getDependency("time"));
+      assertEquals("np.mixup", Dependencies.getDependency("npchunks"));
+
     }
     catch (Exception e)
     {
       log.error(e, e);
       fail();
     }
-      assertEquals("names.mixup", Dependencies.getDependency("names"));
-      assertEquals("date.mixup", Dependencies.getDependency("date"));
-      assertEquals("time.mixup", Dependencies.getDependency("time"));
-      assertEquals("np.mixup", Dependencies.getDependency("npchunks"));
   }
 
   public void testBroken()
