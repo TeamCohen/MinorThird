@@ -1,4 +1,4 @@
-//package email; 
+package email; 
 
 /**
  * This class is a first attemp to classify email messages into "speech acts".
@@ -20,10 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 import java.io.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.classify.algorithms.trees.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.Example;
@@ -59,19 +61,19 @@ public class SpeechAct {
 	
   public SpeechAct() {
     try {
-      File reqfile = new File("apps/email/models/VPsigPredictionModel");
+      File reqfile = new File("apps/email/models/Req_Model");//DT
       req_model = (BinaryClassifier) IOUtil.loadSerialized(reqfile);
-      File dlvfile = new File("apps/email/models/VPsigPredictionModel");
+      File dlvfile = new File("apps/email/models/Dlv_Model");//VP,batch15
       dlv_model = (BinaryClassifier) IOUtil.loadSerialized(dlvfile);
-      File propfile = new File("apps/email/models/VPsigPredictionModel");
+      File propfile = new File("apps/email/models/Prop_Model");//VP,batch15
       prop_model = (BinaryClassifier) IOUtil.loadSerialized(propfile);
-      File cmtfile = new File("apps/email/models/VPsigPredictionModel");
+      File cmtfile = new File("apps/email/models/Cmt_Model");//VP,batch15
       cmt_model = (BinaryClassifier) IOUtil.loadSerialized(cmtfile);
-      File amdfile = new File("apps/email/models/VPsigPredictionModel");
+      File amdfile = new File("apps/email/models/Amd_Model");//VP,batch15
       amd_model = (BinaryClassifier) IOUtil.loadSerialized(amdfile);
-      File reqamdpropfile = new File("apps/email/models/VPsigPredictionModel");
+      File reqamdpropfile = new File("apps/email/models/ReqAmdProp_Model");//DT
       reqamdprop_model = (BinaryClassifier) IOUtil.loadSerialized(reqamdpropfile);
-      File dlvcmtfile = new File("apps/email/models/VPsigPredictionModel");
+      File dlvcmtfile = new File("apps/email/models/DlvCmt_Model");//DT
       dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
     }
     catch (Exception e) {
@@ -102,12 +104,15 @@ public class SpeechAct {
       SpeechAct sa = new SpeechAct();
       MutableTextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
       TextBase textBase = labels.getTextBase();
-      for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
-	  //for (Iterator i = labels.instanceIterator("mainbody"); i.hasNext();) {
-        Span span = it.nextSpan();
+      System.out.println("textbase size = " + textBase.size());
+      //TextBaseEditor.edit(labels, new File("moomoomoo"));
+      //for (Span.Looper it = textBase.documentSpanIterator(); it.hasNext();){
+	  for (Iterator it = labels.instanceIterator("mainbody"); it.hasNext();) {
+        //Span span = (Span)it.nextSpan();
+        Span span = (Span)it.next();
         MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
 	    clo = sa.bclassify(sa.req_model, ins);
-	    String outt = clo? "___REQ":"NOTreq";
+	    String outt = clo? "__REQ__":"_______";
 	    System.out.println("docId = "+span.getDocumentId()+"   class: "+outt);
        // String spanString = span.asString();
       }
