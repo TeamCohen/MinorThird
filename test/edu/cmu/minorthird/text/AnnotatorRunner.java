@@ -1,43 +1,49 @@
 package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.SigFileAnnotator;
+import email.SigFileAnnotator;
+import email.ReplyToAnnotator;
 import org.apache.log4j.Logger;
-
+ 
 import java.io.File;
 
 /**
- * This class...
+ * This class tests the usage of the String annotators
+ * (SigFile, ReplyTo, POS, etc)
+ * 
  * @author ksteppe
  */
 public class AnnotatorRunner
 {
   private static Logger log = Logger.getLogger(AnnotatorRunner.class);
 
-
   public static void main(String[] args)
-  {// load the documents into a textbase
-
+  {
     try
     {
-      //    TextBase base = new BasicTextBase();
-      //    TextBaseLoader loader = new TextBaseLoader();
-      File dir = new File("C:/radar/extract/src/com/wcohen/text/ann/samplemail"); //put the directory with emails here.
-      //File dir = new File("C:/boulder/randomNOSig"); //put the directory with emails here.
+      //put the directory with emails here.
+      File dir = new File("C:/radar/extract/src/com/wcohen/text/ann/samplemail"); 
 
       MutableTextLabels labels = null;
       labels = TextBaseLoader.loadDirOfTaggedFiles(dir);
-      //    TextBase base = labels.getTextBase();
 
+     //for sig annotations:
       Annotator annotator = new SigFileAnnotator();
+      String tag = "sig";
+      
+      //in case you only want the reply-to lines
+      //Annotator annotator = new ReplyToAnnotator();
+      //String tag = "reply";
+      
+      //for POS experiments
       // Annotator annotator = new POSTagger();
+      
       annotator.annotate(labels);
 
-      // output the results
-      for (Span.Looper i = labels.instanceIterator("sig"); i.hasNext();)
+      // to see the results
+      for (Span.Looper i = labels.instanceIterator(tag); i.hasNext();)
       {
         Span span = i.nextSpan();
-        //System.out.println( span.asString().replace('\n',' ') );
         System.out.println(span.toString().replace('\n', ' '));
       }
 
