@@ -5,9 +5,11 @@ package edu.cmu.minorthird.util;
  * Indicates intermediate progress for a trainer, etc.
  *
  */
-import java.util.*;
-import javax.swing.JProgressBar;
-import javax.swing.JPanel;
+import org.apache.log4j.Logger;
+
+import javax.swing.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ProgressCounter
 {
@@ -32,6 +34,7 @@ public class ProgressCounter
 	private long lastOutputTime;
 	private int stepsCompleted;
 	private JProgressBar graphicCounter;
+	Logger log = Logger.getLogger(this.getClass() + ":" + task);
 
 
 	public ProgressCounter(String task,String step,int numSteps) {
@@ -44,7 +47,9 @@ public class ProgressCounter
 		if (depth<graphicContext.length) {
 			graphicCounter = graphicContext[depth];
 			graphicCounter.setValue(0);
-			if (numSteps>=0) graphicCounter.setMaximum(numSteps);
+			if (numSteps>=0)
+        graphicCounter.setMaximum(numSteps);
+
 			graphicCounter.setIndeterminate(numSteps<0);
 			graphicCounter.setString(numSteps>=0 ? (" "+task+" for "+numSteps+" "+step+"s ") : task);
 			graphicCounter.setStringPainted(true);
@@ -52,6 +57,7 @@ public class ProgressCounter
 			graphicCounter = null;
 		}
 		stack.add( this );
+		log.debug("start");
 	}
 	public ProgressCounter(String task,int numSteps) {
 		this(task,"step",numSteps);
@@ -85,7 +91,15 @@ public class ProgressCounter
 
 	/** Record this task as completed. */
 	public void finished() {
-		int k = stack.indexOf(this);
+    if (graphicCounter != null && graphicCounter.isIndeterminate())
+    {
+      graphicCounter.setIndeterminate(false);
+      graphicCounter.setMaximum(stepsCompleted);
+      graphicCounter.setValue(stepsCompleted);
+    }
+    int k = stack.indexOf(this);
 		if (k>=0) stack = stack.subList( 0, k );
+
+    log.info("finished in " + stepsCompleted + " steps.");
 	}
 }

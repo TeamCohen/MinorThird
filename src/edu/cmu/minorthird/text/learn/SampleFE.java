@@ -57,7 +57,8 @@ public class SampleFE
 		return fe;
 	}
 
-	/** A simple extraction-oriented feature extractor to apply to one-token spans, for extraction tasks. 
+
+	/** A simple extraction-oriented feature extractor to apply to one-token spans, for extraction tasks.
 	 */
 	public static class ExtractionFE implements SpanFeatureExtractor
 	{

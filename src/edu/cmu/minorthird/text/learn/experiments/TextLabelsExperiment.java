@@ -7,6 +7,7 @@ import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.text.learn.*;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 import java.io.File;
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class TextLabelsExperiment
    * @param labels The labels and base to be annotated in the example
    *               These are the training examples
    * @param splitter splitter for the documents in the labels to create test vs. train
-   * @param learner AnnotatorLearner algorithm object to use
+   * @param learnerName AnnotatorLearner algorithm object to use
    * @param inputLabel spanType in the TextLabels to use as training data. (I.e.,
 	 *   the spanType to learn.
    * @param outputLabel the spanType that will be assigned to spans predicted
@@ -71,6 +72,7 @@ public class TextLabelsExperiment
 
 	public void doExperiment() 
 	{
+
 		splitter.split( labels.getTextBase().documentSpanIterator() );
 
 		annotators = new Annotator[ splitter.getNumPartitions() ];
@@ -79,6 +81,8 @@ public class TextLabelsExperiment
 			for (Iterator j=splitter.getTest(i); j.hasNext(); ) 
 				allTestDocuments.add( j.next() );
 		}
+    //Progress counter
+    ProgressCounter progressCounter = new ProgressCounter("Text Labels Experiment", splitter.getNumPartitions());
 
 		SubTextBase fullTestBase = new SubTextBase( labels.getTextBase(), allTestDocuments.iterator() );
 		fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, labels ) );
@@ -112,10 +116,16 @@ public class TextLabelsExperiment
 
 			log.info("Evaluating test partition...");
 			measurePrecisionRecall("Test partition "+(i+1)+":",ithTestLabels );
-		}
+
+      //step progress counter
+      progressCounter.progress();
+    }
 		log.info("\nOverall performance:");
 		measurePrecisionRecall( "Overall performance", fullTestLabels );
-	}
+
+    //end progress counter
+    progressCounter.finished();
+  }
 
 	private void measurePrecisionRecall(String tag,TextLabels labels)
 	{

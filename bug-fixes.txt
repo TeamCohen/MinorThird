@@ -1,0 +1,6 @@
+Bug list:
+	
+1 - FIXED - ProgressCounter
+	checking graphic counter in finished can NPE
+	
+	
