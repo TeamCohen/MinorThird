@@ -27,6 +27,7 @@ public class RandomFilePicker
 
 //    HashMap selections = new HashMap(numChunks * numMsg, 0.95f);
     HashSet selections = new HashSet(numChunks * numMsg, 0.95f);
+    HashSet exempted = new HashSet(160, 0.90f);
 
     //possible directories
     File[] dirs = base.listFiles();
@@ -35,8 +36,13 @@ public class RandomFilePicker
     {
       //get all_documents
       File dir = new File(dirs[i], "all_documents");
-      System.out.println("loading messages in " + dir);
+      System.out.println(i + " - loading messages in " + dir);
       messages[i] = dir.listFiles();
+      if (messages[i] == null)
+      {
+        System.out.println(dirs[i].getName() + " doesn't have all_documents");
+        exempted.add(new Integer(i));
+      }
     }
 
     for (int chunk = 0; chunk < numChunks; chunk++)
@@ -45,7 +51,11 @@ public class RandomFilePicker
       while (msg < numMsg)
       {
         int person = (int)Math.floor(Math.random() * dirs.length);
-        System.out.println("person: " + person);
+        if (exempted.contains(new Integer(person)))
+        {
+          System.out.println("exempted person (" + person + "), skipping");
+          continue;
+        }
         int email = (int)Math.floor(Math.random() * messages[person].length);
 
         System.out.println("selected: [" + person + "][" + email + "] - " + messages[person][email]);
