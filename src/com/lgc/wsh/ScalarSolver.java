@@ -3,6 +3,9 @@ package com.lgc.wsh.inv;
 import com.lgc.wsh.util.Almost;
 import com.lgc.wsh.util.IndexSorter;
 import java.util.logging.*;
+import java.lang.*;
+
+import junit.framework.Assert;
 
 /** Search a single variable for a value that minimizes a function */
 public class ScalarSolver {
@@ -55,10 +58,24 @@ public class ScalarSolver {
     if (nter < 6) nter = 6;
     double[] xs  = {0., 0.25, 0.75, 1.}; // Assume bias toward endpoints
     double[] fs  = new double[4];
+    boolean allZerosInd = true;
     for (int i=0; i<fs.length; ++i) {
       fs[i] = function(xs[i], scalarMin, scalarMax);
+      if (fs[i]!=0) allZerosInd = false;
     }
     iter = 4;
+
+    while (allZerosInd){  // in case all previous points returned zero, narrow the center range (Einat)
+        iter++;
+        xs[1] = xs[1] + (0.5-xs[1])*0.6;
+        xs[2] = xs[2] + (xs[2]-0.5)*0.6;
+        for (int i=1; i<fs.length-1; ++i) {
+            fs[i] = function(xs[i], scalarMin, scalarMax);
+            System.out.println("fs[i]" + fs[i]);
+            if (fs[i]!=0) allZerosInd=false;
+        }
+    }
+
 
     double xmin = Float.MAX_VALUE;
     double error = 1.;
@@ -183,7 +200,8 @@ public class ScalarSolver {
     return result;
   }
 
-  /** Reorganize samples
+
+    /** Reorganize samples
       @param xs Sorted by increasing values
       @param fs Sorted the same way as xs
       @return sample for which fs is minimized */
