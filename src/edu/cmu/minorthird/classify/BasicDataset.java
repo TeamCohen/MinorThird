@@ -18,6 +18,9 @@ import java.io.*;
 
 public class BasicDataset implements Visible,Saveable,Dataset
 {
+   static private final long serialVersionUID = 1;
+   private final int CURRENT_SERIAL_VERSION = 1;
+   
    protected ArrayList examples = new ArrayList();
    protected ArrayList unlabeledExamples = new ArrayList();
    protected Set classNameSet = new TreeSet();

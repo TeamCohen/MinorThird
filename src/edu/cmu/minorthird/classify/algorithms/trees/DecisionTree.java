@@ -100,6 +100,9 @@ import java.io.Serializable;
    */
   public static class Leaf extends DecisionTree implements Visible
   {
+  	static private final long serialVersionUID = 1;
+    private final int CURRENT_SERIAL_VERSION = 1;
+    
     private double myScore;
 
     public Leaf(double myScore)
