@@ -139,7 +139,10 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible
 	{
 		SequenceDataset copy = new SequenceDataset();
 		copy.setHistorySize( getHistorySize() );
-		while (i.hasNext()) copy.addSequence((Example[])i.next());
+		while (i.hasNext()) {
+			Object o = i.next();
+			copy.addSequence((Example[])o);
+		}
 		return copy;
 	}
 

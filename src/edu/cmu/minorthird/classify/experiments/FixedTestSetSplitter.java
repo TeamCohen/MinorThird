@@ -23,7 +23,10 @@ public class FixedTestSetSplitter implements Splitter
 	private List iteratorToList(Iterator i)
 	{
 		List result = new ArrayList();
-		while (i.hasNext()) result.add(i.next());
+		while (i.hasNext()) {
+			Object o = i.next();
+			result.add(o);
+		}
 		return result;
 	}
 }

@@ -87,6 +87,9 @@ public class Evaluation implements Visible,Serializable
   /** Record the result of predicting the give class label on the given example */
   public void extend(ClassLabel predicted, Example example, int cvID)
   {
+		if (predicted.bestClassName()==null) 
+			throw new IllegalArgumentException("predicted can't be null! for example: "+example);
+		if (example.getLabel()==null) throw new IllegalArgumentException("predicted can't be null!");
     if (log.isDebugEnabled()) {
       String ok = predicted.isCorrect(example.getLabel()) ? "Y" : "N";
       log.debug("ok: "+ok+"\tpredict: "+predicted+"\ton: "+example);
@@ -121,6 +124,7 @@ public class Evaluation implements Visible,Serializable
     double errs = 0;
     for (int i=0; i<entryList.size(); i++) {
       Entry e = getEntry(i);
+			if (e.actual.bestClassName()==null) throw new IllegalArgumentException("actual label is null?");
       errs += e.predicted.isCorrect(e.actual) ? 0 : e.w;
     }
     return errs;

@@ -96,6 +96,8 @@ public class ClassLabel implements Serializable
 	/** Is this label correct, relative to another label? */
 	public boolean isCorrect(ClassLabel otherLabel) 
 	{ 
+		if (otherLabel==null) throw new IllegalArgumentException("null otherLabel?");
+		if (bestClassName()==null) throw new IllegalArgumentException("null bestClassName?");
 		return this.bestClassName().equals(otherLabel.bestClassName());
 	}
 

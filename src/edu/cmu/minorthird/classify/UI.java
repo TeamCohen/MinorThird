@@ -85,7 +85,8 @@ public class UI
 			public void test(String s) {  
 				testData = safeToDataset(s); 
 				testDataFilename = s;
-				splitter = new FixedTestSetSplitter(testData.iterator());
+				Iterator it = sequential? ((SequenceDataset)testData).sequenceIterator(): testData.iterator();
+				splitter = new FixedTestSetSplitter(it);
 			}
 			public void op(String s) { 
 				if (LEGAL_OPS.contains(s)) op = s;
