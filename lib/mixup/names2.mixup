@@ -1,0 +1,7 @@
+require 'npchunks';
+provide 'names';
+
+defDict nameList = "lib/mixup/allnames.txt";defDict prpNoun = i, we;
+
+defTokenProp NNP:1 =: ... [P:NNP+R] ... || ... [P:NNPS+R] ... ;
+defSpanType Name =: ... [<NNP:1, ai(nameList)>+R] ... || ... [ai(prpNoun)] ... ;
