@@ -63,7 +63,9 @@ public class BasicSpan implements Span,Serializable,Visible
 	}
 
 	public Token getToken(int i) {
-		return getTextToken(i);
+	    //return getTextToken(i);
+	    if (i<0 || i>=spanLen) throw new IllegalArgumentException("out of range: "+i);
+	    return textTokens[loTextTokenIndex+i]; 
 	}
 
 	/** Create a subspan of this span, covering the indicated TextToken's. */
