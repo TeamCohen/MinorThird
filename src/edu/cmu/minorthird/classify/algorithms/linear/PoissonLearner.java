@@ -51,6 +51,14 @@ public class PoissonLearner extends BatchBinaryClassifierLearner
 
   public Classifier batchTrain(Dataset data)
   {
+    // temp-filter
+    //int featureToKeep = 1000;  String model = "document"; // or "word"
+    //System.out.println("Filter Features with Info-Gain");
+    //InfoGainTransformLearner filter = new InfoGainTransformLearner( model );
+    //InfoGainInstanceTransform infoGain = (InfoGainInstanceTransform)filter.batchTrain( data );
+    //infoGain.setNumberOfFeatures( featureToKeep );
+    //data = infoGain.transform( data );
+
     //System.out.println("in batchTrain");
     BasicFeatureIndex index = new BasicFeatureIndex(data);
     //System.out.println( "Dataset:\n # examples = "+data.size() );
@@ -88,6 +96,8 @@ public class PoissonLearner extends BatchBinaryClassifierLearner
       //System.out.println("w|Pos="+pweight+" w|Neg="+nweight);
       c.increment( f, +pweight -nweight, LOG );
     }
+    //System.out.println( "prior pos = "+estimatedProb(numPos, numPos+numNeg, 0.5, 1.0, LOG ) );
+    //System.out.println( "prior neg = "+estimatedProb(numNeg, numPos+numNeg, 0.5, 1.0, LOG ) );
     c.incrementBias( +estimatedProb(numPos, numPos+numNeg, 0.5, 1.0, LOG ) );
     c.incrementBias( -estimatedProb(numNeg, numPos+numNeg, 0.5, 1.0, LOG ) );
     //System.out.println("out of batchTrain\n");
