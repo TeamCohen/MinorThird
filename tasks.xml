@@ -44,10 +44,21 @@
   <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
 </target>
 
-<target name="build-classify" depends="clean,init"
+<target name="build-util" depends="init"
   description="build the edu.cmu.minorthird.classify source ">
   <!-- Compile the java code from ${src} into ${classDir} -->
-  <javac srcdir="${src}" destdir="${classDir}" debug="on" excludes="**/text/**" classpathref="classpath"/>
+  <javac srcdir="${src}" destdir="${classDir}" debug="on" 
+  	includes="edu/cmu/minorthird/util/**" classpathref="classpath"/>
+</target>
+
+
+<target name="build-classify" depends="init"
+  description="build the edu.cmu.minorthird.classify source ">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="${src}" destdir="${classDir}" debug="on" 
+  	includes="edu/cmu/minorthird/classify/**" 
+  	excludes="edu/cmu/minorthird/text/**,edu/cmu/minorthird/ui/**"
+  	classpathref="classpath"/>
 </target>
 
 <target name="build-clean" depends="clean,build" description="compile the source from scratch">
