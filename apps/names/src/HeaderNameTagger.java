@@ -12,7 +12,7 @@ import java.util.*;
 
 public class HeaderNameTagger extends AbstractAnnotator
 {
-	static private final String HEADER_NAME_ANNOTATION = "headerNames_v2";
+	static private final String HEADER_NAME_ANNOTATION = "headerNames";
 	static private final String HEADER_NAME_PROP = "headerName";
 
 	protected void doAnnotate(MonotonicTextLabels labels)

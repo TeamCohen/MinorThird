@@ -1,0 +1,47 @@
+
+How to train a portable name extractor - 8/26, William Cohen
+
+1. Chdir to apps\names.
+
+2. Rebuild the codebase with "ant clean build" 
+
+3. Train an extractor using ui.TrainExtractor.  Specify the mixup file
+you want to use with -mixup, and use the -embed option to "embed" into
+the learned annotator any mixup files and/or class files used by the
+-mixup you want.  The argument to -embed is a list file names, separated 
+whatever path separator your OS uses (; for windows, : for unix).
+
+For example:
+
+       java  -cp "./class;./lib;%CLASSPATH%"    %adding apps/names special stuff
+            -Xmx500M				% more memory
+            edu.cmu.minorthird.ui.TrainExtractor  %training class
+	    -spanType true_name      % target label
+	    -labels cspace.07        % you'd probably use a bigger training set
+	    -mixup nameFeatures_v1   % this calls HeaderNameTagger
+	    -embed "lib\nameFeatures_v1.mixup;class\HeaderNameTagger.class" 
+	    -saveAs emailName.ann    % where to keep the learned classifier
+	    -output extracted_name   % label produced by trained extractor
+	    -learner "new SequenceAnnotatorLearner(    %a slow but effective learner
+		         new CollinsPerceptronLearner(50), 
+			 new Recommended.TokenFE(), 
+			 new BeginContinueEndUniqueReduction())"
+
+4. The resulting annotator file, emailName.ann, will still not hold
+the dictionaries used by nameFeatures_v1.mixup.  You'll still need to
+bundle these up.  Use "ant jar" to create a jar file
+"nameLibFiles.jar"
+
+5. To run the extractor, you'll need to add the nameLibFiles jar to
+the classpath.  For example:
+
+    java -cp "apps\names\nameLibFiles.jar;%CLASSPATH%" -Xmx500M 
+    edu.cmu.minorthird.ui.TestExtractor 
+    -labels cspace.08 -spanType true_name -loadFrom emailName.ann
+
+Here %CLASSPATH% could just be the minorthird jar.
+
+Or you can use ui.ApplyAnnotator to run the annotator on unlabeled
+data.  Notice that the rules for when to look for XML markup in labels
+have changed - it doesn't happen as often. Look at the javadocs for
+FancyLoader.java to see how they're different.

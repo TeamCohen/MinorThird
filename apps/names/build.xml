@@ -6,6 +6,10 @@
 
   <target name="build-clean" depends="clean,build"  description="compile the source from scratch"/>
 
+  <target name="jar" depends="build" description="jar of all relevant code and stuff">
+    <jar jarfile="nameLibFiles.jar" baseDir="lib" includes="*.txt"/>
+  </target>
+
   <target name="build" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->

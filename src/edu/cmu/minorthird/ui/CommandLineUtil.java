@@ -691,6 +691,7 @@ class CommandLineUtil
 			this.learner = (AnnotatorLearner)newObjectFromBSH(s,AnnotatorLearner.class); 
 			if (fe!=null) learner.setSpanFeatureExtractor(fe);
 		}
+		public void output(String s) { this.output=s; }
     public void option(String s, Object o) {
       int i = s.indexOf("=");
       if(i > 0) {
