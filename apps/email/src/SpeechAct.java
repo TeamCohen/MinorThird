@@ -114,9 +114,9 @@ public class SpeechAct {
         MutableInstance ins = (MutableInstance)sa.fe.extractInstance(labels, span);
 	    boolean reqbool = sa.bclassify(sa.req_model, ins);
 	    boolean dlvbool = sa.bclassify(sa.dlv_model, ins);
-	    boolean propbool = sa.bclassify(sa.req_model, ins);
-	    boolean cmtbool = sa.bclassify(sa.dlv_model, ins);
-	    boolean amdbool = sa.bclassify(sa.req_model, ins);
+	    boolean propbool = sa.bclassify(sa.prop_model, ins);
+	    boolean cmtbool = sa.bclassify(sa.cmt_model, ins);
+	    boolean amdbool = sa.bclassify(sa.amd_model, ins);
 	   	boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
 	    boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
 	    
