@@ -18,6 +18,7 @@ public class BasicDataset implements Visible,Dataset
 {
   //ks42 - these are easily compressed if needed
 	protected ArrayList examples = new ArrayList();
+  protected ArrayList unlabeledExamples = new ArrayList();
 	protected Set classNameSet = new TreeSet();
 	
 	public ExampleSchema getSchema()
@@ -27,7 +28,20 @@ public class BasicDataset implements Visible,Dataset
 		else return schema;
 	}
 
-	public void add(Example example) 
+  //
+  // methods for semisupervised data,  part of the SemiSupervisedDataset interface
+  //
+  public void addUnlabeled(Instance instance) { unlabeledExamples.add( instance ); }
+  public Instance.Looper iteratorOverUnlabeled() { return new Instance.Looper( unlabeledExamples ); }
+  //public ArrayList getUnlabeled() { return this.unlabeledExamples; }
+  public int sizeUnlabeled() { return unlabeledExamples.size(); }
+  public boolean hasUnlabeled() { return (unlabeledExamples.size()>0)? true : false; }
+
+
+  //
+  // methods for labeled data,  part of the Dataset interface
+  //
+	public void add(Example example)
 	{ 
 		examples.add( example.compress() ); 
 		classNameSet.addAll( example.getLabel().possibleLabels() );

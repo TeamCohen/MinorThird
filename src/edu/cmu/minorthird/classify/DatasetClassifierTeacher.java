@@ -53,8 +53,16 @@ public class DatasetClassifierTeacher extends ClassifierTeacher
 
 	public Instance.Looper instancePool() 
 	{ 
-		return activeLearning? 
-			new Instance.Looper(dataset.iterator()) : new Instance.Looper( Collections.EMPTY_SET.iterator() );
+    if (activeLearning)
+    {
+      return new Instance.Looper(dataset.iterator());
+    }
+    else
+    {
+      // (Edoardo Airoldi)  this itearator is empty whenever there are no
+      // unlabeled examples available for semi-supervised learning.
+      return ((BasicDataset)dataset).iteratorOverUnlabeled();
+    }
 	}
 
 	public Example labelInstance(Instance query) 

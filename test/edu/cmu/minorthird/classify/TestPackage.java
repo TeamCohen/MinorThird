@@ -13,6 +13,7 @@ import edu.cmu.minorthird.classify.algorithms.trees.*;
 import edu.cmu.minorthird.classify.algorithms.knn.*;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedNaiveBayesLearner;
 
 /**
  *
@@ -32,6 +33,7 @@ public class TestPackage extends TestSuite
     // if we don't get these, something has changed---which doesn't
     // necessarily mean there's a bug...
 
+    suite.addTest( new LearnerTest( "bayesUnlabeled", new SemiSupervisedNaiveBayesLearner(), 0.0, 0.0  ));
     suite.addTest( new LearnerTest( "bayesExtreme", new PoissonLearner(), 0.0, 0.0  ));
     suite.addTest( new LearnerTest( "bayesExtreme", new NaiveBayes(), 0.5, 0.5  ));
     suite.addTest( new LearnerTest( "toy", new NaiveBayes(), 1.0/7.0, 1.0/7.0 ));
