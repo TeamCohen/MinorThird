@@ -1,7 +1,6 @@
 /* Copyright 2003, Carnegie Mellon, All Rights Reserved */
 
 package edu.cmu.minorthird.classify.algorithms.linear;
-
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
@@ -11,6 +10,8 @@ import gnu.trove.TObjectDoubleHashMap;
 import gnu.trove.TObjectDoubleIterator;
 
 import javax.swing.*;
+import javax.swing.JTree;
+import javax.swing.tree.*;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -156,7 +157,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	static private class HyperplaneControls extends ViewerControls
 	{
 		// how to sort
-		private JRadioButton absoluteValueButton,valueButton,nameButton,noneButton;
+	    private JRadioButton absoluteValueButton,valueButton,nameButton,treeButton,noneButton;
 		public void initialize()
 		{
 			add(new JLabel("Sort by"));
@@ -164,6 +165,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 			nameButton = addButton("name",group,true);
 			valueButton = addButton("weight",group,false);
 			absoluteValueButton = addButton("|weight|",group,false);
+			treeButton = addButton("Tree view",group,false);
 		}
 		private JRadioButton addButton(String s,ButtonGroup group,boolean selected)
 		{
@@ -179,6 +181,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	{
 		private HyperplaneControls controls = null;
 		private Hyperplane h = null;
+	    //private Vector features = new Vector();
 
 		public void applyControls(ViewerControls controls)	
 		{	
@@ -186,8 +189,50 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 			setContent(h,true);
 			revalidate();
 		}
-		public boolean canReceive(Object o) {	return o instanceof Hyperplane;	}
+		public boolean canReceive(Object o) {	return o instanceof Hyperplane;	}	    	    
 
+	    public void createNodes(DefaultMutableTreeNode top, Object[][] data, int start, int len, int level) {
+		//DefaultMutableTreeNode node = top;
+		int size = ((Feature)data[start][0]).size();
+		String whole = ((Feature)data[start][0]).toString();
+		double max = ((Double)data[start][1]).doubleValue();
+	       
+		if(level <= size) {		    		    
+		    String tok = ((Feature)data[start][0]).getPart(level);
+
+		    int i = start+1;
+		    String nextTok = ((Feature)data[i][0]).getPart(level);
+		    double weight = ((Double)data[i][1]).doubleValue();
+		    int flag = 0;
+		    while(nextTok.equals(tok) && i<len-1) {
+			if(weight > max)
+			    max = weight;
+			i++;
+			nextTok = ((Feature)data[i][0]).getPart(level);			
+			weight = ((Double)data[i][1]).doubleValue();
+			flag = 1;
+		    }
+		    
+		    DefaultMutableTreeNode node = new DefaultMutableTreeNode(tok+ " (" + max + ")");
+		    top.add(node);
+		    if (flag == 1) {
+			createNodes(node, data, start, i, level+1);
+		    }
+		    if(i<len-1) {
+			createNodes(top, data, i, len, level);
+		    }
+		}
+	    }
+
+	    public JTree createTree(Object[][] data, int len) {
+		    JTree tree;
+		    DefaultMutableTreeNode top = new DefaultMutableTreeNode("Features Tree");
+		    createNodes(top, data, 0, len, 0);
+		    tree = new JTree(top);		    
+
+		    return tree;
+		}
+		    
 		public JComponent componentFor(Object o) 
 		{
 			h = (Hyperplane)o;
@@ -207,7 +252,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 						public int compare(Object a,Object b) {
 							Object[] ra = (Object[])a;
 							Object[] rb = (Object[])b;
-							if (controls.nameButton.isSelected()) 
+							if (controls.nameButton.isSelected() || controls.treeButton.isSelected()) 
 								return ra[0].toString().compareTo(rb[0].toString());
 							Double da = (Double)ra[1];
 							Double db = (Double)rb[1];
@@ -217,6 +262,12 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 								return MathUtil.sign( Math.abs(db.doubleValue()) - Math.abs(da.doubleValue()) );
 						}
 					});
+			
+			JTree tree;
+			if(controls.treeButton.isSelected()) {
+			    tree = createTree(tableData, keys.length);
+			    return new JScrollPane(tree);
+			}
 			}
 			String[] columnNames = {"Feature Name", "Weight" };
 			JTable table = new JTable(tableData,columnNames);
