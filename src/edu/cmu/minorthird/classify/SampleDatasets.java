@@ -4,6 +4,7 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.algorithms.linear.LogisticRegressor;
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.classify.experiments.sentiments.MovieDataset;
 import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
@@ -78,25 +79,26 @@ public class SampleDatasets
   private static String[] negBayesTest = {
     "a big pile of of paperwork", "a huge backlog of email", "a life of woe and and trouble" };
 
-/*
-	private static String[] posBayesTrain = {
-		"p1 p1 n1", "p2 p2 n2",
-        "p3 p3 n3","p4 p4 n4",
-        "p5 p5 n5" };
-	private static String[] negBayesTrain = {
-		"p1 n1 n1", "p2 n2 n2",
-        "p3 n3 n3","p4 n4 n4",
-        "p5 n5 n5" };
 
-	private static String[] posBayesTest = {
+	private static String[] posBayesExtremeTrain = {
+		"p1 p1 n1", "p2 p2 n2",
+        "p3 p3 n3", "p4 p4 n4",
+        "p5 p5 n5" };
+	private static String[] negBayesExtremeTrain = {
+		"p1 n1 n1", "p2 n2 n2",
+        "p3 n3 n3", "p4 n4 n4",
+        "p5 n5 n5" };
+	private static String[] posBayesExtremeTest = {
         "p1 p1 n1", "p2 p2 n2",
         "p3 p3 n3","p4 p4 n4",
         "p5 p5 n5" };
-	private static String[] negBayesTest = {
+	private static String[] negBayesExtremeTest = {
         "p1 n1 n1", "p2 n2 n2",
         "p3 n3 n3","p4 n4 n4",
         "p5 n5 n5" };
-*/
+    public static Dataset toyBayesExtremeTrain() { return makeBayesData(posBayesExtremeTrain, negBayesExtremeTrain); }
+    public static Dataset toyBayesExtremeTest() { return makeBayesData(posBayesExtremeTest, negBayesExtremeTest); }
+
 
 	/** Makes test-data for generative Bayesian models */
 	private static Dataset makeBayesData( String[] pos,String[] neg )
@@ -251,9 +253,15 @@ public class SampleDatasets
 		if ("toy".equals(name)) {
 			if (isTest) return toyTest();
 			else return toyTrain();
-		} else if ("bayes".equals(name)) {
-			if (isTest) return toyBayesTest();
-			else return toyBayesTrain();                    
+        } else if ("bayes".equals(name)) {
+            if (isTest) return toyBayesTest();
+            else return toyBayesTrain();
+        } else if ("movies".equals(name)) {
+            if (isTest) return MovieDataset.MovieReviewsData();
+            else return MovieDataset.MovieReviewsData();
+        } else if ("bayesExtreme".equals(name)) {
+            if (isTest) return toyBayesExtremeTest();
+            else return toyBayesExtremeTrain();
 		} else if ("num".equals(name)) {
 			if (isTest) return makeNumericData(new Random(666),2,20);
 			else return makeNumericData(new Random(999),2,20);

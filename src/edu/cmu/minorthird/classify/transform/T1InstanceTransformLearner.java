@@ -12,6 +12,12 @@ import java.util.TreeMap;
 public class T1InstanceTransformLearner implements InstanceTransformLearner {
 
     static private Logger log = Logger.getLogger(T1InstanceTransformLearner.class);
+    public static double REF_LENGTH; // word-length of the reference document
+                                     // See static methods at the bottom of this class
+
+    public T1InstanceTransformLearner() {
+        this.REF_LENGTH = 10.0;
+    }
 
     /** Accept an ExampleSchema - constraints on what the
       * Examples will be. */
@@ -24,7 +30,6 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
     /** Examine data, build an instance transformer */
     public InstanceTransform batchTrain(Dataset dataset){
         T1InstanceTransform T1Filter = new T1InstanceTransform();
-        T1Filter.setREF_LENGTH(10.0); // To-Do: Set to the mean/median length of examples
         //T1Filter.setPDF("Negative-Binomial"); // To-Do: Set according to mean/var of counts
         BasicFeatureIndex index = new BasicFeatureIndex(dataset);
         int N = dataset.size();
@@ -41,7 +46,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
                 //System.out.println( e );
                 if ( "POS".equals( e.getLabel().bestClassName() ) ) {
                     xPos[position] = e.getWeight(f);
-                    omegaPos[position] = getLength(e) / T1Filter.getREF_LENGTH();
+                    omegaPos[position] = getLength(e) / REF_LENGTH;
                     //System.out.println( f.toString() + ":" + xPos[position] + "," + omegaPos[position]);
                     position += 1;
                 }
@@ -55,7 +60,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
                 //System.out.println( e );
                 if ( "NEG".equals( e.getLabel().bestClassName() ) ) {
                     xNeg[position] = e.getWeight(f);
-                    omegaNeg[position] = getLength(e) / T1Filter.getREF_LENGTH();
+                    omegaNeg[position] = getLength(e) / REF_LENGTH;
                     //System.out.println( f.toString() + ":" + xNeg[position] + "," + omegaNeg[position]);
                     position += 1;
                 }
@@ -68,14 +73,14 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
                 if ( new Double(muPos).isNaN() ) muPos = 0.0; // room for prior on unseen words
                 double muNeg = MaximumLikelihoodPoisson(xNeg,omegaNeg);
                 if ( new Double(muNeg).isNaN() ) muNeg = 0.0; // room for prior on unseen words
-                System.out.println("mu - " + f.toString() + ":" + muPos + "," + muNeg);
+                //System.out.println("mu - " + f.toString() + ":" + muPos + "," + muNeg);
                 // update T1 Filter
                 T1Filter.setPosMu( f,muPos );
                 T1Filter.setNegMu( f,muNeg );
             } else if ( T1Filter.getPDF().equals("Negative-Binomial") ) {
                 // learn Negative-Binomial parameters
-                TreeMap mudeltaPos = MethodOfMomentsNegBin(xPos,omegaPos);
-                TreeMap mudeltaNeg = MethodOfMomentsNegBin(xNeg,omegaNeg);
+                TreeMap mudeltaPos = MethodOfMomentsNegBin(xPos,omegaPos); // check for NaN
+                TreeMap mudeltaNeg = MethodOfMomentsNegBin(xNeg,omegaNeg); // check for NaN
                 // update T1 Filter
                 T1Filter.setPosMu( f,((Double)mudeltaPos.get("mu")).doubleValue() );
                 T1Filter.setPosDelta( f,((Double)mudeltaPos.get("delta")).doubleValue() );
@@ -147,16 +152,29 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner {
         return mudelta;
     }
 
+    //
+    // Static Methods
+    //
 
+    /** Set REF_LENGTH to the desired value */
+    public static void setREF_LENGTH(double desiredLength) {
+        REF_LENGTH = desiredLength;
+    }
+
+    /** Get the current value of REF_LENGTH */
+    public static double getREF_LENGTH() {
+        return REF_LENGTH;
+    }
+
+    // Test T1
     static public void main(String[] args)
     {
-        Dataset dataset = SampleDatasets.sampleData("toy",false);
+        Dataset dataset = SampleDatasets.sampleData("movies",false);
         T1InstanceTransformLearner learner = new T1InstanceTransformLearner();
         InstanceTransform t1Statistics = new T1InstanceTransform();
         t1Statistics = learner.batchTrain( dataset );
         System.out.println( "old data:\n" + dataset );
         dataset = t1Statistics.transform( dataset );
         System.out.println( "new data:\n" + dataset );
-
     }
 }

@@ -17,11 +17,11 @@ public class T1InstanceTransform implements InstanceTransform {
     static private Logger log = Logger.getLogger(T1InstanceTransform.class);
 
     private double ALPHA; // tolerance level for the FDR in selecting features
-    private int MIN_WORDS = 10; // minimum number of features to keep, EVEN IF NOT significant
+    private int MIN_WORDS; // minimum number of features to keep, EVEN IF NOT significant
+    private int SAMPLE; // points sampled to estimate T1's PDF, and compute p-values
     private double REF_LENGTH; // word-length of the reference document
-    private int SAMPLE=100000; // points sampled to estimate T1's PDF, and compute p-values
-    private String PDF; // model for T1: can be "Poisson" or "Negative-Binomial"
 
+    private String PDF; // model for T1: can be "Poisson" or "Negative-Binomial"
     private Map T1values;
 
     private Map muPosExamples;
@@ -30,8 +30,10 @@ public class T1InstanceTransform implements InstanceTransform {
     private Map deltaNegExamples;
 
 	public T1InstanceTransform() {
-        this.ALPHA = 0.05;
-        this.REF_LENGTH = 10; // for 1000-word-long documents
+        this.ALPHA = 0.1;
+        this.MIN_WORDS = 50;  // 0,...,49
+        this.SAMPLE = 2500;
+        this.REF_LENGTH = T1InstanceTransformLearner.getREF_LENGTH(); // for REF_LENGTH-word-long documents
         this.PDF = "Poisson";
         this.T1values = new TreeMap();
         this.muPosExamples = new TreeMap();
@@ -71,10 +73,9 @@ public class T1InstanceTransform implements InstanceTransform {
                 else return (p1.key).compareTo( p2.key );
             }
         };
-        List pValue = new ArrayList();
-
 
         // loop features
+        List pValue = new ArrayList();
         int featureCounter = 0;
         for (Feature.Looper i=index.featureIterator(); i.hasNext(); ) {
             Feature f = i.nextFeature();
@@ -102,51 +103,56 @@ public class T1InstanceTransform implements InstanceTransform {
             }
 
             // compute p-value
+            //printArray(T1array);
             Arrays.sort( T1array );
-            /*String buf = "";
-            for (int j=0; j<T1array.length; j++) {
-                buf = buf + " " + T1array[j];
-            }
-            buf = buf + "\n";
-            System.out.println( buf );*/
+            //printArray(T1array);
+
             int newLength = 0;
+            for (int j=0; j<T1array.length; j++) {
+                //System.out.println( new Double(T1array[j]) );
+                if ( new Double(T1array[j]).isNaN() ) {//|| new Double(T1array[j]).isInfinite() ) {
+                    newLength = j;
+                    //System.out.println( "T1[" + (j-1) + "] = " +T1array[j-1] );  // T1[0],...,T1[j-1]
+                    //System.out.println( "T1[" + j + "] = " +T1array[j] );        // j elements
+                    break;
+                } else {
+                    newLength = T1array.length;
+                }
+            }
+
             int greatestIndexBeforeT1Observed = 0;
             for (int j=0; j<T1array.length; j++) {
-                if ( new Double(T1array[j]).isNaN() ) {
-                    newLength = j+1;
-                    break;
-                }
                 if (T1array[j]<((Double)T1values.get(f)).doubleValue()) greatestIndexBeforeT1Observed = j;
             }
+
             Pair p = new Pair( ((double)(newLength-greatestIndexBeforeT1Observed))/((double)newLength),f.toString() );
             pValue.add( p );
+            //System.out.println("T1obs="+T1values.get(f) + ", len="+newLength + ", idx="+greatestIndexBeforeT1Observed);
+            //System.out.println( "pair=" + p );
 
             // Find a quantile
-            double Q=0.9;
+            /*double Q=0.9;
             int quantileIndex = (int)Math.floor( Q*(double)(newLength) );
-            //System.out.println( f.toString() );
-            //System.out.println( "T1 observed:" + ((Double)T1values.get(f)).doubleValue() + ", p-value:" + ((Pair)pValue.get(featureCounter)).value );
-            //System.out.println( "at T1=" + T1array[quantileIndex] + " prob=" + Q );
+            System.out.println( f.toString() );
+            System.out.println( "T1 observed:" + ((Double)T1values.get(f)).doubleValue() + ", p-value:" + ((Pair)pValue.get(featureCounter)).value );
+            System.out.println( "at T1=" + T1array[quantileIndex] + " prob=" + Q );*/
             featureCounter += 1;
         }
 
         // FDR correction to decide which features to retain
         Collections.sort( pValue, VAL_COMPARATOR);
-        /*String buf = "";
-        for (int j=0; j<pValue.size(); j++) {
-            buf = buf + " " + pValue.get(j).toString();
-        }
-        buf = buf + "\n";
-        System.out.println( buf );*/
+        printCollection(pValue);
+
         int greatestIndexBeforeAccept = -1; // does not return any word at -1
         for (int j=1; j<=pValue.size(); j++) {
             double line = ((double)j) * ALPHA / ((double)pValue.size());
             if ( line>((Pair)pValue.get(j-1)).value ) greatestIndexBeforeAccept = j-1;
         }
+        greatestIndexBeforeAccept = Math.min( pValue.size()-1,Math.max( greatestIndexBeforeAccept,MIN_WORDS ) );
         //System.out.println("max-index:" + greatestIndexBeforeAccept);
+
         ArrayList usefulFeatures = new ArrayList();
         TreeMap availableFeatures = new TreeMap();
-        if ( greatestIndexBeforeAccept==-1 ) { greatestIndexBeforeAccept = MIN_WORDS; }
         for (int j=0; j<=greatestIndexBeforeAccept; j++) {
             usefulFeatures.add( new Feature( ((Pair)pValue.get(j)).key) );
             availableFeatures.put( new Feature( ((Pair)pValue.get(j)).key),new Integer(1) );
@@ -157,6 +163,7 @@ public class T1InstanceTransform implements InstanceTransform {
         for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
             Example e = i.nextExample();
             Instance mi = new MaskedInstance( e.asInstance(),availableFeatures );
+            //System.out.println( mi );
             maskeDataset.add( new Example( new CompactInstance(mi),e.getLabel()) );
 
             /*MutableInstance mi = new MutableInstance();
@@ -166,8 +173,25 @@ public class T1InstanceTransform implements InstanceTransform {
             }
             maskeDataset.add( new Example(new CompactInstance(mi),e.getLabel()) );*/
         }
-
         return maskeDataset;
+    }
+
+    private void printCollection(List pValue) {
+        String buf = "";
+        for (int j=0; j<pValue.size(); j++) {
+            buf = buf + " " + pValue.get(j).toString();
+        }
+        buf = buf + "\n";
+        System.out.println( buf );
+    }
+
+    private void printArray(double[] t1array) {
+        String buf = "";
+        for (int j=0; j<t1array.length; j++) {
+            buf = buf + " " + t1array[j];
+        }
+        buf = buf + "\n";
+        System.out.println( buf );
     }
 
 
@@ -200,16 +224,6 @@ public class T1InstanceTransform implements InstanceTransform {
     /** Get the current value of PDF */
     public String getPDF() {
         return this.PDF;
-    }
-
-    /** Set REF_LENGTH to the desired value */
-    public void setREF_LENGTH(double desiredLength) {
-        this.REF_LENGTH = desiredLength;
-    }
-
-    /** Get the current value of REF_LENGTH */
-    public double getREF_LENGTH() {
-        return this.REF_LENGTH;
     }
 
     /** Set the value of T1 corresponding to feature f */
