@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 abstract public class BinaryClassifier implements Classifier,Serializable
 {
-	static private int serialVersionUID = 1;
+	static private long serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 
 	public ClassLabel classification(Instance instance)
