@@ -7,6 +7,7 @@ import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.text.*;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +47,7 @@ public abstract class ClassifyTest extends TestCase
   public ClassifyTest(String s)
   {
     super(s);
+    log.setLevel(Level.DEBUG);
   }
 
   /**
@@ -116,7 +118,7 @@ public abstract class ClassifyTest extends TestCase
     for (int i = 0; i < stats.length; i++)
     {
       double stat = stats[i];
-      log.debug("stat("+i+") = " + stat);
+      log.info("stat("+i+") = " + stat);
       if (referenceStats != null)
         assertEquals(referenceStats[i], stat, delta);
     }
