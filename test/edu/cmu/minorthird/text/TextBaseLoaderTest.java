@@ -85,23 +85,7 @@ public class TextBaseLoaderTest extends TestCase
       assertEquals(4, textBase.size());
       assertNotNull(textBase.documentSpan("cil-2.txt"));
 
-      checkType(labels, "stime", "cil-2.txt", "4:00", 1);
-      checkType(labels, "stime", "cil-5.txt", "12:00pm", 1);
-      checkType(labels, "stime", "cil-22.txt", "4:30 pm", 1);
-      checkType(labels, "stime", "cil-28.txt", "12:00pm", 1);
-      checkType(labels, "location", "cil-2.txt", "Adamson Wing, Baker Hall", 1);
-      checkType(labels, "location", "cil-5.txt", "3005 Hamburg Hall", 1);
-      checkType(labels, "location", "cil-22.txt", "Wean 7500", 1);
-      checkType(labels, "location", "cil-28.txt", "Student Center, Room 207", 1);
-      checkType(labels, "speaker", "cil-2.txt", "George W. Cobb", 1);
-      checkType(labels, "speaker", "cil-5.txt", "Karen Schriver", 1);
-      checkType(labels, "speaker", "cil-22.txt", "Bruce Sherwood", 1);
-      checkType(labels, "speaker", "cil-28.txt", "David Banks", 1);
-
-      assertEquals(2, getNumLables(labels, "sentence", "cil-2.txt"));
-      assertEquals(2, getNumLables(labels, "sentence", "cil-5.txt"));
-      assertEquals(3, getNumLables(labels, "sentence", "cil-22.txt"));
-      assertEquals(4, getNumLables(labels, "sentence", "cil-28.txt"));
+      checkSeminarSample(labels);
     }
     catch (Exception e)
     {
@@ -111,10 +95,32 @@ public class TextBaseLoaderTest extends TestCase
     log.info("----------------- SeminarSet -----------------");
   }
 
+  /** explicit labeling check of 4 docs from seminar set */
+  protected void checkSeminarSample(TextLabels labels)
+  {
+    checkType(labels, "stime", "cil-2.txt", "4:00", 1);
+    checkType(labels, "stime", "cil-5.txt", "12:00pm", 1);
+    checkType(labels, "stime", "cil-22.txt", "4:30 pm", 1);
+    checkType(labels, "stime", "cil-28.txt", "12:00pm", 1);
+    checkType(labels, "location", "cil-2.txt", "Adamson Wing, Baker Hall", 1);
+    checkType(labels, "location", "cil-5.txt", "3005 Hamburg Hall", 1);
+    checkType(labels, "location", "cil-22.txt", "Wean 7500", 1);
+    checkType(labels, "location", "cil-28.txt", "Student Center, Room 207", 1);
+    checkType(labels, "speaker", "cil-2.txt", "George W. Cobb", 1);
+    checkType(labels, "speaker", "cil-5.txt", "Karen Schriver", 1);
+    checkType(labels, "speaker", "cil-22.txt", "Bruce Sherwood", 1);
+    checkType(labels, "speaker", "cil-28.txt", "David Banks", 1);
+
+    assertEquals(2, getNumLables(labels, "sentence", "cil-2.txt"));
+    assertEquals(2, getNumLables(labels, "sentence", "cil-5.txt"));
+    assertEquals(3, getNumLables(labels, "sentence", "cil-22.txt"));
+    assertEquals(4, getNumLables(labels, "sentence", "cil-28.txt"));
+  }
+
   /**
    * returns the number of times the given type appears in the doc
    */
-  private int getNumLables(TextLabels labels, String type, String doc)
+  protected int getNumLables(TextLabels labels, String type, String doc)
   {
     int i = 0;
     for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); )
@@ -130,7 +136,7 @@ public class TextBaseLoaderTest extends TestCase
    * asserts that the type has the specified value and that it appears (with that value!) the
    * specified number of times
    */
-  private void checkType(TextLabels labels, String type, String doc, String value, int num)
+  protected void checkType(TextLabels labels, String type, String doc, String value, int num)
   {
     int i = 0;
     for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); i++)
@@ -209,7 +215,6 @@ public class TextBaseLoaderTest extends TestCase
       log.fatal(e, e);
       fail();
     }
-
   }
 
   /**
@@ -225,19 +230,25 @@ public class TextBaseLoaderTest extends TestCase
 
       base = TextBaseLoader.loadDocPerLine(dataLocation, false);
 
-      String msg1 = "Please add the attached publication to the web site in the ``Publications\" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO\" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.";
-      String msg2 = "Please add the folder ``Publications\" to the web site.";
-      String msg3 = "Please change the string ``VLDB\" to ``International Conference on Very Large Databases\" on the ``Publications\" page.";
-
-      assertEquals(msg1, base.documentSpan("msg01").asString());
-      assertEquals(msg2, base.documentSpan("msg02").asString());
-      assertEquals(msg3, base.documentSpan("msg03").asString());
+      checkWebMasterLines(base);
     }
     catch (Exception e)
     {
       log.fatal(e, e);
       fail();
     }
+  }
+
+  /** checks string representation of msges 1-3 of seminar set */
+  protected void checkWebMasterLines(TextBase base)
+  {
+    String msg1 = "Please add the attached publication to the web site in the ``Publications\" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO\" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.";
+    String msg2 = "Please add the folder ``Publications\" to the web site.";
+    String msg3 = "Please change the string ``VLDB\" to ``International Conference on Very Large Databases\" on the ``Publications\" page.";
+
+    assertEquals(msg1, base.documentSpan("msg01").asString());
+    assertEquals(msg2, base.documentSpan("msg02").asString());
+    assertEquals(msg3, base.documentSpan("msg03").asString());
   }
 
   /**
@@ -280,7 +291,6 @@ public class TextBaseLoaderTest extends TestCase
       File dir = new File(Globals.DATA_DIR + "20newgroups/20news-bydate-train");
       TextBase base = loader.load(dir);
   //    loader.loadLabeledDir(base, dir);
-
       log.debug("loaded training set");
 
       // set up the labels

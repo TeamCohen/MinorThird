@@ -139,19 +139,19 @@ public class MixupProgramTest extends TestCase
   public void testSimple()
   {
     log.debug("test Simple");
-    runCode(simpleFile, new File("simpleTest.out"));
+    runCode(simpleFile, new File(Globals.DATA_DIR + "simpleTest.out"));
   }
 
   public void testCodeWithDependencies()
   {
     log.debug("Depend File");
-    runCode(dependFile, new File("depend.out"));
+    runCode(dependFile, new File(Globals.DATA_DIR + "depend.out"));
   }
 
   public void testCodeWithExplicitDependency()
   {
     log.debug("Depend Explicit");
-    runCode(dependExplict, new File("dependExplicit.out"));
+    runCode(dependExplict, new File(Globals.DATA_DIR + "dependExplicit.out"));
   }
 
 //  public void testCodeWithJavaDependency()
