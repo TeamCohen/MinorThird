@@ -12,6 +12,7 @@ import junit.framework.TestSuite;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.util.Iterator;
 
 /**
  *
@@ -141,15 +142,34 @@ public class TextBaseLoaderTest extends TestCase
     assertEquals(num, i);
   }
 
-  public void testLoadLabeledFile()
+  /**
+   * loads xmlLines.base and checks that the labels are as expected
+   */
+  public void testLoadLabeledLines()
   {
     try
     {
-//      new TextBaseLoader().loadDir(null, null);
-//      fail("need data");
-//      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
-//      loader.setLabelsInFile(true);
-//      TextBase textBase = loader.load(new File("demos/sampleData/webmasterCommands.txt"));
+      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.IN_FILE, true);
+      TextBase textBase = loader.load(new File(Globals.DATA_DIR + "xmlLines.base"));
+      TextLabels labels = loader.getLabels();
+
+      assertEquals(7, textBase.size());
+      assertNotNull(textBase.documentSpan("doc1"));
+
+      checkType(labels, "stime", "doc1", "4:00", 1);
+      checkType(labels, "location", "doc1", "Adamson Wing, Baker Hall", 1);
+      checkType(labels, "speaker", "doc2", "George W. Cobb", 1);
+      checkType(labels, "title", "doc3", "Title: Three Ways to Gum up a Statistics Course", 1);
+      checkType(labels, "sentence", "doc4", "My talk will be in two parts", 1);
+      checkType(labels, "comment", "doc5", "comments and observations", 1);
+      checkType(labels, "country", "doc6", "US", 1);
+
+      Iterator it = labels.getTypes().iterator();
+      while (it.hasNext())
+      {
+        assertEquals(0, this.getNumLables(labels, it.next().toString(), "doc7"));
+      }
+
     }
     catch (Exception e)
     {

@@ -428,6 +428,9 @@ public class TextBaseLoader implements Loader
     while (in.ready()) //in.ready may cause problems on Macintosh
     {
       String line = in.readLine();
+      if (docIdSourceType == IN_FILE)
+        line = getIDsFromLine(line);
+
       if (this.isLabelsInFile())
         line = labelLine(line, buf, spanList); // appends to the buffer internally
 
@@ -436,8 +439,6 @@ public class TextBaseLoader implements Loader
         //make doc
         if (docIdSourceType == NONE)
           curDocID = file.getName() + "@line:" + ((LineNumberReader)in).getLineNumber();
-        else
-          line = getIDsFromLine(line);
 
         addDocument(line); //we don't really care about the buffer, it's fluf
         buf = new StringBuffer();
@@ -477,12 +478,23 @@ public class TextBaseLoader implements Loader
       CharSpan charSpan = (CharSpan)j.next();
 //      types.add( charSpan.type ); unused
       Span approxSpan = textBase.documentSpan(curDocID).charIndexSubSpan(charSpan.lo, charSpan.hi);
-      log.debug("approximating "+charSpan.type+" span '"
-                + docText.substring(charSpan.lo,charSpan.hi)
-                +"' with token span '"+approxSpan);
+
+
+      if (log.isDebugEnabled())
+      {
+        int hi = charSpan.hi;
+        if (hi > docText.length())
+          hi = docText.length();
+
+        log.debug("approximating "+charSpan.type+" span '"
+                  + docText.substring(charSpan.lo,hi)
+                  +"' with token span '"+approxSpan);
+      }
       labels.addToType( approxSpan, charSpan.type );
+
     }
     new TextLabelsLoader().closeLabels( labels, closurePolicy );
+    spanList = new ArrayList();
   }
 
   /**
