@@ -170,6 +170,7 @@ public class Expt
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
 			interp.eval("import edu.cmu.minorthird.classify.transform.*;");
+      interp.eval("import edu.cmu.minorthird.classify.semisupervised.*;");
 			return (ClassifierLearner)interp.eval(learnerName);
 		} catch (bsh.EvalError e) {
 			throw new IllegalArgumentException("error parsing learnerName '"+learnerName+"':\n"+e);
