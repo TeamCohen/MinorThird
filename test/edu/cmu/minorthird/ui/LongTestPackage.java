@@ -32,7 +32,7 @@ public class LongTestPackage extends TestSuite
 		//Classification
 	
 		//Decision Tree/Directive
-		/*suite.addTest( new LongUITest(TrainTestClassifier.class,
+		suite.addTest( new LongUITest(TrainTestClassifier.class,
 															new String[]{
 																"-labels","cspace.1f3",
 																"-spanType","Req",
@@ -110,7 +110,7 @@ public class LongTestPackage extends TestSuite
 					assertEquals( .15, e.errorRate(), 0.02 );
 					assertEquals( .91, e.f1(), 0.02 );
 				}
-			});*/
+			});
 		
 		//Extraction
 

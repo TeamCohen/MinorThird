@@ -21,11 +21,13 @@ import java.awt.event.*;
  */
 
 public abstract class UIMain implements CommandLineProcessor.Configurable
-{	PipedInputStream piOut;
-    PipedInputStream piErr;
-    PipedOutputStream poOut;
-    PipedOutputStream poErr;
-	JTextArea errorArea;	
+{	
+	public final static PipedInputStream piOut = new PipedInputStream();
+	public final PipedInputStream piErr = new PipedInputStream();
+	
+	public static JTextArea errorArea;
+	private JPanel errorPanel;
+	public static JButton viewButton;	
 	private static final Class[] SELECTABLE_TYPES = new Class[]
 	{
 		//
@@ -98,10 +100,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 	abstract public void doMain();
 
 	/** Return the result of the action. */
-	abstract public Object getMainResult(); 
-
-	/** Implements CommandLineProcessor.Configurable. */
-	abstract public CommandLineProcessor getCLP();
+	abstract public Object getMainResult(); 	
 			
 	/** Helper to handle command-line processing, in either gui or text mode. */
 	public void callMain(final String[] args) 
@@ -132,48 +131,20 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							//subpanel1.add(new JLabel("Use the edit button to change the parameters given in the command line"));
 							subpanel1.add( ts );
 							gbc = Viewer.fillerGBC(); gbc.weighty=0; 
-							panel.add( subpanel1, gbc  ); 
+							panel.add( subpanel1, gbc  ); 														
 
 							// another panel for error messages and other outputs
-							JPanel errorPanel = new JPanel();
+							errorPanel = new JPanel();
 							errorPanel.setBorder(new TitledBorder("Error messages and output"));
 							errorArea = new JTextArea(20,100);
 							errorArea.setFont( new Font("monospaced",Font.PLAIN,12) );
 							errorPanel.add(new JScrollPane(errorArea));
-							//pack();
-							setVisible(true);							// Set up System.out
-							try {
-								piOut = new PipedInputStream();
-							} catch (Exception e) {
-								e.printStackTrace();
-								System.out.println("Use option -help for help");
-							} 
-							try {
-								poOut = new PipedOutputStream(piOut);
-							}
-							catch (Exception e) {
-								e.printStackTrace();
-								System.out.println("Use option -help for help");
-							}
-							System.setOut(new PrintStream(poOut, true));
-							// Set up System.err
-							piErr = new PipedInputStream();
-							try {
-								poErr = new PipedOutputStream(piErr);
-							} catch (Exception e) {
-								e.printStackTrace();
-								System.out.println("Use option -help for help");
-							}
-							System.setErr(new PrintStream(poErr, true));
-							// Create reader threads
-							new ReaderThread(piOut).start();
-							new ReaderThread(piErr).start();
 
 							// a control panel for controls
 							JPanel subpanel2 = new JPanel();
 							subpanel2.setBorder(new TitledBorder("Execution controls"));
 							// a button to show the results
-							final JButton viewButton = new JButton(new AbstractAction("View results") {
+							viewButton = new JButton(new AbstractAction("View results") {
 									public void actionPerformed(ActionEvent event) {
 										Viewer rv = new SmartVanillaViewer();
 										rv.setContent( getMainResult() );
@@ -183,33 +154,43 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							viewButton.setEnabled(false);
 							// a button to start this thread
 							JButton goButton = new JButton(new AbstractAction("Start task") {
-									public void actionPerformed(ActionEvent event) {
-										Thread thread = new Thread() { 
-												public void run() { 
-													viewButton.setEnabled(false);
-													if (base.labels==null) noLabelsMessage(errorArea);
-													else {
-														try {
-															PrintStream oldSystemOut = System.out;
-															ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
-															System.setOut(new PrintStream(outBuffer));
-															long startTime = System.currentTimeMillis();
-															doMain(); 
-															double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
-															errorArea.append(outBuffer.toString());
-															errorArea.append("\nTotal time for task: "+elapsedTime+" sec");
-															System.setOut(oldSystemOut);
-														} catch (Exception e) {
-															System.out.println("Error:"+e.toString());
-															errorArea.append("Error: "+e.toString());
-														}
-														viewButton.setEnabled(getMainResult()!=null);
-													}
-												}
-											};
-										thread.start();
-									}
-								});
+									public void actionPerformed(ActionEvent event) {										
+										Thread thread = new Thread() {
+											public void run() {												viewButton.setEnabled(false);
+												if (base.labels == null)
+													noLabelsMessage(errorArea);
+												else {
+													try {
+														PrintStream oldSystemOut = System.out;														try{
+															PipedOutputStream poOut = new PipedOutputStream(piOut);
+															System.setOut(new PrintStream(poOut, true));
+														} catch (java.io.IOException io) {
+															errorArea.append("Couldn't redirect output\n" + io.getMessage() + "\n");
+														} catch (SecurityException se) {
+															errorArea.append("SE error" + se.getMessage() + "\n");
+														}											
+														
+																												long startTime = System.currentTimeMillis();														
+														Thread reader = new Thread() {															public void run() {
+																final byte[] buf = new byte[2048];																try {																	while (true) {
+																		final int len = piOut.read(buf);																		if (len == -1){																			errorArea.append("Length less than 1\n");																			break;
+																		}																		SwingUtilities.invokeLater(new Runnable() {																			public void run() {
+																				errorArea.append(new String(buf, 0, len));
+																			}//end run																		}); // end Swing invokeLater
+																	} //end while																} //end try																catch (IOException e) {
+																	errorArea.append(e.getMessage());																	System.out.println(e.getMessage());																} //end catch
+															} //end run														}; //end reader Thread														reader.start();														
+														doMain(); 
+														double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
+																												
+														errorArea.append("\nTotal time for task: "+elapsedTime+" sec");
+														System.setOut(oldSystemOut);													} //end try													catch (Exception e) {
+														System.out.println("Error: " + e.toString());
+														errorArea.append("Error: " + e.toString());													} //end catch													viewButton.setEnabled(getMainResult()!=null);
+												} //end else											} //end run
+										}; // end Thread											thread.start();
+									} //end actionPerformed
+							}); //end new Button																	
 							// and a button to show the current labels
 							JButton showLabelsButton = new JButton(new AbstractAction("Show labels") {
 									public void actionPerformed(ActionEvent ev) {
@@ -276,7 +257,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 			e.printStackTrace();
 			System.out.println("Use option -help for help");
 		}
-	}
+	}			
 	private void noLabelsMessage(JTextArea errorArea) 
 	{
 		errorArea.append("\nYou need to specify the labeled data you're using!\n"
@@ -304,41 +285,6 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 			"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n" +
 			"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n" +
 			"and foo, where foo is a directory.\n");
-	}		class ReaderThread extends Thread {
-            PipedInputStream pi;
-    
-            ReaderThread(PipedInputStream pi) {
-                this.pi = pi;
-            }
-    
-            public void run() {
-                final byte[] buf = new byte[1024];
-                try {
-                    while (true) {
-                        final int len = pi.read(buf);
-                        if (len == -1) {
-                            break;
-                        }
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                errorArea.append(new String(buf, 0, len));
-    
-                                // Make sure the last line is always visible
-                                errorArea.setCaretPosition(errorArea.getDocument().getLength());
-    
-                                // Keep the text area down to a certain character size
-                                int idealSize = 1000;
-                                int maxExcess = 500;
-                                int excess = errorArea.getDocument().getLength() - idealSize;
-                                if (excess >= maxExcess) {
-                                    errorArea.replaceRange("", 0, excess);
-                                }
-                            }
-                        });
-                    }
-                } catch (IOException e) {
-                }
-            }
-        }
+	}		
 }
 
