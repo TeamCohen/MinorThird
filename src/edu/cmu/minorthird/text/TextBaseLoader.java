@@ -659,7 +659,7 @@ public class TextBaseLoader
 					log.debug("adding a "+tag+" span from "+entry.index+" to "+docBuffer.length()
 										+": '"+docBuffer.substring(entry.index)+"'");
 				}
-        spanList.add( new CharSpan(entry.index, docBuffer.length(), tag) );
+        spanList.add( new CharSpan(entry.index, docBuffer.length()-1, tag) );
       }
     }
     // append stuff from end of last tag to end of line into the buffer
