@@ -58,6 +58,7 @@ public class OneVsAllLearner implements ClassifierLearner
 	//this(new ClassifierLearnerFactory("new VotedPerceptron()"));
 	//try{
 	this("new MaxEntLearner()");
+	System.out.println("How about this function?");
     }
 
     /** 
@@ -68,6 +69,7 @@ public class OneVsAllLearner implements ClassifierLearner
 	this.learnerFactory = learnerFactory;
     }
     public OneVsAllLearner(String learnerName) {
+	System.out.println("We get to this function!!!!");
 	this.learnerName = learnerName;
 	learnerFactory = new ClassifierLearnerFactory(learnerName);
 	try {
@@ -75,6 +77,12 @@ public class OneVsAllLearner implements ClassifierLearner
 	} catch(Exception e) {
 	    e.printStackTrace();
 	}
+	
+    }
+    public OneVsAllLearner(BatchClassifierLearner learner) {
+	this.learner = learner;
+	this.learnerName = learner.toString();
+	learnerFactory = new ClassifierLearnerFactory(learnerName);
 	
     }
     public void setSchema(ExampleSchema schema)
