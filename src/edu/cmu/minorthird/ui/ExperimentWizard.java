@@ -14,6 +14,7 @@ import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.text.util.SimpleTextLoader;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.ui.WizardUI;
@@ -33,7 +34,7 @@ import org.apache.log4j.Level;
 public class ExperimentWizard extends NullWizardPanel
 {
   private Map viewerContext;
-//  private Evaluation evaluation = null;
+  private ActionListener action = null; //new ExtractionViewer();
   private JButton resultButton;
   private JRadioButton someDetail,moreDetail,mostDetail;
 
@@ -81,7 +82,7 @@ public class ExperimentWizard extends NullWizardPanel
   private class MyThread extends Thread
   {
     private Logger log = Logger.getLogger(this.getClass());
-    private MutableTextLabels labels;
+    private TextLabels labels;
     private Splitter splitter;
     private ClassifierLearner cLearner;
     private AnnotatorLearner aLearner;
@@ -92,7 +93,7 @@ public class ExperimentWizard extends NullWizardPanel
       try
       {
         log.setLevel(Level.DEBUG);
-        log.debug("viewer context: " + viewerContext.toString());
+//        log.debug("viewer context: " + viewerContext.toString());
 
         Dataset trainDataset;
         File testDataFile = (File)viewerContext.get("testDataFile");
@@ -104,79 +105,77 @@ public class ExperimentWizard extends NullWizardPanel
         //Learner setting
         splitter = (Splitter)viewerContext.get("splitter");
 
-//        String testMethod = (String)viewerContext.get("testMethod");
-
-        //standard data file loading
-        //won't handle directories :(
+        //Data should be loaded already here
         if (viewerContext.get("Loader") instanceof DatasetLoader)
         {
-          File trainDataFile = (File)viewerContext.get("trainDataFile");
-          trainDataset = DatasetLoader.loadFile(trainDataFile);
-
-          //get test data set
-          if (testDataFile != null)
-          {
-            Dataset testDataset = DatasetLoader.loadFile(testDataFile);
-            splitter = new FixedTestSetSplitter(testDataset.iterator());
-          }
+          trainDataset = (Dataset)viewerContext.get("trainDataset");
         }
         else
         {
-          TextBase base = new BasicTextBase();
-          TextBase testBase = new BasicTextBase();
-          loadData(base, testBase);
+          labels = (TextLabels)viewerContext.get("trainLabels");
+//          if (viewerContext.get("Loader") instanceof SimpleTextLoader)
+//          {
+//            SimpleTextLoader loader = (SimpleTextLoader)viewerContext.get("Loader");
+//            labels = loader.load((File)viewerContext.get("trainDataFile"));
+//          }
 
-          trainDataset = loadDataset(labels, targetClass, fe, "creating train dataset");
-
-          if (testDataFile != null)
-          {
-            Dataset testDataset = loadDataset(labels, targetClass, fe, "creating test dataset");
-            //this will over-ride the user selection
-            splitter = new FixedTestSetSplitter(testDataset.iterator());
-          }
         }
 
         if (viewerContext.get(WizardUI.TASK_KEY).equals(WizardUI.TEXT_CAT_TASK))
         {
           cLearner = (ClassifierLearner)viewerContext.get("learner");
+          trainDataset = loadDataset(labels, targetClass, fe, "creating train dataset");
+          if (splitter == null)
+          {
+            TextLabels testLabels = (TextLabels)viewerContext.get("testLabels");
+            log.debug("got test labels");
+            Dataset testDataset = loadDataset(testLabels, targetClass, fe, "creating test dataset");
+            splitter = new FixedTestSetSplitter(testDataset.iterator());
+          }
+
           runClassificationExperiment(trainDataset);
         }
         else if (viewerContext.get(WizardUI.TASK_KEY).equals(WizardUI.TEXT_EXTRACT_TASK))
         {
-          aLearner = (AnnotatorLearner)viewerContext.get("annotator learner");
+          aLearner = (AnnotatorLearner)viewerContext.get("learner");
           String outputLabel = (String)viewerContext.get("outputLabel");
           runExtractionExperiment(targetClass, outputLabel); //NB: a panel to gather output label would be good
         }
 
         resultButton.setEnabled(true);
       }
-      catch (IOException e)
-      {
-        //NO SWALLOWING EXCEPTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        log.error(e, e);
-      }
       catch (Throwable e)
-      {
-        log.fatal(e, e);
-      }
+      { log.fatal(e, e); }
     }
 
     private void runExtractionExperiment(String inputLabel, String outputLabel)
     {
       log.debug("extraction called");
+      log.debug("learner: " + aLearner);
       final TextLabelsExperiment expt = new TextLabelsExperiment
           (labels, splitter, aLearner, inputLabel, outputLabel);
       log.debug("experiment starting");
       expt.doExperiment();
       log.debug("experiment completed");
+
+      resultButton.removeActionListener(action);
+      action = new ExtractionViewer();
+      ((ExtractionViewer)action).setExperiment(expt);
+      resultButton.addActionListener(action);
+
 //      if (mostDetail.isSelected())
 //        new TextLabelsLoader().saveTypesAsOps( expt.getTestLabels(), new File(saveFileName) );
-      resultButton.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent ev)
-        { TextBaseViewer.view( expt.getTestLabels() ); log.debug("displayed");}
-      });
+    }
 
+    private class ExtractionViewer implements ActionListener
+    {
+      private TextLabelsExperiment experiment;
+
+      public void actionPerformed(ActionEvent e)
+      { TextBaseViewer.view( experiment.getTestLabels() ); log.debug("displayed");}
+
+      public void setExperiment(TextLabelsExperiment expt)
+      { experiment = expt; }
     }
 
     /**
@@ -202,11 +201,24 @@ public class ExperimentWizard extends NullWizardPanel
         resultsViewer = xValDataset.toGUI();
       }
 
-      resultButton.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent ev)
-        { new ViewerFrame("Result", resultsViewer); }
-      });
+//      log.debug("action: " + action);
+      resultButton.removeActionListener(action);
+      action = new ClassificationViewer();
+      ((ClassificationViewer)action).setResultsViewer(resultsViewer);
+      resultButton.addActionListener(action);
+//      log.debug("action: " + action);
+
+    }
+
+    private class ClassificationViewer implements ActionListener
+    {
+      private Viewer resultsViewer;
+
+      public void actionPerformed(ActionEvent e)
+      { new ViewerFrame("Result", resultsViewer); }
+
+      public void setResultsViewer(Viewer resultsViewer)
+      { this.resultsViewer = resultsViewer; }
     }
 
     private Dataset loadDataset(TextLabels labels, String targetClass, SpanFeatureExtractor fe, String action)
@@ -225,40 +237,5 @@ public class ExperimentWizard extends NullWizardPanel
       return data;
     }
 
-    /**
-     * Load / initialize the two text bases
-     * Assumes that the viewer Context is avaialbe to get file names from
-     * @param base training set
-     * @param testBase test set
-     * @throws java.io.IOException if files aren't found
-     */
-    private void loadData(TextBase base, TextBase testBase) throws IOException
-    {
-      TextBaseLoader loader = (TextBaseLoader)viewerContext.get("Loader");
-      File trainDataFile = (File)viewerContext.get("trainDataFile");
-
-//     base = loader.load(trainDataFile);
-
-      if (trainDataFile.isDirectory())
-        loader.loadTaggedFiles(base, trainDataFile);
-      else
-        loader.loadFile(base, trainDataFile);
-
-      //standard test data file loading
-      //skipped if no test file present
-      File testDataFile = (File)viewerContext.get("testDataFile");
-      if (testDataFile != null)
-        loader.loadFile(testBase, testDataFile);
-//       testBase = loader.load(testDataFile);
-
-      //get the text labels
-      File labelsFile = (File)viewerContext.get("labelsFile");
-      if (trainDataFile.isDirectory())
-        labels = loader.getLabels();
-      else
-        labels = new TextLabelsLoader().loadOps(base, labelsFile);
-
-
-    }
   }
 }
