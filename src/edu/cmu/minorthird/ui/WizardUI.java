@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.ui;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.sequential.GenericCollinsLearner;
 import edu.cmu.minorthird.classify.algorithms.knn.KnnLearner;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
@@ -8,7 +9,6 @@ import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
 import edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.classify.experiments.RandomSplitter;
-import edu.cmu.minorthird.classify.experiments.FixedTestSetSplitter;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.gui.CollinsSequenceAnnotatorLearner;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
@@ -16,16 +16,14 @@ import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.text.util.SimpleTextLoader;
 import edu.cmu.minorthird.util.gui.*;
 import jwf.WizardPanel;
+import org.apache.log4j.Logger;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
-
-import org.apache.log4j.Logger;
 
 
 /**
@@ -60,6 +58,7 @@ public class WizardUI
 			KnnLearner.class,
 			BatchVersion.class,
 			StackedLearner.class,
+
 			// splitters
 			RandomSplitter.class,
 			CrossValSplitter.class,
@@ -71,7 +70,8 @@ public class WizardUI
       //AnnotatorLearners
       BatchFilteredFinderLearner.class,
       CMMAnnotatorLearner.class,
-      CollinsSequenceAnnotatorLearner.class
+      CollinsSequenceAnnotatorLearner.class,
+//      SequenceAnnotatorLearner.class
 //      BatchInsideOutsideLearner.class,
 //      BatchStartEndLengthLearner.class,
 		};
@@ -243,7 +243,7 @@ public class WizardUI
   }
 
 	/** Pick a training-data file. */
-  private static class PickData extends SimpleViewerWizard implements ActionListener
+  private static class PickData extends SimpleViewerWizard implements ActionListener, ItemListener
   {
     private boolean loaded = false;
     private String DATA_KEY;
@@ -293,6 +293,7 @@ public class WizardUI
           String[] beanShells = loader.getFileList();
           log.warn(beanShells);
           bshCombo = new JComboBox(beanShells);
+          bshCombo.addItemListener(this);
           getWizardPanel().add(bshCombo);
         }
         else //add FileChooser for a SimpleTextLoader or TBL
@@ -308,12 +309,13 @@ public class WizardUI
         //add a viewing button
         JButton viewButton = getViewDataButton();
 
-//        if (!(viewerContext.get("Loader") instanceof DatasetLoader))
-          getWizardPanel().add(viewButton);
-
-
+        getWizardPanel().add(viewButton);
       }
     }
+
+    public void itemStateChanged(ItemEvent e)
+    { this.loaded = false; }
+
 
     /**
      * constructs a "view data" button
@@ -338,6 +340,12 @@ public class WizardUI
               TextLabels labels = (TextLabels)viewerContext.get(LABEL_KEY);
               TextBaseViewer.view(labels);
             }
+            else if (viewerContext.get(DATA_KEY + "set") != null)
+            {
+              Dataset trainDataset = (Dataset)viewerContext.get(DATA_KEY + "set");
+              ViewerFrame f = new ViewerFrame("Dataset", trainDataset.toGUI());
+            }
+
           }
           catch (Exception ex)
           {
@@ -432,6 +440,7 @@ public class WizardUI
       return labels;
     }
 
+
     /**
      * Panel to allows validation that data has been loaded.
      */
@@ -503,6 +512,7 @@ public class WizardUI
           //loop through the current labels
           TextLabels labels = (TextLabels)context.get("trainLabels");
 //          log.debug("labels found: " + labels);
+
           if (labels != null)
           {
             Set types = labels.getTypes();
@@ -514,7 +524,11 @@ public class WizardUI
           }
           else //dataset
           {
-
+            Dataset trainDataset = (Dataset)viewerContext.get("trainDataset");
+            //ok, realisticly we've requested only binary classification through the wizard
+            //however I can still get all the classes and list them
+            String[] classes = trainDataset.getSchema().validClassNames();
+            combo = new JComboBox(classes);
           }
           add(combo);
 

@@ -12,7 +12,7 @@ public class CollinsSequenceAnnotatorLearner extends SequenceAnnotatorLearner
 {
   public CollinsSequenceAnnotatorLearner()
   {
-    fe = SampleFE.BAG_OF_WORDS;
+    fe = new SampleFE.ExtractionFE();
     seqLearner = new CollinsPerceptronLearner();
   }
 }

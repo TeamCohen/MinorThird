@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.util.gui;
 
+import edu.cmu.minorthird.text.FancyLoader;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -60,6 +62,13 @@ public class FileChooserViewer extends ComponentViewer implements ActionListener
 
   public void actionPerformed(ActionEvent e)
   {
+    if (selectedFile != null)
+      chooser.setSelectedFile(selectedFile);
+    else
+    {
+      String baseDir = System.getProperty("user.dir");
+      chooser.setSelectedFile(new File(baseDir + "/" + FancyLoader.getProperty(FancyLoader.DATADIR_PROP)));
+    }
     int returnVal = openFile ? chooser.showOpenDialog(null) : chooser.showSaveDialog(null);
     if (returnVal==JFileChooser.APPROVE_OPTION)
       setFile(chooser.getSelectedFile());

@@ -95,7 +95,7 @@ public class ExperimentWizard extends NullWizardPanel
         log.setLevel(Level.DEBUG);
 //        log.debug("viewer context: " + viewerContext.toString());
 
-        Dataset trainDataset;
+        Dataset trainDataset = null;
         File testDataFile = (File)viewerContext.get("testDataFile");
 
         //Feature settings
@@ -107,36 +107,44 @@ public class ExperimentWizard extends NullWizardPanel
 
         //Data should be loaded already here
         if (viewerContext.get("Loader") instanceof DatasetLoader)
-        {
           trainDataset = (Dataset)viewerContext.get("trainDataset");
-        }
         else
-        {
           labels = (TextLabels)viewerContext.get("trainLabels");
-//          if (viewerContext.get("Loader") instanceof SimpleTextLoader)
-//          {
-//            SimpleTextLoader loader = (SimpleTextLoader)viewerContext.get("Loader");
-//            labels = loader.load((File)viewerContext.get("trainDataFile"));
-//          }
 
-        }
-
-        if (viewerContext.get(WizardUI.TASK_KEY).equals(WizardUI.TEXT_CAT_TASK))
+        //For a Classification test
+        String task = (String)viewerContext.get(WizardUI.TASK_KEY);
+        if (task.equals(WizardUI.TEXT_CAT_TASK)
+              || task.equals(WizardUI.BINARY_TASK))
         {
           cLearner = (ClassifierLearner)viewerContext.get("learner");
-          trainDataset = loadDataset(labels, targetClass, fe, "creating train dataset");
+
+          if (task.equals(WizardUI.TEXT_CAT_TASK))
+          { //transform text into labels
+            trainDataset = loadDataset(labels, targetClass, fe, "creating train dataset");
+          }
+
+          //if we don't have a splitter then the user wants a Fixed Test set
+          //here we construct the FixedTestSetSplitter
           if (splitter == null)
           {
-            TextLabels testLabels = (TextLabels)viewerContext.get("testLabels");
-            log.debug("got test labels");
-            Dataset testDataset = loadDataset(testLabels, targetClass, fe, "creating test dataset");
+            Dataset testDataset = null;
+            if (task.equals(WizardUI.TEXT_CAT_TASK))
+            {
+              TextLabels testLabels = (TextLabels)viewerContext.get("testLabels");
+              log.debug("got test labels");
+              testDataset = loadDataset(testLabels, targetClass, fe, "creating test dataset");
+            }
+            else //load fixed splitter for Datasets
+              testDataset = (Dataset)viewerContext.get("testDataset");
+
             splitter = new FixedTestSetSplitter(testDataset.iterator());
           }
 
           runClassificationExperiment(trainDataset);
+
         }
         else if (viewerContext.get(WizardUI.TASK_KEY).equals(WizardUI.TEXT_EXTRACT_TASK))
-        {
+        { //Extraction test
           aLearner = (AnnotatorLearner)viewerContext.get("learner");
           String outputLabel = (String)viewerContext.get("outputLabel");
           runExtractionExperiment(targetClass, outputLabel); //NB: a panel to gather output label would be good
