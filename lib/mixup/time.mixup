@@ -3,9 +3,9 @@ provide 'time';
 
 defDict timeSep = : , . , \; ; //how do I capture the ';'?
 defDict atTime = at, @;
-defDict prefixTime = this, next, about, around, before, after, until, till, by, through, mid, from, starting, beginning;
+defDict prefixTime = this, next, about, around, before, after, until, till, by, through, mid, from, starting, beginning, from;
 defDict suffixTime = ish;
-defDict midWord = or, -, and, to;
+defDict midWord = or, -, and, &, to;
 defDict fromWord = between, btw, bw, bt, from;
 defDict qttyWord = $, dollar, USD, dollars, cent, cents, %, percent, percents, times, quarter, Q, million, millions;
 defDict timeWord = noon, midnight, morning, afternoon, evening, tonight; 
