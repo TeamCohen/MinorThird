@@ -80,7 +80,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     parameters.svm_type = svm_parameter.C_SVC;
     parameters.kernel_type = svm_parameter.LINEAR;
     parameters.degree = 3;
-    parameters.gamma = 0;	// 1/k
+    parameters.gamma = 0; // 1/k
     parameters.coef0 = 0;
     parameters.nu = 0.5;
     parameters.cache_size = 40;
