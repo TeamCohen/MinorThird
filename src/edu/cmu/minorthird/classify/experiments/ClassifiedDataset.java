@@ -77,8 +77,6 @@ public class ClassifiedDataset implements Visible
 			allButton = addButton("all",true,group);
 
 			addApplyButton();
-
-			setFloatable(false);
 		}
 		private JRadioButton addButton(String s,boolean selected,ButtonGroup group)
 		{

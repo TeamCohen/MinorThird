@@ -56,6 +56,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 		Recommended.VPHMMLearner.class, Recommended.VPCMMLearner.class, 
 		Recommended.MEMMLearner.class, Recommended.SVMLearner.class, 
 		Recommended.VPSMMLearner.class, 
+		SequenceAnnotatorLearner.class,
 		//
 		// reductions from annotator-learning to tagging
 		//

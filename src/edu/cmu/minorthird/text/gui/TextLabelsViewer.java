@@ -71,6 +71,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 			spans[j] = i.nextSpan();
 			viewers[j] = new SpanViewer.TextViewer(labels,spans[j]);
 			viewers[j].setContent(spans[j]);
+			viewers[j].setSuperView(this);
 			viewerForId.put( spans[j].getDocumentId(), viewers[j] );
 			j++;
 		}
@@ -82,6 +83,8 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 					return viewers[index];
 				}
 			});
+		monitorSelections(jlist);
+		//for (int i=0; i<viewers.length; i++) System.out.println("viewers["+i+"].superView  "+viewers[i].getSuperView());
 		return new JScrollPane(jlist);
 	}
 
@@ -97,7 +100,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 			ViewerFrame f = new ViewerFrame("TextLabelsViewer", v);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("usage: labelKey [spanType]");
+			System.out.println("usage: labelKey");
 		}
 	}
 }

@@ -29,8 +29,6 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	private static Logger log = Logger.getLogger(SequenceAnnotatorLearner.class);
 	private static final boolean DEBUG = false;
 
-	protected static double INSIDE_LABEL = +1;
-	protected static double OUTSIDE_LABEL = -1;
 	protected SpanFeatureExtractor fe;
 	protected String annotationType = "_prediction";
 	protected int historySize = 3;
@@ -76,6 +74,13 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	//
 	// getters and setters
 	//
+	boolean displayDatasetBeforeLearning=false;
+	public boolean getDisplayDatasetBeforeLearning() {
+		return displayDatasetBeforeLearning; 
+	}
+	public void setDisplayDatasetBeforeLearning(boolean newDisplayDatasetBeforeLearning) {
+		this.displayDatasetBeforeLearning = newDisplayDatasetBeforeLearning;
+	}
 	public int getHistorySize() { return historySize; }
 	public void setHistorySize(int historySize) { this.historySize=historySize; }
 	public BatchSequenceClassifierLearner getSequenceClassifierLearner() { return seqLearner; }
@@ -137,8 +142,8 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	public Annotator getAnnotator()
 	{
 		seqLearner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
+		if (displayDatasetBeforeLearning) new ViewerFrame("Sequential Dataset", seqData.toGUI());
 		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
-		//new ViewerFrame("data", seqData.toGUI());
 		if (DEBUG) log.debug("learned classifier: "+seqClassifier);
 		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, reduction, annotationType );
 	}
@@ -195,7 +200,6 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 				ClassLabel[] classLabels = seqClassifier.classification( sequence );
 				for (int j=0; j<classLabels.length; j++) {
 					labels.setProperty( s.getToken(j), reduction.getTokenProp(), classLabels[j].bestClassName() );
-					//System.out.println("setTokenProp for "+ s.getToken(j) +": "+reduction.getTokenProp() + " => "+classLabels[j].bestClassName() );
 				}
 				pc.progress();
 			}

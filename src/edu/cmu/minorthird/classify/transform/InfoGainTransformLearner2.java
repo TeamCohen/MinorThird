@@ -18,6 +18,12 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
   private String frequencyModel; 
   private int numFeatures;
 
+  /** Default constructor, limits to 100 features */
+  public InfoGainTransformLearner2()
+  {
+		this(100,"document");
+  }
+
   /** This will "learn" an InstanceTransform that discards with low info gain. */
   public InfoGainTransformLearner2(int numFeatures)
   {

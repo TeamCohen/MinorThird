@@ -103,7 +103,7 @@ public class TypeSelector extends ComponentViewer
 				while ((line=r.readLine())!=null) {
 					if (!line.startsWith("#")) {
 						try {
-							addClass( Class.forName(line) );
+							validSubclasses.add( Class.forName(line) );
 						} catch (ClassNotFoundException ex) {
 							log.warn(filename+":"+r.getLineNumber()+": No class named '"+line+"' found.");
 						}

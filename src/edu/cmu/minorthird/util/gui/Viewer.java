@@ -34,7 +34,7 @@ import java.util.TreeMap;
 public abstract class Viewer extends JPanel
 {
 	static private Logger log = Logger.getLogger(Viewer.class);
-	static private final boolean DEBUG = false;
+	static private final boolean DEBUG = log.isDebugEnabled();
 
 	static private final String ONLY_SUBVIEWER = "*main*";
 
@@ -127,6 +127,8 @@ public abstract class Viewer extends JPanel
 			if (DEBUG) log.debug("signal forwarded to "+superView+": "+signal+","+argument+","+senders);
 			senders.add(this);
 			superView.hearBroadcast(signal,argument,senders);
+		} else if (superView==null) {
+			if (DEBUG) log.debug("no superview set for "+this);
 		}
 	}
 

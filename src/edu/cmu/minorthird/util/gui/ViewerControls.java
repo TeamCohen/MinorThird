@@ -19,14 +19,16 @@ import java.awt.event.ActionListener;
  * <p> To use this, add a set of JButtons, etc to this object in the
  * abstract initialize() routine.  If any buttons are to force an
  * immediate update, then use addActionListener(this).  If desired,
- * add an 'updateButton()', which simply is a button which forces an
+ * add an 'applyButton()', which simply is a button which forces an
  * update.
  * 
  * @author William cohen
  */
 
-abstract public class ViewerControls extends JToolBar implements ActionListener
+abstract public class ViewerControls extends JPanel implements ActionListener
 {
+	public static final int BOTTOM=1,LEFT=2;
+
 	private Viewer viewer = null;
 
 	public ViewerControls()	
@@ -45,11 +47,17 @@ abstract public class ViewerControls extends JToolBar implements ActionListener
 	/** Add an update button. */
 	public void addApplyButton() 
 	{ 
-		add(new JButton(new AbstractAction("Apply") {
+		add(makeApplyButton());
+	}
+
+	/** Create an 'apply' button. */
+	public JButton makeApplyButton() 
+	{ 
+		return new JButton(new AbstractAction("Apply") {
 				public void actionPerformed(ActionEvent e) { 
 					((Controllable)viewer).applyControls(ViewerControls.this);
 				}				
-			}));
+			});
 	}
 
 	// implement ActionListener
@@ -57,6 +65,10 @@ abstract public class ViewerControls extends JToolBar implements ActionListener
 	{ 
 		((Controllable)viewer).applyControls(this);
 	}
+
+	/** Override this with one of the other values to help
+	 * ControlledViewer decide where to place the controls. */
+	public int preferredLocation() { return BOTTOM; }
 
 	//
 	// abstract actions

@@ -165,41 +165,17 @@ public class TextBaseEditor extends TrackedTextBaseComponent
     /**
        Entry point that runs a gui to examine labels and
        change them.  
-
-       FIXME - this command line interface is not standard
-
        @param args first argument is labels file and second is save file
      **/
-    public static void main(String[] args)
-    {
-	MutableTextLabels labels = 
-	    (MutableTextLabels)FancyLoader.loadTextLabels(args[0]);
-	File saveFile = new File(args[1]);
-     
-	System.out.println(TextBaseEditor.class.getName() + " " + args[0] + " " + args[1]);
-
-	TextBaseEditor.edit(labels, saveFile);
-
-	/**
-        // parse options
-        try
-        {
-			  TextBaseEditor editor = new TextBaseEditor(args);
-			  editor.initializeLayout();
-			  editor.buildFrame();
-        }
-        catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        catch (Error e)
-        {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-	**/
-    }
-
-
+	public static void main(String[] args)
+	{
+		try {
+			MutableTextLabels labels = 
+				(MutableTextLabels)FancyLoader.loadTextLabels(args[0]);
+			File saveFile = new File(args[1]);
+			TextBaseEditor.edit(labels, saveFile);
+		} catch (Exception e) {
+			System.out.println("usage repositoryKey outputFile");
+		}
+	} 
 }

@@ -34,6 +34,10 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 		this(3,5);
 	}
 
+	public int getNumberOfEpochs() { return numberOfEpochs; }
+
+	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
+
 	public CollinsPerceptronLearner(int historySize,int numberOfEpochs)
 	{
 		this.historySize = historySize;

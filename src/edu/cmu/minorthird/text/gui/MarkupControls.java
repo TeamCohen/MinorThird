@@ -6,6 +6,7 @@ import edu.cmu.minorthird.util.gui.*;
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import java.awt.*;
+import javax.swing.border.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
@@ -43,10 +44,15 @@ public class MarkupControls extends ViewerControls
 		initialize(); // initialize again!
 	}
 
+	/** Lay out the controls
+	 */
 	protected void initialize()
 	{
 		if (types==null) return;
+		setLayout(new GridBagLayout());
 
+		JPanel subpanel = new JPanel();
+		subpanel.setLayout(new GridBagLayout());
 		guessBox = new JComboBox();
 		guessBox.addItem( "-compare- ");
 		truthBox = new JComboBox();
@@ -72,42 +78,50 @@ public class MarkupControls extends ViewerControls
 		guessBox.addActionListener(diffListener);
 		truthBox.addActionListener(diffListener);
 		JPanel comparePanel = new JPanel();
+		comparePanel.setBorder(new TitledBorder("Compare types"));
+		comparePanel.setLayout(new BoxLayout(comparePanel,BoxLayout.Y_AXIS));
 		comparePanel.add(guessBox);
 		comparePanel.add(truthBox);
-		add(comparePanel);
+		//subpanel.add(guessBox,gbc(0));
+		//subpanel.add(truthBox,gbc(1));
+		subpanel.add(comparePanel,gbc(0));
 
+		JPanel hilitePanel = new JPanel();
+		hilitePanel.setBorder(new TitledBorder("Highlight types"));
+		hilitePanel.setLayout(new GridBagLayout());
 		final ArrayList boxList = new ArrayList();
 		for (int i=0; i<types.size(); i++) {
 			JPanel boxPanel = new JPanel();
 			JComboBox box = colorBox(i); 
-			boxPanel.add( new JLabel(types.get(i).toString()) );
 			boxPanel.add( box );
+			boxPanel.add( new JLabel(types.get(i).toString()) );
 			boxList.add( box );
-			add(boxPanel);
+			hilitePanel.add(boxPanel,gbc(i));
 		}
-		add( new JButton(new AbstractAction("Reset") {
+		
+		subpanel.add(hilitePanel, gbc(1));
+
+		JPanel applyPanel = new JPanel();
+		applyPanel.setBorder(new TitledBorder("Update display"));
+		applyPanel.add( new JButton(new AbstractAction("Reset") {
 				public void actionPerformed(ActionEvent e) {
 					for (int i=0; i<boxList.size(); i++) {
 						((JComboBox)boxList.get(i)).setSelectedIndex(0);
 					}
 				}
 			}));
-		addApplyButton();
+		applyPanel.add(makeApplyButton());
+		subpanel.add(applyPanel, gbc(2));
+		// finally add the subpanel with a scroll pane and a desire to
+		// fill some space..
+		GridBagConstraints gbc = gbc(0);
+		gbc.fill = GridBagConstraints.BOTH;
+		add(new JScrollPane(subpanel),gbc);
 	}
 	
+	public int preferredLocation() { return ViewerControls.LEFT; }
 
-	public SimpleAttributeSet getColor(String type)
-	{
-		String s = (String)colorCode.get(type);
-		if (s==null) return null;
-		else return (SimpleAttributeSet)colorMap.get(s);
-	}
-
-	public SpanDifference getSpanDifference()
-	{
-		return sd;
-	}
-
+	// build a drop-down box to select a color
 	private JComboBox colorBox(final int i) 
 	{
 		final String type = (String)types.get(i);
@@ -127,6 +141,35 @@ public class MarkupControls extends ViewerControls
 				}
 			});
 		return box;
+	}
+	// build GridBagConstraint with some default values
+	private GridBagConstraints gbc(int i)
+	{
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor=GridBagConstraints.WEST;
+		gbc.weightx = gbc.weighty = 1.0;
+		gbc.gridx = 0; gbc.gridy = i;
+		return gbc;
+	}
+
+	//
+	// what's exported to the viewer...
+	//
+
+	/** Tell the ControlledViewer what color is associated with a type.
+	 */
+	public SimpleAttributeSet getColor(String type)
+	{
+		String s = (String)colorCode.get(type);
+		if (s==null) return null;
+		else return (SimpleAttributeSet)colorMap.get(s);
+	}
+
+	/** Export a span difference to the controlled Span Viewer.
+	 */
+	public SpanDifference getSpanDifference()
+	{
+		return sd;
 	}
 
   // for an interactive test, below

@@ -58,7 +58,8 @@ public class BasicDatasetTest extends TestCase
   {
     try {
       BasicDataset data = (BasicDataset)SampleDatasets.sampleData("toy",false);
-      ViewerFrame f = new ViewerFrame("Toy Dataset",data.toGUI());
+      //ViewerFrame f = new ViewerFrame("Toy Dataset",data.toGUI());
+			assertTrue( data.toGUI() != null );
       log.debug(data.getSchema());
     } catch (Exception e) {
       log.error(e, e);

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class ZoomedViewer extends SplitViewer
 {
 	static private Logger log = Logger.getLogger(ZoomedViewer.class);
+	static final boolean DEBUG = log.isDebugEnabled();
 	// rename viewer1,viewer2
 	private Viewer zoomedOut, zoomedIn;
 
@@ -55,6 +56,11 @@ public class ZoomedViewer extends SplitViewer
 
 	protected boolean canHandle(int signal,Object argument,ArrayList senders) 
 	{
+		if (DEBUG && signal==OBJECT_SELECTED) {
+			log.debug("selection in zoomed viewer, content="+argument);
+			log.debug("zoomedIn="+zoomedIn);
+			log.debug("zoomedIn.canReceive is "+(zoomedIn!=null && zoomedIn.canReceive(argument)));
+		}
 		if (signal==OBJECT_SELECTED && senders.contains(zoomedOut) && zoomedIn.canReceive(argument)) {
 			return true;
 		} else {

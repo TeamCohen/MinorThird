@@ -25,8 +25,6 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	private int numberOfEpochs;
 	private String[] history;
 
-	public int getHistorySize() { return historySize; }
-
 	public GenericCollinsLearner()
 	{
 		this(3,5);
@@ -51,6 +49,21 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	}
 
 	public void setSchema(ExampleSchema schema)	{	;	}
+
+	//
+	// accessors
+	//
+	public OnlineBinaryClassifierLearner getInnerLearner() { 
+		return innerLearnerPrototype; 
+	}
+	public void setInnerLearner(OnlineBinaryClassifierLearner newInnerLearner) {
+		this.innerLearnerPrototype = newInnerLearner;
+	}
+	public int getHistorySize() { return historySize; }
+	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
+	public int getNumberOfEpochs() { return numberOfEpochs; }
+	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
+	
 
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{

@@ -25,6 +25,12 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
   private String frequencyModel;
   private int minimumFrequency = 3;
 
+	/** Default constructor, for use in gui. */
+  public FrequencyBasedTransformLearner()
+	{
+		this(3,"document");
+	}
+
   /** This will "learn" an InstanceTransform that discards instances
    * which appear in minimumFrequency or fewer examples. */
   public FrequencyBasedTransformLearner(int minimumFrequency)

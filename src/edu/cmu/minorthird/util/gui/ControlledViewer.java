@@ -35,11 +35,22 @@ public class ControlledViewer extends Viewer
 		controls.setControlledViewer(viewer);
 		viewer.setSuperView(this);
 		removeAll();
-		add(viewer, fillerGBC());
+
+		int x1,y1,x2,y2,part;
+		int loc = controls.preferredLocation();
+		if (loc==ViewerControls.BOTTOM) {
+			x1=0; y1=0;	x2=0; y2=1; part=10;
+		} else if (loc==ViewerControls.LEFT) {
+			x1=0; y1=0;	x2=1; y2=0; part=4;
+		} else {
+			throw new IllegalArgumentException("controls has illegal preferred location "+loc+": "+controls);
+		}
 		GridBagConstraints gbc = fillerGBC();
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.gridy = 1;
-		gbc.weightx = gbc.weighty = 0;
+		gbc.gridx = x1; gbc.gridy = y1;
+		add(viewer, gbc);
+		gbc = fillerGBC();
+		gbc.gridx = x2; gbc.gridy = y2;
+		gbc.weightx /= part;	gbc.weighty /= part;
 		add(controls, gbc);
 	}
 
@@ -115,7 +126,6 @@ public class ControlledViewer extends Viewer
 		public JTextField prefixField;
 		public void initialize() 
 		{
-			setFloatable(false);
 			ucBox = new JCheckBox("uc");
 			ucBox.addActionListener(this);
 			add(ucBox);

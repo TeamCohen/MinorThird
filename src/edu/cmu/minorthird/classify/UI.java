@@ -36,6 +36,9 @@ public class UI
 		VotedPerceptron.class,	SVMLearner.class,
 		DecisionTreeLearner.class, AdaBoost.class,
 		BatchVersion.class, TransformingBatchLearner.class,
+		// transformations
+		FrequencyBasedTransformLearner.class, InfoGainTransformLearner2.class, 
+		T1InstanceTransformLearner.class, TFIDFTransformLearner.class,
 		// sequential learner
 		CollinsPerceptronLearner.class, GenericCollinsLearner.class,
 		// splitters
@@ -275,7 +278,7 @@ public class UI
 					final Viewer v = new ComponentViewer() {
 							public JComponent componentFor(Object o) 
 							{
-								Viewer ts = new TypeSelector(SELECTABLE_TYPES, "selectableTypes.txt", o.getClass());
+								Viewer ts = new TypeSelector(SELECTABLE_TYPES, "selectableTypes.txt", DataClassificationTask.class); 
 								ts.setContent(o);								
 								
 								// we'll put the type selector in a nice panel

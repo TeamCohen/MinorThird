@@ -84,7 +84,7 @@ public class DependenciesTest extends TestCase
     }
     catch (Exception e)
     {
-      assertTrue(e.getMessage().indexOf("no annotator found") > -1);
+      assertTrue(e.getMessage().indexOf("error loading") > -1);
       log.error(e.getMessage());
     }
   }

@@ -143,7 +143,6 @@ class PoissonClassifier extends BinaryClassifier implements Visible, Serializabl
             nameButton = addButton("name",group,true);
             valueButton = addButton("weight",group,false);
             absoluteValueButton = addButton("|weight|",group,false);
-            setFloatable(false);
         }
         private JRadioButton addButton(String s,ButtonGroup group,boolean selected)
         {

@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.algorithms.svm.*;
 
 /**
  * Train a CMM (in batch mode).
@@ -14,6 +15,11 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 	private int historySize;
 
 	public int getHistorySize() { return historySize; }
+
+	public CMMLearner()
+	{
+		this(new SVMLearner(),3);
+	}
 
 	public CMMLearner(ClassifierLearner baseLearner,int historySize)
 	{

@@ -38,6 +38,10 @@ public class SpanViewer extends ParallelViewer implements Controllable
 	{
 		textViewer.applyControls(controls);
 	}
+	public boolean canReceive(Object obj) 
+	{
+		return obj instanceof Span;
+	}
 	
 	/** A text view of a span, plus controls */
 	public static class ControlledTextViewer extends ControlledViewer
@@ -140,12 +144,13 @@ public class SpanViewer extends ParallelViewer implements Controllable
 		}
 		public JComponent componentFor(Object o)
 		{
+			// bug in here somewhere...
 			Span s = (Span)o;
 			Set propSet = labels.getTokenProperties();
 			String[] props = (String[])propSet.toArray(new String[propSet.size()]);
-			Object[][] table = new Object[span.size()][props.length+1];
+			Object[][] table = new Object[s.size()][props.length+1];
 			for (int i=0; i<s.size(); i++) {
-				table[i][0] = s.getToken(i).getValue();
+				table[i][0] = s.getToken(i).getValue(); // bug here
 				for (int j=0; j<props.length; j++) {
 					table[i][j+1] = labels.getProperty( s.getToken(i), props[j] );
 					if (table[i][j+1]==null) table[i][j+1] = "-"; 

@@ -78,10 +78,7 @@ public class ViewerTest extends TestCase
 		familyViewer = new ZoomedViewer(indexViewer,par);
 		((ZoomedViewer)familyViewer).setHorizontal();
 		mainViewer = new MessageViewer(new ZoomedViewer(lnameListViewer,familyViewer));
-		ViewerFrame f = new ViewerFrame("test", mainViewer);
 
 		assertNotNull( mainViewer );
-		//jlist.setSelectedValue("Cohen",true);
-		//assertEquals( "Cohen", familyViewer.getContent() );
 	}
 }
