@@ -1,0 +1,165 @@
+<description>Build file for MinorThird</description>
+<property name="src" location="src"/>
+<property name="testDir" location="test"/>
+<property name="tmpDir" location="tmp"/>
+<property name="distDir" location="dist"/>
+<property name="configDir" location="config"/>
+<property name="javadoc" location="javadoc"/>
+<property name="classDir" location="class"/>
+<property name="libDir" location="lib"/>
+<property name="reportsDir" location="testReports"/>
+<property name="deprecation" value="on"/>
+<!-- <property name="MINORTHIRD" value="."/> -->
+<!-- <property name="cvsRoot" value=":pserver:cvs@bb.isri.cmu.edu:/usr0/cvs"/> -->
+
+
+<path id="classpath">
+  <pathelement location="${classDir}"/>
+  <pathelement location="${configDir}"/>
+  <pathelement location="lib/mixup"/>
+  <fileset dir="${libDir}">
+    <include name="**/*.jar"/>
+  </fileset>
+</path>
+
+<target name="init">
+  <!-- Create the time stamp -->
+  <tstamp/>
+  <!-- Create the build directory structure used by build -->
+  <mkdir dir="${classDir}"/>
+</target>
+
+<target name="build" depends="init, copy-testcases"  description="build the source ">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="${src}" destdir="${classDir}" 
+   debug="on" classpathref="classpath" deprecation="${deprecation}"/>
+</target>
+
+<target name="copy-testcases" description="copy files from testcase directory into class directory">
+  <copy todir="${classDir}"><fileset dir="test" includes="**/testcases/**"/></copy>
+</target>
+
+<target name="build-Names" depends="init" description="build the source for app/names">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="apps/Names/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
+</target>
+
+<target name="build-tests" depends="build-test" description="alias for build-test"/>
+
+<target name="build-test" depends="init, build" description="compile test cases">
+  <javac srcdir="${testDir}" destdir="${classDir}" 
+   debug="on" classpathref="classpath" deprecation="${deprecation}"/>
+</target>
+
+<target name="build-clean" depends="clean,build" description="compile the source from scratch">
+</target>
+
+<target name="openJars" depends="build" description="unpack lib/*.jar into a tmp directory">
+  <delete dir="${tmpDir}"/>
+  <mkdir dir="${tmpDir}"/>
+  <unjar dest="${tmpDir}"> 
+    <fileset dir="${libDir}" includes="*.jar" excludes="minorThirdIncludes.jar"/>
+  </unjar>
+</target>
+
+<target name="mergeJars" depends="openJars" description="merge lib/*.jar into a single jar file">
+  <jar jarfile="minorThirdIncludes.jar" baseDir="${tmpDir}">
+    <fileset dir="${tmpDir}" includes="**/*.class"/>
+  </jar>
+</target>
+
+<target name="dist" description="generate the distribution" depends="openJars">
+  <mkdir dir="${distDir}"/>
+  <!-- Put everything in ${classDir} into the minorThird-${DSTAMP}.jar file -->
+  <jar jarfile="${distDir}/minorThird-${DSTAMP}.jar" basedir="${classDir}">
+    <manifest>
+      <attribute name="Main-Class" value="edu.cmu.minorthird.Minorthird"/>
+    </manifest>
+    <fileset dir="${classDir}">
+      <include name="edu/cmu/minorthird/**.class"/>
+    </fileset>
+    <fileset dir="${tmpDir}" includes="**/*"/>
+    <fileset dir="${configDir}">
+      <include name="*.properties"/>
+      <include name="*.config"/>
+      <include name="selectableTypes.txt"/>
+    </fileset>
+    <fileset dir="${libDir}">
+      <include name="**/*.mixup"/>
+      <include name="montylingua/*"/>
+      <include name="org.*"/>
+      <inlcude name="org/*"/>
+    </fileset>
+  </jar>
+</target>
+
+<target name="clean" description="clean up">
+  <!-- Delete the ${classDir} and ${dist} directory trees -->
+  <delete dir="${classDir}"/>
+  <delete dir="${reportsDir}"/>
+  <delete dir="${tmpDir}"/>
+</target>
+
+<target name="javadocs" depends="javadoc" description="alias for ant javadocs"/>
+
+<target name="javadoc" description="rebuild java docs">
+  <delete dir="${javadoc}"/>
+  <mkdir dir="${javadoc}/edu/cmu/minorthird/"/>
+  <javadoc sourcepath="${src}" destdir="${javadoc}" 
+   classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
+</target>
+
+<target name="tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+  <mkdir dir="${reportsDir}"/>
+  <junit printsummary="yes" haltonfailure="no">
+    <!--<jvmarg value="-Xmx512m"/>-->
+<!--  not sure why, but new MixupProgramTest doesn't work with the local classpath... 
+    <classpath><path refid="classpath"/></classpath>
+-->
+    <formatter type="plain"/>
+    <batchtest fork="no" todir="${reportsDir}">
+      <fileset dir="${classDir}">
+        <!-- either TestPackage or *Test -->
+        <include name="**/TestPackage.class"/>
+        <include name="**/*Test.class"/>
+        <exclude name="**/LongTestPackage.class"/>
+
+        <exclude name="**/*$*.class"/> <!-- inner classes excluded -->
+        <!-- a base class, not to be run -->
+        <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> 
+         <!-- requires test data -->
+        <exclude name="**/IOUtilTest.class"/>         <!-- data -->
+        <exclude name="**/LibsvmTest.class"/>         <!-- data -->
+        <exclude name="**/LearnToClassifyTest.class"/>
+        <exclude name="**/EdoTextLabelsTest.class"/>
+        <exclude name="**/BayesClassifiersTest.class"/>
+        <exclude name="**/TextLabelsLoaderTest.class"/>
+        <exclude name="**/SimpleTextLoaderTest.class"/>
+
+        <!-- long running time (>5 seconds) -->
+<!--      <exclude name="**/MixupProgramTest.class"/>  -->
+
+        <!-- even longer running time (>20 secs) -->
+        <exclude name="**/TextBaseLoaderTest.class"/>
+
+        <!-- VERY long running time (>1 minute) -->
+      </fileset>
+    </batchtest>
+  </junit>
+</target>
+
+<target name="long-tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+  <mkdir dir="${reportsDir}"/>
+  <junit printsummary="yes" haltonfailure="no">
+    <!--<jvmarg value="-Xmx512m"/>-->
+<!--  not sure why, but new MixupProgramTest doesn't work with the local classpath... 
+    <classpath><path refid="classpath"/></classpath>
+-->
+    <formatter type="plain"/>
+    <batchtest fork="no" todir="${reportsDir}">
+      <fileset dir="${classDir}">
+        <include name="**/LongTestPackage.class"/>
+      </fileset>
+    </batchtest>
+  </junit>
+</target>
