@@ -7,7 +7,6 @@ import edu.cmu.minorthird.classify.sequential.SequenceClassifier;
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -26,7 +25,6 @@ import java.util.zip.GZIPOutputStream;
 public class Evaluation implements Visible,Serializable
 {
 	private static Logger log = Logger.getLogger(Evaluation.class);
-	private static final boolean DEBUG = log.getEffectiveLevel().isGreaterOrEqual( Level.DEBUG );
 
 	// serialization stuff
   static private final long serialVersionUID = 1;
@@ -86,7 +84,7 @@ public class Evaluation implements Visible,Serializable
 	/** Record the result of predicting the give class label on the given example */
 	public void extend(ClassLabel predicted, Example example)
 	{
-		if (DEBUG) {
+		if (log.isDebugEnabled()) {
 			String ok = predicted.isCorrect(example.getLabel()) ? "Y" : "N";
 			log.debug("ok: "+ok+"\tpredict: "+predicted+"\ton: "+example);
 		}

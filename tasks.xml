@@ -30,6 +30,12 @@
   <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath"/>
 </target>
 
+<target name="build-apps" depends="init"
+  description="build the source ">
+  <!-- Compile the java code from ${src} into ${classDir} -->
+  <javac srcdir="apps/Einat/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
+</target>
+
 <target name="build-test" depends="init, build">
   <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath"/>
 </target>

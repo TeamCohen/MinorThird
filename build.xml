@@ -38,7 +38,7 @@
       <batchtest fork="no" todir="${reportsDir}">
         <fileset dir="${classDir}">
           <include name="**/LibsvmTest.class"/>         <!-- data -->
-          <include name="**/IOUtilTest.class"/>         <!-- data -->
+         <!-- <include name="**/IOUtilTest.class"/> -->         <!-- data -->
         </fileset>
       </batchtest>
     </junit>

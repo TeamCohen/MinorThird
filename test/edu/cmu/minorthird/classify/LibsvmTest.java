@@ -6,6 +6,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import libsvm.*;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import java.io.*;
 import java.util.StringTokenizer;
@@ -19,9 +20,9 @@ import java.util.StringTokenizer;
 public class LibsvmTest extends ClassifyTest
 {
   Logger log = Logger.getLogger(this.getClass());
-  private static final String trainFile = "../../example2/a1a.dat";
+  private static final String trainFile = "../example2/a1a.dat";
   private static final String model = "modelFile.dat";
-  private static final String testFile = "../../example2/a1a.t.dat";
+  private static final String testFile = "../example2/a1a.t.dat";
 
   /**
    * Standard test class constructior for LibsvmTest
@@ -47,6 +48,8 @@ public class LibsvmTest extends ClassifyTest
   {
     org.apache.log4j.Logger.getRootLogger().removeAllAppenders();
     org.apache.log4j.BasicConfigurator.configure();
+    log.setLevel(Level.DEBUG);
+    super.setCheckStandards(false);
     //TODO add initializations if needed
   }
 
@@ -100,6 +103,8 @@ public class LibsvmTest extends ClassifyTest
 
       //send expectations to checkClassify()
       double[] expect = new double[]{0.16472337693061612, 0.5532531341004251, 0.6413123436810357, 1.3132616875183545};
+
+      super.setCheckStandards(true);
       super.checkClassify(new SVMLearner(), trainData, testData, expect);
     }
     catch (Exception e)
@@ -113,7 +118,8 @@ public class LibsvmTest extends ClassifyTest
    */
   public void testSampleData()
   {
-    double[] refs = new double[]{0.0, 1.0, 1.0, 1.3132616875182228};
+    double[] refs = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 1.0,
+                                 1.3132616875182228, 1.0, 1.0, 1.0};
     super.checkClassify(new SVMLearner(), SampleDatasets.toyTrain(), SampleDatasets.toyTest(), refs);
   }
 

@@ -41,6 +41,7 @@ public abstract class ClassifyTest extends TestCase
   protected final static edu.cmu.minorthird.text.learn.SpanFeatureExtractor DEFAULT_SFE = edu.cmu.minorthird.text.learn.SampleFE.BAG_OF_WORDS;
   protected final static ClassifierLearner DEFAULT_LEARNER = new NaiveBayes();
   private double delta = 0.001;
+  private boolean checkStandardStatsOnly = false;
 
   public ClassifyTest(String s)
   {
@@ -83,11 +84,30 @@ public abstract class ClassifyTest extends TestCase
     }
   }
 
+  /**
+   *
+   * @param learner
+   * @param trainData
+   * @param testData
+   * @param referenceStats should be error, precision, recall, ??
+   */
   public void checkClassify(ClassifierLearner learner, Dataset trainData, Dataset testData, double[] referenceStats)
   {
     Evaluation v = Tester.evaluate(learner, trainData, testData);
 
-    double[] stats = v.summaryStatistics();
+
+    double[] stats;
+    if (checkStandardStatsOnly)
+    {
+      stats = new double[4];
+      stats[0] = v.errorRate();
+      stats[1] = v.averagePrecision();
+      stats[2] = v.maxF1();
+      stats[3] = v.averageLogLoss();
+    }
+    else
+      stats = v.summaryStatistics();
+
     checkStats(stats, referenceStats);
   }
 
@@ -202,6 +222,11 @@ public abstract class ClassifyTest extends TestCase
   public void setDelta(double delta)
   {
     this.delta = delta;
+  }
+
+  protected void setCheckStandards(boolean b)
+  {
+    checkStandardStatsOnly = b;
   }
 
 }

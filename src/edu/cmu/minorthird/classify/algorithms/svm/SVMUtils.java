@@ -5,8 +5,7 @@ import libsvm.svm_node;
 import libsvm.svm_problem;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * Provides some basic utilities for dealing with libsvm.
@@ -55,17 +54,16 @@ public class SVMUtils
   public static svm_node[] instanceToNodeArray(Instance instance)
   {
     Feature.Looper fLoop = instance.featureIterator();
-    svm_node[] nodeArray = new svm_node[fLoop.estimatedSize()];
 
-    int j = 0;
+    svm_node[] nodeArray;
+    List nodeList = new ArrayList();
     while (fLoop.hasNext())
     {
       Feature f = fLoop.nextFeature();
-      nodeArray[j] = featureToNode(f, instance);
-      j++;
+      nodeList.add(featureToNode(f, instance));
     }
-
-    Arrays.sort(nodeArray, NODE_COMPARATOR);
+    Collections.sort(nodeList, NODE_COMPARATOR);
+    nodeArray = (svm_node[])nodeList.toArray(new svm_node[0]);
 
     return nodeArray;
   }
