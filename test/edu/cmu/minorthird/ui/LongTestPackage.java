@@ -126,7 +126,7 @@ public class LongTestPackage extends TestSuite
 					assertEquals( 0.75, e.spanF1(), 0.02 );
 				}
 			});
-		/*suite.addTest( new LongUITest(TrainTestExtractor.class,
+		suite.addTest( new LongUITest(TrainTestExtractor.class,
 															new String[]{
 																"-labels","cspace.07",
 																"-test","cspace.09",
@@ -137,7 +137,7 @@ public class LongTestPackage extends TestSuite
 					assertEquals( 0.88, e.tokenF1(), 0.02 );
 					assertEquals( 0.83, e.spanF1(), 0.02 );
 				}
-				});*/
+				});
 
 		
 		//Doesn't Work - ERROR
