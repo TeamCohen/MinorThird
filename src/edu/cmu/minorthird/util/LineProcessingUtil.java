@@ -245,7 +245,9 @@ public class LineProcessingUtil
 	//don't use this
 	public static TextLabels readBsh(File dir, File envfile) throws Exception {
 		System.out.println("reading data files");
-		TextLabels lala  = TextBaseLoader.loadDirOfTaggedFiles(dir);
+		TextBaseLoader tbl = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, true);
+		tbl.load(dir);
+		TextLabels lala  = tbl.getLabels();
 		TextBase basevitor = lala.getTextBase();
 		
 		TextLabelsLoader labelLoaderVitor = new TextLabelsLoader();

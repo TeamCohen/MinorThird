@@ -9,7 +9,7 @@ package edu.cmu.minorthird.text;
  * This is the only direct pointer to the documentText.
  * @author ksteppe
  */
-class Document
+public class Document
 {
 	private String documentId;   // name of document
 	private String documentText; // string version of text

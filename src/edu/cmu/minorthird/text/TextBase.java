@@ -53,6 +53,9 @@ public interface TextBase
 	/** Set the group that a document belongs to */
 	public void setDocumentGroupId(String documentId,String documentGroupId);
 
+    /**Returns the document with the given ID */
+    public Document getDocument(String docID);
+
     /**Tokenize a text base differently*/
     public TextBase retokenize(Tokenizer tok);
 }

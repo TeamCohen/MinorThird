@@ -48,6 +48,10 @@ public class SubTextBase implements TextBase
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
 
+    public Document getDocument(String documentId){
+		throw new UnsupportedOperationException("You cannot retrieve a document from SubTextBase");
+	}
+
 	public String[] splitIntoTokens(String string) {
 		return base.splitIntoTokens(string);
 	}

@@ -82,6 +82,7 @@ public class TextBaseLoader
     private Pattern markupPattern = Pattern.compile("</?([^ ><]+)( [^<>]+)?>");
     private ArrayList stack; //xml tag stack
     private List spanList;
+    private List tokenPropList = null;
 
     //--------------------- Constructors -----------------------------------------------------
     public TextBaseLoader()
@@ -367,41 +368,32 @@ public class TextBaseLoader
 	int docNum = 1, start = 0, end = 0;
 	curDocID = id + "-" + docNum;
 	spanList = new ArrayList();
+	tokenPropList = new ArrayList();
 
 	while((line = in.readLine()) != null) {
 	   String[] words = line.split("\\s");
-	   //System.out.println(words[0]);
 	   if(!(words[0].equals("-DOCSTART-"))) {
-	       if(words.length > 1) {
+	       if(words.length > 2) {
 		   start = buf.length();
 		   buf.append(words[0]+" ");
 		   end = buf.length()-1;
-		   
-		   spanList.add(new CharSpan(start,end,words[1],curDocID));
+		   		  
+		   tokenPropList.add(words[1]);
 		   if(!words[3].equals("O"))
 		       spanList.add(new CharSpan(start,end,words[3],curDocID)); 
 	       }
 	       
 	   }else {
-	       //this.tokenizer = new Tokenizer(Tokenizer.SPLIT, " ");
-	       //base.loadDocument(curDocID, buf.toString()/*, tok*/);
+	       this.tokenizer = new Tokenizer(Tokenizer.SPLIT, " ");
 	       addDocument(buf.toString());
 	       spanList = new ArrayList();
+	       tokenPropList = new ArrayList();
 	       buf = new StringBuffer("");
 	       docNum++;
 	       curDocID = id + "-" + docNum;
 	   }
 	}
 	in.close();
-
-	//Iterator j = spanList.iterator();
-	//for(int x=0; x<500; x++){
-	/*for (Iterator j=spanList.iterator(); j.hasNext(); ) {
-	    CharSpan charSpan = (CharSpan)j.next();
-	    Span approxSpan = base.documentSpan(charSpan.docID).charIndexSubSpan(charSpan.lo, charSpan.hi);
-	    //System.out.println(approxSpan.asString() + ": " + charSpan.type);
-	    labels.addToType( approxSpan, charSpan.type );
-	    }*/
     }
 
     /**
@@ -448,6 +440,19 @@ public class TextBaseLoader
 		}
 	    labels.addToType( approxSpan, charSpan.type );
 
+	}
+	if(tokenPropList.size() > 0) {	    	    
+	    Document doc = textBase.getDocument(curDocID);
+	    TextToken[] tokens = tokenizer.splitIntoTokens(doc,docText);
+	    Iterator itr = tokenPropList.iterator();
+	    if(tokens.length > 0) {		
+		for(int x=0; x<tokens.length; x++) {
+		    String nextPOS = (String)itr.next();
+		    if(nextPOS != null && tokens[x] != null) {
+			labels.setProperty(tokens[x], "POS", nextPOS);
+		    }
+		}
+	    }
 	}
 	new TextLabelsLoader().closeLabels( labels, closurePolicy );
 	spanList = new ArrayList();

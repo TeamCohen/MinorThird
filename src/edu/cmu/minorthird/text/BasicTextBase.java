@@ -71,6 +71,11 @@ public class BasicTextBase implements TextBase, Serializable
 	documentMap.put(documentId, document);
     }
 
+    public Document getDocument(String docID) {
+	Document doc = (Document)documentMap.get(docID);
+	return doc;
+    }
+
     /** Tokenize a string. */
     public String[] splitIntoTokens(String string)
     {
