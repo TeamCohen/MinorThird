@@ -10,7 +10,7 @@ import java.util.Iterator;
  */
 public class RandomFilePicker
 {
-  private class Pick
+  private static class Pick
   {
     int person;
     int email;
@@ -21,6 +21,11 @@ public class RandomFilePicker
       this.person = person;
     }
 
+    public String toString()
+    {
+      return "[" + person + "][" + email + "]";
+    }
+
     public boolean equals(Object obj)
     {
       Pick p = (Pick)obj;
@@ -28,6 +33,8 @@ public class RandomFilePicker
         return true;
       else
         return false;
+
+
     }
   }
 
@@ -120,6 +127,7 @@ public class RandomFilePicker
       for (int msg = 0; msg < numMsg; msg++)
       {
         Pick p = (Pick)it.next();
+        System.out.println("copy " + p);
         String newName = dirs[p.person].getName() + "_" + messages[p.person][p.email].getName();
         File newFile = new File(newDir, newName);
 
