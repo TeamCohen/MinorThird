@@ -79,6 +79,7 @@ public class SpeechAct {
   private BinaryClassifier amd_model;
   private BinaryClassifier reqamdprop_model;
   private BinaryClassifier dlvcmt_model;
+  private Classifier meet_model;
   private static Logger log = Logger.getLogger(SpeechAct.class);
   // serialization stuff
   static public final long serialVersionUID = 1;
@@ -102,7 +103,9 @@ public class SpeechAct {
       File reqamdpropfile = new File("apps/email/models/ReqAmdProp_Model");//DT
       reqamdprop_model = (BinaryClassifier) IOUtil.loadSerialized(reqamdpropfile);
       File dlvcmtfile = new File("apps/email/models/DlvCmt_Model");//VP,batch15
-     dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
+      dlvcmt_model = (BinaryClassifier) IOUtil.loadSerialized(dlvcmtfile);
+      File meetfile = new File("apps/email/models/meet_Model");//maxent
+      meet_model = (Classifier) IOUtil.loadSerialized(meetfile);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -116,6 +119,10 @@ public class SpeechAct {
   private boolean bclassify(BinaryClassifier model, Instance mi) {
   	double Th = 0;
     return (model.score(mi)>Th)? true:false;    
+  }
+  
+  private boolean bclassify(Classifier model, Instance mi) {
+    return model.classification(mi).isPositive();
   }
   
   TextLabels readBsh(File dir, File envfile) throws Exception{
@@ -212,6 +219,7 @@ public class SpeechAct {
 	      boolean amdbool = sa.bclassify(sa.amd_model, ins);
 	   	  boolean reqamdpropbool = sa.bclassify(sa.reqamdprop_model, ins);
 	      boolean dlvcmtbool = sa.bclassify(sa.dlvcmt_model, ins);
+	      boolean meetbool = sa.bclassify(sa.meet_model, ins);
 
 		  if((sophie)&&(reqamdpropbool)){
 		  	reqBuf.append(span.getDocumentId()+"\n");
@@ -225,7 +233,8 @@ public class SpeechAct {
 	   	  String amds = amdbool?   "_AMD_":"_____";
 		  String reqamdprops = reqamdpropbool? "_REQAMDPROP":"___________";
 	      String dlvcmts = dlvcmtbool? "_DLVCMT__":"_________";
-	      System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+")\n");
+	      String meets = meetbool? "__MEET___":"_________";
+	      System.out.print(span.getDocumentId()+"     ("+reqs+" "+dlvs+" "+props+" "+cmts+" "+amds+" "+reqamdprops+" "+dlvcmts+" "+meets+")\n");
          // String spanString = span.asString();
         }
         //kludge
