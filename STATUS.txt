@@ -7,7 +7,7 @@ BUGS:
 CLEANUPS/DESIGN:
 
  - transform.MaskedInstance could be more efficient
- - classify.algorithm.random is misplaced
+ - classify.algorithm.random, classify.algorithm.active are misplaced
  - explanations are messy in text - structure them?
  - edo code: Spiltter, punk => grep, get rid of stopwords in file?
  - CompactInstance - where to use it? maybe in loaders and feature extractors?
@@ -24,6 +24,8 @@ CLEANUPS/DESIGN:
 
 RECENT CHANGES:
 
+ - added multi-class text categorization, refactored text cat fe's to	
+ be able to load mixup files
  - touched up FilteredFinderLearner, added training to distances in ConditionalSemiMarkovModel.dictFE, added
  options to TextLabelsExperiment
  - warning issues on on empty directory files too

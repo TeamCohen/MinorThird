@@ -18,39 +18,28 @@ public class SampleFE
 {
 	/** Simple bag of words feature extractor.
 	 */
-	public static final SpanFeatureExtractor BAG_OF_WORDS = new BagOfWordsFE();
+	public static final AnnotatedSpanFE BAG_OF_WORDS = new BagOfWordsFE();
 
-	public static class BagOfWordsFE implements SpanFeatureExtractor
-	{
-		public Instance extractInstance(TextLabels labels, Span s)	{
-			return extractInstance(s);
-		}
-		public Instance extractInstance(Span s){
-			FeatureBuffer buf = new FeatureBuffer(s);
-			SpanFE.from(s, buf).tokens().emit();
-			return buf.getInstance();
+	public static class BagOfWordsFE extends AnnotatedSpanFE {
+		public void extractFeatures(TextLabels labels, Span s){
+			from(s).tokens().emit();
 		}
 	}
 
 	/** Simple bag of words feature extractor, with all tokens converted to lower case.
 	 */
-	public static final SpanFeatureExtractor BAG_OF_LC_WORDS = new BagOfLowerCaseWordsFE();
+	public static final AnnotatedSpanFE BAG_OF_LC_WORDS = new BagOfLowerCaseWordsFE();
 
-	public static class BagOfLowerCaseWordsFE implements SpanFeatureExtractor
-	{
-		public Instance extractInstance(TextLabels labels, Span s)	{
-			return extractInstance(s);
-		}
-		public Instance extractInstance(Span s){
-			FeatureBuffer buf = new FeatureBuffer(s);
-			SpanFE.from(s, buf).tokens().eq().lc().emit();
-			return buf.getInstance();
+	public static class BagOfLowerCaseWordsFE extends AnnotatedSpanFE {
+		public void extractFeatures(TextLabels labels, Span s){
+			from(s).tokens().eq().lc().emit();
 		}
 	}
 
+
 	/** A simple extraction-oriented feature extractor to apply to one-token spans, for extraction tasks. 
 	 */
-	public static final SpanFeatureExtractor makeExtractionFE(final int featureWindowSize)
+	public static final AnnotatedSpanFE makeExtractionFE(final int featureWindowSize)
 	{
 		ExtractionFE fe = new ExtractionFE();
 		fe.setFeatureWindowSize(featureWindowSize);
@@ -58,13 +47,11 @@ public class SampleFE
 	}
 
 
-	/** A simple extraction-oriented feature extractor to apply to one-token spans, for extraction tasks.
+	/** An extraction-oriented feature extractor to apply to one-token spans, for extraction tasks.
 	 */
-	public static class ExtractionFE extends SpanFE
+	public static class ExtractionFE extends AnnotatedSpanFE
 	{
 		protected int windowSize=5;
-		protected String requiredAnnotation = null;
-		protected String requiredAnnotationFileToLoad = null;
 		protected boolean useCharType=true;
 		protected boolean useCompressedCharType=true;
 		protected String[] tokenPropertyFeatures=new String[0];
@@ -75,31 +62,6 @@ public class SampleFE
 		//
 		// getters and setters
 		//
-
-		/** Specify an annotator to run before feature generation.
-		 */
-		public void setRequiredAnnotation(String requiredAnnotation) { this.requiredAnnotation=requiredAnnotation; }
-		public String getRequiredAnnotation() { return requiredAnnotation==null ? "" : requiredAnnotation; }
-
-
-		/** Specify an annotator to run before feature generation
-		 * and a mixup file/class that generates it simultaneously.
-		*/
-		public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider) 
-		{ 
-			setRequiredAnnotation(requiredAnnotation);
-			setAnnotationProvider(annotationProvider);
-		}
-
-
-		/** Specify a mixup file or java class to use to provide the annotation.
-		 */
-		public void setAnnotationProvider(String classNameOrMixupFileName) {
-			this.requiredAnnotationFileToLoad = classNameOrMixupFileName;
-		}
-		public String getAnnotationProvider() {	
-			return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad; 
-		}
 
 		/** Specify the number of tokens on before and after the span to
 		 * emit features for. */
@@ -116,7 +78,6 @@ public class SampleFE
 		public void setUseCompressedCharType(boolean flag) { useCompressedCharType=flag; } 
 		public boolean getUseCompressedCharType() { return useCompressedCharType; } 
 
-		public String getTokenPropertyFeatures() { return StringUtil.toString(tokenPropertyFeatures); }
 		/** Specify the token properties from the TextLabels environment
 		 * that will be used as features. A value of '*' means to use all
 		 * defined token properties. */
@@ -128,6 +89,7 @@ public class SampleFE
 				tokenPropertyFeatures = commaSeparatedTokenPropertyList.split(",\\s*");
 			}
 		}
+		public String getTokenPropertyFeatures() { return StringUtil.toString(tokenPropertyFeatures); }
 		public void setTokenPropertyFeatures(Set propertySet) {
 			tokenPropertyFeatures = (String[])propertySet.toArray(new String[propertySet.size()]);
 		}
@@ -138,10 +100,8 @@ public class SampleFE
 		}
 		public void extractFeatures(TextLabels labels, Span s)
 		{
-			if (requiredAnnotation!=null) {
-				//System.out.println("require "+requiredAnnotation+", tokenPropertyFeatures="+tokenPropertyFeatures);
-				labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
-			}
+			requireMyAnnotation(labels);
+
 			if (tokenPropertyFeatures==null) {
 				System.out.println("setTokenPropertyFeatures to the set "+labels.getTokenProperties());
 				setTokenPropertyFeatures( labels.getTokenProperties() );
@@ -182,6 +142,51 @@ public class SampleFE
 		}
 	}
 
+	/** A feature extractor that pre-loads a mixup file or some other type of annotation. */
+	public static abstract class AnnotatedSpanFE extends SpanFE
+	{
+		protected String requiredAnnotation = null;
+		protected String requiredAnnotationFileToLoad = null;
+		
+		/** Specify an annotator to run before feature generation.
+		 */
+		public void setRequiredAnnotation(String requiredAnnotation) { this.requiredAnnotation=requiredAnnotation; }
+		public String getRequiredAnnotation() { return requiredAnnotation==null ? "" : requiredAnnotation; }
+
+
+		/** Specify an annotator to run before feature generation
+		 * and a mixup file/class that generates it simultaneously.
+		*/
+		public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider) 
+		{ 
+			setRequiredAnnotation(requiredAnnotation);
+			setAnnotationProvider(annotationProvider);
+		}
+
+		/** Specify a mixup file or java class to use to provide the annotation.
+		 */
+		public void setAnnotationProvider(String classNameOrMixupFileName) {
+			this.requiredAnnotationFileToLoad = classNameOrMixupFileName;
+		}
+		public String getAnnotationProvider() {	
+			return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad; 
+		}
+
+		/** Make sure the required annotation is present. */
+		protected void requireMyAnnotation(TextLabels labels)
+		{
+			if (requiredAnnotation!=null) {
+				labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
+			}	
+		}
+
+		/** Throws an error, since this sort of feature extractor requires labels. */
+		public void extractFeatures(Span s)
+		{
+			throw new UnsupportedOperationException("need to pass in labels to this feature extractor");
+		}
+	}
+
 	/** Test case to try out the feature extractors
 	 */
 	public static void main(String[] args)
@@ -207,4 +212,5 @@ public class SampleFE
 			e.printStackTrace();
 		}
 	}
+
 }

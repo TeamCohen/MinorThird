@@ -15,74 +15,98 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
-/** Run an annotation-learning experiment based on pre-labeled text.
+/** Run a text-classification learning experiment based on pre-labeled text.
  *
  * @author William Cohen
 */
 
 public class ClassifyExperiment
 {
-	private SpanFeatureExtractor fe = SampleFE.BAG_OF_LC_WORDS;
+  private static Logger log = Logger.getLogger(ClassifyExperiment.class);
 
-	private TextLabels labels;
+	protected SampleFE.AnnotatedSpanFE fe = SampleFE.BAG_OF_LC_WORDS;
+
+	private TextLabels labels, testLabels;
 	private Splitter splitter;
 	private ClassifierLearner learner;
 	private String inputLabel;
-  private static Logger log = Logger.getLogger(ClassifyExperiment.class);
 
   /**
    * @param labels The labels and base to be annotated in the example
    *               These are the training examples
    * @param splitter splitter for the documents in the labels to create test vs. train
+   * @param testLabels if non-null, ignore splitter and used a FixedTestSetSplitter
    * @param learnerName ClassifierLearner algorithm object to use
    * @param inputLabel spanType in the TextLabels to treat as 'positive'.
    */
 	public ClassifyExperiment(
-		TextLabels labels,Splitter splitter,String learnerName,String inputLabel) 
+		TextLabels labels,Splitter splitter,String learnerName,String inputLabel,TextLabels testLabels) 
 	{
 		this.labels = labels;
 		this.splitter = splitter;
+		this.testLabels = testLabels;
 		this.inputLabel = inputLabel;
 		this.learner = Expt.toLearner(learnerName);
 	}
 
 	public ClassifyExperiment(
-		TextLabels labels,Splitter splitter,ClassifierLearner learner,String inputLabel)
+		TextLabels labels,Splitter splitter,ClassifierLearner learner,String inputLabel,TextLabels testLabels)
 	{
 		this.labels = labels;
 		this.splitter = splitter;
 		this.inputLabel = inputLabel;
 		this.learner = learner;
+		this.testLabels = testLabels;
 	}
 
-	public Dataset asDataset() 
+	private Dataset toDataset() 
 	{
     return toDataset(labels, fe, inputLabel);
   }
 
-  public static Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor featureExtractor,
-                                  String inLabel)
+  private Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor featureExtractor,String inLabel)
   {
-    Dataset dataset = new BasicDataset();
-    for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
-      Span s = i.nextSpan();
-      double classLabel = textLabels.hasType(s,inLabel) ? +1 : -1;
-      dataset.add( new BinaryExample( featureExtractor.extractInstance(textLabels,s), classLabel) );
-    }
-    return dataset;
+		if (textLabels.getTypes().contains(inLabel)) {
+			Dataset dataset = new BasicDataset();
+			for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+				Span s = i.nextSpan();
+				double classLabel = textLabels.hasType(s,inLabel) ? +1 : -1;
+				dataset.add( new BinaryExample( featureExtractor.extractInstance(textLabels,s), classLabel) );
+			}
+			return dataset;
+		} else if (textLabels.getSpanProperties().contains(inLabel)) {
+			Dataset dataset = new BasicDataset();
+			for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+				Span s = i.nextSpan();
+				String className = textLabels.getProperty(s,inLabel);
+				if (className==null) {
+					log.warn("no span property "+inLabel+" for document "+s.getDocumentId()+" - will be ignored");
+				} else {
+					dataset.add( new Example( featureExtractor.extractInstance(textLabels,s), new ClassLabel(className)) );
+				}
+			}
+			return dataset;
+		} else {
+			throw new IllegalArgumentException("no span type or property '"+inLabel+"' found");
+		}
   }
-
-//  public static Dataset toDataset(TextLabels textLabels, SpanFeatureExtractor featureExtractor, String inLabel)
-
 
 	public Evaluation evaluation()
 	{
-		return Tester.evaluate( learner, asDataset(), splitter );
+		if (testLabels!=null) {
+			Dataset testData = toDataset(testLabels, fe, inputLabel);
+			splitter = new FixedTestSetSplitter(testData.iterator());
+		}
+		return Tester.evaluate( learner, toDataset(), splitter );
 	}
 
 	public CrossValidatedDataset crossValidatedDataset() 
 	{
-		return new CrossValidatedDataset( learner, asDataset(), splitter );
+		return new CrossValidatedDataset( learner, toDataset(), splitter );
+	}
+
+	public SampleFE.AnnotatedSpanFE getFE() { 
+		return fe; 
 	}
 
 	public static void main(String[] args) 
@@ -93,6 +117,7 @@ public class ClassifyExperiment
     TextLabels testLabels=null;
 		String inputLabel=null;
 		String show=null;
+		String annotationNeeded=null;
 		try {
 			int pos = 0;
 			while (pos<args.length) {
@@ -101,12 +126,7 @@ public class ClassifyExperiment
 					labels = FancyLoader.loadTextLabels(args[pos++]);
         } else if (opt.startsWith("-te")) {
           if (splitter!=null) throw new IllegalArgumentException("only one of splitter, testData allowed");
-          if (inputLabel == null) throw new IllegalArgumentException("input lable must be specified before test data");
           testLabels = FancyLoader.loadTextLabels(args[pos++]);
-          //build dataset to build Test splitter
-          Dataset testData = toDataset(testLabels, SampleFE.BAG_OF_LC_WORDS, inputLabel);
-          splitter = new FixedTestSetSplitter(testData.iterator());
-
 				} else if (opt.startsWith("-split")) {
           if (testLabels !=null) throw new IllegalArgumentException("only one of splitter, testData allowed");
           splitter = Expt.toSplitter(args[pos++]);
@@ -116,16 +136,26 @@ public class ClassifyExperiment
 					inputLabel = args[pos++];
 				} else if (opt.startsWith("-show")) {
 					show = args[pos++];
+				} else if (opt.startsWith("-mix")) {
+					annotationNeeded = args[pos++];
 				} else {
 					usage();
 				}
 			}
-			if (labels==null || learnerName==null || splitter==null|| inputLabel==null) {
+			if (splitter==null) splitter = new RandomSplitter(0.70);
+
+			if (labels==null || learnerName==null || inputLabel==null) 
+			{
 				usage();
 			}
 
       log.info("splitter: " + splitter);
-      ClassifyExperiment expt = new ClassifyExperiment(labels,splitter,learnerName,inputLabel);
+      ClassifyExperiment expt = new ClassifyExperiment(labels,splitter,learnerName,inputLabel,testLabels);
+			if (annotationNeeded!=null) {
+				expt.getFE().setRequiredAnnotation(annotationNeeded);
+				expt.getFE().setAnnotationProvider(annotationNeeded+".mixup");
+				labels.require(annotationNeeded,annotationNeeded+".mixup");
+			}
 			if ("all+".equals(show)) {
 				ViewerFrame f = new ViewerFrame("Experiment Result", expt.crossValidatedDataset().toGUI() );				
 			}	else if (show!=null) {
@@ -138,7 +168,7 @@ public class ClassifyExperiment
 	}
 	private static void usage() {
 		System.out.println(
-			"usage: -label labelsKey -learn learner -in inputLabel [-split splitter | -test testLabels] ");
+			"usage: -label labelsKey -learn learner -in inputLabel [-split splitter -test testLabels -show all]");
 		System.exit(-1);
 	}
 }
