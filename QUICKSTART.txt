@@ -1,19 +1,21 @@
 OBTAINING THE CODE
 
-1. login in to the server, using our super-secret password,
-which is only divulged by word of mouth:
+1. login in to the server, using your cs password:
 
-   % cvs -d :pserver:cvs@bb.isri.cmu.edu:/usr0/cvs login
+   % cvs -d :ext:yourusername@raff.cald.cs.cmu.edu:/usr1/cvsroot login
 
-2. check out the radar module: in your home directory, type:
+2. check out the minorthird module: in your home directory, type:
  
-   % cvs -d :pserver:cvs@bb.isri.cmu.edu:/usr0/cvs co radar
+   % cvs -d :ext:yourusername@raff.cald.cs.cmu.edu:/usr1/cvsroot co minorthird
 
 To do this you'll need CVS, which is generally installed on
 unix systems.  For windows I recommend using the cygwin package,
 easily installed from http://cygwin.com, which provides most of
 the basic unix functionality.  http://www.cvshome.org has all
 the documentation you'll ever want on CVS, and then some.
+
+For a Windows explorer integrated CVS client, TortoiseCVS is recommended from
+http://www.tortoisecvs.org
 
 OTHER STUFF YOU'LL NEED
 
@@ -22,21 +24,22 @@ later) installed, plus a 'make'-like system called 'ant'.  Java is
 available from http://java.sun.com.  The latest issue was last seen at
 'http://java.sun.com/j2se/1.4.2/download.html' and generally is found
 by looking for the 'Java 2 Standard Edition' SDK (software
-developement kit). Ant is distributed with radar.  To install it,
-you'll want to
+developement kit). Ant is an Apache project which can be found at
+http://ant.apache.org.  To install it, you'll want to
 
  1. define JAVA_HOME to be the root directory for java, eg
  'set JAVA_HOME=c:/j2sdk1.4.2' or wherever you put it.
 
- 2. set the environment variable ANT_HOME to
- %%HOME%%/radar/apache-ant-1.5.3-1 (or wherever it ended up when you
- checked out radar) and then 
+ 2. set the environment variable ANT_HOME to where ever you put it.
 
  3. add $ANT_HOME/bin to your path (plus $JAVA_HOME/bin)
 
 COMPILING THE CODE
 
-1. cd to radar/extract
+We recommend that you set an environment variable "MINORTHIRD" to where ever
+you placed the project.
+
+1. cd to MINORTHIRD
 2. on unix with bash run
    % . script/setup.sh
    or on windows run
@@ -44,18 +47,12 @@ COMPILING THE CODE
 3. to compile the code type the command
    % ant build-clean
 
-[note: there's a file that's named with the wrong case in the repository,
- which I haven't fixed.  You might need to change one file name to compile:
- % mv src\com\wcohen\txt\scriptLoader.java src\com\wcohen\txt\ScriptLoader.java]
-
-4. to build the javadocs (in radar/extract/javadoc) type the command
+4. to build the javadocs (in MINORTHIRD/javadoc) type the command
    % ant javadoc
 
 SAMPLE COMMANDS
 
-The directory radar/extract/examples contains a number of example
-mixup programs, plus some example bean shell scripts for loading up
-data and labeling it.
+The directory minorthird/demos contains a number of examples and data.
 
 There are some java classes with command-line interfaces, currently in
 a bit of a mess wrt consistency.  For a demo of viewing a dataset, use
@@ -65,9 +62,9 @@ the command
 
 For a demo of labeling a dataset, use the command
 
-% java edu.cmu.minorthird.text.gui.TextBaseEditor env/seminar-subset mylabels.env
+% java edu.cmu.minorthird.text.gui.TextBaseEditor env/seminar-subset mylabels.labels
 
-This will create a file 'mylabels.env' which saves your edits of the 
+This will create a file 'mylabels.labels' which saves your edits of the 
 initially labeled documents associated with the tag 'seminar-subset.env'.
 
 For a demo of using the 'mixup' language to label a document, create a mixup
@@ -80,6 +77,10 @@ Another sample command mixup program finds cell names:
 % cp lib/labels/captions/cell.env myCellEdits.env  
 % java edu.cmu.minorthird.text.gui.MixupDebugger -textBase env/captions -truth myCellEdits.env -mixup lib/labels/captions/cell.mixup -stem
 
+-------------------------------------------
+NB: This section will change very soon as a better set of demos and samples are compiled.  Look for changes in the immediate future.
+-------------------------------------------
+
 HOW SAMPLE FILES ARE STORED
 
 What is env/seminar-subset anyway?  I wanted a scheme in which
@@ -88,7 +89,7 @@ What is env/seminar-subset anyway?  I wanted a scheme in which
  - one could specify a datafile with a single short key
 
 The scheme I came up with is the following. The file
-radar/extract/lib/data.properties defines three directory locations:
+minorthird/config/data.properties defines three directory locations:
 dataDir, for large datasets; labelDir, for data files that are used to
 construct labelings; and scriptDir, for beanShell scripts that load in
 a datafile.  The edu.cmu.minorthird.text.txt.ScriptLoader object takes the name of
@@ -97,21 +98,4 @@ env/seminar-subset is a script (in radar/extract/lib/loaders/env) that
 returns a small labeled dataset.  In this case, the dataset is one of
 two small sample ones stored in cvs under radar/extract/data, the
 default dataDir.
-
-POS TAGGING
-
-There is some auxiliary code for importing part of speech (POS) tags
-into the system.  The interface to this code will probably be streamlined
-sometime, but for now, to use it, first compile the glue code:
-
-% cd radar/extract/plugins/montytagger
-% javac -classpath montytagger.jar POSTagger.java
-% cd ../..
-
-then you can use the script 
-
-% perl script/tag.pl inputDir outputDir
-
-to produce a radar-readable POS-tagged version of a directory inputDir
-of untagged files.
 

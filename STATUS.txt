@@ -10,7 +10,7 @@ MinorThird: Modules for Identifying Names and Ontological Relationships in
 BUGS:
    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
    - 'back' in ViewerFrame, 'save' after zoom in ViewerFrame 
-   - cls.util is dead code (but sticky)
+   - classify.util is dead code (but sticky)
    - performance issues loading in large files (with markup?)
 
 PRIORITIES:
@@ -55,7 +55,7 @@ CLEANUPS/DESIGN:
  - CompactInstance - where to use it? maybe in loaders and feature extractors
  - Look for dead code (ExptGUI, etc)
  - Conventions to get names consistent.
- - Eliminate data directory, move to examples/data?
+ - Done: Eliminate data directory, move to examples/data?
  - cls class should be smaller, with 'meta' (containing boost, stack,
  active, batch/online adaptors, etc) split off
  - SpanFE cleanup: no defaults, features for whole span. 
