@@ -128,6 +128,7 @@ class CommandLineUtil
 		try {
 			bsh.Interpreter interp = new bsh.Interpreter();
 			interp.eval("import edu.cmu.minorthird.classify.*;");
+			interp.eval("import edu.cmu.minorthird.classify.experiments.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.linear.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.trees.*;");
 			interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
@@ -166,20 +167,15 @@ class CommandLineUtil
 			double pct = StringUtil.atoi(splitterName.substring(1,splitterName.length())) / 100.0;
 			return new RandomSplitter(pct);
 		}
-		//if (splitterName.charAt(0)=='s') {
-		//int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
-		//return new StratifiedCrossValSplitter(folds);
-		//}
 		if ("-help".equals(splitterName)) {
 			System.out.println("Valid splitter names:");
-			System.out.println(" kN    N-fold cross-validation, e.g. k5");
-			System.out.println(" sN    stratified N-fold cross-validation, i.e., the");
-			System.out.println("       distribution of pos/neg classes is the same in each fold");
-			System.out.println(" rNN   single random train-test split with NN% going to train");
-			System.out.println("        e.g, r70 is a 70%-30% split");
+			System.out.println(" kN              N-fold cross-validation, e.g. k5 is 5-CV");
+			System.out.println(" rNN             single random train-test split with NN% going to train");
+			System.out.println("                 e.g, r70 is a 70%-30% split");
+			System.out.println(" other           anything else is interpreted as bean shell script");
 			return new RandomSplitter(0.70);
 		} 
-		throw new IllegalArgumentException("illegal splitterName '"+splitterName+"'");
+		return (Splitter) newObjectFromBSH(splitterName, Splitter.class);
 	}
 
 	//

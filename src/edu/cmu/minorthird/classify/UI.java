@@ -275,7 +275,7 @@ public class UI
 					final Viewer v = new ComponentViewer() {
 							public JComponent componentFor(Object o) 
 							{
-								Viewer ts = new TypeSelector(SELECTABLE_TYPES, o.getClass());
+								Viewer ts = new TypeSelector(SELECTABLE_TYPES, "selectableTypes.txt", o.getClass());
 								ts.setContent(o);								
 								
 								// we'll put the type selector in a nice panel

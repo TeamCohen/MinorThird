@@ -26,7 +26,7 @@ public class ApplyAnnotator extends UIMain
 
 	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
 	private CommandLineUtil.LoadAnnotatorParams load = new CommandLineUtil.LoadAnnotatorParams();
-	private Evaluation result = null;
+	private TextLabels result = null;
 
 	// for gui
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
@@ -49,9 +49,9 @@ public class ApplyAnnotator extends UIMain
 		if (load.loadFrom==null) throw new IllegalArgumentException("-loadFrom must be specified");
 
 		// load the classifier
-		ClassifierAnnotator ann = null;
+		Annotator ann = null;
 		try {
-			ann = (ClassifierAnnotator)IOUtil.loadSerialized(load.loadFrom);
+			ann = (Annotator)IOUtil.loadSerialized(load.loadFrom);
 		} catch (IOException ex) {
 			throw new IllegalArgumentException("can't load annotator from "+load.loadFrom);
 		}
@@ -61,9 +61,7 @@ public class ApplyAnnotator extends UIMain
 
 		// echo the annotated labels 
 		if (base.showResult) {
-			Viewer vl = new SmartVanillaViewer();
-			vl.setContent(annLabels);
-			new ViewerFrame("Annotated Textbase",vl);
+			new ViewerFrame("Annotated Textbase",new SmartVanillaViewer(annLabels));
 		}
 		
 		if (save.saveAs!=null) {

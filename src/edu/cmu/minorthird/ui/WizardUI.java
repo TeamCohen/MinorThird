@@ -44,8 +44,7 @@ public class WizardUI
 //			TextBaseLoader.class,
       SimpleTextLoader.class,
       DatasetLoader.class,
-//      RepositoryLoader.class, <-- Added by PickLoader
-			// learners
+			RepositoryLoader.class,
 			NaiveBayes.class,
 			BBMira.class,
 			VotedPerceptron.class,
@@ -224,7 +223,6 @@ public class WizardUI
         {
           selector = new MyTypeSelector(SimpleTextLoader.class);
           SimpleTextLoader loader = new SimpleTextLoader();
-          selector.addClass(RepositoryLoader.class);
 
           if (viewerContext.get(TASK_KEY).equals(TEXT_EXTRACT_TASK))
           {

@@ -1,21 +1,15 @@
 package edu.cmu.minorthird.util.gui;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
+import org.apache.log4j.*;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.awt.event.*;
+import java.beans.*;
+import java.lang.reflect.*;
 import java.util.*;
-import java.util.List;
+import java.io.*;
 
 /**
  * Allows user to select among possible instantiations of a particular
@@ -48,13 +42,17 @@ public class TypeSelector extends ComponentViewer
 	static private boolean DEBUG = false;
 	private static Logger log = Logger.getLogger(TypeSelector.class);
 
-//	private final Class[] validSubclasses;
-  private List validSubclasses;
 	private final Class rootClass;
+  private ArrayList validSubclasses = new ArrayList();
 	// maps classes to the objects which will be used to instantiate these classes
-	private final Map instanceMap;
+	private final Map instanceMap= new HashMap();
 	private JComboBox classBox;
 	private String name = null;
+
+	public TypeSelector(Class[] validSubclasses,Class rootClass)
+	{
+		this(validSubclasses,null,rootClass);
+	}
 
 	/**
 	 * @param validSubclasses array of all classes that can be
@@ -62,34 +60,61 @@ public class TypeSelector extends ComponentViewer
 	 * editing their properties.  This array is inherited by all
 	 * typeSelectors that are created, recursively, from this
 	 * typeSelector.
+	 * @param configFilename optional name of file containing names
+	 * of additional classes to consider valid.  File may be on
+	 * classpath.
 	 * @param rootClass the class of objects that will be selected by
 	 * this typeSelector.
 	 */
-	public TypeSelector(Class[] validSubclasses,Class rootClass)
+	public TypeSelector(Class[] validSubclasses,String configFilename,Class rootClass)
 	{
-		this.validSubclasses = new ArrayList();
     this.validSubclasses.addAll(Arrays.asList(validSubclasses));
-
+		if (configFilename!=null) configureWith(configFilename);
     this.rootClass = rootClass;
-    this.instanceMap = new HashMap();
-
     init(rootClass);
   }
 
   /**
    * copies the given list as possible classes
    */
-  public TypeSelector(List validClasses, Class rootClass)
+  private TypeSelector(ArrayList validClasses, Class rootClass)
   {
-    this.validSubclasses = new ArrayList();
-    this.validSubclasses.addAll(validClasses);
-
+		this.validSubclasses = validClasses;
     this.rootClass = rootClass;
-    this.instanceMap = new HashMap();
-
     init(rootClass);
-
   }
+
+	/**
+	 * Load class names from this file into the validClasses list.
+	 */
+	private void configureWith(String filename)
+	{
+		try {
+			LineNumberReader r = null;
+			File file = new File(filename);
+			if (file.exists()) r = new LineNumberReader(new BufferedReader(new FileReader(file)));
+			else {
+				InputStream s = ClassLoader.getSystemResourceAsStream(filename);
+				if (s==null) log.error("No file named '"+filename+"' found on classpath");
+				else r = new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
+			}
+			if (r!=null) {
+				String line;
+				while ((line=r.readLine())!=null) {
+					if (!line.startsWith("#")) {
+						try {
+							addClass( Class.forName(line) );
+						} catch (ClassNotFoundException ex) {
+							log.warn(filename+":"+r.getLineNumber()+": No class named '"+line+"' found.");
+						}
+					}
+				}
+			}
+		} catch (IOException ex) {
+			log.error("Exception reading "+filename+": "+ex);
+			return;
+		}
+	}
 
   private void init(Class rootClass)
   {
@@ -107,12 +132,15 @@ public class TypeSelector extends ComponentViewer
     }
   }
 
+	/**
+	 */
+
   /**
    * add a new class to the list of valid sub classes.
    * exiting UI components are NOT updated (so make additions first)
    * @param subClass
    */
-  public void addClass(Class subClass)
+  private void addClass(Class subClass)
   {
     try
     {
@@ -131,7 +159,7 @@ public class TypeSelector extends ComponentViewer
    * the component seperately)
    * @param subClass
    */
-  public void removeClass(Class subClass)
+  private void removeClass(Class subClass)
   {
     validSubclasses.remove(subClass);
     instanceMap.remove(subClass);
