@@ -1,9 +1,7 @@
 package edu.cmu.minorthird.util;
 
-import java.util.*;
 import java.io.*;
 import java.util.regex.*;
-import edu.cmu.minorthird.classify.*;
 
 /**
  * Line processing utilities.
@@ -15,8 +13,6 @@ import edu.cmu.minorthird.classify.*;
 public class LineProcessingUtil
 {
 	/** Returns true if substring in input (or part of it) matches the pattern.
-	 *  - regular expressions follow java.util.regex  
-	 *
 	 * @param regexp (in String format)
 	 * @param line to be matched to regexp (in String format)
 	 * @return true (if pattern is matched) or false (otherwise)
@@ -154,6 +150,31 @@ public class LineProcessingUtil
 	   return punctCount;
     }
     
+	 /* 
+	 * Returns the number of times a certain expression happened in a line
+	 * 
+	 * @param - the expression to be counted (for instance: "Would you")
+	 * @param line in String format
+	 * @return the number of times the expression happened in the line
+	 * 
+	 **/
+	public static int numberOfMatches(String expression, String line) {
+  		int linelength = line.length();
+  		int exprelength = expression.length();
+  		if ((linelength == 0)||(exprelength==0))
+    		return 0;
+  		int theCount = 0;
+  		for (int i = 0; i < (linelength - exprelength); i++) {
+    		if (lineMatcher(expression, line.substring(i, i + exprelength))) {
+      		theCount++;
+      		i +=exprelength;
+    		}
+  		}
+  		//System.out.println("count = "+theCount);
+  		return theCount;
+	}
+    
+    
     /** 
      * detect a sequence of 2 lines starting with the same
      * punctuation (\p{Punct}) character
@@ -189,7 +210,7 @@ public class LineProcessingUtil
     
      /**
       * Method to read a file and turn it into a string - based on rcwang's code
-      * - 
+      *  
       * @param String with the name of file
       * @return the original fine in a String format
       *
