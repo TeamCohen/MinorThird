@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.classify.algorithms.linear.PoissonLearner;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.classify.experiments.Evaluation;
@@ -80,20 +81,15 @@ public class BayesClassifiersTest extends TestCase
 //TextBaseLabeler.label( labels, new File("my-document-labels.env"));
 
 // set up a simple bag-of-words feature extractor
-      edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe = new edu.cmu.minorthird.text.learn.SpanFeatureExtractor()
+      SpanFE fe = new SpanFE()
       {
-        public Instance extractInstance(TextLabels labels, Span s)
+        public void extractFeatures(TextLabels labels, Span s)
         {
-          edu.cmu.minorthird.text.learn.FeatureBuffer buf = new edu.cmu.minorthird.text.learn.FeatureBuffer(labels, s);
           try
-          { edu.cmu.minorthird.text.learn.SpanFE.from(s, buf).tokens().eq().lc().punk().usewords("examples/t1.words.text").emit(); }
+          { from(s).tokens().eq().lc().punk().usewords("examples/t1.words.text").emit(); }
           catch (IOException e)
           { log.error(e, e); }
           //SpanFE.from(s,buf).tokens().eq().lc().punk().stopwords("remove").emit();
-          return buf.getInstance();
-        }
-        public Instance extractInstance(Span s) {
-          return extractInstance(null,s);
         }
       };
 

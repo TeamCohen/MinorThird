@@ -144,51 +144,8 @@ public class SampleFE
 	}
 
 	/** A feature extractor that pre-loads a mixup file or some other type of annotation. */
-	public static abstract class AnnotatedSpanFE extends SpanFE implements Serializable
+	public static abstract class AnnotatedSpanFE extends SpanFE
 	{
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_VERSION_NUMBER = 1;
-
-		protected String requiredAnnotation = null;
-		protected String requiredAnnotationFileToLoad = null;
-
-		/** Specify an annotator to run before feature generation.
-		 */
-		public void setRequiredAnnotation(String requiredAnnotation) { this.requiredAnnotation=requiredAnnotation; }
-		public String getRequiredAnnotation() { return requiredAnnotation==null ? "" : requiredAnnotation; }
-
-
-		/** Specify an annotator to run before feature generation
-		 * and a mixup file/class that generates it simultaneously.
-		*/
-		public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider)
-		{
-			setRequiredAnnotation(requiredAnnotation);
-			setAnnotationProvider(annotationProvider);
-		}
-
-		/** Specify a mixup file or java class to use to provide the annotation.
-		 */
-		public void setAnnotationProvider(String classNameOrMixupFileName) {
-			this.requiredAnnotationFileToLoad = classNameOrMixupFileName;
-		}
-		public String getAnnotationProvider() {
-			return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad;
-		}
-
-		/** Make sure the required annotation is present. */
-		protected void requireMyAnnotation(TextLabels labels)
-		{
-			if (requiredAnnotation!=null) {
-				labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
-			}
-		}
-
-		/** Throws an error, since this sort of feature extractor requires labels. */
-		public void extractFeatures(Span s)
-		{
-//			throw new UnsupportedOperationException("need to pass in labels to this feature extractor");
-		}
 	}
 
 	/** Test case to try out the feature extractors

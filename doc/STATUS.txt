@@ -3,7 +3,6 @@ PRIORITIES:
  - update svmlib to get confidences?
  - clean up mixup loading, command-line interface (--learner.fe.windowSize bsh)
  - stderr on error rates/f1's
- - richard's bug
  - vitor's bug
 
 BUGS:

@@ -177,68 +177,9 @@ public class Recommended
 	// feature extractors
 	//
 
-	/** A feature extractor that pre-loads a mixup file or some other type of annotation. */
-	public static abstract class LabeledSpanFE extends SpanFE implements Serializable,CommandLineProcessor.Configurable
-	{
-		// for serialization
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_VERSION_NUMBER = 1;
-		// 'real' parameters
-		protected String requiredAnnotation = null;
-		protected String requiredAnnotationFileToLoad = null;
-		//
-		// programmatic interface for configuration
-		//
-		/** Simultaneously specify an annotator to run before feature
-		 * generation and a mixup file/class that generates it.
-		*/
-		public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider)
-		{
-			setRequiredAnnotation(requiredAnnotation);
-			setAnnotationProvider(annotationProvider);
-		}
-		//
-		// simple getter-setter interface for GUI configuration
-		//
-		/** Specify an annotator to run before feature generation. */
-		public void setRequiredAnnotation(String requiredAnnotation) { this.requiredAnnotation=requiredAnnotation; }
-		public String getRequiredAnnotation() { return requiredAnnotation==null ? "" : requiredAnnotation; }
-		/** Specify a mixup file or java class to use to provide the annotation. */
-		public void setAnnotationProvider(String classNameOrMixupFileName) {
-			this.requiredAnnotationFileToLoad = classNameOrMixupFileName;
-		}
-		public String getAnnotationProvider() {
-			return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad;
-		}
-		//
-		// command-line processor based configuration
-		//
-		public CommandLineProcessor getCLP() {
-			return new MyCLP();
-		}
-		public class MyCLP extends BasicCommandLineProcessor {
-			public void mixup(String annotation) { setRequiredAnnotation(annotation,annotation+".mixup");	};			
-		}
-		//
-		// the real code (ie not config code)
-		//
-		/** Make sure the required annotation is present. */
-		public void requireMyAnnotation(TextLabels labels)
-		{
-			if (requiredAnnotation!=null) {
-				labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
-			}
-		}
-		/** Throws an error, since this sort of feature extractor requires labels. */
-		final public void extractFeatures(Span s)
-		{
-			throw new UnsupportedOperationException("need to pass in labels to this feature extractor");
-		}
-	}
-
 	/** Simple bag-of-words feature extractor, with words being but in lower case.
 	 */
-	public static class DocumentFE extends LabeledSpanFE implements Serializable {
+	public static class DocumentFE extends SpanFE implements Serializable {
 		public void extractFeatures(TextLabels labels, Span s){
 			requireMyAnnotation(labels);
 			from(s).tokens().eq().lc().emit();
@@ -247,7 +188,7 @@ public class Recommended
 
 	/** An extraction-oriented feature extractor to apply to one-token spans.
 	 */
-	public static class TokenFE extends LabeledSpanFE implements CommandLineProcessor.Configurable,Serializable
+	public static class TokenFE extends SpanFE implements CommandLineProcessor.Configurable,Serializable
 	{
 		protected int windowSize=3;
 		protected boolean useCharType=false;
@@ -285,7 +226,7 @@ public class Recommended
 		//
 		public CommandLineProcessor getCLP() 
 		{
-			return new JointCommandLineProcessor( new CommandLineProcessor[]{	super.getCLP(),new MyCLP() } );
+			return new MyCLP();
 		}
 		public class MyCLP extends BasicCommandLineProcessor {
 			public void window(String s) { windowSize = StringUtil.atoi(s); System.out.println("window=>"+s);}

@@ -22,12 +22,12 @@ import org.apache.log4j.*;
 
 public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,SequenceConstants
 {
-	private static Logger log = Logger.getLogger(CollinsPerceptronLearner.class);
-	private static final boolean DEBUG = log.isDebugEnabled();
+	protected static Logger log = Logger.getLogger(CollinsPerceptronLearner.class);
+	protected static final boolean DEBUG = log.isDebugEnabled();
 
-	private int historySize;
-	private int numberOfEpochs;
-	private String[] history;
+	protected int historySize;
+	protected int numberOfEpochs;
+	protected String[] history;
 
 	public CollinsPerceptronLearner()
 	{

@@ -64,6 +64,20 @@ The name's an acronym for My Information eXtraction and Understanding Package.
 
 public class Mixup 
 {
+	/** Without constrains, the maximum number of times a mixup
+	 * expression can extract something from a document of length N is
+	 * O(N*N), since any token can be the begin or end of an extracted
+	 * span.  The maxNumberOfMatchesPerToken value limits this to
+	 * maxNumberOfMatchesPerToken*N.
+	 */
+	public static int maxNumberOfMatchesPerToken = 5;
+	/** Without constrains, the maximum number of times a mixup
+	 * expression can extract something from a document of length N is
+	 * O(N*N), since any token can be the begin or end of an extracted
+	 * span.  This limits the number of matches to a fixed number.
+	 */
+	public static int maxNumberOfMatches = 0;
+
 	private static final boolean DEBUG = false;
 
 	// tokenize: words, single-quoted strings, "&&", "||", "..." or single non-word chars
@@ -510,9 +524,19 @@ public class Mixup
 		{
 //      log.debug("span size: " + span.size() + " - " + span.asString());
 			// there are at most span.length^2 matches of every repeated primitive
+			log.debug("matching span id/size="+span.getDocumentId()+"/"+span.size());
+			log.debug("before alloc: max/free="+Runtime.getRuntime().maxMemory()+"/"+Runtime.getRuntime().freeMemory());
 			int maxRepeatedPrimMatches = span.size() * (span.size()+1);
+			if (maxNumberOfMatchesPerToken>0) {
+				maxRepeatedPrimMatches = Math.min(maxNumberOfMatchesPerToken*span.size(), maxRepeatedPrimMatches);
+			}
+			// also don't make maxRepeatedPrimMatches more than we can allocate
+			if (maxNumberOfMatches>0) {
+				maxRepeatedPrimMatches = maxNumberOfMatches;
+			}
 			int[] loIndexBuffer = new int[ maxRepeatedPrimMatches ];
 			int[] lengthBuffer = new int[ maxRepeatedPrimMatches ];
+			log.debug("alloc hi-lo: max/free="+Runtime.getRuntime().maxMemory()+"/"+Runtime.getRuntime().freeMemory()); 
 			// store possible places that repPrim[i] can match
 			int[][] possibleLos = new int[repPrim.length][];
 			int[][] possibleLens = new int[repPrim.length][];
@@ -520,6 +544,7 @@ public class Mixup
 			int[] minLen = new int[repPrim.length];
 			int[] maxLen = new int[repPrim.length];
 			boolean[] isAny = new boolean[repPrim.length];
+			log.debug("after alloc: max/free="+Runtime.getRuntime().maxMemory()+"/"+Runtime.getRuntime().freeMemory());
 			for (int i=0; i<repPrim.length; i++) {
 				// work out possible lengths for repPrim[i]
 				RepeatedPrim rp = repPrim[i];
@@ -537,8 +562,16 @@ public class Mixup
 					if (rp.type!=null) {
 						// look up matches from the labels
 						for (Span.Looper el=labels.instanceIterator(rp.type, span.getDocumentId()); el.hasNext(); ) {
+							if (numMatches>=maxRepeatedPrimMatches) {
+								log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
+								break;
+							}
 							Span s = el.nextSpan();
 							if (span.contains(s)) {
+								if (numMatches>=maxRepeatedPrimMatches) {
+									log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
+									break;
+								}
 								loIndexBuffer[numMatches] = s.documentSpanStartIndex()-span.documentSpanStartIndex();
 								lengthBuffer[numMatches] = s.size();
 								numMatches++;
@@ -550,6 +583,10 @@ public class Mixup
 						for (int j=0; j<=span.size(); j++) {
 							int topLen = Math.min(maxLen[i], span.size()-j);
 							for (int k=minLen[i]; k<=topLen; k++) {
+								if (numMatches>=maxRepeatedPrimMatches) {
+									log.warn("not enough room to store all matches: adjust Mixup.maxNumberOfMatches(PerToken)");
+									break;
+								}
 								if (rp.matchesSubspan(labels,span,j,k)) {
 									loIndexBuffer[numMatches] = j;
 									lengthBuffer[numMatches] = k;

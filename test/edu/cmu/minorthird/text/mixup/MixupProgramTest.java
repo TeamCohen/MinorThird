@@ -1,181 +1,204 @@
+/* Copyright 2003, Carnegie Mellon, All Rights Reserved */
+
 package edu.cmu.minorthird.text.mixup;
 
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.util.IOUtil;
-import edu.cmu.minorthird.util.Globals;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import edu.cmu.minorthird.util.gui.*;
+import junit.framework.*;
+import org.apache.log4j.*;
+import java.util.*;
+import java.io.*;
 
 /**
  *
- * This class is responsible for...
- *
- * @author ksteppe
+ * @author William Cohen
  */
-public class MixupProgramTest extends TestCase
+
+public class MixupProgramTest extends TestSuite 
 {
-  Logger log = Logger.getLogger(this.getClass());
-  private File simpleFile;
-  private File testData;
+	private static Logger log = Logger.getLogger(MixupProgramTest.class);
+	private static final boolean DEBUG = false;
 
-  private File dependFile;
-  private File dependExplict;
+	public MixupProgramTest(String name) { super(name); }
 
-  private File dependJava;
+	public static TestSuite suite() {
+		TestSuite suite = new TestSuite();
+		suite.addTest( new SimpleProgramTest() );
+		suite.addTest( new NestedProgramTest1() );
+		suite.addTest( new NestedProgramTest2() );
+		suite.addTest( new NestedProgramTest3() );
+		return suite;
+	}
+		
+	public static class AbstractProgramTest extends TestCase
+	{
+		protected MonotonicTextLabels labels;
+		protected final String testCaseDir="edu/cmu/minorthird/text/mixup/testcases";
+		protected final String sep = File.pathSeparator;
 
-  private MonotonicTextLabels labels;
-  private TextBase textBase;
+		public AbstractProgramTest(String  string) 
+		{ 
+			super(string); 
+			TextBase base = new BasicTextBase();
+			String trialDoc = contentsOfResourceFile(testCaseDir+"/seminar-official-news-2477.txt");
+			base.loadDocument("2477",trialDoc);
+			labels = new BasicTextLabels(base);
+		}
+		protected void checkTime(TextLabels labels)
+		{
+			// should be one time, "10:45 a.m."
+			Span.Looper i = labels.instanceIterator("extracted_time");
+			assertTrue( i.hasNext() );
+			assertEquals( "10:45 a.m.", i.nextSpan().asString() );
+			assertTrue( !i.hasNext() );
+		}
+		protected void checkRoom(TextLabels labels)
+		{
+			// should be one time, "1112"
+			Span.Looper i = labels.instanceIterator("extracted_room");
+			assertTrue( i.hasNext() );
+			assertEquals( "1112", i.nextSpan().asString() );
+			assertTrue( !i.hasNext() );
+		}
+		protected void checkDate(TextLabels labels)
+		{
+			//should contain two dates, "Tuesday", "Feb. 21" and one time, "10:45 a.m."
+			Span.Looper i = labels.instanceIterator("extracted_date");
+			assertTrue( i.hasNext() );
+			assertEquals( "Tuesday", i.nextSpan().asString() );
+			assertTrue( i.hasNext() );
+			assertEquals( "Feb. 21", i.nextSpan().asString() );
+			assertTrue( !i.hasNext() );
+		}
+		protected void checkName(TextLabels labels)
+		{
+			//should contain two names, Doherty Hall and Warren Baker
+			Span.Looper i = labels.instanceIterator("extracted_name");
+			assertTrue( i.hasNext() );
+			assertEquals( "Doherty\nHall", i.nextSpan().asString() );
+			assertTrue( i.hasNext() );
+			assertEquals( "Warren Baker", i.nextSpan().asString() );
+			assertTrue( !i.hasNext() );
+		}
+	}
 
-  /**
-   * Standard test class constructior for MixupProgramTest
-   * @param name Name of the test
-   */
-  public MixupProgramTest(String name)
-  {
-    super(name);
-    simpleFile = new File("lib/mixup/date.mixup");
-    testData = new File(Globals.DATA_DIR + "seminar-subset/cmu.andrew.official.career-center-1495_0");
+	/**  directly runs a mixup program which does not call anything else */
+	public static class SimpleProgramTest extends AbstractProgramTest
+	{
+		public SimpleProgramTest() { super("doTest"); }
+		public void doTest() throws Mixup.ParseException 
+		{
+			String testCaseDir="edu/cmu/minorthird/text/mixup/testcases";
+			String timeProgDef = contentsOfResourceFile(testCaseDir+"/xtime.mixup");
+			MixupProgram timeProg = new MixupProgram(timeProgDef);
+			TextBase base = new BasicTextBase();
+			String trialDoc = contentsOfResourceFile(testCaseDir+"/seminar-official-news-2477.txt");
+			base.loadDocument("2477",trialDoc);
+			MonotonicTextLabels labels = new BasicTextLabels(base);
+			timeProg.eval(labels,base);
+			if (DEBUG) new ViewerFrame("xtime result", new SmartVanillaViewer(labels));
+			checkTime(labels);
+		}
+	}
 
-    dependFile = new File("lib/mixup/names2.mixup");
-    dependExplict = new File("lib/mixup/names.mixup");
+	/** tests a mixup program which requires another mixup program using
+	 * an EncapsulatingAnnotatorLoader */
+	public static class NestedProgramTest1 extends AbstractProgramTest
+	{
+		public NestedProgramTest1() { super("doTest"); }
+		public void doTest() throws Mixup.ParseException 
+		{
+			String testCaseDir="edu/cmu/minorthird/text/mixup/testcases";
+			String sep = File.pathSeparator;
+			TextBase base = new BasicTextBase();
+			String trialDoc = contentsOfResourceFile(testCaseDir+"/seminar-official-news-2477.txt");
+			base.loadDocument("2477",trialDoc);
+			MonotonicTextLabels labels = new BasicTextLabels(base);
+			EncapsulatingAnnotatorLoader eal = 
+				new EncapsulatingAnnotatorLoader(false,testCaseDir+"/xtime.mixup" + sep + testCaseDir+"/xdate.mixup");
+			labels.setAnnotatorLoader( eal );
+			MixupProgram callingProgram = new MixupProgram("require 'xdate';");
+			callingProgram.eval(labels,base);
+			if (DEBUG) new ViewerFrame("xdate result", new SmartVanillaViewer(labels));
+			checkTime(labels);
+			checkDate(labels);
+		}
+	}
 
-//    dependJava = new File("lib/mixup/getNames.mixup");
-  }
+	/** tests a mixup program which requires another mixup program 
+	 * that's loaded from the classpath.  This requires 'time.mixup'
+	 * to be on the classpath.
+	 */
+	public static class NestedProgramTest2 extends AbstractProgramTest
+	{
+		public NestedProgramTest2() { super("doTest"); }
+		public void doTest() throws Mixup.ParseException 
+		{
+			try {
+				InputStream trialStream = this.getClass().getClassLoader().getResourceAsStream("time.mixup");
+				if (trialStream==null) throw new IllegalStateException("null stream returned by getResourceAsStream");
+			} catch (Exception e) {
+				log.warn("NestedProgramTest2 not run because couldn't find time.mixup on classpath.\nReason was: "+e);
+				return;
+			}
+			String testCaseDir="edu/cmu/minorthird/text/mixup/testcases";
+			String sep = File.pathSeparator;
+			TextBase base = new BasicTextBase();
+			String trialDoc = contentsOfResourceFile(testCaseDir+"/seminar-official-news-2477.txt");
+			base.loadDocument("2477",trialDoc);
+			MonotonicTextLabels labels = new BasicTextLabels(base);
+			EncapsulatingAnnotatorLoader eal = 
+				new EncapsulatingAnnotatorLoader(false,testCaseDir+"/ydate.mixup");
+			labels.setAnnotatorLoader( eal );
+			MixupProgram callingProgram = new MixupProgram("require 'ydate';");
+			callingProgram.eval(labels,base);
+			if (DEBUG) new ViewerFrame("ydate result", new SmartVanillaViewer(labels));
+			checkTime(labels);
+			checkDate(labels);
+		}
+	}
 
-  /**
-   * Convinence constructior for MixupProgramTest
-   */
-  public MixupProgramTest()
-  {
-    this("MixupProgramTest");
-  }
+	/** tests mixup zall that requires xdate (which requires xtime) and
+	 * a java class RoomNumber which provides rooms.  the compiled class
+	 * file for RoomNumber should be kept in the testcases directory.
+	 */
+	public static class NestedProgramTest3 extends AbstractProgramTest
+	{
+		public NestedProgramTest3() { super("doTest"); }
+		public void doTest() throws Mixup.ParseException 
+		{
+			EncapsulatingAnnotatorLoader eal = 
+				new EncapsulatingAnnotatorLoader(
+					false,
+					testCaseDir+"/zall.mixup" +sep +testCaseDir+"/xdate.mixup" +sep +testCaseDir+"/xtime.mixup"
+					+sep +testCaseDir+"/RoomNumber.class");
+			labels.setAnnotatorLoader( eal );
+			labels.require("zall",null);
+			if (DEBUG) new ViewerFrame("zall result", new SmartVanillaViewer(labels));
+			checkTime(labels);
+			checkDate(labels);
+			checkRoom(labels);
+			checkName(labels);
+		}
+	}
 
-  /**
-   * setUp to run before each test
-   */
-  protected void setUp()
-  {
-    try
-    {
-      Logger.getRootLogger().removeAllAppenders();
-      org.apache.log4j.BasicConfigurator.configure();
-      log.setLevel(Level.DEBUG);
-
-      //load text base and get fresh labels
-      log.debug("testData: " + testData);
-
-//      this.textBase = new BasicTextBase();
-//      TextBaseLoader loader = new TextBaseLoader();
-//      loader.loadTaggedFile(this.testData, null, textBase);
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
-      loader.setLabelsInFile(true);
-      textBase = loader.load(this.testData);
-
-
-      labels = new BasicTextLabels(textBase);
-
-
-    }
-    catch (Exception e)
-    {
-      log.error(e, e);  //To change body of catch statement use Options | File Templates.
-      fail();
-    }
-
-
-  }
-
-  /**
-   * clean up to run after each test
-   */
-  protected void tearDown()
-  {
-    //TODO clean up resources if needed
-  }
-
-  /**
-   * Base test for MixupProgramTest
-   */
-  public MixupProgram fromFile(File f) throws Mixup.ParseException, IOException, FileNotFoundException
-  {
-    return new MixupProgram(f);
-  }
-
-  public MixupProgram fromString(File f) throws IOException, Mixup.ParseException
-  {
-	  return new MixupProgram(new String(IOUtil.readFile(f)));
-  }
-
-  /** run the mixup in "code" and put the results in "outFile" */
-  public void runCode(File code, File outFile)
-  {
-    try
-    {
-      log.debug("loading mixup from " + code);
-      MixupProgram program = fromFile(code);
-      program.eval(labels, textBase);
-
-      setUp();
-      program = fromString(code);
-      program.eval(labels, textBase);
-
-	    new TextLabelsLoader().saveTypesAsOps(labels, outFile);
-    }
-    catch (Exception e)
-    {
-      log.error(e, e);
-      fail();
-    }
-
-  }
-
-  public void testSimple()
-  {
-    log.debug("test Simple");
-    runCode(simpleFile, new File(Globals.DATA_DIR + "simpleTest.out"));
-  }
-
-  public void testCodeWithDependencies()
-  {
-    log.debug("Depend File");
-    runCode(dependFile, new File(Globals.DATA_DIR + "depend.out"));
-  }
-
-  public void testCodeWithExplicitDependency()
-  {
-    log.debug("Depend Explicit");
-    runCode(dependExplict, new File(Globals.DATA_DIR + "dependExplicit.out"));
-  }
-
-//  public void testCodeWithJavaDependency()
-//  {
-//    log.debug("Depend Java");
-//    runCode(dependJava, new File("dependJava.out"));
-//  }
+	static private String contentsOfResourceFile(String fileName)
+	{
+		try {
+			InputStream s = MixupProgramTest.class.getClassLoader().getResourceAsStream(fileName);
+			if (s==null) throw new IllegalStateException("can't find resouce "+fileName);
+			byte[] buf = new byte[s.available()];
+			s.read(buf);
+			s.close();
+			return new String(buf);
+		} catch (IOException ex) {
+			throw new IllegalStateException("couldn't find resouce '"+fileName+"': "+ex);
+		}
+	}
 
 
-  /**
-   * Creates a TestSuite from all testXXX methods
-   * @return TestSuite
-   */
-  public static Test suite()
-  {
-    return new TestSuite(MixupProgramTest.class);
-  }
-
-  /**
-   * Run the full suite of tests with text output
-   * @param args - unused
-   */
-  public static void main(String args[])
-  {
-    junit.textui.TestRunner.run(suite());
-  }
+	static public void main(String[] argv) 
+	{
+		junit.textui.TestRunner.run(suite());
+	}
 }

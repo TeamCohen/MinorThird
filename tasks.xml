@@ -12,13 +12,12 @@
 
 
 <path id="classpath">
-  <fileset dir="${jarsDir}">
-    <include name="**/*.jar"/>
-  </fileset>
   <pathelement location="${classDir}"/>
   <pathelement location="config"/>
   <pathelement location="lib/mixup"/>
-  
+  <fileset dir="${jarsDir}">
+    <include name="**/*.jar"/>
+  </fileset>
 </path>
 
 <target name="init">
@@ -28,10 +27,14 @@
   <mkdir dir="${classDir}"/>
 </target>
 
-<target name="build" depends="init"
+<target name="build" depends="init, copy-testcases"
   description="build the source ">
   <!-- Compile the java code from ${src} into ${classDir} -->
   <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
+</target>
+
+<target name="copy-testcases" description="copy files from testcase directory into class directory">
+  <copy todir="${classDir}"><fileset dir="test" includes="**/testcases/**"/></copy>
 </target>
 
 <target name="build-Names" depends="init"
@@ -39,6 +42,8 @@
   <!-- Compile the java code from ${src} into ${classDir} -->
   <javac srcdir="apps/Names/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
 </target>
+
+<target name="build-tests" depends="build-test" description="alias for build-test"/>
 
 <target name="build-test" depends="init, build">
   <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
@@ -50,7 +55,6 @@
   <javac srcdir="${src}" destdir="${classDir}" debug="on" 
   	includes="edu/cmu/minorthird/util/**" classpathref="classpath"/>
 </target>
-
 
 <target name="build-classify" depends="init"
   description="build the edu.cmu.minorthird.classify source ">
@@ -91,6 +95,7 @@
 </target>
 
 <target name="javadocs" depends="javadoc" description="alias for ant javadocs"/>
+
 <target name="javadoc" description="rebuild java docs">
   <delete dir="${javadoc}"/>
   <mkdir dir="${javadoc}/edu/cmu/minorthird/"/>
@@ -111,9 +116,9 @@
 <!--  <mkdir dir="${testRootDir}"/> -->
   <junit printsummary="yes" haltonfailure="no">
     <!--<jvmarg value="-Xmx512m"/>-->
-    <classpath>
-      <path refid="classpath"/>
-    </classpath>
+<!--  not sure why, but new MixupProgramTest doesn't work with the local classpath... 
+    <classpath><path refid="classpath"/></classpath>
+-->
     <formatter type="plain"/>
 
     <batchtest fork="no" todir="${reportsDir}">
@@ -135,8 +140,7 @@
         <exclude name="**/SimpleTextLoaderTest.class"/>
 
         <!-- long running time (>5 seconds) -->
-<!--        <exclude name="**/POSTaggerTest.class"/> -->
-       <exclude name="**/MixupProgramTest.class"/>
+<!--      <exclude name="**/MixupProgramTest.class"/>  -->
 
         <!-- even longer running time (>20 secs) -->
         <exclude name="**/TextBaseLoaderTest.class"/>

@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * <code><pre>
  *   SpanFE fe = new SpanFE(labels) {
  *       public void extractFeatures(Span span) {
-e *         from(span).tokens().emit();
+ *         from(span).tokens().emit();
  *         from(span).left().subSpan(-2,2).emit();
  *         from(span).right().subSpan(0,2).emit();
  *         from(span).right().contains("obj").emit();
@@ -68,21 +68,28 @@ e *         from(span).tokens().emit();
  * @author William Cohen
  */
 
-abstract public class SpanFE implements SpanFeatureExtractor
+abstract public class SpanFE implements SpanFeatureExtractor, Serializable
 {
+	// for serialization
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
+
 	/** Store features as binary, whenever possible, even if occurence counts are ignored. */
 	static public final int STORE_AS_BINARY=1;
-
 	/** Store features as numeric counts, whenever possible */ 
 	static public final int STORE_AS_COUNTS=2;
-
 	/** Store features as binary or counts, trying to reduce storage while maintaining information. */ 
 	static public final int STORE_COMPACTLY=3;
 
 	private int featureStoragePolicy = STORE_AS_COUNTS;
-	private TextLabels textLabels = new EmptyLabels();
-	protected MutableInstance instance;
+
+	// buffers for intermediate results & inputs in feature extraction
+	transient protected MutableInstance instance;
+	transient private TextLabels textLabels = new EmptyLabels();
 	
+	protected String requiredAnnotation = null;
+	protected String requiredAnnotationFileToLoad = null;
+
 	/** Create a feature extractor */
 	public SpanFE()
 	{
@@ -98,6 +105,52 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	public void setFeatureStoragePolicy(int p)
 	{
 		this.featureStoragePolicy = p;
+	}
+
+	/** Simultaneously specify an annotator to run before feature
+	 * generation and a mixup file or class that generates it.
+	 */
+	public void setRequiredAnnotation(String requiredAnnotation,String annotationProvider)
+	{
+		setRequiredAnnotation(requiredAnnotation);
+		setAnnotationProvider(annotationProvider);
+	}
+
+	//
+	// simpler getter-setter interface, e.g. for GUI configuration
+	//
+
+	/** Specify an annotator to run before feature generation. */
+	public void setRequiredAnnotation(String requiredAnnotation) 
+	{ 
+		this.requiredAnnotation=requiredAnnotation; 
+	}
+	public String getRequiredAnnotation() 
+	{ 
+		return requiredAnnotation==null ? "" : requiredAnnotation; 
+	}
+
+	/** Specify a mixup file or java class to use to provide the annotation. 
+	 */
+	public void setAnnotationProvider(String classNameOrMixupFileName) 
+	{
+		this.requiredAnnotationFileToLoad = classNameOrMixupFileName;
+	}
+	public String getAnnotationProvider() 
+	{
+		return requiredAnnotationFileToLoad==null? "" : requiredAnnotationFileToLoad;
+	}
+
+	//
+	// preprocessing for extraction
+	//
+
+	/** Make sure the required annotation is present. */
+	public void requireMyAnnotation(TextLabels labels)
+	{
+		if (requiredAnnotation!=null) {
+			labels.require(requiredAnnotation,requiredAnnotationFileToLoad);
+		}
 	}
 
 	//
@@ -130,29 +183,6 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	final public SpanResult from(Span s)
 	{
 		return new SpanResult(new String[0], this, s);
-	}
-
-	/** Starts a 'pipeline' of extraction steps, and
-	 * adds the resulting features to the instance being built. 
-	 *
-	 * <p> This is intended to be used as an alternative to using the
-	 * SpanFE class to build an Span2Instance converter, eg
-	 * <pre><code>
-	 * fe = new Span2Instance() { 
-	 *   public extractInstance(Span s) {
-	 *     FeatureBuffer buf = new FeatureBuffer(s);
-	 *     SpanFE.from(s,buf).tokens().emit(); 
-	 *     SpanFE.from(s,buf).left().subspan(-2,2).emit(); 
-	 *     SpanFE.from(s,buf).right().subspan(0,2).emit(); 
-	 *     buf.getInstance();
-	 *   }
-	 * }
-	 *</code></pre>
-	 * 
-	 */
-	final static public SpanResult from(Span s, FeatureBuffer buffer)
-	{
-		return new SpanResult(new String[0], buffer, s);
 	}
 
 	/** Called by some SpanFE.Result subclasses when a 'pipeline' of
@@ -205,8 +235,12 @@ abstract public class SpanFE implements SpanFeatureExtractor
 	/** Implement this with a specific set of SpanFE 'pipelines'.
 	 * Each pipeline will typically start with 'start(span)'
 	 * and end with 'emit()'.
+	 *
 	 */
-	abstract public void extractFeatures(Span span);
+	public void extractFeatures(Span span)
+	{
+		throw new IllegalStateException("you probably meant to use extractFeatures(labels,span) instead");
+	}
 
 	/** Implement this with a specific set of SpanFE 'pipelines'.
 	 * Each pipeline will typically start with 'start(span)'
@@ -585,7 +619,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
 			return new StringBagResult( extend("stopwords-"+action), fe, swBag );
 		}
 
-		// Use ONLY words in Dictionary File
+		/** Use ONLY words in Dictionary File. */
 		public StringBagResult usewords(String filename) throws IOException {
 			Bag uwBag = new Bag();
 			for (Iterator i=bag.iterator(); i.hasNext(); ) {
@@ -604,30 +638,6 @@ abstract public class SpanFE implements SpanFeatureExtractor
 				}
 			}
 			return new StringBagResult( extend("usewords"), fe, uwBag );
-		}
-	}
-
-
-	public static void main(String[] args) 
-	{
-		TextLabels labels = SampleTextBases.getGuessLabels();
-		SpanFE fe = new SpanFE() {
-				public void extractFeatures(Span span) {
-					extractFeatures(null,span);
-				}
-				public void extractFeatures(TextLabels labels,Span span) {
-					from(span).tokens().emit();
-					from(span).left().subSpan(-2,2).emit();
-					from(span).right().subSpan(0,2).emit();
-					from(span).right().contains("obj").emit();
-				}
-			};
-		for (Span.Looper j = labels.instanceIterator(args[0]); j.hasNext(); ) {
-			Span s = j.nextSpan();
-			String doc = s.documentSpan().asString();
-			String phrase = s.asString();
-			System.out.println("For '"+phrase+"' in '"+doc+"':");
-			System.out.println(fe.extractInstance(s));
 		}
 	}
 }
