@@ -70,7 +70,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner
    *
    * use the setParameterXXX methods to adjust them
    */
-  private void initParameters()
+  protected void initParameters()
   {
     parameters = new svm_parameter();
     // default values
