@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.io.File;
 
 import org.apache.log4j.Logger;
 
@@ -93,6 +94,7 @@ public class TextBaseViewer extends JComponent
     truthBox = new JComboBox();
     //truthBox.setEditable(false);
     truthBox.addItem(NULL_TRUTH_ENTRY);
+    log.debug("types: " + labels.getTypes());
     for (Iterator i = labels.getTypes().iterator(); i.hasNext();)
     {
       truthBox.addItem(i.next().toString());
@@ -745,6 +747,13 @@ public class TextBaseViewer extends JComponent
                 //labels = edu.cmu.minorthird.text.ann.TestExtractionProblem.getLabels();
                 //base = labels.getTextBase();
                 //SampleTextBases.showLabels(labels);
+            }
+            else if (args.length == 2)
+            {
+              labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
+              base = labels.getTextBase();
+              System.out.println(labels.toString());
+              System.in.read();
             }
             else
             {

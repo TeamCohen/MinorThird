@@ -65,7 +65,7 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
                 File f = new File(args[0]);
                 if (f.isDirectory())
                 {
-                    guessLabels = truthLabels = TextBaseLoader.loadDirOfTaggedFiles(f);
+                  guessLabels = truthLabels = TextBaseLoader.loadDirOfTaggedFiles(f);
                   base = guessLabels.getTextBase();
                 }
                 else

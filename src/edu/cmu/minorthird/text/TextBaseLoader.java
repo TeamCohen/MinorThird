@@ -95,7 +95,7 @@ public class TextBaseLoader implements Loader
    *  IN_FILE will generate an id from the first word on the line
    * if loading one doc per file then must be FILE_NAME (assumed)
    */
-  private int docIdSourceType = FILE_NAME; //TODO longer name
+  private int docIdSourceType = FILE_NAME;
 
   /**
    * where do we find a groupID
@@ -133,6 +133,7 @@ public class TextBaseLoader implements Loader
   private String curCatID;
   private Pattern markupPattern = Pattern.compile("</?([^ ><]+)( [^<>]+)?>");
   private ArrayList stack; //xml tag stack
+  private List spanList;
 
   //------------------ Statics ------------------------------------------------------------
   /**
@@ -395,6 +396,7 @@ public class TextBaseLoader implements Loader
    */
   private void loadFile(File file) throws IOException, ParseException
   {
+    log.debug("loadFile: " + file.getName());
     //get input reader
     BufferedReader in;
     //build the correct reader
@@ -416,7 +418,7 @@ public class TextBaseLoader implements Loader
       curGrpID = file.getName();
 
     //list of labeled spans if internally tagged
-    List spanList = new ArrayList();
+    spanList = new ArrayList();
 
     //buffer of lines in file
     StringBuffer buf = new StringBuffer();
@@ -460,8 +462,8 @@ public class TextBaseLoader implements Loader
    */
   private void addDocument(String docText)
   {
-    if (log.isDebugEnabled())
-      log.debug("add doc (" + curDocID + ") " + docText);
+//    if (log.isDebugEnabled())
+//      log.debug("add doc (" + curDocID + ") " + docText);
 
     textBase.loadDocument(curDocID, docText);
     if (curGrpID != null)
@@ -470,6 +472,17 @@ public class TextBaseLoader implements Loader
     //label document as this category
     if (curCatID != null)
       labels.addToType(textBase.documentSpan(curDocID), curCatID);
+
+    for (Iterator j=spanList.iterator(); j.hasNext(); ) {
+      CharSpan charSpan = (CharSpan)j.next();
+//      types.add( charSpan.type ); unused
+      Span approxSpan = textBase.documentSpan(curDocID).charIndexSubSpan(charSpan.lo, charSpan.hi);
+      log.debug("approximating "+charSpan.type+" span '"
+                + docText.substring(charSpan.lo,charSpan.hi)
+                +"' with token span '"+approxSpan);
+      labels.addToType( approxSpan, charSpan.type );
+    }
+    new TextLabelsLoader().closeLabels( labels, closurePolicy );
   }
 
   /**
@@ -844,7 +857,8 @@ public class TextBaseLoader implements Loader
 		try {
 			TextBase b; // = new BasicTextBase();
 			TextBaseLoader loader = new TextBaseLoader();
-			File f = new File(args[0]);
+
+      File f = new File(args[0]);
 			if (f.isDirectory()) {
 				b = TextBaseLoader.loadDirOfTaggedFiles(f).getTextBase();
 			} else {
@@ -853,6 +867,7 @@ public class TextBaseLoader implements Loader
 			loader.writeSerialized(b, new File(args[1]));
 		} catch (Exception e) {
 			e.printStackTrace();
+
 		}
 	}
 
