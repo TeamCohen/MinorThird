@@ -235,6 +235,8 @@ public class ExperimentWizard extends NullWizardPanel
       TextBaseLoader loader = (TextBaseLoader)viewerContext.get("Loader");
       File trainDataFile = (File)viewerContext.get("trainDataFile");
 
+//     base = loader.load(trainDataFile);
+
       if (trainDataFile.isDirectory())
         loader.loadTaggedFiles(base, trainDataFile);
       else
@@ -245,6 +247,7 @@ public class ExperimentWizard extends NullWizardPanel
       File testDataFile = (File)viewerContext.get("testDataFile");
       if (testDataFile != null)
         loader.loadFile(testBase, testDataFile);
+//       testBase = loader.load(testDataFile);
 
       //get the text labels
       File labelsFile = (File)viewerContext.get("labelsFile");

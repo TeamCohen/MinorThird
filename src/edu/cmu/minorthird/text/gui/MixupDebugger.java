@@ -344,9 +344,8 @@ public class MixupDebugger extends JComponent
         base = FancyLoader.loadTextBase(textBaseId);
       else
       {
-        TextBaseLoader loader = new TextBaseLoader();
-        base = new BasicTextBase();
-        loader.loadFileWithID(base, new File(fileName), fileName);
+        TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE);
+        base = loader.load(new File(fileName));
       }
 
 			MixupDebugger debugger =

@@ -61,18 +61,17 @@ public class TextBaseLabeler extends TrackedTextBaseComponent
             }
             else
             {
-                TextBaseLoader baseLoader = new TextBaseLoader();
-                baseLoader.setFirstWordIsDocumentId(true);
                 base = new BasicTextBase();
                 File f = new File(args[0]);
                 if (f.isDirectory())
                 {
-                    baseLoader.loadTaggedFiles(base, f);
-                    guessLabels = truthLabels = baseLoader.getLabels();
+                    guessLabels = truthLabels = TextBaseLoader.loadDirOfTaggedFiles(f);
+                  base = guessLabels.getTextBase();
                 }
                 else
                 {
-                    baseLoader.loadLines(base, f);
+                  base = TextBaseLoader.loadDocPerLine(f, false);
+//                    baseLoader.loadLines(base, f);
                 }
                 if (args.length >= 2)
                 {

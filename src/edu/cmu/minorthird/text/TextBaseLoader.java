@@ -562,7 +562,7 @@ public class TextBaseLoader implements Loader
    * Directory is assumed to be tagged files
    * Single file assumed not to be tagged
    *
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
    */
 	public void loadFile(TextBase base,File file) throws IOException,FileNotFoundException
 	{
@@ -576,7 +576,7 @@ public class TextBaseLoader implements Loader
 
 	/** Load files from a directory, stripping out any XML/SGML tags.
    *
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
    *
    */
 	public void loadTaggedFiles(TextBase base,File dir) throws IOException,FileNotFoundException
@@ -597,7 +597,7 @@ public class TextBaseLoader implements Loader
 	}
 
   /**
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
    */
   public void loadTaggedFile(File file, Pattern markupPattern, TextBase base) throws IOException
   {
@@ -652,7 +652,7 @@ public class TextBaseLoader implements Loader
 	 * If firstWordIsDocumentId is set to be true, then the first token on
 	 * a line is the documentId.
    *
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
 	 */
   public void loadLines(TextBase base, File file) throws IOException, FileNotFoundException
   {
@@ -699,7 +699,7 @@ public class TextBaseLoader implements Loader
 	 * @param base TextBase to load into
 	 * @param directory File representation of directory
    *
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
    *
 	 */
 	public void loadDir(TextBase base, File directory)
@@ -734,7 +734,7 @@ public class TextBaseLoader implements Loader
 	 * @param base TextBase to load into
 	 * @param dir File representation of dir to use as the base
    *
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
    *
 	 */
 	public void loadLabeledDir(TextBase base, File dir)
@@ -778,7 +778,7 @@ public class TextBaseLoader implements Loader
 	 * @param file File to load from
    * @param id ID to be given to the document
    *
-   * will soon be deprecated; to be removed at end of February
+   * @deprecated; to be removed at end of February
    *
 	 */
 	public void loadFileWithID(TextBase base, File file, String id) throws IOException
@@ -802,13 +802,13 @@ public class TextBaseLoader implements Loader
 		if (args.length<2)
 			throw new IllegalArgumentException("usage: TextBaseLoader [file.txt|dir] output.seqbase");
 		try {
-			TextBase b = new BasicTextBase();
+			TextBase b; // = new BasicTextBase();
 			TextBaseLoader loader = new TextBaseLoader();
 			File f = new File(args[0]);
 			if (f.isDirectory()) {
-				loader.loadTaggedFiles(b, f);
+				b = TextBaseLoader.loadDirOfTaggedFiles(f).getTextBase();
 			} else {
-				loader.loadLines(b, f);
+				b = TextBaseLoader.loadDocPerLine(f, false);
 			}
 			loader.writeSerialized(b, new File(args[1]));
 		} catch (Exception e) {
