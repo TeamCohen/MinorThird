@@ -225,7 +225,7 @@ public class CRFLearner implements BatchSequenceClassifierLearner,SequenceConsta
 		classIndex = Integer.parseInt(fname.substring(dotPos+1));
 		if ((dotPos < 0) || (classIndex > numClasses-1)) 
 		    throw new Exception("Feature name does not end with a valid class index");
-		w_t[classIndex].increment(Feature.Factory.getFeature(fname.substring(0,dotPos)),crfWs[fIndex]);
+		w_t[classIndex].increment(new Feature(fname.substring(0,dotPos)),crfWs[fIndex]);
 	    }
 	    classifier = new GenericCollinsLearner.MultiClassClassifier(schema,w_t); 
 	    // return new CMM(classifier, 1, schema );	 

@@ -61,7 +61,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 		double posWeight=0,negWeight=0;
 		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
 			Example example = i.nextExample();
-			if (((BinaryExample)example).getNumericLabel()>0) posWeight += example.getWeight();
+			if (example.getLabel().numericScore()>0) posWeight += example.getWeight();
 			else negWeight += example.getWeight();
 		}
 
@@ -84,7 +84,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 			Map numericMap = new TreeMap();
 			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
 				Example example = i.nextExample();
-				if (((BinaryExample)example).getNumericLabel()>0) totalPosWeight += example.getWeight();
+				if (example.getLabel().numericScore()>0) totalPosWeight += example.getWeight();
 				else totalNegWeight += example.getWeight();					
 				for (Feature.Looper j=example.binaryFeatureIterator(); j.hasNext(); ) {
 					Feature f = j.nextFeature();
@@ -169,7 +169,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 		// update stats for this example, assuming it's weight is nonzero
 		public void update(Example example)
 		{
-			if (((BinaryExample)example).getNumericLabel()>0) pos += example.getWeight();
+			if (example.getLabel().numericScore()>0) pos += example.getWeight();
 			else neg += example.getWeight();
 		}
 		// value of splitting on this feature
@@ -209,7 +209,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 			BinaryFeatureStats bfs = (BinaryFeatureStats)map.get( key );
 			if (bfs==null) map.put( key, (bfs = new BinaryFeatureStats()) );
 			bfs.update( example );
-			if (((BinaryExample)example).getNumericLabel()>0) posNonZero += example.getWeight();
+			if (example.getLabel().numericScore()>0) posNonZero += example.getWeight();
 			else negNonZero += example.getWeight();
 		}
 

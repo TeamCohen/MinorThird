@@ -23,6 +23,8 @@ public abstract class AbstractInstance implements Instance, Visible
 	public double getWeight() { return weight; }
 
   /** Retrieve Viewer for the instance */
-  public Viewer toGUI()
-	{ return new GUI.InstanceViewer(this); }
+  public Viewer toGUI()	
+	{ 
+		return new GUI.InstanceViewer(this); 
+	}
 }

@@ -164,7 +164,7 @@ abstract public class SpanFE implements SpanFeatureExtractor
     for (Iterator i = result.asBag().iterator(); i.hasNext();)
     {
       String s = (String)i.next();
-      Feature f = Feature.Factory.getFeature(result.extend(s)); //new Feature(result.extend(s));
+      Feature f = new Feature(result.extend(s));
       if (featureStoragePolicy == STORE_AS_BINARY)
       {
         instance.addBinary(f);

@@ -49,7 +49,7 @@ public class QueryByCommittee implements ClassifierLearner
 		reset();
 	}
 
-	public void reset()
+	final public void reset()
 	{
 		unlabeled = new TreeMap();
 		labeled = new RandomAccessDataset();
@@ -129,6 +129,11 @@ public class QueryByCommittee implements ClassifierLearner
 		log.info("adding example: "+example);
 		labeled.add(example);
 		innerLearner.addExample(example);
+	}
+
+	final public void completeTraining() 
+	{ 
+		innerLearner.completeTraining();
 	}
 
 	//

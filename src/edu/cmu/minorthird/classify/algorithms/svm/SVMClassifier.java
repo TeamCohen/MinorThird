@@ -7,6 +7,8 @@ import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
 
+import java.io.*;
+
 /**
  * SVMClassifier wrapps the prediction code from the libsvm library
  * It implements the Classifier interface so that using libsvm should be identical
@@ -25,7 +27,6 @@ public class SVMClassifier implements Classifier
 
     double prediction = svm.svm_predict(model, nodeArray);
     return ClassLabel.binaryLabel(prediction);
-
   }
 
   public String explain(Instance instance)

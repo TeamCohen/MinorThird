@@ -32,7 +32,7 @@ public class UI
 
 	private static final Class[] SELECTABLE_TYPES = new Class[]{
 		DataClassificationTask.class, 
-		KnnLearner.class, NaiveBayes.class, LogisticRegressor.class, 
+		KnnLearner.class, NaiveBayes.class, 
 		VotedPerceptron.class,	SVMLearner.class,
 		DecisionTreeLearner.class, AdaBoost.class,
 		BatchVersion.class, TransformingBatchLearner.class,

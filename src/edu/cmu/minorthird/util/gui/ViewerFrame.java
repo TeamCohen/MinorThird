@@ -1,6 +1,6 @@
 package edu.cmu.minorthird.util.gui;
 
-import edu.cmu.minorthird.util.IOUtil;
+import edu.cmu.minorthird.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +24,8 @@ public class ViewerFrame extends JFrame
 {
 	private Viewer myViewer = null;
 	private String myName = null;
+	private JMenuItem saveItem = null;
+
 	private static class StackFrame {
 		public Viewer view; 
 		public String name;
@@ -98,18 +100,22 @@ public class ViewerFrame extends JFrame
 			});
 
 
-		JMenuItem saveItem = new JMenuItem("Save as ...");
+		saveItem = new JMenuItem("Save as ...");
 		menu.add(saveItem);
 		saveItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
 					Object content = myViewer.getContent();
-					//System.out.println("saving object of type "+content.getClass());
-					if (content instanceof Serializable) {
+					System.out.println("saving object of type "+content.getClass());
+					if (content instanceof Saveable || content instanceof Serializable) {
 						JFileChooser chooser = new JFileChooser();
 						int returnVal = chooser.showSaveDialog(ViewerFrame.this);
 						if (returnVal==JFileChooser.APPROVE_OPTION) {
 							try {
-								IOUtil.saveSerialized((Serializable)content, chooser.getSelectedFile());
+								if (content instanceof Saveable) {
+									((Saveable) content).saveAs( chooser.getSelectedFile() );
+								} else {
+									IOUtil.saveSerialized((Serializable)content, chooser.getSelectedFile());
+								}
 							} catch (Exception ex) {
 								JOptionPane.showMessageDialog(
 									ViewerFrame.this,

@@ -54,6 +54,8 @@ public class NumericDemo
       //Classes which implement Visible have a toGUI() method which produces a Viewer component.
       //The ViewerFrame - obviously - displays the Viewer component
       ViewerFrame frame = new ViewerFrame("numeric demo", eval.toGUI());
+
+			eval.save(new File("demo.eval.gz"));
     }
     catch (IOException e)
     {

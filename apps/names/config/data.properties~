@@ -3,12 +3,12 @@
 # 
 
 #dirctory in which raw data is storeds
-#edu.cmu.minorthird.wcohen.dataDir=./data
-#edu.cmu.minorthird.dataDir=C:/Documents and Settings/wcohen/My Documents/minorthirdData
-edu.cmu.minorthird.dataDir=/usr1/klinger/prep-data/
+edu.cmu.minorthird.dataDir=C:/Documents and Settings/wcohen/My Documents/minorthirdData
+#edu.cmu.minorthird.dataDir=/usr1/klinger/prep-data/
 
 #directory in which results of handlabeling data are storeds
-edu.cmu.minorthird.labelDir=/usr1/klinger/prep-data/
+edu.cmu.minorthird.labelDir=C:/Documents and Settings/wcohen/My Documents/minorthirdData
+#edu.cmu.minorthird.labelDir=/usr1/klinger/prep-data/
 
 #directory for data 'scripts' - bean shell scripts that load something or other
 edu.cmu.minorthird.scriptDir=./lib/loaders

@@ -98,7 +98,7 @@ public class T1InstanceTransform implements InstanceTransform {
     for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
       Example e = i.nextExample();
       Instance mi = new MaskedInstance( e.asInstance(),availableFeatures );
-      Example ex = new BinaryExample( mi,e.getLabel() );
+      Example ex = new Example( mi,e.getLabel() );
       maskeDataset.add( ex );
     }
     return maskeDataset;

@@ -3,7 +3,6 @@
 package edu.cmu.minorthird.text.mixup;
 
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.util.SimpleTextLoader;
 import edu.cmu.minorthird.util.ProgressCounter;
 import org.apache.log4j.Logger;
 
@@ -601,7 +600,7 @@ public class MixupProgram
 			MixupProgram program = new MixupProgram(new File(args[0]));
 			System.out.println("program:\n" + program.toString());
 			if (args.length>1) {
-				MonotonicTextLabels labels = (MonotonicTextLabels)SimpleTextLoader.load(args[1], false);
+				MonotonicTextLabels labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
 
 				program.eval(labels, labels.getTextBase());
 

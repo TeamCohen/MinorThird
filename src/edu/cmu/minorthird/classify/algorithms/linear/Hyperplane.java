@@ -26,16 +26,23 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	static private int serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 
+	/** 
+	 * Weight for an invisible 'bias feature' which is considered to be
+	 * present in every instance.  In otherwords, as a classifier, the
+	 * score of a hyperplane h on an instance x is sum_{feature f}
+	 * x.score(f)*h.featureScore(f) + h.featureScore(BIAS_TERM).
+	 */
 	public static final Feature BIAS_TERM = new Feature("_hyperplaneBias");
 	protected TObjectDoubleHashMap hyperplaneWeights = new TObjectDoubleHashMap();
 	private boolean ignoreWeights = false;
 
 	public Hyperplane() { ; }
 
-	/** After this call is made, the hyperplane will ignore feature weights.
-	 * Specifically in calls to increment(instance,delta) or increment(hyperplane,delta),
-	 * feature weights will be assumed to be zero.  For backward compatibility with
-	 * an old buggy version.
+	/** After this call is made, the hyperplane will assume that all
+	 * feature weights are one in instances.  Specifically in calls to
+	 * increment(instance,delta) or increment(hyperplane,delta), feature
+	 * weights will be assumed to be zero.  For backward compatibility
+	 * with an old buggy version.
 	 */
 	public void startIgnoringWeights() { this.ignoreWeights=true; }
 
@@ -64,7 +71,6 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 		buf.append( "\n + bias<"+featureScore( BIAS_TERM )+">" );
 		buf.append("\n = "+score(instance) );
 		return buf.toString();
-		
 	}
 
 
@@ -79,11 +85,11 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 		increment(BIAS_TERM, delta);
 	}
 
-    /** Set the bias term for the hyperplane to delta */
-    public void setBias(double delta) {
-        hyperplaneWeights.remove(BIAS_TERM);
-        hyperplaneWeights.put(BIAS_TERM, delta);
-    }
+	/** Set the bias term for the hyperplane to delta */
+	public void setBias(double delta) {
+		hyperplaneWeights.remove(BIAS_TERM);
+		hyperplaneWeights.put(BIAS_TERM, delta);
+	}
 
 	/** Add the value of the features in the instance to this hyperplane. */
 	public void increment(Instance instance, double delta) {
@@ -93,6 +99,15 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 			increment( f, w * delta );
 		}
 		incrementBias( delta );
+	}
+
+	/** Multiply all weights by a factor */
+	public void multiply(double factor) 
+	{
+		for (Feature.Looper i=featureIterator(); i.hasNext(); ) {
+			Feature f = i.nextFeature();
+			hyperplaneWeights.put( f, featureScore(f) * factor );
+		}
 	}
 
 	/** Add hyperplane b*delta to this hyperplane. */
@@ -115,6 +130,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 		return  hyperplaneWeights.get(feature);
 	}
 
+	/** Iterate over all features with non-zero weight. */
 	public Feature.Looper featureIterator()	
 	{
 		final TObjectDoubleIterator ti = hyperplaneWeights.iterator();
@@ -125,6 +141,10 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 			};
 		return new Feature.Looper(i);
 	}
+
+	//
+	// UI stuff
+	//
 
 	public Viewer toGUI()
 	{
@@ -206,6 +226,15 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	}
 
 
-	public String toString() { return hyperplaneWeights.toString(); }
+	public String toString() 
+	{ 
+		StringBuffer buf = new StringBuffer("[Hyperplane:");
+		for (Feature.Looper i=featureIterator(); i.hasNext(); ) {
+			Feature f = i.nextFeature();
+			buf.append(" " + f + "=" + featureScore(f));
+		}
+		buf.append("]");
+		return buf.toString();
+	}
 }
 

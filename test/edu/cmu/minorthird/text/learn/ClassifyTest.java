@@ -88,7 +88,7 @@ public abstract class ClassifyTest extends AbstractClassificationChecks
       //System.out.println( labels );
       double label = getLabel(labels, s);
 //        log.info("label: " + s.getDocumentId() + " : is : " + label);
-      data.add(new BinaryExample(fe.extractInstance(labels, s), label));
+      data.add(new Example(fe.extractInstance(labels, s), ClassLabel.binaryLabel(label)));
     }
     return data;
   }

@@ -27,18 +27,6 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 		dataset = new BasicDataset();
 	}
 			
-
-  /**
-   * No-arg constructor.
-   * prefered: Only by the Wizard
-   * Builds a copyFrom of SampleLearners.FILTERED_BIGRAM
-   */
-  public BatchFilteredFinderLearner()
-  {
-    BatchFilteredFinderLearner copy = (BatchFilteredFinderLearner)SampleLearners.FILTERED_BIGRAM;
-    copyFrom(copy);
-  }
-
   public BatchFilteredFinderLearner(
 		SpanFeatureExtractor fe,BinaryClassifierLearner classifierLearner,SpanFinder candidateFinder)
 	{
@@ -65,12 +53,12 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
     this.filter = copy.getClassifier();
   }
 
-  protected Object clone() throws CloneNotSupportedException
-  {
-    BatchFilteredFinderLearner newObj = new BatchFilteredFinderLearner();
-    newObj.copyFrom(this);
-    return newObj;
-  }
+  //protected Object clone() throws CloneNotSupportedException
+  //{
+	//BatchFilteredFinderLearner newObj = new BatchFilteredFinderLearner();
+	//newObj.copyFrom(this);
+	//return newObj;
+  //}
 
   public String getAnnotationType() { return annotationType; }
 
@@ -100,9 +88,9 @@ public class BatchFilteredFinderLearner implements AnnotatorLearner
 		for (Span.Looper i=candidateFinder.findSpans(queryLabels, answeredQuery.getDocumentSpan() ); i.hasNext(); ) {
 			Span candidate = i.nextSpan();
 			if (answeredQuery.getLabels().hasType( candidate, answeredQuery.getInputType() )) {
-				dataset.add( new BinaryExample( fe.extractInstance(queryLabels,candidate), +1) );
+				dataset.add( new Example( fe.extractInstance(queryLabels,candidate), ClassLabel.binaryLabel(+1)) );
 			} else {
-				dataset.add( new BinaryExample( fe.extractInstance(queryLabels, candidate), -1) );
+				dataset.add( new Example( fe.extractInstance(queryLabels, candidate), ClassLabel.binaryLabel(-1)) );
 			}
 		}
 	}

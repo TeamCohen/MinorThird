@@ -1,16 +1,12 @@
 package edu.cmu.minorthird.text.learn.experiments;
 
-import edu.cmu.minorthird.classify.Splitter;
-import edu.cmu.minorthird.classify.sequential.CrossValidatedSequenceDataset;
-import edu.cmu.minorthird.classify.sequential.SequenceClassifierLearner;
-import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.classify.experiments.*;
-import edu.cmu.minorthird.text.Annotator;
-import edu.cmu.minorthird.text.FancyLoader;
-import edu.cmu.minorthird.text.TextLabels;
+import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.*;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
-import edu.cmu.minorthird.util.gui.Visible;
+import edu.cmu.minorthird.ui.*;
+import edu.cmu.minorthird.util.gui.*;
 
 /** Run an annotation-learning experiment based on pre-labeled text
  * , using a sequence learning method, and showing the
@@ -43,9 +39,15 @@ public class SequenceAnnotatorExpt
 		this.inputLabel = inputLabel;
 		this.tokPropFeats = tokPropFeats;
 		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,inputLabel);
-		SampleFE.ExtractionFE fe = new SampleFE.ExtractionFE(3);
+		Recommended.TokenFE fe = new Recommended.TokenFE();
 		if (tokPropFeats!=null) fe.setTokenPropertyFeatures(tokPropFeats);
-		SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(null,fe,3) {
+		final int size = learner.getHistorySize();
+		BatchSequenceClassifierLearner dummyLearner = new BatchSequenceClassifierLearner() {
+				public void setSchema(ExampleSchema schema) {}
+				public SequenceClassifier batchTrain(SequenceDataset dataset) {return null;}
+				public int getHistorySize() { return size; }
+			};
+		SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(dummyLearner,fe) {
 				public Annotator getAnnotator() { return null; }
 			};
 		teacher.train(dummy);

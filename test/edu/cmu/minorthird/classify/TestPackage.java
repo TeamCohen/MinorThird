@@ -59,11 +59,11 @@ public class TestPackage extends TestSuite
     public LogisticRegressionTest() { super("doTest"); }
     public void doTest()
     {
-      LogisticRegressor lr = new LogisticRegressor(100,0.001);
-      Dataset data = SampleDatasets.makeLogisticRegressionData(new Random(0),100,0.2,0.3);
-      BinaryClassifier c = lr.batchTrainBinary(data);
-      double logLoss = Tester.logLoss(c,data);
-      assertEquals( 0.75, logLoss, 0.05 );
+      MaxEntLearner lr = new MaxEntLearner();
+      Dataset data = SampleDatasets.makeLogisticRegressionData(new Random(0),1000,0.2,0.3);
+      Classifier c = lr.batchTrain(data);
+      double error = Tester.errorRate(c,data);
+      assertEquals( 0.415, error, 0.05 );
     }
   }
 

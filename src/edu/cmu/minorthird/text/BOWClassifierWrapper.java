@@ -15,6 +15,12 @@ import edu.cmu.minorthird.util.IOUtil;
 import java.io.*;
 
 /** Use a bag-of-words classifier to classify strings.
+ *
+ * <p>Don't use this: the class text/learn/ClassifierAnnotator is
+ * preferable in everyway. This class will eventually be removed from
+ * Minorthird.
+ *
+ * @deprecated
  */
 
 public class BOWClassifierWrapper
@@ -80,7 +86,7 @@ public class BOWClassifierWrapper
 		for (edu.cmu.minorthird.text.Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			edu.cmu.minorthird.text.Span s = i.nextSpan();
 			double label = labels.hasType(s,"delete") ? +1 : -1;
-			data.add( new BinaryExample( fe.extractInstance(s), label ) );
+			data.add( new Example( fe.extractInstance(s), ClassLabel.binaryLabel(label) ) );
 		}
 		ClassifierLearner learner = new AdaBoost(new BinaryBatchVersion(new NaiveBayes()), 10);
 		Classifier c = new DatasetClassifierTeacher(data).train(learner);

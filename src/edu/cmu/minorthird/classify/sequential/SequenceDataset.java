@@ -3,17 +3,13 @@
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.StringUtil;
+import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
-//import javax.swing.event.*;
-//import java.awt.*;
-//import java.awt.event.*;
 
 /**
  * A dataset of sequences of examples.
@@ -21,13 +17,14 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class SequenceDataset implements Dataset,SequenceConstants,Visible
+public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveable
 {
 	protected ArrayList sequenceList = new ArrayList(); 
 	protected int totalSize = 0;
 	private int historyLength = 1;
 	private String[] history = new String[historyLength];
 	private Set classNameSet = new HashSet();
+	protected FeatureFactory factory = new FeatureFactory();
 
 	/** Set the current history length.
 	 * Examples produced by the iterator() will
@@ -66,7 +63,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible
 	{
 		Example[] compressedSeq = new Example[sequence.length];
 		for (int i=0; i<sequence.length; i++) {
-			compressedSeq[i] = sequence[i].compress();
+			compressedSeq[i] = factory.compress( sequence[i] );
 			classNameSet.addAll( sequence[i].getLabel().possibleLabels() );
 		}
 		sequenceList.add(compressedSeq);
@@ -180,13 +177,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible
 			//}
 			Example e = buf[j++];
 			if (e==null) throw new IllegalStateException("null example at pos "+j+" buf "+StringUtil.toString(buf));
-			if (e instanceof BinaryExample) {
-				//System.out.println("e.score = "+((BinaryExample)e).getNumericLabel()
-				//+" e.label = "+e.getLabel()+" e.label.score:"+e.getLabel().numericScore());
-				return new BinaryExample(new InstanceFromSequence(e,history), e.getLabel());
-			} else {
-				return new Example(new InstanceFromSequence(e,history), e.getLabel());
-			}
+			return new Example(new InstanceFromSequence(e,history), e.getLabel());
 		}
 		public void remove()
 		{
@@ -207,6 +198,12 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible
 		}
 		buf.append("]");
 		return buf.toString();
+	}
+
+	/** Save to disk with the DatasetLoader. */
+	public void saveAs(File file) throws IOException
+	{
+		DatasetLoader.saveSequence(this,file);
 	}
 
 	/** A GUI view of the dataset. */

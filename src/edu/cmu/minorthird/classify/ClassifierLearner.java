@@ -46,6 +46,12 @@ public interface ClassifierLearner extends Cloneable
 	 */
 	public void addExample(Example answeredQuery);
 
+	/** Accept a signal that no more training data is available.  This
+	 * would trigger any additional computation that might be useful
+	 * to speed up or improve the results of getClassifier().
+	 */
+	public void completeTraining();
+
 	/** Return the learned classifier.  The classifier should take advantage of
 	 * all information sent by the teacher to date.  Teachers can assume that
 	 * multiple calls to getClassifier() without intervening calls to addExample()

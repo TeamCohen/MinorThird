@@ -119,39 +119,4 @@ public class SampleExtractionProblem
     }
     return base;
   }
-
-  public static void main(String[] args)
-	{
-		try {
-			TextLabels trainLabels = trainLabels();
-			AnnotatorTeacher annotatorTeacher = new TextLabelsAnnotatorTeacher( trainLabels, LABEL );
-			//AnnotatorLearner annotatorLearner = FancyLoader.loadAnnotatorLearner( args[0] );
-			AnnotatorLearner annotatorLearner = 
-				new CMMAnnotatorLearner( SampleFE.makeExtractionFE(2), Expt.toLearner(args[0]), 2); 
-			annotatorLearner.setAnnotationType( "predictedName" );
-			Annotator learnedAnnotator = annotatorTeacher.train( annotatorLearner );
-			System.out.println("Learned concept: "+learnedAnnotator);
-			System.out.println("Viewing annotated training text base...");
-			TextLabels trainLabels1 = learnedAnnotator.annotatedCopy( trainLabels );
-			//System.out.println( trainLabels1 );
-			TextBaseViewer.view( trainLabels1 );
-			for (Span.Looper i=trainLabels1.getTextBase().documentSpanIterator(); i.hasNext(); ) {
-				Span s = i.nextSpan();
-				log.debug("extraction from train doc "+s+":\n" 
-									+ learnedAnnotator.explainAnnotation( trainLabels1, s ));
-			}
-			System.out.println("Viewing annotated test text base...");
-			TextLabels testLabels1 = learnedAnnotator.annotatedCopy( testLabels() );
-			for (Span.Looper i=testLabels1.getTextBase().documentSpanIterator(); i.hasNext(); ) {
-				Span s = i.nextSpan();
-				log.debug("extraction from test doc "+s+":\n" 
-									+ learnedAnnotator.explainAnnotation( testLabels1, s ));
-			}
-			TextBaseViewer.view( testLabels1 );
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("usage: annotator-learner");
-		}
-	}
-
 }

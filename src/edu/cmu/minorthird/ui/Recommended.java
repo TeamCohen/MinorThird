@@ -107,68 +107,46 @@ public class Recommended
 	 */
 	static public class VPHMMLearner extends SequenceAnnotatorLearner
 	{
-		public VPHMMLearner() { this(1); }
-		public VPHMMLearner(int historySize) { 
-			super(new CollinsPerceptronLearner(), new Recommended.TokenFE(), historySize); 
+		public VPHMMLearner() { 
+			super(new CollinsPerceptronLearner(1,5), new Recommended.TokenFE());
 		}
 	}
 
 	/** Uses the voted perceptron algorithm to learn a conditional Markov model (CMM).
 	 */
-	static public class VPCMMLearner extends CMMAnnotatorLearner
+	static public class VPCMMLearner extends SequenceAnnotatorLearner
 	{
-		public VPCMMLearner(int historySize) { 
-			super(new Recommended.TokenFE(), new VotedPerceptronLearner(), historySize);
+		public VPCMMLearner() { 
+			super(new CMMLearner(new VotedPerceptronLearner(),1),new Recommended.TokenFE());
 		}
-		public VPCMMLearner() { this(1); }
 	}
 
 	/** Uses logistic regression to learn a condition Markov model
 	 * (CMM), aka maxent Markov model (MEMM).
 	 */
-	static public class MEMMLearner extends CMMAnnotatorLearner
+	static public class MEMMLearner extends SequenceAnnotatorLearner
 	{
-		public MEMMLearner(int historySize) { 
-			super(new Recommended.TokenFE(), new MaxEntLearner(),	historySize);
+		public MEMMLearner() { 
+			super(new CMMLearner(new MaxEntLearner(),	1), new Recommended.TokenFE());
 		}
-		public MEMMLearner() { this(1); }
 	}
 
 	/** Uses probabilistic SVM to learn a condition Markov model (CMM).
 	 */
-	static public class SVMCMMLearner extends CMMAnnotatorLearner
+	static public class SVMCMMLearner extends SequenceAnnotatorLearner
 	{
-		public SVMCMMLearner(int historySize) { 
-			super(new Recommended.TokenFE(), 
-						new StackedLearner(
-							new TransformingBatchLearner(new FrequencyBasedTransformLearner(5),new LogisticRegressor()),
-							new RandomSplitter(0.70)),
-						historySize);
+		public SVMCMMLearner() { 
+			super(new CMMLearner(new SVMLearner(), 1), new Recommended.TokenFE());
 		}
-		public SVMCMMLearner() { this(1); }
 	}
 
 	//
 	// SequenceClassifierLearners
 	//
 
-	public static class CMMTagLearner extends CMMLearner
-	{
-		public CMMTagLearner(int historySize) { 
-			super(
-				new StackedLearner(
-					new TransformingBatchLearner(new FrequencyBasedTransformLearner(5),new LogisticRegressor()),
-					new RandomSplitter(0.70)),
-				historySize);
-		}
-		public CMMTagLearner() { this(1); }
-	}
-
 	public static class VPTagLearner extends CollinsPerceptronLearner
 	{
 		public VPTagLearner() { super(1,5); }
-		public VPTagLearner(int historySize) { this(historySize,5); }
-		public VPTagLearner(int historySize,int numberOfEpochs) { super(historySize,numberOfEpochs); }
 	}
 
 	//

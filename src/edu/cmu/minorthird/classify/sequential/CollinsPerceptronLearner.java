@@ -2,15 +2,14 @@ package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
-import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.gui.ComponentViewer;
-import edu.cmu.minorthird.util.gui.Viewer;
-import edu.cmu.minorthird.util.gui.Visible;
+import edu.cmu.minorthird.util.*;
+import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.io.Serializable;
 import java.util.Iterator;
+import org.apache.log4j.*;
 
 /**
  * Sequential learner based on the perceptron algorithm, as described
@@ -23,27 +22,31 @@ import java.util.Iterator;
 
 public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,SequenceConstants
 {
+	private static Logger log = Logger.getLogger(CollinsPerceptronLearner.class);
+	private static final boolean DEBUG = log.isDebugEnabled();
+
 	private int historySize;
 	private int numberOfEpochs;
 	private String[] history;
-
-	public int getHistorySize() { return historySize; }
 
 	public CollinsPerceptronLearner()
 	{
 		this(3,5);
 	}
-
-	public int getNumberOfEpochs() { return numberOfEpochs; }
-
-	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
-
+	public CollinsPerceptronLearner(int numberOfEpochs)
+	{
+		this(3,numberOfEpochs);
+	}
 	public CollinsPerceptronLearner(int historySize,int numberOfEpochs)
 	{
 		this.historySize = historySize;
 		this.numberOfEpochs = numberOfEpochs;
 		this.history = new String[historySize];
 	}
+
+	public int getNumberOfEpochs() { return numberOfEpochs; }
+	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
+	public int getHistorySize() { return historySize; }
 
 	public void setSchema(ExampleSchema schema)	{	;	}
 
@@ -67,6 +70,9 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 				Example[] sequence = (Example[])i.next();
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
 
+				if (DEBUG) log.debug("classifier: "+c);
+				if (DEBUG) log.debug("viterbi:\n"+StringUtil.toString(viterbi));
+
 				// At this point, Collin's paper says to add Phi(sequence) -
 				// Phi(viterbi) to the current weight vector W.  We're doing
 				// this, with two twists: (a) the features in our instance
@@ -81,8 +87,10 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 					// is the instance at sequence[j] associated with a difference in the sum
 					// of feature values over the viterbi sequence and the actual one? 
 					boolean differenceAtJ = !viterbi[j].isCorrect( sequence[j].getLabel() );
+					//System.out.println("differenceAtJ for J="+j+" "+differenceAtJ+" - label");
 					for (int k=1; j-k>=0 && !differenceAtJ && k<=historySize; k++) {
 						if (!viterbi[j-k].isCorrect( sequence[j-k].getLabel() )) {
+							//System.out.println("differenceAtJ for J="+j+" true: k="+k);
 							differenceAtJ = true;
 						}
 					}
@@ -93,9 +101,11 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 						InstanceFromSequence.fillHistory( history, sequence, j );
 						Instance correctXj = new InstanceFromSequence( sequence[j], history );
 						c.update( sequence[j].getLabel().bestClassName(), correctXj, 1.0 ); 
+						if (DEBUG) log.debug("+ update "+sequence[j].getLabel().bestClassName()+" "+correctXj.getSource());
 						InstanceFromSequence.fillHistory( history, viterbi, j );
 						Instance wrongXj = new InstanceFromSequence( sequence[j], history );
 						c.update( viterbi[j].bestClassName(), wrongXj, -1.0 ); 
+						if (DEBUG) log.debug("- update "+viterbi[j].bestClassName()+" "+wrongXj.getSource());
 					}
 				} // example sequence j
 
@@ -202,6 +212,11 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 				s_t[i] = new Hyperplane();
 				w_t[i] = new Hyperplane();
 			}
+		}
+
+		public String toString() 
+		{
+			return "[MultiClassVPClassifier:"+StringUtil.toString(w_t,"\n","\n]","\n - ");
 		}
 	}
 }

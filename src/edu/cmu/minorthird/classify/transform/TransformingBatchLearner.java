@@ -23,7 +23,7 @@ public class TransformingBatchLearner extends BatchClassifierLearner
 
 	public TransformingBatchLearner()
 	{
-		this(new FrequencyBasedTransformLearner(3), new LogisticRegressor());
+		this(new FrequencyBasedTransformLearner(3), new MaxEntLearner());
 	}
 
 	public void setTransformLearner(InstanceTransformLearner learner) { transformLearner=learner; }

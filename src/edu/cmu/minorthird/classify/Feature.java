@@ -18,11 +18,17 @@ import java.util.*;
 public class Feature implements Comparable,Serializable
 {
 	private String[] name;
-    //public static Comparator numericComparator = new numericComparator();
+	private int id = -1;
 
    /** Create a feature. */
-	private Feature(String[] name) {
+	public Feature(String[] name) {
 		this.name = name;
+	}
+
+   /** Create a feature. */
+	public Feature(String[] name,int id) {
+		this.name = name;
+		this.id = id;
 	}
 
 	/** Create a feature. The parts of this name are delimited by spaces. */
@@ -67,15 +73,11 @@ public class Feature implements Comparable,Serializable
 		return buf.toString();
 	}
 
-	public int size()
-	{
-		return name.length;
-	}
+	public int size()	{	return name.length;	}
 
-	public String getPart(int i)
-	{
-		return name[i];
-	}
+	public String getPart(int i) {return name[i];	}
+
+	public String[] getName() { return name; }
 
   /**
    * This is used for algorithms which only support a vector of features (such as SVM).

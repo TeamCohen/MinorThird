@@ -39,6 +39,9 @@ public abstract class ClassifierTeacher
 			}
 		}
 
+		// signal that there's no more data available
+		learner.completeTraining();
+
 		// final result
 		return learner.getClassifier();
 	}

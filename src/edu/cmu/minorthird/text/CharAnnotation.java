@@ -5,6 +5,7 @@ package edu.cmu.minorthird.text;
  * The stand-off annotation is generally immutable
  * @author ksteppe
  */
+
 public class CharAnnotation
 {
   private int offset;

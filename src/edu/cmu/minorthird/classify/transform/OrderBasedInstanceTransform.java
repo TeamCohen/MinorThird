@@ -65,7 +65,7 @@ public class OrderBasedInstanceTransform implements InstanceTransform
     {
       Example e = i.nextExample();
       Instance mi = new MaskedInstance( e.asInstance(),availableFeatures );
-      Example ex = new BinaryExample( mi,e.getLabel() );
+      Example ex = new Example( mi,e.getLabel() );
       maskeDataset.add( ex );
     }
     return maskeDataset;

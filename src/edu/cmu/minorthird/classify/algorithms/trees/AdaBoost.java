@@ -76,7 +76,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner
 			k=0;
 			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
 				Example xk = i.nextExample();
-				double yk = ((BinaryExample)xk).getNumericLabel();
+				double yk = xk.getLabel().numericScore();
 				double factor =  Math.exp( yk * c.score(xk) );
 				//System.out.println("weight("+xk+") "+boostingWeight[k]+" -> "+boostingWeight[k]/factor);
 				boostingWeight[k] /= factor;
@@ -168,11 +168,11 @@ public class AdaBoost extends BatchBinaryClassifierLearner
 	/**
 	 * A weighted example
 	 */
-	private static class WeightedBinaryExample extends BinaryExample 
+	private static class WeightedExample extends Example 
 	{
 		private double localWeight = 1.0;
-		public WeightedBinaryExample(BinaryExample example,double weight) {
-			super(example.asInstance(), example.getNumericLabel());
+		public WeightedExample(Example example,double weight) {
+			super(example.asInstance(), example.getLabel());
 			this.localWeight = weight;
 		}
 		public double getWeight()	{	return localWeight;	}
@@ -199,7 +199,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner
 			List list = new ArrayList(size());
 			int k=0;
 			for (Iterator i=innerData.iterator(); i.hasNext(); ) {
-				list.add( new WeightedBinaryExample((BinaryExample)i.next(), boostingWeight[k++]) );
+				list.add( new WeightedExample((Example)i.next(), boostingWeight[k++]) );
 			}
 			return new Example.Looper( list );
 		}

@@ -15,6 +15,7 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 	private int historySize;
 
 	public int getHistorySize() { return historySize; }
+	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
 
 	public CMMLearner()
 	{
@@ -34,6 +35,7 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 		ExampleSchema schema = dataset.getSchema();
 		baseLearner.reset();
 		baseLearner.setSchema( schema );
+		dataset.setHistorySize(historySize);
 		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
 			Example e = i.nextExample();
 			baseLearner.addExample( e );

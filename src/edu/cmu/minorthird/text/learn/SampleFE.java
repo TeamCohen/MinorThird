@@ -209,7 +209,7 @@ public class SampleFE
 				Span s = i.nextSpan();
 				String id = s.getDocumentId();
 				ClassLabel label = ClassLabel.binaryLabel( id.startsWith("pos") ? +1 : -1 );
-				dataset.add(new BinaryExample(fe.extractInstance(s), label));
+				dataset.add(new Example(fe.extractInstance(s), label));
 			}
 			ViewerFrame f = new ViewerFrame("Toy data", dataset.toGUI());
 		} catch (Exception e) {

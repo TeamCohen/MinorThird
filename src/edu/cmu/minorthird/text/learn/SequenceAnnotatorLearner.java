@@ -17,9 +17,10 @@ import java.io.Serializable;
 
 /**
  * Learn an annotation model using a sequence dataset and a
- * BatchSequenceClassifierLearner.  This class reduces learning a
- * single type T to sequential classification of tokens as 'inside a
- * span of type T' or 'outside a span of type T'.
+ * BatchSequenceClassifierLearner.  This class reduces extraction
+ * learning to sequential classification of tokens.  The scheme for
+ * mapping extraction learning to token learning is determined by the
+ * Extraction2TaggingReduction.
  *
  * @author William Cohen
  */
@@ -38,34 +39,18 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	protected boolean annotatedWithProperties=false;
 
 	public SequenceAnnotatorLearner(
-		BatchSequenceClassifierLearner seqLearner,
-		Extraction2TaggingReduction reduction,
-		SpanFeatureExtractor fe,
-		int historySize)
+		BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,Extraction2TaggingReduction reduction)
 	{
 		this.seqLearner = seqLearner;
 		this.reduction = reduction;
 		this.fe = fe;
-		this.historySize = historySize;
-		seqData.setHistorySize(historySize);
+		this.historySize = seqLearner.getHistorySize();
+		seqData.setHistorySize(this.historySize);
 	}
-	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,int historySize)
+	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe)
 	{
-		this(seqLearner,new InsideOutsideReduction(),fe,historySize);
-		//this(seqLearner,new BeginContinueEndUniqueReduction(),fe,historySize);
+		this(seqLearner,fe,new InsideOutsideReduction());
 	}
-
-  /**
-   * This constructor creates a sequence learner backed by a CollinsPerceptronLearner
-   * and the SampleFE.ExtractionFE feature extractor.
-   *
-   * It was created to allow the wizard to get a 'default' instance of the class
-   */
-  public SequenceAnnotatorLearner()
-  {
-    fe = new SampleFE.ExtractionFE();
-    seqLearner = new CollinsPerceptronLearner();
-  }
 
 	public void reset() {
 		seqData = new SequenceDataset();
@@ -74,7 +59,9 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	//
 	// getters and setters
 	//
-	boolean displayDatasetBeforeLearning=false;
+	private boolean displayDatasetBeforeLearning=false;
+
+	/** If set, try and pop up an interactive viewer of the sequential dataset before learning. */
 	public boolean getDisplayDatasetBeforeLearning() {
 		return displayDatasetBeforeLearning; 
 	}
@@ -153,6 +140,27 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	public SequenceDataset getSequenceDataset()
 	{
 		return seqData;
+	}
+
+	/**
+	 * A useful subroutine - prepare sequence data the way a SequenceAnnotatorLearner would prepare it
+	 * when trained by a TextLabelsAnnotatorTeacher.
+	 *
+	 */
+	static public SequenceDataset prepareSequenceData(
+		TextLabels labels,String spanType, String spanProp,
+		SpanFeatureExtractor fe,final int historySize,Extraction2TaggingReduction reduction)
+	{
+		BatchSequenceClassifierLearner dummy1 = new BatchSequenceClassifierLearner() {
+				public void setSchema(ExampleSchema schema) {}
+				public SequenceClassifier batchTrain(SequenceDataset dataset) {return null;}
+				public int getHistorySize() { return historySize; }
+			};
+		SequenceAnnotatorLearner dummy2 = new SequenceAnnotatorLearner(dummy1,fe,reduction) {
+				public Annotator getAnnotator() { return null; }
+			};
+		new TextLabelsAnnotatorTeacher(labels,spanType,spanProp).train(dummy2);
+		return dummy2.getSequenceDataset();
 	}
 
 	//

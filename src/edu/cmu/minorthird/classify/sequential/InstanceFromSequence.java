@@ -30,7 +30,7 @@ public class InstanceFromSequence implements Instance,SequenceConstants
 		history = new HashSet();
 		for (int i=0; i<previousLabels.length; i++) {
 			history.add( 
-				Feature.Factory.getFeature(
+				new Feature(
 					new String[]{ HISTORY_FEATURE, Integer.toString((i+1)), previousLabels[i]}) );
 		}
 	}

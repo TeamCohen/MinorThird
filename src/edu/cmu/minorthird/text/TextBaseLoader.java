@@ -1,6 +1,5 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.util.Loader;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -88,7 +87,7 @@ import java.util.regex.Pattern;
  * @author Kevin Steppe
 */
 
-public class TextBaseLoader implements Loader
+public class TextBaseLoader
 {
   //style/location for IDs, groupID, Category of doc
   public static final int NONE = 0; //could be given as a param at some point

@@ -7,7 +7,9 @@ import edu.cmu.minorthird.classify.experiments.RandomSplitter;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.algorithms.svm.*;
+import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.text.*;
+import edu.cmu.minorthird.ui.*;
 import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.text.learn.*;
 import junit.framework.Test;
@@ -86,10 +88,10 @@ public class SampleExtractionTest extends TestCase
    */
   public void testSampleExtractionTest()
   {
-		SpanFeatureExtractor fe = SampleFE.makeExtractionFE(2);
-		doExtractionTest( new CMMAnnotatorLearner( fe, new VotedPerceptron(), 2),
-										 new double[]{0.93,1.0,0.1, 0.75,0.6,0.1});
-		doExtractionTest( new CMMAnnotatorLearner(fe, new SVMLearner(), 3), 
+		SpanFeatureExtractor fe = new Recommended.TokenFE();
+		doExtractionTest( new SequenceAnnotatorLearner( new CMMLearner(new VotedPerceptron(), 3), fe),
+										 new double[]{0.93,0.75,0.1, 1.0,0.6,0.1});
+		doExtractionTest( new SequenceAnnotatorLearner( new CMMLearner(new SVMLearner(), 3),  fe),
 											new double[]{0.93,1.0,0.1,  1.0,1.0,0.1} );
   }
 

@@ -13,10 +13,7 @@ abstract public class AbstractInstanceTransform implements InstanceTransform
 {
 	final public Example transform(Example example) 
 	{ 
-		if (example instanceof BinaryExample)
-			return new BinaryExample( transform(example.asInstance()), ((BinaryExample)example).getNumericLabel() );
-    else
-			return new Example( transform(example.asInstance()), example.getLabel() );
+		return new Example( transform(example.asInstance()), example.getLabel() );
   }
 
 

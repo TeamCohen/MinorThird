@@ -64,7 +64,7 @@ public class SlidingWindowDataset extends SequenceDataset
 			throw new IllegalArgumentException("this SlidingWindowDataset only holds subsequences of size <="+maxWindowSize);
 		if (endPosition-startPosition<2) 
 			throw new IllegalArgumentException("subsequences must have length >=2"); 
-		currentWindows[startPosition][endPosition-startPosition-2] = example.compress();
+		currentWindows[startPosition][endPosition-startPosition-2] = factory.compress( example );
 	}
 
 	/** Complete addition of subsequence examples for this most recently-added sequence.

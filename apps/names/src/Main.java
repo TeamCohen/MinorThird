@@ -17,6 +17,8 @@ public class Main
 	static private int featureWindow=5,classWindow=3,epochs=6;
 	static private Map propertyMap = new HashMap();
 	static private String classToLearn = "name";
+	static private Extraction2TaggingReduction reduction = new InsideOutsideReduction();
+	//static private Extraction2TaggingReduction reduction = new BeginContinueEndUniqueReduction();
 
 	static private String mixupFileStem="nameFeatures_v2";
 
@@ -113,12 +115,9 @@ public class Main
 
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_"+classToLearn);
 			SpanFeatureExtractor fe = fe(labels);
-
-			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(null,fe,classWindow) {
-					public Annotator getAnnotator() { return null; }
-				};
-			teacher.train(dummy);
-			SequenceDataset sequenceDataset = dummy.getSequenceDataset();
+			SequenceDataset sequenceDataset = 
+				SequenceAnnotatorLearner.prepareSequenceData(
+					labels,"true_"+classToLearn,null,fe,classWindow,new InsideOutsideReduction());
 			//ViewerFrame fd = new ViewerFrame("Name Learning Result",sequenceDataset.toGUI());
 
 			DatasetIndex index = new DatasetIndex(sequenceDataset);
@@ -176,11 +175,10 @@ public class Main
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher(labels,"true_"+classToLearn);
 			SpanFeatureExtractor fe = fe(labels);
 
-			SequenceAnnotatorLearner dummy = new SequenceAnnotatorLearner(null,fe,classWindow) {
-					public Annotator getAnnotator() { return null; }
-				};
-			teacher.train(dummy);
-			SequenceDataset sequenceDataset = dummy.getSequenceDataset();
+			SequenceDataset sequenceDataset = 
+				SequenceAnnotatorLearner.prepareSequenceData(
+					labels,"true_"+classToLearn,null,fe,classWindow,new InsideOutsideReduction());
+
 			//ViewerFrame fd = new ViewerFrame("Name Learning Result",sequenceDataset.toGUI());
 
 			SequenceClassifier sequenceClassifier = 

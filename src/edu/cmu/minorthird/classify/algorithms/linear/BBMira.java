@@ -21,32 +21,55 @@ public class BBMira extends OnlineBinaryClassifierLearner
 	private static final boolean DEBUG = false;
 
 	private LinkedList cache;
-	private double minimalMargin = 0.001;
+	private Hyperplane w_t;
+	private double minimalMargin = 1;
 	private boolean useBudget=true;
+	private Set usedFeatures;
 
 	public BBMira(boolean useBudget,double minimalMargin ) { 
 		this.useBudget = useBudget;
 		this.minimalMargin = minimalMargin; 
 		reset(); 
 	}
-	public BBMira() { this(true,0.001); }
+	public BBMira() { this(true,1.0); }
 
-	public void reset() { cache = new LinkedList(); }
+	public void reset() 
+	{ 
+		cache = new LinkedList(); 
+		w_t = new Hyperplane();
+		usedFeatures = new TreeSet();
+	}
 
 	public void addExample(Example example)
 	{
 		double y = example.getLabel().numericScore();
 		Instance x = example.asInstance();
-		double s = cacheScore(cache,x);
+		// simulate initialization of w_t to unit values for each feature
+		for (Feature.Looper i=x.featureIterator(); i.hasNext(); ) {
+			Feature f = i.nextFeature();
+			if (usedFeatures.add(f)) {
+				w_t.increment(f,1.0);
+			}
+		}
+
+		double s = w_t.score(x);
+		if (log.isDebugEnabled()) log.debug("y="+y+" s="+s+" for "+x);
 		if (y*s <= minimalMargin) {
-			double tau = truncateG( - y*s / kernel(x,x) );
-			cache.add( new WeightedExample( example,  tau ) );
-			//log.info("into cache, tau="+tau+" :"+x);
-			if (useBudget) distillCache();
+			double tau_t = truncateG( - y*s / kernel(x,x) );
+			log.debug("update: y*s = "+y*s+" ||x||^2 = "+kernel(x,x)+" tau_t = "+tau_t);
+			if (tau_t!=0) {
+				w_t.increment( example, y*tau_t );
+				cache.add( new WeightedExample( example,  tau_t ) );
+				if (log.isDebugEnabled()) log.debug("into cache, useBudget="+useBudget+" tau="+tau_t+" :"+x);
+				if (useBudget) distillCache();
+			}
 		}
 	}
 
-	public Classifier getClassifier() { return new KernelClassifier(cache); }
+	public Classifier getClassifier() 
+	{ 
+		return w_t; 
+	}
 
 	// inner product of x1 and x2
 	private static double kernel(Instance x1,Instance x2)
@@ -62,7 +85,7 @@ public class BBMira extends OnlineBinaryClassifierLearner
 	}
 
 	// Crammer & Singer's G function
-	static private double truncateG(double z)
+	private double truncateG(double z)
 	{
 		if (z<0) return 0.0;
 		else if (z>1) return 1.0;
@@ -81,6 +104,7 @@ public class BBMira extends OnlineBinaryClassifierLearner
 
 	private void distillCache()
 	{
+		log.info("distilling cache, size="+cache.size());
 		boolean somethingRemoved=true;
 		while (somethingRemoved) {
 			somethingRemoved = false;
@@ -88,37 +112,18 @@ public class BBMira extends OnlineBinaryClassifierLearner
 				WeightedExample wx = (WeightedExample)i.next();
 				double y = wx.example.getLabel().numericScore();
 				Instance x = wx.example.asInstance();
-				double currentPrediction = cacheScore(cache,x);
-				double wxContribution = kernel(x,x) * wx.alpha * y;
+				//double currentPrediction = cacheScore(cache,x);
+				double currentPrediction = w_t.score(x);
+				double wxContribution = kernel(x,x)*y*wx.alpha;
 				if ((currentPrediction - wxContribution)*y >= minimalMargin) {
 					i.remove();
 					somethingRemoved = true;
+					w_t.increment( x, -y*wx.alpha );
 					log.info("reduced cache to "+cache.size()+" entries");
 				}
 			}
 		}
 	}
 
-	static private double cacheScore(List cache,Instance x)
-	{
-		double result = 0;
-		for (Iterator i=cache.iterator(); i.hasNext(); ) {
-			WeightedExample wx = (WeightedExample)i.next();
-			double y = wx.example.getLabel().numericScore();
-			double delta = kernel(x, wx.example.asInstance()) * wx.alpha * y;
-			if (DEBUG) log.debug("score += "+delta+" from "+wx);
-			result += delta;
-		}
-		// this +1 correction is because W can't be initialized to
-		// zero...
-		return result + 1.0;
-	}
-
-	public static class KernelClassifier extends BinaryClassifier implements Serializable
-	{
-		private List cache;
-		public KernelClassifier(List cache) { this.cache=cache; }
-		public double score(Instance instance) { return cacheScore(cache,instance); }
-		public String explain(Instance instance) { return "not implemented"; }
-	}
+	public String toString() { return "[BBMira "+useBudget+";"+minimalMargin+"]"; }
 }

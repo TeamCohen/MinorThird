@@ -1,46 +1,54 @@
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
-import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
-import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.classify.algorithms.linear.*;
+import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.io.Serializable;
-import java.util.Iterator;
+import javax.swing.border.*;
+import java.io.*;
+import java.util.*;
+import org.apache.log4j.*;
 
 /**
- * Generic version of Collin's voted perceptron learner.
+ * 'Generic' version of Collin's voted perceptron learner.
  *
  * @author William Cohen
  */
 
 public class GenericCollinsLearner implements BatchSequenceClassifierLearner,SequenceConstants
 {
-	private OnlineBinaryClassifierLearner innerLearnerPrototype;
-	private OnlineBinaryClassifierLearner[] innerLearner;
+	private static Logger log = Logger.getLogger(CollinsPerceptronLearner.class);
+	private static final boolean DEBUG = log.isDebugEnabled();
+
+	private OnlineClassifierLearner innerLearnerPrototype;
+	private OnlineClassifierLearner[] innerLearner;
 	private int historySize;
 	private int numberOfEpochs;
 	private String[] history;
 
 	public GenericCollinsLearner()
 	{
-		this(3,5);
+		this(new MarginPerceptron(0.0,false,true));
 	}
 
-	public GenericCollinsLearner(OnlineBinaryClassifierLearner innerLearner,int historySize)
+	public GenericCollinsLearner(OnlineClassifierLearner innerLearner)
 	{
-		this(innerLearner,historySize,5);
+		this(innerLearner,5);
 	}
 
-	public GenericCollinsLearner(int historySize,int epochs)
+	public GenericCollinsLearner(int epochs)
 	{
-		this(new VotedPerceptron(),historySize,epochs);
+		this(new MarginPerceptron(0.0,false,true),epochs);
 	}
 
-	public GenericCollinsLearner(OnlineBinaryClassifierLearner innerLearner,int historySize,int epochs)
+	public GenericCollinsLearner(OnlineClassifierLearner innerLearner,int epochs)
+	{
+		this(innerLearner,3,epochs);
+	}
+
+	public GenericCollinsLearner(OnlineClassifierLearner innerLearner,int historySize,int epochs)
 	{
 		this.historySize = historySize;
 		this.innerLearnerPrototype = innerLearner;
@@ -53,10 +61,10 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	//
 	// accessors
 	//
-	public OnlineBinaryClassifierLearner getInnerLearner() { 
+	public OnlineClassifierLearner getInnerLearner() { 
 		return innerLearnerPrototype; 
 	}
-	public void setInnerLearner(OnlineBinaryClassifierLearner newInnerLearner) {
+	public void setInnerLearner(OnlineClassifierLearner newInnerLearner) {
 		this.innerLearnerPrototype = newInnerLearner;
 	}
 	public int getHistorySize() { return historySize; }
@@ -69,9 +77,9 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	{
 		ExampleSchema schema = dataset.getSchema();
 		try {
-			innerLearner = new OnlineBinaryClassifierLearner[ schema.getNumberOfClasses() ];		
+			innerLearner = new OnlineClassifierLearner[ schema.getNumberOfClasses() ];		
 			for (int i=0; i<schema.getNumberOfClasses(); i++) {
-				innerLearner[i] = (OnlineBinaryClassifierLearner)innerLearnerPrototype.copy();
+				innerLearner[i] = (OnlineClassifierLearner)innerLearnerPrototype.copy();
 				innerLearner[i].reset();
 			}
 		} catch (CloneNotSupportedException ex) {
@@ -82,26 +90,41 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 			new ProgressCounter("training sequential "+innerLearnerPrototype.toString(), 
 													"sequence",numberOfEpochs*dataset.numberOfSequences());
 
-		for (int epoch=0; epoch<numberOfEpochs; epoch++) {
+		for (int epoch=0; epoch<numberOfEpochs; epoch++) 
+		{
+			dataset.shuffle();
 
 			// statistics for curious researchers
 			int sequenceErrors = 0;
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) {
-
+			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) 
+			{
 				Example[] sequence = (Example[])i.next();
 				Classifier c = new MultiClassClassifier(schema,innerLearner);
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
+				if (DEBUG) log.debug("classifier: "+c);
+				if (DEBUG) log.debug("viterbi:\n"+StringUtil.toString(viterbi));
 
 				boolean errorOnThisSequence=false;
+
+        // accumulate weights for transitions associated with each class k
+				Hyperplane[] accumPos = new Hyperplane[schema.getNumberOfClasses()];
+				Hyperplane[] accumNeg = new Hyperplane[schema.getNumberOfClasses()];
+				for (int k=0; k<schema.getNumberOfClasses(); k++) {
+					accumPos[k] = new Hyperplane();
+					accumNeg[k] = new Hyperplane();
+				}
+
 				for (int j=0; j<sequence.length; j++) {
 					// is the instance at sequence[j] associated with a difference in the sum
 					// of feature values over the viterbi sequence and the actual one? 
 					boolean differenceAtJ = !viterbi[j].isCorrect( sequence[j].getLabel() );
+					//System.out.println("differenceAtJ for J="+j+" "+differenceAtJ+" - label");
 					for (int k=1; j-k>=0 && !differenceAtJ && k<=historySize; k++) {
 						if (!viterbi[j-k].isCorrect( sequence[j-k].getLabel() )) {
+							//System.out.println("differenceAtJ for J="+j+" true: k="+k);
 							differenceAtJ = true;
 						}
 					}
@@ -109,17 +132,33 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 						transitionErrors++;
 						errorOnThisSequence=true;
 						InstanceFromSequence.fillHistory( history, sequence, j );
+
 						Instance correctXj = new InstanceFromSequence( sequence[j], history );
 						int correctClassIndex = schema.getClassIndex( sequence[j].getLabel().bestClassName() );
-						innerLearner[correctClassIndex].addExample( new BinaryExample( correctXj, 1.0 ) );
-						
+						accumPos[correctClassIndex].increment( correctXj, +1.0 );
+						accumNeg[correctClassIndex].increment( correctXj, -1.0 );
+						if (DEBUG) log.debug("+ update "+sequence[j].getLabel().bestClassName()+" "+correctXj.getSource());
+
 						InstanceFromSequence.fillHistory( history, viterbi, j );
 						Instance wrongXj = new InstanceFromSequence( sequence[j], history );
 						int wrongClassIndex = schema.getClassIndex( viterbi[j].bestClassName() );
-						innerLearner[wrongClassIndex].addExample( new BinaryExample( wrongXj, -1.0) );
+						accumPos[wrongClassIndex].increment( wrongXj, -1.0 );
+						accumNeg[wrongClassIndex].increment( wrongXj, +1.0 );
+						if (DEBUG) log.debug("- update "+viterbi[j].bestClassName()+" "+wrongXj.getSource());
 					}
 				} // example sequence j
-				if (errorOnThisSequence) sequenceErrors++;
+				if (errorOnThisSequence) {
+					sequenceErrors++;
+					String subPopId = sequence[0].getSubpopulationId();
+					Object source = "no source";
+					for (int k=0; k<schema.getNumberOfClasses(); k++) {
+						//System.out.println("adding class="+k+" example: "+accumPos[k]);
+						innerLearner[k].addExample( 
+							new Example( new HyperplaneInstance(accumPos[k],subPopId,source), ClassLabel.positiveLabel(+1.0) ));
+						innerLearner[k].addExample( 
+							new Example( new HyperplaneInstance(accumNeg[k],subPopId,source), ClassLabel.negativeLabel(-1.0) ));
+					}
+				}
 				transitions += sequence.length;
 				pc.progress();
 			} // sequence i
@@ -132,6 +171,10 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 		} // epoch
 		pc.finished();
 			
+		for (int k=0; k<schema.getNumberOfClasses(); k++) {
+			innerLearner[k].completeTraining();
+		}
+
 		// we can use a CMM here, since the classifier is constructed to the same
 		// beam search will work
 		Classifier c = new MultiClassClassifier(schema,innerLearner);
@@ -139,32 +182,73 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 		return new CMM(c, historySize, schema );
 	}
 
+	private static class HyperplaneInstance implements Instance
+	{
+		private Hyperplane hyperplane;
+		private String subpopulationId;
+		private Object source;
+		public HyperplaneInstance(Hyperplane hyperplane,String subpopulationId,Object source) { 
+			// compensate for automatic increment of bias term by linear learners
+			// for some reason it seems to work better to have the bias be linear in length
+			hyperplane.incrementBias(-1.0);
+			this.hyperplane = hyperplane; 
+			this.subpopulationId = subpopulationId;
+			this.source = source;
+		}
+		public Viewer toGUI() { return hyperplane.toGUI(); }
+		public double getWeight(Feature f) { return hyperplane.featureScore(f); }
+		public Feature.Looper binaryFeatureIterator() { return new Feature.Looper(Collections.EMPTY_SET); }
+		public Feature.Looper numericFeatureIterator() { return hyperplane.featureIterator(); }
+		public Feature.Looper featureIterator() { return hyperplane.featureIterator(); }
+		public double getWeight() { return 1.0; }
+		public Object getSource() { return source; }
+		public String getSubpopulationId() { return subpopulationId; }
+		// iterate overall hyperplane features except the bias feature
+		private class MyIterator implements Iterator
+		{
+			private Iterator i;
+			private Object myNext = null; // buffers the next nonbias feature produced by i
+			public MyIterator() { this.i = hyperplane.featureIterator(); advance(); }
+			private void advance() 
+			{
+				if (!i.hasNext()) myNext = null;
+				else { 
+					myNext = i.next();
+					if (myNext.equals(Hyperplane.BIAS_TERM)) advance();
+				}
+			}
+			public void remove() { throw new UnsupportedOperationException("can't remove"); }
+			public boolean hasNext() { return myNext!=null; }
+			public Object next() { Object result=myNext; advance(); return result; }
+		}
+	}
+
 	public static class MultiClassClassifier implements Classifier,Visible,Serializable
 	{
 		private int serialVersionUID = 1;
 		private ExampleSchema schema;
-		private BinaryClassifier[] innerClassifier;
+		private Classifier[] innerClassifier;
 		private int numClasses;
 
-	        public MultiClassClassifier(ExampleSchema schema,BinaryClassifier[] learners) {
+		public MultiClassClassifier(ExampleSchema schema,Classifier[] learners) {
 			this.schema = schema;
 			this.numClasses = schema.getNumberOfClasses();
 			innerClassifier = learners;
-	        }
-		public MultiClassClassifier(ExampleSchema schema,OnlineBinaryClassifierLearner[] innerLearner)
+		}
+		public MultiClassClassifier(ExampleSchema schema,OnlineClassifierLearner[] innerLearner)
 		{
 			this.schema = schema;
 			this.numClasses = schema.getNumberOfClasses();
-			innerClassifier = new BinaryClassifier[ numClasses ];
+			innerClassifier = new Classifier[ numClasses ];
 			for (int i=0; i<numClasses; i++) {
-				innerClassifier[i] = innerLearner[i].getBinaryClassifier();
+				innerClassifier[i] = innerLearner[i].getClassifier();
 			}
 		}
 		public ClassLabel classification(Instance instance)
 		{
 			ClassLabel label = new ClassLabel();
 			for (int i=0; i<numClasses; i++) {			
-				label.add( schema.getClassName(i), innerClassifier[i].score(instance) );
+				label.add( schema.getClassName(i), innerClassifier[i].classification(instance).posWeight() );
 			}
 			return label; 
 		}
@@ -198,6 +282,10 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 				};
 			gui.setContent(this);
 			return gui;
+		}
+		public String toString() 
+		{
+			return "[MultiClassClassifier:"+StringUtil.toString(innerClassifier,"\n","\n]","\n - ");
 		}
 	}
 }

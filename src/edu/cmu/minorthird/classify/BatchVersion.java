@@ -17,7 +17,7 @@ import java.util.List;
 public class BatchVersion extends BatchClassifierLearner
 {
 	private OnlineClassifierLearner innerLearner;
-	private int numberOfEpochs = 3;
+	private int numberOfEpochs = 1;
 	private List exampleList = new ArrayList();
 
 	public BatchVersion(OnlineClassifierLearner innerLearner,int numberOfEpochs)
@@ -25,8 +25,8 @@ public class BatchVersion extends BatchClassifierLearner
 		this.innerLearner = innerLearner;
 		this.numberOfEpochs = numberOfEpochs;
 	}
-	public BatchVersion(OnlineClassifierLearner innerLearner)	{	this(innerLearner,4);	}
-	public BatchVersion() {	this(new VotedPerceptron(),4); }
+	public BatchVersion(OnlineClassifierLearner innerLearner)	{	this(innerLearner,1);	}
+	public BatchVersion() {	this(new VotedPerceptron(),5); }
 	public int getNumberOfEpochs() { return numberOfEpochs; }
 	public void setNumberOfEpochs(int n) { numberOfEpochs=n; }
 	public OnlineClassifierLearner getInnerLearner() { return innerLearner; }

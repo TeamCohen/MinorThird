@@ -6,9 +6,12 @@ import edu.cmu.minorthird.text.CharAnnotation;
 import org.apache.log4j.Logger;
 
 /**
- * This class...
+ * An abstract annotator that is based on marking up substrings within
+ * a string, using the CharAnnotation class.
+ *
  * @author ksteppe
  */
+
 public abstract class StringAnnotator extends AbstractAnnotator
 {
   private static Logger log = Logger.getLogger(StringAnnotator.class);
@@ -43,6 +46,8 @@ public abstract class StringAnnotator extends AbstractAnnotator
     return null;
   }
 
+	/** Override this class to provide the actual annotations for a span.
+	 */
   protected abstract CharAnnotation[] annotateString(String spanString);
 
 }

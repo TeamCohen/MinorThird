@@ -44,14 +44,14 @@ public class SubPopIdTest extends TestCase
 		Dataset data1 = new BasicDataset();
 		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			Span s = i.nextSpan();
-			data1.add( new BinaryExample( fe.extractInstance(new EmptyLabels(), s), +1 ) );
+			data1.add( new Example( fe.extractInstance(new EmptyLabels(), s), ClassLabel.binaryLabel(+1 ) ));
 		}
 		
 		TextLabels labels = new BasicTextLabels(base);
 		Dataset data2 = new BasicDataset();
 		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			Span s = i.nextSpan();
-			data2.add( new BinaryExample( fe.extractInstance(labels,s), +1 ) );
+			data2.add( new Example( fe.extractInstance(labels,s), ClassLabel.binaryLabel(+1) ) );
 		}
 
 		checkSubPopIds(data1);

@@ -1,6 +1,5 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.mixup.Dependencies;
 import edu.cmu.minorthird.text.gui.*;
 import edu.cmu.minorthird.util.gui.*;
 import java.io.Serializable;

@@ -3,10 +3,12 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.util.gui.*;
+import edu.cmu.minorthird.util.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.io.*;
 
 /**
  * A set of examples for learning.
@@ -14,12 +16,12 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class BasicDataset implements Visible,Dataset
+public class BasicDataset implements Visible,Saveable,Dataset
 {
-  //ks42 - these are easily compressed if needed
 	protected ArrayList examples = new ArrayList();
   protected ArrayList unlabeledExamples = new ArrayList();
 	protected Set classNameSet = new TreeSet();
+	protected FeatureFactory factory = new FeatureFactory();
 	
 	public ExampleSchema getSchema()
 	{
@@ -31,7 +33,7 @@ public class BasicDataset implements Visible,Dataset
   //
   // methods for semisupervised data,  part of the SemiSupervisedDataset interface
   //
-  public void addUnlabeled(Instance instance) { unlabeledExamples.add( instance ); }
+  public void addUnlabeled(Instance instance) { unlabeledExamples.add( factory.compress(instance) ); }
   public Instance.Looper iteratorOverUnlabeled() { return new Instance.Looper( unlabeledExamples ); }
   //public ArrayList getUnlabeled() { return this.unlabeledExamples; }
   public int sizeUnlabeled() { return unlabeledExamples.size(); }
@@ -43,7 +45,7 @@ public class BasicDataset implements Visible,Dataset
   //
 	public void add(Example example)
 	{ 
-		examples.add( example.compress() ); 
+		examples.add( factory.compress(example) ); 
 		classNameSet.addAll( example.getLabel().possibleLabels() );
 	}
 
@@ -76,6 +78,13 @@ public class BasicDataset implements Visible,Dataset
 		return copy;
 	}
 
+	/** Save to disk with the DatasetLoader. */
+	public void saveAs(File file) throws IOException
+	{
+		DatasetLoader.save(this,file);
+	}
+
+	/** A string view of the dataset */
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer("");

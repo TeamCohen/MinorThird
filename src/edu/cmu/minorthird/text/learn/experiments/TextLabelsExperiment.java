@@ -257,16 +257,14 @@ public class TextLabelsExperiment implements Visible
 	{
 		try {
 			OnlineBinaryClassifierLearner learner = (OnlineBinaryClassifierLearner)Expt.toLearner(s);
-			BatchSequenceClassifierLearner seqLearner = 
-				new GenericCollinsLearner(learner,classWindowSize);
-			return new SequenceAnnotatorLearner(seqLearner, fe, classWindowSize);
+			BatchSequenceClassifierLearner seqLearner = new GenericCollinsLearner(learner,classWindowSize);
+			return new SequenceAnnotatorLearner(seqLearner, fe);
 		} catch (IllegalArgumentException ex) {
 			/* that's ok, maybe it's something else */ ;
 		}
 		try {
-			BatchSequenceClassifierLearner seqLearner = 
-				(BatchSequenceClassifierLearner)SequenceAnnotatorExpt.toSeqLearner(s);
-			return new SequenceAnnotatorLearner(seqLearner, fe, classWindowSize);
+			BatchSequenceClassifierLearner seqLearner = toSeqLearner(s);
+			return new SequenceAnnotatorLearner(seqLearner, fe);
 		} catch (IllegalArgumentException ex) {
 			/* that's ok, maybe it's something else */ ;
 		}
@@ -286,6 +284,25 @@ public class TextLabelsExperiment implements Visible
 			throw new IllegalArgumentException("error parsing learnerName '"+s+"':\n"+e);
 		}
 	}
+
+	static public BatchSequenceClassifierLearner toSeqLearner(String learnerName)
+	{
+		try {
+			bsh.Interpreter interp = new bsh.Interpreter();
+			interp.eval("import edu.cmu.minorthird.classify.*;");
+			interp.eval("import edu.cmu.minorthird.classify.experiments.*;");
+			interp.eval("import edu.cmu.minorthird.classify.algorithms.linear.*;");
+			interp.eval("import edu.cmu.minorthird.classify.algorithms.trees.*;");
+			interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
+			interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
+			interp.eval("import edu.cmu.minorthird.classify.sequential.*;");
+			interp.eval("import edu.cmu.minorthird.classify.transform.*;");
+			return (BatchSequenceClassifierLearner)interp.eval(learnerName);
+		} catch (bsh.EvalError e) {
+			throw new IllegalArgumentException("error parsing learnerName '"+learnerName+"':\n"+e);
+		}
+	}
+
 
 	public TextLabels getTestLabels() { return fullTestLabels; }
 

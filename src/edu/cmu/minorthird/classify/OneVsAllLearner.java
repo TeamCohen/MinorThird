@@ -73,8 +73,15 @@ public class OneVsAllLearner implements ClassifierLearner
 	{
 		int classIndex = schema.getClassIndex( answeredQuery.getLabel().bestClassName() );
 		for (int i=0; i<innerLearner.length; i++) {
-			int label = classIndex==i ? +1 : -1;
-			innerLearner[i].addExample( new BinaryExample( answeredQuery.asInstance(), label ) );
+			ClassLabel label = classIndex==i ? ClassLabel.positiveLabel(1.0) : ClassLabel.negativeLabel(-1.0);
+			innerLearner[i].addExample( new Example( answeredQuery.asInstance(), label ) );
+		}
+	}
+
+	public void completeTraining()
+	{
+		for (int i=0; i<innerLearner.length; i++) {
+			innerLearner[i].completeTraining();
 		}
 	}
 

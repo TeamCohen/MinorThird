@@ -20,6 +20,10 @@ public abstract class OnlineClassifierLearner implements ClassifierLearner
 		return (ClassifierLearner)clone(); 
 	}
 
+	/** Override this method if appropriate.
+	 */
+	public void completeTraining() {;}
+
 	/** Subclasses should use this method to to whatever incremental update is
 	 * needed after in response to a new example. 
 	 */

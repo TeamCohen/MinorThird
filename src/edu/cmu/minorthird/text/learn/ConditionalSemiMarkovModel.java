@@ -215,7 +215,7 @@ public class ConditionalSemiMarkovModel
 		}
 		
 		// build an example from a span and its context
-		private BinaryExample exampleFor(AnnotationExample example, Span span, Span prevSpan, double numberLabel)
+		private Example exampleFor(AnnotationExample example, Span span, Span prevSpan, double numberLabel)
 		{
 			Instance instance =  fe.extractInstance(example.getLabels(),span);
 			String prevLabel;
@@ -226,7 +226,7 @@ public class ConditionalSemiMarkovModel
 			}
 			Instance instanceFromSeq = new InstanceFromSequence(instance, new String[]{prevLabel});
 			if (DEBUG) log.debug("example for "+span+": "+instanceFromSeq);
-			return new BinaryExample( instanceFromSeq, numberLabel);
+			return new Example( instanceFromSeq, ClassLabel.binaryLabel(numberLabel));
 		}
 		
 		// the correct segments, as defined by the example
@@ -473,7 +473,7 @@ public class ConditionalSemiMarkovModel
 				features = new Feature[distances.length];
 				for (int d = 0; d < distances.length; d++) {
 					// save the feature name
-					features[d] =  Feature.Factory.getFeature(distances[d].toString());
+					features[d] =  new Feature(distances[d].toString());
 				}
 	    } catch (IOException e) {
 				e.printStackTrace();

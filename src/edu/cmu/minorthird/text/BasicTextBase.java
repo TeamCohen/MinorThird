@@ -120,11 +120,11 @@ public class BasicTextBase implements TextBase, Serializable
 
 	private TextToken[] getTokenArray(String documentId)
 	{
-        Document document = (Document)documentMap.get(documentId);
-				if (document!=null)
-          return document.getTokens();
-				else
-          return null;
+		Document document = (Document)documentMap.get(documentId);
+		if (document!=null)
+			return document.getTokens();
+		else
+			return null;
 	}
 
 	//

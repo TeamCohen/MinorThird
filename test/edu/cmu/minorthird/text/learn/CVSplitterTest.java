@@ -37,7 +37,7 @@ public class CVSplitterTest extends TestCase
 			for (int page=1; page<=numPagesPerSite; page++) {
 				MutableInstance inst = new MutableInstance("page"+page+".html", subpop);
 				inst.addBinary( new Feature("site"+site+".page"+page) );
-				data.add(new BinaryExample(inst, +1));
+				data.add(new Example(inst, ClassLabel.binaryLabel(+1)));
 				log.debug("instance: "+inst);
 			}
 		}

@@ -2,7 +2,6 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.algorithms.linear.LogisticRegressor;
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
@@ -53,7 +52,7 @@ public class SampleDatasets
       String word = tok.nextToken();
       instance.addBinary( new Feature(word) );
     }
-    return new BinaryExample( instance, label );
+    return new Example( instance, ClassLabel.binaryLabel(label ) );
   }
 
   /** Training data for a trivial classification problem.
@@ -169,7 +168,7 @@ public class SampleDatasets
       if (w==0) instance.addBinary( f );
       else instance.addNumeric( f,w+1 );
     }
-    return new BinaryExample( instance, label );
+    return new Example( instance, ClassLabel.binaryLabel(label) );
   }
 
   /** Training data for a trivial classification problem.
@@ -191,9 +190,9 @@ public class SampleDatasets
       double x = r.nextDouble();
       if (x>0.7) {
         instance.addNumeric(fx, 1.0);
-        result.add( new BinaryExample(instance, +1) );
+        result.add( new Example(instance, ClassLabel.binaryLabel(+1)) );
       } else {
-        result.add( new BinaryExample(instance, -1) );
+        result.add( new Example(instance, ClassLabel.binaryLabel(-1)) );
       }
     }
     return result;
@@ -225,7 +224,7 @@ public class SampleDatasets
       //double label = x<3 ? +1 : -1;
       double label = (x<3 && y<3 || x>7 && y>7) ? +1 : -1;
       //if (r.nextDouble() < 0.5) label *= -1;
-      result.add( new BinaryExample( instance, label ) );
+      result.add( new Example( instance, ClassLabel.binaryLabel(label )) );
     }
 
     return result;
@@ -243,8 +242,11 @@ public class SampleDatasets
       double x = rand.nextDouble();
       double p = MathUtil.logistic(a*x+b);
       double r = rand.nextDouble();
-      double y = p>r ? +1 : -1;
-      data.add(LogisticRegressor.univariateExample(x,y));
+      ClassLabel y = p>r ? ClassLabel.positiveLabel(1) : ClassLabel.negativeLabel(-1) ; 
+			MutableInstance instance = new MutableInstance();
+			instance.addNumeric(new Feature("x"), x);
+			instance.addBinary(new Feature("bias"));
+      data.add(new Example(instance, y));
     }
     return data;
   }
@@ -296,7 +298,7 @@ public class SampleDatasets
       MutableInstance instance = new MutableInstance();
       for (int j=0; j<ni; j++) {
         int wj = r.nextInt( what[ci].length );
-        instance.addBinary( Feature.Factory.getFeature(new String[]{ "word",what[ci][wj] })); //  Feature(new String[]{ "word",what[ci][wj] }) );
+        instance.addBinary( new Feature(new String[]{ "word",what[ci][wj] }));
       }
       result.add( new Example(instance, new ClassLabel(who[ci]) ) );
     }

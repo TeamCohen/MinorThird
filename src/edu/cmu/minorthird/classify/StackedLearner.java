@@ -3,8 +3,8 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
-import edu.cmu.minorthird.classify.algorithms.linear.LogisticRegressor;
 import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
+import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner;
 import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Logger;
 
@@ -37,7 +37,7 @@ public class StackedLearner extends BatchClassifierLearner
 	{
 		this(
 			new BatchClassifierLearner[]{innerLearner},	 
-			new LogisticRegressor(),
+			new MaxEntLearner(),
 			splitter);
 	}
 	/** Use stacked learning to calibrate the predictions of the inner learner
@@ -47,7 +47,7 @@ public class StackedLearner extends BatchClassifierLearner
 	{
 		this(
 			new BatchClassifierLearner[]{innerLearner},	 
-			new LogisticRegressor(),
+			new MaxEntLearner(),
 			new CrossValSplitter(3));
 	}
 	/** Use stacked learning to calibrate the predictions of AdaBoost
@@ -57,7 +57,7 @@ public class StackedLearner extends BatchClassifierLearner
 	{
 		this(
 			new BatchClassifierLearner[]{new AdaBoost()},	 
-			new LogisticRegressor(),
+			new MaxEntLearner(),
 			new CrossValSplitter(3));
 	}
 	/** Create a stacked learner.
@@ -141,7 +141,7 @@ public class StackedLearner extends BatchClassifierLearner
 			for (int h=0; h<schema.getNumberOfClasses(); h++) {
 				String className = schema.getClassName(h);
 				double w = ithPrediction.getWeight(className);
-				newInstance.addNumeric( Feature.Factory.getFeature(new String[]{learner,"class_"+className}), w); 
+				newInstance.addNumeric( new Feature(new String[]{learner,"class_"+className}), w); 
 			}
 		}
 		if (DEBUG) log.debug("Transformed "+newInstance+" <= "+oldInstance);
@@ -159,7 +159,7 @@ public class StackedLearner extends BatchClassifierLearner
 			for (int h=0; h<schema.getNumberOfClasses(); h++) {
 				String className = schema.getClassName(h);
 				double w = ithPrediction.getWeight(className);
-				newInstance.addNumeric( Feature.Factory.getFeature(new String[]{learner,"class_"+className}), w); 
+				newInstance.addNumeric( new Feature(new String[]{learner,"class_"+className}), w); 
 				buf.append("learner#"+(i+1)+" predicts "+className+":\n"+
 									 innerClassifiers[i].explain(oldInstance)+"\n");
 			}

@@ -29,12 +29,12 @@ public class Example implements Instance,Visible,Serializable
 		this.label = label;
 	}
 
-	/** compress the example, if possible */
-	public Example compress()
-	{
-		if (instance instanceof CompactInstance) return this;
-		else return new Example(new CompactInstance(instance),label);
-	}
+	// /** compress the example, if possible */
+	//public Example compress()
+	//{
+	//if (instance instanceof CompactInstance) return this;
+	//else return new Example(new CompactInstance(instance),label);
+  //}
 
 	/** get the label associated with the underlying object */
 	public ClassLabel getLabel() { return label; }

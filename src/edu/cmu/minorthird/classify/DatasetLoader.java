@@ -6,7 +6,6 @@ import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.StringEncoder;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
-import edu.cmu.minorthird.util.Loader;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -47,7 +46,7 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class DatasetLoader implements Loader
+public class DatasetLoader
 {
 	static private Logger log = Logger.getLogger(DatasetLoader.class);
 
@@ -144,7 +143,8 @@ public class DatasetLoader implements Loader
 	static private String asParsableString(Example x) 
 	{	
 		StringBuffer buf = new StringBuffer("");
-		buf.append((x instanceof BinaryExample) ? "b" : "k" );
+		//buf.append((x instanceof BinaryExample) ? "b" : "k" );
+		buf.append('k'); // backward compatibility for binary examples
 		buf.append(' ');
 		buf.append(stringCoder.encode(x.getSubpopulationId()!=null? x.getSubpopulationId() : "NUL"));
 		buf.append(' ');
@@ -186,16 +186,13 @@ public class DatasetLoader implements Loader
 				try {
 					String feature = arr[i].substring(0,eqPos);
 					String value = arr[i].substring(eqPos+1);
-					String[] featureParts = feature.split("\\.");
-					for (int j=0; j<featureParts.length; j++) 
-						featureParts[j] = featureCoder.decode(featureParts[j]);
 					double weight = Double.parseDouble(value); 
-					instance.addNumeric( Feature.Factory.getFeature(feature), weight); //new Feature(featureParts), weight);
+					instance.addNumeric( parseFeatureName(feature), weight);
 				} catch (NumberFormatException e) {
 					throw new IllegalArgumentException("bad feature# "+i+" line#"+in.getLineNumber()+" of "+file.getName());
 				}
 			} else {
-				instance.addBinary( Feature.Factory.getFeature(arr[i].split("\\."))); // Feature(arr[i].split("\\.")) );
+				instance.addBinary( parseFeatureName(arr[i]) );
 			}
 		}
 		ClassLabel label = (ClassLabel) classLabelDict.get(arr[2]);
@@ -206,11 +203,16 @@ public class DatasetLoader implements Loader
 			}
 			classLabelDict.put( arr[2], (label = new ClassLabel(arr[2])) );
 		}
-		if ("b".equals(arr[0])) {
-			return new BinaryExample(instance,label.numericScore());
-		} else {
-			return new Example(instance,label);
-		}
+		return new Example(instance,label);
+	}
+
+
+	static private Feature parseFeatureName(String string)
+	{
+		String[] featureParts = string.split("\\.");
+		for (int j=0; j<featureParts.length; j++) 
+			featureParts[j] = featureCoder.decode(featureParts[j]);
+		return new Feature(featureParts);
 	}
 
 
@@ -251,7 +253,18 @@ public class DatasetLoader implements Loader
     return dataset;
   }
 
-	static public void main(String[] args)
+  /**
+   * Calls loadFile.  The Dataset is temporarily swallowed.
+   * In other words, don't call this method.
+   * @param f
+   * @throws IOException
+   */
+  public Object load(File f) throws IOException
+  {
+    return loadFile(f);
+  }
+
+static public void main(String[] args)
 	{
 		try {
 			boolean sequential = "-sequential".equals(args[0]);
@@ -265,14 +278,5 @@ public class DatasetLoader implements Loader
 		}
 	}
 
-  /**
-   * Calls loadFile.  The Dataset is temporarily swallowed.
-   * In other words, don't call this method.
-   * @param f
-   * @throws IOException
-   */
-  public Object load(File f) throws IOException
-  {
-    return loadFile(f);
-  }
+
 }

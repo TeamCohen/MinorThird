@@ -88,7 +88,7 @@ class CommandLineUtil
 				Span s = i.nextSpan();
 				int classLabel = textLabels.hasType(s,spanType) ? +1 : -1;
 				String className = classLabel<0 ? ExampleSchema.NEG_CLASS_NAME : ExampleSchema.POS_CLASS_NAME;
-				dataset.add( new BinaryExample( fe.extractInstance(safeLabels,s), classLabel) );
+				dataset.add( new Example( fe.extractInstance(safeLabels,s), ClassLabel.binaryLabel(classLabel)) );
 				Integer cnt = (Integer)countByClass.get( className );
 				if (cnt==null) countByClass.put( className, new Integer(1) );
 				else countByClass.put( className, new Integer(cnt.intValue()+1) );
