@@ -1,0 +1,26 @@
+provide sentence;
+
+
+defDict stop = ., :, !, ? ;
+defDict common ="c:\minorthird\apps\names\lib\BritDict.txt";
+
+defTokenProp noStop:1 =~re '\S(\.)\S',1;     // exclude x.htm, periods in email etc.
+defTokenProp noStop:1 =~re '\S(\:)\S',1;
+defTokenProp noStop:1 =: ... !ai(common) ['.'] ... ;
+
+//may want to designate the start after a new line - and then mark the last TOKEN before that.
+
+defTokenProp endSec:1 =~re '(\S+\s{3,})',1;  // separated by spaces
+defTokenProp endSec:1 =~re '(\S+\n)',1;  // end of line
+defTokenProp endSec:1 =: ... [<a(stop),!noStop:1>] ... ;
+defTokenProp endSec:1 =: ... [any];
+
+defSpanType endSec =: ... [endSec:1] ... ;
+
+defSpanType sentence =: [!endSec:1+R endSec:1+R] ... ;
+defSpanType sentence =: [endSec:1+R] ... ;
+defSpanType sentence =: ... endSec:1+R [!endSec:1+R endSec:1+R] ... ;
+defSpanType sentence =: ... endSec:1+R [!endSec:1+R];
+
+
+
