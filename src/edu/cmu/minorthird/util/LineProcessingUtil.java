@@ -2,6 +2,7 @@ package edu.cmu.minorthird.util;
 
 import java.io.*;
 import java.util.regex.*;
+import edu.cmu.minorthird.text.*;
 
 /**
  * Line processing utilities.
@@ -238,6 +239,20 @@ public class LineProcessingUtil
 		BufferedWriter bWriter = new BufferedWriter(new FileWriter(outputFileName));
 		bWriter.write(aux.toString());
 		bWriter.close();
+	}
+	
+	
+	//don't use this
+	public static TextLabels readBsh(File dir, File envfile) throws Exception {
+		System.out.println("reading data files");
+		TextLabels lala  = TextBaseLoader.loadDirOfTaggedFiles(dir);
+		TextBase basevitor = lala.getTextBase();
+		
+		TextLabelsLoader labelLoaderVitor = new TextLabelsLoader();
+		System.out.println("reading env file...");
+		labelLoaderVitor.importOps((MutableTextLabels)lala, basevitor, envfile);
+		return lala;
+
 	}
 
 }
