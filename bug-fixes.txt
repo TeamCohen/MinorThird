@@ -29,4 +29,6 @@ Bug list:
 	threw out xml labels
 13 - FIXED (2/10/04) - TextBaseLoader
 	maintained span list between multiple documents in a single file
+14 - FIXED (2/11/04) - TextBaseLoader
+	blank documents no longer loaded
 	
