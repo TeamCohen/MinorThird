@@ -54,6 +54,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,int historySize)
 	{
 		this(seqLearner,new InsideOutsideReduction(),fe,historySize);
+		//this(seqLearner,new BeginContinueEndUniqueReduction(),fe,historySize);
 	}
 
   /**
@@ -137,6 +138,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	{
 		seqLearner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
 		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
+		//new ViewerFrame("data", seqData.toGUI());
 		if (DEBUG) log.debug("learned classifier: "+seqClassifier);
 		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, reduction, annotationType );
 	}
@@ -159,6 +161,11 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		private SpanFeatureExtractor fe;
 		private Extraction2TaggingReduction reduction;
 		private String annotationType;
+
+		public SequenceAnnotator(SequenceClassifier seqClassifier,SpanFeatureExtractor fe,String annotationType )
+		{
+			this(seqClassifier,fe,new InsideOutsideReduction(),annotationType);
+		}
 
 		public SequenceAnnotator(
 			SequenceClassifier seqClassifier,
