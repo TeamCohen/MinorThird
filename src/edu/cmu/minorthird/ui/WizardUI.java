@@ -212,10 +212,11 @@ public class WizardUI
         {
           selector = new MyTypeSelector(SimpleTextLoader.class);
           SimpleTextLoader loader = new SimpleTextLoader();
+          selector.addClass(RepositoryLoader.class);
+
           if (viewerContext.get(TASK_KEY).equals(TEXT_EXTRACT_TASK))
           {
             loader.setLabelFile(false);
-            selector.addClass(RepositoryLoader.class);
           }
           selector.setContent(loader);
         }

@@ -96,11 +96,12 @@ public class ExperimentWizard extends NullWizardPanel
 //        log.debug("viewer context: " + viewerContext.toString());
 
         Dataset trainDataset = null;
-        File testDataFile = (File)viewerContext.get("testDataFile");
+//        File testDataFile = (File)viewerContext.get("testDataFile");
 
         //Feature settings
         targetClass = (String)viewerContext.get("targetClass");
         SpanFeatureExtractor fe = (SpanFeatureExtractor)viewerContext.get("fe");
+        log.warn("span fe= " + fe);
 
         //Learner setting
         splitter = (Splitter)viewerContext.get("splitter");
@@ -238,7 +239,7 @@ public class ExperimentWizard extends NullWizardPanel
       {
         Span s = i.nextSpan();
         double label = labels.hasType(s, targetClass) ? +1 : -1;
-        data.add(new BinaryExample(fe.extractInstance(s), label));
+        data.add(new BinaryExample(fe.extractInstance(labels, s), label));
         progressCounter.progress();
       }
       progressCounter.finished();
