@@ -25,7 +25,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	static private int serialVersionUID = 1;
 	private final int CURRENT_SERIAL_VERSION = 1;
 	
-	
+    int histsize = 1;
 	ExampleSchema schema;
 	iitb.CRF.CRF crfModel;
 	java.util.Properties defaults;
@@ -39,8 +39,12 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		options = defaults;
 	}
 	public CRFLearner(int histsize, int epoch) {this();}
-	public CRFLearner(String args) {
+    	public CRFLearner(String args) {
+	    this(args,1);
+	}
+	public CRFLearner(String args, int histsize) {
 		this();
+		this.histsize = histsize;
 		StringTokenizer argTok = new StringTokenizer(args, " ");
 		options = new java.util.Properties(defaults);
 		while (argTok.hasMoreTokens()) {
@@ -55,7 +59,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		}
 	}
 	public void setSchema(ExampleSchema sch) {;}
-	public int getHistorySize() {return 1;}
+	public int getHistorySize() {return histsize;}
 	
 	class DataSequenceC implements iitb.CRF.DataSequence {
 		Instance[] sequence;
@@ -173,7 +177,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	    f.yend = stateId;
 	    f.ystart = -1;
 	    f.val = (float)example.getWeight(feature);
-	    setFeatureIdentifier(feature.numericName()*numStates+stateId, stateId, feature.toString(),f);
+	    setFeatureIdentifier(feature.numericName()*numStates+stateId, stateId, feature,f);
 	    advance();
 		}
 	};
@@ -181,19 +185,37 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	public class MTFeatureGenImpl extends iitb.Model.FeatureGenImpl {
 		public MTFeatureGenImpl(String modelSpecs, int numLabels, String[] labelNames) throws Exception {
 	    super(modelSpecs,numLabels,false);
-	    addFeature(new iitb.Model.EdgeFeatures(model, HISTORY_FEATURE+".1.",labelNames));
-	    addFeature(new iitb.Model.StartFeatures(model, HISTORY_FEATURE+".1."+NULL_CLASS_NAME));
-	    addFeature(new iitb.Model.EndFeatures(model));
+
+	    Feature features[] = new Feature[labelNames.length];
+	    for (int i = 0; i < labelNames.length; i++)
+		features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
+	    addFeature(new iitb.Model.EdgeFeatures(model, features));
+	    addFeature(new iitb.Model.StartFeatures(model, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+	    addFeature(new iitb.Model.EndFeatures(model, new Feature("E")));
+
+	    if (histsize > 1) {
+		//uncomment this for all n-gram history features, 
+		//addFeature(new iitb.Model.EdgeHistFeatures(model, HISTORY_FEATURE,labelNames,histsize));
+
+		// this is for minorthird style linear history features...
+		Feature histFeatures[][] = new Feature[histsize][labelNames.length];
+		for (int k = 1; k < histsize; k++) {
+		    for (int i = 0; i < labelNames.length; i++)
+			histFeatures[k][i] = new Feature(new String[]{ HISTORY_FEATURE, Integer.toString((k+1)), labelNames[i]});
+		}		
+		addFeature(new iitb.Model.EdgeLinearHistFeatures(model, histFeatures, histsize));		
+	    }
 	    addFeature(new MTFeatureTypes(model));
 		}
 	};
 	
 	iitb.Model.FeatureGenImpl featureGen;
 	SequenceUtils.MultiClassClassifier classifier;
+    CMM cmmClassifier;    
 
     iitb.CRF.DataIter  allocModel(SequenceDataset dataset) throws Exception {
 	featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
-	crfModel = new iitb.CRF.CRF(featureGen.numStates(),featureGen,options);	
+	crfModel = new iitb.CRF.CRF(featureGen.numStates(),histsize,featureGen,options);	
 	return new CRFDataIter(dataset);
     }
 
@@ -222,21 +244,22 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	    int numClasses = schema.getNumberOfClasses();
 	    w_t = new Hyperplane[numClasses];
 	    for (int i=0; i<numClasses; i++) {
-				w_t[i] = new Hyperplane();
-				w_t[i].setBias(0);
+		w_t[i] = new Hyperplane();
+		w_t[i].setBias(0);
 	    }
 	    for (int fIndex = 0; fIndex < crfWs.length; fIndex++) {
-
-		String fname = featureGen.featureIdentifier(fIndex).name;
+		Feature feature = (Feature)featureGen.featureIdentifier(fIndex).name;
 		int classIndex = featureGen.featureIdentifier(fIndex).stateId;
-		w_t[classIndex].increment(Feature.Factory.getFeature(fname),crfWs[fIndex]);
+		w_t[classIndex].increment(feature,crfWs[fIndex]);
 	    }
+	    
 	    classifier = new SequenceUtils.MultiClassClassifier(schema,w_t); 
-			return new CMM(classifier, 1, schema );	 
-    }
+	    return new CMM(classifier, histsize, schema );	 
+	    // return this;
+	    }
 
 	
-	/** Return a predicted type for each element of the sequence. */
+        /** Return a predicted type for each element of the sequence. */
 	public ClassLabel[] classification(Instance[] sequence) {
 		TestDataSequenceC seq = new TestDataSequenceC(sequence);
 		crfModel.apply(seq);
@@ -246,7 +269,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	
 	/** Return some string that 'explains' the classification */
 	public String explain(Instance[] sequence) {
-		return "not supported";
+	    return cmmClassifier.explain(sequence);
 	}
 	
 	public Viewer toGUI()
