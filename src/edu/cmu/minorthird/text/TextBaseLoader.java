@@ -91,6 +91,8 @@ public class TextBaseLoader implements Loader
   /**
    * where is the string id for each document found?
    * if loading one doc per line then could be NONE or IN_FILE, others invalid
+   *  NONE will generate a docId based on the line number
+   *  IN_FILE will generate an id from the first word on the line
    * if loading one doc per file then must be FILE_NAME (assumed)
    */
   private int docIdSourceType = FILE_NAME; //TODO longer name
