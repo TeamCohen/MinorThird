@@ -22,7 +22,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
 	private final int CURRENT_SERIAL_VERSION = 1;
 
 	static private Logger log = Logger.getLogger(BeamSearcher.class);
-	static private final boolean DEBUG = false;
+        static private final boolean DEBUG = false;
 
 	// parameters of beam searcher
 	private int historySize; 
@@ -78,7 +78,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
 			for (int j=0; j<Math.min( beam.size(), beamSize); j++) {
 				BeamEntry entry = beam.get(j);
 				if (DEBUG) log.debug("beam entry["+j+"]: "+entry);
-
+				
 				// classify example based on this history
 				Instance beamInstance = entry.getBeamInstance(instances[i]);
 				ClassLabel label = classifier.classification(beamInstance);
@@ -114,7 +114,9 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		}
 		return result;
 	}
-
+        public float score(int k) {
+	        return (float)beam.get(k).score;
+        }
 	public String explain(Instance[] sequence)
 	{
 		StringBuffer buf = new StringBuffer("");
@@ -235,5 +237,13 @@ public class BeamSearcher implements SequenceConstants, Serializable
 			}
 			return true;
 		}
+	    public String toString() {
+		String path = "[Key ";
+		for (int i=0; i<keyHistory.length; i++) {
+		    path += (keyHistory[i] + " ");
+		}
+		path += "]";
+		return path;
+	    }
 	}
 }
