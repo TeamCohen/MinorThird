@@ -12,14 +12,49 @@ import edu.cmu.minorthird.util.Loader;
 
 /**
  * Configurable Loader.<br>
+ * <br>
+ * Usage:
+ * Configure a loader object using the constructors or the get/set methods.<br>
+ * Call .load(File) with the file object to your data (could be a directory)<br>
+ * load(File) returns the TextBase object for the data.
+ *
+ * ex:
+ * //Load files in directory "Foo"
+ * //Use each file as a 'document', get document id's from the individual file names
+ * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME);
+ * TextBase base = TBL.load(new File("Foo"));
+ * ------------------------------------------------------
+ * //Load files in directory "Bar", the labels are embedded as xml tags
+ * //we'll use a static method as a shortcut
+ * TextBase base = TextBaseLoader.loadDirOfTaggedFiles(new File("Bar"));
+ * -------------------------------------------------------
+ * //Load single file "myData" as a single document with embedded labels
+ * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, true);
+ * TextBase base = TBL.load(new File("myData"));
+ * ---------------------------------------------------------
+ * //Load single file "moreData" as one document per line - first word is the document id
+ * //again we can use a static method shortcut
+ * TextBase base = TextBaseLoader.loadDocPerLine(new File("moreData"), false);
+ * //This time "groupData" has a group id as the second word in the document
+ * TextBase base = TextBaseLoader.loadDocPerLine(new File("groupData"), true);
+ * -----------------------------------------------------------
+ * //Load all files in "myDir" including subdirectories, one doc per file, and documents should be categorized with the
+ * //name of the directory they are in.  Labels are embedded as xml in the file
+ * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, NONE, DIRECTORY_NAME, true, true);
+ * TextBase base = TBL.load(new File("myDir"));
+ * -----------------------------------------------------------------
+ *
+ *
  * Configure the loader for the format of the data you have.  Then call load to return a TextBase<br.
+ * <br>
+ *
  * <br>
  * There are 6 parameters:<br>
  * <ul>
  * <li>documentStyle - is a 'document' the full text of the file or from a single line?</li>
- * <li>docID - where should the id be taken from?  NONE (ie default), from the FILE_NAME, from the first word IN_FILE?</li>
- * <li>groupID - where should the document group be taken from?  NONE (no group ids), FILE_NAME, DIRECTORY_NAME, second word IN_FILE?</li>
- * <li>categoryID - add a category label to each document?  NONE (no label), DIRECTORY_NAME (ie by directory), FILE_NAME?</li>
+ * <li>docIdSourceType - where should the id be taken from?  NONE (ie default), from the FILE_NAME, from the first word IN_FILE?</li>
+ * <li>groupIdSourceType - where should the document group be taken from?  NONE (no group ids), FILE_NAME, DIRECTORY_NAME, second word IN_FILE?</li>
+ * <li>categoryIdSourceType - add a category label to each document?  NONE (no label), DIRECTORY_NAME (ie by directory), FILE_NAME?</li>
  * <li>labelsInFile - are their xml style label tags on the data? (boolean)</li>
  * <li>recurseDirectories - search directories recursively for more data? (boolean) note that "CVS" directories will be omitted</li>
  * </ul>
