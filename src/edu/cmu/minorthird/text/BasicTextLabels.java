@@ -24,6 +24,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	private Map textTokenPropertyMap = new HashMap();
 	private Set textTokenPropertySet = new HashSet();
 	private Map spanPropertyMap = new HashMap();
+	private Map spansWithSomePropertyByDocId = new HashMap();
 	private Set spanPropertySet = new HashSet();
 	private Map typeDocumentSetMap = new TreeMap();
 	private Map closureDocumentSetMap = new HashMap();
@@ -139,10 +140,43 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 		return spanPropertySet;
 	}
 
+	/** Find all spans that have a non-null value for this property. */
+	public Span.Looper getSpansWithProperty(String prop)
+	{
+		TreeSet accum = new TreeSet();
+		for (Iterator i=spanPropertyMap.keySet().iterator(); i.hasNext(); ) {
+			Span s = (Span)i.next();
+			if (getProperty(s,prop)!=null) {
+				accum.add(s);
+			}
+		}
+		return new BasicSpanLooper(accum);
+	}
+
+	/** Find all spans that have a non-null value for this property. */
+	public Span.Looper getSpansWithProperty(String prop,String id)
+	{
+		TreeSet set = (TreeSet)spansWithSomePropertyByDocId.get(id);
+		if (set==null) return new BasicSpanLooper(Collections.EMPTY_SET);
+		else {
+			TreeSet accum = new TreeSet();
+			for (Iterator i=set.iterator(); i.hasNext(); ) {
+				Span s = (Span)i.next();
+				if (getProperty(s,prop)!=null) {
+					accum.add(s);
+				}
+			}
+			return new BasicSpanLooper(accum);
+		}
+	}
+
 	/** Assert that Span span has the given value of the given property */
 	public void setProperty(Span span,String prop,String value) {
 		getPropMap(span).put(prop,value);
 		spanPropertySet.add(prop);
+		TreeSet set = (TreeSet)spansWithSomePropertyByDocId.get(span.getDocumentId());
+		if (set==null) spansWithSomePropertyByDocId.put(span.getDocumentId(),(set=new TreeSet()));
+		set.add(span);
 	}
 
 	private TreeMap getPropMap(Span span) {

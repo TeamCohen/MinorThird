@@ -57,6 +57,14 @@ public class SubTextLabels implements TextLabels,Visible
 		return labels.getSpanProperties();
 	}
 
+	public Span.Looper getSpansWithProperty(String prop) {
+		return filter( labels.getSpansWithProperty(prop) );
+	}
+
+	public Span.Looper getSpansWithProperty(String prop,String id) {
+		return filter( labels.getSpansWithProperty(prop,id) );
+	}
+
 	public boolean hasType(Span span,String type) {
 		return subBase.contains(span) ? labels.hasType(span,type) : false;
 	}

@@ -36,13 +36,24 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	protected int historySize = 3;
 	protected SequenceDataset seqData = new SequenceDataset();
 	protected BatchSequenceClassifierLearner seqLearner;
+	protected Extraction2TaggingReduction reduction = new InsideOutsideReduction();
+	protected boolean annotatedWithProperties=false;
 
-	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,int historySize)
+	public SequenceAnnotatorLearner(
+		BatchSequenceClassifierLearner seqLearner,
+		Extraction2TaggingReduction reduction,
+		SpanFeatureExtractor fe,
+		int historySize)
 	{
 		this.seqLearner = seqLearner;
+		this.reduction = reduction;
 		this.fe = fe;
 		this.historySize = historySize;
 		seqData.setHistorySize(historySize);
+	}
+	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,int historySize)
+	{
+		this(seqLearner,new InsideOutsideReduction(),fe,historySize);
 	}
 
   /**
@@ -61,6 +72,17 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		seqData = new SequenceDataset();
 	}
 
+	//
+	// getters and setters
+	//
+	public int getHistorySize() { return historySize; }
+	public void setHistorySize(int historySize) { this.historySize=historySize; }
+	public BatchSequenceClassifierLearner getSequenceClassifierLearner() { return seqLearner; }
+	public void setSequenceClassifierLearner(BatchSequenceClassifierLearner learner) { this.seqLearner=learner; }
+	public Extraction2TaggingReduction getTaggingReduction() { return reduction; }
+	public void setTaggingReduction(Extraction2TaggingReduction reduction) { this.reduction = reduction; }
+	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
+	public void setSpanFeatureExtractor(SpanFeatureExtractor fe) {this.fe = fe;	}
 	/** Specify the type of annotation produced by this annotator - that is, the
 	 * type associated with spans produced by it. */
 	public void setAnnotationType(String s) { annotationType=s; }
@@ -87,24 +109,22 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery)
 	{
-		TextLabels oldAnswerLabels = answeredQuery.getLabels();
-		TextLabels answerLabels = answeredQuery.labelTokensInsideOutside("insideOutside");
+		if (answeredQuery.getInputProp()!=null) annotatedWithProperties=true;
+
+		reduction.reduceExtraction2Tagging(answeredQuery);
+		TextLabels answerLabels = reduction.getTaggedLabels();
 		Span document = answeredQuery.getDocumentSpan();
 		Example[] sequence = new Example[document.size()];
 		for (int i=0; i<document.size(); i++) {
 			Token tok = document.getToken(i);
-			String value = answerLabels.getProperty(tok,"insideOutside");
-			if (AnnotationExample.INSIDE.equals(value)) {
+			String value = answerLabels.getProperty(tok,reduction.getTokenProp());
+			if (value!=null) {
+				ClassLabel classLabel = new ClassLabel(value);
 				Span tokenSpan = document.subSpan(i,1);
-				BinaryExample example = new BinaryExample( fe.extractInstance(oldAnswerLabels,tokenSpan), INSIDE_LABEL);
-				sequence[i] = example;
-			} else if (AnnotationExample.OUTSIDE.equals( value )) {
-				Span tokenSpan = document.subSpan(i,1);
-				BinaryExample example = new BinaryExample( fe.extractInstance(oldAnswerLabels,tokenSpan), OUTSIDE_LABEL);
+				Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
 				sequence[i] = example;
 			} else {
-				log.warn("token "+tok+" not labeled in "+document.getDocumentId()+" - ignoring test of document");
-				//System.out.println("input type "+answeredQuery.getInputType());
+				log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
 				return;
 			}
 		}
@@ -118,7 +138,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		seqLearner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
 		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
 		if (DEBUG) log.debug("learned classifier: "+seqClassifier);
-		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, annotationType );
+		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, reduction, annotationType );
 	}
 
 	/** Get the constructed sequence data.
@@ -128,35 +148,27 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		return seqData;
 	}
 
-	public SpanFeatureExtractor getSpanFeatureExtractor()
-	{
-		return fe;
-	}
-
-	public void setSpanFeatureExtractor(SpanFeatureExtractor fe)
-	{
-		this.fe = fe;
-	}
+	//
+	// learned annotator
+	//
 
 	public static class SequenceAnnotator extends AbstractAnnotator implements Serializable,Visible,ExtractorAnnotator
 	{
-		private static final long serialVersionUID = 1;
-		private static Mixup mergeExpr;
-		static {
-			try {
-				mergeExpr = new Mixup("...[L insideOutside:inside+ R]...");
-			} catch (Mixup.ParseException e) {
-				throw new IllegalStateException("static init error"+e);
-			}
-		}
+		private static final long serialVersionUID = 2;
 		private SequenceClassifier seqClassifier;
-		private String annotationType;
 		private SpanFeatureExtractor fe;
+		private Extraction2TaggingReduction reduction;
+		private String annotationType;
 
-		public SequenceAnnotator( SequenceClassifier seqClassifier, SpanFeatureExtractor fe, String annotationType )
+		public SequenceAnnotator(
+			SequenceClassifier seqClassifier,
+			SpanFeatureExtractor fe,
+			Extraction2TaggingReduction reduction,
+			String annotationType )
 		{
 			this.seqClassifier = seqClassifier;
 			this.fe = fe;
+			this.reduction = reduction;
 			this.annotationType = annotationType;
 		}
 
@@ -165,7 +177,7 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		protected void doAnnotate(MonotonicTextLabels labels)
 		{
 			Span.Looper i = labels.getTextBase().documentSpanIterator();
-			ProgressCounter pc = new ProgressCounter("annotating", "document", i.estimatedSize() );
+			ProgressCounter pc = new ProgressCounter("tagging with classifier", "document", i.estimatedSize() );
 			while (i.hasNext() ) {
 				Span s = i.nextSpan();
 				Instance[] sequence = new Instance[s.size()];
@@ -175,18 +187,12 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 				}
 				ClassLabel[] classLabels = seqClassifier.classification( sequence );
 				for (int j=0; j<classLabels.length; j++) {
-					boolean inside = classLabels[j].isPositive();
-					labels.setProperty( s.getToken(j), "insideOutside", (inside?"inside":"outside") );
-					if (DEBUG && inside) log.debug("inside: '"+s.getToken(j).getValue()+"'");
+					labels.setProperty( s.getToken(j), reduction.getTokenProp(), classLabels[j].bestClassName() );
 				}
 				pc.progress();
 			}
-			for (Span.Looper j=mergeExpr.extract(labels, labels.getTextBase().documentSpanIterator()); j.hasNext(); ) {
-				Span s = j.nextSpan();
-				labels.addToType( s, annotationType );
-				if (DEBUG) log.debug(annotationType+": '"+s.asString()+"'");
-			}
 			pc.finished();
+			reduction.extractFromTags( annotationType, labels );
 		}
 		public String explainAnnotation(TextLabels labels,Span documentSpan)
 		{

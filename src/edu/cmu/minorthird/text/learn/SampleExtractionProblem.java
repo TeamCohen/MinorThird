@@ -47,6 +47,10 @@ public class SampleExtractionProblem
 		     +"Carmen Sandiego,George Bush,Curious George,George Mason",
 		// used as candidates to filter
 		"defSpanType bigram =: ... [any any] ... ",
+		// used to test learning against a span property
+		"defSpanProp inCapsBecause:name =: ... [@trueName] ...",
+		"defSpanProp inCapsBecause:start =: [any]...@trueName...",
+		"defSpanType inCapsBecauseStart =: [any]...@trueName...",
 		// used for classification tests
 		"defSpanType political =: [ ... 'Clinton' ... ] || [... 'George' 'Bush' ...]",
 		"defSpanProp subject:politics =: [@political]",

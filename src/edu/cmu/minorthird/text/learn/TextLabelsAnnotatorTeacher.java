@@ -13,11 +13,18 @@ public class TextLabelsAnnotatorTeacher extends AnnotatorTeacher
 {
 	private TextLabels labels;
 	private String userLabelType;
+	private String userLabelProp;
 
 	public TextLabelsAnnotatorTeacher(TextLabels labels,String userLabelType)
 	{
+		this(labels,userLabelType,null);
+	}
+
+	public TextLabelsAnnotatorTeacher(TextLabels labels,String userLabelType,String userLabelProp)
+	{
 		this.labels = labels;
 		this.userLabelType = userLabelType;
+		this.userLabelProp = userLabelProp;
 	}
 
 	public Span.Looper documentPool()
@@ -31,7 +38,7 @@ public class TextLabelsAnnotatorTeacher extends AnnotatorTeacher
 			throw new IllegalArgumentException("can't label a partial document");
 		}
 		// should really generate a restricted view of this labels, containing just one document...
-		AnnotationExample example = new AnnotationExample( query, labels, userLabelType, null );
+		AnnotationExample example = new AnnotationExample( query, labels, userLabelType, userLabelProp );
 		return example;
 	}
 

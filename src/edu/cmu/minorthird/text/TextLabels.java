@@ -36,6 +36,13 @@ public interface TextLabels
 	/** Get the value of the named property which has been associated with this Span.  */
 	public String getProperty(Span span,String prop);
 
+	/** Find all spans that have a non-null value for this property. */
+	public Span.Looper getSpansWithProperty(String prop);
+
+	/** Find all spans in the named document that have a non-null value
+	 * for this property. */
+	public Span.Looper getSpansWithProperty(String prop, String documentId);
+
 	/** Get a set of all previously-defined properties.  */
 	public Set getSpanProperties();
 

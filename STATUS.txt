@@ -1,27 +1,32 @@
 UI notes:
 
 to do:
-  finish gui
-  - split out UIMain into its own class-done
-  - finish making all the params stuff gui-accessible
-  - finish visual layout, etc
-  simple annotator API 
-  figure out how to configure text classifier fe's
-  -- bagOfProperties, bagOfTypes?
+  progress counter & threads for dataset loading   
+  check shadowType
+  clear progress bars after they finish?
+  find annotating, presenting examples to annotation learner ProgressCounters
+  output summary of textLabels after load
+  output total time in UI after command completion?
+  something wrong with "TrainTest extractor -test "?
+  guify classify.experiments.Expt into classify.ui 
 
 BUGS:
    - MontyLingua loaded every time a 'require POS' happens
    - should precision/recall start at something other than 1.0 (max precision?)
    and have a graph come out somehow if there is no range?
    - spanClosures are not stored properly (only by document); should really store tokenProps and spanProps also
+   and CWA isn't even tracked for span properties
    - new SmartVanillaViewer(object ) doesn't work as well as loading object after creation-fixed?
    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
    - performance issues loading in large files (with markup?)
 
 CLEANUPS/DESIGN:
 
+ - linkage issues
+ - remove BinaryExample?
+ - remove apps/ksteppe, broken demos, BatchInsideOutsideLearner,BatchFilteredFinderLearner,BinaryExample?
+ - fix mixup parser to be consistent, fix Dependency/Mixup mess, Dependency to text, remove 'requirements' in Annotator
  - fix FeatureFactory mess
- - move Dependency to text, remove 'requirements' in Annotator
  - add to mixup 'begin' ... 'end exporting a as b,c as d,...;'
  - transform.MaskedInstance could be more efficient
  - classify.algorithm.random, classify.algorithm.active are misplaced

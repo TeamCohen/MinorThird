@@ -27,7 +27,7 @@ public class TextLabelsExperiment implements Visible
 	private TextLabels labels;
 	private Splitter splitter;
 	private AnnotatorLearner learner;
-	private String inputLabel;
+	private String inputType,inputProp;
 	private MonotonicTextLabels fullTestLabels;
 	private MonotonicTextLabels[] testLabels;
 	private String outputLabel;
@@ -46,22 +46,29 @@ public class TextLabelsExperiment implements Visible
 	 * with the learned annotator.)
    */
 	public TextLabelsExperiment(
-		TextLabels labels,Splitter splitter,String learnerName,String inputLabel,String outputLabel) 
+		TextLabels labels,Splitter splitter,String learnerName,String inputType,String outputLabel) 
 	{
 		this.labels = labels;
 		this.splitter = splitter;
-		this.inputLabel = inputLabel;
+		this.inputType = inputType;
 		this.outputLabel = outputLabel;
 		this.learner = toAnnotatorLearner(learnerName);
 		learner.setAnnotationType( outputLabel );
 	}
 
 	public TextLabelsExperiment(
-		TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputLabel,String outputLabel)
+		TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputType,String outputLabel)
+	{
+		this(labels,splitter,learner,inputType,null,outputLabel);
+	}
+
+	public TextLabelsExperiment(
+		TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputType,String inputProp,String outputLabel)
 	{
 		this.labels = labels;
 		this.splitter = splitter;
-		this.inputLabel = inputLabel;
+		this.inputType = inputType;
+		this.inputProp = inputProp;
 		this.outputLabel = outputLabel;
 		this.learner = learner;
 		learner.setAnnotationType( outputLabel );
@@ -73,7 +80,6 @@ public class TextLabelsExperiment implements Visible
 
 	public void doExperiment() 
 	{
-
 		splitter.split( labels.getTextBase().documentSpanIterator() );
 
 		annotators = new Annotator[ splitter.getNumPartitions() ];
@@ -98,7 +104,7 @@ public class TextLabelsExperiment implements Visible
 
 			SubTextBase trainBase = new SubTextBase( labels.getTextBase(), splitter.getTrain(i) );
 			SubTextLabels trainLabels = new SubTextLabels( trainBase, labels );
-			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( trainLabels, inputLabel );
+			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( trainLabels, inputType, inputProp );
 
       log.info("Training annotator...");
 			annotators[i] = teacher.train( learner );
@@ -161,14 +167,50 @@ public class TextLabelsExperiment implements Visible
 	private void measurePrecisionRecall(String tag,TextLabels labels)
 	{
 		//System.out.println("output label = "+outputLabel);
-		//System.out.println("input label = "+inputLabel);
-		SpanDifference sd =
-			new SpanDifference( 
-				labels.instanceIterator(outputLabel),
-				labels.instanceIterator(inputLabel),
-				labels.closureIterator(inputLabel) );
-		System.out.println(tag);
-		System.out.println(sd.toSummary());
+		//System.out.println("input label = "+inputType);
+		if (inputType!=null) {
+			SpanDifference sd =
+				new SpanDifference( 
+					labels.instanceIterator(outputLabel),
+					labels.instanceIterator(inputType),
+					labels.closureIterator(inputType) );
+			System.out.println(tag);
+			System.out.println(sd.toSummary());
+		} else {
+			Set propValues = new HashSet();
+			for (Span.Looper i=labels.getSpansWithProperty(inputProp); i.hasNext(); ) {
+				Span s = i.nextSpan();
+				propValues.add( labels.getProperty(s,inputProp) );
+			}
+			for (Iterator i=propValues.iterator(); i.hasNext(); ) {
+				String val = (String)i.next();
+				SpanDifference sd =
+					new SpanDifference( 
+						propertyIterator(labels,outputLabel,val),
+						propertyIterator(labels,inputProp,val),
+						labels.getTextBase().documentSpanIterator());
+				System.out.println(tag+" for "+inputProp+":"+val+":");
+				System.out.println(sd.toSummary());
+			}
+			SpanDifference sd =
+				new SpanDifference( 
+					propertyIterator(labels,outputLabel,null),
+						propertyIterator(labels,inputProp,null),
+						labels.getTextBase().documentSpanIterator());
+			System.out.println(tag+" for all values of "+inputProp+":");
+			System.out.println(sd.toSummary());
+		}
+	}
+	private Span.Looper propertyIterator(TextLabels labels,String prop,String value)
+	{
+		List accum = new ArrayList();
+		for (Span.Looper i=labels.getSpansWithProperty(prop); i.hasNext(); ) {
+			Span s = i.nextSpan();
+			if (value==null || value.equals(labels.getProperty(s,prop))) {
+				accum.add(s );
+			}
+		}
+		return new BasicSpanLooper(accum);
 	}
 
 	public AnnotatorLearner toAnnotatorLearner(String s)
@@ -213,7 +255,7 @@ public class TextLabelsExperiment implements Visible
 		String outputLabel="_prediction"; 
 		String learnerName="new CollinsPerceptronLearner()";
 		TextLabels labels=null;
-		String inputLabel=null, saveFileName=null, show=null, annotationNeeded=null;
+		String inputType=null, saveFileName=null, show=null, annotationNeeded=null;
 		ArrayList featureMods = new ArrayList();
 
 		try {
@@ -227,7 +269,7 @@ public class TextLabelsExperiment implements Visible
 				} else if (opt.startsWith("-split")) {
 					splitter = Expt.toSplitter(args[pos++]);
 				} else if (opt.startsWith("-in")) {
-					inputLabel = args[pos++];
+					inputType = args[pos++];
 				} else if (opt.startsWith("-out")) {
 					outputLabel = args[pos++];
 				} else if (opt.startsWith("-save")) {
@@ -243,11 +285,11 @@ public class TextLabelsExperiment implements Visible
 					return;
 				}
 			}
-			if (labels==null || learnerName==null || splitter==null|| inputLabel==null || outputLabel==null) {
+			if (labels==null || learnerName==null || splitter==null|| inputType==null || outputLabel==null) {
 				usage();
 				return;
 			}
-      TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,inputLabel,outputLabel);
+      TextLabelsExperiment expt = new TextLabelsExperiment(labels,splitter,learnerName,inputType,outputLabel);
 			if (annotationNeeded!=null) {
 				expt.getFE().setRequiredAnnotation(annotationNeeded);
 				expt.getFE().setAnnotationProvider(annotationNeeded+".mixup");
@@ -291,7 +333,7 @@ public class TextLabelsExperiment implements Visible
 		String[] usageLines = new String[] {
 			"usage: options are:",
 			"       -label labelsKey   dataset to load",
-			"       -input inputLabel  label that defines the extraction target",
+			"       -input inputType   label that defines the extraction target",
 			"       -learn learner     Java code to construct the learner, which could be an ",
 			"                          an AnnotatorLearner, a BatchSequenceClassifierLearner, or an OnlineClassifierLearner",
 			"                          - a BatchSequenceClassifierLearner is used to defined a SequenceAnnotatorLearner",

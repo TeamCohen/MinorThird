@@ -1,7 +1,6 @@
 package edu.cmu.minorthird.text;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.text.gui.*;
 
@@ -93,6 +92,20 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 			String r = outer.getProperty(token,prop);
 			return r!=null ? r : inner.getProperty(token,prop);
 		}
+	}
+
+	public Span.Looper getSpansWithProperty(String prop) {
+		if (shadowedProperties.contains(prop)) return new BasicSpanLooper(Collections.EMPTY_SET.iterator());
+		else if (!outer.getSpanProperties().contains(prop)) return inner.getSpansWithProperty(prop);
+		else if (!inner.getSpanProperties().contains(prop)) return outer.getSpansWithProperty(prop);
+		else return new MyUnionIterator( outer.getSpansWithProperty(prop), inner.getSpansWithProperty(prop) ); 
+	}
+
+	public Span.Looper getSpansWithProperty(String prop,String id) {
+		if (shadowedProperties.contains(prop)) return new BasicSpanLooper(Collections.EMPTY_SET.iterator());
+		else if (!outer.getSpanProperties().contains(prop)) return inner.getSpansWithProperty(prop,id);
+		else if (!inner.getSpanProperties().contains(prop)) return outer.getSpansWithProperty(prop,id);
+		else return new MyUnionIterator( outer.getSpansWithProperty(prop,id), inner.getSpansWithProperty(prop,id) ); 
 	}
 
 	public Set getTokenProperties() {

@@ -378,7 +378,7 @@ public class TypeSelector extends ComponentViewer
 							panel.add(selector, gbc(1,row));
 						} else {
 							log.debug("type "+type+" is not editable");
-							panel.add(new JLabel(value==null ? "null " : value.toString()), gbc(2,row));
+							panel.add(new JLabel(value==null ? "null " : value.toString()), gbc(1,row));
 						}
 						//panel.add(new JLabel(type.toString()), gbc(1,row));
 						log.debug("property "+row+"\n  name: "+name+"\n  type: "+type+"\n  value: "+value);

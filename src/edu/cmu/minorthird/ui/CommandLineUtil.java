@@ -254,17 +254,13 @@ class CommandLineUtil
 	}
 
 	/** Parameters encoding the 'training signal' for classification learning. */
-	public static class ClassificationSignalParams extends BasicCommandLineProcessor {
+	public static class ClassificationSignalParams extends ExtractionSignalParams {
 		private BaseParams base=new BaseParams();
 		/** Not recommended, but required for bean-shell like visualization */
-		public ClassificationSignalParams() {;}
-		public ClassificationSignalParams(BaseParams base) {this.base=base;}
-		public String spanProp=null;
-		public String spanType=null;
+		public ClassificationSignalParams() {super();}
+		public ClassificationSignalParams(BaseParams base) {super(base);}
 		public String candidateType=null;
 		public void candidateType(String s) { this.candidateType=s; }
-		public void spanProp(String s) { this.spanProp=s; }
-		public void spanType(String s) { this.spanType=s; }
 		// useful abstractions
 		public String getOutputType(String output) { return spanType==null ? null : output;	}
 		public String getOutputProp(String output) { return spanProp==null ? null : output; }
@@ -285,19 +281,6 @@ class CommandLineUtil
 		public Object[] getAllowedCandidateTypeValues() { 
 			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
 		}
-		public String getSpanProp() { return safeGet(spanProp,"n/a"); }
-		public void setSpanProp(String s) { spanProp = safePut(s,"n/a"); }
-		public Object[] getAllowedSpanPropValues() {
-			return base.labels==null ? new String[]{} : base.labels.getSpanProperties().toArray();
-		}
-		public String getSpanType() { return safeGet(spanType,"n/a"); }
-		public void setSpanType(String s) { spanType = safePut(s,"n/a"); }
-		public Object[] getAllowedSpanTypeValues() {
-			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
-		}
-		// subroutines for gui
-		private String safeGet(String s,String def) { return s==null?def:s; }
-		private String safePut(String s,String def) { return def.equals(s)?null:s; }
 	}
 
 	/** Parameters for training a classifier. */
@@ -427,18 +410,29 @@ class CommandLineUtil
 		public ExtractionSignalParams() {;}
 		public ExtractionSignalParams(BaseParams base) {this.base=base;}
 		public String spanType=null;
+		public String spanProp=null;
 		public void spanType(String s) { this.spanType=s; }
+		public void spanProp(String s) { this.spanProp=s; }
 		public void usage() {
 			System.out.println("extraction 'signal' parameters:");
-			System.out.println(" -spanType TYPE           create a binary dataset, where subsequences that");
-			System.out.println("                          are marked with spanType TYPE are positive");
+			System.out.println(" -spanType TYPE           learn how to extract the given TYPE");
+			System.out.println(" -spanProp PROP           learn how to extract spans with the given property");
+			System.out.println("                          and label them with the given property");
 		}
 		// for gui
-		public String getSpanType() { return spanType==null?"n/a": spanType; }
-		public void setSpanType(String t) { this.spanType = "n/a".equals(t)?null:t; } 
+		public String getSpanType() { return safeGet(spanType,"n/a");}
+		public void setSpanType(String t) { this.spanType = safePut(t,"n/a"); }
+		public String getSpanProp() { return safeGet(spanProp,"n/a"); }
+		public void setSpanProp(String p) { spanProp = safePut(p,"n/a"); }
 		public Object[] getAllowedSpanTypeValues() { 
 			return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
 		}
+		public Object[] getAllowedSpanPropValues() { 
+			return base.labels==null ? new String[]{} : base.labels.getSpanProperties().toArray();
+		}
+		// subroutines for gui setters/getters
+		protected String safeGet(String s,String def) { return s==null?def:s; }
+		protected String safePut(String s,String def) { return def.equals(s)?null:s; }
 	}
 
 	/** Parameters encoding the 'training signal' for learning a token-tagger. */
@@ -453,6 +447,7 @@ class CommandLineUtil
 			System.out.println("tagger 'signal' parameters:");
 			System.out.println(" -tokenProp TYPE          create a sequential dataset, where tokens are");
 			System.out.println("                          given the class associated with this token property");
+			System.out.println();
 		}
 		// for gui
 		public String getTokenProp() { return tokenProp==null?"n/a": tokenProp; }
