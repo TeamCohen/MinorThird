@@ -183,6 +183,7 @@ public class SpeechAct {
 	  	boolean sophie = false; 
 	  	
 	  	//list only the requests in a directory - Sophie's request
+	  	//to Sophie - usage: SpeechAct -reqSophie tmpdirectory outputFileName
 	  	if ((opt.startsWith("-sophie")) || (opt.startsWith("sophie"))) {
 	  		//to Sophie - usage: SpeechAct -reqSophie tmpdirectory outputFileName
 	  		sophie = true; 
