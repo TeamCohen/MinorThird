@@ -62,7 +62,8 @@ public class TextBaseViewer extends JComponent
   public void updateTextLabels(TextLabels newLabels)
   {
     this.labels = newLabels;
-    highlightAction.paintDocument(null); // repaint everything
+    initializeLayout(null);
+    //highlightAction.paintDocument(null); // repaint everything
   }
 	
   public TextBaseViewer(TextBase base, TextLabels labels, StatusMessage statusMsg)

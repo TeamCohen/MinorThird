@@ -47,6 +47,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 
 	public void reset() 
 	{
+	    super.reset();
 		s_t = new Hyperplane();
 		w_t = new Hyperplane();
 		if (ignoreWeights) {
@@ -66,8 +67,12 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner
 
 	public Classifier getClassifier() 
 	{
-		return s_t;
+	    if(c != null) {
+		c.increment(s_t);
+		return c;
+	    }
+	    return s_t;
 	}
 
-	public String toString() { return "[VotedPerceptron]"; }
+	public String toString() { return "VotedPerceptron"; }
 }

@@ -83,6 +83,8 @@ public class TrainClassifier extends UIMain
 		String type = signal.getOutputType(train.output);
 		String prop = signal.getOutputProp(train.output);
 		ClassifierAnnotator ann = new ClassifierAnnotator(train.fe,classifier,type,prop,signal.candidateType);
+		ann.setLearnedSpanType(signal.spanType);
+		ann.setClassifierLearner(train.learnerName);
 
 		if (save.saveAs!=null) {
 			try {

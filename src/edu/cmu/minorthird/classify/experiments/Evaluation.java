@@ -685,8 +685,7 @@ public class Evaluation implements Visible,Serializable,Saveable
     //
     // complex statistics, ie ones that are harder to visualize
     //
-
-    private static class Matrix {
+    public static class Matrix {
         public double[][] values;
         public Matrix(double[][] values) { this.values=values; }
         public String toString()
@@ -697,6 +696,9 @@ public class Evaluation implements Visible,Serializable,Saveable
             }
             return buf.toString();
         }
+	public double getValue(int row, int col) {
+	    return values[row][col];
+	}
     }
 
     /** Return a confusion matrix.
@@ -714,6 +716,12 @@ public class Evaluation implements Visible,Serializable,Saveable
         }
         cachedConfusionMatrix = new Matrix(confused);
         return cachedConfusionMatrix;
+    }
+
+    public double numErrors() {
+	Matrix m = confusionMatrix();
+	double errors = m.getValue(0,1) + m.getValue(1,0);
+	return errors;
     }
 
     public String[] getClasses()

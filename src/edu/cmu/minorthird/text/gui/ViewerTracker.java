@@ -18,7 +18,7 @@ import java.io.File;
 abstract public class ViewerTracker extends JComponent implements ListSelectionListener
 {
     static protected boolean viewEntireDocument = true;
-    static protected final String DUMMY_ID = "**8dummy id***";
+    static protected final String DUMMY_ID = "***dummy id***";
 
     // links to outside
     protected StatusMessage statusMsg;
@@ -61,6 +61,7 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
             }
 
             this.viewLabels = viewLabels;
+
             this.editLabels = editLabels;
             this.documentList = documentList;
             this.spanPainter = spanPainter;

@@ -16,6 +16,15 @@ abstract public class BinaryClassifier implements Classifier,Serializable
 {
   static private final long serialVersionUID = 1;
   private final int CURRENT_SERIAL_VERSION = 1;
+    public ClassifierLearner classifierLearner = null;
+
+    public void setClassifierLearner(ClassifierLearner cl) {
+	this.classifierLearner = cl;
+    }
+
+    public ClassifierLearner getClassifierLearner() {
+	return classifierLearner;
+    }
 
   public ClassLabel classification(Instance instance)
   {

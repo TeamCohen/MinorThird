@@ -157,7 +157,7 @@ public class CommandLineUtil
 	    textLabels.instanceIterator(candidateType) : textLabels.getTextBase().documentSpanIterator();
 
 	// binary dataset - anything labeled as in this type is positive
-		
+
 	if (spanType!=null) {
 	    Dataset dataset = new BasicDataset();
 	    for (Span.Looper i=candidateLooper; i.hasNext(); ) {
@@ -396,12 +396,16 @@ public class CommandLineUtil
     /** Parameters for training a classifier. */
     public static class TrainClassifierParams extends BasicCommandLineProcessor {
 	public boolean showData=false;
+	public String learnerName = "NaiveBayes()";
 	public ClassifierLearner learner = new Recommended.NaiveBayes();
 	public SpanFeatureExtractor fe = new Recommended.DocumentFE();
 	private String embeddedAnnotators = "";
 	public String output="_prediction";
 	public void showData() { this.showData=true; }
-	public void learner(String s) { this.learner = (ClassifierLearner)newObjectFromBSH(s,ClassifierLearner.class); }
+	public void learner(String s) { 
+	    this.learnerName = s;
+	    this.learner = (ClassifierLearner)newObjectFromBSH(s,ClassifierLearner.class); 
+	}
 	public void output(String s) { this.output=s; }
 	public CommandLineProcessor fe(String s) { 
 	    this.fe = (SpanFeatureExtractor)newObjectFromBSH(s,SpanFeatureExtractor.class); 
@@ -500,7 +504,14 @@ public class CommandLineUtil
 	public boolean getShowData() { return showData; }
 	public void setShowData(boolean flag) { this.showData=flag; }	
 	public ClassifierLearner getLearner() { return learner; }
-	public void setLearner(ClassifierLearner learner) { this.learner=learner; }
+	public void setLearner(ClassifierLearner learner) {
+	    learnerName = learner.getClass().toString();
+	    if(learner instanceof BatchVersion) {
+		learnerName = ((((BatchVersion)learner).getInnerLearner())).toString() + "()";
+	    }	
+	    System.out.println(learnerName);
+	    this.learner=learner; 
+	}
 	public String getOutput() { return output; } 
 	public void setOutput(String s) { output(s); }
 	public SpanFeatureExtractor getFeatureExtractor() { return fe; }
@@ -535,7 +546,7 @@ public class CommandLineUtil
 	public void setShowData(boolean flag) { this.showData=flag; }
 	public boolean getShowTestDetails() { return showTestDetails; }
 	public void setShowTestDetails(boolean flag) { this.showTestDetails=flag; }
-    }
+    }    
 
     /** Parameters for testing a stored classifier. */
     public static class TestExtractorParams extends LoadAnnotatorParams {
@@ -565,6 +576,35 @@ public class CommandLineUtil
 	// for gui
 	public String getLoadFrom() { return loadFromName; }
 	public void setLoadFrom(String s) { loadFrom(s); }
+    }
+
+    /** Parameters for Adding Examples to a Online Classifier */
+    public static class OnlineLearnerParams extends BasicCommandLineProcessor {
+	public MutableTextLabels data = null;
+	public MonotonicTextLabels labels = null;
+	public String repositoryKey = null;
+	public File loadFrom;
+	private String loadFromName;
+	public void loadFrom(String s) {this.loadFrom = new File(s); this.loadFromName=s; }
+	public void data(String dirName) {
+	    this.repositoryKey = dirName;
+	    this.data = (MutableTextLabels)FancyLoader.loadTextLabels(dirName); 
+	    this.labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(dirName);
+	}
+	public void usage() {
+	    System.out.println("Online Learning loading parameters:");
+	    System.out.println(" -loadFrom FILE           file containing serialized Annotator");
+	    System.out.println(" -data DIRECTORY        Directory containing new data you would like to add");
+	    System.out.println();
+	}
+	// for gui
+	public String getLoadFrom() { return loadFromName; }
+	public void setLoadFrom(String s) { loadFrom(s); }
+	public String getLabelsFilename() { return repositoryKey; }
+	public void setLabelsFilename(String name) { 
+	    if (name.endsWith(".labels")) data(name.substring(0,name.length()-".labels".length()));
+	    else data(name);
+	}
     }
 
     /** Parameters for doing train/test evaluation of a classifier. */

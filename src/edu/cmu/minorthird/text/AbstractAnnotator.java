@@ -15,6 +15,8 @@ import java.util.Set;
 
 public abstract class AbstractAnnotator implements Annotator
 {
+    private MonotonicTextLabels labels = null;
+
 	/** The implementation for this method annotates labels in-line. */
 	abstract protected void doAnnotate(MonotonicTextLabels labels);
 
@@ -24,8 +26,13 @@ public abstract class AbstractAnnotator implements Annotator
 
 	final public void annotate(MonotonicTextLabels labels) 
 	{
+	    this.labels = labels;
 		doAnnotate(labels);
 	}
+
+    public MonotonicTextLabels getLabels() {
+	return labels;
+    }
 
 	final public TextLabels annotatedCopy(TextLabels labels) {
 		MonotonicTextLabels copy = new NestedTextLabels(labels);
