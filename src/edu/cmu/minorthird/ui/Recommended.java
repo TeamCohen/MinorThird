@@ -93,8 +93,11 @@ public class Recommended
 
 	/** Uses the voted perceptron algorithm to learn hidden semi-Markov model (SMM)
 	 */
-	static public class VPSMMLearner extends ConditionalSemiMarkovModel.CSMMLearner 
+	static public class VPSMMLearner extends ConditionalSemiMarkovModel.CSMMLearner
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		/**	 Extracted entities must be of length 4 or less. */
 		public VPSMMLearner() { super(20,4); }
 		public VPSMMLearner(int maxLength) { super(20,maxLength); }

@@ -116,6 +116,17 @@ public class TestPackage extends TestSuite
 					assertEquals( 0.875, e.spanF1(), 0.125 );
 				}
 			});
+		suite.addTest( new UITest(TrainTestExtractor.class,
+															new String[]{
+																"-labels","sample1.train",
+																"-spanType","trueName",
+																"-learner", "new Recommended.VPHMMLearner()",
+																"-test","sample1.test"}) {
+				public void checkResult(Object result) {
+					ExtractionEvaluation e = (ExtractionEvaluation)result;
+					assertEquals( 0.875, e.spanF1(), 0.125 );
+				}
+			});
 		suite.addTest( new UITest(TrainExtractor.class,
 															new String[]{
 																"-labels","sample1.train",

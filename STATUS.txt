@@ -1,28 +1,38 @@
+PRIORITIES:
+ - serializable CRFs
+
 UI tweaks:
 
-  show javadocs in TypeSelector
-
+  show javadocs in TypeSelector?
   LabelViewer => ViewLabels?
 
   add TrainTagger, TestTagger?
   progress counter & threads for dataset loading?   
-  test shadowType
+  test shadowType?
   clear progress bars after they finish?
-  output total time in UI after command completion?
   capture output dynamically?
-  generic loader class, loadable interface, for "Save As..." ?
+  generic loader class, loadable interface, for "Save As..." in gui?
+
+LARGER PROJECTS:
+ - pruning & shrinkage for maxent & CRFs 
 
 BUGS:
    save in TextLabelViewer doesn't work right
    fix "TrainTest extractor -test "?
    - should precision/recall start at something other than 1.0 (max precision?)
    - graph doesn't come out if there is no range?
-   - spanClosures are not stored properly (only by document); should really store tokenProps and spanProps also
+   - spanClosures are not stored properly (only by document); should really store tokenProps also,
    and CWA isn't even tracked for span properties
    - span diff fails for nested spans, eg "a b c <x>d e<x>f g</x> h i j</x>k"
    - performance issues loading in large files (with markup?)
 
 CLEANUPS/DESIGN:
+
+ - engineering line-based analysis: 
+ TextBase b = textBase.retokenize(tokenizer,textBase); // retokenize a text base, eg by lines, or tree-bank
+ boolean textBase.compatibleWith(otherBase);  // check if otherBase is a variant tokenization
+ LabelImporter imp = monotonicTextLabels.getImporter(); // build something that imports new stuff into textLabels
+ labelImporter.importSpanType(type,otherLabels);  // import a span type from text labels with a compatible textBase
 
  - POS tagger
  - linkage issues
@@ -50,6 +60,8 @@ CLEANUPS/DESIGN:
 
 RECENT CHANGES:
 
+ - fix evaluation for spanProp - added micro-averaged precision/recall
+ - fixed -test for TrainTestExtractor
  - ZoomedTextLabelsViewer
  - set span properties with TextLabelsLoader
  - specify span prop with TextLabelsExperiment

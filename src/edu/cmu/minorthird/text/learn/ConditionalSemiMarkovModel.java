@@ -226,8 +226,11 @@ public class ConditionalSemiMarkovModel
 
 
 	// annotate a document using a learned model
-	static public class CSMMAnnotator extends AbstractAnnotator	implements Visible,ExtractorAnnotator
+	static public class CSMMAnnotator extends AbstractAnnotator	implements Visible,ExtractorAnnotator,Serializable 
 	{
+		static private final long serialVersionUID = 1;
+		private final int CURRENT_VERSION_NUMBER = 1;
+
 		private SpanFeatureExtractor fe;
 		private BinaryClassifier classifier;
 		private String annotationType;

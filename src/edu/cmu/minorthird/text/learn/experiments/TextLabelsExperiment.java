@@ -28,6 +28,7 @@ public class TextLabelsExperiment implements Visible
 	private Splitter splitter;
 	private AnnotatorLearner learner;
 	private String inputType,inputProp;
+	private TextLabels testLabelsUsedInSplitter;
 	private MonotonicTextLabels fullTestLabels;
 	private MonotonicTextLabels[] testLabels;
 	private String outputLabel;
@@ -62,14 +63,26 @@ public class TextLabelsExperiment implements Visible
 	public TextLabelsExperiment(
 		TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputType,String outputLabel)
 	{
-		this(labels,splitter,learner,inputType,null,outputLabel);
+		this(labels,splitter,null,learner,inputType,null,outputLabel);
 	}
 
+	/**
+	 * @param labels TextLabels to train on
+	 * @param splitter how to partition labels into train/test
+	 * @param testLabels if splitter is a FixedTestSetSplitter, these are the labels for the test cases.
+	 * Otherwise the labels for the test cases are given in the "labels" input.
+	 * @param learner the learner to user
+	 * @param inputType the spanType to learn to extract (if non-null)
+	 * @param inputProp the spanProp to learn to extract and label (if non-null)
+	 * @param outputLabel the spanType/spanProp used for predictions
+	 */
 	public TextLabelsExperiment(
-		TextLabels labels,Splitter splitter,AnnotatorLearner learner,String inputType,String inputProp,String outputLabel)
+		TextLabels labels,Splitter splitter,TextLabels testLabels,
+		AnnotatorLearner learner,String inputType,String inputProp,String outputLabel)
 	{
 		this.labels = labels;
 		this.splitter = splitter;
+		this.testLabelsUsedInSplitter = testLabels;
 		this.inputType = inputType;
 		this.inputProp = inputProp;
 		this.outputLabel = outputLabel;
@@ -97,16 +110,32 @@ public class TextLabelsExperiment implements Visible
     ProgressCounter progressCounter = 
 			new ProgressCounter("train/test experiment", "fold", splitter.getNumPartitions());
 
-		SubTextBase fullTestBase = new SubTextBase( labels.getTextBase(), allTestDocuments.iterator() );
-		fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, labels ) );
-		testLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
+		// figure out what the test set should be
+		try {
+			// for most splitters, the test set will be a subset of the original TextBase
+			SubTextBase fullTestBase = new SubTextBase( labels.getTextBase(), allTestDocuments.iterator() );
+			fullTestLabels = new NestedTextLabels( new SubTextLabels( fullTestBase, labels ) );
+			testLabels = new MonotonicTextLabels[ splitter.getNumPartitions() ];
+		} catch (SubTextBase.UnknownDocumentException ex) {
+			// the other supported case is a fixed test set 
+			if (testLabelsUsedInSplitter==null) throw new IllegalArgumentException("exception: "+ex);
+			if (!(splitter instanceof FixedTestSetSplitter)) throw new IllegalArgumentException("illegal splitter "+splitter);
+			fullTestLabels = new NestedTextLabels( testLabelsUsedInSplitter );
+			testLabels = new MonotonicTextLabels[1];
+			testLabels[0] = fullTestLabels;
+		}
 
 		for (int i=0; i<splitter.getNumPartitions(); i++) {
 			log.info("For partition "+(i+1)+" of "+splitter.getNumPartitions());
 			log.info("Creating teacher and train partition...");
 
-			SubTextBase trainBase = new SubTextBase( labels.getTextBase(), splitter.getTrain(i) );
-			SubTextLabels trainLabels = new SubTextLabels( trainBase, labels );
+			SubTextLabels trainLabels = null;
+			try {
+				SubTextBase trainBase = new SubTextBase( labels.getTextBase(), splitter.getTrain(i) );
+				trainLabels = new SubTextLabels( trainBase, labels );
+			} catch (SubTextBase.UnknownDocumentException ex) {
+				throw new IllegalStateException("error building trainBase "+i+": "+ex);
+			}
 			AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( trainLabels, inputType, inputProp );
 
       log.info("Training annotator: inputType="+inputType+" inputProp="+inputProp);
@@ -114,8 +143,12 @@ public class TextLabelsExperiment implements Visible
 
       //log.info("annotators["+i+"]="+annotators[i]);
 			log.info("Creating test partition...");
-			SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
-			testLabels[i] = new MonotonicSubTextLabels( testBase, fullTestLabels );
+			try {
+				SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
+				testLabels[i] = new MonotonicSubTextLabels( testBase, fullTestLabels );
+			} catch (SubTextBase.UnknownDocumentException ex) {
+				// do nothing since testLabels[i] is already set
+			}
 
       log.info("Labeling test partition, size="+testLabels[i].getTextBase().size());  
 			//new ViewerFrame("annotator"+(i+1), new SmartVanillaViewer(annotators[i]));
@@ -127,7 +160,6 @@ public class TextLabelsExperiment implements Visible
       //step progress counter
       progressCounter.progress();
     }
-		log.info("\nOverall performance:");
 		measurePrecisionRecall( "Overall performance", fullTestLabels, true );
 
     //end progress counter
@@ -173,9 +205,8 @@ public class TextLabelsExperiment implements Visible
 
 	private void measurePrecisionRecall(String tag,TextLabels labels,boolean isOverallMeasure)
 	{
-		//System.out.println("output label = "+outputLabel);
-		//System.out.println("input label = "+inputType);
 		if (inputType!=null) {
+			// only need one span difference here
 			SpanDifference sd =
 				new SpanDifference( 
 					labels.instanceIterator(outputLabel),
@@ -185,32 +216,29 @@ public class TextLabelsExperiment implements Visible
 			System.out.println(sd.toSummary());
 			extractionEval.extend(tag,sd,isOverallMeasure);
 		} else {
+			// will need one span difference for each possible property value
 			Set propValues = new HashSet();
 			for (Span.Looper i=labels.getSpansWithProperty(inputProp); i.hasNext(); ) {
 				Span s = i.nextSpan();
 				propValues.add( labels.getProperty(s,inputProp) );
 			}
-			for (Iterator i=propValues.iterator(); i.hasNext(); ) {
+			SpanDifference[] sd = new SpanDifference[propValues.size()];
+			int k = 0;
+			for (Iterator i=propValues.iterator(); i.hasNext(); k++) {
 				String val = (String)i.next();
-				SpanDifference sd =
-					new SpanDifference( 
-						propertyIterator(labels,outputLabel,val),
-						propertyIterator(labels,inputProp,val),
-						labels.getTextBase().documentSpanIterator());
+				sd[k] = new SpanDifference( propertyIterator(labels,outputLabel,val),															
+																		propertyIterator(labels,inputProp,val),
+																		labels.getTextBase().documentSpanIterator());
 				String tag1 = tag+" for "+inputProp+":"+val;
 				System.out.println(tag1+":");
-				System.out.println(sd.toSummary());
-				extractionEval.extend(tag1,sd,false);
+				System.out.println(sd[k].toSummary());
+				extractionEval.extend(tag1,sd[k],false);
 			}
-			SpanDifference sd =
-				new SpanDifference( 
-					propertyIterator(labels,outputLabel,null),
-						propertyIterator(labels,inputProp,null),
-						labels.getTextBase().documentSpanIterator());
-			String tag1 = tag+" for all values of "+inputProp;
+			SpanDifference sdAll = new SpanDifference( sd );
+			String tag1 = tag+" (micro-averaged) for "+inputProp;
 			System.out.println(tag1+":");
-			System.out.println(sd.toSummary());
-			extractionEval.extend(tag1,sd,isOverallMeasure);
+			System.out.println(sdAll.toSummary());
+			extractionEval.extend(tag1,sdAll,isOverallMeasure);
 		}
 	}
 	private Span.Looper propertyIterator(TextLabels labels,String prop,String value)

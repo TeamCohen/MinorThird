@@ -64,14 +64,10 @@ public class TrainTestExtractor extends UIMain
 
 		// set up the splitter
 		if (trainTest.labels!=null) {
-			// experiment doesn't support this now
-			System.out.println("The -test option is not yet supported for TrainTestExtractor, but");
-			System.out.println("you can get the same effect with TrainExtractor then TestExtractor.");
-			return;
-			//trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
-			//System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
+			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
+			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
-		TextLabelsExperiment expt = new TextLabelsExperiment( base.labels,trainTest.splitter,train.learner,
+		TextLabelsExperiment expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
 																		 signal.spanType,signal.spanProp,"_predicted" );
 		expt.doExperiment();
 		ExtractionEvaluation evaluation = expt.getEvaluation();

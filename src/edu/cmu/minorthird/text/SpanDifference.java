@@ -55,6 +55,33 @@ public class SpanDifference
 	// indicates if tokenFalseNeg,etc are valid
 	boolean performanceCacheIsValid;
 
+	/**
+	 * Create an aggregation of the results in several SpanDifference's.
+	 */
+	public SpanDifference(SpanDifference[] spanDifferences)
+	{
+		TreeSet accum = new TreeSet();
+		tokenFalsePos = tokenFalseNeg = tokenTruePos = spanFalsePos = spanFalseNeg = spanTruePos = 0;
+		for (int i=0; i<spanDifferences.length; i++) {
+			SpanDifference sd = spanDifferences[i];
+			for (Iterator j=sd.diffedSpans.iterator(); j.hasNext(); ) {
+				accum.add(j.next());
+			}
+			tokenFalsePos += sd.tokenFalsePos;
+			tokenFalseNeg += sd.tokenFalseNeg;
+			tokenTruePos += sd.tokenTruePos;
+			spanFalsePos += sd.spanFalsePos;
+			spanFalseNeg += sd.spanFalseNeg;
+			spanTruePos += sd.spanTruePos;
+		}
+		diffedSpans = new ArrayList( accum.size() );
+		for (Iterator i=accum.iterator(); i.hasNext(); ) {
+			diffedSpans.add( i.next() );
+		}
+		// make sure we don't recompute this!
+		performanceCacheIsValid = true;
+	}
+
 	/** Create machinery to analyze the differences between the two sets
 	 * of spans.  It is assume that the first argument is a complete
 	 * list of all guess spans and the second argument is a complete
@@ -284,7 +311,7 @@ public class SpanDifference
 
 
 	/** A difference between the guess and truth spans. */
-	private static class DiffedSpan { 
+	private static class DiffedSpan implements Comparable { 
 		private Span diffSpan;
 		private int status;
 		private Span originalGuessSpan;
@@ -301,6 +328,7 @@ public class SpanDifference
 			if (originalGuessSpan==null) originalGuessSpan = rightBoundary.originalGuessSpan;
 		}
 		public String toString() { return "[Diff "+status+" "+diffSpan+"]"; }
+		public int compareTo(Object o) { return diffSpan.compareTo(((DiffedSpan)o).diffSpan); }
 	}
 	
 	public String toString() 
@@ -316,7 +344,14 @@ public class SpanDifference
 		double tokenF = 2*tokenPrecision()*tokenRecall()/(tokenPrecision()+tokenRecall());
 		double spanF = 2*spanPrecision()*spanRecall()/(spanPrecision()+spanRecall());
 		return 
-			"TokenPrecision: "+tokenPrecision()+" TokenRecall: "+tokenRecall()+" F: "+tokenF+"\n"
-			+"SpanPrecision:  "+spanPrecision() +" SpanRecall:  "+spanRecall()+" F: "+spanF;
+			 "TokenPrecision: "+fmt(tokenPrecision())+" TokenRecall: "+fmt(tokenRecall())+" F: "+fmt(tokenF)
+			+"\n"+"SpanPrecision:  "+fmt(spanPrecision()) +" SpanRecall:  "+fmt(spanRecall())+" F: "+fmt(spanF);
+		//+"\n"+"Token TP,FP,FN: "+tokenTruePos+","+tokenFalsePos+","+tokenFalseNeg
+		//+"\n"+"Span  TP,FP,FN: "+spanTruePos+","+spanFalsePos+","+spanFalseNeg;
+	}
+	private String fmt(double d)
+	{
+		if (Double.isNaN(d)) return fmt(0);
+		else return new java.text.DecimalFormat("0.0000").format(d);
 	}
 }

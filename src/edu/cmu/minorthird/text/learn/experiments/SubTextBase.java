@@ -19,31 +19,30 @@ public class SubTextBase implements TextBase
 	private Set validDocumentSpans;
 	private TextBase base;
 
-	public SubTextBase(TextBase base,Iterator documentSpanIterator) {
+	public static class UnknownDocumentException extends Exception {
+		public UnknownDocumentException(String s) { super(s); }
+	}
+
+	public SubTextBase(TextBase base,Iterator documentSpanIterator) throws UnknownDocumentException {
 		this.base = base;
 		validDocumentSpans = new TreeSet();
-		while (documentSpanIterator.hasNext())
-			validDocumentSpans.add( documentSpanIterator.next() );
+		while (documentSpanIterator.hasNext()) {
+			Span span = (Span)documentSpanIterator.next(); 
+			if (base.documentSpan( span.getDocumentId() )==null) {
+				throw new UnknownDocumentException("documentId not in textBase: "+span.getDocumentId());
+			}
+			validDocumentSpans.add( span );
+		}
 	}
 
-    public void loadDocument(String documentId, String documentString, String regexPattern)
-    {
-        throw new UnsupportedOperationException("SubTextBase is read-only");
-    }
-
-    public void loadDocument(String documentId, String string)
-    {
-        throw new UnsupportedOperationException("SubTextBase is read-only");
-    }
-/*
-	public void loadRegex(String documentId, String string, String regexPattern) {
+	public void loadDocument(String documentId, String documentString, String regexPattern) {
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
 
-	public void loadTokens(String documentId, String string) {
+	public void loadDocument(String documentId, String string){
 		throw new UnsupportedOperationException("SubTextBase is read-only");
 	}
-*/
+
 	public String[] splitIntoTokens(String string) {
 		return base.splitIntoTokens(string);
 	}
