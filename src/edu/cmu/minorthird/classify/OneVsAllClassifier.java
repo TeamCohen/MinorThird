@@ -4,6 +4,8 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.util.gui.*;
 import javax.swing.*;
+import java.io.Serializable;
+
 
 /** A KWayClassifier composed of a bunch of binary classifiers,
  * each of which separates one class from the others.
@@ -11,8 +13,11 @@ import javax.swing.*;
  * @author William Cohen
  */
 
-public class OneVsAllClassifier implements Classifier,Visible
+public class OneVsAllClassifier implements Classifier,Visible,Serializable
 {
+	static private int serialVersionUID = 1;
+	private final int CURRENT_SERIAL_VERSION = 1;
+
 	private String[] classNames;
 	private BinaryClassifier[] binaryClassifiers;
 

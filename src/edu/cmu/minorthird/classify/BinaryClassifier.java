@@ -2,6 +2,8 @@
 
 package edu.cmu.minorthird.classify;
 
+import java.io.Serializable;
+
 /**
  * A Classifier which associates instances with a real number.
  * Positive numbers indicate a positive class, negative numbers
@@ -10,8 +12,11 @@ package edu.cmu.minorthird.classify;
  * @author William Cohen
  */
 
-abstract public class BinaryClassifier implements Classifier
+abstract public class BinaryClassifier implements Classifier,Serializable
 {
+	static private int serialVersionUID = 1;
+	private final int CURRENT_SERIAL_VERSION = 1;
+
 	public ClassLabel classification(Instance instance)
 	{
 		double s = score(instance);
