@@ -63,6 +63,42 @@ Regularities from Data.</i>,  http://minorthird.sourceforge.net, 2004.
 </ul>
 
 
+<h3>Documentation</h3>
+
+The <a href="javadoc/">Javadocs for Minorthird</a> are currently the
+most comprehensive documentation.  Start with <a
+href="javadoc/edu/cmu/minorthird/package-summary.html"> the Javadocs
+for the top-level Minorthird package</a> and work out.
+
+<p><a href="QUICKSTART.txt">The QUICKSTART.txt file</a> distributed
+with Minorthird in the "doc" directory gives some pointers to 
+how to get started compiling, running, and using Minorthird.
+Very briefly, once you've compiled the code:
+
+<ul>
+
+<li><code>java edu.cmu.minorthird.ui.Help</code> lists the 
+"main" programs in the minorthird.ui ("user interface") package.
+
+<li>To get help on one of these programs, for instance TrainTestExtractor program, type 
+<code>java edu.cmu.minorthird.ui.TrainTestExtractor -help</code>
+
+<li>The ui-package programs can generally be invoked either using
+command-line options, or using a simple GUI interface. To use the GUI
+interface, use <code>java -Xmx500M edu.cmu.minorthird.ui.TrainTestExtractor -gui</code>.
+Or, use <code>java -Xmx500M edu.cmu.minorthird.Minorthird</code>,
+which is a launcher for the GUI main programs.
+
+<li>For experiments with the classification toolkit (not using text), try
+<code>java edu.cmu.minorthird.classify.UI -gui</code>, which has a look-and-feel similar
+to the programs in edu.cmu.minorthird.ui.
+</ul>
+
+<p><a href="http://www.cs.cmu.edu/~vitor">Vitor Carvalho</a>
+maintains a <a
+href="http://www-2.cs.cmu.edu/~vitor/m3_FAQ/faq/m3_faq.html">FAQ for
+Minorthird</a>.
+
 <h3>What's Different About MinorThird</h3>
 
 <p>
@@ -156,7 +192,7 @@ and relating it to the text from which it was derived.
     <address><a href="mailto:wcohen@cs.cmu.edu"></a></address>
 <!-- Created: Mon May 10 15:12:48 Eastern Daylight Time 2004 -->
 <!-- hhmts start -->
-Last modified: Mon May 10 16:19:39 Eastern Daylight Time 2004
+Last modified: Wed May 12 11:45:05 Eastern Daylight Time 2004
 <!-- hhmts end -->
   </body>
 </html>
