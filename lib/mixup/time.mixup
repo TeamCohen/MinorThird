@@ -3,21 +3,23 @@ provide 'time';
 
 defDict timeSep = : , . , \; ; //how do I capture the ';'?
 defDict atTime = at, @;
-defDict prefixTime = this, next, about, around, before, after, until, till, by;
-defDict midWord = or, -, and;
-defDict btwWord = between, btw, bw, bt;
-defDict qttyWord = $, dollar, USD, dollars, cent, cents, %, percent, percents, times, quarter, Q;
+defDict prefixTime = this, next, about, around, before, after, until, till, by, through, mid, from, starting, beginning;
+defDict suffixTime = ish;
+defDict midWord = or, -, and, to;
+defDict fromWord = between, btw, bw, bt, from;
+defDict qttyWord = $, dollar, USD, dollars, cent, cents, %, percent, percents, times, quarter, Q, million, millions;
 defDict timeWord = noon, midnight, morning, afternoon, evening, tonight; 
 
 defTokenProp prefixtime:1 =: ... [ai(prefixTime)] ... ;
+defTokenProp suffixtime:1 =: ... [ai(suffixTime)] ... ;
 defTokenProp midWord:1 	  =: ... [ai(midWord)] ... ;
-defTokenProp btwWord:1    =: ... [ai(btwWord)] ... ;
+defTokenProp fromWord:1    =: ... [ai(fromWord)] ... ;
 defTokenProp qttyWord:1	  =: ... [ai(qttyWord)] ... ;
 defTokenProp timeWord:1   =: ... [ai(timeWord)] ... ;
 
 
-defTokenProp TUnit:1 =: ... [eqi('p') '.' eqi('m') '.'] ... || ... [eqi('pm')] ... ;
-defTokenProp TUnit:1 =: ... [eqi('a') '.' eqi('m') '.'] ... || ... [eqi('am')] ... ;
+defTokenProp TUnit:1 =: ... [eqi('p') '.' eqi('m') '.'] ... || ... [eqi('pm')] ... || ... [eqi('p')] ... ;
+defTokenProp TUnit:1 =: ... [eqi('a') '.' eqi('m') '.'] ... || ... [eqi('am')] ... || ... [eqi('a')] ... ;
 
 
 defTokenProp T24:1  =: ... [re('^[0-1]?[0-9]$')] ... || ... [re('^2[0-4]$')] ... ; 
@@ -25,13 +27,15 @@ defTokenProp T60:1  =: ... [re('^[0-5][0-9]$')] ... ;
 
 
 defTokenProp time:1 =: ... [ai(timeWord)] ... ;
-defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1] ... ; 
-defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1 ai(timeSep) T60:1] ... ;
-defTokenProp time:1 =: ... [T24:1 TUnit:1+R] ... ; 
-defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1 TUnit:1+R] ... ; 
-defTokenProp time:1 =: ... ai(atTime) [T24:1] ... ;
-defTokenProp time:1 =: ... time:1+R [ai(midWord)] time:1+R ... ;
-defTokenProp time:1 =: ... [ai(btwWord)] time:1+R ai(midWord) time:1+R ... ; // the btw word doesn't seem to be extracted
+defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1] ... ; // 2:30
+defTokenProp time:1 =: ... [T24:1 ai(timeSep) T60:1 ai(timeSep) T60:1] ... ; // 22:30:02
+defTokenProp time:1 =: ... [T24:1 TUnit:1+R] ... ; // 2pm
+defTokenProp time:1 =: ... [T24:1 midWord:1] time:1+R ... ; // [2 -] 3pm 
+defTokenProp time:1 =: ... [T24:1 suffixTime:1] ... ; // 10ish
+defTokenProp time:1 =: ... time:1 [TUnit:1+R] ... ; 
+defTokenProp time:1 =: ... ai(atTime) [T24:1] ... ; // @3
+defTokenProp time:1 =: ... time:1+R [ai(midWord)] time:1+R ... ; // 2pm or 4pm
+defTokenProp time:1 =: ... [fromWord:1] time:1+R ai(midWord) time:1+R ... || ... time:1 [ai(midWord)] time:1 ... ; 
 
 
 defSpanType extracted_time =: ... !ai(qttyWord) [L time:1+ R] !ai(qttyWord) ... || ... !ai(qttyWord) [L time:1+ R] || [L time:1+ R] !ai(qttyWord) ...  ;
@@ -40,5 +44,6 @@ defSpanType extracted_time =: ... <!ai(qttyWord), !time:1> [ai(prefixTime)+ 'the
 
 defTokenProp extracted_time:1 =: ... [@extracted_time] ... ;
 
+defSpanType einat =: ... [time:1] ... ;
 
 
