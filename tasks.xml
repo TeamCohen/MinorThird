@@ -27,7 +27,7 @@
 <target name="build" depends="init"
   description="build the source ">
   <!-- Compile the java code from ${src} into ${classDir} -->
-  <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath"/>
+  <javac srcdir="${src}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="yes"/>
 </target>
 
 <target name="build-Names" depends="init"
@@ -37,7 +37,7 @@
 </target>
 
 <target name="build-test" depends="init, build">
-  <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath"/>
+  <javac srcdir="${testDir}" destdir="${classDir}" debug="on" classpathref="classpath" deprecation="yes"/>
 </target>
 
 <target name="build-classify" depends="clean,init"
@@ -116,10 +116,11 @@
         <exclude name="**/LearnToClassifyTest.class"/>
         <exclude name="**/EdoTextLabelsTest.class"/>
         <exclude name="**/BayesClassifiersTest.class"/>
+        
 
         <!-- long running time (>5 seconds) -->
 <!--        <exclude name="**/POSTaggerTest.class"/> -->
-        <exclude name="**/MixupProgramTest.class"/>
+       <exclude name="**/MixupProgramTest.class"/>
 
         <!-- even longer running time (>20 secs) -->
         <exclude name="**/TextBaseLoaderTest.class"/>
