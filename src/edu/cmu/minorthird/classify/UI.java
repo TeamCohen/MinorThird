@@ -32,6 +32,9 @@ public class UI
 
   private static final Class[] SELECTABLE_TYPES = new Class[]{
     DataClassificationTask.class, 
+    ClassifyCommandLineUtil.TrainParams.class, 
+    ClassifyCommandLineUtil.TestParams.class, ClassifyCommandLineUtil.TrainTestParams.class,
+    ClassifyCommandLineUtil.Learner.SequentialLnr.class, ClassifyCommandLineUtil.Learner.ClassifierLnr.class,
     KnnLearner.class, NaiveBayes.class, 
     VotedPerceptron.class,	SVMLearner.class,
     DecisionTreeLearner.class, AdaBoost.class,
@@ -48,138 +51,52 @@ public class UI
 
   private static final Set LEGAL_OPS = new HashSet(Arrays.asList(new String[]{"train","test","trainTest"}));
 
-    public static class DataClassificationTask implements CommandLineProcessor.Configurable,Saveable, Console.Task
-    {
-	private Dataset trainData=null, testData=null;
-	private String trainDataFilename=null, testDataFilename=null;
-	private Splitter splitter=new RandomSplitter(0.7);
-	private ClassifierLearner clsLearner=new NaiveBayes();
-	private SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
-	private File saveAs=null;
-	private String saveAsFilename=null;
-	private File loadFrom=null;
-	private String loadFromFilename=null;
-	private boolean sequential=false;
-	private boolean showData=false, showResult=false, showTestDetails=false, useGUI=false;
-	private String op="trainTest";
-	private Object resultToShow=null, resultToSave=null;
-	private BasicCommandLineProcessor clp = new MyCLP();
-	public Console.Task main;
+    public static class DataClassificationTask implements CommandLineProcessor.Configurable,/*Saveable,*/ Console.Task
+    {		
+	private ClassifyCommandLineUtil.BaseParams baseParams = new ClassifyCommandLineUtil.BaseParams();
+	private ClassifyCommandLineUtil.TrainParams trainParams = new ClassifyCommandLineUtil.TrainParams();
+	private ClassifyCommandLineUtil.TestParams testParams = new ClassifyCommandLineUtil.TestParams();
+	private ClassifyCommandLineUtil.TrainTestParams trainTestParams = new ClassifyCommandLineUtil.TrainTestParams();
+	private ClassifyCommandLineUtil bcp;
 
-	public class MyCLP extends BasicCommandLineProcessor
-	{
-	    public void splitter(String s) { splitter = Expt.toSplitter(s); }
-	    public void learner(String s) { 
-		if (sequential) seqLearner = toSeqLearner(s);
-		else clsLearner = Expt.toLearner(s); 
-	    }
-	    public void saveAs(String s) { saveAs = new File(s); saveAsFilename=s; }
-	    public void classifierFile(String s) { loadFrom = new File(s); loadFromFilename=s; }
-	    public void showData() { showData=true; }
-	    public void showResult() { showResult=true; }
-	    public void seq() { sequential=true; }
-	    public void showTestDetails() { showTestDetails=true; }
+	//private ClassifyCommandLineUtil.Learner.ClassLearner clsLearner = new ClassifyCommandLineUtil.Learner.ClassLearner();
+	//private ClassifyCommandLineUtil.Learner.SeqLearner seqLearner = new ClassifyCommandLineUtil.Learner.SeqLearner();
+	//private ClassifyCommandLineUtil.Learner lnr;
+
+	public Object resultToShow;
+	public boolean useGUI;
+	public Console.Task main;	
+
+	// for gui
+	//public ClassifyCommandLineUtil.Learner getLearner() { return lnr; }
+	//public void setLearner(ClassifyCommandLineUtil.Learner learn) {lnr = learn;}
+	public ClassifyCommandLineUtil getOperationParameters() { return bcp; } 
+	public void setOperationParameters(ClassifyCommandLineUtil p) { bcp=p; } 
+	//public ClassifyCommandLineUtil.BaseParams getBaseParameters() { return baseParams; }
+	//public void setBaseParameters(ClassifyCommandLineUtil.BaseParams p) { baseParams=p; }
+	
+	protected class GUIParams extends BasicCommandLineProcessor {
 	    public void gui() { useGUI=true; }
-	    public void data(String s) { 
-		trainData = safeToDataset(s);  
-		trainDataFilename = s; 
-	    }
-	    public void test(String s) {  
-		testData = safeToDataset(s); 
-		testDataFilename = s;
-		Iterator it = sequential? ((SequenceDataset)testData).sequenceIterator(): testData.iterator();
-		splitter = new FixedTestSetSplitter(it);
-	    }
-	    public void op(String s) { 
-		if (LEGAL_OPS.contains(s)) op = s;
-		else throw new IllegalArgumentException("Illegal op "+s+": legal ops are "+LEGAL_OPS);
-	    }
-	    public void usage()
-	    {
-		System.out.println("train a classifier: -op train -data INFILE [-learner LEARNER] [-saveAs OUTFILE]");
-		System.out.println("  LEARNER is bean shell code that produces a ClassifierLearner.  Load a dataset");
-		System.out.println("  from the INFILE and train the LEARNER on it, and optionally save the learned");
-		System.out.println("  classifier in OUTFILE");
+	    public void usage() {
+		System.out.println("presentation parameters:");
+		System.out.println(" -gui                     use graphic interface to set parameters");
 		System.out.println();
-		System.out.println("test a classifier:  -op test -data INFILE1 -classifierFile INFILE2");
-		System.out.println("  Load a dataset from INFILE1, and test the classifier stored in INFILE2 on it");
-		System.out.println();				
-		System.out.println("do an experiment:   -op trainTest -data INFILE [-learner LEARNER] [-splitter SPLITTER]");
-		System.out.println("                    -op trainTest -data INFILE [-learner LEARNER] [-test INFILE2]");
-		System.out.println("  Load a dataset from INFILE, and perform some sort of train-test experiment, either");
-		System.out.println("  cross-validation with the specified splitter, or testing against the dataset in INFILE2.");
-		System.out.println("  Sample SPLITTER's: k5 is 5-fold cross-validation, r70 is one 70% train/30% test split.");
-		System.out.println();				
-		System.out.println("other options:");
-		System.out.println("  -showData:          interactively view the training data");
-		System.out.println("  -showResult:        interactively view the result of the operation");
-		System.out.println("  -showTestDetails:   show more test-set performance details for -op test or -op trainTest");
-		System.out.println("  -saveAs:            save the classifier Evaluation for -op test or -op trainTest");
-		System.out.println("  -gui:               use a graphical interface to change/set parameters");
-		System.out.println("");
-		System.out.println("  -seq:               sequential mode: use a sequential datasets and learners");
-		System.out.println("                      This mode must be set BEFORE the -data or -learner options appear.");
 	    }
 	}
-	public CommandLineProcessor getCLP() { return new MyCLP(); }
-	private Dataset safeToDataset(String s)	
-	{
-	    try {
-		if (s.startsWith("sample:")) return Expt.toDataset(s);
-		else if (sequential) return DatasetLoader.loadSequence(new File(s));
-		else return DatasetLoader.loadFile(new File(s));
-	    } catch (IOException ex) {
-		throw new IllegalArgumentException("Error loading '"+s+"': "+ex);
-	    } catch (NumberFormatException ex) {
-		throw new IllegalArgumentException("Error loading '"+s+"': "+ex);
-	    }
-	}
-	private SequenceClassifierLearner toSeqLearner(String s)
-	{
-	    try {
-		bsh.Interpreter interp = new bsh.Interpreter();
-		interp.eval("import edu.cmu.minorthird.classify.*;");
-		interp.eval("import edu.cmu.minorthird.classify.algorithms.linear.*;");
-		interp.eval("import edu.cmu.minorthird.classify.algorithms.trees.*;");
-		interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
-		interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
-		interp.eval("import edu.cmu.minorthird.classify.transform.*;");
-		interp.eval("import edu.cmu.minorthird.classify.semisupervised.*;");
-		interp.eval("import edu.cmu.minorthird.classify.sequential.*;");
-		return (SequenceClassifierLearner)interp.eval(s);
-	    } catch (bsh.EvalError e) {
-		throw new IllegalArgumentException("error parsing learnerName '"+s+"':\n"+e);
-	    }
-	}
+	public String getDatasetFilename() { return baseParams.trainDataFilename; }
 
-	//
-	// for gui update
-	//
-	public String get_operation() { return op; } 		// underscore will sort this up to the top of the list
-	public void set_operation(String s) { op=s; }
-	public Object[] getAllowed_operationValues() { return LEGAL_OPS.toArray(); }
-	public Splitter getSplitter() { return splitter; }
-	public void setSplitter(Splitter s) { splitter=s; }
-	public ClassifierLearner getLearner() { return clsLearner; }
-	public void setLearner(ClassifierLearner c) { clsLearner=c; }
-	public SequenceClassifierLearner getLearnerInSequentialMode() { return seqLearner; }
-	public void setLearnerInSequentialMode(SequenceClassifierLearner c) { seqLearner=c; }
-	public String getSaveAsFilename() { return saveAsFilename; }
-	public void setSaveAsFilename(String s) { saveAsFilename=s; saveAs=new File(s);}
-	public String getClassifierFilename() { return loadFromFilename; }
-	public void setClassifierFilename(String s) { loadFromFilename=s; loadFrom=new File(s);}
-	//public boolean getShowData() { return showData; }
-	//public void setShowData(boolean flag) { showData=flag; }
-	//public boolean getShowResult() { return showResult; }
-	//public void setShowResult(boolean flag) { showResult=flag; }
-	public boolean getShowTestDetails() { return showTestDetails; }
-	public void setShowTestDetails(boolean flag) { showTestDetails=flag; }
-	public void setSequentialMode(boolean flag) { sequential=flag; }
-	public boolean getSequentialMode() { return sequential; }
-	public String getDatasetFilename() { return trainDataFilename; }
-	public void setDatasetFilename(String s) { trainData = safeToDataset(s); trainDataFilename=s; }
-	public String getTestDatasetFilename() { return trainDataFilename; }
-	public void setTestDatasetFilename(String s) { testData = safeToDataset(s); testDataFilename=s; }
+	public CommandLineProcessor getCLP() {
+	    JointCommandLineProcessor jlpTrain = new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),baseParams,trainParams});
+	    JointCommandLineProcessor jlpTest = new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),baseParams,testParams});
+	    JointCommandLineProcessor jlpTrainTest = new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),baseParams,trainTestParams});
+	    if (baseParams.op.equals("train"))
+		return jlpTrain;
+	    else if(baseParams.op.equals("test"))
+		return jlpTest;
+	    else
+		return jlpTrainTest;
+	}
+	
 
 	/** Returns whether base.labels exits */
 	public boolean getLabels(){
@@ -189,89 +106,92 @@ public class UI
 	// main action
 	public void doMain()
 	{
-	    if (trainData==null) {
+	    if (baseParams.trainData==null) {
 		System.out.println("The training data needs to be specified with the -data option.");
 		return;
 	    }
-	    if (sequential && (!(trainData instanceof SequenceDataset))) {
+	    if (baseParams.sequential && (!(baseParams.trainData instanceof SequenceDataset))) {
 		System.out.println("The training data should be a sequence dataset");
 		return;
 	    }
-	    if (showData) new ViewerFrame("Training data",trainData.toGUI());
-	    if ("test".equals(op)) {
+	    if (baseParams.showData) new ViewerFrame("Training data",baseParams.trainData.toGUI());
+	    if ("test".equals(baseParams.op)) {
 		try {
-		    if (loadFrom==null) {
+		    if (testParams.loadFrom==null) {
 			System.out.println("The classifier to test needs to be specified with -classifierFile option.");
 			return;
 		    }
-		    Evaluation e = new Evaluation(trainData.getSchema());
+		    Evaluation e = new Evaluation(baseParams.trainData.getSchema());
 		    Object c;
-		    if (sequential) {
-			c = IOUtil.loadSerialized(loadFrom);
-			e.extend((SequenceClassifier)c, (SequenceDataset)trainData);
+		    if (baseParams.sequential) {
+			c = IOUtil.loadSerialized(testParams.loadFrom);
+			e.extend((SequenceClassifier)c, (SequenceDataset)baseParams.trainData);
 		    } else {
-			c = IOUtil.loadSerialized(loadFrom);
-			e.extend((Classifier)c, trainData, 0);
+			c = IOUtil.loadSerialized(testParams.loadFrom);
+			e.extend((Classifier)c, baseParams.trainData, 0);
 		    }
 		    e.summarize();
-		    resultToShow = resultToSave = e;
-		    if (showTestDetails) {
-			if (sequential) {
+		    testParams.resultToShow = testParams.resultToSave = e;
+		    if (testParams.showTestDetails) {
+			if (baseParams.sequential) {
 			    ClassifiedSequenceDataset cd = 
-				new ClassifiedSequenceDataset((SequenceClassifier)c, (SequenceDataset)trainData);
-			    resultToShow = cd;
+				new ClassifiedSequenceDataset((SequenceClassifier)c, (SequenceDataset)baseParams.trainData);
+			    testParams.resultToShow = cd;
 			} else {
-			    ClassifiedDataset cd = new ClassifiedDataset((Classifier)c, trainData);
-			    resultToShow = cd;
+			    ClassifiedDataset cd = new ClassifiedDataset((Classifier)c, baseParams.trainData);
+			    testParams.resultToShow = cd;
 			}
 		    }
+		    resultToShow = testParams.resultToShow;
 		} catch (IOException ex) {
-		    log.error("Can't load classifier from "+loadFromFilename+": "+ex);
+		    log.error("Can't load classifier from "+testParams.loadFromFilename+": "+ex);
 		    return;
 		}
-	    } else if ("train".equals(op)) {
-		if (sequential) {
-		    DatasetSequenceClassifierTeacher teacher = new DatasetSequenceClassifierTeacher((SequenceDataset)trainData);
-		    SequenceClassifier c = teacher.train(seqLearner);
-		    resultToShow = resultToSave = c;
+	    } else if ("train".equals(baseParams.op)) {
+		if (baseParams.sequential) {
+		    DatasetSequenceClassifierTeacher teacher = new DatasetSequenceClassifierTeacher((SequenceDataset)baseParams.trainData);
+		    SequenceClassifier c = teacher.train(trainParams.seqLearner);
+		    trainParams.resultToShow = trainParams.resultToSave = c;
 		} else {
-		    ClassifierTeacher teacher = new DatasetClassifierTeacher(trainData);
-		    Classifier c = teacher.train(clsLearner);
-		    resultToShow = resultToSave = c;
+		    ClassifierTeacher teacher = new DatasetClassifierTeacher(baseParams.trainData);
+		    Classifier c = teacher.train(trainParams.clsLearner);
+		    trainParams.resultToShow = trainParams.resultToSave = c;
 		}
-	    } else if ("trainTest".equals(op)) {
-		if (showTestDetails && sequential) {
+		resultToShow=trainParams.resultToShow;
+	    } else if ("trainTest".equals(baseParams.op)) {
+		if (trainTestParams.showTestDetails && baseParams.sequential) {
 		    CrossValidatedSequenceDataset cvd 
-			= new CrossValidatedSequenceDataset(seqLearner,(SequenceDataset)trainData,splitter);
-		    resultToShow = cvd;
-		    resultToSave = cvd.getEvaluation();
-		} else if (!showTestDetails && sequential) {
-		    Evaluation e = Tester.evaluate(seqLearner,(SequenceDataset)trainData,splitter);
-		    resultToShow = resultToSave = e;
-		} else if (showTestDetails && !sequential) {
-		    CrossValidatedDataset cvd = new CrossValidatedDataset(clsLearner, trainData, splitter);
-		    resultToShow = cvd;
-		    resultToSave = cvd.getEvaluation();
-		} else if (!showTestDetails && !sequential) {
-		    Evaluation e = Tester.evaluate(clsLearner,trainData,splitter);
-		    resultToShow = resultToSave = e;
+			= new CrossValidatedSequenceDataset(trainTestParams.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
+		    trainTestParams.resultToShow = cvd;
+		    trainTestParams.resultToSave = cvd.getEvaluation();
+		} else if (!trainTestParams.showTestDetails && baseParams.sequential) {
+		    Evaluation e = Tester.evaluate(trainTestParams.seqLearner,(SequenceDataset)baseParams.trainData,trainTestParams.splitter);
+		    trainTestParams.resultToShow = trainTestParams.resultToSave = e;
+		} else if (trainTestParams.showTestDetails && !baseParams.sequential) {
+		    CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, baseParams.trainData, trainTestParams.splitter);
+		    trainTestParams.resultToShow = cvd;
+		    trainTestParams.resultToSave = cvd.getEvaluation();
+		} else if (!trainTestParams.showTestDetails && !baseParams.sequential) {
+		    Evaluation e = Tester.evaluate(trainTestParams.clsLearner,baseParams.trainData,trainTestParams.splitter);
+		    trainTestParams.resultToShow = trainTestParams.resultToSave = e;
 		}
-		((Evaluation)resultToSave).summarize();
+		((Evaluation)trainTestParams.resultToSave).summarize();
+		resultToShow=trainTestParams.resultToShow;
 		// attach all the command-line arguments to the resultToSave, as properties
-		for (Iterator i=clp.propertyList().iterator(); i.hasNext(); ) {
+		/*for (Iterator i=clp.propertyList().iterator(); i.hasNext(); ) {
 		    String prop = (String)i.next();
 		    ((Evaluation)resultToSave).setProperty(prop,clp.propertyValue(prop));
-		}
+		    }*/
 	    } else {
-		log.error("Illegal operation: "+op);
+		log.error("Illegal operation: "+baseParams.op);
 		return;
 	    }
-	    if (showResult) new ViewerFrame("Result", new SmartVanillaViewer(resultToShow));
-	    if (saveAs!=null) {
-		if (IOUtil.saveSomehow(resultToSave,saveAs)) {
-		    log.info("Result saved in "+saveAs);
+	    if (trainTestParams.showResult) new ViewerFrame("Result", new SmartVanillaViewer(trainTestParams.resultToShow));
+	    if (trainTestParams.saveAs!=null) {
+		if (IOUtil.saveSomehow(trainTestParams.resultToSave,trainTestParams.saveAs)) {
+		    log.info("Result saved in "+trainTestParams.saveAs);
 		} else {
-		    log.error("Can't save "+resultToSave.getClass()+" to "+saveAs);
+		    log.error("Can't save "+trainTestParams.resultToSave.getClass()+" to "+trainTestParams.saveAs);
 		}
 	    }
 	}
@@ -283,7 +203,7 @@ public class UI
 	// 
 	// implements Saveable
 	// 
-	public String[] getFormatNames() { return clp.getFormatNames(); }
+	/*public String[] getFormatNames() { return clp.getFormatNames(); }
 	public String getExtensionFor(String format) { return clp.getExtensionFor(format); }
 	public void saveAs(File file, String format) throws IOException { clp.saveAs(file,format); }
 	public Object restore(File file) throws IOException
@@ -291,13 +211,32 @@ public class UI
 	    DataClassificationTask task = new DataClassificationTask();
 	    task.clp.config(file.getAbsolutePath());
 	    return task;
-	}
+	    }*/
 
 	// gui around main action
 	public void callMain(final String[] args)
 	{
+	    trainParams.setBase(baseParams);
+	    testParams.setBase(baseParams);
+	    trainTestParams.setBase(baseParams);
+	    if (baseParams.op.equals("train")){
+		bcp = trainParams;
+		if (baseParams.sequential)
+		    trainParams.lnr = trainParams.seqLnr;
+		else
+		    trainParams.lnr = trainParams.classifierLnr;
+	    }else if(baseParams.op.equals("test"))
+		bcp = testParams;
+	    else{
+		bcp = trainTestParams;
+		if (baseParams.sequential)
+		    trainTestParams.lnr = trainTestParams.seqLnr;
+		else
+		    trainTestParams.lnr = trainTestParams.classifierLnr;
+	    }
+	    
 	    try {
-		clp.processArguments(args);
+		getCLP().processArguments(args);
 		if (!useGUI) {
 		    doMain();
 		}
@@ -351,7 +290,7 @@ public class UI
 				// and a button to show the current labels
 				JButton showLabelsButton = new JButton(new AbstractAction("Show train data") {
 					public void actionPerformed(ActionEvent ev) {
-					    new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(trainData));
+					    new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(baseParams.trainData));
 					}
 				    });
 				// and a button to clear the errorArea
@@ -366,7 +305,7 @@ public class UI
 					    PrintStream oldSystemOut = System.out;
 					    ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
 					    System.setOut(new PrintStream(outBuffer));
-					    clp.usage(); 
+					    //clp.usage(); 
 					    console.append(outBuffer.toString());
 					    System.setOut(oldSystemOut);
 					}
