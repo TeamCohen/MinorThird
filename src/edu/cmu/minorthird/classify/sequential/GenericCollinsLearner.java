@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.gui.*;
@@ -27,6 +28,11 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	public GenericCollinsLearner(OnlineBinaryClassifierLearner innerLearner,int historySize)
 	{
 		this(innerLearner,historySize,5);
+	}
+
+	public GenericCollinsLearner(int historySize,int epochs)
+	{
+		this(new VotedPerceptron(),historySize,epochs);
 	}
 
 	public GenericCollinsLearner(OnlineBinaryClassifierLearner innerLearner,int historySize,int epochs)
