@@ -22,7 +22,7 @@ import java.awt.event.*;
 
 public abstract class UIMain implements CommandLineProcessor.Configurable
 {	
-	public final static PipedInputStream piOut = new PipedInputStream();
+	//public final static PipedInputStream piOut = new PipedInputStream();
 	public final PipedInputStream piErr = new PipedInputStream();
 	
 	public static JTextArea errorArea;
@@ -156,14 +156,15 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 							JButton goButton = new JButton(new AbstractAction("Start task") {
 									public void actionPerformed(ActionEvent event) {										
 										Thread thread = new Thread() {
+											PipedInputStream piOut = new PipedInputStream();											PipedOutputStream poOut;
 											public void run() {												viewButton.setEnabled(false);
 												if (base.labels == null)
 													noLabelsMessage(errorArea);
 												else {
 													try {
 														PrintStream oldSystemOut = System.out;														try{
-															PipedOutputStream poOut = new PipedOutputStream(piOut);
-															System.setOut(new PrintStream(poOut, true));
+															poOut = new PipedOutputStream(piOut);
+															System.setOut(new PrintStream(poOut, true));															
 														} catch (java.io.IOException io) {
 															errorArea.append("Couldn't redirect output\n" + io.getMessage() + "\n");
 														} catch (SecurityException se) {
@@ -180,10 +181,11 @@ public abstract class UIMain implements CommandLineProcessor.Configurable
 																	} //end while																} //end try																catch (IOException e) {
 																	errorArea.append(e.getMessage());																	System.out.println(e.getMessage());																} //end catch
 															} //end run														}; //end reader Thread														reader.start();														
-														doMain(); 
+														doMain(); 														
 														double elapsedTime = (System.currentTimeMillis() - startTime)/1000.0;
 																												
-														errorArea.append("\nTotal time for task: "+elapsedTime+" sec");														//piOut.close();														//poOut.close();
+														errorArea.append("\nTotal time for task: "+elapsedTime+" sec");
+														poOut.close();														piOut.close();														
 														System.setOut(oldSystemOut);													} //end try													catch (Exception e) {
 														System.out.println("Error: " + e.toString());
 														errorArea.append("Error: " + e.toString());													} //end catch													viewButton.setEnabled(getMainResult()!=null);
