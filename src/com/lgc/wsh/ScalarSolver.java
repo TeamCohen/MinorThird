@@ -71,7 +71,6 @@ public class ScalarSolver {
         xs[2] = xs[2] + (xs[2]-0.5)*0.6;
         for (int i=1; i<fs.length-1; ++i) {
             fs[i] = function(xs[i], scalarMin, scalarMax);
-            System.out.println("fs[i]" + fs[i]);
             if (fs[i]!=0) allZerosInd=false;
         }
     }
