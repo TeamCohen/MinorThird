@@ -6,6 +6,23 @@ package edu.cmu.minorthird.util;
  */
 public class StringUtil
 {
+  /** Line-wrap a string */
+  static public String lineWrap(String s,int lineLength)
+  {
+    StringBuffer buf = new StringBuffer("");
+    int lastLF = 0;
+    for (int i=0; i<s.length(); i++) {
+      char ch = s.charAt(i);
+      if (Character.isWhitespace(ch) && (i-lastLF >= lineLength)) {
+        buf.append('\n');
+        lastLF = i;
+      } else {
+        buf.append(ch);
+      }
+    }
+    return buf.toString();
+  }
+
 	/** Indent a string */
 	static public String indent(int tabs,String s)
 	{
@@ -100,5 +117,10 @@ public class StringUtil
 		if (len>=s.length()) return s;
 		else return s.substring(0,len)+"...";
 	}
+
+  static public void main(String[] args)
+  {
+    System.out.println(lineWrap(args[0], atoi(args[1])));
+  }
 }
 
