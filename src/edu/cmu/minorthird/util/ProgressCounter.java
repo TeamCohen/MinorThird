@@ -14,6 +14,7 @@ import edu.cmu.minorthird.ui.*;
 
 public class ProgressCounter
 {
+	static private Logger log = Logger.getLogger(ProgressCounter.class);
 	static JProgressBar[] graphicContext = new JProgressBar[0];
 
 	public static void setGraphicContext(JProgressBar[] context)
@@ -21,17 +22,18 @@ public class ProgressCounter
 		graphicContext = context;
 	}
     
-        public static void setOutputContext(JTextArea ea)
-        {
-	        errorArea = ea;
-        }
+  public static void setOutputContext(JTextArea ea)
+  {
+    errorArea = ea;
+  }
  
 	public static void clearGraphicContext() 
 	{ 
 		graphicContext = new JProgressBar[0];
 	} 
 
-	private static List stack = new LinkedList();
+  // keep track of the global depth of progress counters
+  static int currentDepth = 0;
 	private static final int TIME_BTWN_OUTPUTS_IN_MS=1000;
 
 	private String task,step;
@@ -40,9 +42,8 @@ public class ProgressCounter
 	private long startTime;
 	private long lastOutputTime;
 	private int stepsCompleted;
-        private JProgressBar graphicCounter;
-        private static JTextArea errorArea = null;
-	Logger log = Logger.getLogger(this.getClass() + ":" + task);
+  private JProgressBar graphicCounter;
+  private static JTextArea errorArea = null;
 
 
 	public ProgressCounter(String task,String step,int numSteps) {
@@ -50,22 +51,21 @@ public class ProgressCounter
 		this.step = step;
 		this.stepsCompleted = 0;
 		this.numSteps = numSteps;
-		this.depth = stack.size();
+    this.depth = currentDepth++;
 		this.startTime = this.lastOutputTime = System.currentTimeMillis();
 		if (depth<graphicContext.length) {
-			graphicCounter = graphicContext[depth];
-			graphicCounter.setValue(0);
-			if (numSteps>=0)
+      synchronized(graphicContext) {
+        graphicCounter = graphicContext[depth];
+        graphicCounter.setValue(0);
+        if (numSteps>=0)
 			    graphicCounter.setMaximum(numSteps);
-
-			graphicCounter.setIndeterminate(numSteps<0);
-			graphicCounter.setString(numSteps>=0 ? (" "+task+" for "+numSteps+" "+step+"s ") : task);
-			graphicCounter.setStringPainted(true);
+        graphicCounter.setIndeterminate(numSteps<0);
+        graphicCounter.setString(numSteps>=0 ? (" "+task+" for "+numSteps+" "+step+"s ") : task);
+        graphicCounter.setStringPainted(true);
+      }
 		} else {
 			graphicCounter = null;
 		}
-		stack.add( this );
-		log.debug("start");
 	}
 	public ProgressCounter(String task,int numSteps) {
 		this(task,"step",numSteps);
@@ -80,54 +80,48 @@ public class ProgressCounter
 	/** Record one step of progress on the task */
 	public synchronized void progress() {
 		stepsCompleted++;
-		if (graphicCounter!=null) {
-			graphicCounter.setValue(stepsCompleted);
-		}
 		long time = System.currentTimeMillis();
 		if (time - lastOutputTime > TIME_BTWN_OUTPUTS_IN_MS) {
-		    try{
+      if (graphicCounter!=null) {
+        synchronized(graphicContext) {
+          graphicCounter.setValue(stepsCompleted);
+        }
+      }
+      try{
 				System.out.flush();
-		    } catch (Exception e) {
-		    }
-		    //if (errorArea == null) {
+      } catch (Exception e) {
+      }
+      //if (errorArea == null) {
 			for (int i=0; i<depth; i++) System.out.print("| ");
 			if (numSteps >= 0) {
-			    try{
-				System.out.flush();
-			    } catch (Exception e) {
-			    }
-			    System.out.println("Task "+task+": "+(100.0*stepsCompleted/numSteps)+"% in "+(time-startTime)/1000.0+" sec");
+        try{
+          System.out.flush();
+        } catch (Exception e) {
+        }
+        System.out.println("Task "+task+": "+(100.0*stepsCompleted/numSteps)+"% in "+(time-startTime)/1000.0+" sec");
 			} else {
-			    try{
-				System.out.flush();
-			    } catch (Exception e) {
-			    }
-			    System.out.println("Task "+task+": "+stepsCompleted+" "+step+"(s) in "+(time-startTime)/1000.0+" sec");
+        try{
+          System.out.flush();
+        } catch (Exception e) {
+        }
+        System.out.println("Task "+task+": "+stepsCompleted+" "+step+"(s) in "+(time-startTime)/1000.0+" sec");
 			}
 			lastOutputTime = time;
-			/*} else {
-			  for (int i=0; i<depth; i++) errorArea.append("| ");
-			  if (numSteps >= 0) {
-			  errorArea.append("Task "+task+": "+(100.0*stepsCompleted/numSteps)+"% in "+(time-startTime)/1000.0+" sec\n");
-			  } else {
-			  errorArea.append("Task "+task+": "+stepsCompleted+" "+step+"(s) in "+(time-startTime)/1000.0+" sec\n");
-			  }  
-			  }*/
 		}
 	}
 
-
 	/** Record this task as completed. */
-	public void finished() {
+	public void finished() 
+  {
     if (graphicCounter != null && graphicCounter.isIndeterminate())
     {
-      graphicCounter.setIndeterminate(false);
-      graphicCounter.setMaximum(stepsCompleted);
-      graphicCounter.setValue(stepsCompleted);
+      synchronized(graphicContext) {
+        graphicCounter.setIndeterminate(false);
+        graphicCounter.setMaximum(stepsCompleted);
+        graphicCounter.setValue(stepsCompleted);
+        graphicCounter.setStringPainted(false);
+      }
     }
-    int k = stack.indexOf(this);
-		if (k>=0) stack = stack.subList( 0, k );
-
-    log.info("finished in " + stepsCompleted + " steps.");
+    currentDepth = depth;
 	}
 }
