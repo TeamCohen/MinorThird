@@ -33,8 +33,12 @@ public class RandomFilePicker
         return true;
       else
         return false;
+    }
 
-
+    public int hashCode()
+    {
+      String sRep = this.person + "/" + this.email;
+      return sRep.hashCode();
     }
   }
 
