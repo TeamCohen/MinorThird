@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
  * Call .load(File) with the file object to your data (could be a directory)<br>
  * load(File) returns the TextBase object for the data.
  *
+ * Calling .load a second time will add additional documents to the same text base.
+ * Use setTextBase(null) to get a new text base from the same loader object.
+ *
  * ex:
  * //Load files in directory "Foo"
  * //Use each file as a 'document', get document id's from the individual file names
@@ -42,7 +45,17 @@ import java.util.regex.Pattern;
  * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, NONE, DIRECTORY_NAME, true, true);
  * TextBase base = TBL.load(new File("myDir"));
  * -----------------------------------------------------------------
- *
+ * //Load files in "myDir" and "yourDir" into a single text base
+ * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, true);
+ * TBL.load(new File("myDir"));
+ * TextBase base = TBL.load(new File("yourDir"));
+ * -----------------------------------------------------------------
+ * //Load files in "myDir" and "yourDir" into different text bases
+ * TextBaseLoader TBL = new TextBaseLoader(DOC_PER_FILE, FILE_NAME, true);
+ * TextBase myDirBase = TBL.load(new File("myDir"));
+ * TBL.setTextBase(null);
+ * TextBase yourDirBase = TBL.load(new File("yourDir"));
+ * -----------------------------------------------------------------
  *
  * Configure the loader for the format of the data you have.  Then call load to return a TextBase<br.
  * <br>
@@ -234,6 +247,22 @@ public class TextBaseLoader implements Loader
   public MutableTextLabels getLabels()
   { return labels; }
 
+  /** set the TextLabels object to add tags into */
+  public void setLabels(MutableTextLabels labels)
+  { this.labels = labels; }
+
+  /** get the current text base of documents */
+  public TextBase getTextBase()
+  { return textBase; }
+
+  /**
+   * set the TextBase to load new data into.  You can add to an existing set of documents
+   * or use setTextBase(null) to generate a new one with the next call to .load
+   * @param textBase TextBase to add documents to, null to generate a new one
+   */
+  public void setTextBase(TextBase textBase)
+  { this.textBase = textBase; }
+
   /** For one doc per line, indicates if first word is the Id. */
   public boolean getFirstWordIsDocumentId() { return firstWordIsDocumentId; }
 
@@ -295,6 +324,11 @@ public class TextBaseLoader implements Loader
   /**
    * Load data from the given location according to configuration and whether location
    * is a directory or not
+   *
+   * Calling load a second time will load into the same text base (thus the second call returns
+   * documents from both the first and second locations).  Use setTextBase(null) to reset the text base.
+   *
+   *
    * @param dataLocation File representation of location (single file or directory)
    * @return the loaded TextBase
    * @throws IOException - problem reading the file
@@ -894,7 +928,7 @@ public class TextBaseLoader implements Loader
 		{
 			allLines += in.readLine() + "\n";
 		}
-		
+
 		base.loadDocument(id, allLines);
 		in.close();
 	}
