@@ -15,7 +15,7 @@ public class RandomFilePicker
     int person;
     int email;
 
-    public Pick(int email, int person)
+    public Pick(int person, int email)
     {
       this.email = email;
       this.person = person;
@@ -128,9 +128,11 @@ public class RandomFilePicker
       {
         Pick p = (Pick)it.next();
         System.out.println("copy " + p);
-        String newName = dirs[p.person].getName() + "_" + messages[p.person][p.email].getName();
+        String newName = dirs[p.person].getName() + "_all_documents_" + messages[p.person][p.email].getName();
         File newFile = new File(newDir, newName);
 
+        if (newFile.exists())
+        { System.out.println("ERROR - file exists: " + newFile.getName()); }
         try { com.ksteppe.fileUtils.FileTool.copy(messages[p.person][p.email], newFile); }
         catch (IOException e)
         { e.printStackTrace(); } //To change body of catch statement use Options | File Templates.
