@@ -1,6 +1,7 @@
 /* Copyright 2003, Carnegie Mellon, All Rights Reserved */
 
 package edu.cmu.minorthird.classify.algorithms.linear;
+import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
@@ -108,7 +109,6 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
     buf.append("\n = "+score(instance) );
     return buf.toString();
   }
-
 
   /** Increment one feature from the hyperplane by delta */
   public void increment(Feature f, double delta) {
