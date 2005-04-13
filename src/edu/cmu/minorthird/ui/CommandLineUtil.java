@@ -1083,42 +1083,19 @@ public class CommandLineUtil
 
 	    try {
 		MutableTextLabels labels = (MutableTextLabels)FancyLoader.loadTextLabels(key);
-			
-		String str = null;
-			
-		TextLabelsLoader x = new TextLabelsLoader();
 		TextBase base = labels.getTextBase();
-			
-		//for testing
-		//File userEditedLabelFile = new File("labels.env");
-		//TextBaseEditor.edit(labels, userEditedLabelFile);
-			
-		//(new File("./xml-" + key)).mkdir();
-		
-		//int num =0;
-		File f = new File(key + "-xml");
-		FileOutputStream fos = new FileOutputStream(f);
-		PrintWriter outfile = new PrintWriter(fos);
+		TextLabelsLoader x = new TextLabelsLoader();
 		
 		for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
 		    {
 			String doc = i.nextSpan().getDocumentId();
-			f = new File(key + "-xml/" + doc );
-			fos = new FileOutputStream(f);
-			outfile = new PrintWriter(fos);			
-			//File f = new File("./xml-"+key+"/xml-" + key);
-			//FileOutputStream fos = new FileOutputStream(f);
-			//PrintWriter outfile = new PrintWriter(fos);
-			str = x.createXMLmarkup(doc ,labels);
-			outfile.println(str);
-			outfile.println();
-			//outfile.close();
+			String str = x.createXMLmarkup(doc ,labels);
+			System.out.println(str);
 		    } 
-		outfile.close();
 	    }		  		    
 	    catch (Exception e) {
 		e.printStackTrace();
-		System.out.println("something wrong..");
+		System.out.println("something wrong....");
 		System.exit(1);}
 	}
 	public void usage() {

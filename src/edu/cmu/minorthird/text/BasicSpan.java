@@ -235,7 +235,7 @@ public class BasicSpan implements Span,Serializable,Visible
     /** Returns how many characters are before the span in the document */
     public int getLoChar() {
 	loCharIndex = 0;
-	for(int i=0; i<=loTextTokenIndex; i++) {
+	for(int i=0; i<loTextTokenIndex; i++) {
 	    loCharIndex += textTokens[i].getLength();
 	}
 	return loCharIndex;
@@ -244,7 +244,7 @@ public class BasicSpan implements Span,Serializable,Visible
     /** Returns how many characters there are up to and including the span */
     public int getHiChar() {
 	hiCharIndex = getLoChar();
-	for(int i=loTextTokenIndex; i<loTextTokenIndex+spanLen; i++) {
+	for(int i=loTextTokenIndex; i<loTextTokenIndex+spanLen-1; i++) {
 	    hiCharIndex += textTokens[i].getLength();
 	}
 	return hiCharIndex;
