@@ -26,38 +26,28 @@ import java.io.Serializable;
  * @author William Cohen
  */
 
-public class SequenceAnnotatorLearner implements AnnotatorLearner
+public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner
 {
 	private static Logger log = Logger.getLogger(SequenceAnnotatorLearner.class);
 	private static final boolean DEBUG = false;
 
-	protected SpanFeatureExtractor fe;
-	protected String annotationType = "_prediction";
-	protected int historySize = 3;
-	protected SequenceDataset seqData = new SequenceDataset();
 	protected BatchSequenceClassifierLearner seqLearner;
-	protected Extraction2TaggingReduction reduction = new InsideOutsideReduction();
 
 	public SequenceAnnotatorLearner()
 	{
-		this(new CollinsPerceptronLearner(),new Recommended.TokenFE());
+    super();
+    seqLearner = new CollinsPerceptronLearner();
 	}
 	public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe)
 	{
-		this(seqLearner,fe,new InsideOutsideReduction());
+    super(seqLearner.getHistorySize(),fe,new InsideOutsideReduction());
+    this.seqLearner = seqLearner;
 	}
 	public SequenceAnnotatorLearner(
 		BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe,Extraction2TaggingReduction reduction)
 	{
-		this.seqLearner = seqLearner;
-		this.reduction = reduction;
-		this.fe = fe;
-		this.historySize = seqLearner.getHistorySize();
-		seqData.setHistorySize(this.historySize);
-	}
-
-	public void reset() {
-		seqData = new SequenceDataset();
+    super(seqLearner.getHistorySize(),fe,reduction);
+    this.seqLearner = seqLearner;
 	}
 
 	//
@@ -66,65 +56,13 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 	private boolean displayDatasetBeforeLearning=false;
 
 	/** If set, try and pop up an interactive viewer of the sequential dataset before learning. */
-	public boolean getDisplayDatasetBeforeLearning() {
-		return displayDatasetBeforeLearning; 
-	}
+	public boolean getDisplayDatasetBeforeLearning() { return displayDatasetBeforeLearning; }
 	public void setDisplayDatasetBeforeLearning(boolean newDisplayDatasetBeforeLearning) {
 		this.displayDatasetBeforeLearning = newDisplayDatasetBeforeLearning;
 	}
-	public int getHistorySize() { return historySize; }
-	public void setHistorySize(int historySize) { this.historySize=historySize; }
+
 	public BatchSequenceClassifierLearner getSequenceClassifierLearner() { return seqLearner; }
 	public void setSequenceClassifierLearner(BatchSequenceClassifierLearner learner) { this.seqLearner=learner; }
-	public Extraction2TaggingReduction getTaggingReduction() { return reduction; }
-	public void setTaggingReduction(Extraction2TaggingReduction reduction) { this.reduction = reduction; }
-	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
-	public void setSpanFeatureExtractor(SpanFeatureExtractor fe) {this.fe = fe;	}
-	/** Specify the type of annotation produced by this annotator - that is, the
-	 * type associated with spans produced by it. */
-	public void setAnnotationType(String s) { annotationType=s; }
-	public String getAnnotationType() { return annotationType; }
-
-	// temporary storage
-	private Span.Looper documentLooper;
-
-	/** Accept the pool of unlabeled documents. */
-	public void setDocumentPool(Span.Looper documentLooper) {
-		this.documentLooper = documentLooper;
-	}
-
-	/** Ask for labels on every document. */
-	public boolean hasNextQuery() {
-		return documentLooper.hasNext();
-	}
-
-	/** Return the next unlabeled document. */
-	public Span nextQuery() {
-		return documentLooper.nextSpan();
-	}
-
-	/** Accept the answer to the last query. */
-	public void setAnswer(AnnotationExample answeredQuery)
-	{
-		reduction.reduceExtraction2Tagging(answeredQuery);
-		TextLabels answerLabels = reduction.getTaggedLabels();
-		Span document = answeredQuery.getDocumentSpan();
-		Example[] sequence = new Example[document.size()];
-		for (int i=0; i<document.size(); i++) {
-			Token tok = document.getToken(i);
-			String value = answerLabels.getProperty(tok,reduction.getTokenProp());
-			if (value!=null) {
-				ClassLabel classLabel = new ClassLabel(value);
-				Span tokenSpan = document.subSpan(i,1);
-				Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
-				sequence[i] = example;
-			} else {
-				log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
-				return;
-			}
-		}
-		seqData.addSequence( sequence );
-	}
 
 	/** Return the learned annotator.
 	 */
@@ -140,13 +78,6 @@ public class SequenceAnnotatorLearner implements AnnotatorLearner
 		SequenceClassifier seqClassifier = seqLearner.batchTrain(seqData);
 		if (DEBUG) log.debug("learned classifier: "+seqClassifier);
 		return new SequenceAnnotatorLearner.SequenceAnnotator( seqClassifier, fe, reduction, annotationType );
-	}
-
-	/** Get the constructed sequence data.
-	 */
-	public SequenceDataset getSequenceDataset()
-	{
-		return seqData;
 	}
 
 	/**
