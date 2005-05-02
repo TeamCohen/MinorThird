@@ -32,7 +32,6 @@ public class NM extends AbstractAnnotator
 	static private Logger log = Logger.getLogger(edu.cmu.minorthird.text.learn.NM.class);
 
   private File saveAs=null;
-  private MonotonicTextLabels annLabels=null;
   private String predType="_prediction";
   private String spanType="true_name";
   private static double threshold = 16;
@@ -65,8 +64,8 @@ public class NM extends AbstractAnnotator
   }
 
 
-  public NM(MonotonicTextLabels labels) {
-      this.annLabels = labels;
+  public NM(String spanType) {
+      this.spanType = spanType;
       //TextBaseViewer.view(annLabels);
   }
 
@@ -114,7 +113,7 @@ public class NM extends AbstractAnnotator
 			System.out.println(++counter + ". " + i.next());
 
 
-      applyDict();
+      applyDict(labels);
 
       MixupProgram p = null;
       try{
@@ -130,7 +129,7 @@ public class NM extends AbstractAnnotator
       }
 
 
-      p.eval(labels, annLabels.getTextBase());
+      p.eval(labels, labels.getTextBase());
 
       if (saveAs!=null) {
 			try {
@@ -145,15 +144,15 @@ public class NM extends AbstractAnnotator
 			}
 		}
 
-		 //TextBaseViewer.view(annLabels);
+		 //TextBaseViewer.view(labels);
 
 	  SpanDifference sd;
 		System.out.println("============================================================");
 		System.out.println("Pre names-matching:");
-		sd = new SpanDifference(annLabels.instanceIterator(predType), annLabels.instanceIterator(spanType), annLabels.closureIterator(spanType));
+		sd = new SpanDifference(labels.instanceIterator(predType), labels.instanceIterator(spanType), labels.closureIterator(spanType));
 		System.out.println(sd.toSummary());
 		System.out.println("Post names-matching:");
-		finalSD = new SpanDifference(annLabels.instanceIterator(predType + "_updated_fixed"), annLabels.instanceIterator(spanType), annLabels.closureIterator(spanType));
+		finalSD = new SpanDifference(labels.instanceIterator(predType + "_updated_fixed"), labels.instanceIterator(spanType), labels.closureIterator(spanType));
 		System.out.println(finalSD.toSummary());
   }
 
@@ -163,10 +162,10 @@ public class NM extends AbstractAnnotator
     return "No explanation implemented.";
   }
 
-   private void applyDict() {
+   private void applyDict(MonotonicTextLabels annLabels) {
     int counter = 0;
 
-    for (Span.Looper i = annLabels.getTextBase().documentSpanIterator(); i.hasNext();) {
+   for (Span.Looper i = annLabels.getTextBase().documentSpanIterator(); i.hasNext();) {
         //if (counter==5) TextBaseViewer.view(annLabels);
         Span docSpan = i.nextSpan();
         System.out.println(((float) ++counter / annLabels.getTextBase().size() * 100) + "% Working on " + docSpan.getDocumentId() + "...");
@@ -363,7 +362,7 @@ public class NM extends AbstractAnnotator
       MonotonicTextLabels annLabels = null;
       ExtractorAnnotator ann = null;
 
-      NM nameMatcher = new NM();
+      NM nameMatcher = new NM(spanType);
 
       //parse and load arguments
       for (int i = 0; i < args.length; i++) {
