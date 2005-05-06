@@ -785,6 +785,7 @@ public class CommandLineUtil
 
 	Vector types = new Vector();
 	types = separateTypes(spanTypes.substring(catIndex+1,spanTypes.length()), types);
+	//if (types==null) throw new IllegalArgumentException("null types for '"+spanTypes+"'");
 
 	for(int i=0; i<types.size(); i++) {
 	    for(Span.Looper sl = base.labels.instanceIterator((String)types.get(i)); sl.hasNext();){
@@ -803,9 +804,14 @@ public class CommandLineUtil
     /** Parameters encoding the 'training signal' for extraction learning. */
     public static class ExtractionSignalParams extends BasicCommandLineProcessor {
 	private BaseParams base=new BaseParams();
+	private String spanPropString = null;
 	/** Not recommended, but required for bean-shell like visualization */
 	public ExtractionSignalParams() {;}
-	public ExtractionSignalParams(BaseParams base) {this.base=base;}
+	public ExtractionSignalParams(BaseParams base) 
+	{
+	    this.base=base;
+	    if (spanPropString!=null) this.spanProp = createSpanProp(this.spanPropString,this.base);
+	}
 	public String spanType=null;
 	public String spanProp=null;
 	public void spanType(String s) { this.spanType=s; }
@@ -813,7 +819,8 @@ public class CommandLineUtil
 	    if(s.indexOf(',') == -1)
 		this.spanProp=s; 
 	    else {
-		this.spanProp = createSpanProp(s, base);
+		this.spanPropString = s;
+		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base);
 	    }
 	}
 	public void usage() {

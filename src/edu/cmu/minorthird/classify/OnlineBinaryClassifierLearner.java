@@ -14,14 +14,12 @@ import edu.cmu.minorthird.classify.algorithms.linear.*;
 
 public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLearner implements BinaryClassifierLearner
 {
-
 	final public void setSchema(ExampleSchema schema)
 	{
 		if (!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)) {
 			throw new IllegalStateException("can only learn binary example data");
 		}
 	}
-
 	final public BinaryClassifier getBinaryClassifier()
 	{
 		return (BinaryClassifier)getClassifier();

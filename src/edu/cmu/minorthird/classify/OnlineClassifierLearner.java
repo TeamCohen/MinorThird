@@ -20,20 +20,25 @@ public abstract class OnlineClassifierLearner implements ClassifierLearner
 		return (ClassifierLearner)clone(); 
 	}
 
-	/** Override this method if appropriate.
+	/** A promise from the caller that no further examples will be added.
+	 * Override this method if it's appropriate.
 	 */
 	public void completeTraining() {;}
 
-	/** Subclasses should use this method to to whatever incremental update is
-	 * needed after in response to a new example. 
+	/** Subclasses should use this method to perform whatever
+	 * incremental update is needed after in response to a new
+	 * example.
 	 */
 	abstract public void addExample(Example answeredQuery);
 
-	/** Subclasses should use this method to return the current classifier. 
+	/** Subclasses should use this method to return the current
+	 * classifier.
 	 */
 	abstract public Classifier getClassifier();
 
-	/** Subclasses need to implement this method */
+	/** 'forget' everything about the last learning task, and
+	 * start a new task. Subclasses need to implement this
+	 * method */
 	abstract public void reset();
 
 }
