@@ -27,53 +27,36 @@ import org.apache.log4j.*;
 
  // need to store the names lists in a sorted list (so the name would be matched from long to short)
 
-public class NM extends AbstractAnnotator
+public class NameMatcher extends AbstractAnnotator
 {
-	static private Logger log = Logger.getLogger(edu.cmu.minorthird.text.learn.NM.class);
+	static private Logger log = Logger.getLogger(NameMatcher.class);
 
-  private File saveAs=null;
-  private String predType="_prediction";
-  private String spanType="true_name";
-  private static double threshold = 16;
-  private SpanDifference finalSD = null;
+    private String predType="_prediction";
+    private String spanType="true_name";
+    private static double threshold = 16;
 
-  private ArrayList nameDict = new ArrayList();
-  private static final String DIV = "@#!";
-  private static final int WINDOW_SIZE = 5;
-  private static final int SIG_SIZE = 2;  // number of tokens at the end of e-mail in search for signatures
+    private ArrayList nameDict = new ArrayList();
+    private static final String DIV = "@#!";
+    private static final int WINDOW_SIZE = 5;
+    private static final int SIG_SIZE = 2;  // number of tokens at the end of e-mail in search for signatures
 
-  private ArrayList lowRiskNameList = new ArrayList();
-  private ArrayList highRiskNameList = new ArrayList();
-  private ArrayList deletedNameList = new ArrayList();
+    private ArrayList lowRiskNameList = new ArrayList();
+    private ArrayList highRiskNameList = new ArrayList();
+    private ArrayList deletedNameList = new ArrayList();
 
-
-  public double getTokenPrecision(){
-     return finalSD.tokenPrecision();
-  }
-
-  public double getTokenRecall(){
-     return finalSD.tokenRecall();
-  }
-
-  public double getSpanPrecision(){
-     return finalSD.spanPrecision();
-  }
-
-  public double getSpanRecall(){
-     return finalSD.spanRecall();
-  }
+    private static MonotonicTextLabels postLabels = null;
+    private static boolean Remove_Single_Tokens_Low_PFIDF = true;
 
 
-  public NM(String spanType) {
+  public NameMatcher(String spanType) {
       this.spanType = spanType;
-      //TextBaseViewer.view(annLabels);
   }
 
-  public NM(){;}
+  public NameMatcher(){;}
 
 
   protected void doAnnotate(MonotonicTextLabels labels){
-         //create dictionary, sorted by names' length
+     //create dictionary, sorted by names' length
       Set allNames = new HashSet();
       for (Iterator it=labels.instanceIterator(predType);it.hasNext();){
           Span sp = (Span)it.next();
@@ -81,12 +64,12 @@ public class NM extends AbstractAnnotator
       }
       nameDict = new ArrayList(allNames);
       Collections.sort(nameDict, new Comparator() {
-			public int compare (Object o1, Object o2) {
-				return new Integer(((String) o2).length()).compareTo(new Integer(((String) o1).length()));
-			}
-		});
+            public int compare (Object o1, Object o2) {
+                return new Integer(((String) o2).length()).compareTo(new Integer(((String) o1).length()));
+            }
+        });
 
-            FreqAnal fa = new FreqAnal(labels, predType);
+      FreqAnal fa = new FreqAnal(labels, predType);
 
       //transorm-extend dictionary per pre-defined personal name-specific templates.
       //identify 'high-risk' names and eliminate them from the extended dictionary.
@@ -94,67 +77,28 @@ public class NM extends AbstractAnnotator
 
 
         int counter = 0;
-		/**
+        /**
         System.out.println("High Confidence Names:");
-		for (Iterator i = nameList.iterator(); i.hasNext();)
-			System.out.println(++counter + ". " + i.next());
-		counter = 0;
+        for (Iterator i = nameList.iterator(); i.hasNext();)
+            System.out.println(++counter + ". " + i.next());
+        counter = 0;
         **/
-		System.out.println("Low Risk Names:");
-		for (Iterator i = lowRiskNameList.iterator(); i.hasNext();)
-			System.out.println(++counter + ". " + i.next());
-		counter = 0;
-		System.out.println("High Risk Names:");
-		for (Iterator i = highRiskNameList.iterator(); i.hasNext();)
-			System.out.println(++counter + ". " + i.next());
-		counter = 0;
-		System.out.println("Deleted Names:");
-		for (Iterator i = deletedNameList.iterator(); i.hasNext();)
-			System.out.println(++counter + ". " + i.next());
+        System.out.println("Low Risk Names:");
+        for (Iterator i = lowRiskNameList.iterator(); i.hasNext();)
+            System.out.println(++counter + ". " + i.next());
+        counter = 0;
+        System.out.println("High Risk Names:");
+        for (Iterator i = highRiskNameList.iterator(); i.hasNext();)
+            System.out.println(++counter + ". " + i.next());
+        counter = 0;
+        System.out.println("Deleted Names:");
+        for (Iterator i = deletedNameList.iterator(); i.hasNext();)
+            System.out.println(++counter + ". " + i.next());
 
-
-      applyDict(labels);
-
-      MixupProgram p = null;
-      try{
-          p = new MixupProgram(	new String[]
-                {"defTokenProp email:t = ~re'([\\.\\-\\w+]+\\@[\\.\\-\\w\\+]+)',1;"}) ;
-          p.addStatement("defSpanType email =: ... [email:t+R] ... ;");
-          p.addStatement("defTokenProp predicted_name:1 =: ... [@_prediction_updated] ... || ... [@_prediction] ... ;");
-          p.addStatement("defSpanType _prediction_updated_fixed =: ... [L <predicted_name:1, !email:t>+ R] ... ;");
-      }
-
-      catch (Exception e){
-         System.out.println(e);
-      }
-
-
-      p.eval(labels, labels.getTextBase());
-
-      if (saveAs!=null) {
-			try {
-				(new TextLabelsLoader()).saveTypesAsOps(labels, saveAs);
-			} catch (IOException e) {
-                try{
-				(new TextLabelsLoader()).saveTypesAsOps(labels, new File("name-matching-labels.env"));
-                }
-                catch (Exception e2){
-                    System.out.println(e2);
-                }
-			}
-		}
-
-		 //TextBaseViewer.view(labels);
-
-	  SpanDifference sd;
-		System.out.println("============================================================");
-		System.out.println("Pre names-matching:");
-		sd = new SpanDifference(labels.instanceIterator(predType), labels.instanceIterator(spanType), labels.closureIterator(spanType));
-		System.out.println(sd.toSummary());
-		System.out.println("Post names-matching:");
-		finalSD = new SpanDifference(labels.instanceIterator(predType + "_updated_fixed"), labels.instanceIterator(spanType), labels.closureIterator(spanType));
-		System.out.println(finalSD.toSummary());
-  }
+      applyDictIncreaseRecall(labels);
+      if (Remove_Single_Tokens_Low_PFIDF)
+        applyDictIncreasePrecision(postLabels);
+   }
 
 
     public String explainAnnotation(TextLabels labels,Span span)
@@ -162,20 +106,19 @@ public class NM extends AbstractAnnotator
     return "No explanation implemented.";
   }
 
-   private void applyDict(MonotonicTextLabels annLabels) {
+   private void applyDictIncreaseRecall(MonotonicTextLabels labels) {
     int counter = 0;
 
-   for (Span.Looper i = annLabels.getTextBase().documentSpanIterator(); i.hasNext();) {
-        //if (counter==5) TextBaseViewer.view(annLabels);
+   for (Span.Looper i = labels.getTextBase().documentSpanIterator(); i.hasNext();) {
         Span docSpan = i.nextSpan();
-        System.out.println(((float) ++counter / annLabels.getTextBase().size() * 100) + "% Working on " + docSpan.getDocumentId() + "...");
+        System.out.println(((float) ++counter / labels.getTextBase().size() * 100) + "% Working on " + docSpan.getDocumentId() + "...");
 
         for (int j = 0; j < docSpan.size(); j++) {
             Span tokenWindow = docSpan.subSpan(j, Math.min(docSpan.size() - j, WINDOW_SIZE));
             Span nameMatch = dictLookup(lowRiskNameList, tokenWindow);
             if (nameMatch != null) {
                 System.out.println("! Found: " + nameMatch.asString().replaceAll("[\r\n\\s]+", " ") + " matches " + tokenWindow.asString().replaceAll("[\r\n\\s]+", " "));
-                annLabels.addToType(nameMatch, predType + "_updated");
+                labels.addToType(nameMatch, predType + "_updated");
                 j += nameMatch.size()-1;
             }
         }
@@ -186,12 +129,35 @@ public class NM extends AbstractAnnotator
             Span nameMatch = dictLookup(highRiskNameList, tokenWindow);
             if (nameMatch != null) {
                 System.out.println("! Found: " + nameMatch.asString().replaceAll("[\r\n\\s]+", " ") + " matches " + tokenWindow.asString().replaceAll("[\r\n\\s]+", " "));
-                annLabels.addToType(nameMatch, predType + "_updated");
+                labels.addToType(nameMatch, predType + "_updated");
                 j += nameMatch.size()-1;
             }
          }
       }
+      this.postLabels = labels;
    }
+
+
+  private void applyDictIncreasePrecision(MonotonicTextLabels labels) {
+    int counter = 0;
+
+    for (Span.Looper i = labels.getTextBase().documentSpanIterator(); i.hasNext();) {
+        Span docSpan = i.nextSpan();
+        System.out.println(((float) ++counter / labels.getTextBase().size() * 100) + "% Working on " + docSpan.getDocumentId() + "...");
+
+        for (Span.Looper k=labels.instanceIterator(predType, docSpan.getDocumentId()); k.hasNext(); ) {
+            Span span = k.nextSpan();
+            if (span.size()==1){
+                String token = span.getToken(0).getValue().toLowerCase();
+                if (deletedNameList.contains(token)){
+                    labels.setProperty(span.getToken(0),"delete","t");
+                }
+            }
+	    }
+     }
+     this.postLabels = labels;
+  }
+
 
     private Span dictLookup (ArrayList nameList, Span tokenWindow) {
         BasicTextBase base = new BasicTextBase();
@@ -362,7 +328,7 @@ public class NM extends AbstractAnnotator
       MonotonicTextLabels annLabels = null;
       ExtractorAnnotator ann = null;
 
-      NM nameMatcher = new NM(spanType);
+      NameMatcher nameMatcher = new NameMatcher(spanType);
 
       //parse and load arguments
       for (int i = 0; i < args.length; i++) {
@@ -389,8 +355,50 @@ public class NM extends AbstractAnnotator
 			throw new IllegalArgumentException("can't load annotator from "+fromFile+": "+ex);
         }
        annLabels = (MonotonicTextLabels)ann.annotatedCopy(textLabels);
+       //TextBaseViewer.view(annLabels);
 
        nameMatcher.doAnnotate(annLabels);
+
+      MixupProgram p = null;
+      try{
+          p = new MixupProgram(	new String[]
+                {"defTokenProp email:t = ~re'([\\.\\-\\w+]+\\@[\\.\\-\\w\\+]+)',1;"}) ;
+          p.addStatement("defSpanType email =: ... [email:t+R] ... ;");
+          p.addStatement("defTokenProp predicted_name:1 =: ... [@_prediction_updated] ... || ... [@_prediction] ... ;");
+          p.addStatement("defSpanType _prediction_updated_fixed =: ... [L <predicted_name:1, !email:t, !delete:t>+ R] ... ;");
+      }
+
+      catch (Exception e){
+         System.out.println(e);
+      }
+
+      p.eval(postLabels, postLabels.getTextBase());
+      TextBaseViewer.view(postLabels);
+
+
+      if (saveAs!=null) {
+			try {
+				(new TextLabelsLoader()).saveTypesAsOps(postLabels, saveAs);
+			} catch (IOException e) {
+                try{
+				(new TextLabelsLoader()).saveTypesAsOps(postLabels, new File("name-matching-labels.env"));
+                }
+                catch (Exception e2){
+                    System.out.println(e2);
+                }
+			}
+		}
+
+		 //TextBaseViewer.view(nameMatcher.postLabels);
+
+	  SpanDifference sd;
+		System.out.println("============================================================");
+		System.out.println("Pre names-matching:");
+		sd = new SpanDifference(nameMatcher.postLabels.instanceIterator(nameMatcher.predType), nameMatcher.postLabels.instanceIterator(spanType), nameMatcher.postLabels.closureIterator(spanType));
+		System.out.println(sd.toSummary());
+		System.out.println("Post names-matching:");
+		SpanDifference finalSD = new SpanDifference(nameMatcher.postLabels.instanceIterator(nameMatcher.predType + "_updated_fixed"), nameMatcher.postLabels.instanceIterator(spanType), nameMatcher.postLabels.closureIterator(spanType));
+		System.out.println(finalSD.toSummary());
    }
 
 }

@@ -50,6 +50,15 @@ public class FreqAnal {
 		updateHScore(base.size(), HS);
 	}
 
+    public void print(){
+        for (Iterator it=tokenHash.keySet().iterator();it.hasNext();){
+            String next = (String) it.next();
+            Double[] array = (Double[])tokenHash.get(next);
+            System.out.println(next +
+                    " "+array[0]+" "+array[1]+" "+ array[2]+" "+array[3]);
+        }
+    }
+
 
 	private static void updateHScore (int numDoc, int type) {
 		for (Iterator i = tokenHash.keySet().iterator(); i.hasNext();) {
