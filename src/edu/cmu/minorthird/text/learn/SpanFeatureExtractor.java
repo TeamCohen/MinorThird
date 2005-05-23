@@ -16,6 +16,6 @@ import edu.cmu.minorthird.text.TextLabels;
 
 public interface SpanFeatureExtractor
 {
-	public Instance extractInstance(Span s);
+    //public Instance extractInstance(Span s);
 	public Instance extractInstance(TextLabels labels,Span s);
 }

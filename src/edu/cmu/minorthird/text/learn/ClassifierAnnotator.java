@@ -69,6 +69,6 @@ public class ClassifierAnnotator extends AbstractAnnotator implements Serializab
 	}
 	public String explainAnnotation(TextLabels labels,Span documentSpan)
 	{
-		return c.explain(fe.extractInstance(documentSpan));
+	    return c.explain(fe.extractInstance(labels,documentSpan));
 	}
 }

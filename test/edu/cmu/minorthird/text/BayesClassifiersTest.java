@@ -104,7 +104,8 @@ public class BayesClassifiersTest extends TestCase
         Span s = i.nextSpan();
         //System.out.println( labels );
         double label = labels.hasType(s, "rr") ? +1 : -1;
-        data.add(new Example(fe.extractInstance(s), ClassLabel.binaryLabel(label)));
+	TextLabels textLabels = new EmptyLabels();
+        data.add(new Example(fe.extractInstance(textLabels,s), ClassLabel.binaryLabel(label)));
       }
 
       ViewerFrame f = new ViewerFrame("rr data", data.toGUI());

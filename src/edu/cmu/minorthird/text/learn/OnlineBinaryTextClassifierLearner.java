@@ -127,7 +127,7 @@ public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator impleme
     public String explainAnnotation(TextLabels labels,Span documentSpan)
     {
 	Classifier c = learner.getClassifier();
-	return c.explain(fe.extractInstance(documentSpan));
+	return c.explain(fe.extractInstance(labels,documentSpan));
     }
 
     public ClassifierAnnotator getAnnotator() {

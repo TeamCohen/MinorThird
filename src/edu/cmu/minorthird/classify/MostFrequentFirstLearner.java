@@ -21,7 +21,8 @@ public class MostFrequentFirstLearner extends OneVsAllLearner
 	super();
     }
 
-    /** 
+    /**
+     * @deprecated use MostFrequentFirstLearner(BatchClassifierLearner learner)
      * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
      */
     public MostFrequentFirstLearner(ClassifierLearnerFactory learnerFactory)

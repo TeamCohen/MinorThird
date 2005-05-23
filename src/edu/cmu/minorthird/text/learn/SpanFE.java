@@ -160,7 +160,7 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible, Se
 	// extraction
 	//
 
-	/** Extract an Instance from a span */
+	/** @deprecated Use extractInstance(TextLabels labels,Span s)*/
 	final public Instance extractInstance(Span span)
 	{
 		instance = new MutableInstance(span,span.getDocumentGroupId());

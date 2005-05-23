@@ -86,7 +86,8 @@ public class BOWClassifierWrapper
 		for (edu.cmu.minorthird.text.Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
 			edu.cmu.minorthird.text.Span s = i.nextSpan();
 			double label = labels.hasType(s,"delete") ? +1 : -1;
-			data.add( new Example( fe.extractInstance(s), ClassLabel.binaryLabel(label) ) );
+			TextLabels textLabels = new EmptyLabels();
+			data.add( new Example( fe.extractInstance(textLabels,s), ClassLabel.binaryLabel(label) ) );
 		}
 		ClassifierLearner learner = new AdaBoost(new BinaryBatchVersion(new NaiveBayes()), 10);
 		Classifier c = new DatasetClassifierTeacher(data).train(learner);

@@ -25,6 +25,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner
     }
 
     /** 
+     * @deprecated use CascadingBinaryLearner(BatchClassifierLearner learner)
      * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
      */
     public CascadingBinaryLearner(ClassifierLearnerFactory learnerFactory)

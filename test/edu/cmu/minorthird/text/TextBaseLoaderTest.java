@@ -335,7 +335,8 @@ public class TextBaseLoaderTest extends TestCase
       log.debug("span: " + numSpans++);
       Span s = i.nextSpan();
       double label = labels.hasType(s, "delete") ? +1 : -1;
-      data.add(new Example(fe.extractInstance(s), ClassLabel.binaryLabel(label)));
+      TextLabels textLabels = new EmptyLabels();
+      data.add(new Example(fe.extractInstance(textLabels,s), ClassLabel.binaryLabel(label)));
     }
     return data;
   }

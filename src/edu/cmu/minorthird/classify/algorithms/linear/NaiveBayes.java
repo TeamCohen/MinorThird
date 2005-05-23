@@ -32,7 +32,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner implements Seriali
 {
     private static Logger log = Logger.getLogger(NaiveBayes.class);
 
-    private Hyperplane numGivenPos, numGivenNeg, c=null;
+    private Hyperplane numGivenPos, numGivenNeg;
     private Set featureSet;
     private double numPos, numNeg;
 
@@ -66,8 +66,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner implements Seriali
 
     public Classifier getClassifier() 
     {
-	if(c == null)
-	    c = new Hyperplane();
+	Hyperplane c = new Hyperplane();
 	for (Iterator i=featureSet.iterator(); i.hasNext(); ) {
 	    Feature f = (Feature)i.next();
 	    double featurePrior = getFeaturePrior();

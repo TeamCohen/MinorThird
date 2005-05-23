@@ -60,7 +60,8 @@ public class OneVsAllLearner implements ClassifierLearner
 	this("new MaxEntLearner()");
     }
 
-    /** 
+    /**
+     * @deprecated use OneVsAllLearner(BatchClassifierLearner learner)
      * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
      */
     public OneVsAllLearner(ClassifierLearnerFactory learnerFactory)

@@ -166,7 +166,8 @@ public class SampleFE
 				Span s = i.nextSpan();
 				String id = s.getDocumentId();
 				ClassLabel label = ClassLabel.binaryLabel( id.startsWith("pos") ? +1 : -1 );
-				dataset.add(new Example(fe.extractInstance(s), label));
+				TextLabels textLabels = new EmptyLabels();
+				dataset.add(new Example(fe.extractInstance(textLabels,s), label));
 			}
 			ViewerFrame f = new ViewerFrame("Toy data", dataset.toGUI());
 		} catch (Exception e) {

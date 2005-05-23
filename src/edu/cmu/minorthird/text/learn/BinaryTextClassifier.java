@@ -43,7 +43,8 @@ public class BinaryTextClassifier implements TextClassifier
 	tb.loadDocument(docID, text);	
 	Span docSpan = tb.documentSpan(docID);
 
-	Instance i = fe.extractInstance(/*textLabels,*/docSpan);
+	TextLabels textLabels = new EmptyLabels();
+	Instance i = fe.extractInstance(textLabels,docSpan);
 	Classifier c = learner.getClassifier();
 	double score;
 	if(c instanceof BinaryClassifier) 
