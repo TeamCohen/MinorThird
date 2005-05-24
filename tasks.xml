@@ -136,6 +136,8 @@
          <!-- requires test data -->
         <exclude name="**/IOUtilTest.class"/>         <!-- data -->
         <exclude name="**/LibsvmTest.class"/>         <!-- data -->
+        <exclude name="**/classify/Test.class"/>
+        <exclude name="**/classify/TrainTest.class"/>
         <exclude name="**/LearnToClassifyTest.class"/>
         <exclude name="**/EdoTextLabelsTest.class"/>
         <exclude name="**/BayesClassifiersTest.class"/>
