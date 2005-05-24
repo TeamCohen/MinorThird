@@ -9,6 +9,7 @@ import edu.cmu.minorthird.classify.algorithms.svm.*;
 import edu.cmu.minorthird.classify.algorithms.knn.*;
 import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.classify.sequential.*;
+import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
@@ -29,12 +30,12 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 {
     private static final Set LEGAL_OPS = new HashSet(Arrays.asList(new String[]{"train","test","trainTest"}));
 
-    private static Dataset safeToDataset(String s, boolean b)	
-    {
-	boolean sequential = b;
+    private static Dataset safeToDataset(String s, boolean seq, int multi) {
+	boolean sequential = seq;
 	try {
 	    if (s.startsWith("sample:")) return Expt.toDataset(s);
 	    else if (sequential) return DatasetLoader.loadSequence(new File(s));
+	    else if (multi > 0) return DatasetLoader.loadMulti(new File(s), multi);
 	    else return DatasetLoader.loadFile(new File(s));
 	} catch (IOException ex) {
 	    throw new IllegalArgumentException("Error loading '"+s+"': "+ex);
@@ -64,10 +65,49 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
      */
     public static class BaseParams extends BasicCommandLineProcessor {
 	public boolean sequential=false;
-	public String op="trainTest";
+	public int multi=-1;
+	public String op="train";
 	public Dataset trainData=null;
 	public String trainDataFilename = null;
 	public boolean showData=false;
+	public boolean showTestDetails;
+	public boolean crossDim = false;
+	public File saveAs;
+	public String saveAsFilename;
+	public Object resultToShow=null, resultToSave=null;
+	public boolean showResult = false;
+
+	public void seq() { 
+	    sequential=true; 
+	}
+	public void multi(String dim) {
+	    multi = new Integer(dim).intValue();
+	}
+	public void cross() {
+	    if(multi <0)
+		System.out.println("Warning: Cannot use crossdimensional classification without multiLabels!");
+	    crossDim = true;
+	}
+	public void saveAs(String s) { saveAs = new File(s); saveAsFilename=s; }
+	public void showData() { 
+	    showData=true; 
+	}
+	public void showResult() { showResult=true; }
+	public void showTestDetails() { showTestDetails=true; }
+
+	//for gui
+	public boolean getSequential() {return sequential;}
+	public void setSequential(boolean b) {sequential = b;}
+	public int getMulti() { return multi;}
+	public void setMulti(int multi) {this.multi = multi;}
+	public boolean getCross() {return crossDim;}
+	public void setCross(boolean cross) {this.crossDim = cross;}
+	public String getSaveAsFilename() { return saveAsFilename; }
+	public void setSaveAsFilename(String s) { saveAsFilename=s; saveAs=new File(s);}
+	public boolean getShowTestDetails() { return showTestDetails; }
+	public void setShowTestDetails(boolean flag) { showTestDetails=flag; }
+	public boolean getShowData() { return showData;}
+	public void setShowData(boolean show) {showData = show;}
     }
     /** Generalized class for Leaner... contains classifierLearner and sequentialLearner */
     public static class Learner extends BasicCommandLineProcessor{
@@ -85,35 +125,18 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	}
     }
     /**  Parameters for Train Classifier */
-    public static class TrainParams extends ClassifyCommandLineUtil {
+    public static class TrainParams extends BaseParams {
 	public ClassifierLearner clsLearner=new NaiveBayes();
 	public SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
-	public File saveAs = null;
-	public String saveAsFilename=null;
-	public boolean showData=false, showResult=false, showTestDetails=false;
 	public Object resultToShow=null, resultToSave=null;
-	public boolean sequential=false;
 	public ClassifyCommandLineUtil.Learner.SequentialLnr seqLnr = new ClassifyCommandLineUtil.Learner.SequentialLnr();
 	public ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
-	public ClassifyCommandLineUtil.Learner lnr = clsLnr;       
-	public Dataset trainData=null;
-	public String trainDataFilename = null;
+	public ClassifyCommandLineUtil.Learner lnr = clsLnr;     
 	public ClassifyCommandLineUtil.BaseParams base;
-
-	public void setBase(ClassifyCommandLineUtil.BaseParams b) {
-	    base = b;
-	    sequential = base.sequential;
-	}
-	public void seq() { 
-	    sequential=true; 
-	    base.sequential = true;
-	    lnr = seqLnr;
-	}
+	
 	public void data(String s) { 
-	    trainData = safeToDataset(s, sequential);  
+	    trainData = safeToDataset(s, sequential, multi);  
 	    trainDataFilename = s; 
-	    base.trainData = trainData;
-	    base.trainDataFilename = trainDataFilename;
 	}
 
 	public void setSequential(boolean b){ 
@@ -124,21 +147,15 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 		lnr = clsLnr;
 	}
 	public void learner(String s) { 
-	    if (sequential) seqLearner = toSeqLearner(s);
-	    else clsLearner = Expt.toLearner(s); 
-	}
-	public void saveAs(String s) { saveAs = new File(s); saveAsFilename=s; }
-	public void showData() { 
-	    showData=true; 
-	    base.showData = true;
-	}
-	public void showResult() { showResult=true; }
-	public void showTestDetails() { showTestDetails=true; }
+	    if (sequential) seqLnr.seqLearner = toSeqLearner(s);
+	    else clsLnr.clsLearner = Expt.toLearner(s); 
+	    System.out.println(clsLearner);
+	}	
 
 	//for gui
 	public String getDatasetFilename() { return trainDataFilename; }
 	public void setDatasetFilename(String s) { 
-	    trainData = safeToDataset(s, sequential); 
+	    trainData = safeToDataset(s, sequential, multi); 
 	    trainDataFilename=s; 
 	    base.trainData = trainData;
 	    base.trainDataFilename = trainDataFilename;
@@ -149,25 +166,19 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    if(lnr instanceof ClassifyCommandLineUtil.Learner.SequentialLnr)
 		setSequential(true);
 	    else setSequential(false);
-	}
-	public String getSaveAsFilename() { return saveAsFilename; }
-	public void setSaveAsFilename(String s) { saveAsFilename=s; saveAs=new File(s);}
-	public boolean getShowTestDetails() { return showTestDetails; }
-	public void setShowTestDetails(boolean flag) { showTestDetails=flag; }
+	}	
     }
     /** Paramters for Test Classifier */ 
-    public static class TestParams extends ClassifyCommandLineUtil {
+    public static class TestParams extends BaseParams {
 	public Dataset testData=null;
 	public String testDataFilename=null;
 	public File saveAs = null;
 	public String saveAsFilename=null;
 	public File loadFrom=null;
 	public String loadFromFilename=null;
-	public boolean showData=false, showResult=false, showTestDetails=false;
 	public Object resultToShow=null, resultToSave=null;
-	public boolean sequential=false;
-	public Splitter splitter;
 	public ClassifyCommandLineUtil.BaseParams base;
+	public Splitter splitter = new RandomSplitter(.7);;
 
 	public void setBase(ClassifyCommandLineUtil.BaseParams b) {
 	    base = b;
@@ -177,119 +188,85 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    sequential=b; 
 	    
 	}
-	public void saveAs(String s) { saveAs = new File(s); saveAsFilename=s; }
-	public void classifierFile(String s) { loadFrom = new File(s); loadFromFilename=s; }
-	public void showData() { 
-	    showData=true; 
-	    base.showData=true;
+	public void classifierFile(String s) { 
+	    loadFrom = new File(s); 
+	    loadFromFilename=s; 
+	}	
+	public void loadFrom(String s) { 
+	    loadFrom = new File(s); 
+	    loadFromFilename=s; 
 	}
-	public void showResult() { showResult=true; }
-	public void seq() { 
-	    sequential=true; 	    
-	}
-	public void showTestDetails() { showTestDetails=true; }
 	public void test(String s) {  
-	    testData = safeToDataset(s, sequential); 
+	    testData = safeToDataset(s, sequential, multi); 
 	    testDataFilename = s;
-	    Iterator it = sequential? ((SequenceDataset)testData).sequenceIterator(): testData.iterator();
-	    splitter = new FixedTestSetSplitter(it);
-	}
-
-	//for gui
-	public String getSaveAsFilename() { return saveAsFilename; }
-	public void setSaveAsFilename(String s) { saveAsFilename=s; saveAs=new File(s);}
-	public String getClassifierFilename() { return loadFromFilename; }
-	public void setClassifierFilename(String s) { loadFromFilename=s; loadFrom=new File(s);}
-	public boolean getShowTestDetails() { return showTestDetails; }
-	public void setShowTestDetails(boolean flag) { showTestDetails=flag; }	
-	public String getTestsetFilename() { return testDataFilename; }
-	public void setTestsetFilename(String s) { testData = safeToDataset(s, sequential); testDataFilename=s; }
-    }
-    /** Parameters for TrainTest Classifier */
-    public static class TrainTestParams extends ClassifyCommandLineUtil {
-	public Dataset trainData = null, testData=null;
-	public String trainDataFilename = null, testDataFilename=null;
-	public Splitter splitter = new RandomSplitter(0.7);
-	//public ClassifierLearner clsLearner=new NaiveBayes();
-	//public SequenceClassifierLearner seqLearner=new GenericCollinsLearner();
-	public File saveAs = null;
-	public String saveAsFilename=null;
-	public File loadFrom=null;
-	public String loadFromFilename=null;
-	public boolean showData=false, showResult=false, showTestDetails=false;
-	public Object resultToShow=null, resultToSave=null;
-	public boolean sequential=false;
-	public ClassifyCommandLineUtil.Learner.SequentialLnr seqLnr = new ClassifyCommandLineUtil.Learner.SequentialLnr();
-	public ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
-	public ClassifyCommandLineUtil.Learner lnr = seqLnr;
-	public ClassifyCommandLineUtil.BaseParams base;
-
-	public void setBase(ClassifyCommandLineUtil.BaseParams b) {
-	    base = b;
-	    sequential = base.sequential;
-	    if(sequential)
-		lnr = seqLnr;
+	    Iterator it; 
+	    if(sequential) 
+		it = ((SequenceDataset)testData).sequenceIterator();
+	    else if (multi > 0)
+		it = ((MultiDataset)testData).multiIterator();
 	    else 
-		lnr = clsLnr;
-	}
-	public void seq() { 
-	    sequential=true; 
-	    base.sequential = true;
-	    lnr = seqLnr;
-	}
-	public void data(String s) { 
-	    trainData = safeToDataset(s, sequential);  
-	    trainDataFilename = s;
-	    base.trainData = trainData;
-	    base.trainDataFilename = trainDataFilename;
-	}
-	public void setSequential(boolean b){ sequential=b; }
-	public void splitter(String s) { splitter = Expt.toSplitter(s); }
-	public void learner(String s) { 
-	    if (sequential) seqLnr.seqLearner = toSeqLearner(s);
-	    else clsLnr.clsLearner = Expt.toLearner(s); 
-	}
-	public void saveAs(String s) { saveAs = new File(s); saveAsFilename=s; }
-	public void classifierFile(String s) { loadFrom = new File(s); loadFromFilename=s; }
-	public void showData() { 
-	    showData=true; 
-	    base.showData = true;
-	}
-	public void showResult() { showResult=true; }
-	public void showTestDetails() { showTestDetails=true; }
-	public void test(String s) {  
-	    testData = safeToDataset(s, sequential); 
-	    testDataFilename = s;
-	    Iterator it = sequential? ((SequenceDataset)testData).sequenceIterator(): testData.iterator();
+		it = testData.iterator();
 	    splitter = new FixedTestSetSplitter(it);
 	}
+	public void splitter(String s) { splitter = Expt.toSplitter(s); }
 
 	//for gui
 	public Splitter getSplitter() { return splitter; }
 	public void setSplitter(Splitter s) { splitter=s; }
-	public ClassifyCommandLineUtil.Learner get_LearnerParameters() { return lnr; }
-	public void set_LearnerParameters(ClassifyCommandLineUtil.Learner learn) { 
-	    lnr = learn; 
-	    if(lnr instanceof ClassifyCommandLineUtil.Learner.SequentialLnr){
-		seq();
-	    }
-	    else setSequential(false);
-	}
-	public String getDatasetFilename() { return base.trainDataFilename; }
-	public void setDatasetFilename(String s) { 
-	    trainData = safeToDataset(s, sequential); 
-	    trainDataFilename=s; 
-	    base.trainData = trainData;
-	    base.trainDataFilename = trainDataFilename;
-	}
-	public String getTestsetFilename() { return testDataFilename; }
-	public void setTestsetFilename(String s) { testData = safeToDataset(s, sequential); testDataFilename=s; }
-	public String getSaveAsFilename() { return saveAsFilename; }
-	public void setSaveAsFilename(String s) { saveAsFilename=s; saveAs=new File(s);}
 	public String getClassifierFilename() { return loadFromFilename; }
 	public void setClassifierFilename(String s) { loadFromFilename=s; loadFrom=new File(s);}
-	public boolean getShowTestDetails() { return showTestDetails; }
-	public void setShowTestDetails(boolean flag) { showTestDetails=flag; }
-	public void setTestDatasetFilename(String s) { testData = safeToDataset(s, sequential); testDataFilename=s; }
+	public String getTestsetFilename() { return testDataFilename; }
+	public void setTestsetFilename(String s) { testData = safeToDataset(s, sequential, multi); testDataFilename=s; }
     }
+    /** Paramters for Test Classifier */ 
+    public static class TrainTestParams extends TrainParams {
+	public Dataset testData=null;
+	public String testDataFilename=null;
+	public File saveAs = null;
+	public String saveAsFilename=null;
+	public File loadFrom=null;
+	public String loadFromFilename=null;
+	public Object resultToShow=null, resultToSave=null;
+	public ClassifyCommandLineUtil.BaseParams base;
+	public Splitter splitter = new RandomSplitter(.7);;
+
+	public void setBase(ClassifyCommandLineUtil.BaseParams b) {
+	    base = b;
+	    sequential = base.sequential;
+	}
+	public void setSequential(boolean b){ 
+	    sequential=b; 
+	    
+	}
+	public void classifierFile(String s) { 
+	    loadFrom = new File(s); 
+	    loadFromFilename=s; 
+	}
+	public void loadFrom(String s) { 
+	    loadFrom = new File(s); 
+	    loadFromFilename=s; 
+	}
+	public void test(String s) {  
+	    testData = safeToDataset(s, sequential, multi); 
+	    testDataFilename = s;
+	    Iterator it; 
+	    if(sequential) 
+		it = ((SequenceDataset)testData).sequenceIterator();
+	    else if (multi > 0)
+		it = ((MultiDataset)testData).multiIterator();
+	    else 
+		it = testData.iterator();
+	    splitter = new FixedTestSetSplitter(it);
+	}
+	public void splitter(String s) { splitter = Expt.toSplitter(s); }
+
+	//for gui
+	public Splitter getSplitter() { return splitter; }
+	public void setSplitter(Splitter s) { splitter=s; }
+	public String getClassifierFilename() { return loadFromFilename; }
+	public void setClassifierFilename(String s) { loadFromFilename=s; loadFrom=new File(s);}
+	public String getTestsetFilename() { return testDataFilename; }
+	public void setTestsetFilename(String s) { testData = safeToDataset(s, sequential, multi); testDataFilename=s; }
+    }
+
 }

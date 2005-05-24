@@ -3,9 +3,11 @@
 package edu.cmu.minorthird.classify.experiments;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.semisupervised.*;
 import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -33,6 +35,27 @@ public class Tester
 			Classifier c = new DatasetClassifierTeacher(trainData).train(learner);
 			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
 			v.extend( c, testData, k );
+			log.info("splitting with "+splitter+", completed train-test round");
+			pc.progress();
+		}
+		pc.finished();
+		return v;
+	}
+
+    /** Do some sort of hold-out experiment, as determined by the splitter */
+	static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter splitter)
+	{
+		MultiEvaluation v = new MultiEvaluation(d.getMultiSchema()); 
+		MultiDataset.MultiSplit s = d.MultiSplit(splitter);
+		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
+		for (int k=0; k<s.getNumPartitions(); k++) {
+			MultiDataset trainData = s.getTrain(k);
+			MultiDataset testData = s.getTest(k);
+			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
+							 +" and test on "+testData.size());
+			MultiClassifier c = new MultiDatasetClassifierTeacher(trainData).train(learner);
+			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
+			v.extend( c, testData);
 			log.info("splitting with "+splitter+", completed train-test round");
 			pc.progress();
 		}

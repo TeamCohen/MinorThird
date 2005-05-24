@@ -28,14 +28,14 @@ import org.apache.log4j.*;
  * @author William Cohen
  */
 
-public class UI
+public class Train
 {
-       private static Logger log = Logger.getLogger(UI.class);
+    private static Logger log = Logger.getLogger(UI.class);
 
     private static final Class[] SELECTABLE_TYPES = new Class[]{
         DataClassificationTask.class,
         ClassifyCommandLineUtil.TrainParams.class,
-        ClassifyCommandLineUtil.TestParams.class, ClassifyCommandLineUtil.TrainTestParams.class,
+        ClassifyCommandLineUtil.TestParams.class, 
         ClassifyCommandLineUtil.Learner.SequentialLnr.class, ClassifyCommandLineUtil.Learner.ClassifierLnr.class,
         KnnLearner.class, NaiveBayes.class,
         VotedPerceptron.class,	SVMLearner.class,
@@ -55,15 +55,15 @@ public class UI
 
     public static class DataClassificationTask implements CommandLineProcessor.Configurable,/*Saveable,*/ Console.Task
     {
-        private ClassifyCommandLineUtil.TrainTestParams trainTestParams = new ClassifyCommandLineUtil.TrainTestParams();
+        private ClassifyCommandLineUtil.TrainParams trainParams = new ClassifyCommandLineUtil.TrainParams();
 
         public Object resultToShow;
         public boolean useGUI;
         public Console.Task main;
 
-	// for gui
-        public ClassifyCommandLineUtil.TrainTestParams getTrainTestParameters() { return trainTestParams; }
-        public void setTrainTestParameters(ClassifyCommandLineUtil.TrainTestParams p) { trainTestParams=p; }
+        // for gui
+	public ClassifyCommandLineUtil.TrainParams getTrainParams() {return trainParams;}
+	public void setTrainParams(ClassifyCommandLineUtil.TrainParams train) {trainParams = train;}
 
         protected class GUIParams extends BasicCommandLineProcessor {
             public void gui() { useGUI=true; }
@@ -73,12 +73,12 @@ public class UI
                 System.out.println();
             }
         }
-        public String getDatasetFilename() { return trainTestParams.trainDataFilename; }
+        public String getDatasetFilename() { return trainParams.trainDataFilename; }
 
         public CommandLineProcessor getCLP() {
-            JointCommandLineProcessor jlpTrainTest = new JointCommandLineProcessor(new CommandLineProcessor[]
-		{new GUIParams(),trainTestParams});
-	    return jlpTrainTest;
+            JointCommandLineProcessor jlpTrain = new JointCommandLineProcessor(new CommandLineProcessor[]
+            {new GUIParams(),trainParams,trainParams});
+                return jlpTrain;
         }
 
 
@@ -87,15 +87,21 @@ public class UI
             return (getDatasetFilename() != null);
         }
 
-	public MultiDataset annotateData(MultiClassifier multiClassifier, MultiDataset md) {
+	public MultiDataset annotateData(MultiDataset md) {
 	    MultiDataset annotatedDataset = new MultiDataset();
-	    for(MultiExample.Looper i = md.multiIterator(); i.hasNext(); ) {
-		MultiExample ex = i.nextMultiExample();		
-		Instance instance = ex.asInstance();
-		MultiClassLabel predicted = multiClassifier.multiLabelClassification(instance);
-		Instance annotatedInstance = new InstanceFromPrediction(instance, predicted.bestClassName());
-		MultiExample newEx = new MultiExample(annotatedInstance, ex.getMultiLabel(), ex.getWeight());
-		annotatedDataset.addMulti(newEx);
+	    Splitter splitter = new CrossValSplitter(9);
+	    MultiDataset.MultiSplit s = md.MultiSplit(splitter);
+	    for (int x=0; x<9; x++) {
+		MultiClassifierTeacher teacher = new MultiDatasetClassifierTeacher(s.getTrain(x));
+		MultiClassifier c = teacher.train(trainParams.clsLnr.clsLearner);
+		for(MultiExample.Looper i = s.getTest(x).multiIterator(); i.hasNext(); ) {
+		    MultiExample ex = i.nextMultiExample();		
+		    Instance instance = ex.asInstance();
+		    MultiClassLabel predicted = c.multiLabelClassification(instance);
+		    Instance annotatedInstance = new InstanceFromPrediction(instance, predicted.bestClassName());
+		    MultiExample newEx = new MultiExample(annotatedInstance, ex.getMultiLabel(), ex.getWeight());
+		    annotatedDataset.addMulti(newEx);
+		}
 	    }
 	    return annotatedDataset;
 	}
@@ -103,71 +109,54 @@ public class UI
         // main action
         public void doMain()
         {
-	    //Work in more tests
-            if (trainTestParams.trainData==null) {
+            if (trainParams.trainData==null) {
                 System.out.println("The training data needs to be specified with the -data option.");
                 return;
             }
-            if (trainTestParams.sequential && (!(trainTestParams.trainData instanceof SequenceDataset))) {
+            if (trainParams.sequential && (!(trainParams.trainData instanceof SequenceDataset))) {
                 System.out.println("The training data should be a sequence dataset");
                 return;
             }
-	    if (trainTestParams.multi>0 && (!(trainTestParams.trainData instanceof MultiDataset))) {
-                System.out.println("The training data should be a multi dataset");
-                return;
-            }
-            if (trainTestParams.showData) new ViewerFrame("Training data",trainTestParams.trainData.toGUI());
+            if (trainParams.showData) new ViewerFrame("Training data",trainParams.trainData.toGUI());
           
-	    if (trainTestParams.showTestDetails && trainTestParams.sequential) {
-		//CrossValidatedSequenceDataset cvd
-		//	= new CrossValidatedSequenceDataset(trainTestParams.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
-		CrossValidatedSequenceDataset cvd
-		    = new CrossValidatedSequenceDataset(trainTestParams.seqLnr.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
-		trainTestParams.resultToShow = cvd;
-		trainTestParams.resultToSave = cvd.getEvaluation();
-		((Evaluation)trainTestParams.resultToSave).summarize();
-	    } else if (!trainTestParams.showTestDetails && trainTestParams.sequential) {
-		//Evaluation e = Tester.evaluate(trainTestParams.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
-		Evaluation e = Tester.evaluate(trainTestParams.seqLnr.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
-		trainTestParams.resultToShow = trainTestParams.resultToSave = e;
-		((Evaluation)trainTestParams.resultToSave).summarize();
-	    }else if (trainTestParams.showTestDetails && trainTestParams.multi>0) {
-		//CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, trainTestParams.trainData, trainTestParams.splitter);
-		MultiCrossValidatedDataset cvd = new MultiCrossValidatedDataset(trainTestParams.clsLnr.clsLearner, (MultiDataset)trainTestParams.trainData, trainTestParams.splitter);
-		trainTestParams.resultToShow = cvd;
-		trainTestParams.resultToSave = cvd.getEvaluation();
-		((MultiEvaluation)trainTestParams.resultToSave).summarize();
-	    } else if (!trainTestParams.showTestDetails && trainTestParams.multi>0) {
-		//Evaluation e = Tester.evaluate(trainTestParams.clsLearner,trainTestParams.trainData,trainTestParams.splitter);
-		MultiEvaluation e = Tester.multiEvaluate(trainTestParams.clsLnr.clsLearner,(MultiDataset)trainTestParams.trainData,trainTestParams.splitter);
-		trainTestParams.resultToShow = trainTestParams.resultToSave = e;
-		((MultiEvaluation)trainTestParams.resultToSave).summarize();
-	    } else if (trainTestParams.showTestDetails && !trainTestParams.sequential) {
-		//CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, trainTestParams.trainData, trainTestParams.splitter);
-		CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLnr.clsLearner, trainTestParams.trainData, trainTestParams.splitter);
-		trainTestParams.resultToShow = cvd;
-		trainTestParams.resultToSave = cvd.getEvaluation();
-		((Evaluation)trainTestParams.resultToSave).summarize();
-	    } else if (!trainTestParams.showTestDetails && !trainTestParams.sequential) {
-		//Evaluation e = Tester.evaluate(trainTestParams.clsLearner,trainTestParams.trainData,trainTestParams.splitter);
-		Evaluation e = Tester.evaluate(trainTestParams.clsLnr.clsLearner,trainTestParams.trainData,trainTestParams.splitter);
-		trainTestParams.resultToShow = trainTestParams.resultToSave = e;
-		((Evaluation)trainTestParams.resultToSave).summarize();
-	    }
-                
-	    resultToShow=trainTestParams.resultToShow;
-	    // attach all the command-line arguments to the resultToSave, as properties
-	    /*for (Iterator i=clp.propertyList().iterator(); i.hasNext(); ) {
-	      String prop = (String)i.next();
-	      ((Evaluation)resultToSave).setProperty(prop,clp.propertyValue(prop));
-	      }*/
-          
-            if (trainTestParams.showResult) new ViewerFrame("Result", new SmartVanillaViewer(trainTestParams.resultToShow));
-            if (trainTestParams.saveAs!=null) {
-                if (IOUtil.saveSomehow(trainTestParams.resultToSave,trainTestParams.saveAs)) {
-                    log.info("Result saved in "+trainTestParams.saveAs);
+                if (trainParams.sequential) {
+                    DatasetSequenceClassifierTeacher teacher = new DatasetSequenceClassifierTeacher((SequenceDataset)trainParams.trainData);
+                    //SequenceClassifier c = teacher.train(trainParams.seqLearner);
+                    SequenceClassifier c = teacher.train(trainParams.seqLnr.seqLearner);
+                    trainParams.resultToShow = trainParams.resultToSave = c;
+                } else if (trainParams.multi > 0) {
+		    /*if(trainParams.crossDim) {
+			    md = annotateData((MultiClassifier)c, md);
+			    new ViewerFrame("Annotated data",md.toGUI());
+			    }*/
+		    MultiDataset multiData;
+		    if(trainParams.crossDim)
+			multiData = annotateData((MultiDataset)trainParams.trainData);
+		    else multiData = (MultiDataset)trainParams.trainData;
+		    MultiClassifierTeacher teacher = new MultiDatasetClassifierTeacher(multiData);
+		    MultiClassifier c = teacher.train(trainParams.clsLnr.clsLearner);
+		    trainParams.resultToShow = trainParams.resultToSave = c;
+		} else {
+                    ClassifierTeacher teacher = new DatasetClassifierTeacher(trainParams.trainData);
+                    //Classifier c = teacher.train(trainParams.clsLearner);
+                    Classifier c = teacher.train(trainParams.clsLnr.clsLearner);
+                    trainParams.resultToShow = trainParams.resultToSave = c;
+                }
+                resultToShow=trainParams.resultToShow;
+		if (trainParams.saveAs!=null) {
+		    if (IOUtil.saveSomehow(trainParams.resultToSave,trainParams.saveAs)) {
+			log.info("Result saved in "+trainParams.saveAs);
+		    } else {
+			log.error("Can't save "+trainParams.resultToSave.getClass()+" to "+trainParams.saveAs);
+		    }
+		}		
+            
+            if (trainParams.showResult) new ViewerFrame("Result", new SmartVanillaViewer(trainParams.resultToShow));
+            if (trainParams.saveAs!=null) {
+                if (IOUtil.saveSomehow(trainParams.resultToSave,trainParams.saveAs)) {
+                    log.info("Result saved in "+trainParams.saveAs);
                 } else {
-                    log.error("Can't save "+trainTestParams.resultToSave.getClass()+" to "+trainTestParams.saveAs);
+                    log.error("Can't save "+trainParams.resultToSave.getClass()+" to "+trainParams.saveAs);
                 }
             }
         }
@@ -192,7 +181,6 @@ public class UI
         // gui around main action
         public void callMain(final String[] args)
         {
-
             try {
                 getCLP().processArguments(args);
                 if (!useGUI) {
@@ -248,7 +236,7 @@ public class UI
                             // and a button to show the current labels
                             JButton showLabelsButton = new JButton(new AbstractAction("Show train data") {
                                 public void actionPerformed(ActionEvent ev) {
-                                    new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(trainTestParams.trainData));
+                                    new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(trainParams.trainData));
                                 }
                             });
                             // and a button to clear the errorArea

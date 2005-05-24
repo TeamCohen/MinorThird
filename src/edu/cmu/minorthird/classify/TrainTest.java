@@ -28,9 +28,9 @@ import org.apache.log4j.*;
  * @author William Cohen
  */
 
-public class UI
+public class TrainTest
 {
-       private static Logger log = Logger.getLogger(UI.class);
+    private static Logger log = Logger.getLogger(UI.class);
 
     private static final Class[] SELECTABLE_TYPES = new Class[]{
         DataClassificationTask.class,

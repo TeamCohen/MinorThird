@@ -2,6 +2,7 @@
 
 package edu.cmu.minorthird.classify;
 
+import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.util.AbstractLooper;
 import gnu.trove.THashMap;
 import gnu.trove.TObjectIntHashMap;
@@ -66,18 +67,31 @@ public class FeatureFactory implements Serializable
 		return new CompactInstance(instance);
 	}
 
-	/** Return a version of the example in which all features have been
-	 * translated to canonical versions from the feature factory.
-	 */
-	public Example compress(Example example)
-	{
-    if (example.asInstance() instanceof CompactInstance) {
-      CompactInstance instance = (CompactInstance)example.asInstance();
-      if (instance.getFactory()==this) return example;
-    }
-    Instance compressedInstance = new CompactInstance(example.asInstance());
-    return new Example(compressedInstance, example.getLabel(), example.getWeight());
+    /** Return a version of the example in which all features have been
+     * translated to canonical versions from the feature factory.
+     */
+    public Example compress(Example example)
+    {
+	if (example.asInstance() instanceof CompactInstance) {
+	    CompactInstance instance = (CompactInstance)example.asInstance();
+	    if (instance.getFactory()==this) return example;
 	}
+	Instance compressedInstance = new CompactInstance(example.asInstance());
+	return new Example(compressedInstance, example.getLabel(), example.getWeight());
+    }
+
+    /** Return a version of the example in which all features have been
+     * translated to canonical versions from the feature factory.
+     */
+    public MultiExample compressMulti(MultiExample example)
+    {
+	if (example.asInstance() instanceof CompactInstance) {
+	    CompactInstance instance = (CompactInstance)example.asInstance();
+	    if (instance.getFactory()==this) return example;
+	}
+	Instance compressedInstance = new CompactInstance(example.asInstance());
+	return new MultiExample(compressedInstance, example.getMultiLabel(), example.getWeight());
+    }
 
   /**
 	 * A compact but immutable implementation of an instance.
