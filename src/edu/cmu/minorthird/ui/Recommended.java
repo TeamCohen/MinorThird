@@ -73,6 +73,33 @@ public class Recommended
 		public NaiveBayes() { super(); }
 	}
 
+	
+	/** A Tweaked Learner, with an optimization of the precision vs. recall
+	 * 
+	 * @author Giora Unger
+	 *
+	 * A learner whose score was optimized according to an F_beta() function,
+	 * for a given beta. This optimization is used to fine-tune the precision
+	 * vs. recall for the underlying classification algorithm.
+	 * Values of beta<1.0 favor precision over recall, while values of
+	 * beta>1.0 favor recall over precision. beta=1.0 grants equal weight 
+	 * to both precision and recall.  
+	 * 
+	 * Note:
+	 * - Currently, in a hard-coded manner, the leaner takes a NaiveBayse class
+	 *   as its inner learner and a value of beta=1.0
+	 *  
+     * <p>Reference: Jason D. M. Rennie,
+     * <i>Derivation of the F-Measure</i>,
+	 * http://people.csail.mit.edu/jrennie/writing/fmeasure.pdf
+	 */
+	static public class TweakedLearner extends edu.cmu.minorthird.classify.TweakedLearner
+	{
+		public TweakedLearner() { super( new NaiveBayes(), 1.0 ); }
+	}
+
+	
+	
 	/** Voted perceptron learning following Freund & Schapire.  This is
    * a simple learning method which, like SVMs, has a bias towards
    * large-margin linear classifiers.
