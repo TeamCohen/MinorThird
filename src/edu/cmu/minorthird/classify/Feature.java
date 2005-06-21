@@ -68,6 +68,9 @@ public class Feature implements Comparable,Serializable
 
 	public String toString()
 	{
+		if (name.length == 1)
+			return name[0];
+
 		StringBuffer buf = new StringBuffer();
 		for (int i=0; i<name.length; i++) {
 			if (buf.length()>0) buf.append('.');
