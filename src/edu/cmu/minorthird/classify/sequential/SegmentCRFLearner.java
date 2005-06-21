@@ -114,8 +114,8 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
   };
 
   class  NestedMTFeatureTypes extends MTFeatureTypes {
-    NestedMTFeatureTypes(iitb.Model.Model m) {
-	    super(m);
+    NestedMTFeatureTypes(iitb.Model.NestedFeatureGenImpl gen) {
+	    super(gen);
     }
     public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
 	    SegmentDataSequence segData = (SegmentDataSequence)data;
@@ -131,10 +131,10 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
 	    Feature features[] = new Feature[labelNames.length];
 	    for (int i = 0; i < labelNames.length; i++)
         features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
-	    addFeature(new iitb.Model.EdgeFeatures(model, features));
-	    addFeature(new iitb.Model.StartFeatures(model, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+	    addFeature(new iitb.Model.EdgeFeatures(this, features));
+	    addFeature(new iitb.Model.StartFeatures(this, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
 	    //addFeature(new iitb.Model.EndFeatures(model, new Feature("E")));
-	    addFeature(new NestedMTFeatureTypes(model));
+	    addFeature(new NestedMTFeatureTypes(this));
     }
   };
   iitb.CRF.NestedCRF nestedCrfModel;
