@@ -207,7 +207,7 @@ public class MixupProgram
 	    //new ViewerFrame("Labels " + currentLevel, new SmartVanillaViewer(labels));
 	}
 	lbls = labels;
-	new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(lbls));	
+	//new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(lbls));	
 	pc.finished();
     }
 
@@ -249,7 +249,7 @@ public class MixupProgram
 	// current tokenization level 
 	private String level;
 	// Variables that define the level and type to be imported to the current textBase
-	private String importLevel, importType;
+	private String importLevel, importType, oldType;
 	// encode generator
 	private int statementType;
 	// for statementType = MIXUP or FILTER
@@ -330,11 +330,10 @@ public class MixupProgram
 		tok.advance(null);
 		return;
 	    } else if("importFromLevel".equals(keyword)) {
-		importLevel = tok.advance(null);		
-		importType = tok.advance(null);
-		return;
+		importLevel = tok.advance(null);
 	   } 
 	    String propOrType = tok.advance(null);  // read property or type
+	    importType = propOrType;
 	    String token = tok.advance(colonEqualsOrCase); // read ':' or '='
 	    if (":".equals(token)) {
 		if (!"defSpanProp".equals(keyword) && !"defTokenProp".equals(keyword)) {
@@ -347,7 +346,7 @@ public class MixupProgram
 		if (!"defDict".equals(keyword)) parseError("illegal keyword usage");
 	    } else {
 		// token is '='
-		if (!"defSpanType".equals(keyword) && !"defDict".equals(keyword) && !"defLevel".equals(keyword)) {		    
+		if (!"defSpanType".equals(keyword) && !"defDict".equals(keyword) && !"defLevel".equals(keyword) && !"importFromLevel".equals(keyword)) {		    
 		    parseError("illegal keyword usage");
 		}
 		if (!"=".equals(token)) {
@@ -406,14 +405,16 @@ public class MixupProgram
 	    } else {
 		// GEN
 		// should be at '=' sign or starttype
-		token = tok.advance(null); 
-		if (generatorStart.contains(token)) {
+		token = tok.advance(null);
+		if (generatorStart.contains(token) ||"importFromLevel".equals(keyword) ) {
 		    startType = "top";
 		} else {
 		    startType = token;
 		    token = tok.advance( generatorStart );
 		}
-		if (token.equals(":")) {
+		if("importFromLevel".equals(keyword)) {
+		    oldType = token;
+		}else if (token.equals(":")) {
 		    statementType = MIXUP;
 		    //mixupExpr = new Mixup( tok.input.substring(tok.matcher.end(1),tok.input.length()) );
 		    //if(tok.advance())
@@ -539,7 +540,7 @@ public class MixupProgram
 		if(!textBases.containsKey(importLevel))
 		    System.out.println("TextBase " + importLevel + " not defined for importFromLevel");
 		TextLabels importLabels = (TextLabels)textLabels.get(importLevel);
-		labels = (MonotonicTextLabels)(textBase.importLabels(labels, importLabels));
+		labels = (MonotonicTextLabels)(textBase.importLabels(labels, importLabels, oldType, type));
 		
 	    } else if ("declareSpanType".equals(keyword)) {
 		labels.declareType( type );
@@ -646,7 +647,7 @@ public class MixupProgram
 	    } else if ("onLevel".equals(keyword) || "offLevel".equals(keyword)) {
 		return keyword + " " + level;
 	    } else if ("importFromLevel".equals(keyword)) {
-		return keyword + " " + level + " " + importType;
+		return keyword + " " + importLevel + " " + importType + " = " + oldType;
 	    } else if (statementType==DECLARE) {
 		return keyword + " " + type;
 	    } else if (statementType==PROVIDE) {

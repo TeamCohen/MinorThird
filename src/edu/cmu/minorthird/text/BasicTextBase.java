@@ -235,9 +235,9 @@ public class BasicTextBase implements TextBase, Serializable
     }
 
     /** Import Labels of type  from a TextBase with the same documents (such as a retokenized textBase */
-    public TextLabels importLabels(TextLabels parentLabels, String type){
+    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName){
 	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
-	MutableTextLabels childLabels = new BasicTextLabels(this);
+	MonotonicTextLabels childLabels = origLabels;
 	Span.Looper docIterator = documentSpanIterator();
 	Set types = parentLabels.getTypes();     
 	while(docIterator.hasNext()) {
@@ -247,9 +247,9 @@ public class BasicTextBase implements TextBase, Serializable
 	    Iterator spanIterator = spansWithType.iterator();
 	    while(spanIterator.hasNext()) {
 		Span s = (Span)spanIterator.next();
-		Span approxSpan = docSpan.charIndexSubSpan(s.getLoChar(), s.getHiChar());
+		Span approxSpan = docSpan.charIndexSubSpan(s.getTextToken(0).getLo(), s.getTextToken(s.size() - 1).getHi());
 		if(docSpan.contains(approxSpan)) {
-		    childLabels.addToType(approxSpan, type);
+		    childLabels.addToType(approxSpan, newName);
 		}
 	    }
 	}	

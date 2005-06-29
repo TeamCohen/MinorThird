@@ -66,5 +66,5 @@ abstract public class ImmutableTextBase implements TextBase
 
     abstract public TextLabels importLabels(TextLabels parentLabels);
 
-    abstract public TextLabels importLabels(TextLabels parentLabels, String type);
+    abstract public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName);
 }

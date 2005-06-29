@@ -99,9 +99,9 @@ public class SubTextBase implements TextBase
 	return childLabels;
     }
 
-    public TextLabels importLabels(TextLabels parentLabels, String type) 
+    public TextLabels importLabels(MonotonicTextLabels origLabels,TextLabels parentLabels, String type, String newName) 
     {
-	TextLabels childLabels = base.importLabels(parentLabels, type);
+	TextLabels childLabels = base.importLabels(origLabels, parentLabels, type, newName);
 	return childLabels;
     }
 }

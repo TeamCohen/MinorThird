@@ -83,7 +83,7 @@ public class SpanTypeTextBase extends ImmutableTextBase
     }
 
     /** Import the labels of type from the parent TextBase */
-    public TextLabels importLabels(TextLabels parentLabels, String type) {
+    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName) {
 	labels = new BasicTextLabels(base);
 	Span.Looper parentIterator = parentLabels.instanceIterator(spanType);
 	//Reiterate over the spans with spanType in the parent labels
@@ -103,7 +103,7 @@ public class SpanTypeTextBase extends ImmutableTextBase
 		    //find the matching span in the child doc span and add it to the child Labels
 		    //Span subSpan = childDocSpan.charIndexSubSpan(s.getLoChar()-childDocStartIndex, s.getHiChar()-childDocStartIndex);
 		    Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
-		    labels.addToType(subSpan, type);
+		    labels.addToType(subSpan, newName);
 		}
 	    }
 	}	    	    	
