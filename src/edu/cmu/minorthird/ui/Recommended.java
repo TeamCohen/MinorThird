@@ -134,6 +134,20 @@ public class Recommended
 		public MaxEntLearner() { super("maxIters 50"); }
 	}
 
+    static public class OneVsAllLearner extends edu.cmu.minorthird.classify.OneVsAllLearner
+    {
+	public OneVsAllLearner() { super(new Recommended.MaxEntLearner()); }
+    }
+
+    static public class MostFrequentFirstLearner extends edu.cmu.minorthird.classify.MostFrequentFirstLearner
+    {
+	public MostFrequentFirstLearner() { super(new Recommended.MaxEntLearner()); }
+    }
+    static public class CascadingBinaryLearner extends edu.cmu.minorthird.classify.CascadingBinaryLearner
+    {
+	public CascadingBinaryLearner() { super(new Recommended.MaxEntLearner()); }
+    }
+
 	/** A simple decision tree learner.  
    *
    * <p>

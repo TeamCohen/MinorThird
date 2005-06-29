@@ -17,7 +17,7 @@ public class TestTextLabels extends BasicTextLabels
   }
 
   // get the set of spans with a given type in the given document
-  protected Set getTypeSet(String type, String documentId)
+  public Set getTypeSet(String type, String documentId)
   {
     return super.getTypeSet(type, documentId);
   }

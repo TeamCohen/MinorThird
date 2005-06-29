@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.cmu.minorthird.util.gui.*;
+
 /** Modify a textlabeling using a series of mixup expressions.
 
 <pre>
@@ -111,6 +113,14 @@ public class MixupProgram
     // maps dictionary names to the sets they correspond to 
     private HashMap dictionaryMap = new HashMap();
 
+    private static TextBase textBase = null;
+    private static MonotonicTextLabels labels = null;
+    private static HashMap textBases = new HashMap(); //List of TextBases with different tokenizations
+    private static HashMap textLabels = new HashMap(); //List of TextLabels with for textBases with different tokenizations
+
+    // current tokenization level 
+    private static String currentLevel = new String("original");
+
     public static Set legalKeywords = new HashSet(); 
     static { 
 	legalKeywords.add("defTokenProp"); 
@@ -120,9 +130,12 @@ public class MixupProgram
 	legalKeywords.add("declareSpanType"); 
 	legalKeywords.add("provide"); 
 	legalKeywords.add("require"); 
+	legalKeywords.add("defLevel");
+	legalKeywords.add("onLevel");
+	legalKeywords.add("offLevel");
+	legalKeywords.add("importFromLevel");
 	legalKeywords.add("//");
 	legalKeywords.add("\n");
-	legalKeywords.add("asdfghjkl");
     }
 
     public MixupProgram() {;}
@@ -169,15 +182,14 @@ public class MixupProgram
     }
 
     public void startProgram(String program)throws Mixup.ParseException {
-	program.trim();
-	program = program + " asdfghjkl";	
+	program.trim();	
 	Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(program);
 	String keyword = tok.advance(legalKeywords);
 	while(keyword!=null) {
 	    if(!keyword.startsWith("\n"))
 		addStatement(tok,keyword);
 	    keyword = tok.advance(legalKeywords);
-	    if(keyword == null || keyword.equals("asdfghjkl")) 
+	    if(keyword == null) 
 		{
 		    break;
 		}
@@ -185,12 +197,17 @@ public class MixupProgram
     }
 
     /** Evaluate the program against an existing labels. */
-    public void eval(MonotonicTextLabels labels,TextBase textBase) {
+    public void eval(MonotonicTextLabels lbls,TextBase tb) {
 	ProgressCounter pc = new ProgressCounter("mixup program","statement",statementList.size());
+	textBases.put("original", tb); //Add original textBase to HashMap
+	textLabels.put("original", lbls);  //Add original labels to HashMap
 	for (int i=0; i<statementList.size(); i++) {
-	    ((Statement)statementList.get(i)).eval(labels,textBase);
+	    ((Statement)statementList.get(i)).eval(lbls,tb);
 	    pc.progress();
+	    //new ViewerFrame("Labels " + currentLevel, new SmartVanillaViewer(labels));
 	}
+	lbls = labels;
+	new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(lbls));	
 	pc.finished();
     }
 
@@ -227,6 +244,12 @@ public class MixupProgram
 	private String keyword, property, type, startType, value;
 	// set of words, for a dictionary
 	private Set wordSet = null;
+	// split string for retokenizing textBase
+	private String split, patt;
+	// current tokenization level 
+	private String level;
+	// Variables that define the level and type to be imported to the current textBase
+	private String importLevel, importType;
 	// encode generator
 	private int statementType;
 	// for statementType = MIXUP or FILTER
@@ -245,6 +268,7 @@ public class MixupProgram
 	private static Set generatorStart = new HashSet();
 	private static Set legalKeywords = new HashSet(); 
 	private static Set colonEqualsOrCase = new HashSet();
+	private static Set defLevelType = new HashSet();
 	static { 
 	    legalKeywords.add("defTokenProp"); 
 	    legalKeywords.add("defSpanProp"); 
@@ -253,9 +277,14 @@ public class MixupProgram
 	    legalKeywords.add("declareSpanType"); 
 	    legalKeywords.add("provide"); 
 	    legalKeywords.add("require"); 
+	    legalKeywords.add("defLevel");
+	    legalKeywords.add("onLevel");
+	    legalKeywords.add("offLevel");
+	    legalKeywords.add("importFromLevel");
 	}
 	static { colonEqualsOrCase.add(":"); colonEqualsOrCase.add("="); colonEqualsOrCase.add("case"); }
 	static { generatorStart.add(":"); generatorStart.add("~"); generatorStart.add("-"); }
+	static { defLevelType.add("re"); defLevelType.add("split"); defLevelType.add("filter");}
 	//
 	// constructor and parser
 	//
@@ -294,6 +323,17 @@ public class MixupProgram
 		    }
 		return;
 	    }
+	   if("onLevel".equals(keyword) || "offLevel".equals(keyword)) {
+		level = tok.advance(null);		
+		if("offLevel".equals(keyword))
+		    level = "original";
+		tok.advance(null);
+		return;
+	    } else if("importFromLevel".equals(keyword)) {
+		importLevel = tok.advance(null);		
+		importType = tok.advance(null);
+		return;
+	   } 
 	    String propOrType = tok.advance(null);  // read property or type
 	    String token = tok.advance(colonEqualsOrCase); // read ':' or '='
 	    if (":".equals(token)) {
@@ -307,10 +347,13 @@ public class MixupProgram
 		if (!"defDict".equals(keyword)) parseError("illegal keyword usage");
 	    } else {
 		// token is '='
-		if (!"defSpanType".equals(keyword) && !"defDict".equals(keyword)) {
+		if (!"defSpanType".equals(keyword) && !"defDict".equals(keyword) && !"defLevel".equals(keyword)) {		    
 		    parseError("illegal keyword usage");
 		}
-		if (!"=".equals(token)) parseError("expected '='");
+		if (!"=".equals(token)) {
+
+		    parseError("expected '='");
+		}
 		type = propOrType; property = null;
 	    }
 
@@ -354,6 +397,12 @@ public class MixupProgram
 		    if (sep==null) break;
 		    else if (!",".equals(sep)) parseError("expected comma");
 		}
+	    } else if("defLevel".equals(keyword)) {
+		split =  tok.advance(defLevelType);
+		patt = tok.advance(null);
+		if(patt.charAt(0)==39 && patt.charAt(patt.length()-1)==39)
+		    patt = patt.substring(1,patt.length()-1);
+		tok.advance(null);
 	    } else {
 		// GEN
 		// should be at '=' sign or starttype
@@ -450,12 +499,48 @@ public class MixupProgram
 	    }
 	}
 
-	public void eval(MonotonicTextLabels labels,TextBase textBase) {
+	public void eval(MonotonicTextLabels lbls,TextBase tb) {
+	    if(textBase == null || currentLevel.equals("original")) textBase = tb;
+	    if(labels == null || currentLevel.equals("original")) labels = lbls;
 	    log.info("Evaluating: "+this);
 	    long start = System.currentTimeMillis();
 	    if ("defDict".equals(keyword)) {
 		log.debug("defining dictionary of: " + wordSet);
 		labels.defineDictionary( type, wordSet );
+	    } else if("defLevel".equals(keyword)) {
+		TextBase newTextBase;
+		TextLabels newLabels;
+		if("filter".equals(split)) {
+		    newTextBase = new SpanTypeTextBase(labels, patt);
+		    newLabels = newTextBase.importLabels((TextLabels)labels);
+		} else {
+		    Tokenizer baseTok;
+		    if(split.equals("split")) {
+			baseTok = new Tokenizer(Tokenizer.SPLIT, patt );
+		    }else baseTok = new Tokenizer(Tokenizer.REGEX, patt); //split = re
+		    newTextBase = textBase.retokenize(baseTok);
+		    newLabels = new BasicTextLabels(newTextBase); 		
+		}
+		textBases.put(type, newTextBase); //Add retokenized textBase to HashMap	
+		textLabels.put(type, newLabels);  //Add
+	    } else if("onLevel".equals(keyword)) {
+		if(!textBases.containsKey(level))
+		    System.out.println("TextBase " + level + " not defined for onLevel");
+		currentLevel = level;
+		textBase = (TextBase)textBases.get(level);
+		labels = (MonotonicTextLabels)textLabels.get(level);		
+	    } else if("offLevel".equals(keyword)) {
+		if(!textBases.containsKey(level))
+		    System.out.println("TextBase " + level + " not defined for offLevel");
+		currentLevel = "original";
+		textBase = (TextBase)textBases.get("original");
+		labels = (MonotonicTextLabels)textLabels.get("original");
+	    } else if("importFromLevel".equals(keyword)) {
+		if(!textBases.containsKey(importLevel))
+		    System.out.println("TextBase " + importLevel + " not defined for importFromLevel");
+		TextLabels importLabels = (TextLabels)textLabels.get(importLevel);
+		labels = (MonotonicTextLabels)(textBase.importLabels(labels, importLabels));
+		
 	    } else if ("declareSpanType".equals(keyword)) {
 		labels.declareType( type );
 	    } else if (statementType==PROVIDE) {
@@ -481,16 +566,16 @@ public class MixupProgram
 			labels.declareType(type);
 		    }
 		} else if (statementType==FILTER) {
-      TreeSet accum = new TreeSet();
-      for (Span.Looper i=input; i.hasNext(); ) {
-        Span span = i.nextSpan();
-        if (!hasExtraction(mixupExpr,labels,span)) {
+		    TreeSet accum = new TreeSet();
+		    for (Span.Looper i=input; i.hasNext(); ) {
+			Span span = i.nextSpan();
+			if (!hasExtraction(mixupExpr,labels,span)) {
 			    accum.add( span );
-        }
-      }
-      for (Iterator i=accum.iterator(); i.hasNext(); ) {
-        extendLabels( labels, ((Span)i.next()) );
-      }
+			}
+		    }
+		    for (Iterator i=accum.iterator(); i.hasNext(); ) {
+			extendLabels( labels, ((Span)i.next()) );
+		    }
 		} else if (statementType==TRIE) {
 		    while (input.hasNext()) {
 			Span span = input.nextSpan();
@@ -517,7 +602,7 @@ public class MixupProgram
 		} else {
 		    throw new IllegalStateException("illegal statement type "+statementType);
 		}
-	    }
+	    }	    
 	    long end = System.currentTimeMillis();
 	    log.info("time: "+((end-start)/1000.0)+" sec");
 	}
@@ -556,8 +641,12 @@ public class MixupProgram
 	    throw new Mixup.ParseException("statement error at char "+lastTokenStart+": "+msg+"\nin '"+input+"'");
 	}
 	public String toString() {
-	    if ("defDict".equals(keyword)) {
+	    if ("defDict".equals(keyword) || "defLevel".equals(keyword)) {
 		return keyword + " " +type + " = ... ";
+	    } else if ("onLevel".equals(keyword) || "offLevel".equals(keyword)) {
+		return keyword + " " + level;
+	    } else if ("importFromLevel".equals(keyword)) {
+		return keyword + " " + level + " " + importType;
 	    } else if (statementType==DECLARE) {
 		return keyword + " " + type;
 	    } else if (statementType==PROVIDE) {

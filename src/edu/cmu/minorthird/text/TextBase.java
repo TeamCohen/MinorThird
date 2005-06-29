@@ -62,7 +62,12 @@ public interface TextBase
     public TextBase retokenize(Tokenizer tok);
 
     /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
     public TextLabels importLabels(TextLabels parentLabels);
 
+    /**Import Labels of type from another TextBase - as long as the current TextBase is some subset of the original */
+    public TextLabels importLabels(TextLabels parentLabels, String type);
     
 }

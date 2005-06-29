@@ -70,6 +70,9 @@ public interface TextLabels
 	/** Return a set of all type names. */
 	public Set getTypes();
 
+    /** Return the Set of all Spans with a given type in a given document */
+    public Set getTypeSet(String type,String documentId);
+
 	/** True if the given string names a type. */
 	public boolean isType(String type);
 

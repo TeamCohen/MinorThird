@@ -149,11 +149,6 @@ public class Mixup
 	    if (matcher.find()) {
 		cursor = matcher.start(1);
 		token = matcher.group(1);
-		
-		if (token.equals("asdfghjkl")) {
-		    token = null;
-		    return false;
-		}
 		if((token.equals(";"))) {
 		    token = null;
 		    return false;

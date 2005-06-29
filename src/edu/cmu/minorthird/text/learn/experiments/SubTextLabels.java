@@ -84,6 +84,10 @@ public class SubTextLabels implements TextLabels,Visible
 		return labels.getTypes();
 	}
 
+    public Set getTypeSet(String type,String documentId) {
+	return labels.getTypeSet(type, documentId);
+    }
+
 	public boolean isType(String type) {
 		return labels.isType(type);
 	}

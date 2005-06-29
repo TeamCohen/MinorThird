@@ -187,6 +187,10 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 		return setUnion( outer.getTypes(), inner.getTypes() );
 	}
 
+    public Set getTypeSet(String type,String documentId) {
+	return setUnion( outer.getTypeSet(type, documentId), inner.getTypeSet(type, documentId) );
+    }
+
 	public boolean isType(String type) {
 		return outer.isType(type) || inner.isType(type);
 	}

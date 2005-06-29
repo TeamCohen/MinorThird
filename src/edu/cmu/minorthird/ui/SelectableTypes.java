@@ -36,7 +36,8 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    Recommended.VotedPerceptronLearner.class, Recommended.SVMLearner.class,
 	    Recommended.DecisionTreeLearner.class, Recommended.BoostedDecisionTreeLearner.class,
 	    Recommended.BoostedStumpLearner.class, Recommended.MaxEntLearner.class,
-	    Recommended.TweakedLearner.class,
+	    Recommended.OneVsAllLearner.class, Recommended.MostFrequentFirstLearner.class,
+	    Recommended.CascadingBinaryLearner.class, Recommended.TweakedLearner.class,
 	    //
 	    // recommended sequence learners
 	    //

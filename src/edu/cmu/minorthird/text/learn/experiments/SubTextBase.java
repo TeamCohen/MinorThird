@@ -87,9 +87,21 @@ public class SubTextBase implements TextBase
 	return tb;
     }
 
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
+	TextLabels childLabels = base.importLabels(origLabels, parentLabels);
+	return childLabels;
+    }
+
     public TextLabels importLabels(TextLabels parentLabels) 
     {
 	TextLabels childLabels = base.importLabels(parentLabels);
+	return childLabels;
+    }
+
+    public TextLabels importLabels(TextLabels parentLabels, String type) 
+    {
+	TextLabels childLabels = base.importLabels(parentLabels, type);
 	return childLabels;
     }
 }

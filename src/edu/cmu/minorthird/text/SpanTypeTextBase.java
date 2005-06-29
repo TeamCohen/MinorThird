@@ -43,6 +43,11 @@ public class SpanTypeTextBase extends ImmutableTextBase
 	}
     }
 
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
+	return importLabels(parentLabels);
+    }
+
     /** Import the labels from the parent TextBase */
     public TextLabels importLabels(TextLabels parentLabels) {
 	labels = new BasicTextLabels(base);
@@ -59,7 +64,7 @@ public class SpanTypeTextBase extends ImmutableTextBase
 	    //Iterate over span types in the parent textBase
 	    while(typeIterator.hasNext()) {
 		String type = (String)typeIterator.next();
-		Set spansWithType = ((BasicTextLabels)parentLabels).getTypeSet(type, docID);
+		Set spansWithType = parentLabels.getTypeSet(type, docID);
 		Iterator spanIterator = spansWithType.iterator();
 		//Iterate over the spans with a type
 		while(spanIterator.hasNext()) {
@@ -74,6 +79,34 @@ public class SpanTypeTextBase extends ImmutableTextBase
 		}
 	    }	    	    
 	}
+	return labels;
+    }
+
+    /** Import the labels of type from the parent TextBase */
+    public TextLabels importLabels(TextLabels parentLabels, String type) {
+	labels = new BasicTextLabels(base);
+	Span.Looper parentIterator = parentLabels.instanceIterator(spanType);
+	//Reiterate over the spans with spanType in the parent labels
+	while(parentIterator.hasNext()) {
+	    Span parentSpan = parentIterator.nextSpan();
+	    String docID = parentSpan.getDocumentId();
+	    Span childDocSpan = base.documentSpan(docID); //The matching span in the child textbase
+	    //int childDocStartIndex = base.getDocument(docID).charOffset; //the number of charaters the child span is offset
+	    int childDocStartIndex = parentSpan.getLoTextToken();
+	    Set spansWithType = ((BasicTextLabels)parentLabels).getTypeSet(type, docID);
+	    Iterator spanIterator = spansWithType.iterator();
+	    //Iterate over the spans with a type
+	    while(spanIterator.hasNext()) {
+		Span s = (Span)spanIterator.next();
+		//See if the parent span conains the span
+		if(parentSpan.contains(s)) {
+		    //find the matching span in the child doc span and add it to the child Labels
+		    //Span subSpan = childDocSpan.charIndexSubSpan(s.getLoChar()-childDocStartIndex, s.getHiChar()-childDocStartIndex);
+		    Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
+		    labels.addToType(subSpan, type);
+		}
+	    }
+	}	    	    	
 	return labels;
     }
 

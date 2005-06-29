@@ -181,6 +181,33 @@ public class BasicTextBase implements TextBase, Serializable
     }
 
     /** Import Labels from a TextBase with the same documents (such as a retokenized textBase */
+    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels){
+	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
+	MonotonicTextLabels childLabels = origLabels;
+	Span.Looper docIterator = documentSpanIterator();
+	Set types = parentLabels.getTypes();     
+	while(docIterator.hasNext()) {
+	    Span docSpan = docIterator.nextSpan();
+	    String docID = docSpan.getDocumentId();
+	    Iterator typeIterator = types.iterator();
+	    while(typeIterator.hasNext()) {
+		String type = (String)typeIterator.next();
+		// bug: can't cast to BasicTextLabels!
+		Set spansWithType = parentLabels.getTypeSet(type, docID);
+		Iterator spanIterator = spansWithType.iterator();
+		while(spanIterator.hasNext()) {
+		    Span s = (Span)spanIterator.next();
+		    Span approxSpan = docSpan.charIndexSubSpan(s.getTextToken(0).getLo(), s.getTextToken(s.size() - 1).getHi());
+		    if(docSpan.contains(approxSpan)) {
+			childLabels.addToType(approxSpan, type);
+		    }
+		}
+	    }
+	}
+	return childLabels;
+    }
+
+    /** Import Labels from a TextBase with the same documents (such as a retokenized textBase */
     public TextLabels importLabels(TextLabels parentLabels){
 	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
 	MutableTextLabels childLabels = new BasicTextLabels(this);
@@ -192,17 +219,40 @@ public class BasicTextBase implements TextBase, Serializable
 	    Iterator typeIterator = types.iterator();
 	    while(typeIterator.hasNext()) {
 		String type = (String)typeIterator.next();
-		Set spansWithType = ((BasicTextLabels)parentLabels).getTypeSet(type, docID);
+		// bug: can't cast to BasicTextLabels!
+		Set spansWithType = parentLabels.getTypeSet(type, docID);
 		Iterator spanIterator = spansWithType.iterator();
 		while(spanIterator.hasNext()) {
 		    Span s = (Span)spanIterator.next();
-		    Span approxSpan = docSpan.charIndexSubSpan(s.getLoChar(), s.getHiChar());
+		    Span approxSpan = docSpan.charIndexSubSpan(s.getTextToken(0).getLo(), s.getTextToken(s.size() - 1).getHi());
 		    if(docSpan.contains(approxSpan)) {
 			childLabels.addToType(approxSpan, type);
 		    }
 		}
 	    }
 	}
+	return childLabels;
+    }
+
+    /** Import Labels of type  from a TextBase with the same documents (such as a retokenized textBase */
+    public TextLabels importLabels(TextLabels parentLabels, String type){
+	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
+	MutableTextLabels childLabels = new BasicTextLabels(this);
+	Span.Looper docIterator = documentSpanIterator();
+	Set types = parentLabels.getTypes();     
+	while(docIterator.hasNext()) {
+	    Span docSpan = docIterator.nextSpan();
+	    String docID = docSpan.getDocumentId();
+	    Set spansWithType = parentLabels.getTypeSet(type, docID);
+	    Iterator spanIterator = spansWithType.iterator();
+	    while(spanIterator.hasNext()) {
+		Span s = (Span)spanIterator.next();
+		Span approxSpan = docSpan.charIndexSubSpan(s.getLoChar(), s.getHiChar());
+		if(docSpan.contains(approxSpan)) {
+		    childLabels.addToType(approxSpan, type);
+		}
+	    }
+	}	
 	return childLabels;
     }
 

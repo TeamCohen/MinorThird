@@ -308,7 +308,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	}
 
 	// get the set of spans with a given type in the given document w/o changing it
-	protected Set getTypeSet(String type,String documentId) {
+	public Set getTypeSet(String type,String documentId) {
 		if (type==null || documentId==null) throw new IllegalArgumentException("null type?");
 		TreeMap documentsWithType = (TreeMap)typeDocumentSetMap.get(type);
 		if (documentsWithType==null) return Collections.EMPTY_SET;

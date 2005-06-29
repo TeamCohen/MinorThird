@@ -29,6 +29,7 @@ public class EmptyLabels implements TextLabels
 	public Span.Looper instanceIterator(String type) { return nullLooper(); }
 	public Span.Looper instanceIterator(String type,String documentId) { return nullLooper(); }
 	public Set getTypes() { return EMPTY_SET; }
+    public Set getTypeSet(String type,String documentId) {return EMPTY_SET; }
 	public boolean isType(String type) { return false; }
 	public Span.Looper closureIterator(String type) { return nullLooper(); }
 	public Span.Looper closureIterator(String type, String documentId) { return nullLooper(); }

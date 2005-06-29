@@ -61,5 +61,10 @@ abstract public class ImmutableTextBase implements TextBase
 
     abstract public TextBase retokenize(Tokenizer tok);
 
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    abstract public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+
     abstract public TextLabels importLabels(TextLabels parentLabels);
+
+    abstract public TextLabels importLabels(TextLabels parentLabels, String type);
 }
