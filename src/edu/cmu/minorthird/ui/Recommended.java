@@ -355,6 +355,73 @@ public class Recommended
 	
 
 
+	/** a hidden Markov model (HMM), by zkou
+	 */
+	static public class HMMAnnotatorLearner extends SequenceAnnotatorLearner
+	{
+		public HMMAnnotatorLearner() { 
+			super(new HMMLearner(), new Recommended.HMMTokenFE(), new InsideOutsideReduction());
+		}
+	}
+	
+
+
+
+
+
+
+	public static class HMMTokenFE extends TokenPropUsingFE implements CommandLineProcessor.Configurable,Serializable
+	{
+		protected boolean useCharType=false;
+		protected boolean useCharTypePattern=true;
+		//
+		// getters and setters, for gui-based configuration
+		//
+		/** Window size for features. */
+		/** If produce features like "token.charTypePattern.Aaaa" for the word "Bill" */
+		public void setUseCharType(boolean flag) { useCharType=flag; }
+		public boolean getUseCharType() { return useCharType; }
+		/** If true produce features like "token.charTypePattern.Aa+" for the word "Bill". */
+		public void setUseCharTypePattern(boolean flag) { useCharTypePattern=flag; }
+		public boolean getUseCharTypePattern() { return useCharTypePattern; }
+		//
+		// command-line based configuration
+		//
+		public CommandLineProcessor getCLP() 
+		{
+			return new MyCLP();
+		}
+		public class MyCLP extends BasicCommandLineProcessor {
+			public void charTypes() { useCharType = true; }
+			public void noCharTypes() { useCharType = false; }
+			public void charTypePattern() { useCharTypePattern = true; }
+			public void noCharTypePattern() { useCharTypePattern = false; }
+			public void tokenProps(String s) { setTokenPropertyFeatures(s); }
+		}
+		//
+		// real code (i.e., not configuration code)
+		//
+		public void extractFeatures(TextLabels labels, Span s)
+		{
+			requireMyAnnotation(labels);
+			setMyTokenPropertyList(labels);
+//			from(s).tokens().eq().lc().emit();
+			from(s).tokens().eq().emit();
+//			if (useCharTypePattern) from(s).tokens().eq().charTypePattern().emit();
+//			if (useCharType) from(s).tokens().eq().charTypes().emit();
+//			for (int j=0; j<tokenPropertyFeatures.length; j++) {
+//				from(s).tokens().prop(tokenPropertyFeatures[j]).emit();
+//			}
+		}
+	}
+
+
+
+
+
+
+
+
 	//
 	// SequenceClassifierLearners
 	//
