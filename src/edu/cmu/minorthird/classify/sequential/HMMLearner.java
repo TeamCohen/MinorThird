@@ -73,7 +73,7 @@ System.out.println("\nbatch train is called\n");
 
 				
 		 hmm.baumwelch(0.00001);
-    hmm.hmmModel.print(new SystemOut());
+		 // hmm.hmmModel.print(new SystemOut());
 
 		return hmm;
 	}

@@ -61,11 +61,14 @@ public interface TextBase
     /**Tokenize a text base differently*/
     public TextBase retokenize(Tokenizer tok);
 
-    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType);
 
     /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public TextLabels importLabels(TextLabels parentLabels);
+    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    public MonotonicTextLabels importLabels(TextLabels parentLabels);
 
     /**Import Labels of type from another TextBase - as long as the current TextBase is some subset of the original */
     public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName);

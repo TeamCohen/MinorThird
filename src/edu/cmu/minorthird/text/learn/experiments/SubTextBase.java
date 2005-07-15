@@ -83,21 +83,28 @@ public class SubTextBase implements TextBase
     public TextBase retokenize(Tokenizer tok)
     {
 	TextBase tb = new BasicTextBase();
-	tb = base.retokenize(new Tokenizer());
+	tb = base.retokenize(tok);
 	return tb;
     }
 
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType) {
+	TextBase tb = new BasicTextBase();
+	MonotonicTextLabels tl = base.createPseudotokens(labels, spanType);
+	return tl;
+    }
+
     /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
-	TextLabels childLabels = base.importLabels(origLabels, parentLabels);
+    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
+	MonotonicTextLabels childLabels = base.importLabels(origLabels, parentLabels);
 	return childLabels;
     }
 
-    public TextLabels importLabels(TextLabels parentLabels) 
+    public MonotonicTextLabels importLabels(TextLabels parentLabels) 
     {
-	TextLabels childLabels = base.importLabels(parentLabels);
+	MonotonicTextLabels childLabels = base.importLabels(parentLabels);
 	return childLabels;
-    }
+    }    
 
     public TextLabels importLabels(MonotonicTextLabels origLabels,TextLabels parentLabels, String type, String newName) 
     {

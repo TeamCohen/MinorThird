@@ -37,11 +37,11 @@ public class Backward extends HMMAlgo {
     return sum;
   }
 
-  public void print(Output out) {
+    /*public void print(Output out) {
     for (int j=0; j<hmm.nstate; j++) {
       for (int i=0; i<b.length; i++)
         out.print(HMM.fmtlog(b[i][j]));
       out.println();
     }
-  }
+    }*/
 }

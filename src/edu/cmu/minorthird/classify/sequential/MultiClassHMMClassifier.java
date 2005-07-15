@@ -113,7 +113,7 @@ System.out.println("ob_seq["+i+"] is "+ob_seq[i]);
 		    seq = hmmModel.convert_Ob_seq( ob_seq );
 		    
     Viterbi vit = new Viterbi(hmmModel, seq);
-    vit.print(new SystemOut());
+    //vit.print(new SystemOut());
     
 			String[] tag_seq = vit.getPath();		    
 			for (int i=0; i<tag_seq.length; i++) {		

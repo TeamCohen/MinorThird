@@ -49,6 +49,12 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 		return inner.getTextBase();
 	}
 
+    public MonotonicTextLabels retokenize(Tokenizer tok) {
+	TextBase tb = inner.getTextBase().retokenize(tok);
+	MonotonicTextLabels tl = tb.importLabels(inner);
+	return tl;
+    }
+
   public boolean hasDictionary(String dictionary)
   {
     return inner.hasDictionary(dictionary) || outer.hasDictionary(dictionary);

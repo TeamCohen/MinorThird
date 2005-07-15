@@ -61,7 +61,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
 	   
 	try {
 	    getCLP().processArguments(args);
-	    if (!useGUI) {
+	    if (!useGUI) {		
 		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (base.showLabels) new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(base.labels));
 		doMain();
@@ -176,7 +176,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
 		    };
 		v.setContent(this);
 		String className = this.getClass().toString().substring("class ".length());
-		ViewerFrame f = new ViewerFrame(className,v);
+		ViewerFrame f = new ViewerFrame(className + ":  " + Version.getVersion(),v);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    }
 	} catch (Exception e) {

@@ -61,10 +61,13 @@ abstract public class ImmutableTextBase implements TextBase
 
     abstract public TextBase retokenize(Tokenizer tok);
 
-    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    abstract public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    abstract public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType);
 
-    abstract public TextLabels importLabels(TextLabels parentLabels);
+    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+    abstract public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+
+    abstract public MonotonicTextLabels importLabels(TextLabels parentLabels);
 
     abstract public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName);
 }

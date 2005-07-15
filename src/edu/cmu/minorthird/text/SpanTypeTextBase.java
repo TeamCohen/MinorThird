@@ -20,7 +20,7 @@ public class SpanTypeTextBase extends ImmutableTextBase
     private Set validDocumentSpans;
     private TextBase base;
     private String spanType;
-    private MutableTextLabels labels;
+    private MonotonicTextLabels labels;
 
     /** Initialize a TextBase with a single spanType from a parent TextBase */
     public SpanTypeTextBase(TextLabels parentLabels, String spanType)
@@ -44,12 +44,12 @@ public class SpanTypeTextBase extends ImmutableTextBase
     }
 
     /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
-	return importLabels(parentLabels);
+    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
+	return origLabels;
     }
 
     /** Import the labels from the parent TextBase */
-    public TextLabels importLabels(TextLabels parentLabels) {
+    public MonotonicTextLabels importLabels(TextLabels parentLabels) {
 	labels = new BasicTextLabels(base);
 	Span.Looper parentIterator = parentLabels.instanceIterator(spanType);
 	//Reiterate over the spans with spanType in the parent labels
@@ -129,8 +129,13 @@ public class SpanTypeTextBase extends ImmutableTextBase
     public TextBase retokenize(Tokenizer tok)
     {
 	TextBase tb = new BasicTextBase();
-	tb = base.retokenize(new Tokenizer());
+	tb = base.retokenize(tok);
 	return tb;
+    }
+
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType) {
+	return labels;
     }
 
 }

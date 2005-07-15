@@ -297,7 +297,7 @@ public class TrainTest
                     };
                     v.setContent(this);
                     String className = this.getClass().toString().substring("class ".length());
-                    ViewerFrame f = new ViewerFrame(className,v);
+                    ViewerFrame f = new ViewerFrame(className+ ": " + Version.getVersion() ,v);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

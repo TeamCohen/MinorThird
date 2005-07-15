@@ -462,6 +462,12 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 		return buf.toString();
 	}
 
+    public MonotonicTextLabels retokenize(Tokenizer tok) {
+	TextBase tb = textBase.retokenize(tok);
+	MonotonicTextLabels tl = tb.importLabels(this);
+	return tl;
+    }
+
 	public Viewer toGUI() 
 	{
 		return new ZoomingTextLabelsViewer(this);

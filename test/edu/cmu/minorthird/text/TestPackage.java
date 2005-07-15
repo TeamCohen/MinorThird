@@ -49,7 +49,7 @@ public class TestPackage extends TestSuite
 			b.loadDocument("letters", "a b c d\ne f g h\ni j k l\nm n o p\nr s t u");
 			Tokenizer tok = new Tokenizer(1, "\n");
 			childTB = b.retokenize(tok);
-			MutableTextLabels lab = new BasicTextLabels();
+			MutableTextLabels lab = new BasicTextLabels(childTB);
 			try {
 				MixupProgram p = 
 				    new MixupProgram(new String[]{"defTokenProp token:first =: [any] ...",

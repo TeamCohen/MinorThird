@@ -79,11 +79,11 @@ public class Viterbi extends HMMAlgo {
     return y;
   }
 
-  public void print(Output out) {
+    /*public void print(Output out) {
     for (int j=0; j<hmm.nstate; j++) {
       for (int i=0; i<v.length; i++)
         out.print(HMM.fmtlog(v[i][j]));
       out.println();
     }
-  }
+    }*/
 }

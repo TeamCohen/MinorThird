@@ -22,6 +22,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor,
 
 	final public void processArguments(String[] args) 
 	{
+	    System.out.println("*** Minorthird: " + Version.getVersion() + " ***");
 		processedArgs = args;
 		int k = consumeArguments(args,0);
 		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);

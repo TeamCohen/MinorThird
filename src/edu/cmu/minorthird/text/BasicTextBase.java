@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text;
 
+import edu.cmu.minorthird.util.gui.*;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
@@ -60,6 +62,11 @@ public class BasicTextBase implements TextBase, Serializable
     {
 	String regexPattern = tokenizer.regexPattern;
 	loadRegex(documentId, documentString, charOffset, regexPattern); 
+    }
+
+    public void loadDocument(Document document, TextToken[] tokenArray) {
+	document.setTokens(tokenArray);
+	documentMap.put(document.getId(), document);
     }
 
     /** Load all substrings of a string that match group 1 of a given regex pattern.
@@ -142,7 +149,7 @@ public class BasicTextBase implements TextBase, Serializable
 	    Span s = new BasicSpan(documentId,textTokens,0,textTokens.length,(String)documentGroupMap.get(documentId));
 	    int offset = getOffset(documentId);
 	    //System.out.println("The Offset is: " + offset);
-	    s.setCharOffset(getOffset(documentId));
+	    //s.setCharOffset(getOffset(documentId));
 	    return s;
 	}
 	public int estimatedSize() { return documentMap.keySet().size(); }
@@ -176,12 +183,74 @@ public class BasicTextBase implements TextBase, Serializable
 	return tb;
     }
 
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType) {
+	BasicTextBase tb = new BasicTextBase();
+	Span.Looper looper = labels.getTextBase().documentSpanIterator();
+	ArrayList pseudotokenList = new ArrayList();
+	while(looper.hasNext()) {
+	    Span docSpan = looper.nextSpan();
+	    String docId = docSpan.getDocumentId();
+	    Document doc = labels.getTextBase().getDocument(docId);
+	    String docString = doc.getText();
+	    Span.Looper typeIterator = labels.instanceIterator(spanType, docId);
+	    ArrayList docSplits = new ArrayList(); //List of string split at the pseudotokens
+	    int docPos = 0;
+	    while(typeIterator.hasNext()) {
+		Span typeSpan = typeIterator.nextSpan();
+		if(docPos != typeSpan.getTextToken(0).getLo()) {
+		    Span before = docSpan.charIndexSubSpan(docPos, typeSpan.getTextToken(0).getLo());		
+		    docSplits.add(new Pseudotoken(before, null));
+		}
+		docSplits.add(new Pseudotoken(typeSpan, spanType));		
+		docPos = typeSpan.getTextToken(typeSpan.size() - 1).getHi();
+	    }
+	    Span after = docSpan.charIndexSubSpan(docPos, docSpan.getTextToken(docSpan.size() - 1).getHi());
+	    docSplits.add(new Pseudotoken(after, null));
+	    ArrayList tokenList = new ArrayList();
+	    
+	    int numToks = 0;
+	    for(int i=0; i<docSplits.size(); i++) {
+		Pseudotoken tok = (Pseudotoken)docSplits.get(i);
+		if(tok.tokenValue == null) { //this split is not a pseudotoken
+		    TextToken[] tokens = tokenizer.splitIntoTokens(doc, tok.text.asString(), tok.text.getTextToken(0).getLo());
+		    for(int j=0; j<tokens.length; j++) {
+			tokenList.add(tokens[j]);
+		    }
+		} else { //Split is a pseudotoken
+		    TextToken ptoken = new TextToken(doc, tok.text.getTextToken(0).getLo(), 
+						     tok.text.asString().length());
+		    //System.out.println("Pseudo: " + ptoken.asString());
+		    tokenList.add(ptoken);
+		    pseudotokenList.add(ptoken);
+		}
+		numToks = tokenList.size()-1;
+	    }
+	    /*for(int x=0; x<tokenList.size(); x++) {
+		TextToken token = (TextToken)tokenList.get(x);
+		System.out.println(token.asString());
+		}*/
+	    TextToken[] tokenArray = (TextToken[])tokenList.toArray(new TextToken[0]);
+	    tb.loadDocument(doc, tokenArray);	    
+	}	
+	MonotonicTextLabels newLabels = new BasicTextLabels(tb);	
+	 
+	for(int i=0; i<pseudotokenList.size(); i++) {
+	    TextToken pseudotok = (TextToken)pseudotokenList.get(i);
+	    newLabels.setProperty((Token)pseudotok, "pseudotoken", spanType);
+	}
+
+	newLabels = tb.importLabels(newLabels, labels);
+
+	return newLabels;
+    }
+
     public static class IllegalArgumentException extends Exception {
 	public IllegalArgumentException(String s) { super(s); }
     }
 
     /** Import Labels from a TextBase with the same documents (such as a retokenized textBase */
-    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels){
+    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels){
 	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
 	MonotonicTextLabels childLabels = origLabels;
 	Span.Looper docIterator = documentSpanIterator();
@@ -208,9 +277,9 @@ public class BasicTextBase implements TextBase, Serializable
     }
 
     /** Import Labels from a TextBase with the same documents (such as a retokenized textBase */
-    public TextLabels importLabels(TextLabels parentLabels){
+    public MonotonicTextLabels importLabels(TextLabels parentLabels){
 	//	if(!(parentLabels instanceof BasicTextLabels)) throw new IllegalArgumentException("Labels must be an instance of BasicTextLabels");
-	MutableTextLabels childLabels = new BasicTextLabels(this);
+	MonotonicTextLabels childLabels = new BasicTextLabels(this);
 	Span.Looper docIterator = documentSpanIterator();
 	Set types = parentLabels.getTypes();     
 	while(docIterator.hasNext()) {
@@ -254,6 +323,15 @@ public class BasicTextBase implements TextBase, Serializable
 	    }
 	}	
 	return childLabels;
+    }
+
+    private class Pseudotoken {
+	public Span text;
+	public String tokenValue;
+	public Pseudotoken(Span text, String tokValue) {
+	    this.text = text;
+	    this.tokenValue = tokValue;
+	}
     }
 
     //

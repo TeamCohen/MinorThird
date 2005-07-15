@@ -20,6 +20,12 @@ public class SubTextLabels implements TextLabels,Visible
 		this.subBase = subBase; this.labels = labels;
 	}
 
+    public MonotonicTextLabels retokenize(Tokenizer tok) {
+	TextBase tb = subBase.retokenize(tok);
+	MonotonicTextLabels tl = tb.importLabels(this);
+	return tl;
+    }
+
 	public boolean isAnnotatedBy(String s) {
 		return labels.isAnnotatedBy(s);
 	}

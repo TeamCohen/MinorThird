@@ -196,17 +196,20 @@ public class MixupProgram
 	}
     }
 
+    public MonotonicTextLabels eval(MonotonicTextLabels labels, TextBase tb) {
+	MultiLevelTextLabels multi = new MultiLevelTextLabels(labels);
+	eval(multi);
+	return multi.getLabels();
+    }
+
     /** Evaluate the program against an existing labels. */
-    public void eval(MonotonicTextLabels lbls,TextBase tb) {
+    public void eval(MultiLevelTextLabels labels) {
 	ProgressCounter pc = new ProgressCounter("mixup program","statement",statementList.size());
-	textBases.put("original", tb); //Add original textBase to HashMap
-	textLabels.put("original", lbls);  //Add original labels to HashMap
 	for (int i=0; i<statementList.size(); i++) {
-	    ((Statement)statementList.get(i)).eval(lbls,tb);
+	    ((Statement)statementList.get(i)).eval(labels);
 	    pc.progress();
 	    //new ViewerFrame("Labels " + currentLevel, new SmartVanillaViewer(labels));
 	}
-	lbls = labels;
 	//new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(lbls));	
 	pc.finished();
     }
@@ -284,7 +287,7 @@ public class MixupProgram
 	}
 	static { colonEqualsOrCase.add(":"); colonEqualsOrCase.add("="); colonEqualsOrCase.add("case"); }
 	static { generatorStart.add(":"); generatorStart.add("~"); generatorStart.add("-"); }
-	static { defLevelType.add("re"); defLevelType.add("split"); defLevelType.add("filter");}
+	static { defLevelType.add("re"); defLevelType.add("split"); defLevelType.add("filter"); defLevelType.add("pseudotoken");}
 	//
 	// constructor and parser
 	//
@@ -500,48 +503,20 @@ public class MixupProgram
 	    }
 	}
 
-	public void eval(MonotonicTextLabels lbls,TextBase tb) {
-	    if(textBase == null || currentLevel.equals("original")) textBase = tb;
-	    if(labels == null || currentLevel.equals("original")) labels = lbls;
+	public void eval(MultiLevelTextLabels labels) {
 	    log.info("Evaluating: "+this);
 	    long start = System.currentTimeMillis();
 	    if ("defDict".equals(keyword)) {
 		log.debug("defining dictionary of: " + wordSet);
 		labels.defineDictionary( type, wordSet );
 	    } else if("defLevel".equals(keyword)) {
-		TextBase newTextBase;
-		TextLabels newLabels;
-		if("filter".equals(split)) {
-		    newTextBase = new SpanTypeTextBase(labels, patt);
-		    newLabels = newTextBase.importLabels((TextLabels)labels);
-		} else {
-		    Tokenizer baseTok;
-		    if(split.equals("split")) {
-			baseTok = new Tokenizer(Tokenizer.SPLIT, patt );
-		    }else baseTok = new Tokenizer(Tokenizer.REGEX, patt); //split = re
-		    newTextBase = textBase.retokenize(baseTok);
-		    newLabels = new BasicTextLabels(newTextBase); 		
-		}
-		textBases.put(type, newTextBase); //Add retokenized textBase to HashMap	
-		textLabels.put(type, newLabels);  //Add
+		labels.createLevel(type, split, patt);
 	    } else if("onLevel".equals(keyword)) {
-		if(!textBases.containsKey(level))
-		    System.out.println("TextBase " + level + " not defined for onLevel");
-		currentLevel = level;
-		textBase = (TextBase)textBases.get(level);
-		labels = (MonotonicTextLabels)textLabels.get(level);		
+		labels.onLevel(level);		
 	    } else if("offLevel".equals(keyword)) {
-		if(!textBases.containsKey(level))
-		    System.out.println("TextBase " + level + " not defined for offLevel");
-		currentLevel = "original";
-		textBase = (TextBase)textBases.get("original");
-		labels = (MonotonicTextLabels)textLabels.get("original");
+		labels.offLevel();
 	    } else if("importFromLevel".equals(keyword)) {
-		if(!textBases.containsKey(importLevel))
-		    System.out.println("TextBase " + importLevel + " not defined for importFromLevel");
-		TextLabels importLabels = (TextLabels)textLabels.get(importLevel);
-		labels = (MonotonicTextLabels)(textBase.importLabels(labels, importLabels, oldType, type));
-		
+		labels.importFromLevel(importLevel, oldType, type);		
 	    } else if ("declareSpanType".equals(keyword)) {
 		labels.declareType( type );
 	    } else if (statementType==PROVIDE) {
@@ -551,7 +526,7 @@ public class MixupProgram
 	    } else {
 		Span.Looper input = null;
 		if ("top".equals(startType)) {
-		    input = textBase.documentSpanIterator();
+		    input = labels.getTextBase().documentSpanIterator();
 		} else if (labels.isType(startType)) {
 		    input = labels.instanceIterator(startType);
 		} else {
@@ -603,7 +578,8 @@ public class MixupProgram
 		} else {
 		    throw new IllegalStateException("illegal statement type "+statementType);
 		}
-	    }	    
+	    }
+	    //new ViewerFrame("Result of ", new SmartVanillaViewer(labels));
 	    long end = System.currentTimeMillis();
 	    log.info("time: "+((end-start)/1000.0)+" sec");
 	}

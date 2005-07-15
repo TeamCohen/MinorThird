@@ -22,6 +22,7 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 
 	final public void processArguments(String[] args) 
 	{
+	    System.out.println("*** Minorthird: " + Version.getVersion() + " ***");
 		int k = 0;
 		while (k<args.length) {
 			int delta = consumeArguments(args,k);

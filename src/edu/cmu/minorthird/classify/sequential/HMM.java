@@ -103,8 +103,8 @@ public class HMM {
     }
   }
 
-  public void print(Output out) 
-  { printa(out); printe(out); }
+    /*public void print(Output out) 
+    { printa(out); printe(out); }
 
   public void printa(Output out) {
     out.println("Transition probabilities:");
@@ -113,7 +113,7 @@ public class HMM {
         out.print(fmtlog(loga[i][j]));
       out.println();
     }
-  }
+    }*/
 
 	public String[] convert_Ob_seq( String[] x)	{
 		String[] y = new String[x.length];
@@ -129,7 +129,7 @@ public class HMM {
 		return(y);
 	}
 	
-  public void printe(Output out) {
+	/*public void printe(Output out) {
   	
  	
     out.println("Emission probabilities:");
@@ -142,7 +142,7 @@ public class HMM {
         out.print(fmtlog(loge[i][b]));
       out.println();
     }
-  }
+    }*/
 
   private static DecimalFormat fmt = new DecimalFormat("0.000000 ");
   private static String hdrpad     =                    "        ";

@@ -90,4 +90,30 @@ public class Tokenizer
 	return tokenArray;
     }
 
+    /** Tokenize a string that is only part of a document... pass in the start pos of the string in the doc. */
+    public TextToken[] splitIntoTokens(Document document, String string, int startPos)
+    {
+	List tokenList = new ArrayList();
+	TextToken[] tokenArray;
+	if(parseType == REGEX) {
+	    Pattern pattern = Pattern.compile(regexPattern);
+	    Matcher matcher = pattern.matcher(string);				
+	    	    
+	    while (matcher.find())  {
+		tokenList.add( new TextToken(document, matcher.start(1)+startPos, matcher.end(1)-matcher.start(1)) );
+	    }
+	    tokenArray = (TextToken[])tokenList.toArray(new TextToken[0]);
+	}else if (parseType == SPLIT) {
+	    int currentChar = 0;
+	    String[] tokenValues = string.split(splitString);
+
+	    for(int x=0; x<tokenValues.length; x++) {
+		currentChar = string.indexOf(tokenValues[x],currentChar);
+		tokenList.add( new TextToken(document, currentChar+startPos, tokenValues[x].length()) );
+	    }	    
+	    tokenArray = (TextToken[])tokenList.toArray(new TextToken[0]);
+	} else tokenArray = null;
+	return tokenArray;
+    }
+
 }
