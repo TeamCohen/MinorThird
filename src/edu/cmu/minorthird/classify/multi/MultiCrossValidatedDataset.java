@@ -23,10 +23,15 @@ public class MultiCrossValidatedDataset implements Visible
 
 	public MultiCrossValidatedDataset(ClassifierLearner learner,MultiDataset d,Splitter splitter)
 	{
-		this(learner,d,splitter,false);
+	    this(learner,d,splitter,false,false);
 	}
 
 	public MultiCrossValidatedDataset(ClassifierLearner learner,MultiDataset d,Splitter splitter,boolean saveTrainPartitions)
+	{
+	    this(learner,d,splitter,saveTrainPartitions,false);
+	}
+
+    public MultiCrossValidatedDataset(ClassifierLearner learner,MultiDataset d,Splitter splitter,boolean saveTrainPartitions, boolean cross)
 	{
 		MultiDataset.MultiSplit s = d.MultiSplit(splitter);
 		cds = new MultiClassifiedDataset[s.getNumPartitions()];
@@ -35,10 +40,12 @@ public class MultiCrossValidatedDataset implements Visible
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			MultiDataset trainData = s.getTrain(k);
+			if(cross) trainData=trainData.annotateData();
 			MultiDataset testData = s.getTest(k);
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
 			MultiClassifier c = new MultiDatasetClassifierTeacher(trainData).train(learner);
+			if(cross) testData=testData.annotateData(c);
 			MultiDatasetIndex testIndex = new MultiDatasetIndex(testData);
 			cds[k] = new MultiClassifiedDataset(c, testData, testIndex);
 			if (trainCds!=null) trainCds[k] = new MultiClassifiedDataset(c, trainData, testIndex);

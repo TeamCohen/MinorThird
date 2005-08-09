@@ -32,7 +32,7 @@ public class InstanceFromPrediction implements Instance
 		for (int i=0; i<previousLabels.length; i++) {
 			history.add( 
 				new Feature(
-					new String[]{ "Predicted Label for Dimension: " + i, Integer.toString((i+1)), previousLabels[i]}) );
+					new String[]{ "Predicted Label for Dimension: " + i, previousLabels[i]}) );
 		}
 	}
 

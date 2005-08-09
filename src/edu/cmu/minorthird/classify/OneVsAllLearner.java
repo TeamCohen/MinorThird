@@ -84,6 +84,25 @@ public class OneVsAllLearner implements ClassifierLearner
 	learnerFactory = new ClassifierLearnerFactory(learnerName);
 	
     }
+
+    public ClassifierLearner copy() {
+	OneVsAllLearner learner = null;
+	try {
+	    learner =(OneVsAllLearner)(this.clone());
+	    if(innerLearner!= null) {
+		learner.innerLearner.clear();
+		for (int i=0; i<innerLearner.size(); i++) {
+		    ClassifierLearner inner = (ClassifierLearner)(innerLearner.get(i));
+		    learner.innerLearner.add(inner.copy());
+		}
+	    }
+	} catch (Exception e) {
+	    System.out.println("Can't CLONE!!");
+	    e.printStackTrace();
+	}
+	return (ClassifierLearner)learner;
+    }
+
     public void setSchema(ExampleSchema schema)
     {
 	this.schema = schema;

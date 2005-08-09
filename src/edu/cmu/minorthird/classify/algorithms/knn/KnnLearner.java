@@ -21,6 +21,17 @@ public class KnnLearner extends OnlineClassifierLearner implements Serializable
 
 	public KnnLearner(int k) { this.k = k; reset(); }
 
+    public ClassifierLearner copy() {
+	KnnLearner knn = null;
+	try {
+	    knn = (KnnLearner)this.clone();
+	    knn.index = new DatasetIndex();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	return (ClassifierLearner)knn;
+    }
+
 	public int getK() { return k; }
 	public void setK(int k) { this.k=k; }
 

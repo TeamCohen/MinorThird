@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.multi;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.util.*;
 
@@ -171,6 +172,38 @@ public class MultiDataset implements Dataset,Visible,Saveable
       return buf.toString();
    }
 
+    public MultiDataset  annotateData() {
+	MultiDataset annotatedDataset = new MultiDataset();
+	Splitter splitter = new CrossValSplitter(9);
+	MultiDataset.MultiSplit s = this.MultiSplit(splitter);
+	for (int x=0; x<9; x++) {
+	    MultiClassifierTeacher teacher = new MultiDatasetClassifierTeacher(s.getTrain(x));
+	    MultiClassifier c = teacher.train(new CascadingBinaryLearner());
+	    for(MultiExample.Looper i = s.getTest(x).multiIterator(); i.hasNext(); ) {
+		MultiExample ex = i.nextMultiExample();		
+		Instance instance = ex.asInstance();
+		MultiClassLabel predicted = c.multiLabelClassification(instance);
+		Instance annotatedInstance = new InstanceFromPrediction(instance, predicted.bestClassName());
+		MultiExample newEx = new MultiExample(annotatedInstance, ex.getMultiLabel(), ex.getWeight());
+		annotatedDataset.addMulti(newEx);
+	    }
+	}
+	return annotatedDataset;
+    }
+    
+    public MultiDataset annotateData(MultiClassifier multiClassifier) {
+	MultiDataset annotatedDataset = new MultiDataset();
+	for(MultiExample.Looper i = this.multiIterator(); i.hasNext(); ) {
+	    MultiExample ex = i.nextMultiExample();		
+	    Instance instance = ex.asInstance();
+	    MultiClassLabel predicted = multiClassifier.multiLabelClassification(instance);
+	    Instance annotatedInstance = new InstanceFromPrediction(instance, predicted.bestClassName());
+	    MultiExample newEx = new MultiExample(annotatedInstance, ex.getMultiLabel(), ex.getWeight());
+	    annotatedDataset.addMulti(newEx);
+	}
+	return annotatedDataset;
+    }
+    
    /** A GUI view of the dataset. */
    public Viewer toGUI()
    {

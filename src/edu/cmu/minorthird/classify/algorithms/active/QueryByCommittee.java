@@ -49,6 +49,17 @@ public class QueryByCommittee implements ClassifierLearner
 		reset();
 	}
 
+    public ClassifierLearner copy() {
+	ClassifierLearner learner = null;
+	try{
+	    learner = (ClassifierLearner)this.clone();
+	    learner.reset();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	return learner;
+    }
+
 	final public void reset()
 	{
 		unlabeled = new TreeMap();

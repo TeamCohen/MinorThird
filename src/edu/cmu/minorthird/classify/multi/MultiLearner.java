@@ -14,7 +14,7 @@ import java.util.*;
 public class MultiLearner implements ClassifierLearner
 {
     protected ClassifierLearnerFactory learnerFactory;
-    protected BatchClassifierLearner learner;
+    protected ClassifierLearner learner;
     protected String learnerName;
     protected ArrayList innerLearner = null;
     protected MultiExampleSchema multiSchema; 
@@ -29,10 +29,24 @@ public class MultiLearner implements ClassifierLearner
     }
     
     public MultiLearner(ClassifierLearner learner){
-	this.learner = new MaxEntLearner();
+	this.learner = learner;
 	this.learnerName = learner.toString();
 	
     }
+    public ClassifierLearner copy() {
+	MultiLearner learner = null;
+	try {
+	    learner = (MultiLearner)this.clone();
+	    for (int i=0; i<innerLearner.size(); i++) {
+		ClassifierLearner inner = (ClassifierLearner)(innerLearner.get(i));
+		learner.innerLearner.add(inner.copy());
+	    }
+	} catch(Exception e) {
+	    e.printStackTrace();
+	}
+	return (ClassifierLearner)learner;
+    }
+
     public void setSchema(ExampleSchema schema){
 	System.out.println("Must use setMultSchema(MultiExampleSchema schema)");
     }
@@ -43,7 +57,7 @@ public class MultiLearner implements ClassifierLearner
 	innerLearner = new ArrayList();
 	ExampleSchema[] schemas = multiSchema.getSchemas();
 	for(int i=0; i<schemas.length; i++) {
-	    innerLearner.add(((BatchClassifierLearner)learner).copy());	   
+	    innerLearner.add(learner.copy());	   
 	    ((ClassifierLearner)(innerLearner.get(i))).setSchema(schemas[i]);
 	}
     }

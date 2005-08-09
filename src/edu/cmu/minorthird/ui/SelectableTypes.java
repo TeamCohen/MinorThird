@@ -21,14 +21,15 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    CommandLineUtil.ExtractionSignalParams.class, CommandLineUtil.TrainExtractorParams.class,
 	    CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TrainTaggerParams.class,
 	    CommandLineUtil.TaggerSignalParams.class, CommandLineUtil.MixupParams.class,
-	    CommandLineUtil.OnlineSignalParams.class,
+	    CommandLineUtil.OnlineSignalParams.class, CommandLineUtil.MultiClassificationSignalParams.class,
 	    //
 	    // main routines
 	    //
 	    ApplyAnnotator.class, TestExtractor.class, TrainClassifier.class, 
 	    TrainExtractor.class, TestClassifier.class, TrainTestClassifier.class, 
 	    TrainTestExtractor.class, TrainTestTagger.class, OnlineLearner.class,
-	    RunMixup.class,
+	    RunMixup.class, TrainMultiClassifier.class, TestMultiClassifier.class, 
+	    TrainTestMultiClassifier.class,
 	    //
 	    // recommended classification learners
 	    //

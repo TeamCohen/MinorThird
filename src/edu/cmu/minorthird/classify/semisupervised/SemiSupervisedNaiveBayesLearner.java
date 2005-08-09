@@ -26,9 +26,20 @@ public class SemiSupervisedNaiveBayesLearner extends SemiSupervisedBatchClassifi
    public SemiSupervisedNaiveBayesLearner() {;}
    public SemiSupervisedNaiveBayesLearner(int iterations) { this.MAX_ITER=iterations; }
 
-
+    
    public void setSchema(ExampleSchema schema) { ; }
    public void setInstancePool(Instance.Looper i) { this.iteratorOverUnlabeled=i; }
+
+    public ClassifierLearner copy() {
+	ClassifierLearner learner = null;
+	try{ 
+	    learner = (ClassifierLearner)this.clone();
+	    learner.reset();
+	} catch(Exception e) {
+	    e.printStackTrace();
+	}
+	return learner;
+    }
 
    public Classifier batchTrain(SemiSupervisedDataset dataset)
    {

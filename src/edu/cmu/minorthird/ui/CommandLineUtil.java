@@ -7,6 +7,7 @@ import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.sequential.*;
 
 import edu.cmu.minorthird.text.mixup.MixupProgram;
@@ -194,6 +195,52 @@ public class CommandLineUtil
 	throw new IllegalArgumentException("either spanProp or spanType must be specified");
     }
 
+    /** Build a classification dataset from the necessary inputs. 
+     */
+    static public MultiDataset 
+	toMultiDataset(MonotonicTextLabels textLabels, SpanFeatureExtractor fe,String[] multiSpanProp)
+    {	
+
+	// use this to print out a summary
+	Map countByClass = new HashMap();
+
+	NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
+
+	//System.out.println(textLabels.getTextBase().size());
+
+	//Span.Looper documentLooper =  textLabels.getTextBase().documentSpanIterator();
+
+	// k-class dataset
+	if (multiSpanProp!=null) {
+	    MultiDataset dataset = new MultiDataset();
+	    for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+		Span s = i.nextSpan();
+		String[] classNames = new String[multiSpanProp.length];
+		ClassLabel[] classLabels = new ClassLabel[multiSpanProp.length];
+		//Creates the array of classLabels for each document
+		for(int j=0; j<multiSpanProp.length; j++) {
+		    String spanProp = multiSpanProp[j];
+		    classNames[j] = textLabels.getProperty(s,spanProp);
+		
+		    if (classNames[j]==null) {
+			classLabels[j] = new ClassLabel("NEG");
+		    } else {
+			classLabels[j] = new ClassLabel(classNames[j]);
+		    }
+		    Integer cnt = (Integer)countByClass.get( classNames[j] );
+		    if (cnt==null) countByClass.put( classNames[j], new Integer(1) );
+		    else countByClass.put( classNames[j], new Integer(cnt.intValue()+1) );
+		}
+		
+		dataset.addMulti( new MultiExample( fe.extractInstance(safeLabels,s),new MultiClassLabel(classLabels)));
+		
+		System.out.println("Number of examples by class: "+countByClass); 	    
+	    }		    
+	    return dataset;
+	}
+	throw new IllegalArgumentException("either spanProp or spanType must be specified");
+    }
+
     //
     // stuff for command-line parsing
     //
@@ -201,7 +248,7 @@ public class CommandLineUtil
     /** Create a new object from a fragment of bean shell code,
      * and make sure it's the correct type.
      */
-    static Object newObjectFromBSH(String s,Class expectedType)
+    public static Object newObjectFromBSH(String s,Class expectedType)
     {
 	try {
 	    bsh.Interpreter interp = new bsh.Interpreter();
@@ -801,6 +848,33 @@ public class CommandLineUtil
 	return property;
     }
 
+    private static String[] createMultiSpanProp(File multiSpanProps, BaseParams base) throws Exception{
+	ProgressCounter pc = new ProgressCounter("loading file "+multiSpanProps.getName(), "line");
+	LineNumberReader in = null;
+	try {
+	    in = new LineNumberReader(new FileReader(multiSpanProps));
+	} catch (Exception e) {
+	    System.out.println("Cannot open multiSpanProp file");
+	    e.printStackTrace();
+	}
+	String line;
+	ArrayList spanPropList = new ArrayList();
+	String[] spanProps;
+	//try {
+	if(in != null) {
+	    while ((line = in.readLine())!=null) {
+		spanPropList.add(createSpanProp(line,base));
+		pc.progress();
+	    }
+	    //} catch (Exception e) {
+	    //e.printStackTrace();
+	    //}
+	spanProps = (String[])spanPropList.toArray(new String[0]);
+	return spanProps;
+	}
+	else return null;
+    }
+
     /** Parameters encoding the 'training signal' for extraction learning. */
     public static class ExtractionSignalParams extends BasicCommandLineProcessor {
 	private BaseParams base=new BaseParams();
@@ -846,6 +920,59 @@ public class CommandLineUtil
 	// subroutines for gui setters/getters
 	protected String safeGet(String s,String def) { return s==null?def:s; }
 	protected String safePut(String s,String def) { return def.equals(s)?null:s; }
+    }
+
+    /** Parameters encoding the 'training signal' for extraction learning. */
+    public static class MultiClassificationSignalParams extends BasicCommandLineProcessor {
+	private BaseParams base=new BaseParams();
+	public File multiSpanPropFile;
+	public String multiSpanPropFileName;
+	public String[] multiSpanProp;
+	public boolean cross = false;
+	/** Not recommended, but required for bean-shell like visualization */
+	public MultiClassificationSignalParams() {;}
+	public MultiClassificationSignalParams(BaseParams base) 
+	{
+	    this.base=base;
+	    try {
+		if (multiSpanPropFile!=null) this.multiSpanProp = createMultiSpanProp(multiSpanPropFile,this.base);
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
+	public void multiSpanPropFile(String s) {
+	    multiSpanPropFileName = s;
+	    File f = new File(s);
+	    multiSpanPropFile = f;
+	    try {
+		multiSpanProp = createMultiSpanProp(f, this.base);
+	    } catch(Exception e) {
+		e.printStackTrace();
+	    }
+	}
+	public void cross() {
+	    this.cross = true;
+	}
+	public void usage() {
+	    System.out.println("multi class classification 'signal' parameters:");
+	    System.out.println(" -multSpanProp FILE");           
+	    System.out.println("                          learn how to extract spans with the named property and span types");
+	    System.out.println("                          and label them with the name property");
+	}
+	// for gui
+	public String getMultiSpanPropFile() { return multiSpanPropFileName; }
+	public void setMultiSpanPropFile(String s) {
+	    multiSpanPropFileName = s;
+	    File f = new File(s);
+	    multiSpanPropFile=f; 
+	    try {
+		multiSpanProp=createMultiSpanProp(multiSpanPropFile,this.base); 
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
+	public boolean getCross() { return cross; }
+	public void setCross(boolean b) { cross=b; }
     }
 
     /** Parameters encoding the 'training signal' for learning a token-tagger. */

@@ -18,6 +18,9 @@ public interface ClassifierLearner extends Cloneable
 	/** Forget everything and prepare for a new learning session. */
 	public void reset();
 
+    /** Make a copy of the learner.  Note: This will reset the learner, erasing previous data! */
+    public ClassifierLearner copy();
+
 	/** Accept a set of unlabeled instances. These might be used in
 	 * formulating queries in active learning, or for semi-supervised
 	 * learning.  Queries are made with the methods hasNextQuery(),

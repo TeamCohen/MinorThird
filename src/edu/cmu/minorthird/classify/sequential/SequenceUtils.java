@@ -35,7 +35,7 @@ public class SequenceUtils
         result[i].reset();
       }
       return result;
-    } catch (CloneNotSupportedException ex) {
+    } catch (Exception ex) {
       throw new IllegalArgumentException("innerLearner must be cloneable");
     }
   }

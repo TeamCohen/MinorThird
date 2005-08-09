@@ -45,15 +45,23 @@ public class Tester
     /** Do some sort of hold-out experiment, as determined by the splitter */
 	static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter splitter)
 	{
+	    return multiEvaluate(learner, d, splitter, false);
+	}
+
+    /** Do some sort of hold-out experiment, as determined by the splitter */
+    static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter splitter, boolean cross)
+	{
 		MultiEvaluation v = new MultiEvaluation(d.getMultiSchema()); 
 		MultiDataset.MultiSplit s = d.MultiSplit(splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
-		for (int k=0; k<s.getNumPartitions(); k++) {
+		for (int k=0; k<s.getNumPartitions(); k++) {		    
 			MultiDataset trainData = s.getTrain(k);
+			if(cross) trainData=trainData.annotateData();
 			MultiDataset testData = s.getTest(k);
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
 			MultiClassifier c = new MultiDatasetClassifierTeacher(trainData).train(learner);
+			if(cross) testData=testData.annotateData(c);
 			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
 			v.extend( c, testData);
 			log.info("splitting with "+splitter+", completed train-test round");
@@ -61,7 +69,7 @@ public class Tester
 		}
 		pc.finished();
 		return v;
-	}
+	}    
 
 	/** Do some sort of hold-out experiment, as determined by the splitter */
 	static public Evaluation evaluate(SequenceClassifierLearner learner,SequenceDataset d,Splitter splitter)

@@ -74,7 +74,7 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 				innerLearner[i] = (OnlineBinaryClassifierLearner)innerLearnerPrototype.copy();
 				innerLearner[i].reset();
 			}
-		} catch (CloneNotSupportedException ex) {
+		} catch (Exception ex) {
 			throw new IllegalArgumentException("innerLearner must be cloneable");
 		}
 

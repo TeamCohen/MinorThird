@@ -16,8 +16,16 @@ public abstract class OnlineClassifierLearner implements ClassifierLearner
 	final public void setInstancePool(Instance.Looper i) { ; }
 	final public boolean hasNextQuery() { return false; }
 	final public Instance nextQuery() { return null; }
-	final public ClassifierLearner copy() throws CloneNotSupportedException { 
-		return (ClassifierLearner)clone(); 
+	public ClassifierLearner copy() { 
+	    ClassifierLearner learner = null;
+	    try {
+		learner =(ClassifierLearner)(this.clone());
+		learner.reset();
+	    } catch (Exception e) {
+		System.out.println("Can't CLONE!!");
+		e.printStackTrace();
+	    }
+	    return learner;
 	}
 
 	/** A promise from the caller that no further examples will be added.
