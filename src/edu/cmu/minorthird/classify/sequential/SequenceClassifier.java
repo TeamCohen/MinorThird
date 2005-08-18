@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.sequential;
 
+import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Instance;
 
@@ -16,5 +17,8 @@ public interface SequenceClassifier
 
 	/** Return some string that 'explains' the classification */
 	public String explain(Instance[] sequence);
+
+    /** Return and explanation for a classification */
+    public Explanation getExplanation(Instance[] sequence);
 }
 

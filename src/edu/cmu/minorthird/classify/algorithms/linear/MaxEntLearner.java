@@ -49,52 +49,88 @@ public class MaxEntLearner extends BatchClassifierLearner
       System.out.println("scaleScores => true");
     }
   }
-	public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }
-	public Classifier batchTrain(Dataset dataset)
+    public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }
+    public Classifier batchTrain(Dataset dataset)
+    {
+	SequenceDataset seqData = new SequenceDataset();
+	for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
+	    Example e = i.nextExample();
+	    seqData.addSequence( new Example[]{e} );
+	}
+	CMM c = (CMM)crfLearner.batchTrain(seqData);
+	return new MyClassifier(c.getClassifier(),seqData.getSchema(),scaleScores);
+    }
+    
+    public static class MyClassifier implements Classifier,Serializable,Visible
+    {
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_SERIAL_VERSION = 1;
+	
+	private Classifier c;
+	private ExampleSchema schema;
+	private boolean scaleScores;
+	
+	public MyClassifier(Classifier c,ExampleSchema schema,boolean scaleScores) 
+	{	
+	    this.c = c;	
+	    this.schema=schema;
+	    this.scaleScores=scaleScores; 
+	}
+	public ClassLabel classification(Instance instance) 
 	{
-		SequenceDataset seqData = new SequenceDataset();
-		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
-			seqData.addSequence( new Example[]{e} );
+	    // classify transformed instance
+	    ClassLabel label = c.classification( BeamSearcher.getBeamInstance(instance,1) );
+	    return scaleScores?transformScores(label):label;
+	}
+	    public String explain(Instance instance) 
+	{
+	    Instance augmentedInstance = BeamSearcher.getBeamInstance(instance,1);
+	    if (scaleScores) {
+		return
+		    "Augmented instance: "+augmentedInstance+"\n" 
+		    + c.explain(augmentedInstance) + "\nTransformed score: "+classification(instance);
+	    } else {
+		return
+		    "Augmented instance: "+augmentedInstance+"\n" 
+		    + c.explain(augmentedInstance);
 		}
-		CMM c = (CMM)crfLearner.batchTrain(seqData);
-		return new MyClassifier(c.getClassifier(),seqData.getSchema(),scaleScores);
 	}
 	
-	public static class MyClassifier implements Classifier,Serializable,Visible
-	{
-		  static private final long serialVersionUID = 1;
-		  private final int CURRENT_SERIAL_VERSION = 1;
-
-		private Classifier c;
-    private ExampleSchema schema;
-    private boolean scaleScores;
-
-		public MyClassifier(Classifier c,ExampleSchema schema,boolean scaleScores) 
-    {	
-      this.c = c;	
-      this.schema=schema;
-      this.scaleScores=scaleScores; 
-    }
-		public ClassLabel classification(Instance instance) 
-    {
-      // classify transformed instance
-      ClassLabel label = c.classification( BeamSearcher.getBeamInstance(instance,1) );
-      return scaleScores?transformScores(label):label;
+	public Explanation getExplanation(Instance instance) {
+	    Explanation.Node top = new Explanation.Node("MaxEntClassifier Explanation");
+	    Instance augmentedInstance = BeamSearcher.getBeamInstance(instance,1);
+	    if (scaleScores) {
+		Explanation.Node ai = new Explanation.Node("Augmented instance: "+augmentedInstance);		      
+		String augmentedEx = c.explain(augmentedInstance);
+		String[] split = augmentedEx.split("\n");
+		Explanation.Node curTopNode = ai;
+		for(int i=0; i<split.length; i++) {		    
+		    Explanation.Node exNode = new Explanation.Node(split[i]);		   
+		    if(split[i].charAt(0) != ' ') {
+			curTopNode = exNode;
+			ai.add(exNode);
+		    } else curTopNode.add(exNode);
 		}
-		public String explain(Instance instance) 
-    {
-      Instance augmentedInstance = BeamSearcher.getBeamInstance(instance,1);
-      if (scaleScores) {
-        return
-          "Augmented instance: "+augmentedInstance+"\n" 
-          + c.explain(augmentedInstance) + "\nTransformed score: "+classification(instance);
-      } else {
-        return
-          "Augmented instance: "+augmentedInstance+"\n" 
-          + c.explain(augmentedInstance);
-      }
+		top.add(ai);
+		Explanation.Node ts = new Explanation.Node("\nTransformed score: "+classification(instance));
+		top.add(ts);
+	    } else {		   
+		Explanation.Node ai = new Explanation.Node("Augmented instance: "+augmentedInstance);		      
+		String augmentedEx = c.explain(augmentedInstance);
+		String[] split = augmentedEx.split("\n");
+		Explanation.Node curTopNode = ai;
+		for(int i=0; i<split.length; i++) {
+		    Explanation.Node exNode = new Explanation.Node(split[i]);
+		    if(split[i].charAt(0) != ' ') {
+			curTopNode = exNode;
+			ai.add(exNode);
+		    } else curTopNode.add(exNode);
 		}
+		top.add(ai);
+	    }
+	    Explanation ex = new Explanation(top);		    
+	    return ex;
+	}
 
 		/** convert from log pseudoProbabilities to log probabilities */
     // in principle, the MaxEntLearner's weights will converge so that

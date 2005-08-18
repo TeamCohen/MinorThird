@@ -69,6 +69,11 @@ public class SequenceUtils
       public MyBinaryClassifier(Classifier c) { this.c = c; }
       public double score(Instance instance) { return c.classification(instance).posWeight(); };
       public String explain(Instance instance) { return c.explain(instance); }
+	public Explanation getExplanation(Instance instance) {
+	    Explanation.Node top = c.getExplanation(instance).getTopNode();
+	    Explanation ex = new Explanation(top);
+	    return ex;
+	}
       public Viewer toGUI() { 
         Viewer v = new ComponentViewer() {
             public JComponent componentFor(Object o) {

@@ -4,6 +4,8 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.util.gui.*;
 import javax.swing.*;
+import javax.swing.JTree;
+import javax.swing.tree.*;
 import java.io.Serializable;
 
 
@@ -53,6 +55,18 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 		buf.append( "classification = "+classification(instance).toString() );
 		return buf.toString();
 	}
+
+    public Explanation getExplanation(Instance instance) {
+	Explanation.Node top = new Explanation.Node("OneVsAll Explanation");
+	for (int i=0; i<binaryClassifiers.length; i++) {
+	    Explanation.Node binClassifierNode = new Explanation.Node(classNames[i] + " Tree");
+	    Explanation.Node explanation = binaryClassifiers[i].getExplanation(instance).getTopNode();
+	    binClassifierNode.add(explanation);
+	    top.add(binClassifierNode);
+	}
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 
 	public String[] getClassNames() { return classNames; }
 

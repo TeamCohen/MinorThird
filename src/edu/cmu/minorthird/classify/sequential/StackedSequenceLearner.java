@@ -230,6 +230,11 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 			return "not implemented";
 		}
 
+	    public Explanation getExplanation(Instance[] sequence) {
+		Explanation ex = new Explanation(explain(sequence));
+		return ex;
+	    }
+
 		public Viewer toGUI()
 		{
 			ParallelViewer v = new ParallelViewer();

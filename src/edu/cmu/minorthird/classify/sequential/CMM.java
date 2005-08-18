@@ -7,6 +7,7 @@ import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.Serializable;
@@ -50,6 +51,16 @@ public class CMM implements SequenceClassifier,SequenceConstants,Visible,Seriali
 	{
 		return searcher.explain(sequence);
 	}
+
+    public Explanation getExplanation(Instance[] sequence) {
+	Explanation.Node top = new Explanation.Node("CMM Explanation");
+	Explanation.Node searcherEx = searcher.getExplanation(sequence).getTopNode();
+	if(searcherEx == null)
+	    searcherEx = new Explanation.Node(searcher.explain(sequence));
+	top.add(searcherEx);
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 
 	public Viewer toGUI()
 	{

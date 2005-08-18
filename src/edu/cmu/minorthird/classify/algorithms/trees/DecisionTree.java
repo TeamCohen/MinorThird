@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.algorithms.trees;
 
+import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
@@ -8,6 +9,7 @@ import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -73,6 +75,22 @@ import java.io.Serializable;
 	return test+"="+instance.getWeight(test)+"<"+threshold+"\n"+ifFalse.explain(instance);				
       }
     }
+      public Explanation getExplanation(Instance instance) {
+	  Explanation.Node top = new Explanation.Node("DecisionTree Explanation");
+	  if (instance.getWeight(test)>=threshold) {
+	      Explanation.Node node = new Explanation.Node( test+"="+instance.getWeight(test)+">="+threshold );
+	      Explanation.Node childEx = ifTrue.getExplanation(instance).getTopNode();
+	      node.add(childEx);
+	      top.add(node);
+	  } else {
+	      Explanation.Node node = new Explanation.Node(test+"="+instance.getWeight(test)+"<"+threshold);
+	      Explanation.Node childEx = ifFalse.getExplanation(instance).getTopNode();
+	      node.add(childEx);
+	      top.add(node);			
+	  }
+	  Explanation ex = new Explanation(top);
+	  return ex;
+      }
     public double score(Instance instance)
     {
       if (instance.getWeight(test)>=threshold)
@@ -113,6 +131,11 @@ import java.io.Serializable;
     {
       return "leaf: "+myScore;
     }
+      public Explanation getExplanation(Instance instance) {
+	  Explanation.Node top = new Explanation.Node("Leaf: " +myScore);
+	  Explanation ex = new Explanation(top);
+	  return ex;
+      }
     public double score(Instance instance) 
     { 
       return myScore; 

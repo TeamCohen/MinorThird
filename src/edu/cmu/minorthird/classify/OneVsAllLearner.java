@@ -85,6 +85,9 @@ public class OneVsAllLearner implements ClassifierLearner
 	
     }
 
+    public void setInnerLearner(ClassifierLearner learner) {this.learner=(BatchClassifierLearner)learner;}
+    public ClassifierLearner getInnerLearner(){ return (ClassifierLearner)learner; }
+
     public ClassifierLearner copy() {
 	OneVsAllLearner learner = null;
 	try {

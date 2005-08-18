@@ -2,9 +2,11 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
+import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Instance;
+
 
 /**
  * Apply a classifier to each item in a sequence in turn,
@@ -48,5 +50,20 @@ public class TrivialSequenceClassifier implements SequenceClassifier,SequenceCon
 		}
 		return buf.toString();
 	}
+
+    public Explanation getExplanation(Instance[] sequence) 
+    {
+	Explanation.Node top = new Explanation.Node("TrivialSequenceClassifier Explanation");
+	for (int i=0; i<sequence.length; i++) {
+	    Explanation.Node seq = new Explanation.Node("classification of element "+i+" of sequence:\n");
+	    Explanation.Node seqEx = (classifier.getExplanation(sequence[i])).getTopNode();
+	    if(seqEx == null) 
+		seqEx = new Explanation.Node(classifier.explain(sequence[i]));
+	    seq.add(seqEx);
+	    top.add(seq);
+	}
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 }
 

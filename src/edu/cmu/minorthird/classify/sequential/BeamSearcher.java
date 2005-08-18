@@ -9,6 +9,9 @@ import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.*;
+import javax.swing.JTree;
+import javax.swing.tree.*;
+
 
 /** 
  * A conditional markov model classifier.
@@ -141,6 +144,28 @@ public class BeamSearcher implements SequenceConstants, Serializable
 		}
 		return buf.toString();
 	}
+
+    public Explanation getExplanation(Instance[] sequence)
+    {
+	doSearch(sequence);
+	BeamEntry targetEntry = beam.get(0);	
+	BeamEntry entry = new BeamEntry();
+	Explanation.Node top = new Explanation.Node("BeamSearcher Classification");
+	for (int i=0; i<sequence.length; i++) {
+	    Explanation.Node seqEx = new Explanation.Node("Classification for instance "+i+" is "
+		       +targetEntry.labels[i]+" (score "+targetEntry.scores[i]+"):\n");
+	    Explanation.Node explan = classifier.getExplanation(sequence[i]).getTopNode();
+	    if(explan == null)
+		explan = new Explanation.Node( classifier.explain(entry.getBeamInstance(sequence[i])) );
+	    seqEx.add(explan);
+	    entry = entry.extend( targetEntry.labels[i], targetEntry.scores[i] );
+	    Explanation.Node score = new Explanation.Node("\nRunning total score: "+entry.score+"\n\n");
+	    seqEx.add(score);
+	    top.add(seqEx);
+	}
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 
 	/** The search space. */
 	private class Beam 

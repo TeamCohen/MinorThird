@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
+import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.Feature;
@@ -98,7 +99,10 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements Visi
 
    }
 
-
+    public Explanation getExplanation(Instance instance) {
+	Explanation ex = new Explanation(explain(instance));
+	return ex;
+    }
 
    //
    // Get, Set, Check, ...

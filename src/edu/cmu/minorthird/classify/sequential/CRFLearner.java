@@ -280,6 +280,17 @@ public class CRFLearner
     if (cmmClassifier==null) cmmClassifier = toMinorthirdClassifier();
     return cmmClassifier.explain(sequence);
   }
+
+    public Explanation getExplanation(Instance[] sequence) {
+	if (cmmClassifier==null) cmmClassifier = toMinorthirdClassifier();
+	Explanation.Node top = new Explanation.Node("CRF Explanation");
+	Explanation.Node cmmEx = cmmClassifier.getExplanation(sequence).getTopNode();
+	if(cmmEx == null)
+	    cmmEx = new Explanation.Node(cmmClassifier.explain(sequence));
+	top.add(cmmEx);
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 	
   public Viewer toGUI()
   {

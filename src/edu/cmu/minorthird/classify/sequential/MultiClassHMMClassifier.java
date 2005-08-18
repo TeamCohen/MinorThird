@@ -141,6 +141,16 @@ this function is also required to be re-written*/
 			return buf.toString();
 		}
 
+	    public Explanation getExplanation(Instance[] instance) {
+		Explanation.Node top = new Explanation.Node("MultiClassHMM Explanation");
+		for (int i=0; i<numStates; i++) {			
+		    Explanation.Node classEx = new Explanation.Node("Hyperplane for class "+schema.getClassName(i)+":\n");
+		    top.add(classEx);
+		}
+		Explanation ex = new Explanation(top);
+		return ex;
+	    }
+
 /*This one is for visualization*/
 		public Viewer toGUI()
 		{

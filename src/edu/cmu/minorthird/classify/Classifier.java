@@ -15,5 +15,8 @@ public interface Classifier
 
 	/** Return some string that 'explains' the classification */
 	public String explain(Instance instance);
+
+    /** Return an Explanation for the classification */
+    public Explanation getExplanation(Instance instance);
 }
 

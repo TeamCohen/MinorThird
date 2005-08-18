@@ -4,6 +4,7 @@ package edu.cmu.minorthird.classify.algorithms.svm;
  * modificaiton made to wrap the idFactory in the classifier
  */
 
+import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.FeatureIdFactory;
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
@@ -39,6 +40,11 @@ public class SVMClassifier implements Classifier, Serializable
     public String explain(Instance instance)
     {
         return "I have no idea how I came up with this answer";
+    }
+
+    public Explanation getExplanation(Instance instance) {
+	Explanation ex = new Explanation(explain(instance));
+	return ex;
     }
 
     public SVMClassifier(svm_model model, FeatureIdFactory idFactory)

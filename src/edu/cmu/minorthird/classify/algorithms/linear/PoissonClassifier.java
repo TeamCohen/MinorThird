@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
+import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
@@ -8,6 +9,7 @@ import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -70,6 +72,33 @@ class PoissonClassifier extends BinaryClassifier implements Visible, Serializabl
       return buf.toString();
 
    }
+
+    public Explanation getExplanation(Instance instance) {
+	Explanation.Node top = new Explanation.Node("PoisionClassifier Explanation");
+	
+	double total = 0.0;
+	for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
+	    Feature f = j.nextFeature();
+	    total += instance.getWeight(f);
+	}
+	total = total/featureScore( loglinear.BIAS_TERM,LOG );
+	
+	Explanation.Node features = new Explanation.Node("Features");
+	for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
+	    Feature f = j.nextFeature();
+	    Explanation.Node fEx = new Explanation.Node( f+"<"+instance.getWeight(f)+"*"+featureScore(f,LOG)+"+"
+								     +total+"*"+featureScore(f)+">");
+	    features.add(fEx);
+	}
+	Explanation.Node bias = new Explanation.Node( " + bias<"+featureScore( linear.BIAS_TERM )+">" );
+	features.add(bias);
+	top.add(features);
+	Explanation.Node score = new Explanation.Node(" = "+score(instance) );
+	top.add(score);
+
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 
    /** Increment the weight of one feature from the PoissonClassifier by delta */
    public void increment(Feature f,double delta) {

@@ -188,6 +188,18 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			}
 			return buf.toString();
 		}
+	    public Explanation getExplanation(Instance instance) {
+		Hyperplane[] h = voteMode ? s_t : w_t ;
+		Explanation.Node top = new Explanation.Node("CollinsPerceptron Explanation");
+		for (int i=0; i<numClasses; i++) {			
+		    Explanation.Node hyp = new Explanation.Node("Hyperplane for class "+schema.getClassName(i)+":\n");
+		    Explanation.Node explanation = h[i].getExplanation(instance).getTopNode();
+		    hyp.add(explanation);
+		    top.add(hyp);
+		}
+		Explanation ex = new Explanation(top);
+		return ex;
+	    }
 
 		public Viewer toGUI()
 		{

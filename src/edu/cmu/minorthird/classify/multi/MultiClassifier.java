@@ -48,6 +48,19 @@ public class MultiClassifier implements Classifier, Visible, Serializable
 	return buf.toString();
     }
 
+    public Explanation getExplanation(Instance instance) {
+	Explanation.Node top = new Explanation.Node("MultiClassifier Explanation");
+	
+	for (int i=0; i<classifiers.length; i++) {
+	    Explanation.Node classEx = classifiers[i].getExplanation(instance).getTopNode();
+	    top.add(classEx);
+	}
+	Explanation.Node score = new Explanation.Node( "classification = "+classification(instance).toString() );
+	top.add(score);
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
+
     public Classifier[] getClassifiers() { return classifiers; }
 
     public String toString() {

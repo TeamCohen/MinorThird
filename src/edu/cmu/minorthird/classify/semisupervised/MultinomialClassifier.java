@@ -12,6 +12,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 
 import gnu.trove.TObjectDoubleIterator;
 import gnu.trove.TObjectDoubleHashMap;
@@ -127,6 +128,23 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
       buf.append("\n = "+score(instance) );
       return buf.toString();
    }
+
+    public Explanation getExplanation(Instance instance) {
+	Explanation.Node top = new Explanation.Node("MultinomialClassifier Explanation");
+	Explanation.Node features = new Explanation.Node("Features");
+	for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
+	    Feature f = j.nextFeature();
+	    Explanation.Node featureEx = new Explanation.Node( f+"<"+instance.getWeight(f));
+	    features.add(featureEx);
+	}
+	Explanation.Node bias = new Explanation.Node( "bias" );
+	features.add(bias);
+	top.add(features);
+	Explanation.Node score = new Explanation.Node("\n = "+score(instance) );
+	top.add(score);
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
 
 
    //

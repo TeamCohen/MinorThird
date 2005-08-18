@@ -92,6 +92,10 @@ class KnnClassifier implements Classifier,Serializable
 	}
 
 	public String explain(Instance instance) { return "not implemented";}
+    public Explanation getExplanation(Instance instance) {
+	Explanation ex = new Explanation(explain(instance));
+	return ex;
+    }
 
 	// cosine distance
 	private double computeSimilarity(Instance a,Instance b)

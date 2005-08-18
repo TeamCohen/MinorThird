@@ -31,6 +31,10 @@ public class TransformingClassifier implements Classifier,Visible,Serializable
 			"Transformed instance: "+transformedInstance+"\n"+
 			classifier.explain(transformedInstance)+"\n";
 	}
+    public Explanation getExplanation(Instance instance) {
+	Explanation ex = new Explanation(explain(instance));
+	return ex;
+    }
 
 	public Viewer toGUI()
 	{

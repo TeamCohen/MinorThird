@@ -178,6 +178,18 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 			}
 			return buf.toString();
 		}
+	    public Explanation getExplanation(Instance instance) {
+		Explanation.Node top = new Explanation.Node("GenericCollins Explanation");
+
+		for (int i=0; i<numClasses; i++) {			
+		    Explanation.Node classifier = new Explanation.Node("Classifier for class "+schema.getClassName(i));
+		    Explanation.Node classEx = innerClassifier[i].getExplanation(instance).getTopNode();
+		    classifier.add(classEx);
+		    top.add(classifier);
+		}
+		Explanation ex = new Explanation(top);
+		return ex;
+	    }
 
 		public Viewer toGUI()
 		{

@@ -143,6 +143,26 @@ public class AdaBoost extends BatchBinaryClassifierLearner
       buf.append("total score: "+totalScore);
       return buf.toString();
     }
+      public Explanation getExplanation(Instance instance) {
+	  Explanation.Node top = new Explanation.Node("AdaBoost Explanation");
+
+	  double totalScore = 0;
+	  for (Iterator i=classifiers.iterator(); i.hasNext(); ) {
+	      BinaryClassifier c = (BinaryClassifier)i.next();
+	      totalScore += c.score(instance);
+	      Explanation.Node score = new Explanation.Node("score of "+c);
+	      Explanation.Node scoreEx = new Explanation.Node(c.score(instance) + " ");
+	      score.add(scoreEx);
+	      Explanation.Node childEx = c.getExplanation(instance).getTopNode();
+	      score.add(childEx);
+	      top.add(score);
+	  }
+	  Explanation.Node total = new Explanation.Node("total score: "+totalScore);
+	  top.add(total);
+	  Explanation ex = new Explanation(top);
+	  return ex;
+      }
+      
     public String toString() 
     {
       StringBuffer buf = new StringBuffer("[boosted classifier:\n");			

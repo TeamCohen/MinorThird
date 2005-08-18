@@ -567,6 +567,17 @@ public class TweakedLearner extends BatchBinaryClassifierLearner {
 			buf.append("\nAdjusted score after tweaking = "+score(instance));
 			return buf.toString();		
 		}
+	    public Explanation getExplanation(Instance instance) {
+		Explanation.Node top = new Explanation.Node("TweakedLearner Explanation");
+		Explanation.Node orig = new Explanation.Node("Explanation of original untweaked classifier");
+		Explanation.Node origEx = m_classifier.getExplanation(instance).getTopNode();
+		orig.add(origEx);
+		top.add(orig);
+		Explanation.Node adjusted = new Explanation.Node("\nAdjusted score after tweaking = "+score(instance));
+		top.add(adjusted);
+		Explanation ex = new Explanation(top);
+		return ex;
+	    }
 	}
 	
 	

@@ -94,6 +94,13 @@ public class ClassifiedSequenceDataset implements Visible
 			}
 			return explanation;
 		}
+	    public Explanation getExplanation(Instance instance) {
+		Place place = (Place)instanceToPlace.get(instance.getSource());
+		if (place==null) 
+		    throw new IllegalArgumentException("no explanation available");
+		Explanation ex = sequenceClassifier.getExplanation(place.seq);
+		return ex;
+	    }
 		public Viewer toGUI()
 		{
 			return new SmartVanillaViewer(sequenceClassifier);

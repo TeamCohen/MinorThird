@@ -110,6 +110,23 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
 	return buf.toString();
     }
 
+    public Explanation getExplanation(Instance instance) {
+	Explanation.Node top = new Explanation.Node("Hyperplane Explanation");
+	Explanation.Node tokens = new Explanation.Node("Tokens:");
+	for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
+	    Feature f = j.nextFeature();
+	    Explanation.Node ftr = new Explanation.Node( f+"<"+instance.getWeight(f)+"*"+featureScore(f)+">");
+	    tokens.add(ftr);
+	}
+	Explanation.Node bias = new Explanation.Node( "bias<"+featureScore( BIAS_TERM )+">" );
+	tokens.add(bias);
+	top.add(tokens);
+        Explanation.Node score = new Explanation.Node("\n = "+score(instance) );
+	top.add(score);
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
+
     /** Increment one feature from the hyperplane by delta */
     public void increment(Feature f, double delta) {
 	double d = hyperplaneWeights.get(f);

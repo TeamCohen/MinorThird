@@ -196,6 +196,11 @@ public class StackedLearner extends BatchClassifierLearner
 			buf.append(finalClassifier.explain(newInstance));
 			return buf.toString();
 		}
+
+	    public Explanation getExplanation(Instance instance) {
+		Explanation ex = new Explanation(explain(instance));
+		return ex;
+	    }
 		public Viewer toGUI()
 		{
 			Viewer v = new ComponentViewer() {

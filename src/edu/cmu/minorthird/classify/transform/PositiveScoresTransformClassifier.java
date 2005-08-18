@@ -133,6 +133,10 @@ public class PositiveScoresTransformClassifier implements Classifier,Serializabl
 	{
 		return "classify using only features with positive hyperplane weights";
 	}
+    public Explanation getExplanation(Instance instance) {
+	Explanation ex = new Explanation(explain(instance));
+	return ex;
+    }
 
 	
   private static void usage() { System.out.println("PositiveScoresTransformClassifier dataset"); }
