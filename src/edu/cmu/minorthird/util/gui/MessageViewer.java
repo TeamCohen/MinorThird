@@ -5,7 +5,9 @@ import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * Wraps a viewer and adds a status message at the bottom.
+ * Wraps a viewer and adds a status message at the bottom.  Status
+ * messages are sent by a sub-viewer by sending a message with a class
+ * to sendSignal(TEXT_MESSAGE, "content of message");
  * 
  * @author William cohen
  */

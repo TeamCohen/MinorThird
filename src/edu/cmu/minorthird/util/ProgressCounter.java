@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import edu.cmu.minorthird.ui.*;
 
-public class ProgressCounter
+final public class ProgressCounter
 {
 	static private Logger log = Logger.getLogger(ProgressCounter.class);
 	static JProgressBar[] graphicContext = new JProgressBar[0];
@@ -78,7 +78,7 @@ public class ProgressCounter
 	}
 	
 	/** Record one step of progress on the task */
-	public synchronized void progress() {
+    final public synchronized void progress() {
 		stepsCompleted++;
 		long time = System.currentTimeMillis();
 		if (time - lastOutputTime > TIME_BTWN_OUTPUTS_IN_MS) {

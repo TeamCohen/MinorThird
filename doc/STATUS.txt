@@ -1,6 +1,6 @@
 PROPOSED EXTENSION TO HANDLE RETOKENIZED TEXTBASES:
 
- in text.learn: 
+ in text: 
    - labeled pointer from parent textBase to spanType/retokenized textbases
 
  in SpanFE: 

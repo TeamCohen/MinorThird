@@ -137,7 +137,57 @@ The mixup package contains the parser for the mixup language.  The Mixup and Mix
 
 The learn package holds several algorithms for learned annotators.  The SampleLearners class contains a few singleton leaner instances.  The abstract SpanFE class provides facilities for a declaritive style of extracting important features.  The learn package has a sub-package experiments, which is analogous to classify.learn.experiments.  It holds classes for running a labeling experiment, a sequential labeling experiment, and for running classifcation on a full document.
 
+---------------------------------------------------------------------------------------------------
+COMMON CODING QUESTIONS
 
 
-						
+* Serializability.  To make a class serializable, I recommend using the following template:
+
+import java.io.Serializable;
+public class MyClass implements Serializable
+{
+	private static final long serialVersionUID = 1;
+	private int serialVersion = 1;
+	// all your code here
+}
+
+
+* Logging.  Minorthird code uses log4j.  To use it, I recommend doing something like this
+
+import org.apache.log4j.*;
+public class MyClass 
+{
+	private static Logger log = Logger.getLogger(MyClass.class);
+	
+	public void myMethod(MyOtherClass fooBar) 
+	{
+		if (somethingLooksOdd()) log.warn("this is a warning");
+		log.info("myMethod called with "+fooBar);
+		for (int i=0; i<1000; i++) {
+		    // note: the 'if' statement here is important for efficiency,
+		    // otherwise the string-contatenation argument to log.debug 
+		    // will be evaluated each iteration, which can be expensive!
+		    if (log.isDebugEnabled()) log.debug("on iteration "+i+" state is: "+fooBar);
+		    // do something here
+		}	
+	}	
+	public String toString() { "[MyClass: "+aShortStringForDebugging+"]"; }
+}
+
+You can set the output level my modifying your copy of log4j.properties (somewhere on your classpath, usually in  minorthird/config) to say
+
+log4j.logger.edu.cmu.minorthird.somepackage.MyClass=DEBUG
+
+You can also use INFO, WARN, or ERROR as values.  Or you can read all about log4j on the web and learn how to redirect the logs to files, reformat them, and all sorts of other stuff.
+
+* ProgressCounters.  If you want to use the Minorthird progress counters, do it like this (the "numExamples" argument is optional)
+
+ProgressCounter pc = new ProgressCounter("training ultimateLearner1","example",numExamples);
+for (int i=0; i<numExamples; i++) {
+    // do something 
+    pc.progress();
+}  
+pc.finished();
+
+The implementation of pc.progress() checks a clock and returns unless more than 1sec has passed since the last user output was printed, so it's ok to put it in a tight inner loop: most of the time, it just amounts to a call on System.currentTimeMillis().
 
