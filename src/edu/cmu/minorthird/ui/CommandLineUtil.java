@@ -235,7 +235,7 @@ public class CommandLineUtil
 		dataset.addMulti( new MultiExample( fe.extractInstance(safeLabels,s),new MultiClassLabel(classLabels)));
 		
 		System.out.println("Number of examples by class: "+countByClass); 	    
-	    }		    
+	    }
 	    return dataset;
 	}
 	throw new IllegalArgumentException("either spanProp or spanType must be specified");
@@ -610,6 +610,14 @@ public class CommandLineUtil
 	public void setShowExtractor(boolean flag) { this.showExtractor=flag; }
     }
 
+    /*    public static class LoadMultiAnnotatorParams extends LoadAnnotatorParams {
+	public boolean cross = false;
+	public void cross() { cross=true; }
+	// for gui
+	public boolean getCross() { return cross; }
+	public void setCross(boolean cross) {this.cross = cross;}
+	}*/
+
     /** Parameters for testing a stored classifier. */
     public static class LoadAnnotatorParams extends BasicCommandLineProcessor {
 	public File loadFrom;
@@ -824,7 +832,6 @@ public class CommandLineUtil
     /** Creates a Mixup program that defines a SpanProp from a list of Span Types */
     private static String createSpanProp(String spanTypes, BaseParams base)
     {
-	System.out.println("Creating Span Prop");
 	String property = new String("_property");
 	int catIndex = spanTypes.indexOf(":");
 	if(catIndex > -1)
@@ -839,7 +846,7 @@ public class CommandLineUtil
 		Span s = sl.nextSpan();
 		for(int t=0; t<s.size(); t++) {
 		    Token tk = s.getToken(t);
-		    base.labels.setProperty(tk,property,(String)types.get(i));
+		    //base.labels.setProperty(tk,property,(String)types.get(i));
 		}
 		base.labels.setProperty(s,property,(String)types.get(i));
 	    }

@@ -19,36 +19,48 @@ import java.util.*;
 
 public class MaxEntLearner extends BatchClassifierLearner
 {
-	private CRFLearner crfLearner;
-  private boolean scaleScores=false;
-	public MaxEntLearner(){	crfLearner = new CRFLearner("",1); }
-	/**
-	 * String is list of parameter-value pairs, e.g.
-	 * "maxIters 20 mForHessian 5".
-	 * <p>
-	 * Allowed parameters: 
-	 * <ul>
-	 *<li>doScaling 
-	 *<li>epsForConvergence: Convergence criteria for finding optimum lambda using BFGS 
-	 *<li>initValue:  initial value for all the lambda arrays 
-	 *<li>invSigmaSquare: 
-          penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
-					set this to zero, if no penalty needed 
-	 *<li>maxIters: Maximum number of iterations over the training data during training 
-   *<li>mForHessian: The number of corrections used in the BFGS update. 
-   *<li>trainerType: ...  
-   *<li>scaleScores: if 1, scale scores by assuming each class's hyperplane is log-odds of belonging to that class
-	 *</ul>
-	 * For more info, see the docs for the iitb.CRF package.
-	 */
-	public MaxEntLearner(String args) 
-  {	
-    crfLearner = new CRFLearner(args,1); 
-    if (args.indexOf("scaleScores 1")>=0) {
-      scaleScores=true;
-      System.out.println("scaleScores => true");
+    private CRFLearner crfLearner;
+    private boolean scaleScores=false;
+    public MaxEntLearner(){	crfLearner = new CRFLearner("",1); }
+    public boolean logSpace = false;
+    /**
+     * String is list of parameter-value pairs, e.g.
+     * "maxIters 20 mForHessian 5".
+     * <p>
+     * Allowed parameters: 
+     * <ul>
+     *<li>doScaling 
+     *<li>epsForConvergence: Convergence criteria for finding optimum lambda using BFGS 
+     *<li>initValue:  initial value for all the lambda arrays 
+     *<li>invSigmaSquare: 
+     penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
+     set this to zero, if no penalty needed 
+     *<li>maxIters: Maximum number of iterations over the training data during training 
+     *<li>mForHessian: The number of corrections used in the BFGS update. 
+     *<li>trainerType: ...  
+     *<li>scaleScores: if 1, scale scores by assuming each class's hyperplane is log-odds of belonging to that class
+     *</ul>
+     * For more info, see the docs for the iitb.CRF package.
+     */
+    public MaxEntLearner(String args) 
+    {	
+	crfLearner = new CRFLearner(args,1); 
+	if (args.indexOf("scaleScores 1")>=0) {
+	    scaleScores=true;
+	    System.out.println("scaleScores => true");
+	}
     }
-  }
+    
+    public void setLogSpace(boolean b) {
+	if(b)
+	    crfLearner.setLogSpaceOption();
+	else crfLearner.removeLogSpaceOption();
+	logSpace = b;
+    }
+    public boolean getLogSpace() {
+	return logSpace;
+    }
+
     public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }
     public Classifier batchTrain(Dataset dataset)
     {
@@ -82,7 +94,7 @@ public class MaxEntLearner extends BatchClassifierLearner
 	    ClassLabel label = c.classification( BeamSearcher.getBeamInstance(instance,1) );
 	    return scaleScores?transformScores(label):label;
 	}
-	    public String explain(Instance instance) 
+	public String explain(Instance instance) 
 	{
 	    Instance augmentedInstance = BeamSearcher.getBeamInstance(instance,1);
 	    if (scaleScores) {
@@ -93,7 +105,7 @@ public class MaxEntLearner extends BatchClassifierLearner
 		return
 		    "Augmented instance: "+augmentedInstance+"\n" 
 		    + c.explain(augmentedInstance);
-		}
+	    }
 	}
 	
 	public Explanation getExplanation(Instance instance) {
@@ -132,53 +144,53 @@ public class MaxEntLearner extends BatchClassifierLearner
 	    return ex;
 	}
 
-		/** convert from log pseudoProbabilities to log probabilities */
-    // in principle, the MaxEntLearner's weights will converge so that
-    // Prob(x,y) = logistic( sum_i fi(x,y) ).  In experiments on on
-    // artificial two-class problems, weights for POS and NEG
-    // hyperplanes approximate 1/2 the actual coefficients of the
-    // logistic term.  Eg, if Prob(y=+|x) = logistic(ax+b), then the
-    // total bias terms approach b/2, 
-    // and the total weight for x approaches a/2.  The pos score for
-    // "POS" with instance is then (1/2 * (ax+b)), and the score for
-    // "NEG" is (-1/2 * (ax +b)).  This transform takes care of that
-    // and converts to log-odds scores.
-    //
-    private ClassLabel transformScores(ClassLabel label)
-    {
-			double[] pseudoProb = new double[schema.getNumberOfClasses()];
-			double normalizer = 0;
-      for (int i=0; i<schema.getNumberOfClasses(); i++) {
-        String yi = schema.getClassName(i);
-				pseudoProb[i] = Math.exp( label.getWeight(yi) );
-				normalizer += pseudoProb[i];
-      }
-      ClassLabel transformed = new ClassLabel();
-      for (int i=0; i<schema.getNumberOfClasses(); i++) {
-        String yi = schema.getClassName(i);
-				double p = pseudoProb[i]/normalizer;
-				transformed.add( yi, Math.log(p/(1-p)) );
-			}
-			//System.out.println("schema: "+StringUtil.toString(schema.validClassNames()));
-			//System.out.println("Pseudo: "+label.toDetails());
-			//System.out.println("exp:    "+StringUtil.toString(pseudoProb));
-			//System.out.println("z="+normalizer);
-			//System.out.println("Xform:  "+transformed.toDetails());
-			return transformed;
-    }
-
-		public Classifier getRawClassifier() { return c; }
-
-		public Viewer toGUI()
-		{
-			Viewer v = new TransformedViewer(new SmartVanillaViewer()) {
-					public Object transform(Object o) {
-						MyClassifier mycl = (MyClassifier)o;
-						return mycl.c;
-					}
-				};
-			v.setContent(this);
-			return v;
-		}
+	/** convert from log pseudoProbabilities to log probabilities */
+	// in principle, the MaxEntLearner's weights will converge so that
+	// Prob(x,y) = logistic( sum_i fi(x,y) ).  In experiments on on
+	// artificial two-class problems, weights for POS and NEG
+	// hyperplanes approximate 1/2 the actual coefficients of the
+	// logistic term.  Eg, if Prob(y=+|x) = logistic(ax+b), then the
+	// total bias terms approach b/2, 
+	// and the total weight for x approaches a/2.  The pos score for
+	// "POS" with instance is then (1/2 * (ax+b)), and the score for
+	// "NEG" is (-1/2 * (ax +b)).  This transform takes care of that
+	// and converts to log-odds scores.
+	//
+	private ClassLabel transformScores(ClassLabel label)
+	{
+	    double[] pseudoProb = new double[schema.getNumberOfClasses()];
+	    double normalizer = 0;
+	    for (int i=0; i<schema.getNumberOfClasses(); i++) {
+		String yi = schema.getClassName(i);
+		pseudoProb[i] = Math.exp( label.getWeight(yi) );
+		normalizer += pseudoProb[i];
+	    }
+	    ClassLabel transformed = new ClassLabel();
+	    for (int i=0; i<schema.getNumberOfClasses(); i++) {
+		String yi = schema.getClassName(i);
+		double p = pseudoProb[i]/normalizer;
+		transformed.add( yi, Math.log(p/(1-p)) );
+	    }
+	    //System.out.println("schema: "+StringUtil.toString(schema.validClassNames()));
+	    //System.out.println("Pseudo: "+label.toDetails());
+	    //System.out.println("exp:    "+StringUtil.toString(pseudoProb));
+	    //System.out.println("z="+normalizer);
+	    //System.out.println("Xform:  "+transformed.toDetails());
+	    return transformed;
 	}
+
+	public Classifier getRawClassifier() { return c; }
+
+	public Viewer toGUI()
+	{
+	    Viewer v = new TransformedViewer(new SmartVanillaViewer()) {
+		    public Object transform(Object o) {
+			MyClassifier mycl = (MyClassifier)o;
+			return mycl.c;
+		    }
+		};
+	    v.setContent(this);
+	    return v;
+	}
+    }
 }

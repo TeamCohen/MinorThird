@@ -45,7 +45,7 @@ public class MultiClassifierAnnotator extends AbstractAnnotator implements Seria
 			MultiClassLabel classOfS = mc.multiLabelClassification(fe.extractInstance(labels, s));
 			String[] bestClassNames = classOfS.bestClassName();
 			for(int j=0; j<bestClassNames.length; j++) {
-			    labels.setProperty(s, multiSpanProp[j], bestClassNames[j]);			   
+			    labels.setProperty(s, multiSpanProp[j], "_predicted_"+bestClassNames[j]);			   
 			}
 		}
 	}

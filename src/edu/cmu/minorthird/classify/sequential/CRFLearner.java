@@ -59,6 +59,12 @@ public class CRFLearner
       options.setProperty(args[i], args[i+1]);
     }
   }
+    public void setLogSpaceOption() {
+	options.setProperty("trainer", "ll"); //option for german multi data (very large dataset!)
+    }
+    public void removeLogSpaceOption() {
+	options = defaults;
+    }
   public void setSchema(ExampleSchema sch) {;}
   public int getHistorySize() {return histsize;}
 	
@@ -216,15 +222,17 @@ public class CRFLearner
     }
   };
 	
-  iitb.Model.FeatureGenImpl featureGen;
-  SequenceClassifier cmmClassifier = null;    
-  double[] crfWs;
+    iitb.Model.FeatureGenImpl featureGen;
+    SequenceClassifier cmmClassifier = null;    
+    double[] crfWs;
 
-  iitb.CRF.DataIter  allocModel(SequenceDataset dataset) throws Exception {
-    featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
-    crfModel = new iitb.CRF.CRF(featureGen.numStates(),histsize,featureGen,options);	
-    return new CRFDataIter(dataset);
-  }
+    iitb.CRF.DataIter  allocModel(SequenceDataset dataset) throws Exception {
+	featureGen = new MTFeatureGenImpl(options.getProperty("modelGraph"),schema.getNumberOfClasses(),schema.validClassNames());
+	//options.setProperty("trainer", "ll"); //option for german multi data (very large dataset!)
+	System.out.println("Property: " + options.getProperty("trainer"));
+	crfModel = new iitb.CRF.CRF(featureGen.numStates(),histsize,featureGen,options);	
+	return new CRFDataIter(dataset);
+    }
 
   public SequenceClassifier batchTrain(SequenceDataset dataset)
   {

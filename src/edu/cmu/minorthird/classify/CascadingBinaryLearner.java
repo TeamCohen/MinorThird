@@ -76,7 +76,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner
 
 	int position = 0;
 	while(!unsortedLearners.isEmpty()) {
-	    double maxKappa = 0.0;
+	    double maxKappa = -10.0;
 	    int learnerIndex = -1;
 	    //find learner with max positive examples
 	    for(int j=0; j<unsortedLearners.size(); j++) {
@@ -84,7 +84,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner
 		    BatchClassifierLearner learner = ((BatchClassifierLearner)unsortedLearners.get(j));
 		    Evaluation evaluation = (Evaluation)eval.get(j);
 		    double kappa = evaluation.kappa();
-		    if(kappa>maxKappa) {
+		    if(kappa>=maxKappa) {
 			maxKappa = kappa;
 			learnerIndex = j;
 		    }

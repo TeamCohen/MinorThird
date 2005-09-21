@@ -76,11 +76,11 @@ public class MultiDataset implements Dataset,Visible,Saveable
        if(classNameSets.length != example.getMultiLabel().numDimensions())
 	   throw new IllegalArgumentException("This example does not have the same number of dimensions as previous examples");
 
-      examples.add( factory.compressMulti(example) );
+       examples.add(factory.compressMulti(example));
       Set[] possibleLabels = example.getMultiLabel().possibleLabels();
       for(int i=0; i<classNameSets.length; i++) {
 	  classNameSets[i].addAll( possibleLabels[i] );
-      }
+	  }
 
       // Maybe change
       ClassLabel cl = example.getLabel();
