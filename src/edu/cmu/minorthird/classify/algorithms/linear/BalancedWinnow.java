@@ -87,7 +87,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		//first, initialize the weight of the hyperplane 
 		if(excount==1){
 			numActiveFeatures = Math.max(example.featureIterator().estimatedSize(),2);
-			System.out.println("Balanced Winnow paramenters: Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+") , numActiveFeatures ="+numActiveFeatures);
+			System.out.println("BalancedWinnow parameters: Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+")");
 		}		
 		for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 		    Feature f = j.nextFeature();
