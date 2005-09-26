@@ -157,10 +157,21 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
     /** Multiply all weights by a factor */
     public void multiply(double factor) 
     {
-	for (Feature.Looper i=featureIterator(); i.hasNext(); ) {
-	    Feature f = i.nextFeature();
-	    hyperplaneWeights.put( f, featureScore(f) * factor );
-	}
+    	for (Feature.Looper i=featureIterator(); i.hasNext(); ) {
+    		Feature f = i.nextFeature();
+    		hyperplaneWeights.put( f, featureScore(f) * factor );
+    	}
+    }
+    
+    /** Multiply one feature from the hyperplane by delta */
+    public void multiply(Feature f, double delta) {
+	double d = hyperplaneWeights.get(f);
+	hyperplaneWeights.put(f, d*delta);
+    }
+    
+    /**Checks the presence of a feature in hyperplane */
+    public boolean hasFeature(Feature feat){
+    	return hyperplaneWeights.containsKey(feat);
     }
 
     /** Add hyperplane b*delta to this hyperplane. */
