@@ -54,10 +54,6 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		//this(10,1.1,0.9, true);
 	}
 
-	/**
-	 * If ignoreWeights is true, treat all weights as binary. For backward
-	 * compatibility with an older buggy version. - need to confirm with Wcohen
-	 */
 	public BalancedWinnow(double t, double a, double b, boolean voted) {
 		if((t<0)||(a < 1)||(b<0)||(b>1)){
 			System.out.println("Error in BalancedWinnow initial parameters");

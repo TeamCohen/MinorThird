@@ -54,10 +54,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		//this(10,1.01,0.99,true);
 	}
 
-	/**
-	 * If ignoreWeights is true, treat all weights as binary. For backward
-	 * compatibility with an older buggy version. - need to confirm with Wcohen
-	 */
+	
 	public Winnow(double t, double a, double b, boolean voted) {
 		if((t<0)||(a < 1)||(b<0)||(b>1)){
 			System.out.println("Error in BalancedWinnow initial parameters");
