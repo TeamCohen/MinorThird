@@ -44,14 +44,14 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 	private double alpha;//promotion parameter (positive value, bigger than 1)
 	private double beta; //demotion parameter (positive value, between 0 and 1)
 	private int excount;//number of examples presented to the learner so far
-	private int numActiveFeatures;
+	private int numActiveFeatures;//number of active features in first example
 	private double margin = 0.0;
 	private boolean voted;
 
 	public BalancedWinnow() {
 		//this(4, 2, 0.5, true);
 		this(10, 2, 0.5, true);//recommended
-		//this(10,1.1,0.9, true);//smooth, no highs and lows
+		//this(10,1.1,0.9, true);
 	}
 
 	/**
@@ -84,12 +84,11 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		
 		excount++;
 		
-		//first, initialize the weight of the new features to 1
+		//first, initialize the weight of the hyperplane 
 		if(excount==1){
 			numActiveFeatures = Math.max(example.featureIterator().estimatedSize(),2);
-			System.out.println("Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+") , numActiveFeatures ="+numActiveFeatures);
-		}
-		
+			System.out.println("Balanced Winnow paramenters: Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+") , numActiveFeatures ="+numActiveFeatures);
+		}		
 		for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 		    Feature f = j.nextFeature();
 		    //we assume sparse feature representation
@@ -102,6 +101,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		//get label and prediction
 		double y_t = example.getLabel().numericLabel();
 		double y_t_hat = localscore(example.asInstance());
+		//update rule
 		if(y_t * y_t_hat<margin){//error occurred
 			if(example.getLabel().isPositive()){
 				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
@@ -118,17 +118,15 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 				}				
 			}
 		}
+		//averaging trick
 		if(voted){
 			vpos_t.increment( pos_t, 1.0);
 			vneg_t.increment( neg_t, 1.0);
 		}		
 	}
 
-	public Classifier getClassifier() {
-		Hyperplane z = new Hyperplane();
-		
-		if(voted){
-			
+	public Classifier getClassifier() {		
+		if(voted){			
 			Hyperplane zpos = new Hyperplane();
 			Hyperplane zneg = new Hyperplane();
 			zpos.increment(vpos_t);
@@ -138,8 +136,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			Classifier c = new MyClassifier(zpos,zneg,theta);
 			return c;
 		}
-		else{
-			
+		else{			
 			Classifier c = new MyClassifier(pos_t, neg_t,theta);
 			return c;			
 		}

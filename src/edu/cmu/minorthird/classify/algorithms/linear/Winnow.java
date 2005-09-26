@@ -51,7 +51,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 	public Winnow() {
 		//this(4, 2, 0.5,true);
 		this(10, 2, 0.5, true);
-		//this(10,1.01,0.99,true);//smooth, no highs and lows
+		//this(10,1.01,0.99,true);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 			System.out.println("Error: (theta<0)||(alpha < 1)||(beta<0)||(beta>1)");
 			System.exit(0);
 		}
-		this.theta = t;//-1 means it will be inferred from first example(number of active features)
+		this.theta = t;
 		this.alpha = a;
 		this.beta = b;
 		this.voted = voted;
@@ -80,12 +80,11 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		
 		excount++;//examples counter
 		
-//		first, initialize the weight of the new features to 1
+//		first, initialize the hyperplane with new features
 		if(excount==1){
 			numActiveFeatures = Math.max(example.featureIterator().estimatedSize(),2);
-			System.out.println("Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+") , numActiveFeatures ="+numActiveFeatures);
-		}
-		
+			System.out.println("Balanced Winnow parameters: Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+")");
+		}		
 		//adding new features to hyperplane
 		for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 		    Feature f = j.nextFeature();
@@ -119,14 +118,6 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		
 		if(voted){//create the new voted hyperplane
 			Hyperplane z = new Hyperplane();
-//			for (Feature.Looper j=v_t.featureIterator(); j.hasNext(); ) {
-//				Feature f = j.nextFeature();
-//				//we assume sparse feature representation
-//				z.increment(f,v_t.featureScore(f)/excount);
-//				//z.multiply()
-//			}		
-//			Classifier c = new MyClassifier(z,theta);
-//			return c;
 			z.increment(v_t);
 			z.multiply(1/(double)excount);
 			Classifier c = new MyClassifier(z,theta);
