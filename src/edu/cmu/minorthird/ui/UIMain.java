@@ -71,7 +71,11 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
 		final Viewer v = new ComponentViewer() {
 			public JComponent componentFor(Object o) 
 			{
-			    Viewer ts = new TypeSelector(SelectableTypes.CLASSES, "selectableTypes.txt", o.getClass());
+			    Viewer ts;
+			    if(base.classic)
+				ts = new TypeSelector(SelectableTypes.CLASSES, "selectableTypes.txt", o.getClass());
+			    else ts = new TypeSelector(SelectableTypes.CLASSES, InLineSelectableTypes.CLASSES, 
+							 advancedParameters.NAMES, "selectableTypes.txt", o.getClass());
 			    ts.setContent(o);								
 
 			    // we'll put the type selector in a nice panel

@@ -94,6 +94,10 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	}
 	public void showResult() { showResult=true; }
 	public void showTestDetails() { showTestDetails=true; }
+	public void other(String s) {
+	    Object o = this;
+	    RefUtils.modify(o,s);
+	}
 
 	//for gui
 	public boolean getSequential() {return sequential;}
@@ -172,8 +176,6 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
     public static class TestParams extends BaseParams {
 	public Dataset testData=null;
 	public String testDataFilename=null;
-	public File saveAs = null;
-	public String saveAsFilename=null;
 	public File loadFrom=null;
 	public String loadFromFilename=null;
 	public Object resultToShow=null, resultToSave=null;
@@ -222,8 +224,6 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
     public static class TrainTestParams extends TrainParams {
 	public Dataset testData=null;
 	public String testDataFilename=null;
-	public File saveAs = null;
-	public String saveAsFilename=null;
 	public File loadFrom=null;
 	public String loadFromFilename=null;
 	public Object resultToShow=null, resultToSave=null;

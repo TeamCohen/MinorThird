@@ -54,6 +54,7 @@ public class TestPackage extends TestSuite
 	suite.addTest( new UITest(TestClassifier.class,
 				  new String[]{
 	    "-labels","sample3.train",
+		"-showTestDetails", "false",
 		"-spanType","fun",
 		"-loadFrom","tmp.ann"}) {
 		public void checkResult(Object result) {
@@ -93,6 +94,7 @@ public class TestPackage extends TestSuite
 	suite.addTest( new UITest(TestClassifier.class,
 				  new String[]{
 	    "-labels","sample1.test",
+		"-showTestDetails", "false",
 		"-candidateType","bigram",
 		"-spanType","trueName",
 		"-loadFrom","tmp.ann"}) {

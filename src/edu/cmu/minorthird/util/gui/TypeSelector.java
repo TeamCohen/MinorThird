@@ -3,6 +3,7 @@ package edu.cmu.minorthird.util.gui;
 import org.apache.log4j.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -44,6 +45,9 @@ public class TypeSelector extends ComponentViewer
 
     private final Class rootClass;
     private ArrayList validSubclasses = new ArrayList();
+    private ArrayList inLineClasses = new ArrayList();
+    private boolean inLine = false;
+    private ArrayList advancedParams = new ArrayList();
     // maps classes to the objects which will be used to instantiate these classes
     private final Map instanceMap= new HashMap();
     private JComboBox classBox;
@@ -54,21 +58,35 @@ public class TypeSelector extends ComponentViewer
 	this(validSubclasses,null,rootClass);
     }
 
+    public TypeSelector(Class[] validSubclasses,String configFilename,Class rootClass)
+    {
+	this(validSubclasses, null, null, configFilename, rootClass);
+    }
+
     /**
      * @param validSubclasses array of all classes that can be
      * manipulated by (a) selecting them in a TypeSelector, and (b)
      * editing their properties.  This array is inherited by all
      * typeSelectors that are created, recursively, from this
      * typeSelector.
+     * @param inLineClasses array of classes to be displayed inLine
      * @param configFilename optional name of file containing names
      * of additional classes to consider valid.  File may be on
      * classpath.
      * @param rootClass the class of objects that will be selected by
      * this typeSelector.
      */
-    public TypeSelector(Class[] validSubclasses,String configFilename,Class rootClass)
+    public TypeSelector(Class[] validSubclasses, String[] inLineClasses, String[] advancedParams, String configFilename,Class rootClass)
     {
 	this.validSubclasses.addAll(Arrays.asList(validSubclasses));
+	if(inLineClasses != null)
+	    this.inLineClasses.addAll(Arrays.asList(inLineClasses));	
+	else inLineClasses = null;
+	if(advancedParams != null) {	    
+	    this.advancedParams.addAll(Arrays.asList(advancedParams));	
+	} else {
+	    advancedParams = null;
+	}
 	if (configFilename!=null) configureWith(configFilename);
 	this.rootClass = rootClass;
 	init(rootClass);
@@ -81,6 +99,19 @@ public class TypeSelector extends ComponentViewer
     {
 	this.validSubclasses = validClasses;
 	this.rootClass = rootClass;
+	init(rootClass);
+    }
+
+    /**
+     * copies the given list as possible classes
+     */
+    private TypeSelector(ArrayList validClasses, ArrayList inLineClasses, ArrayList advancedParams, Class rootClass, boolean inLine)
+    {
+	this.validSubclasses = validClasses;
+	this.inLineClasses = inLineClasses;
+	this.advancedParams = advancedParams;
+	this.rootClass = rootClass;
+	this.inLine = inLine;
 	init(rootClass);
     }
 
@@ -165,8 +196,18 @@ public class TypeSelector extends ComponentViewer
 	instanceMap.remove(subClass);
     }
 
+    private void setInLine(boolean b) {
+	inLine = b;
+    }
+
     public JComponent componentFor(final Object o)
     {
+	if(inLine)
+	    return InLineComponent(o);
+	else return BoxComponent(o);
+    }   
+
+    public JComponent BoxComponent(final Object o) {
 	if (!rootClass.isAssignableFrom(o.getClass())) {
 	    throw new IllegalArgumentException("not instance of "+rootClass+": "+o);
 	}
@@ -209,13 +250,98 @@ public class TypeSelector extends ComponentViewer
 		    dialog.show();
 		}
 	    }));
+	//panel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"));
+	//return (new JScrollPane(panel));
 	return panel;
     }
+
+    public JComponent InLineComponent(final Object o) {
+	if (!rootClass.isAssignableFrom(o.getClass())) {
+		throw new IllegalArgumentException("not instance of "+rootClass+": "+o);
+	    }
+	    JPanel panel = new JPanel();
+	    // replace the default instance for the appropriate class with o
+	    if (instanceMap.get(o.getClass())!=null) {
+		instanceMap.put(o.getClass(), o);
+	    }
+	    classBox = new JComboBox();	    
+	    for (Iterator i=instanceMap.keySet().iterator(); i.hasNext(); ) {
+		Class key = (Class)i.next();
+		log.debug("adding to classBox " + key);
+		classBox.addItem( key );
+	    }
+	    classBox.setSelectedItem(o.getClass());
+	    classBox.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent ev) {
+			sendSignal(OBJECT_SELECTED,instanceMap.get(classBox.getSelectedItem()));
+		    }
+		});
+	    if(instanceMap.size() > 1) {	
+		panel.add(classBox);
+	    }
+	    if (DEBUG) {
+		// print button, for debugging
+		panel.add(new JButton(new AbstractAction("Print") {
+			public void actionPerformed(ActionEvent e) {
+			    System.out.println("current selection: "+instanceMap.get(classBox.getSelectedItem()));
+			}
+		    }));
+	    }
+	    // property editor displayed inLine
+
+	    PropertyEditor editor = new PropertyEditor();
+	    editor.setContent(instanceMap.get(classBox.getSelectedItem()));
+	    panel.add(editor);
+	    //return (new JScrollPane(panel));
+	    return panel;
+    }
+
+    public void createPE(Class type) {
+	PropertyEditor editor = new PropertyEditor();
+	editor.setContent(instanceMap.get(type));
+	String title = name==null ? "Property Editor" : "Property Editor for "+name;
+	//JFrame popupFrame = new JFrame(title);
+	JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
+	JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
+	dialog.show();
+    }
+
+    	private void updatePEContent(Object o) {
+	    System.out.println("Update PE content");
+	    //PropertyEditor editor = new PropertyEditor();
+	    //this.setContent(o);
+	    //this.repaint();
+	    PropertyEditor editor = new PropertyEditor();
+	    editor.setContent(o);
+	    String title = name==null ? "Property Editor" : "Property Editor for "+name;
+	    //JFrame popupFrame = new JFrame(title);
+	    JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
+	    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
+	    dialog.show();
+	}
+
+    private boolean isInLine(String c)
+    {
+	for (int i=0; i<inLineClasses.size(); i++) {
+	    if (c.equals(inLineClasses.get(i))) return true;
+	}
+	return false;
+    }
+
+    private boolean isAdvanced(String s)
+    {
+	if(advancedParams == null)
+	    return false;
+	for (int i=0; i<advancedParams.size(); i++) {
+	    if (s.equals(advancedParams.get(i))) return true;
+	}
+	return false;
+    }   
 
     //
     // inner class for editing properties
     //
-
+    
     /**
      * Allows properties of an object to be modified in a GUI.  For a
      * property P to be modifiable, it must (a) have getP and setP
@@ -232,8 +358,8 @@ public class TypeSelector extends ComponentViewer
 	    //        return ((Configurable)(o)).guiConfigure();
 
 	    //log.setLevel(Level.DEBUG);
-	    JPanel panel = new JPanel();
-	    panel.setLayout(new GridBagLayout());
+	    JPanel wholePanel = new JPanel();
+	    wholePanel.setLayout(new GridBagLayout());
 	    int numTextFields = 0;
 	    int row=0;
 	    try {
@@ -245,197 +371,257 @@ public class TypeSelector extends ComponentViewer
 		    final Class type = props[i].getPropertyType();
 		    final Method reader = props[i].getReadMethod();
 		    final Method writer = props[i].getWriteMethod();
-		    if (reader!=null & writer!=null) {
-			// getter and setter methods exist - note the type of primitive objects
-			// will be the corresponding wrapper class
-			row++;
-			Object value = reader.invoke(o,new Object[]{});
-			log.debug("reader: " + reader.getName());
-			panel.add(new JLabel(pname+":"), gbc(0,row));
-			if (type.equals(int.class)) {
-			    // configure an int spinner
-			    final JSpinner spinner = new JSpinner();
-			    spinner.setValue(value);
-			    spinner.addChangeListener(new ChangeListener() {
-				    public void stateChanged(ChangeEvent e) {
-					try {
-					    log.debug("change to "+spinner.getValue());
-					    writer.invoke(o, new Object[]{spinner.getValue()});
-					} catch (IllegalAccessException ex) {
-					}	catch (InvocationTargetException ex) {
-					}
+		    JPanel panel = new JPanel();
+		    panel.setBorder(new EmptyBorder(0,0,0,0));
+		    JButton helpButton = new JButton("?");		    
+		    if (reader!=null && writer!=null) {
+			if(!isAdvanced(pname)){
+			    // getter and setter methods exist - note the type of primitive objects
+			    // will be the corresponding wrapper class
+			    row++;			
+			    final Object value = reader.invoke(o,new Object[]{});
+			    // checks whether type should be displayed inLine
+			    if((isInLine(pname))) 
+				inLine = true;
+			    log.debug("reader: " + reader.getName());
+			
+			    if(!(isInLine(pname))) panel.add(new JLabel(pname+":"), gbc(0,row));
+			    if (type.equals(String.class)) {
+				// configure an text input
+				try {
+				    // method to find allowed values for property, eg
+				    // getAllowedSpanTypeValues for property spanType
+				    String allowedValueMethodName = 
+					"getAllowed"+pname.substring(0,1).toUpperCase()+pname.substring(1)+"Values";
+				    Method allowedValueMethod = o.getClass().getMethod(allowedValueMethodName,new Class[]{});
+				    //System.out.println("allowedValueMethod="+allowedValueMethod);
+				    Object[] allowedValues = (Object[]) allowedValueMethod.invoke(o, new Object[]{});
+				    final JComboBox theBox = new JComboBox(); 
+				    theBox.addItem("-choose a value-");
+				    for (int j=0; j<allowedValues.length; j++) {
+					theBox.addItem( allowedValues[j] );
 				    }
-				});
-			    panel.add(spinner, gbc(1,row));
-			} else if (type.equals(double.class) && pname.indexOf("Fraction")>=0) {
-			    // configure an double spinner from 0 - 1
-			    final JSpinner spinner =
-				new JSpinner(new SpinnerNumberModel(((Double)value).doubleValue(),0,1.0,0.05));
-			    spinner.addChangeListener(new ChangeListener() {
-				    public void stateChanged(ChangeEvent e) {
-					try {
-					    log.debug("change to "+spinner.getValue());
-					    writer.invoke(o, new Object[]{spinner.getValue()});
-					} catch (IllegalAccessException ex) {
-					}	catch (InvocationTargetException ex) {
-					}
-				    }
-				});
-			    panel.add(spinner, gbc(1,row));
-			} else if (type.equals(double.class)) {
-			    // configure an text input for doubles
-			    final JTextField textField = new JTextField(10);
-			    textField.setText(value.toString());
-			    textField.addActionListener(new ActionListener() {
-				    public void actionPerformed(ActionEvent e) {
-					try {
-					    log.debug("change to "+textField.getText());
-					    double d = Double.parseDouble(textField.getText().trim());
-					    writer.invoke(o, new Object[]{new Double(d)});
-					} catch (IllegalAccessException ex) {
-					}	catch (InvocationTargetException ex) {
-					}	catch (NumberFormatException ex) {
-					    log.warn("Illegal number '"+textField.getText()+"'");
-					}
-				    }
-				});
-			    panel.add(textField, gbc(1,row));
-			    numTextFields++;
-			} else if (type.equals(String.class)) {
-			    // configure an text input
-			    try {
-				// method to find allowed values for property, eg
-				// getAllowedSpanTypeValues for property spanType
-				String allowedValueMethodName = 
-				    "getAllowed"+pname.substring(0,1).toUpperCase()+pname.substring(1)+"Values";
-				Method allowedValueMethod = o.getClass().getMethod(allowedValueMethodName,new Class[]{});
-				//System.out.println("allowedValueMethod="+allowedValueMethod);
-				Object[] allowedValues = (Object[]) allowedValueMethod.invoke(o, new Object[]{});
-				final JComboBox theBox = new JComboBox(); 
-				theBox.addItem("-choose a value-");
-				for (int j=0; j<allowedValues.length; j++) {
-				    theBox.addItem( allowedValues[j] );
-				}
-				theBox.setSelectedItem( value );
-				theBox.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent ev) {
-					    try {
-						if (theBox.getSelectedIndex()>0) {
-						    writer.invoke(o, new Object[]{theBox.getSelectedItem()});
-						} else {
-						    writer.invoke(o, new Object[]{null});
-						}
-					    } catch (IllegalAccessException ex) {
-						log.error(ex.toString());
-					    }	catch (InvocationTargetException ex) {
-						log.error(ex.toString());
-					    }
-					}
-				    });
-				panel.add(theBox, gbc(1,row));
-			    } catch (NoSuchMethodException ex) {
-				final JTextField textField = new JTextField(10);
-				textField.setText(value==null?"":value.toString());
-				textField.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent ev) {
-					    try {
-						log.debug("change to "+textField.getText());
-						writer.invoke(o, new Object[]{textField.getText()});
-					    } catch (IllegalAccessException ex) {
-						log.error(ex.toString());
-					    }	catch (InvocationTargetException ex) {
-						log.error(ex.toString());
-					    }
-					}
-				    });
-				if (pname.indexOf("Filename")<0) {
-				    panel.add(textField, gbc(1,row));
-				} else { 
-				    // couple input field with a browse button
-				    final JFileChooser chooser = new JFileChooser();
-				    chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				    JButton browseButton = new JButton(new AbstractAction("Browse") {
+				    theBox.setSelectedItem( value );
+				    theBox.addActionListener(new ActionListener() {
 					    public void actionPerformed(ActionEvent ev) {
-						int returnVal = chooser.showOpenDialog(null);
-						if (returnVal==JFileChooser.APPROVE_OPTION) {
-						    String filename = chooser.getSelectedFile().getAbsolutePath();
-						    textField.setText(filename);
-						    try {
-							log.debug("change to "+textField.getText());
-							writer.invoke(o, new Object[]{filename});
-						    } catch (IllegalAccessException ex) {
-							log.error(ex.toString());
-						    }	catch (InvocationTargetException ex) {
-							log.error(ex.toString());
+						try {
+						    if (theBox.getSelectedIndex()>0) {
+							writer.invoke(o, new Object[]{theBox.getSelectedItem()});
+						    } else {
+							writer.invoke(o, new Object[]{null});
 						    }
+						} catch (IllegalAccessException ex) {
+						    log.error(ex.toString());
+						}	catch (InvocationTargetException ex) {
+						    log.error(ex.toString());
 						}
 					    }
 					});
-				    JPanel typeOrBrowsePanel = new JPanel();
-				    typeOrBrowsePanel.add(textField);
-				    typeOrBrowsePanel.add(browseButton);
-				    panel.add(typeOrBrowsePanel, gbc(1,row));
+				    panel.add(theBox, gbc(1,row));			   
+				} catch (NoSuchMethodException ex) {
+				    final JTextField textField = new JTextField(10);
+				    textField.setText(value==null?"":value.toString());
+				    textField.addActionListener(new ActionListener() {
+					    public void actionPerformed(ActionEvent ev) {
+						try {
+						    log.debug("change to "+textField.getText());
+						    writer.invoke(o, new Object[]{textField.getText()});
+						    updatePEContent(o);						
+						} catch (IllegalAccessException ex) {
+						    log.error(ex.toString());
+						}	catch (InvocationTargetException ex) {
+						    log.error(ex.toString());
+						}
+					    }
+					});
+				    
+				    if (pname.indexOf("Filename")<0) {
+					panel.add(textField, gbc(1,row));
+				    } else { 
+					// couple input field with a browse button
+					final JFileChooser chooser = new JFileChooser();
+					chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+					JButton browseButton = new JButton(new AbstractAction("Browse") {
+						public void actionPerformed(ActionEvent ev) {
+						    int returnVal = chooser.showOpenDialog(null);
+						    if (returnVal==JFileChooser.APPROVE_OPTION) {
+							String filename = chooser.getSelectedFile().getAbsolutePath();
+							textField.setText(filename);
+							try {
+							    log.debug("change to "+textField.getText());
+							    writer.invoke(o, new Object[]{filename});
+							} catch (IllegalAccessException ex) {
+							    log.error(ex.toString());
+							}	catch (InvocationTargetException ex) {
+							    log.error(ex.toString());
+							}
+						    }
+						}
+					    });
+					JPanel typeOrBrowsePanel = new JPanel();
+					typeOrBrowsePanel.add(textField);
+					typeOrBrowsePanel.add(browseButton);
+					panel.add(typeOrBrowsePanel, gbc(1,row));
+				    }
+				    numTextFields++;
 				}
+				
+			    } else if (type.equals(int.class)) {
+				// configure an int spinner
+				final JSpinner spinner = new JSpinner();
+				spinner.setValue(value);
+				spinner.addChangeListener(new ChangeListener() {
+					public void stateChanged(ChangeEvent e) {
+					    try {
+						log.debug("change to "+spinner.getValue());
+						writer.invoke(o, new Object[]{spinner.getValue()});
+					    } catch (IllegalAccessException ex) {
+					    }	catch (InvocationTargetException ex) {
+					    }
+					}
+				    });
+				panel.add(spinner, gbc(1,row));
+			    } else if (type.equals(double.class) && pname.indexOf("Fraction")>=0) {
+				// configure an double spinner from 0 - 1
+				final JSpinner spinner =
+				    new JSpinner(new SpinnerNumberModel(((Double)value).doubleValue(),0,1.0,0.05));
+				spinner.addChangeListener(new ChangeListener() {
+					public void stateChanged(ChangeEvent e) {
+					    try {
+						log.debug("change to "+spinner.getValue());
+						writer.invoke(o, new Object[]{spinner.getValue()});
+					    } catch (IllegalAccessException ex) {
+					    }	catch (InvocationTargetException ex) {
+					    }
+					}
+				    });
+				panel.add(spinner, gbc(1,row));
+			    } else if (type.equals(double.class)) {
+				// configure an text input for doubles
+				final JTextField textField = new JTextField(10);
+				textField.setText(value.toString());
+				textField.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+					    try {
+						log.debug("change to "+textField.getText());
+						double d = Double.parseDouble(textField.getText().trim());
+						writer.invoke(o, new Object[]{new Double(d)});
+					    } catch (IllegalAccessException ex) {
+					    }	catch (InvocationTargetException ex) {
+					    }	catch (NumberFormatException ex) {
+						log.warn("Illegal number '"+textField.getText()+"'");
+					    }
+					}
+				    });
+				panel.add(textField, gbc(1,row));
 				numTextFields++;
+			    } else if (type.equals(boolean.class)) {
+				// configure a checkbox
+				final JCheckBox checkbox = new JCheckBox();
+				checkbox.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent ev) {
+					    try {
+						log.debug("change to "+checkbox.isSelected());
+						writer.invoke(o, new Object[]{new Boolean(checkbox.isSelected())});
+					    } catch (IllegalAccessException ex) {
+					    }	catch (InvocationTargetException ex) {
+					    }
+					}
+				    });
+				checkbox.setSelected(((Boolean)value).booleanValue());
+				panel.add(checkbox, gbc(1,row));
+			    } else if (value != null && isValid(value.getClass())) {
+				// configure a type selector for this class
+				if (isInLine(pname))
+				    panel.setBorder(new TitledBorder(pname));
+				log.debug("type "+value.getClass()+" is editable");
+				log.debug("add selector on type " + type + " of " + validSubclasses);
+				final TypeSelector selector = new TypeSelector(validSubclasses, inLineClasses, advancedParams, type, isInLine(pname));
+				//selector.setInLine(isInLine(pname));
+				selector.setContent(value);
+				selector.name = name==null ? pname : name+"."+pname;
+				selector.classBox.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+					    try {
+						Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
+						writer.invoke(o, new Object[]{selected});
+					    } catch (IllegalAccessException ex) {
+					    }	catch (InvocationTargetException ex) {
+					    }
+					}
+				    });
+				panel.add(selector, gbc(1,row));
+				if(advancedParams != null && isInLine(pname)) {
+				    JButton advancedOptions = new JButton("advanced options");
+				    advancedOptions.addActionListener(new ActionListener() {
+					    public void actionPerformed(ActionEvent e) {
+						final TypeSelector selector = new TypeSelector(validSubclasses, inLineClasses, null, type, false);
+						selector.setContent(value);
+						selector.name = name==null ? pname : name+"."+pname;
+						selector.classBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+							    try {
+								Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
+								writer.invoke(o, new Object[]{selected});
+							    } catch (IllegalAccessException ex) {
+							    }	catch (InvocationTargetException ex) {
+							    }
+							}
+						    });
+						selector.createPE(type);						
+					    }
+					});
+				    row++;
+				    panel.add(advancedOptions, gbc(1,row));
+				}
+
+			    } else {
+				log.debug("type "+type+" is not editable");
+				panel.add(new JLabel(value==null ? "null " : value.toString()), gbc(1,row));
 			    }
-			} else if (type.equals(boolean.class)) {
-			    // configure a checkbox
-			    final JCheckBox checkbox = new JCheckBox();
-			    checkbox.addActionListener(new ActionListener() {
-				    public void actionPerformed(ActionEvent ev) {
-					try {
-					    log.debug("change to "+checkbox.isSelected());
-					    writer.invoke(o, new Object[]{new Boolean(checkbox.isSelected())});
-					} catch (IllegalAccessException ex) {
-					}	catch (InvocationTargetException ex) {
-					}
-				    }
-				});
-			    checkbox.setSelected(((Boolean)value).booleanValue());
-			    panel.add(checkbox, gbc(1,row));
-			} else if (value != null && isValid(value.getClass())) {
-			    // configure a type selector for this class
-			    log.debug("type "+value.getClass()+" is editable");
-			    log.debug("add selector on type " + type + " of " + validSubclasses);
-			    final TypeSelector selector = new TypeSelector(validSubclasses,type);
-			    selector.setContent(value);
-			    selector.name = name==null ? pname : name+"."+pname;
-			    selector.classBox.addActionListener(new ActionListener() {
-				    public void actionPerformed(ActionEvent e) {
-					try {
-					    Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
-					    writer.invoke(o, new Object[]{selected});
-					} catch (IllegalAccessException ex) {
-					}	catch (InvocationTargetException ex) {
-					}
-				    }
-				});
-			    panel.add(selector, gbc(1,row));
-			} else {
-			    log.debug("type "+type+" is not editable");
-			    panel.add(new JLabel(value==null ? "null " : value.toString()), gbc(1,row));
+			    //panel.add(new JLabel(type.toString()), gbc(1,row));
+			    log.debug("property "+row+"\n  name: "+name+"\n  type: "+type+"\n  value: "+value);
+			    if (value != null)
+				log.debug("class of value is: "+value.getClass());
+			    else
+				log.debug("null value, no class");
+			    
 			}
-			//panel.add(new JLabel(type.toString()), gbc(1,row));
-			log.debug("property "+row+"\n  name: "+name+"\n  type: "+type+"\n  value: "+value);
-			if (value != null)
-			    log.debug("class of value is: "+value.getClass());
-			else
-			    log.debug("null value, no class");
-		    }
-		} // for possible property
+			wholePanel.add(panel, gbc(1,row));
+		    } else if (reader != null && pname.endsWith("Help") && !isAdvanced(pname)) {
+			final Object value = reader.invoke(o,new Object[]{});
+			panel.add(new JButton(new AbstractAction("?") {
+				public void actionPerformed(ActionEvent e) {
+				    log.debug("pressed help");
+				    HelpViewer editor = new HelpViewer();
+				    editor.setContent(value);
+				    String title = pname==null ? "Property Editor" : "Property Editor for "+name;
+				    //JFrame popupFrame = new JFrame(title);
+				    JOptionPane optionPane = new JOptionPane(new Object[]{editor});
+				    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
+				    dialog.show();
+				}
+			    }), gbc(1,row));
+			wholePanel.add(panel, gbc(2,row));
+		    }		    
+		} // for possible property		
+		
 		if (row==0) {
-		    panel.add(new JLabel("No properties to edit for class "+o.getClass()));
+		    wholePanel.add(new JLabel("No properties to edit for class "+o.getClass()));
 		} 
-		if (numTextFields>0) {
-		    panel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"), gbc(0,row+1,2));
-		}
+		//if (numTextFields>0) {
+		//    wholePanel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"), gbc(0,row+1,2));
+		//}
 	    } catch (Exception e) {
 		e.printStackTrace();
 		throw new IllegalArgumentException("Editor on input "+o+": "+e.toString());
-	    }
-	    JScrollPane scroller = new JScrollPane(panel);
+	    }	
+	    
+	    JScrollPane scroller = new JScrollPane(wholePanel);
 	    scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	    return scroller;
+	    //wholePanel.setBorder(new EmptyBorder(0,0,0,0));
+	    //return wholePanel;
 	}
 	private GridBagConstraints gbc(int x,int y)
 	{
@@ -453,7 +639,7 @@ public class TypeSelector extends ComponentViewer
 	    gbc.weightx = gbc.weighty = 1.0;
 	    gbc.gridwidth = w;
 	    return gbc;
-	}	
+	}
 	private boolean isValid(Class c)
 	{
 	    for (int i=0; i<validSubclasses.size(); i++) {
@@ -461,6 +647,22 @@ public class TypeSelector extends ComponentViewer
 	    }
 	    return false;
 	}
+	
+	public class HelpViewer extends ComponentViewer
+	{
+	    public JComponent componentFor(final Object o) 
+	    {
+		try {
+		    JPanel helpPanel = new JPanel();
+		    helpPanel.add(new JLabel((String)o));
+		    return helpPanel;
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    throw new IllegalArgumentException("Must give the help viewer a String");
+		}
+	    }
+	}
+	
     }
 	
 
@@ -514,3 +716,48 @@ public class TypeSelector extends ComponentViewer
 	}
     }
 }
+
+/*
+ public class InLineTypeSelector extends TypeSelector
+    {
+	public JComponent componentFor(Object o) {
+	    if (!rootClass.isAssignableFrom(o.getClass())) {
+		throw new IllegalArgumentException("not instance of "+rootClass+": "+o);
+	    }
+	    JPanel panel = new JPanel();
+	    // replace the default instance for the appropriate class with o
+	    if (instanceMap.get(o.getClass())!=null) {
+		instanceMap.put(o.getClass(), o);
+	    }
+	    classBox = new JComboBox();	    
+	    for (Iterator i=instanceMap.keySet().iterator(); i.hasNext(); ) {
+		Class key = (Class)i.next();
+		log.debug("adding to classBox " + key);
+		classBox.addItem( key );
+	    }
+	    classBox.setSelectedItem(o.getClass());
+	    classBox.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent ev) {
+			sendSignal(OBJECT_SELECTED,instanceMap.get(classBox.getSelectedItem()));
+		    }
+		});
+	    if(instanceMap.size() > 1) {	
+		panel.add(classBox);
+	    }
+	    if (DEBUG) {
+		// print button, for debugging
+		panel.add(new JButton(new AbstractAction("Print") {
+			public void actionPerformed(ActionEvent e) {
+			    System.out.println("current selection: "+instanceMap.get(classBox.getSelectedItem()));
+			}
+		    }));
+	    }
+	    // property editor displayed inLine
+
+	    PropertyEditor editor = new PropertyEditor();
+	    editor.setContent(instanceMap.get(classBox.getSelectedItem()));
+	    panel.add(editor);
+	    return (new JScrollPane(panel));
+	}
+    }
+*/

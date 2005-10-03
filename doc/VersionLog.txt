@@ -9,3 +9,6 @@ Version # Format: Version#.Year.Month.Day
 			 - MaxEntLearner(CRFLearner) option: trainer ll (for large german dataset)
 			 - CascadingBinaryLearner macKappa changed from 0.0 t0 -1.0
 			 - MultiClassifierAnnotator outputs _predicted_spanProp
+4.5.10.3	-  NEW GUI
+		-  other option for classifyCommandLineUtil
+		-  Fixed saving bug in classify package

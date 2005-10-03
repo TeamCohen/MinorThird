@@ -162,6 +162,7 @@ public class TrainTest
 	      ((Evaluation)resultToSave).setProperty(prop,clp.propertyValue(prop));
 	      }*/
           
+	    
             if (trainTestParams.showResult) new ViewerFrame("Result", new SmartVanillaViewer(trainTestParams.resultToShow));
             if (trainTestParams.saveAs!=null) {
                 if (IOUtil.saveSomehow(trainTestParams.resultToSave,trainTestParams.saveAs)) {

@@ -338,16 +338,18 @@ public class CommandLineUtil
     public static class BaseParams extends BasicCommandLineProcessor {
 	public MonotonicTextLabels labels=null;
 	public String repositoryKey="";
-	public boolean showLabels=false, showResult=false;
+	public boolean showLabels=false, showResult=false, classic=false;
 	public void labels(String repositoryKey) { 
 	    this.repositoryKey = repositoryKey;
 	    this.labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(repositoryKey); 
 	}
 	public void showLabels() { this.showLabels=true; }
 	public void showResult() { this.showResult=true; }
+	public void classic() {this.classic=true; }
+	public String labelsFilenameHelp = new String("The Directory of labeled or unlabeled documents you would like to load OR the repository key");
 	public void usage() {
 	    System.out.println("basic parameters:");
-	    System.out.println(" -labels REPOSITORY_KEY   load text from REPOSITORY_KEY");
+	    System.out.println(" -labels REPOSITORY_KEY   " + labelsFilenameHelp);
 	    System.out.println(" [-showLabels]            interactively view textBase loaded by -labels");
 	    System.out.println(" [-showResult]            interactively view final result of this operation");
 	    System.out.println();
@@ -359,10 +361,12 @@ public class CommandLineUtil
 	public void setLabelsFilename(String name) { 
 	    if (name.endsWith(".labels")) labels(name.substring(0,name.length()-".labels".length()));
 	    else labels(name);
-	}
+	}	
 	public String getRepositoryKey() { return repositoryKey; }
 	public void setRepositoryKey(String key) { labels(key); }
 	public Object[] getAllowedRepositoryKeyValues() { return FancyLoader.getPossibleTextLabelKeys(); }
+	// help button
+	public String getLabelsFilenameHelp() { return labelsFilenameHelp; }
 	//don't expose these in GUI
 	//public boolean getShowLabels() { return showLabels; }
 	//public void setShowLabels(boolean flag ) { showLabels=flag; }
@@ -375,14 +379,17 @@ public class CommandLineUtil
 	public File saveAs=null;
 	private String saveAsName=null;
 	public void saveAs(String fileName) { this.saveAs = new File(fileName); this.saveAsName=fileName; }
+	public String saveHelp = new String("Save final result of this operation in FILE");
 	public void usage() {
 	    System.out.println("save parameters:");
-	    System.out.println(" [-saveAs FILE]           save final result of this operation in FILE");
+	    System.out.println(" [-saveAs FILE]           " + saveHelp);
 	    System.out.println();
 	}
 	// for gui
 	public String getSaveAs() { return saveAsName==null ? "n/a" : saveAsName; }
 	public void setSaveAs(String s) { saveAs( "n/a".equals(s) ? null : s ); }
+	// help button
+	public String getSaveAsHelp() { return saveHelp; }
     }
 
   /** Parameters used by all 'train' routines. */
@@ -393,11 +400,14 @@ public class CommandLineUtil
 	public void extractedType(String s) { this.extractedType=s; }
 	public void trueType(String s) { this.trueType=s; }
 	public void edit(String fileName) { this.editFile = new File(fileName); this.editFileName=fileName; }
+      private String editFilenameHelp = new String("stored result of hand-edited changes to labels in FILE");
+      private String extractedTypeHelp = new String("debugging or labeling proposed spans of type TYPE");
+      private String trueTypeHelp = new String("hand-corrected labels saved as type TYPE");
 	public void usage() {
 	    System.out.println("edit parameters:");
-	    System.out.println(" [-edit FILE]             stored result of hand-edited changes to labels in FILE");
-	    System.out.println(" [-extractedType TYPE]    debugging or labeling proposed spans of type TYPE");
-	    System.out.println(" [-trueType TYPE]         hand-corrected labels saved as type YPE");
+	    System.out.println(" [-edit FILE]             " + editFilenameHelp);
+	    System.out.println(" [-extractedType TYPE]    " + extractedTypeHelp); 
+	    System.out.println(" [-trueType TYPE]         " + trueTypeHelp);
 	    System.out.println();
 	}
 	// for gui
@@ -407,37 +417,73 @@ public class CommandLineUtil
 	public void setExtractedType(String s) { extractedType( "n/a".equals(s) ? null : s ); }
 	public String getTrueType() { return trueType==null ? "n/a" : trueType; }
 	public void setTrueType(String s) { trueType( "n/a".equals(s) ? null : s ); }
+      // help buttons
+      public String getEditFileNameHelp() { return editFilenameHelp; }
+      public String getExtractedTypeHelp() { return extractedTypeHelp; }
+      public String getTrueTypeHelp() { return trueTypeHelp; }
     }
 
     /** Parameters encoding the 'training signal' for classification learning. */
-    public static class ClassificationSignalParams extends ExtractionSignalParams {
+    public static class ClassificationSignalParams extends BasicCommandLineProcessor {
 	private BaseParams base=new BaseParams();
+	private String spanPropString = null;
 	/** Not recommended, but required for bean-shell like visualization */
 	public ClassificationSignalParams() {super();}
-	public ClassificationSignalParams(BaseParams base) {super(base);}
+	public ClassificationSignalParams(BaseParams base) {
+	    this.base=base;
+	    if (spanPropString!=null) this.spanProp = createSpanProp(this.spanPropString,this.base);
+	}
+	public String spanType=null;
+	public String spanProp=null;
+	public void spanType(String s) { this.spanType=s; }
+	public void spanProp(String s) { 
+	    if(s.indexOf(',') == -1)
+		this.spanProp=s; 
+	    else {
+		this.spanPropString = s;
+		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base);
+	    }
+	}
 	public String candidateType=null;
 	public void candidateType(String s) { this.candidateType=s; }
 	// useful abstractions
 	public String getOutputType(String output) { return spanType==null ? null : output;	}
 	public String getOutputProp(String output) { return spanProp==null ? null : output; }
+	private String spanTypeHelp = new String("create binary dataset, where candidates that\n are marked with spanType TYPE are positive");
+	private String spanPropHelp = new String("create multi-class dataset, where candidates\n are given a class determine by the spanProp PROP");
+	private String candidateTypeHelp = new String("classify all spans of the given TYPE\n - default is to classify all document spans");
 	public void usage() {
 	    System.out.println("classification 'signal' parameters:");
-	    System.out.println(" -spanType TYPE           create binary dataset, where candidates that");
-	    System.out.println("                          are marked with spanType TYPE are positive");
-	    System.out.println(" -spanProp PROP           create multi-class dataset, where candidates");
-	    System.out.println("                          are given a class determine by the spanProp PROP");
+	    System.out.println(" -spanType TYPE           " + spanTypeHelp);
+	    System.out.println(" -spanProp PROP           " + spanPropHelp);
 	    System.out.println("                          - exactly one of spanType, spanProp should be specified");
-	    System.out.println(" [-candidateType TYPE]    classify all spans of the given TYPE");
-	    System.out.println("                          - default is to classify all document spans");
+	    System.out.println(" [-candidateType TYPE]    " + candidateTypeHelp);
 	    System.out.println();
 	}
 	// for gui
+	public String getSpanType() { return safeGet(spanType,"n/a");}
+	public void setSpanType(String t) { this.spanType = safePut(t,"n/a"); }
+	public String getSpanProp() { return safeGet(spanProp,"n/a"); }
+	public void setSpanProp(String p) { spanProp = safePut(p,"n/a"); }
+	public Object[] getAllowedSpanTypeValues() { 
+	    return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
+	}
+	public Object[] getAllowedSpanPropValues() { 
+	    return base.labels==null ? new String[]{} : base.labels.getSpanProperties().toArray();
+	}
+	// subroutines for gui setters/getters
+	protected String safeGet(String s,String def) { return s==null?def:s; }
+	protected String safePut(String s,String def) { return def.equals(s)?null:s; }
 	public String getCandidateType() { return safeGet(candidateType,"top"); }
 	public void setCandidateType(String s) { candidateType = safePut(s,"top"); }
 	public Object[] getAllowedCandidateTypeValues() { 
 	    return getAllowedSpanTypeValues();
 	    //return base.labels==null ? new String[]{} : base.labels.getTypes().toArray();
 	}
+	// help buttons
+	public String getSpanTypeHelp() { return spanTypeHelp; }
+	public String getSpanPropHelp() { return spanPropHelp; }
+	public String getCandidateTypeHelp() { return candidateTypeHelp; }
     }
 
     /** Parameters for training a classifier. */
@@ -525,20 +571,22 @@ public class CommandLineUtil
 	    } else 
 		System.out.println("You must define a feature extractor before setting it's options");
 	}
-	        
+	private String learnerHelp = new String("Bean-shell code to create a ClassifierLearner\n - default is \"new Recommended.NaiveBayes()\"");   
+	private String showDataHelp = new String("interactively view the constructed training dataset");
+	private String feHelp = new String("Bean-shell code to create a SpanFeatureExtractor\n - default is \"new Recommended.DocumentFE()\" ");
+	private String mixupHelp = new String("run named mixup code before extracting features");
+	private String embedHelp = new String("embed the listed annotators in the feature extractor");
+	private String outputHelp = new String("the type or property that is produced by the learned\n ClassifierAnnotator - default is \"_prediction\"");
 	public void usage() {
 	    System.out.println("classification training parameters:");
-	    System.out.println(" [-learner BSH]           Bean-shell code to create a ClassifierLearner");
-	    System.out.println("                          - default is \"new Recommended.NaiveBayes()\"");
-	    System.out.println(" [-showData]              interactively view the constructed training dataset");
-	    System.out.println(" [-fe FE]                 Bean-shell code to create a SpanFeatureExtractor");
-	    System.out.println("                          - default is \"new Recommended.DocumentFE()\"");
+	    System.out.println(" [-learner BSH]           " + learnerHelp);                     
+	    System.out.println(" [-showData]              " + showDataHelp);
+	    System.out.println(" [-fe FE]                 " + feHelp);
 	    System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
 	    System.out.println("                            immediately following command-line arguments are passed to it");
-	    System.out.println(" [-mixup STRING]          run named mixup code before extracting features");
-	    System.out.println(" [-embed STRING]          embed the listed annotators in the feature extractor");
-	    System.out.println(" [-output STRING]         the type or property that is produced by the learned");
-	    System.out.println("                            ClassifierAnnotator - default is \"_prediction\"");
+	    System.out.println(" [-mixup STRING]          " + mixupHelp);
+	    System.out.println(" [-embed STRING]          " + embedHelp);
+	    System.out.println(" [-output STRING]         " + outputHelp);                           
 	    System.out.println(" [-LearnerOp STRING=VALUE] Extra options that can be defined with the learner");
 	    System.out.println("                           - defaults are set");
 	    System.out.println("                           - ex: displayDatasetBeforeLearning=true");
@@ -567,23 +615,33 @@ public class CommandLineUtil
 	public void setMixup(String s) { safeSetRequiredAnnotation(fe,s); }
 	public String getEmbeddedAnnotators() { return embeddedAnnotators; }		
 	public void setEmbeddedAnnotators(String s) { embeddedAnnotators=s; safeSetAnnotatorLoader(fe,s); }
+	// help buttons
+	public String getLearnerHelp() { return learnerHelp; }
+	public String getShowDataHelp() { return showDataHelp; }
+	public String getFeHelp() { return feHelp; }
+	public String getMixupHelp() { return mixupHelp; }
+	public String getEmbedHelp() { return embedHelp; }
+	public String getOutputHelp() { return outputHelp; }
     }
 
     /** Parameters for testing a stored classifier. */
     public static class TestClassifierParams extends LoadAnnotatorParams {
 	public boolean showClassifier=false;
 	public boolean showData=false;
-	public boolean showTestDetails=false;
+	public boolean showTestDetails=true;
 	public void showClassifier() { this.showClassifier=true; }
 	public void showData() { this.showData=true; }
-	public void showTestDetails() { this.showTestDetails=true; }
+	public void showTestDetails(String bool) { this.showTestDetails=(new Boolean(bool)).booleanValue(); }
+	private String loadFromHelp = new String("file containing serialized ClassifierAnnotator\n - as learned by TrainClassifier");
+	private String showDataHelp = new String("interactively view the test dataset in a new window when you run the experiment");
+	private String showTestDetailsHelp = new String("visualize test examples along with evaluation\n -Default: true");
+	private String showClassifierHelp = new String("interactively view the classifier in a new window when you run the experiment");
 	public void usage() {
 	    System.out.println("classifier testing parameters:");
-	    System.out.println(" -loadFrom FILE           file containing serialized ClassifierAnnotator");
-	    System.out.println("                          - as learned by TrainClassifier.");
-	    System.out.println(" [-showData]              interactively view the test dataset");
-	    System.out.println(" [-showTestDetails]       visualize test examples along with evaluation");
-	    System.out.println(" [-showClassifier]        interactively view the classifier");
+	    System.out.println(" -loadFrom FILE           " + loadFromHelp);
+	    System.out.println(" [-showData]              " + showDataHelp);
+	    System.out.println(" [-showTestDetails BOOL]  " + showTestDetailsHelp);       
+	    System.out.println(" [-showClassifier]        " + showClassifierHelp);
 	    System.out.println();
 	}
 	// for gui
@@ -593,6 +651,11 @@ public class CommandLineUtil
 	public void setShowData(boolean flag) { this.showData=flag; }
 	public boolean getShowTestDetails() { return showTestDetails; }
 	public void setShowTestDetails(boolean flag) { this.showTestDetails=flag; }
+	//help buttons
+	public String getLoadFromHelp() { return loadFromHelp; }
+	public String getShowDataHelp() { return showDataHelp; }
+	public String getShowTestDetailsHelp() { return showTestDetailsHelp; }
+	public String getShowClassifierHelp() { return showClassifierHelp; }
     }    
 
     /** Parameters for testing a stored classifier. */
@@ -623,14 +686,17 @@ public class CommandLineUtil
 	public File loadFrom;
 	private String loadFromName;
 	public void loadFrom(String s) {this.loadFrom = new File(s); this.loadFromName=s; }
+	private String loadFromHelp = new String("file containing serialized Annotator");
 	public void usage() {
 	    System.out.println("annotation loading parameters:");
-	    System.out.println(" -loadFrom FILE           file containing serialized Annotator");
+	    System.out.println(" -loadFrom FILE           " + loadFromHelp);
 	    System.out.println();
 	}
 	// for gui
 	public String getLoadFrom() { return loadFromName; }
 	public void setLoadFrom(String s) { loadFrom(s); }
+	// help button
+	public String getLoadFromHelp() { return loadFromHelp; }
     }
 
     /** Parameters encoding the 'training signal' for extraction learning. */
@@ -642,13 +708,16 @@ public class CommandLineUtil
 	public String spanType=null;
 	public void spanType(String s) { this.spanType=s; }
 	public String getOutputType(String output) { return spanType==null ? null : output;	}
+	public String spanTypeHelp = new String("learn how to extract the given TYPE");
 	public void usage() {
 	    System.out.println("extraction 'signal' parameters:");
-	    System.out.println(" -spanType TYPE           learn how to extract the given TYPE");
+	    System.out.println(" -spanType TYPE           " + spanTypeHelp);
 	}
 	// for gui
 	public String getSpanType() {return spanType;}
 	public void setSpanType(String t) {this.spanType=t; }
+	// help button
+	public String getSpanTypeHelp() { return spanTypeHelp; }
     }
     
     /** Basic parameters used by almost everything. */
@@ -662,11 +731,14 @@ public class CommandLineUtil
 	}
 	public void showLabels() { this.showLabels=true; }
 	public void showResult() { this.showResult=true; }
+	private String labeledDataHelp = new String("REPOSITORY_KEY or directory that contains labeledData");
+	private String showLabelsHelp = new String("interactively view textBase loaded by -labels");
+	private String showResultHelp = new String("interactively view final result of this operation");
 	public void usage() {
 	    System.out.println("basic parameters:");
-	    System.out.println(" -labeledData                  REPOSITORY_KEY load text from REPOSITORY_KEY");
-	    System.out.println(" [-showLabels]                 interactively view textBase loaded by -labels");
-	    System.out.println(" [-showResult]                 interactively view final result of this operation");
+	    System.out.println(" -labeledData                  " + labeledDataHelp);
+	    System.out.println(" [-showLabels]                 " + showLabelsHelp);
+	    System.out.println(" [-showResult]                 " + showResultHelp);
 	    System.out.println();
 	}
 	// for GUI
@@ -680,6 +752,8 @@ public class CommandLineUtil
 	public String getRepositoryKey() { return repositoryKey; }
 	public void setRepositoryKey(String key) { labeledData(key); }
 	public Object[] getAllowedRepositoryKeyValues() { return FancyLoader.getPossibleTextLabelKeys(); }
+	// help button
+	public String getLabelsFilenameHelp() { return labeledDataHelp; }
 	//don't expose these in GUI
 	//public boolean getShowLabels() { return showLabels; }
 	//public void setShowLabels(boolean flag ) { showLabels=flag; }
@@ -788,10 +862,13 @@ public class CommandLineUtil
 	    Object o = (Object)splitter;
 	    option(s, o);		    
 	}
+	private String splitterHelp = new String("The Splitter you would like to use to divide your training and testing data");
+	private String showTestDetailsHelp = new String("visualize test examples along with evaluation");
+	private String testHelp = new String("Specify directory or repository key of test data\n  -Note: splitter will be ignored with this option");
 	public void usage() {
 	    System.out.println("train/test experimentation parameters:");
 	    System.out.println(" -splitter SPLITTER       specify splitter, e.g. -k5, -s10, -r70");
-	    System.out.println(" [-showTestDetails]       visualize test examples along with evaluation");
+	    System.out.println(" [-showTestDetails]       " + showTestDetailsHelp);
 	    System.out.println(" -test REPOSITORY_KEY     specify source for test data");
 	    System.out.println("                          - at most one of -splitter, -test should be specified");
 	    System.out.println("                            default splitter is r70");
@@ -812,6 +889,10 @@ public class CommandLineUtil
 	public void setSplitter(Splitter splitter) { this.splitter=splitter; }
 	public boolean getShowTestDetails() { return showTestDetails; }
 	public void setShowTestDetails(boolean flag) { this.showTestDetails=flag; }
+	//help buttons
+	public String getSplitterHelp() { return splitterHelp; }
+	public String getShowTestDetailsHelp() { return showTestDetailsHelp; }
+	public String getTestFilenameHelp() {return testHelp; }
     }
 
     /** Separate comma separated spanType and puts them in a Vector */
@@ -904,11 +985,12 @@ public class CommandLineUtil
 		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base);
 	    }
 	}
+	private String spanTypeHelp = new String("learn how to extract the given TYPE");
+	private String spanPropHelp = new String("learn how to extract spans with the given property\n and label them with the given property");
 	public void usage() {
 	    System.out.println("extraction 'signal' parameters:");
-	    System.out.println(" -spanType TYPE           learn how to extract the given TYPE");
-	    System.out.println(" -spanProp PROP           learn how to extract spans with the given property");
-	    System.out.println("                          and label them with the given property");
+	    System.out.println(" -spanType TYPE           " + spanTypeHelp);
+	    System.out.println(" -spanProp PROP           " + spanPropHelp);
 	    System.out.println(" -spanProp PROPERTY:SpanType1,SpanType2");           
 	    System.out.println("                          learn how to extract spans with the named property and span types");
 	    System.out.println("                          and label them with the name property");
@@ -927,6 +1009,9 @@ public class CommandLineUtil
 	// subroutines for gui setters/getters
 	protected String safeGet(String s,String def) { return s==null?def:s; }
 	protected String safePut(String s,String def) { return def.equals(s)?null:s; }
+	// help buttons
+	public String getSpanTypeHelp() { return spanTypeHelp; }
+	public String getSpanPropHelp() { return spanPropHelp; }
     }
 
     /** Parameters encoding the 'training signal' for extraction learning. */
@@ -960,11 +1045,14 @@ public class CommandLineUtil
 	public void cross() {
 	    this.cross = true;
 	}
+	private String multiSpanPropFileHelp = new String("File that contains your definition of spanProperty\n -Format(1 spanProp per line): SPAN_PROP_NAME:SPAN_TYPE1,SPAN_TYP2,....");
+	private String crossHelp = new String("Classify dataset and add the classification as features to each document");
+
 	public void usage() {
 	    System.out.println("multi class classification 'signal' parameters:");
-	    System.out.println(" -multSpanProp FILE");           
-	    System.out.println("                          learn how to extract spans with the named property and span types");
-	    System.out.println("                          and label them with the name property");
+	    System.out.println(" -multSpanProp FILE             " + multiSpanPropFileHelp);      
+	    System.out.println(" -cross                         " + crossHelp);
+	    System.out.println("");
 	}
 	// for gui
 	public String getMultiSpanPropFile() { return multiSpanPropFileName; }
@@ -980,6 +1068,9 @@ public class CommandLineUtil
 	}
 	public boolean getCross() { return cross; }
 	public void setCross(boolean b) { cross=b; }
+	// help buttons
+	public String getMultiSpanPropFileHelp() { return multiSpanPropFileHelp; }
+	public String getCrossHelp() { return crossHelp; }
     }
 
     /** Parameters encoding the 'training signal' for learning a token-tagger. */
@@ -990,10 +1081,10 @@ public class CommandLineUtil
 	public TaggerSignalParams(BaseParams base) {this.base=base;}
 	public String tokenProp=null;
 	public void tokenProp(String s) { this.tokenProp=s; }
+	private String tokenPropHelp = new String("create a sequential dataset, where tokens are\n given the class associated with this token property");
 	public void usage() {
 	    System.out.println("tagger 'signal' parameters:");
-	    System.out.println(" -tokenProp TYPE          create a sequential dataset, where tokens are");
-	    System.out.println("                          given the class associated with this token property");
+	    System.out.println(" -tokenProp TYPE          " + tokenPropHelp);                       
 	    System.out.println();
 	}
 	// for gui
@@ -1002,6 +1093,8 @@ public class CommandLineUtil
 	public Object[] getAllowedTokenPropValues() { 
 	    return base.labels==null ? new String[]{} : base.labels.getTokenProperties().toArray();
 	}
+	//help button
+	public String getTokenPropHelp() { return tokenPropHelp; }
     }
 
     /** Parameters for training an extractor. */
@@ -1098,6 +1191,11 @@ public class CommandLineUtil
 		return null;
 	    }
 	}
+	private String learnerHelp = new String("Bean-shell code to create a ClassifierLearner\n - default is \"new Recommended.NaiveBayes()\"");  
+	private String feHelp = new String("Bean-shell code to create a SpanFeatureExtractor\n - default is \"new Recommended.DocumentFE()\" ");
+	private String mixupHelp = new String("run named mixup code before extracting features");
+	private String embedHelp = new String("embed the listed annotators in the feature extractor");
+	private String outputHelp = new String("the type or property that is produced by the learned\n ClassifierAnnotator - default is \"_prediction\"");
 	public void usage() {
 	    System.out.println("extraction training parameters:");
 	    System.out.println(" [-learner BSH]           Bean-shell code to create an AnnotatorLearner ");
@@ -1140,6 +1238,12 @@ public class CommandLineUtil
 	    embeddedAnnotators=s; 
 	    safeSetAnnotatorLoader(fe,s); 
 	}
+	// help buttons
+	public String getLearnerHelp() { return learnerHelp; }
+	public String getFeHelp() { return feHelp; }
+	public String getMixupHelp() { return mixupHelp; }
+	public String getEmbedHelp() { return embedHelp; }
+	public String getOutputHelp() { return outputHelp; }
     }
 
     /** Parameters for training an extractor. */
@@ -1161,6 +1265,10 @@ public class CommandLineUtil
 		return null;
 	    }
 	}
+	private String learnerHelp = new String("Bean-shell code to create a ClassifierLearner\n - default is \"new Recommended.NaiveBayes()\"");   
+	private String showDataHelp = new String("interactively view the constructed training dataset");
+	private String feHelp = new String("Bean-shell code to create a SpanFeatureExtractor\n - default is \"new Recommended.DocumentFE()\" ");
+	private String outputHelp = new String("the type or property that is produced by the learned\n ClassifierAnnotator - default is \"_prediction\"");
 	public void usage() {
 	    System.out.println("tagger training parameters:");
 	    System.out.println(" [-learner BSH]           Bean-shell code to create an SequenceClassifierLearner ");
@@ -1181,13 +1289,19 @@ public class CommandLineUtil
 	public SpanFeatureExtractor getFeatureExtractor() { return fe; }
 	public void setFeatureExtractor(SpanFeatureExtractor fe) { this.fe=fe; }
 	public boolean getShowData() { return showData; }
-	public void setShowData(boolean flag) { this.showData=flag; }	
+	public void setShowData(boolean flag) { this.showData=flag; }
+	// help buttons
+	public String getLearnerHelp() { return learnerHelp; }
+	public String getShowDataHelp() { return showDataHelp; }
+	public String getFeHelp() { return feHelp; }
+	public String getOutputHelp() { return outputHelp; }
     }
 
     static public class MixupParams extends BasicCommandLineProcessor {
 	public String fileName = null;
 	// for command line processing
 	public void mixup(String s) { fileName=s; }
+	private String mixupHelp = new String("run mixup program in FILE (existing file, or name on classpath)");
 	public void usage() {
 	    System.out.println("mixup program parameters:");
 	    System.out.println(" -mixup FILE              run mixup program in FILE (existing file, or name on classpath)");
@@ -1196,6 +1310,8 @@ public class CommandLineUtil
 	// for gui
 	public String getMixupProgramFilename() { return fileName; }
 	public void setMixupProgramFilename(String s) { mixup(s); }
+	// help button
+	public String getMixupHelp() { return mixupHelp; }
     }
 
     static public class AnnotatorOutputParams extends BasicCommandLineProcessor {
@@ -1205,17 +1321,21 @@ public class CommandLineUtil
 	public void toXML(String directoryName) {
 	    System.out.println("Creating XML documents");
 	}
+	private String mixupHelp = new String("run mixup program in FILE (existing file, or name on classpath)");
+	private String formatHelp = new String("output results in appropriate TYPE, which must be either\n 'minorthird', 'xml', or 'strings'");
 	public void usage() {
 	    System.out.println("annotation output parameters:");
-	    System.out.println(" -mixup FILE              run mixup program in FILE (existing file, or name on classpath)");
-	    System.out.println(" -format TYPE             output results in appropriate TYPE, which must be either");
-	    System.out.println("                          'minorthird', 'xml', or 'strings'");
+	    System.out.println(" -mixup FILE              " + mixupHelp);
+	    System.out.println(" -format TYPE             " + formatHelp);                          
 	    System.out.println();
 	}
 	// for gui
 	public String getOutputFormat() { return format; }
 	public void setOutputFormat(String s) { format=s; }
 	public String[] getAllowedOutputFormatValues() { return ALLOWED_VALUES; }
+	// help buttons
+	public String getOutputFormatHelp() { return formatHelp; }
+	
     }
 
     static public class ViewLabelsParams extends BasicCommandLineProcessor {
@@ -1247,3 +1367,4 @@ public class CommandLineUtil
     }
 
 }
+
