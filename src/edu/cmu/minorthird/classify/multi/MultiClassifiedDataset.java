@@ -168,7 +168,7 @@ public class MultiClassifiedDataset implements Visible
 			public int getColumnCount() { return 2; } // predicted, actual, instance
 			public Object getValueAt(int row,int col)
 			{
-				if (col==0) return cd.classifier.classification(cd.dataset.getMultiExample(row));
+				if (col==0) return cd.classifier.multiLabelClassification(cd.dataset.getMultiExample(row));
 				else if (col==1) return cd.dataset.getMultiExample(row);
 				else throw new IllegalArgumentException("illegal col "+col);
 			}

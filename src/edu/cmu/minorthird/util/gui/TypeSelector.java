@@ -306,20 +306,6 @@ public class TypeSelector extends ComponentViewer
 	dialog.show();
     }
 
-    	private void updatePEContent(Object o) {
-	    System.out.println("Update PE content");
-	    //PropertyEditor editor = new PropertyEditor();
-	    //this.setContent(o);
-	    //this.repaint();
-	    PropertyEditor editor = new PropertyEditor();
-	    editor.setContent(o);
-	    String title = name==null ? "Property Editor" : "Property Editor for "+name;
-	    //JFrame popupFrame = new JFrame(title);
-	    JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
-	    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
-	    dialog.show();
-	}
-
     private boolean isInLine(String c)
     {
 	for (int i=0; i<inLineClasses.size(); i++) {
@@ -425,15 +411,14 @@ public class TypeSelector extends ComponentViewer
 					    public void actionPerformed(ActionEvent ev) {
 						try {
 						    log.debug("change to "+textField.getText());
-						    writer.invoke(o, new Object[]{textField.getText()});
-						    updatePEContent(o);						
+						    writer.invoke(o, new Object[]{textField.getText()});						
 						} catch (IllegalAccessException ex) {
 						    log.error(ex.toString());
 						}	catch (InvocationTargetException ex) {
 						    log.error(ex.toString());
 						}
 					    }
-					});
+					    });
 				    
 				    if (pname.indexOf("Filename")<0) {
 					panel.add(textField, gbc(1,row));

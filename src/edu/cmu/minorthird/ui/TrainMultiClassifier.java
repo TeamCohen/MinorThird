@@ -3,6 +3,7 @@ package edu.cmu.minorthird.ui;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.multi.*;
+import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.util.gui.*;
@@ -65,9 +66,17 @@ public class TrainMultiClassifier extends UIMain
 	// train the classifier
 	classifier = new MultiDatasetClassifierTeacher(d).train(train.learner);
 
+	// create a transforming multiClassifier if cross
+	if(signal.cross) {
+	    AbstractInstanceTransform transformer = new PredictedClassTransform(classifier);
+	    classifier = new TransformingMultiClassifier(classifier, transformer);
+	}
+
 	if (base.showResult) {
 	    Viewer cv = new SmartVanillaViewer();
-	    cv.setContent(classifier);
+	    if(classifier instanceof TransformingMultiClassifier)
+		cv.setContent((TransformingMultiClassifier)classifier);
+	    else cv.setContent(classifier);
 	    new ViewerFrame("Classifier",cv); 
 	}
 

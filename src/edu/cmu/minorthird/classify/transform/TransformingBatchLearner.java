@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.transform;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.gui.*;

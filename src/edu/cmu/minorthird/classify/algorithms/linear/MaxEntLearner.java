@@ -22,7 +22,7 @@ public class MaxEntLearner extends BatchClassifierLearner
     private CRFLearner crfLearner;
     private boolean scaleScores=false;
     public MaxEntLearner(){	crfLearner = new CRFLearner("",1); }
-    public boolean logSpace = false;
+    public boolean logSpace = true;
     /**
      * String is list of parameter-value pairs, e.g.
      * "maxIters 20 mForHessian 5".
@@ -48,7 +48,7 @@ public class MaxEntLearner extends BatchClassifierLearner
 	if (args.indexOf("scaleScores 1")>=0) {
 	    scaleScores=true;
 	    System.out.println("scaleScores => true");
-	}
+	} 
     }
     
     public void setLogSpace(boolean b) {

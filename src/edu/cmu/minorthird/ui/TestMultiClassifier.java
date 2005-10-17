@@ -3,6 +3,7 @@ package edu.cmu.minorthird.ui;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.multi.*;
+import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.util.gui.*;
@@ -62,14 +63,24 @@ public class TestMultiClassifier extends UIMain
 
 		// do the testing and show the result
 		MultiDataset d = CommandLineUtil.toMultiDataset(base.labels,ann.getFE(),signal.multiSpanProp);
-		if(signal.cross) d=d.annotateData(ann.getMultiClassifier());
+		MultiClassifier multiClassifier = ann.getMultiClassifier();
+		if(signal.cross) {
+		    //d=d.annotateData(multiClassifier);
+		    if(multiClassifier instanceof TransformingMultiClassifier) {
+			AbstractInstanceTransform transformer = ((TransformingMultiClassifier)multiClassifier).getTransform();
+			d = transformer.transform(d);
+		    } else {
+			throw new IllegalArgumentException("Must be a TransformingMultiClassifier to use cross dimensions");
+		    }
+			
+		}
 		MultiEvaluation evaluation = null;
 		if (test.showData) new ViewerFrame("Dataset", d.toGUI());
-		if (test.showClassifier) new ViewerFrame("Classifier", new SmartVanillaViewer(ann.getMultiClassifier()));
+		if (test.showClassifier) new ViewerFrame("Classifier", new SmartVanillaViewer(multiClassifier));
 		evaluation = new MultiEvaluation(d.getMultiSchema());
-		evaluation.extend( ann.getMultiClassifier(), d);
+		evaluation.extend( multiClassifier, d);
 		if (test.showTestDetails) {
-			result = new MultiClassifiedDataset(ann.getMultiClassifier(), d);
+			result = new MultiClassifiedDataset(multiClassifier, d);
 		} else {
 			result = evaluation;
 		}

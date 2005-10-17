@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.multi;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.util.*;
@@ -178,7 +179,9 @@ public class MultiDataset implements Dataset,Visible,Saveable
 	MultiDataset.MultiSplit s = this.MultiSplit(splitter);
 	for (int x=0; x<9; x++) {
 	    MultiClassifierTeacher teacher = new MultiDatasetClassifierTeacher(s.getTrain(x));
-	    MultiClassifier c = teacher.train(new CascadingBinaryLearner());
+	    MaxEntLearner lnr = new MaxEntLearner();
+	    lnr.setLogSpace(true);
+	    MultiClassifier c = teacher.train(lnr);
 	    for(MultiExample.Looper i = s.getTest(x).multiIterator(); i.hasNext(); ) {
 		MultiExample ex = i.nextMultiExample();		
 		Instance instance = ex.asInstance();

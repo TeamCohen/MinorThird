@@ -26,7 +26,7 @@ public class InstanceFromPrediction implements Instance
 	 */
 	public InstanceFromPrediction(Instance instance,String[] previousLabels)
 	{
-	    System.out.println("Predicted Labels: " + previousLabels.toString());
+	    
 		this.instance = instance;
 		history = new HashSet();
 		for (int i=0; i<previousLabels.length; i++) {

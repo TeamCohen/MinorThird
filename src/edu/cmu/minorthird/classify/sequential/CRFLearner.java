@@ -38,6 +38,7 @@ public class CRFLearner
       defaults = new java.util.Properties();
       defaults.setProperty("modelGraph", "naive");
       defaults.setProperty("debugLvl", "1");
+      defaults.setProperty("trainer", "ll");
       options = defaults;
     }
   public CRFLearner(String args) {
@@ -63,7 +64,7 @@ public class CRFLearner
 	options.setProperty("trainer", "ll"); //option for german multi data (very large dataset!)
     }
     public void removeLogSpaceOption() {
-	options = defaults;
+	options.remove("trainer");
     }
   public void setSchema(ExampleSchema sch) {;}
   public int getHistorySize() {return histsize;}
