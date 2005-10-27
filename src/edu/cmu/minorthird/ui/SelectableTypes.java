@@ -22,6 +22,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    CommandLineUtil.TestClassifierParams.class, CommandLineUtil.TrainTaggerParams.class,
 	    CommandLineUtil.TaggerSignalParams.class, CommandLineUtil.MixupParams.class,
 	    CommandLineUtil.OnlineSignalParams.class, CommandLineUtil.MultiClassificationSignalParams.class,
+	    CommandLineUtil.EditParams.class,
 	    //
 	    // main routines
 	    //
@@ -29,7 +30,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    TrainExtractor.class, TestClassifier.class, TrainTestClassifier.class, 
 	    TrainTestExtractor.class, TrainTestTagger.class, OnlineLearner.class,
 	    RunMixup.class, TrainMultiClassifier.class, TestMultiClassifier.class, 
-	    TrainTestMultiClassifier.class,
+	    TrainTestMultiClassifier.class, DebugMixup.class,
 	    //
 	    // recommended classification learners
 	    //

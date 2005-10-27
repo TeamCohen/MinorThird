@@ -23,7 +23,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    "taggerSignalParameters", "mixupParameters",
 	    "onlineSignalParameters", "multiClassificationSignalParameters",	  
 	    /*"signalParameters",*/ "trainingParameters",
-	    "additionalParameters"
+	    "additionalParameters", "editParameters"
 	  
 	};
 }

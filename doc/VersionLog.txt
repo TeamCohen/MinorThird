@@ -15,4 +15,4 @@ Version # Format: Version#.Year.Month.Day
 5.5.10.17	-  Fixed bug in GUI (PE doesn't pop up when TextField is entered)
 		-  Added TransformingMultiLearner and PredictedClassTransform for adding predicted class
 		   names as features for multi label classification
-		- MaxEnt lgog
+5.2.5.10.27	- a few gui fixes: help button fixes, showTestDetails automatic, DebugMixup, and EditParams added to Selectable Types

@@ -418,7 +418,7 @@ public class CommandLineUtil
 	public String getTrueType() { return trueType==null ? "n/a" : trueType; }
 	public void setTrueType(String s) { trueType( "n/a".equals(s) ? null : s ); }
       // help buttons
-      public String getEditFileNameHelp() { return editFilenameHelp; }
+      public String getEditFilenameHelp() { return editFilenameHelp; }
       public String getExtractedTypeHelp() { return extractedTypeHelp; }
       public String getTrueTypeHelp() { return trueTypeHelp; }
     }
@@ -800,10 +800,10 @@ public class CommandLineUtil
     public static class SplitterParams extends BasicCommandLineProcessor {
 	public Splitter splitter=new RandomSplitter(0.70); 
 	public TextLabels labels=null;
-	public boolean showTestDetails=false;
+	public boolean showTestDetails=true;
 	private String repositoryKey="";
 	public void splitter(String s) { this.splitter = toSplitter(s); }
-	public void showTestDetails() { this.showTestDetails = true; }
+	public void showTestDetails(String bool) { this.showTestDetails=(new Boolean(bool)).booleanValue(); }
 	public void test(String s) { 
 	    this.repositoryKey = s;
 	    this.labels = (TextLabels)FancyLoader.loadTextLabels(repositoryKey); 
@@ -1240,9 +1240,9 @@ public class CommandLineUtil
 	}
 	// help buttons
 	public String getLearnerHelp() { return learnerHelp; }
-	public String getFeHelp() { return feHelp; }
+	//public String getFeHelp() { return feHelp; }
 	public String getMixupHelp() { return mixupHelp; }
-	public String getEmbedHelp() { return embedHelp; }
+	public String getEmbeddedAnnotatorsHelp() { return embedHelp; }
 	public String getOutputHelp() { return outputHelp; }
     }
 

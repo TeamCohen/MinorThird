@@ -35,6 +35,7 @@ public class TestPackage extends TestSuite
 	    "-labels","sample3.train",
 		"-spanType","fun",
 		"-splitter","k5",
+		"-showTestDetails", "false",
 		"-learner","new NaiveBayes()"}) {
 		public void checkResult(Object result) {
 		    Evaluation e = (Evaluation)result;
@@ -71,6 +72,7 @@ public class TestPackage extends TestSuite
 	    "-labels","sample1.train",
 		"-candidateType","bigram",
 		"-spanType","trueName",
+		"-showTestDetails", "false",
 		"-splitter","k5",
 		"-fe", "Recommended.MultitokenSpanFE()",
 		"-learner","new NaiveBayes()"}) {
@@ -111,6 +113,7 @@ public class TestPackage extends TestSuite
 				  new String[]{
 	    "-labels","sample1.train",
 		"-spanType","trueName",
+		"-showTestDetails", "false",
 		"-learner", "new Recommended.VPHMMLearner()",
 		"-splitter","k5"}) {
 		public void checkResult(Object result) {
@@ -122,6 +125,7 @@ public class TestPackage extends TestSuite
 				  new String[]{
 	    "-labels","sample1.train",
 		"-spanType","trueName",
+		"-showTestDetails", "false",
 		"-learner", "new Recommended.VPHMMLearner()",
 		"-test","sample1.test"}) {
 		public void checkResult(Object result) {
