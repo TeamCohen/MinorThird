@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.io.Serializable;
 
 /**
  * 
@@ -111,13 +112,20 @@ public abstract class Viewer extends JPanel
 	/** Get the object being displayed as the user sees it.  */
 	public Object getVisibleContent()
 	{
-		if (namedSubViews.size()==1 && namedSubViews.get(ONLY_SUBVIEWER)!=null) {
+	    if (namedSubViews.size()==1 && namedSubViews.get(ONLY_SUBVIEWER)!=null) {
 			Object result = ((Viewer)namedSubViews.get(ONLY_SUBVIEWER)).getVisibleContent();
 			return result;
 		} else {
 			return content;
 		}
 	}
+    public Object getSerializableContent() 
+    {
+	if(!(content instanceof Serializable) && namedSubViews.get(ONLY_SUBVIEWER)!=null) {
+	    Object result = ((Viewer)namedSubViews.get(ONLY_SUBVIEWER)).getSerializableContent();
+	    return result;
+	} else return content;
+    }
 
 	//
 	// signalling

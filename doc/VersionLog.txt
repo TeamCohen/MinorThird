@@ -16,3 +16,5 @@ Version # Format: Version#.Year.Month.Day
 		-  Added TransformingMultiLearner and PredictedClassTransform for adding predicted class
 		   names as features for multi label classification
 5.2.5.10.27	- a few gui fixes: help button fixes, showTestDetails automatic, DebugMixup, and EditParams added to Selectable Types
+		- Saving Extractor bug fixed
+		- classify command line to gui -learner option consistency fixed

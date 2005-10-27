@@ -52,7 +52,7 @@ public class ViewerFrame extends JFrame
 	{
 		this.myName = name;
 		this.myViewer = viewer;
-		this.content = myViewer.getVisibleContent();
+		this.content = myViewer.getSerializableContent();
 		this.wrapper = new ContentWrapper(content);
 		viewer.setPreferredSize(new java.awt.Dimension(800,600));
 		getContentPane().removeAll();

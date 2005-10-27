@@ -151,9 +151,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 		lnr = clsLnr;
 	}
 	public void learner(String s) { 
-	    if (sequential) seqLnr.seqLearner = toSeqLearner(s);
-	    else clsLnr.clsLearner = Expt.toLearner(s); 
-	    System.out.println(clsLearner);
+	    if (sequential) {
+		seqLnr.seqLearner = toSeqLearner(s);
+		lnr = seqLnr;
+	    }else {
+		clsLnr.clsLearner = Expt.toLearner(s); 
+		lnr = clsLnr;
+	    }
 	}	
 
 	//for gui
