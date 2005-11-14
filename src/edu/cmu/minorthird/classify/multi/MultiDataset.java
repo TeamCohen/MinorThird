@@ -179,8 +179,7 @@ public class MultiDataset implements Dataset,Visible,Saveable
 	MultiDataset.MultiSplit s = this.MultiSplit(splitter);
 	for (int x=0; x<9; x++) {
 	    MultiClassifierTeacher teacher = new MultiDatasetClassifierTeacher(s.getTrain(x));
-	    MaxEntLearner lnr = new MaxEntLearner();
-	    lnr.setLogSpace(true);
+	    ClassifierLearner lnr = new CascadingBinaryLearner(new BatchVersion(new VotedPerceptron()));
 	    MultiClassifier c = teacher.train(lnr);
 	    for(MultiExample.Looper i = s.getTest(x).multiIterator(); i.hasNext(); ) {
 		MultiExample ex = i.nextMultiExample();		
