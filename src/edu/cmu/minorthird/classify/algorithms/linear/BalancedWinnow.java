@@ -27,7 +27,7 @@ import java.io.*;
  * Attributes Abound: a new linear-threshold algorithm", N. Littlestone, Machine
  * Learning, 1988. 
  * 
- * Notation and implementation details based on "Mistake-Driven
+ * Notation and some implementation details from "Mistake-Driven
  * Learning in Text Categorization", I. Dagan, Y. Karov, D. Roth, EMNLP, 1997
  *  
  * Additionally, it implements 2 optional features: 
@@ -40,81 +40,75 @@ import java.io.*;
 public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Serializable {
 	private Hyperplane pos_t, neg_t;//positive and negative hyperplanes 
 	private Hyperplane vpos_t, vneg_t;//voted hyperplanes
-	private double theta; //threshold parameter (positive value)
+	private double theta=1.0; //threshold parameter (positive value)
 	private double alpha;//promotion parameter (positive value, bigger than 1)
 	private double beta; //demotion parameter (positive value, between 0 and 1)
 	private int excount;//number of examples presented to the learner so far
-	private int numActiveFeatures;//number of active features in first example
 	private double margin = 0.0;
-	private boolean voted;
+	private boolean voted = false;
+	private double W_MAX = Math.pow(2,200), W_MIN = 1/Math.pow(2,200);
 
 	public BalancedWinnow() {
-		//this(4, 2, 0.5, true);
-		this(10, 2, 0.5, true);//recommended
-		//this(10,1.1,0.9, true);
+		this(1.5, 0.5, false);
 	}
 
-	public BalancedWinnow(double t, double a, double b, boolean voted) {
-		if((t<0)||(a < 1)||(b<0)||(b>1)){
+	public BalancedWinnow(double a, double b, boolean voted) {
+		if((a < 1)||(b<0)||(b>1)){
 			System.out.println("Error in BalancedWinnow initial parameters");
-			System.out.println("Error: (theta<0)||(alpha < 1)||(beta<0)||(beta>1)");
+			System.out.println("This should never happen: (theta<0)||(alpha < 1)||(beta<0)||(beta>1)");
 			System.exit(0);
 		}
-		this.theta = t;
 		this.alpha = a;
 		this.beta = b;
-		this.voted = voted;//improves performance and convergence
+		this.voted = voted;
 		reset();		
 	}
 
 	public void reset() {
 		pos_t = new Hyperplane();
 		neg_t = new Hyperplane();
+		excount=0;
 		if(voted){
 			vpos_t = new Hyperplane();
 			vneg_t = new Hyperplane();
 		}		
 	}
 
-	public void addExample(Example example) {
-		
-		excount++;
-		
-		//first, initialize the weight of the hyperplane 
-		if(excount==1){
-			numActiveFeatures = Math.max(example.featureIterator().estimatedSize(),2);
-			System.out.println("BalancedWinnow parameters: Theta/Alpha/Beta = ("+theta+"/"+alpha+"/"+beta+")");
-		}		
-		for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
-		    Feature f = j.nextFeature();
-		    //we assume sparse feature representation
-		    if(!pos_t.hasFeature(f)){//both hyperplanes have exactly the same features
-		    	pos_t.increment(f,2*theta/(double)numActiveFeatures);//starting according to EMNLP97's implementation
-		    	neg_t.increment(f,1*theta/(double)numActiveFeatures);//starting according to EMNLP97's implementation
-		    }
+	public void addExample(Example example2) {				
+		excount++;		
+		Example example = example2.normalizeWeights();
+			
+		for (Feature.Looper j=example.asInstance().featureIterator(); j.hasNext(); ) {
+			Feature f = j.nextFeature();
+			if(!pos_t.hasFeature(f)) {
+				pos_t.increment(f,2.0);//initialize pos weights to 2
+				neg_t.increment(f,1.0);
+			}
 		}
 				
 		//get label and prediction
 		double y_t = example.getLabel().numericLabel();
 		double y_t_hat = localscore(example.asInstance());
 		//update rule
-		if(y_t * y_t_hat<margin){//error occurred
+		if(y_t * y_t_hat<=margin){//error occurred
 			if(example.getLabel().isPositive()){
 				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 				    Feature f = j.nextFeature();
-				    pos_t.multiply(f,alpha);
-				    neg_t.multiply(f,beta);
+				    //under and overflow - ceiling
+				    if(pos_t.featureScore(f)<W_MAX) pos_t.multiply(f,alpha);
+				    if(neg_t.featureScore(f)>W_MIN) neg_t.multiply(f,beta);
 				}
 			}
 			else{
 				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 				    Feature f = j.nextFeature();
-				    pos_t.multiply(f,beta);
-				    neg_t.multiply(f,alpha);
+				    if(pos_t.featureScore(f)>W_MIN) pos_t.multiply(f,beta);
+				    if(neg_t.featureScore(f)<W_MAX) neg_t.multiply(f,alpha);
 				}				
 			}
 		}
-		//averaging trick
+		
+		//averaging 
 		if(voted){
 			vpos_t.increment( pos_t, 1.0);
 			vneg_t.increment( neg_t, 1.0);
@@ -125,16 +119,12 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		if(voted){			
 			Hyperplane zpos = new Hyperplane();
 			Hyperplane zneg = new Hyperplane();
-			zpos.increment(vpos_t);
-			zpos.multiply(1/(double)excount);
-			zneg.increment(vneg_t);
-			zneg.multiply(1/(double)excount);
-			Classifier c = new MyClassifier(zpos,zneg,theta);
-			return c;
+			zpos.increment(vpos_t, 1/(double)excount);
+			zneg.increment(vneg_t, 1/(double)excount);
+			return new MyClassifier(zpos,zneg,theta);
 		}
 		else{			
-			Classifier c = new MyClassifier(pos_t, neg_t,theta);
-			return c;			
+			return new MyClassifier(pos_t, neg_t,theta);
 		}
 	}
 	
@@ -153,25 +143,37 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		
 		private Hyperplane pos_h, neg_h;
 		private ExampleSchema schema;
-		private double mytheta;//theta parameter from Winnow
+		private double mytheta;
 		
 		public MyClassifier(Hyperplane pos_h, Hyperplane neg_h,double mytheta) 
 		{	
 		    this.pos_h = pos_h;
 		    this.neg_h = neg_h;
-		    this.mytheta=mytheta; 
+		    this.mytheta=mytheta;
 		}
+	
 		//implements winnow decision rule
-		public ClassLabel classification(Instance instance) 
+		public ClassLabel classification(Instance instance1) 
 		{
 			//winnow decision rule
-			double dec = pos_h.score(instance)- neg_h.score(instance)- mytheta;// can be used to get probabilities?
-			if(dec>=0){
-		    	return new ClassLabel(ExampleSchema.POS_CLASS_NAME);//no value for the moment
-		    }
-		    else{
-		    	return new ClassLabel(ExampleSchema.NEG_CLASS_NAME);
-		    }
+			Example a1 = new Example(instance1,new ClassLabel("POS"));
+			Example aa = filterFeat(a1);
+			Example example1 = aa.normalizeWeights();
+			Instance instance = example1.asInstance();			
+			double dec = pos_h.score(instance)- neg_h.score(instance)- mytheta;
+			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec);
+		}
+		
+//		only consider features in the hyperplane - disregard others
+		public Example filterFeat(Example ex){
+			MutableInstance ins= new MutableInstance();
+			for(Feature.Looper i=ex.asInstance().featureIterator(); i.hasNext();){
+				Feature f = i.nextFeature();			
+				if(pos_h.hasFeature(f)){
+					ins.addNumeric(f,ex.getWeight(f));
+				}
+			}
+			return new Example(ins,ex.getLabel());
 		}
 		
 		public String toString(){
@@ -204,7 +206,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 	 
 	//main unit test routine
 	public static void main(String[] args) {
-			Winnow mywinnow = new Winnow();
+			BalancedWinnow mywinnow = new BalancedWinnow();
 			
 			//making examples
 			ClassLabel c = ClassLabel.positiveLabel(1);
@@ -216,7 +218,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			mywinnow.addExample(ex);
 			
 			Classifier hp  = mywinnow.getClassifier() ;
-			System.out.println("Winnow Hyperplane = "+hp.toString());
+			System.out.println("BWinnow Hyperplane = "+hp.toString());
 			
 			ClassLabel c1 = ClassLabel.negativeLabel(-1);
 			MutableInstance instance1 = new MutableInstance();
@@ -227,7 +229,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			mywinnow.addExample(ex1);
 			
 			hp  = mywinnow.getClassifier() ;
-			System.out.println("Winnow Hyperplane = "+hp.toString());
+			System.out.println("BalancedWinnow Hyperplane = "+hp.toString());
 			
 			ClassLabel c2 = ClassLabel.positiveLabel(1);
 			//ClassLabel c2 = ClassLabel.negativeLabel(-1);
@@ -239,7 +241,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			mywinnow.addExample(ex2);
 			
 			hp  = mywinnow.getClassifier() ;
-			System.out.println("Winnow Hyperplane = "+hp.toString());
+			System.out.println("BalancedWinnow Hyperplane = "+hp.toString());
 			
 			ClassLabel c3 = ClassLabel.positiveLabel(1);
 			//ClassLabel c2 = ClassLabel.negativeLabel(-1);
@@ -252,7 +254,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			mywinnow.addExample(ex3);
 			
 			hp  = mywinnow.getClassifier() ;
-			System.out.println("Winnow Hyperplane = "+hp.toString());
+			System.out.println("BWinnow Hyperplane = "+hp.toString());
 			
 		}
 }
