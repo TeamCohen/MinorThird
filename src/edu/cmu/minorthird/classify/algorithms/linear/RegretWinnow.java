@@ -305,7 +305,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements Seria
 			//winnow decision rule
 			Example a1 = new Example(instance1,new ClassLabel("POS"));//dummy label
 			Example aa = filterFeat(a1);
-			Example example1 = aa.normalizeWeights();
+			Example example1 = Winnow.normalizeWeights(aa);
 			Instance instance = example1.asInstance();			
 			double dec = lpos_h.score(instance)- mytheta;
 			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec); 

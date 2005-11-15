@@ -164,7 +164,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		{
 			Example ex = new Example(ins, new ClassLabel("POS"));
 			Example example1 = filterFeat(ex);
-			Example example2 = example1.normalizeWeights();
+			Example example2 = Winnow.normalizeWeights(example1);
 			Instance instance = example2.asInstance();			
 			double dec = cl.score(instance)- theta;
 			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec);

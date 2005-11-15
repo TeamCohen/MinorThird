@@ -156,7 +156,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			//winnow decision rule
 			Example a1 = new Example(instance1,new ClassLabel("POS"));
 			Example aa = filterFeat(a1);
-			Example example1 = aa.normalizeWeights();
+			Example example1 = Winnow.normalizeWeights(aa);
 			Instance instance = example1.asInstance();			
 			double dec = pos_h.score(instance)- neg_h.score(instance)- mytheta;
 			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec);
