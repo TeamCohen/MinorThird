@@ -16,7 +16,7 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class BasicDataset implements Visible,Saveable,Dataset
+public class BasicDataset implements Visible,Saveable,Dataset,Serializable
 {
    static private final long serialVersionUID = 1;
    private final int CURRENT_SERIAL_VERSION = 1;

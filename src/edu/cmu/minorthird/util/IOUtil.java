@@ -74,17 +74,18 @@ public class IOUtil
    */
   public static String readFile(File in) throws IOException
   {
+      /*
     InputStream inputStream = new FileInputStream(in);
     byte[] bytes = new byte[inputStream.available()];
     inputStream.read(bytes);
 		inputStream.close();
     return new String(bytes);
+      */
 
   //Richard's implementation, this may be more thread safe than using inputStream.available()
-  /*
     String line = null;
     StringBuffer content = new StringBuffer("");
-    if (debug) System.out.println("Reading " + in);
+    //if (debug) System.out.println("Reading " + in);
     try
     {
       BufferedReader bReader = new BufferedReader(new FileReader(in));
@@ -97,7 +98,6 @@ public class IOUtil
       System.err.println("Error reading " + in + ": " + ioe);
     }
     return content.toString();
-  */
   }
 
 }

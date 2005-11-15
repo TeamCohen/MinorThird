@@ -78,7 +78,7 @@ public class Hyperplane extends BinaryClassifier implements Visible, Serializabl
     /** After this call is made, the hyperplane will assume that all
      * feature weights are one in instances.  Specifically in calls to
      * increment(instance,delta) or increment(hyperplane,delta), feature
-     * weights will be assumed to be zero.  For backward compatibility
+     * weights will be assumed to be one.  For backward compatibility
      * with an old buggy version.
      */
     public void startIgnoringWeights() { this.ignoreWeights=true; }

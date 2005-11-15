@@ -155,6 +155,7 @@ public class TypeSelector extends ComponentViewer
 		    Object instance = ((Class)validSubclasses.get(i)).newInstance();
 		    instanceMap.put( validSubclasses.get(i), instance);
 		} catch (InstantiationException ex) {
+		    ex.printStackTrace();
 		    log.warn("can't create instance of "+(Class)validSubclasses.get(i)+": "+ex);
 		} catch (IllegalAccessException ex) {
 		    log.warn("can't create instance of "+(Class)validSubclasses.get(i)+": "+ex);
