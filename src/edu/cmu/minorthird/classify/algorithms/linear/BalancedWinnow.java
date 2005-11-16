@@ -9,6 +9,7 @@ import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.Winnow.MyClassifier;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
 import edu.cmu.minorthird.util.gui.TransformedViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
@@ -41,7 +42,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 	private double theta=1.0; //threshold parameter (positive value)
 	private double alpha;//promotion parameter (positive value, bigger than 1)
 	private double beta; //demotion parameter (positive value, between 0 and 1)
-	private int excount;//number of examples presented to the learner so far
+	private int excount, votedCount;//number of examples presented to the learner so far
 	private double margin = 0.0;
 	private boolean voted = false;
 	private double W_MAX = Math.pow(2,200), W_MIN = 1/Math.pow(2,200);
@@ -67,6 +68,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		neg_t = new Hyperplane();
 		excount=0;
 		if(voted){
+			votedCount=0;
 			vpos_t = new Hyperplane();
 			vneg_t = new Hyperplane();
 		}		
@@ -74,7 +76,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 
 	public void addExample(Example example2) {				
 		excount++;		
-		Example example = Winnow.normalizeWeights(example2);
+		Example example = Winnow.normalizeWeights(example2,true);
 			
 		for (Feature.Looper j=example.asInstance().featureIterator(); j.hasNext(); ) {
 			Feature f = j.nextFeature();
@@ -89,6 +91,13 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 		double y_t_hat = localscore(example.asInstance());
 		//update rule
 		if(y_t * y_t_hat<=margin){//error occurred
+			
+			if((voted)){				
+				if(votedCount==0) updateVotedHyperplane(1);
+				else updateVotedHyperplane(votedCount);
+				votedCount =1;
+			}				
+			
 			if(example.getLabel().isPositive()){
 				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 				    Feature f = j.nextFeature();
@@ -105,20 +114,25 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 				}				
 			}
 		}
-		
-		//averaging 
-		if(voted){
-			vpos_t.increment( pos_t, 1.0);
-			vneg_t.increment( neg_t, 1.0);
-		}		
+		else{
+			votedCount++;
+		}
+	}
+	
+
+	public void updateVotedHyperplane(double count){		
+		vpos_t.increment(pos_t,count);
+		vneg_t.increment(neg_t,count);		
+		votedCount=0;
 	}
 
 	public Classifier getClassifier() {		
 		if(voted){			
+			updateVotedHyperplane(votedCount);//first, update it
 			Hyperplane zpos = new Hyperplane();
 			Hyperplane zneg = new Hyperplane();
 			zpos.increment(vpos_t, 1/(double)excount);
-			zneg.increment(vneg_t, 1/(double)excount);
+			zneg.increment(vneg_t, 1/(double)excount);					
 			return new MyClassifier(zpos,zneg,theta);
 		}
 		else{			
@@ -131,7 +145,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 	}
 
 	public String toString() {
-		return "BalancedWinnow";
+		return "BalancedWinnow, voted="+voted;
 	}
 	
 	 public class MyClassifier implements Classifier, Serializable,Visible
@@ -156,7 +170,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 			//winnow decision rule
 			Example a1 = new Example(instance1,new ClassLabel("POS"));
 			Example aa = filterFeat(a1);
-			Example example1 = Winnow.normalizeWeights(aa);
+			Example example1 = Winnow.normalizeWeights(aa,true);
 			Instance instance = example1.asInstance();			
 			double dec = pos_h.score(instance)- neg_h.score(instance)- mytheta;
 			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec);
