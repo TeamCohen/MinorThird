@@ -10,12 +10,15 @@ import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.RegretWinnow2.storage;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
 import edu.cmu.minorthird.util.gui.TransformedViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on Sep 21, 2005
@@ -45,6 +48,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 	private double margin = 0.0;
 	private boolean voted = false;
 	private double W_MAX = Math.pow(2,200), W_MIN = 1/Math.pow(2,200);//overflow-underflow ceiling
+	private int votedCount = 0;
 		
 	public Winnow() {
 		this(1.5, 0.5,false);//default
@@ -64,7 +68,10 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 
 	public void reset() {
 		s_t = new Hyperplane();
-		if(voted)v_t = new Hyperplane();
+		if(voted){
+			v_t = new Hyperplane();
+			votedCount = 0;
+		}
 		excount = 0;
 	}
 	
@@ -72,8 +79,8 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		
 		excount++;//examples counter
 		
-		//normalize weights		
-		Example example = Winnow.normalizeWeights(example1);
+		//normalize weights and adds dummy feature (always true)
+		Example example = Winnow.normalizeWeights(example1,true);
 					
 		for (Feature.Looper j=example.asInstance().featureIterator(); j.hasNext(); ) {
 			Feature f = j.nextFeature();
@@ -87,6 +94,13 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		double y_t = example.getLabel().numericLabel();
 		double y_t_hat = s_t.score(example.asInstance()) - theta;
 		if(y_t * y_t_hat<=margin){//error occurred
+			
+			if((voted)){				
+				if(votedCount==0) updateVotedHyperplane(1);
+				else updateVotedHyperplane(votedCount);
+				votedCount =1;
+			}			
+			
 			if(example.getLabel().isPositive()){
 				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
 				    Feature f = j.nextFeature();
@@ -106,14 +120,21 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 				}
 			}
 		}
-
-		if(voted)v_t.increment( s_t, 1.0 );
+		else{
+			votedCount++;
+		}
+}
+	
+	public void updateVotedHyperplane(double count){		
+		v_t.increment(s_t,count);		
+		votedCount=0;
 	}
 
 	public Classifier getClassifier() {		
 		if(voted){//create the new voted hyperplane
+			updateVotedHyperplane(votedCount);//first, update it
 			Hyperplane z = new Hyperplane();
-			z.increment(v_t,1/(double)excount);
+			z.increment(v_t,1/(double)excount);						
 			return new MyClassifier(z,theta);
 		}
 		else{//no voting
@@ -126,21 +147,24 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 	}
 	
 	/**
-	 * Divides the weights of features by the sum of the norm of 
+	 * 1- adds a dummy feature(optional)
+	 * 2- Divides the weights of features by the sum of the norm of 
 	 *  of all features in Example 
 	 */
-	public static Example normalizeWeights(Example ex){
+	public static Example normalizeWeights(Example ex,boolean dummy){
 		double soma = 0.0;
     	for(Feature.Looper i=ex.featureIterator(); i.hasNext();){
     		Feature f = i.nextFeature();
     		soma+= Math.abs(ex.getWeight(f));
     	}
+    	if(dummy) soma+= 1.0;
     	MutableInstance ins = new MutableInstance();
     	for(Feature.Looper i=ex.featureIterator(); i.hasNext();){
     		Feature f = i.nextFeature();
     		double weight = ex.getWeight(f)/(soma);
     		ins.addNumeric(f,weight);			
     	}
+    	if(dummy) ins.addNumeric(new Feature("DUMMY"),1.0/soma);
     	return new Example(ins, ex.getLabel());
 	}
 		
@@ -164,7 +188,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		{
 			Example ex = new Example(ins, new ClassLabel("POS"));
 			Example example1 = filterFeat(ex);
-			Example example2 = Winnow.normalizeWeights(example1);
+			Example example2 = Winnow.normalizeWeights(example1,true);
 			Instance instance = example2.asInstance();			
 			double dec = cl.score(instance)- theta;
 			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec);
