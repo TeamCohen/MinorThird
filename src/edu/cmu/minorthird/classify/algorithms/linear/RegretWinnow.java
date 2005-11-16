@@ -102,7 +102,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements Seria
 	public void addExample(Example example2) {	
 		
 		excount++;				
-		Example example = Winnow.normalizeWeights(example2);
+		Example example = Winnow.normalizeWeights(example2,true);
 		
 		//bug
 		for (Feature.Looper j=example.asInstance().featureIterator(); j.hasNext(); ) {
@@ -305,7 +305,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements Seria
 			//winnow decision rule
 			Example a1 = new Example(instance1,new ClassLabel("POS"));//dummy label
 			Example aa = filterFeat(a1);
-			Example example1 = Winnow.normalizeWeights(aa);
+			Example example1 = Winnow.normalizeWeights(aa,true);
 			Instance instance = example1.asInstance();			
 			double dec = lpos_h.score(instance)- mytheta;
 			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec); 
