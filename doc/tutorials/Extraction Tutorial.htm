@@ -1,0 +1,391 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 11">
+<meta name=Originator content="Microsoft Word 11">
+<link rel=File-List href="Extraction%20Tutorial_files/filelist.xml">
+<title>How to Run an Extraction Task</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>cmw2</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>cmw2</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>1307</o:TotalTime>
+  <o:Created>2005-11-07T19:28:00Z</o:Created>
+  <o:LastSaved>2005-11-07T19:28:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>1128</o:Words>
+  <o:Characters>6436</o:Characters>
+  <o:Company>Carnegie Mellon University</o:Company>
+  <o:Lines>53</o:Lines>
+  <o:Paragraphs>15</o:Paragraphs>
+  <o:CharactersWithSpaces>7549</o:CharactersWithSpaces>
+  <o:Version>11.6408</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:1586265291;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-605016188 67698705 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-text:"%1\)";
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:1967931215;
+	mso-list-type:hybrid;
+	mso-list-template-ids:326564582 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l2
+	{mso-list-id:2108427152;
+	mso-list-type:hybrid;
+	mso-list-template-ids:2134534354 67698705 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-start-at:2;
+	mso-level-text:"%1\)";
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ansi-language:#0400;
+	mso-fareast-language:#0400;
+	mso-bidi-language:#0400;}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal align=center style='text-align:center'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:16.0pt'>Extraction Tutorial<o:p></o:p></span></b></p>
+
+<p class=MsoNormal align=center style='text-align:center'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:16.0pt'><o:p>&nbsp;</o:p></span></b></p>
+
+<p class=MsoNormal>For this example we will use enron01_names as the training
+data and enron2_names as the testing data.</p>
+
+<p class=MsoNormal align=center style='text-align:center'><b style='mso-bidi-font-weight:
+normal'><o:p>&nbsp;</o:p></b></p>
+
+<p class=MsoNormal><u>Using the gui:<o:p></o:p></u></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Once
+your data is loaded into minorthird, you can run a classification task.<span
+style='mso-spacerun:yes'>  </span>To run this type of task using the gui you
+can type: </p>
+
+<p class=MsoNormal style='margin-left:1.0in'>java –Xmx500M
+edu.cmu.minorthird.ui.TrainTestExtractor –gui –labels enron01_names –test
+enron2_names </p>
+
+<p class=MsoNormal style='margin-left:1.0in'><u>Note:</u><span
+style='mso-spacerun:yes'>  </span>Because we are using a specific training and
+testing set, we must define these data sets on the command line because the gui
+is not capable of specifying two different data sets</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>When
+the experiment window appears, choose “Edit” under Parameter modification to
+set your parameters.<span style='mso-spacerun:yes'>  </span>If you are unsure
+of how to set any of the parameters or what they mean, click the Parameters button
+in the help section of Execution controls.<span style='mso-spacerun:yes'> 
+</span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in;mso-list:l0 level2 lfo1;
+tab-stops:list 1.0in'><![if !supportLists]><span style='mso-list:Ignore'>a.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+first parameter to set is the baseParameter.<span style='mso-spacerun:yes'> 
+</span>However, in this case the training and testing set were set on the
+command line, so you do not have to edit this parameter.<span
+style='mso-spacerun:yes'>  </span>In other cases if you do want to set or
+modify this parameter, click on Edit so that the Property Editor for
+BaseParameters window pops up.<span style='mso-spacerun:yes'>  </span>If your
+data is properly loaded, you should be able to find the label of your data on the
+pull down list next to repositoryKey.<span style='mso-spacerun:yes'>  </span>If
+you do not find your data, your repository may not be set up correctly, and you
+should close the current window and the property editor window and press the
+Repository button in the help section.</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in;mso-list:l0 level2 lfo1;
+tab-stops:list 1.0in'><![if !supportLists]><span style='mso-list:Ignore'>b.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>If
+you would like to save your experiment, click “Edit” saveParameters and type
+what you would like your parameters saved as.<span style='mso-spacerun:yes'> 
+</span>Saving is optional.</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in;mso-list:l0 level2 lfo1;
+tab-stops:list 1.0in'><![if !supportLists]><span style='mso-list:Ignore'>c.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+next parameter you must specify is the signal.<span style='mso-spacerun:yes'> 
+</span>You must either specify either spanProp or spanType.<span
+style='mso-spacerun:yes'>  </span>For this experiment you want to set spanType
+to name.</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in;mso-list:l0 level2 lfo1;
+tab-stops:list 1.0in'><![if !supportLists]><span style='mso-list:Ignore'>d.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>In
+this experiment, we have already designated training and testing data sets, so
+you do not need to specify a splitter.<span style='mso-spacerun:yes'>  </span>In
+other cases, the splitter parameter is initially set to the default (Random
+Splitter), but can be changed.<span style='mso-spacerun:yes'>  </span>To change
+the splitter, click the Edit button next to splitterParameters.<span
+style='mso-spacerun:yes'>  </span>To choose which splitter you would like to
+use, choose one from the pull down list labeled splitter.<span
+style='mso-spacerun:yes'>  </span>To change the properties of this splitter
+(ex: what percentage of data should be used for training and what percentage
+should be used for testing) click the Edit button next to splitter.<span
+style='mso-spacerun:yes'>  </span>Check the showTestDetails checkbox if you
+would like to see the results from the test partitions and compare true_names
+with predicted values as well as the overall evaluation after the experiment
+has finished running.</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in;mso-list:l0 level2 lfo1;
+tab-stops:list 1.0in'><![if !supportLists]><span style='mso-list:Ignore'>e.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+training parameters are also assigned default values, but these values can be
+changed by clicking the Edit button beside trainingParameters.<span
+style='mso-spacerun:yes'>  </span>Once training parameters properties window
+appears, you can list annotators to embed in the feature extractor (optional).<span
+style='mso-spacerun:yes'>  </span>To change the learner, choose a learner from
+the pull down list and click Edit if you would like to change the
+sequenceClassifierLearner, spanFeatureExtractor, or taggingReduction of this
+learner.<span style='mso-spacerun:yes'>  </span>These parameters all have
+defaults, so they do not have to be changed.<span style='mso-spacerun:yes'> 
+</span>The name of the mixup code to be run before extracting features can be
+put in the textbox beside mixup (optional).<span style='mso-spacerun:yes'> 
+</span>The label of the predicted output can be put in the output textbox.<span
+style='mso-spacerun:yes'>  </span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>3)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Once
+all you parameters are saved, you can press Start Task under execution
+controls.<span style='mso-spacerun:yes'>  </span>The task will vary in the
+amount of time it takes depending on the size of the data set and what learner
+and splittler you choose, but extraction tasks usually take a minute or two.<span
+style='mso-spacerun:yes'>  </span>When the task is finished, the error rates
+will appear in the Error messages and output text area along with the total
+time it takes to run the experiment.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>4)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Now
+that you have run the experiment, you can look at your results.<span
+style='mso-spacerun:yes'>  </span>In order to look at the details of your
+results, click the View Results Button in the Execution Controls section.<span
+style='mso-spacerun:yes'>  </span>Click on the Evaluation tab to see the
+precision rates of the experiment.<span style='mso-spacerun:yes'>  </span>If
+you checked the showTestDetails box while editing the splitter parameter, there
+will be a Full Test Set tab.<span style='mso-spacerun:yes'>  </span>When you
+click on this tab, you can compare whatever is labeled (in this case name) to
+what the learner predicted.<span style='mso-spacerun:yes'>  </span>When
+comparing green mean true positive, blue means false negative, and yellow mean
+false positive.<span style='mso-spacerun:yes'>  </span>You can also click on
+the spanTypes tab and select a color and a spam type to highlight.<span
+style='mso-spacerun:yes'>  </span>Make sure that you reset controls before
+highlighting or comparing.<span style='mso-spacerun:yes'>  </span>Once you have
+made you selection, click Apply to see your selection.<span
+style='mso-spacerun:yes'>  </span>If you want to view the precision rates of
+your experiment, click the Evaluation tab at the top of the window.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>5)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Press
+the Show Labels button if you would like to view the input data for the extraction
+task.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l0 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>6)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Press
+the “Clear Window” button to clear all output from the output and error
+messages window.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><u>Using the Command Line:</u></p>
+
+<p class=MsoNormal>1)<span style='mso-spacerun:yes'>    </span>To get started
+using the command line for a classification experiment type:</p>
+
+<p class=MsoNormal><span style='mso-tab-count:2'>                        </span>java
+–Xmx500M edu.cmu.minorthird.ui.TrainTestExtractor –help</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>This will
+list all the command line arguments that you can use.</p>
+
+<p class=MsoNormal style='margin-left:1.0in'><u>Note</u>: You can enter as many
+command line arguments as you like along with the –gui argument.<span
+style='mso-spacerun:yes'>  </span>This way you can use the command line to
+specify the parameters that you would like and use the gui to set any
+additional parameters or view the results.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+first thing you probably want to enter on the command line is the data you
+would like to train or train/test on.<span style='mso-spacerun:yes'>  </span>To
+do this type –labels and the repository key of the dataset you would like to
+use.<span style='mso-spacerun:yes'>  </span>For this experiment you should type:<span
+style='mso-spacerun:yes'>            </span>–labels enron01_names </p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>3)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Now
+you either want to specify the dataset you would like to test on by typing
+–test repositoryKey or which splitter you would like to use (this is for when
+you want to train and test on the same data set.)<span
+style='mso-spacerun:yes'>  </span>To specify the splitter, type –splitter
+SPLITTER.<span style='mso-spacerun:yes'>  </span>Here we are using fixed
+training and testing data so you can type: <span
+style='mso-spacerun:yes'> </span><span style='mso-spacerun:yes'>  </span>–test
+enron2_names</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>4)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
+next necessary parameter to name is either spanProp or spanType.<span
+style='mso-spacerun:yes'>  </span>To specify this parameter, type –spanType
+TYPE.<span style='mso-spacerun:yes'>  </span>For this dataset TYPE can either
+be real or spam, so type: -spanType name.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>5)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Other
+parameters you may want to specify are: the learner (-learner) or whether to
+save.<span style='mso-spacerun:yes'>  </span>Use the –help command for
+descriptions and examples of these parameters.<span style='mso-spacerun:yes'> 
+</span>If you are unsure of what learners, use the –gui command so that you can
+see the list of learners and feature extractor available (under
+trainingParameters).<span style='mso-spacerun:yes'>  </span>For this
+experiment, you can type: </p>
+
+<p class=MsoNormal style='margin-left:1.0in'>-learner “new VPHMMLearner(new
+CollinsPerceptronLearner(1,5), new Recommended.TokenFE(), new
+InsideOutsideRedution())”</p>
+
+<p class=MsoNormal style='margin-left:.5in'>As you can see from this example,
+the sequenceClassifierLearner, spanFeatureExtractor, and taggingReduction are
+defined with the learner.<span style='mso-spacerun:yes'>  </span>If you would
+like to see the options for these variables, use the –gui command.<span
+style='mso-spacerun:yes'>  </span>Once the parameter modification window pops
+up, click Edit under Parameter Modification and click Edit next to training
+Parameters.<span style='mso-spacerun:yes'>  </span>To see what learners are
+available, scroll through the pull down list next to learner.<span
+style='mso-spacerun:yes'>  </span>Once you have chosen a learner, click the Edit
+button next to learner to choose your sequenceClassifierLearner,
+spanFeatureExtractor, and taggingReduction.<span style='mso-spacerun:yes'> 
+</span>To edit any of these training parameters, press the Edit button next to
+them.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l2 level1 lfo3;
+tab-stops:list .5in'><![if !supportLists]><span style='mso-list:Ignore'>6)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Optional
+parameters to define are –mixup, -embed, or –output.<span
+style='mso-spacerun:yes'>  </span>Use the –help command to learn more about
+these parameters.<span style='mso-spacerun:yes'>  </span>–output is set to the
+default _prediction, so you only need to set this parameter if you would like
+to the name of the property learned.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</body>
+
+</html>
