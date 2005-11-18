@@ -10,7 +10,6 @@ import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
-import edu.cmu.minorthird.classify.algorithms.linear.RegretWinnow2.storage;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
 import edu.cmu.minorthird.util.gui.TransformedViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
