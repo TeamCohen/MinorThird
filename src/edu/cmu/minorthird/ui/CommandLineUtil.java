@@ -346,7 +346,7 @@ public class CommandLineUtil
 	public void showLabels() { this.showLabels=true; }
 	public void showResult() { this.showResult=true; }
 	public void classic() {this.classic=true; }
-	public String labelsFilenameHelp = new String("The Directory of labeled or unlabeled documents you would like to load OR the repository key");
+	public String labelsFilenameHelp = new String("<html>The Directory of labeled or unlabeled documents you would like to load OR the repository key </html>");
 	public void usage() {
 	    System.out.println("basic parameters:");
 	    System.out.println(" -labels REPOSITORY_KEY   " + labelsFilenameHelp);
@@ -618,9 +618,9 @@ public class CommandLineUtil
 	// help buttons
 	public String getLearnerHelp() { return learnerHelp; }
 	public String getShowDataHelp() { return showDataHelp; }
-	public String getFeHelp() { return feHelp; }
+	public String getFeatureExtractorHelp() { return feHelp; }
 	public String getMixupHelp() { return mixupHelp; }
-	public String getEmbedHelp() { return embedHelp; }
+	public String getEmbeddedAnnotatorsHelp() { return embedHelp; }
 	public String getOutputHelp() { return outputHelp; }
     }
 

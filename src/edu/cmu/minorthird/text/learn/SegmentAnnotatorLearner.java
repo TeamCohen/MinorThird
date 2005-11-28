@@ -22,7 +22,7 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class SegmentAnnotatorLearner implements AnnotatorLearner
+public class SegmentAnnotatorLearner extends AnnotatorLearner
 {
 	private static Logger log = Logger.getLogger(SegmentAnnotatorLearner.class);
 	private static final boolean DEBUG = log.isDebugEnabled();
@@ -64,6 +64,7 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
 	public void setDisplayDatasetBeforeLearning(boolean newDisplayDatasetBeforeLearning) {
 		this.displayDatasetBeforeLearning = newDisplayDatasetBeforeLearning;
 	}
+    public String getDisplayDatasetBeforeLearningHelp() { return "Pop up an interactive viewer of the sequential dataset before learning."; }
 
   private boolean compressDataset=false; 
 
@@ -71,10 +72,12 @@ public class SegmentAnnotatorLearner implements AnnotatorLearner
    * but less memory usage. */
   public boolean getCompressDataset() { return compressDataset; } 
   public void setCompressDataset(boolean flag) { compressDataset=flag; }
+    public String getCompressDatasetHelp() { return "If set, try and compress the data. This leads to longer loading and <br>learning times but less memory usage."; }
 
 	public int getHistorySize() { return 1; }
 	public BatchSegmenterLearner getSemiMarkovLearner() { return learner; }
 	public void setSemiMarkovLearner(BatchSegmenterLearner learner) { this.learner=learner; }
+    public String getSemiMarkovLearnerHelp() {return "Set the SemiMarkowLearner to be used"; }
 	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
 	public void setSpanFeatureExtractor(SpanFeatureExtractor fe) {this.fe = fe;	}
 	/** Specify the type of annotation produced by this annotator - that is, the

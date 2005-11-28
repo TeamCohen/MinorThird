@@ -12,7 +12,7 @@ import edu.cmu.minorthird.text.learn.FilteredFinder;
  * @author William Cohen
  */
 
-public class BatchFilteredFinderLearner implements AnnotatorLearner
+public class BatchFilteredFinderLearner extends AnnotatorLearner
 {
 	private SpanFeatureExtractor fe;
 	private BinaryClassifierLearner classifierLearner;

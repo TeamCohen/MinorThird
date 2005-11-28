@@ -43,7 +43,7 @@ public class ConditionalSemiMarkovModel
 	
 	/** A learner for ConditionalSemiMarkovModel's.
 	 */ 
-	static public class CSMMLearner implements AnnotatorLearner 
+	static public class CSMMLearner extends AnnotatorLearner 
 	{
 		private SpanFeatureExtractor fe;
 		private OnlineBinaryClassifierLearner classifierLearner;

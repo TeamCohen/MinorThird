@@ -64,6 +64,10 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner
 	public BatchSequenceClassifierLearner getSequenceClassifierLearner() { return seqLearner; }
 	public void setSequenceClassifierLearner(BatchSequenceClassifierLearner learner) { this.seqLearner=learner; }
 
+    // Help Buttons
+    public String getDisplayDatasetBeforeLearningHelp() { return "Pop up an interactive viewer of the sequential dataset before learning."; }
+    public String getSequenceClassifierLearnerHelp() { return "The classifierLearner used to classify each token using the <br>predictions of previous tokens as features"; }
+
 	/** Return the learned annotator.
 	 */
 	public Annotator getAnnotator()

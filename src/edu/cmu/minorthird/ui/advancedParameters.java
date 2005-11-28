@@ -20,6 +20,7 @@ import edu.cmu.minorthird.classify.sequential.*;
 	    "showData",
 
 	    // advanced Help Buttons
-	    /*"spanPropHelp", "candidateTypeHelp",*/ "showDataHelp", "embeddedAnnotatorsHelp", "feHelp", "mixupHelp", "showTestDetailsHelp"
+	    /*"spanPropHelp", "candidateTypeHelp",*/ "showDataHelp", "embeddedAnnotatorsHelp", "feHelp", "mixupHelp", "showTestDetailsHelp",
+	    "trainTestClassifierHelp", "featureExtractorHelp"
 	};
 }

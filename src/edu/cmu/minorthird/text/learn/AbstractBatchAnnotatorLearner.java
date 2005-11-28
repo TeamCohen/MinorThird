@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @author William Cohen
  */
 
-public abstract class AbstractBatchAnnotatorLearner implements AnnotatorLearner
+public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 {
 	private static Logger log = Logger.getLogger(AbstractBatchAnnotatorLearner.class);
 	private static final boolean DEBUG = false;
@@ -53,9 +53,14 @@ public abstract class AbstractBatchAnnotatorLearner implements AnnotatorLearner
 	public int getHistorySize() { return historySize; }
 	public void setHistorySize(int historySize) { this.historySize=historySize; }
 
+    // Help Button
+    public String getHistorySizeHelp() { return "Number of tokens to look back on. <br>The predicted labels for the history are used as features to help classify the current token." ;}
+
   /** Scheme for reducing extraction to a token-classification problem */
 	public Extraction2TaggingReduction getTaggingReduction() { return reduction; }
 	public void setTaggingReduction(Extraction2TaggingReduction reduction) { this.reduction = reduction; }
+
+    public String getTaggingReductionHelp() { return "Scheme for reducing extraction to a token-classification problem"; }
 
   /** Feature extractor used for tokens */
 	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
