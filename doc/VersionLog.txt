@@ -18,3 +18,7 @@ Version # Format: Version#.Year.Month.Day
 5.2.5.10.27	- a few gui fixes: help button fixes, showTestDetails automatic, DebugMixup, and EditParams added to Selectable Types
 		- Saving Extractor bug fixed
 		- classify command line to gui -learner option consistency fixed
+6.5.11.30	- More gui updates:  shorted class names, links to tutorials, links to javadocs, more help buttons
+		- more parameter bunches added to selectable types
+		- Documentation added: Index and tutorial
+		- Fixed cross option for TrainTestMultiClassifier - Tester.multiEvaluate, MultiCrossValidatedDataset
