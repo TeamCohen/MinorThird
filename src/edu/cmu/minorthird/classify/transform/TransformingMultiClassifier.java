@@ -31,6 +31,15 @@ public class TransformingMultiClassifier extends MultiClassifier implements Visi
 
     public AbstractInstanceTransform getTransform() { return transformer; }
 
+    public Classifier[] getClassifiers() {
+	TransformingClassifier[] tc = new TransformingClassifier[multiClassifier.getNumDim()];
+	Classifier[] classifiers = multiClassifier.getClassifiers();
+	for(int i=0; i<tc.length; i++) {
+	    tc[i] = new TransformingClassifier(classifiers[i], transformer);
+	}
+	return tc;
+    }
+
     public MultiClassLabel multiLabelClassification(Instance instance) {
 	return super.multiLabelClassification( transformer.transform(instance) );
     }

@@ -30,6 +30,10 @@ public class MultiClassifier implements Classifier, Visible, Serializable
 	return multiLabel;
     }
 
+    public int getNumDim() {
+	return classifiers.length;
+    }
+
     /** Give you the class label for the first dimension */
     public ClassLabel classification(Instance instance) 
     {
