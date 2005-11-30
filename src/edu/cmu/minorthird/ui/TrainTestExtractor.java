@@ -30,6 +30,10 @@ public class TrainTestExtractor extends UIMain
 	private CommandLineUtil.TrainExtractorParams train = new CommandLineUtil.TrainExtractorParams();
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();    
 	private Object result = null;
+
+    public String getTrainTestExtractorHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainTestExtractor%20Tutorial.htm\">TrainTestExtractor Tutorial</A></html>";
+    }
 	
 	// for command-line ui
 	public CommandLineProcessor getCLP()

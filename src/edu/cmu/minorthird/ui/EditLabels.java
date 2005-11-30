@@ -27,6 +27,10 @@ public class EditLabels extends UIMain
 	public CommandLineUtil.EditParams getEditParameters() { return edit; }
 	public void setEditParameters(CommandLineUtil.EditParams p) { edit=p; }
 
+     public String getEditLabelsHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/EditLabels%20Tutorial.htm\">EditLabels Tutorial</A></html>";
+    }
+
 	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,edit});

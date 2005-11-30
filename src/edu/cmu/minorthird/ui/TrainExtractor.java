@@ -37,6 +37,9 @@ public class TrainExtractor extends UIMain
 	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; }
 	public void setSignalParameters(CommandLineUtil.ExtractionSignalParams newSignal) { this.signal=newSignal; }
 
+    public String getTrainExtractorHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainExtractor%20Tutorial.htm\">TrainExtractor Tutorial</A></html>";
+    }
 
 	public CommandLineProcessor getCLP()
 	{

@@ -46,6 +46,10 @@ public class TestExtractor extends UIMain
 	public CommandLineUtil.TestExtractorParams getAdditionalParameters() { return test; } 
 	public void setAdditionalParameters(CommandLineUtil.TestExtractorParams p) { test=p; } 
 
+    public String getTestExtractorHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TestExtractor%20Tutorial.htm\">TestExtractor Tutorial</A></html>";
+    }
+
 	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,test});

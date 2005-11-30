@@ -37,6 +37,10 @@ public class TestClassifier extends UIMain
 	public CommandLineUtil.TestClassifierParams getAdditionalParameters() { return test; } 
 	public void setAdditionalParameters(CommandLineUtil.TestClassifierParams p) { test=p; } 
 
+    public String getTestClassifierHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TestClassifier%20Tutorial.htm\">TestClassifier Tutorial</A></html>";
+    }
+
 	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,test});

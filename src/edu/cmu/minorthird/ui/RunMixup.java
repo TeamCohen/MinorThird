@@ -29,6 +29,10 @@ public class RunMixup extends UIMain
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
 	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
 
+    public String getRunMixupHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/Mixup%20Tutorial.htm\">Mixup Tutorial</A></html>";
+    }
+
 	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,mixup});

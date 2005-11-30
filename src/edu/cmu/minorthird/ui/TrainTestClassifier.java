@@ -50,6 +50,10 @@ public class TrainTestClassifier extends UIMain
 			new CommandLineProcessor[]{new GUIParams(),base,save,signal,train,trainTest});
 	}
 
+    public String getTrainTestClassifierHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainTestClassifier%20Tutorial.htm\">TrainTestClassifier Tutorial</A></html>";
+    }
+
 	//
 	// do the experiment
 	// 

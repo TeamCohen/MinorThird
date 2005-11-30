@@ -6,6 +6,7 @@ import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.semisupervised.*;
 import edu.cmu.minorthird.classify.sequential.*;
+import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Level;
@@ -55,13 +56,18 @@ public class Tester
 		MultiDataset.MultiSplit s = d.MultiSplit(splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {		    
+		    //for (int k=0; k<1; k++) {
 			MultiDataset trainData = s.getTrain(k);
 			if(cross) trainData=trainData.annotateData();
 			MultiDataset testData = s.getTest(k);
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
 			MultiClassifier c = new MultiDatasetClassifierTeacher(trainData).train(learner);
-			if(cross) testData=testData.annotateData(c);
+			//if(cross) testData=testData.annotateData(c);
+			if(cross) {
+			    AbstractInstanceTransform transformer = new PredictedClassTransform(c);
+			    c = new TransformingMultiClassifier(c, transformer);
+			}
 			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
 			v.extend( c, testData);
 			log.info("splitting with "+splitter+", completed train-test round");

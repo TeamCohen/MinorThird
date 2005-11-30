@@ -36,6 +36,9 @@ public class TrainClassifier extends UIMain
     public CommandLineUtil.TrainClassifierParams getAdditionalParameters() { return train; } 
     public void setAdditionalParameters(CommandLineUtil.TrainClassifierParams p) { train=p; } 
 
+    public String getTrainClassifierHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainClassifier%20Tutorial.htm\">TrainClassifier Tutorial</A></html>";
+    }
 
     public CommandLineProcessor getCLP()
     {

@@ -29,6 +29,10 @@ public class DebugMixup extends UIMain
 	public CommandLineUtil.EditParams getEditParameters() { return edit; }
 	public void setEditParameters(CommandLineUtil.EditParams p) { edit=p; }
 
+    public String getDebugMixupHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/Mixup%20Tutorial.htm\">Mixup Tutorial</A></html>";
+    }
+
 	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,edit,mixup});

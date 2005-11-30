@@ -5,6 +5,9 @@ import org.apache.log4j.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
+import javax.swing.plaf.basic.BasicSpinnerUI;
+import javax.swing.text.*;
+import javax.swing.text.html.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -153,7 +156,7 @@ public class TypeSelector extends ComponentViewer
 	    if (rootClass.isAssignableFrom((Class)validSubclasses.get(i))) {
 		try {
 		    Object instance = ((Class)validSubclasses.get(i)).newInstance();
-		    instanceMap.put( validSubclasses.get(i), instance);
+		    instanceMap.put( shortenedClassName((Class)(validSubclasses.get(i))), instance);
 		} catch (InstantiationException ex) {
 		    ex.printStackTrace();
 		    log.warn("can't create instance of "+(Class)validSubclasses.get(i)+": "+ex);
@@ -164,8 +167,13 @@ public class TypeSelector extends ComponentViewer
 	}
     }
 
-    /**
-     */
+    /** Returns the shortened version of the class name */
+    public String shortenedClassName(Class item) {
+	String fullName = item.getName();
+	String[] splitName = fullName.split("\\W");
+	String className = splitName[splitName.length-1];
+	return className;
+    }
 
     /**
      * add a new class to the list of valid sub classes.
@@ -176,8 +184,8 @@ public class TypeSelector extends ComponentViewer
     {
 	try
 	    {
-		validSubclasses.add(subClass);
-		instanceMap.put(subClass, subClass.newInstance());
+		validSubclasses.add(shortenedClassName(subClass));
+		instanceMap.put(shortenedClassName(subClass), subClass.newInstance());
 	    }
 	catch (InstantiationException e)
 	    { log.warn("can't create instance of "+subClass +": "+e); }
@@ -193,8 +201,8 @@ public class TypeSelector extends ComponentViewer
      */
     private void removeClass(Class subClass)
     {
-	validSubclasses.remove(subClass);
-	instanceMap.remove(subClass);
+	validSubclasses.remove(shortenedClassName(subClass));
+	instanceMap.remove(shortenedClassName(subClass));
     }
 
     private void setInLine(boolean b) {
@@ -214,22 +222,24 @@ public class TypeSelector extends ComponentViewer
 	}
 	JPanel panel = new JPanel();
 	// replace the default instance for the appropriate class with o
-	if (instanceMap.get(o.getClass())!=null) {
-	    instanceMap.put(o.getClass(), o);
+	if (instanceMap.get(shortenedClassName(o.getClass()))!=null) {
+	    instanceMap.put(shortenedClassName(o.getClass()), o);
 	}
 	classBox = new JComboBox();
 	for (Iterator i=instanceMap.keySet().iterator(); i.hasNext(); ) {
-	    Class key = (Class)i.next();
+	    String key = (String)i.next();
 	    log.debug("adding to classBox " + key);
 	    classBox.addItem( key );
 	}
-	classBox.setSelectedItem(o.getClass());
+	String currentName = shortenedClassName(o.getClass());
+	classBox.setSelectedItem(currentName);
 	classBox.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent ev) {
 		    sendSignal(OBJECT_SELECTED,instanceMap.get(classBox.getSelectedItem()));
 		}
 	    });
-	panel.add(classBox);
+	panel.add(classBox);		
+		
 	if (DEBUG) {
 	    // print button, for debugging
 	    panel.add(new JButton(new AbstractAction("Print") {
@@ -242,15 +252,48 @@ public class TypeSelector extends ComponentViewer
 	panel.add(new JButton(new AbstractAction("Edit") {
 		public void actionPerformed(ActionEvent e) {
 		    log.debug("pressed edit");
-		    PropertyEditor editor = new PropertyEditor();
+		    PropertyEditor editor = new PropertyEditor(true, false);
 		    editor.setContent(instanceMap.get(classBox.getSelectedItem()));
 		    String title = name==null ? "Property Editor" : "Property Editor for "+name;
+		    //editor.setWarning();
 		    //JFrame popupFrame = new JFrame(title);
 		    JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
 		    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
 		    dialog.show();
 		}
 	    }));
+	//Possible Help Button
+	try {
+	    BeanInfo info = Introspector.getBeanInfo(o.getClass());
+	    PropertyDescriptor[] props = info.getPropertyDescriptors();
+	    for (int i=0; i<props.length; i++) {
+		log.debug("inspecting property: " + props[i].getShortDescription());
+		final String pname = props[i].getDisplayName();
+		final Class type = props[i].getPropertyType();
+		final Method reader = props[i].getReadMethod();
+		final String[] classes = o.getClass().getName().split("\\.");
+		final String name = classes[classes.length -1];
+		if(reader != null && pname.equalsIgnoreCase(name + "Help")) {
+		    final Object value = reader.invoke(o,new Object[]{});
+		    panel.add(new JButton(new AbstractAction("?") {
+			    public void actionPerformed(ActionEvent e) {
+				log.debug("pressed help");
+				HelpViewer editor = new HelpViewer();
+				editor.setContent(value);
+				String title = pname==null ? "Help" : "Help for "+o.getClass().getName();
+				//JFrame popupFrame = new JFrame(title);
+				JOptionPane optionPane = new JOptionPane(new Object[]{editor});
+				JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
+				dialog.show();
+			    }
+			}));
+		}
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    System.out.println("Help does not work");
+	}
+
 	//panel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"));
 	//return (new JScrollPane(panel));
 	return panel;
@@ -262,16 +305,17 @@ public class TypeSelector extends ComponentViewer
 	    }
 	    JPanel panel = new JPanel();
 	    // replace the default instance for the appropriate class with o
-	    if (instanceMap.get(o.getClass())!=null) {
-		instanceMap.put(o.getClass(), o);
+	    if (instanceMap.get(shortenedClassName(o.getClass()))!=null) {
+		instanceMap.put(shortenedClassName(o.getClass()), o);
 	    }
 	    classBox = new JComboBox();	    
 	    for (Iterator i=instanceMap.keySet().iterator(); i.hasNext(); ) {
-		Class key = (Class)i.next();
+		String key = (String)i.next();
 		log.debug("adding to classBox " + key);
 		classBox.addItem( key );
 	    }
-	    classBox.setSelectedItem(o.getClass());
+	    String currentName = shortenedClassName(o.getClass());
+	    classBox.setSelectedItem(currentName);
 	    classBox.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent ev) {
 			sendSignal(OBJECT_SELECTED,instanceMap.get(classBox.getSelectedItem()));
@@ -298,8 +342,8 @@ public class TypeSelector extends ComponentViewer
     }
 
     public void createPE(Class type) {
-	PropertyEditor editor = new PropertyEditor();
-	editor.setContent(instanceMap.get(type));
+	PropertyEditor editor = new PropertyEditor(true, true);
+	editor.setContent(instanceMap.get(shortenedClassName(type)));
 	String title = name==null ? "Property Editor" : "Property Editor for "+name;
 	//JFrame popupFrame = new JFrame(title);
 	JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
@@ -323,7 +367,45 @@ public class TypeSelector extends ComponentViewer
 	    if (s.equals(advancedParams.get(i))) return true;
 	}
 	return false;
-    }   
+    }  
+
+    public class HelpViewer extends ComponentViewer implements HyperlinkListener
+    {
+	public JComponent componentFor(final Object o) 
+	{
+	    try {
+		JPanel helpPanel = new JPanel();
+		JEditorPane ep = new JEditorPane();
+		ep.setEditorKit(new HTMLEditorKit());
+		ep.setText((String)o);
+		ep.setEditable(false);
+		ep.addHyperlinkListener(this);
+		helpPanel.add(ep);
+		return helpPanel;
+	    } catch (Exception e) {
+		e.printStackTrace();
+		throw new IllegalArgumentException("Must give the help viewer a String");
+	    }
+	}
+
+	public void hyperlinkUpdate(HyperlinkEvent he) {
+	    if (he.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+		    
+		try {
+		    String[] cmd = new String[5];		       
+		    cmd[0] = "cmd.exe";
+		    cmd[1] = "/C";
+		    cmd[2] = "rundll32";
+		    cmd[3] = "url.dll,FileProtocolHandler";
+		    cmd[4] = he.getURL().toString();
+		    Runtime.getRuntime().exec(cmd);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    System.out.println("Cannot open web page.");
+		}
+	    }
+	}
+    }
 
     //
     // inner class for editing properties
@@ -339,6 +421,20 @@ public class TypeSelector extends ComponentViewer
      */
     public class PropertyEditor extends ComponentViewer
     {
+	boolean warning = false; //whether or not to print the warning message for TextFields
+	boolean useAdvanced = false;
+	public PropertyEditor() { super(); }
+	public PropertyEditor(boolean warn, boolean useAdv) { 
+	    super();
+	    warning=warn; 
+	    useAdvanced = useAdv;
+	}
+	public class Selection {
+	    public Object itemSelected = null;
+	    public void setSelected(Object selected) {
+		itemSelected = selected;
+	    }
+	}
 	public JComponent componentFor(final Object o) 
 	{
 	    //      if (o instanceof Configurable) //custom property editor
@@ -347,26 +443,38 @@ public class TypeSelector extends ComponentViewer
 	    //log.setLevel(Level.DEBUG);
 	    JPanel wholePanel = new JPanel();
 	    wholePanel.setLayout(new GridBagLayout());
-	    int numTextFields = 0;
+	    int numTextFields=0, numTypeSelectors=0, numAdvancedParams=0;	    
 	    int row=0;
 	    try {
 		BeanInfo info = Introspector.getBeanInfo(o.getClass());
 		PropertyDescriptor[] props = info.getPropertyDescriptors();
-		for (int i=0; i<props.length; i++) {
+		int i = 0;
+		while (i<props.length) {
 		    log.debug("inspecting property: " + props[i].getShortDescription());
 		    final String pname = props[i].getDisplayName();
 		    final Class type = props[i].getPropertyType();
 		    final Method reader = props[i].getReadMethod();
 		    final Method writer = props[i].getWriteMethod();
+		    i++;
+		    final String pname2 = i<props.length ? props[i].getDisplayName() : null;
+		    final Method reader2 = i<props.length ? props[i].getReadMethod() : null;		    
+		    boolean isHelp;
+		    if (reader2 != null && pname2 !=null && pname2.endsWith("Help") && pname.charAt(0)==pname2.charAt(0)
+			&& ((!isAdvanced(pname2) && !useAdvanced) || (useAdvanced && isAdvanced(pname2)))) {
+			i++;
+			isHelp = true;
+		    } else isHelp=false;
+		    final Selection selection = new Selection();
+		    
 		    JPanel panel = new JPanel();
 		    panel.setBorder(new EmptyBorder(0,0,0,0));
 		    JButton helpButton = new JButton("?");		    
 		    if (reader!=null && writer!=null) {
-			if(!isAdvanced(pname)){
+			final Object value = reader.invoke(o,new Object[]{});
+			if((!isAdvanced(pname) && !useAdvanced) || (useAdvanced && isAdvanced(pname))) {
 			    // getter and setter methods exist - note the type of primitive objects
 			    // will be the corresponding wrapper class
-			    row++;			
-			    final Object value = reader.invoke(o,new Object[]{});
+			    row++;						    
 			    // checks whether type should be displayed inLine
 			    if((isInLine(pname))) 
 				inLine = true;
@@ -454,8 +562,7 @@ public class TypeSelector extends ComponentViewer
 				
 			    } else if (type.equals(int.class)) {
 				// configure an int spinner
-				final JSpinner spinner = new JSpinner();
-				spinner.setValue(value);
+				final JSpinner spinner = new JSpinner(new SpinnerNumberModel(((Integer)value).intValue(),-1,100,1));
 				spinner.addChangeListener(new ChangeListener() {
 					public void stateChanged(ChangeEvent e) {
 					    try {
@@ -469,8 +576,7 @@ public class TypeSelector extends ComponentViewer
 				panel.add(spinner, gbc(1,row));
 			    } else if (type.equals(double.class) && pname.indexOf("Fraction")>=0) {
 				// configure an double spinner from 0 - 1
-				final JSpinner spinner =
-				    new JSpinner(new SpinnerNumberModel(((Double)value).doubleValue(),0,1.0,0.05));
+				final JSpinner spinner = new JSpinner(new SpinnerNumberModel(((Double)value).doubleValue(),0,100,0.05));
 				spinner.addChangeListener(new ChangeListener() {
 					public void stateChanged(ChangeEvent e) {
 					    try {
@@ -481,7 +587,7 @@ public class TypeSelector extends ComponentViewer
 					    }
 					}
 				    });
-				panel.add(spinner, gbc(1,row));
+				panel.add(spinner, gbc(1,row,10));
 			    } else if (type.equals(double.class)) {
 				// configure an text input for doubles
 				final JTextField textField = new JTextField(10);
@@ -523,13 +629,17 @@ public class TypeSelector extends ComponentViewer
 				log.debug("type "+value.getClass()+" is editable");
 				log.debug("add selector on type " + type + " of " + validSubclasses);
 				final TypeSelector selector = new TypeSelector(validSubclasses, inLineClasses, advancedParams, type, isInLine(pname));
+				numTypeSelectors++;
 				//selector.setInLine(isInLine(pname));
 				selector.setContent(value);
 				selector.name = name==null ? pname : name+"."+pname;
+				Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
+				selection.setSelected(selected);
 				selector.classBox.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 					    try {
 						Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
+						selection.setSelected(selected);
 						writer.invoke(o, new Object[]{selected});
 					    } catch (IllegalAccessException ex) {
 					    }	catch (InvocationTargetException ex) {
@@ -537,29 +647,7 @@ public class TypeSelector extends ComponentViewer
 					}
 				    });
 				panel.add(selector, gbc(1,row));
-				if(advancedParams != null && isInLine(pname)) {
-				    JButton advancedOptions = new JButton("advanced options");
-				    advancedOptions.addActionListener(new ActionListener() {
-					    public void actionPerformed(ActionEvent e) {
-						final TypeSelector selector = new TypeSelector(validSubclasses, inLineClasses, null, type, false);
-						selector.setContent(value);
-						selector.name = name==null ? pname : name+"."+pname;
-						selector.classBox.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
-							    try {
-								Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
-								writer.invoke(o, new Object[]{selected});
-							    } catch (IllegalAccessException ex) {
-							    }	catch (InvocationTargetException ex) {
-							    }
-							}
-						    });
-						selector.createPE(type);						
-					    }
-					});
-				    row++;
-				    panel.add(advancedOptions, gbc(1,row));
-				}
+				
 
 			    } else {
 				log.debug("type "+type+" is not editable");
@@ -572,32 +660,69 @@ public class TypeSelector extends ComponentViewer
 			    else
 				log.debug("null value, no class");
 			    
-			}
+			} else numAdvancedParams++;			
 			wholePanel.add(panel, gbc(1,row));
-		    } else if (reader != null && pname.endsWith("Help") && !isAdvanced(pname)) {
-			final Object value = reader.invoke(o,new Object[]{});
+		    } 
+		    if (isHelp) {
+			final Object value = reader2.invoke(o,new Object[]{});
 			panel.add(new JButton(new AbstractAction("?") {
 				public void actionPerformed(ActionEvent e) {
 				    log.debug("pressed help");
 				    HelpViewer editor = new HelpViewer();
-				    editor.setContent(value);
-				    String title = pname==null ? "Property Editor" : "Property Editor for "+name;
+				    String helpString = value.toString();
+				    if(selection.itemSelected != null) {
+					String selectedItem = selection.itemSelected.toString();
+					if(selectedItem.indexOf('@') > 0) {
+					    selectedItem = selectedItem.substring(0,selectedItem.indexOf('@'));
+					}
+					String javadocLink = selectedItem;					
+					javadocLink = javadocLink.replaceAll("\\.","\\/");
+					if(javadocLink.indexOf('$') > 0) {
+					    javadocLink = javadocLink.replaceAll("\\$","\\.");
+					}
+					javadocLink = "http://minorthird.sourceforge.net/javadoc/" + javadocLink;
+					helpString = helpString + "<br>Your current selection is:  <a href=\""+javadocLink+".html\">"+selectedItem+"</a>";
+				    }				    
+				    editor.setContent(helpString);
+				    String title = pname==null ? "Help" : "Help for "+ pname;
 				    //JFrame popupFrame = new JFrame(title);
 				    JOptionPane optionPane = new JOptionPane(new Object[]{editor});
 				    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
 				    dialog.show();
 				}
-			    }), gbc(1,row));
-			wholePanel.add(panel, gbc(2,row));
-		    }		    
-		} // for possible property		
+			    }), gbc(1,row));		
+			}		    
+		} // for possible property
+		if(numAdvancedParams > 0 && inLine) {
+		    JButton advancedOptions = new JButton("advanced options");
+		    advancedOptions.addActionListener(new ActionListener() {
+			    public void actionPerformed(ActionEvent e) {
+				final TypeSelector selector = new TypeSelector(validSubclasses, inLineClasses, advancedParams, o.getClass(), false);
+				selector.setContent(o);
+				//selector.name = name==null ? pname : name+"."+pname;
+				selector.classBox.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+					    //try {
+						Object selected = selector.instanceMap.get(selector.classBox.getSelectedItem());
+						//writer.invoke(o, new Object[]{selected});
+						//} catch (IllegalAccessException ex) {
+						//}	catch (InvocationTargetException ex) {
+						//}
+					}
+				    });
+				selector.createPE(o.getClass());						
+			    }
+			});
+		    row++;
+		    wholePanel.add(advancedOptions, gbc(1,row));
+		}
 		
 		if (row==0) {
 		    wholePanel.add(new JLabel("No properties to edit for class "+o.getClass()));
 		} 
-		//if (numTextFields>0) {
-		//    wholePanel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"), gbc(0,row+1,2));
-		//}
+		if (warning && (numTypeSelectors > 0 || numTextFields >0 )) {
+		    wholePanel.add(new JLabel("[Reminder: text will not be saved unless you use ENTER]"), gbc(0,row+1,2));
+		}
 	    } catch (Exception e) {
 		e.printStackTrace();
 		throw new IllegalArgumentException("Editor on input "+o+": "+e.toString());
@@ -632,22 +757,7 @@ public class TypeSelector extends ComponentViewer
 		if (c.equals(validSubclasses.get(i))) return true;
 	    }
 	    return false;
-	}
-	
-	public class HelpViewer extends ComponentViewer
-	{
-	    public JComponent componentFor(final Object o) 
-	    {
-		try {
-		    JPanel helpPanel = new JPanel();
-		    helpPanel.add(new JLabel((String)o));
-		    return helpPanel;
-		} catch (Exception e) {
-		    e.printStackTrace();
-		    throw new IllegalArgumentException("Must give the help viewer a String");
-		}
-	    }
-	}
+	}	
 	
     }
 	

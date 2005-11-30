@@ -37,6 +37,10 @@ public class ApplyAnnotator extends UIMain
     public CommandLineUtil.AnnotatorOutputParams getAnnotatorOutputParams() { return output; }
     public void setAnnotatorOutputParams(CommandLineUtil.AnnotatorOutputParams p) { output=p; }
 
+    public String getApplyAnnotatorHelp() {
+	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/ApplyAnnotator%20Tutorial.htm\">ApplyAnnotator Tutorial</A></html>";
+    }
+
     public CommandLineProcessor getCLP()
     {
 	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,load,output});

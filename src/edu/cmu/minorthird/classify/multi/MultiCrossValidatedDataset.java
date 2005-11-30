@@ -3,6 +3,7 @@ package edu.cmu.minorthird.classify.multi;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner;
+import edu.cmu.minorthird.classify.transform.*;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.gui.*;
 import org.apache.log4j.Logger;
@@ -45,7 +46,11 @@ public class MultiCrossValidatedDataset implements Visible
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
 			MultiClassifier c = new MultiDatasetClassifierTeacher(trainData).train(learner);
-			if(cross) testData=testData.annotateData(c);
+			//if(cross) testData=testData.annotateData(c);
+			if(cross) {
+			    AbstractInstanceTransform transformer = new PredictedClassTransform(c);
+			    c = new TransformingMultiClassifier(c, transformer);
+			}
 			MultiDatasetIndex testIndex = new MultiDatasetIndex(testData);
 			cds[k] = new MultiClassifiedDataset(c, testData, testIndex);
 			if (trainCds!=null) trainCds[k] = new MultiClassifiedDataset(c, trainData, testIndex);
