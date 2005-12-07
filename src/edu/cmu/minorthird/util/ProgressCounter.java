@@ -100,7 +100,7 @@ final public class ProgressCounter
 		}
 		System.out.println("Task "+task+": "
 				   +(100.0*stepsCompleted/numSteps)
-				   +"% ("+stepsCompleted+"/"+numSteps+" steps) in "
+				   +"% ("+stepsCompleted+"/"+numSteps+" "+step+"s) in "
 				   +(time-startTime)/1000.0+" sec");
 	    } else {
 		try{

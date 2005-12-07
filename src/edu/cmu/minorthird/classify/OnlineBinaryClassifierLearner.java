@@ -17,7 +17,7 @@ public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLear
 	final public void setSchema(ExampleSchema schema)
 	{
 		if (!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)) {
-			throw new IllegalStateException("can only learn binary example data");
+			throw new IllegalStateException("can only learn binary example data: requested schema is "+schema);
 		}
 	}
 	final public BinaryClassifier getBinaryClassifier()

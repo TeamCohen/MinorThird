@@ -4,8 +4,7 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.sequential.SequenceDataset;
-import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.StringEncoder;
+import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import org.apache.log4j.Logger;
 
@@ -67,6 +66,38 @@ public class DatasetLoader
 	for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
 	    out.println( asParsableString(i.nextExample()) );
 	}
+    }
+
+    /** Save a dataset that can be used for regression */
+    static public void saveRegression(Dataset dataset,File file) throws IOException
+    {
+	PrintStream out = new PrintStream(new FileOutputStream(file));
+	for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
+	    Example x = i.nextExample();
+	    StringBuffer buf = new StringBuffer("");
+	    buf.append( x.getLabel().posWeight() );
+	    buf.append( '\t' );
+	    buf.append( asParsableString(x) );
+	    out.println( buf.toString() );
+	}
+	out.close();
+    }
+
+    /** Save a dataset that can be used for regression */
+    static public Dataset loadRegression(File file) throws IOException,NumberFormatException
+    {
+	Dataset dataset = new BasicDataset();
+	LineNumberReader in = new LineNumberReader(new FileReader(file));
+	String line;
+	while ((line = in.readLine())!=null) {
+	    int tab = line.indexOf('\t');
+	    Example x = parseLine(line.substring(tab+1),file,in);
+	    double score = StringUtil.atof(line.substring(0,tab));
+	    dataset.add( new Example(x.asInstance(), ClassLabel.positiveLabel(score)) );
+	}
+	log.info("loaded "+dataset.size()+" examples from "+file.getName());
+	in.close();
+	return dataset;
     }
 
     /** Load a dataset from a file */
@@ -168,6 +199,11 @@ public class DatasetLoader
 	buf.append(' ');
 	buf.append(stringCoder.encode(x.getLabel().bestClassName()));
 	buf.append(' ');
+	appendParsableFeatures(buf,x);
+	return buf.toString();
+    }
+    static void appendParsableFeatures(StringBuffer buf,Example x)
+    {
 	for (Feature.Looper i=x.binaryFeatureIterator(); i.hasNext(); ) {
 	    Feature f = i.nextFeature();
 	    buf.append(' ');
@@ -185,10 +221,9 @@ public class DatasetLoader
 	    }
 	    buf.append("="+x.getWeight(f));
 	}
-	return buf.toString();
     }
 
-    static private Example parseLine(String line, File file,LineNumberReader in)
+    static private Example parseLine(String line, File file, LineNumberReader in)
     {
 	String[] arr = line.split("\\s+");
 	if (arr.length<3)
@@ -329,9 +364,13 @@ public class DatasetLoader
     {
 	try {
 	    boolean sequential = args[0].startsWith("-seq");
-	    String dbName =  sequential ? args[1] : args[0];
+	    boolean regression = args[0].startsWith("-reg");
+	    String dbName =  (sequential||regression) ? args[1] : args[0];
 	    DatasetLoader loader = new DatasetLoader();
-	    Dataset d = sequential ? loader.loadSequence(new File(dbName)) : loader.loadFile(new File(dbName));
+	    Dataset d = null;
+	    if (sequential) d = loader.loadSequence(new File(dbName));
+	    else if (regression) d = loader.loadRegression(new File(dbName));
+	    else d = loader.loadFile(new File(dbName));
 	    ViewerFrame f = new ViewerFrame("Data from "+dbName, d.toGUI());
 	} catch (Exception e) {
 	    e.printStackTrace();

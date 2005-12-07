@@ -32,6 +32,14 @@ public class EvaluationGroup implements Visible,Serializable,Saveable
         if (someEvaluation==null) someEvaluation=evaluation;
         members.put(name,evaluation);
     }
+
+    /** Return an iterator for the names of evaluations in the group. */
+    public Iterator evalNameIterator() { return members.keySet().iterator(); }
+
+    /** Return the evaluation associated with this name. */
+    public Evaluation getEvaluation(String name) { return (Evaluation)members.get(name); }
+
+
     public String toString()
     {
         return members.toString();

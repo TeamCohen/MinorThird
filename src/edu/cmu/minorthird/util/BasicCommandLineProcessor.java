@@ -160,7 +160,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor,
 	 * For instance, if the command line includes -foo bar,
 	 * then "foo" will appear on the propertyList. 
 	 */
-	public List propertyList()
+	protected List propertyList()
 	{
 		List result = new ArrayList();
 		argValues.clear();
@@ -187,7 +187,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor,
 	 * This can only be called after propertyList has been
 	 * called.
 	 */
-	public String propertyValue(String property)
+	protected String propertyValue(String property)
 	{
 		return argValues.getProperty(property);
 	}
@@ -244,4 +244,12 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor,
 			};
 		p.processArguments(args);
 	}
+
+    protected CommandLineProcessor tryToGetCLP(Object o)
+    {
+	if (o instanceof CommandLineProcessor.Configurable) {
+	    return ((CommandLineProcessor.Configurable)o).getCLP();
+	}
+	throw new IllegalArgumentException(o+" can't be configured from the command line");
+    }
 }

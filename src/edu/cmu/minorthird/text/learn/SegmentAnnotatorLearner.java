@@ -66,7 +66,7 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner
 	}
     public String getDisplayDatasetBeforeLearningHelp() { return "Pop up an interactive viewer of the sequential dataset before learning."; }
 
-  private boolean compressDataset=false; 
+  private boolean compressDataset=true; 
 
   /** If set, try and compress the data. This leads to longer loading and learning times
    * but less memory usage. */
