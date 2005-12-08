@@ -34,8 +34,8 @@ public class ApplyAnnotator extends UIMain
     public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
     public CommandLineUtil.LoadAnnotatorParams getLoadAnnotatorParameters() { return load; }
     public void setLoadAnnotatorParameters(CommandLineUtil.LoadAnnotatorParams p) { load=p; }
-    public CommandLineUtil.AnnotatorOutputParams getAnnotatorOutputParams() { return output; }
-    public void setAnnotatorOutputParams(CommandLineUtil.AnnotatorOutputParams p) { output=p; }
+    //public CommandLineUtil.AnnotatorOutputParams getAnnotatorOutputParams() { return output; }
+    //public void setAnnotatorOutputParams(CommandLineUtil.AnnotatorOutputParams p) { output=p; }
 
     public String getApplyAnnotatorHelp() {
 	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/ApplyAnnotator%20Tutorial.htm\">ApplyAnnotator Tutorial</A></html>";

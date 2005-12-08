@@ -31,25 +31,23 @@ w\:* {behavior:url(#default#VML);}
   <o:Author>cmw2</o:Author>
   <o:Template>Normal</o:Template>
   <o:LastAuthor>cmw2</o:LastAuthor>
-  <o:Revision>2</o:Revision>
-  <o:TotalTime>7101</o:TotalTime>
+  <o:Revision>3</o:Revision>
+  <o:TotalTime>7103</o:TotalTime>
   <o:Created>2005-11-07T19:31:00Z</o:Created>
-  <o:LastSaved>2005-11-07T19:31:00Z</o:LastSaved>
+  <o:LastSaved>2005-12-07T21:08:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>672</o:Words>
-  <o:Characters>3836</o:Characters>
+  <o:Words>698</o:Words>
+  <o:Characters>3979</o:Characters>
   <o:Company>Carnegie Mellon University</o:Company>
-  <o:Lines>31</o:Lines>
-  <o:Paragraphs>8</o:Paragraphs>
-  <o:CharactersWithSpaces>4500</o:CharactersWithSpaces>
+  <o:Lines>33</o:Lines>
+  <o:Paragraphs>9</o:Paragraphs>
+  <o:CharactersWithSpaces>4668</o:CharactersWithSpaces>
   <o:Version>11.6408</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <w:WordDocument>
   <w:HideSpellingErrors/>
   <w:HideGrammaticalErrors/>
-  <w:SpellingState>Clean</w:SpellingState>
-  <w:GrammarState>Clean</w:GrammarState>
   <w:PunctuationKerning/>
   <w:ValidateAgainstSchemas/>
   <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
@@ -84,12 +82,6 @@ st1\:*{behavior:url(#ieooui) }
 	font-size:12.0pt;
 	font-family:"Times New Roman";
 	mso-fareast-font-family:"Times New Roman";}
-span.SpellE
-	{mso-style-name:"";
-	mso-spl-e:yes;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
 @page Section1
 	{size:8.5in 11.0in;
 	margin:63.0pt 1.25in 1.0in 1.25in;
@@ -119,154 +111,145 @@ div.Section1
 	mso-fareast-language:#0400;
 	mso-bidi-language:#0400;}
 </style>
-<![endif]-->
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="2050"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
 </head>
 
-<body lang=EN-US style='tab-interval:.5in'>
+<body lang=EN-US link=blue vlink=blue style='tab-interval:.5in'>
 
 <div class=Section1>
 
-<p class=MsoNormal align=center style='text-align:center'><span class=SpellE><b
-style='mso-bidi-font-weight:normal'><span style='font-size:16.0pt'>OnlineTextLearning</span></b></span><b
-style='mso-bidi-font-weight:normal'><span style='font-size:16.0pt'> Tutorial<o:p></o:p></span></b></p>
+<p class=MsoNormal align=center style='text-align:center'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:16.0pt'>OnlineTextLearning Tutorial<o:p></o:p></span></b></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>The <span class=SpellE>OnlineTextClassifierLearner</span>
-allows you to add Documents to a learner by passing in a document string rather
-than a document span.<span style='mso-spacerun:yes'>  </span>The <span
-class=SpellE>OnlineTextClassifierLearner</span> also returns a <span
-class=SpellE>TextClassifier</span> with a call to <span class=SpellE><span
-class=GramE>getTextClassifier</span></span><span class=GramE>(</span>) which
-gives you the score of a document string rather than a document span.<span
+<p class=MsoNormal>The OnlineTextClassifierLearner allows you to add Documents
+to a learner by passing in a document string rather than a document span.<span
+style='mso-spacerun:yes'>  </span>The OnlineTextClassifierLearner also returns
+a TextClassifier with a call to getTextClassifier() which gives you the score
+of a document string rather than a document span.<span
 style='mso-spacerun:yes'>  </span></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><span class=SpellE><b style='mso-bidi-font-weight:normal'>OnlineTextClassifierLearner</b></span><b
-style='mso-bidi-font-weight:normal'> API:</b></p>
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>OnlineTextClassifierLearner
+API:</b></p>
 
-<p class=MsoNormal><span class=GramE>public</span> interface <span
-class=SpellE>OnlineTextClassifierLearner</span></p>
+<p class=MsoNormal>public interface OnlineTextClassifierLearner</p>
 
 <p class=MsoNormal>{</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** <span
-class=GramE>Provide</span> document string with a label and add to the
-learner*/</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Provide
+document string with a label and add to the learner*/</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-void <span class=SpellE>addDocument</span>(String label, String text);</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public void
+addDocument(String label, String text);</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Returns the <span
-class=SpellE>TextClassifier</span> */</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Returns the
+TextClassifier */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-<span class=SpellE>TextClassifier</span> <span class=SpellE>getTextClassifier</span>();</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public
+TextClassifier getTextClassifier();</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Returns the
 Classifier */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-Classifier <span class=SpellE>getClassifier</span>();</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public Classifier
+getClassifier();</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** <span
-class=GramE>Tells</span> the learner that no more examples are coming */</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Tells the
+learner that no more examples are coming */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-void <span class=SpellE>completeTraining</span>();</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public void
+completeTraining();</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Erases all
 previous data from the learner */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-void reset();</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public void
+reset();</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Returns an
-array of <span class=SpellE>spanTypes</span> that can be added to the learner
-*/</p>
+array of spanTypes that can be added to the learner */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-String[] <span class=SpellE>getTypes</span>();</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public String[]
+getTypes();</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Returns an
-annotated copy of <span class=SpellE>TextLabels</span> */</p>
+annotated copy of TextLabels */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-<span class=SpellE>TextLabels</span> <span class=SpellE>annotatedCopy</span>(<span
-class=SpellE>TextLabels</span> labels);</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public TextLabels
+annotatedCopy(TextLabels labels);</p>
 
 <p class=MsoNormal>}</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>Currently <span class=SpellE>OnlineBinaryTextClassifierLearner</span>
-is the only implementation of the <span class=SpellE>OnlineTextClassifierLearner</span>.<span
-style='mso-spacerun:yes'>  </span><span class=SpellE>OnlineBinaryTextClassifierLearner</span>
+<p class=MsoNormal>Currently OnlineBinaryTextClassifierLearner is the only
+implementation of the OnlineTextClassifierLearner.<span
+style='mso-spacerun:yes'>  </span>OnlineBinaryTextClassifierLearner
 constructors:</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>/** <span class=GramE>Accepts</span> an <span class=SpellE>OnlineLearner</span>
-and a Document String with no previous labeled data */</p>
+<p class=MsoNormal>/** Accepts an OnlineLearner and a Document String with no
+previous labeled data */</p>
 
-<p class=MsoNormal><span class=GramE>public</span> <span class=SpellE>OnlineBinaryTextClassifierLearner</span>(<span
-class=SpellE>OnlineClassifierLearner</span> learner, String <span class=SpellE>spanType</span>)<span
-style='mso-spacerun:yes'>  </span></p>
-
-<p class=MsoNormal><o:p>&nbsp;</o:p></p>
-
-<p class=MsoNormal>/** <span class=GramE>Accepts</span> an <span class=SpellE>OnlineLearner</span>,
-a <span class=SpellE>SpanType</span>, and <span class=SpellE>labeledData</span>
-to add to the learner */</p>
-
-<p class=MsoNormal><span class=GramE>public</span> <span class=SpellE>OnlineBinaryTextClassifierLearner</span>(<span
-class=SpellE>OnlineClassifierLearner</span> learner, String <span class=SpellE>spanType</span>,
-<span class=SpellE>TextLabels</span> <span class=SpellE>labeledData</span>)</p>
+<p class=MsoNormal>public OnlineBinaryTextClassifierLearner(OnlineClassifierLearner
+learner, String spanType)<span style='mso-spacerun:yes'>  </span></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>/** Accepts an OnlineLearner, a SpanType, and labeledData to
+add to the learner */</p>
+
+<p class=MsoNormal>public
+OnlineBinaryTextClassifierLearner(OnlineClassifierLearner learner, String
+spanType, TextLabels labeledData)</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>/** <span class=GramE>Accepts</span> an <span class=SpellE>OnlineLearner</span>,
-a <span class=SpellE>SpanType</span>, <span class=SpellE>labeledData</span> to
-add to the learner, and a <span class=SpellE>SpanFeatureExtractor</span> */</p>
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'> </span><span class=GramE>public</span>
-<span class=SpellE>OnlineBinaryTextClassifierLearner</span>(<span class=SpellE>OnlineClassifierLearner</span>
-learner, String <span class=SpellE>spanType</span>, <span class=SpellE>TextLabels</span>
-<span class=SpellE>labeledData</span>, <span class=SpellE>SpanFeatureExtractor</span>
-<span class=SpellE>fe</span>)</p>
+<p class=MsoNormal>/** Accepts an OnlineLearner, a SpanType, labeledData to add
+to the learner, and a SpanFeatureExtractor */</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'> </span>public
+OnlineBinaryTextClassifierLearner(OnlineClassifierLearner learner, String
+spanType, TextLabels labeledData, SpanFeatureExtractor fe)</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><span class=SpellE><b style='mso-bidi-font-weight:normal'>TextClassifier</b></span><b
-style='mso-bidi-font-weight:normal'> API:<o:p></o:p></b></p>
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>TextClassifier API:<o:p></o:p></b></p>
 
-<p class=MsoNormal><span class=GramE>public</span> interface <span
-class=SpellE>TextClassifier</span></p>
+<p class=MsoNormal>public interface TextClassifier</p>
 
 <p class=MsoNormal>{</p>
 
 <p class=MsoNormal><span style='mso-spacerun:yes'>    </span>/** Returns the
 weight for a String being in the positive class */</p>
 
-<p class=MsoNormal><span style='mso-spacerun:yes'>    </span><span class=GramE>public</span>
-double score(String text);</p>
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>public double
+score(String text);</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
@@ -274,17 +257,14 @@ double score(String text);</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>Minorthird has a <span class=SpellE>builtin</span> test
-class for these <span class=SpellE>OnlineText</span> classes in <span
-class=SpellE>ui/OnlineLearner</span>.<span style='mso-spacerun:yes'>  </span><span
-class=GramE>This class accept</span> most of the same variable as <span
-class=SpellE>TrainClassifier</span>.<span style='mso-spacerun:yes'> 
-</span>Type:</p>
+<p class=MsoNormal>Minorthird has a builtin test class for these OnlineText
+classes in ui/OnlineLearner.<span style='mso-spacerun:yes'>  </span>This class
+accept most of the same variable as TrainClassifier.<span
+style='mso-spacerun:yes'>  </span>Type:</p>
 
-<p class=MsoNormal>% java –Xmx500M <span class=SpellE>edu.cmu.minorthird.ui.OnlineLearner</span>
-–help</p>
+<p class=MsoNormal>% java –Xmx500M edu.cmu.minorthird.ui.OnlineLearner –help</p>
 
-<p class=MsoNormal><span class=GramE>To see all options.</span></p>
+<p class=MsoNormal>To see all options.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
@@ -292,18 +272,15 @@ class=SpellE>TrainClassifier</span>.<span style='mso-spacerun:yes'> 
 variables are:<o:p></o:p></i></p>
 
 <p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-labels
-REPOSITORY_KEY<span style='mso-tab-count:1'>                           </span><span
-class=GramE>Contains</span> the data you would like to label and add to the
-learner</p>
+REPOSITORY_KEY<span style='mso-tab-count:1'>                           </span>Contains
+the data you would like to label and add to the learner</p>
 
-<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-<span
-class=SpellE>spanType</span><span style='mso-tab-count:1'>                                                        </span><span
-class=GramE>What</span> <span class=SpellE>spanType</span> would you like to
-label the new data.<span style='mso-spacerun:yes'>  </span><b>Note: this will
-appear in the <span class=SpellE><span class=GramE>gui</span></span> only if
-you specify <span class=SpellE>labeledData</span> with the same <span
-class=SpellE>spanType</span> otherwise you must specify this variable on the
-command line</b>!</p>
+<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-spanType<span
+style='mso-tab-count:1'>                                                        </span>What
+spanType would you like to label the new data.<span style='mso-spacerun:yes'> 
+</span><b>Note: this will appear in a pull down list in the gui only if you
+specify labeledData with the same spanType otherwise you must specify this
+variable on the command line</b>!</p>
 
 <p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'><o:p>&nbsp;</o:p></p>
 
@@ -312,45 +289,41 @@ style='mso-bidi-font-style:normal'>You must specify one of these:<o:p></o:p></i>
 
 <p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-learner<span
 style='mso-tab-count:1'>                                                            </span>Specify
-the <span class=SpellE>OnlineLearner</span> you would like to use</p>
+the OnlineLearner you would like to use</p>
 
-<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-<span
-class=SpellE>loadFrom</span><span style='mso-tab-count:1'>                                                        </span>Load
-a previously saved <st1:State w:st="on"><st1:place w:st="on"><span
-  class=SpellE>tex</span></st1:place></st1:State><span class=SpellE>tLearner</span></p>
+<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-loadFrom<span
+style='mso-tab-count:1'>                                                        </span>Load
+a previously saved <st1:State w:st="on"><st1:place w:st="on">tex</st1:place></st1:State>tLearner</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><i style='mso-bidi-font-style:normal'>Optional Variables:<o:p></o:p></i></p>
 
-<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-<span
-class=SpellE>labeledData</span><span style='mso-tab-count:1'>                                                     </span><span
-class=GramE>Previously</span> labeled data that you would like to add to the
-learner before labeling more data</p>
+<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-labeledData<span
+style='mso-tab-count:1'>                                                     </span>Previously
+labeled data that you would like to add to the learner before labeling more data</p>
 
-<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-<span
-class=SpellE><span class=GramE>fe</span></span><span style='mso-tab-count:1'>                                                                    </span>The
+<p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'>-fe<span
+style='mso-tab-count:1'>                                                                    </span>The
 feature extractor you would like to use </p>
 
 <p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal style='margin-left:3.0in;text-indent:-3.0in'><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal><span class=GramE>Lets</span> try an example:</p>
+<p class=MsoNormal>Lets try an example:</p>
 
-<p class=MsoNormal>%java –Xmx500M <span class=SpellE>edu.cmu.minorthird.ui.OnlineLearner</span>
-–<span class=SpellE>unlabeledData</span> sample3.unlabeled –labels
-sample3.train –<span class=SpellE>spanType</span> fun –learner “new <span
-class=SpellE><span class=GramE>NaiveBayes</span></span><span class=GramE>(</span>)”
-–<span class=SpellE>gui</span></p>
+<p class=MsoNormal>%java –Xmx500M edu.cmu.minorthird.ui.OnlineLearner
+–unlabeledData sample3.unlabeled –labels sample3.train –spanType fun –learner
+“new NaiveBayes()” –gui</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>A window much like the other <span class=SpellE>ui</span>
-windows should appear.<span style='mso-spacerun:yes'>  </span>From there you
-can edit any other parameters you would like to change.<span
-style='mso-spacerun:yes'>  </span>Once you are satisfied with your options,
-press “Start Task”<br clear=all style='page-break-before:always'>
+<p class=MsoNormal>A window much like the other ui windows should appear.<span
+style='mso-spacerun:yes'>  </span>From there you can edit any other parameters
+you would like to change.<span style='mso-spacerun:yes'>  </span>Once you are
+satisfied with your options, press “Start Task”<br clear=all style='page-break-before:
+always'>
 A window that looks like this should appear:</p>
 
 <p class=MsoNormal><!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
@@ -375,31 +348,29 @@ A window that looks like this should appear:</p>
  <o:lock v:ext="edit" aspectratio="t"/>
 </v:shapetype><v:shape id="_x0000_i1025" type="#_x0000_t75" style='width:6in;
  height:352.5pt'>
- <v:imagedata src="Online%20Learning%20Tutorial_files/image001.png" o:title=""/>
-</v:shape><![endif]--><![if !vml]><img width=576 height=470
-src="Online%20Learning%20Tutorial_files/image002.jpg" v:shapes="_x0000_i1025"><![endif]></p>
+ <v:imagedata src="" o:title=""/>
+</v:shape><![endif]--></p>
 
 <p class=MsoNormal>Note: you will have to expand the window to see the labels
 on all the buttons</p>
 
-<p class=MsoNormal>Note: you will be able to highlight <span class=SpellE>minorthird’s</span>
-prediction as soon as the window pops up, but you will only be able to compare
-to the actual <st1:City w:st="on">labe</st1:City>l (in this case fun) once you
-have <st1:City w:st="on"><st1:place w:st="on">labe</st1:place></st1:City>led
-one of the documents.</p>
+<p class=MsoNormal>Note: you will be able to highlight minorthird’s prediction
+as soon as the window pops up, but you will only be able to compare to the
+actual <st1:City w:st="on">labe</st1:City>l (in this case fun) once you have <st1:City
+w:st="on"><st1:place w:st="on">labe</st1:place></st1:City>led one of the
+documents.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal>You will notice that –choose label- is a pull-down menu
-where you can select either the <span class=SpellE>spanType</span> you trained
-on or <span class=SpellE>NOTspanType</span> you trained on.<span
-style='mso-spacerun:yes'>  </span>In this case the menu has the items fun and <span
-class=SpellE>NOTfun</span>.</p>
+where you can select either the spanType you trained on or NOTspanType you
+trained on.<span style='mso-spacerun:yes'>  </span>In this case the menu has
+the items fun and NOTfun.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
-<p class=MsoNormal>Here is a summary of how to use each of the buttons on the bottom
-of the window:</p>
+<p class=MsoNormal>Here is a summary of how to use each of the buttons on the
+bottom of the window:</p>
 
 <p class=MsoNormal>Up: <span style='mso-tab-count:3'>                              </span>Scroll
 up one document</p>
@@ -407,9 +378,9 @@ up one document</p>
 <p class=MsoNormal>Down:<span style='mso-tab-count:3'>                          </span>Scroll
 down one document</p>
 
-<p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>-<span
-class=GramE>choose</span> label- <span style='mso-tab-count:1'>             </span>Label
-the current document as one of the items in the pull down menu</p>
+<p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>-choose label- <span
+style='mso-tab-count:1'>             </span>Label the current document as one
+of the items in the pull down menu</p>
 
 <p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>Add Doc(s)<span
 style='mso-tab-count:1'>                  </span>Add all labeled documents to
@@ -423,13 +394,13 @@ documents are added, their labels cannot be changed</p>
 style='mso-tab-count:1'>             </span>Pops up window for the classifier
 for all trained data</p>
 
-<p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>Save <span
-class=SpellE>TextLearner</span><span style='mso-tab-count:1'>         </span>Saves
-the <span class=SpellE>textLearner</span> including all new data added</p>
+<p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>Save
+TextLearner<span style='mso-tab-count:1'>         </span>Saves the textLearner
+including all new data added</p>
 
 <p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>Reset<span
-style='mso-tab-count:1'>                            </span>Erase all previous <span
-class=GramE>example</span>, reset classifier</p>
+style='mso-tab-count:1'>                            </span>Erase all previous
+example, reset classifier</p>
 
 <p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>Complete
 Training<span style='mso-tab-count:1'>        </span>Let the classifier know
@@ -437,11 +408,14 @@ there will be no new examples</p>
 
 <p class=MsoNormal style='margin-left:1.5in;text-indent:-1.5in'>Save<span
 style='mso-tab-count:1'>                             </span>Save the labels you
-have added to <span class=SpellE>DIRECTORY_NAME.labels</span></p>
+have added to DIRECTORY_NAME.labels</p>
+
+<p class=MsoNormal><a href="http://sourceforge.net"><span style='text-decoration:
+none;text-underline:none'><img border=0 width=88 height=31 id="_x0000_i1026"
+src="http://sflogo.sourceforge.net/sflogo.php?group_id=104018&amp;type=1"
+alt="SourceForge.net Logo"></span></a></p>
 
 </div>
-
-<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=104018&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
 
 </body>
 

@@ -181,6 +181,26 @@ public class MultiClassifiedDataset implements Visible
 		}
 	}
 
+    static public class ExplanationViewer extends ComponentViewer
+    {
+	Explanation ex;
+
+	public ExplanationViewer(Explanation ex) {
+	    this.ex = ex;
+	    setContent(ex);
+	}
+	
+	public boolean canReceive(Object o) {	return o instanceof Explanation; }
+
+	public JComponent componentFor(Object o) 
+	{
+	    ex = (Explanation)o;
+	    JScrollPane p = new JScrollPane(ex.getExplanation());
+	    return p;
+	}
+
+    }
+
 	/** Viewer for a classified dataset
 	 */
 	static private class MyViewer extends ComponentViewer
@@ -210,7 +230,7 @@ public class MultiClassifiedDataset implements Visible
 				(cd.classifier instanceof Visible)	
 				?((Visible)cd.classifier).toGUI():new VanillaViewer(cd.classifier);
 			right.setTopComponent(classifierViewer);
-			explanationViewer = new VanillaViewer("[explanation]");
+			explanationViewer = new ExplanationViewer(new Explanation("[explanation]"));
 			right.setBottomComponent(explanationViewer);
 			classifierViewer.setSuperView(this,"classifier");
 			explanationViewer.setSuperView(this,"explanation");
@@ -243,7 +263,7 @@ public class MultiClassifiedDataset implements Visible
 			if (argument instanceof MultiExample) {
 				MultiExample example = (MultiExample)argument;
 				instanceViewer.setContent(example);
-				explanationViewer.setContent(cd.classifier.explain(example));
+				explanationViewer.setContent(cd.classifier.getExplanation(example));
 				revalidate();
 			} else if (argument instanceof Feature) {
 				DataControls dc = (DataControls)dataViewer.getControls();

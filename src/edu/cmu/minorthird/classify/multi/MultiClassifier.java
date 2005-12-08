@@ -14,7 +14,7 @@ import java.awt.Component;
 
 public class MultiClassifier implements Classifier, Visible, Serializable
 {
-    private Classifier[] classifiers;
+    public Classifier[] classifiers;
 
     public MultiClassifier(Classifier[] classifiers) {
 	this.classifiers = classifiers;

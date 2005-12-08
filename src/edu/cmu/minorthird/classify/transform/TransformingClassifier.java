@@ -32,7 +32,11 @@ public class TransformingClassifier implements Classifier,Visible,Serializable
 			classifier.explain(transformedInstance)+"\n";
 	}
     public Explanation getExplanation(Instance instance) {
-	Explanation ex = new Explanation(explain(instance));
+	Explanation.Node top = new Explanation.Node("TransformingClassifier Explanation");      
+	Explanation.Node transformedEx = classifier.getExplanation(transformer.transform(instance)).getTopNode();
+	top.add(transformedEx);
+       
+	Explanation ex = new Explanation(top);
 	return ex;
     }
 

@@ -48,6 +48,31 @@ public class TransformingMultiClassifier extends MultiClassifier implements Visi
 	return super.classification( transformer.transform(instance) );
     }
 
+    public String explain(Instance instance) 
+    {
+	StringBuffer buf = new StringBuffer("");
+	for (int i=0; i<classifiers.length; i++) {
+	    buf.append( classifiers[i].explain(instance) );
+	    buf.append( "\n" );
+	}
+	buf.append( "classification = "+classification(instance).toString() );
+	return buf.toString();
+    }
+
+    public Explanation getExplanation(Instance instance) {
+	Explanation.Node top = new Explanation.Node("MultiClassifier Explanation");
+	Classifier[] classifiers = getClassifiers();
+
+	for (int i=0; i<classifiers.length; i++) {
+	    Explanation.Node classEx = classifiers[i].getExplanation(instance).getTopNode();
+	    top.add(classEx);
+	}
+	Explanation.Node score = new Explanation.Node( "classification = "+classification(transformer.transform(instance)).toString() );
+	top.add(score);
+	Explanation ex = new Explanation(top);
+	return ex;
+    }
+
     public Viewer toGUI()
     {
 	Viewer gui =  new ComponentViewer() {

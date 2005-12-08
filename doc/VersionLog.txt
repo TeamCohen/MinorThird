@@ -22,3 +22,7 @@ Version # Format: Version#.Year.Month.Day
 		- more parameter bunches added to selectable types
 		- Documentation added: Index and tutorial
 		- Fixed cross option for TrainTestMultiClassifier - Tester.multiEvaluate, MultiCrossValidatedDataset
+6.2.5.12.8	- Fixed MultiClassifier cross testing implementation
+		- Fixed MultiClassifier explanation facilities
+		- Added and updated documentation
+		- Fixed SpanTypeTextBase to extract more than one span Type per document
