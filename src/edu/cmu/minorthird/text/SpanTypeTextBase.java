@@ -20,7 +20,7 @@ public class SpanTypeTextBase extends ImmutableTextBase
     private Set validDocumentSpans;
     private TextBase base;
     private String spanType;
-    private MonotonicTextLabels labels;
+    private BasicTextLabels labels;
 
     /** Initialize a TextBase with a single spanType from a parent TextBase */
     public SpanTypeTextBase(TextLabels parentLabels, String spanType)
@@ -85,10 +85,11 @@ public class SpanTypeTextBase extends ImmutableTextBase
 		    if(parentSpan.contains(s) && childDocSpan.size()>=s.getLoTextToken()-childDocStartIndex+s.size() ) {
 			//find the matching span in the child doc span and add it to the child Labels
 			Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
-			labels.addToType(subSpan, type);
+			labels.addToType(subSpan, type);			
 		    }
-		}
-	    }	    	    
+		}		
+		labels.closeTypeInside(type, childDocSpan);
+	    } 	    
 	}
 	return labels;
     }
