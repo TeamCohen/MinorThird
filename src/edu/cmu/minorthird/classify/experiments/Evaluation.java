@@ -519,7 +519,13 @@ public class Evaluation implements Visible,Serializable,Saveable
   }
 
   /** Max f1 values at any cutoff. */
-  public double maxF1()
+    public double maxF1() {
+	return maxF1(Double.MIN_VALUE);
+    }
+    
+
+  /** Max f1 values for any threshold above the specified cutoff. */
+  public double maxF1(double minThreshold) 
   {
     if (!isBinary) return -1;
 
@@ -528,7 +534,7 @@ public class Evaluation implements Visible,Serializable,Saveable
     for (int i=0; i<m.values.length; i++) {
       double p = m.values[i][0];
       double r = m.values[i][1];
-      if (p>0 || r>0) {
+      if ((p>0 || r>0) && m.values[i][2]>=minThreshold) {
         double f1 = (2*p*r) / (p+r);
         maxF1 = Math.max(maxF1, f1);
       }
@@ -559,6 +565,8 @@ public class Evaluation implements Visible,Serializable,Saveable
     }
     return (numAgree/n - randomAgreement) / (1.0 - randomAgreement);
   }
+
+  public int numExamples() { return entryList.size(); }
 
   /** Average logloss on all examples. */
   public double averageLogLoss()

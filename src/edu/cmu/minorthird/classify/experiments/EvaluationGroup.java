@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -22,7 +23,7 @@ import java.awt.event.*;
 
 public class EvaluationGroup implements Visible,Serializable,Saveable
 {
-    private final Map members = new HashMap();
+    private final Map members = new TreeMap();
     private Evaluation someEvaluation=null;
     private SummaryViewer sv;
 
