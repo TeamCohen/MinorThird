@@ -61,7 +61,12 @@ public class MostFrequentFirstLearner extends OneVsAllLearner
 		try {
 		    BatchClassifierLearner learner = ((BatchClassifierLearner)unsortedLearners.get(j));
 		    Dataset d = learner.dataset;
-		    int numPosEx = d.getNumPosExamples();
+		    int numPosEx = 0;
+		    for(Example.Looper it=d.iterator(); it.hasNext(); ) {
+			Example example = it.nextExample();
+			if(example.getLabel().isPositive())
+			    numPosEx++;
+		    }
 		    if(numPosEx>maxPosEx) {
 			maxPosEx = numPosEx;
 			learnerIndex = j;

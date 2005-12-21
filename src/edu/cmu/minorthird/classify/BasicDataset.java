@@ -26,8 +26,6 @@ public class BasicDataset implements Visible,Saveable,Dataset,Serializable
    protected Set classNameSet = new TreeSet();
    protected FeatureFactory factory = new FeatureFactory();
 
-    public int numPosExamples = 0;
-
    public ExampleSchema getSchema()
    {
       ExampleSchema schema = new ExampleSchema((String[])classNameSet.toArray(new String[classNameSet.size()]));
@@ -54,13 +52,7 @@ public class BasicDataset implements Visible,Saveable,Dataset,Serializable
       classNameSet.addAll( example.getLabel().possibleLabels() );
 
       ClassLabel cl = example.getLabel();
-      if(cl.isPositive())
-	  numPosExamples++;
    }
-
-    public int getNumPosExamples() {
-	return numPosExamples;
-    }
 
    public Example.Looper iterator()
    {
