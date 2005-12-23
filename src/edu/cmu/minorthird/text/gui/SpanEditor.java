@@ -306,7 +306,8 @@ public class SpanEditor extends ViewerTracker
         editedSpans.add(guessSpan);
       }
       editSpanCursor = -1;
-      statusMsg.display("imported " + editedSpans.size() + " " + importType + " spans");
+      statusMsg.display("imported " + editedSpans.size() + " " + importType + 
+			" spans to "+documentSpan.getDocumentId());
     }
   }
 

@@ -51,12 +51,15 @@ public class EditLabels extends UIMain
 			System.out.println("Can't load from "+edit.editFile+": "+ex);
 			return;
 		}
+		if (edit.trueType!=null) {
+		        editorOutputLabels.declareType(edit.trueType);
+		}
 		TextBaseEditor editor = TextBaseEditor.edit( editorOutputLabels, edit.editFile);
-
 		if (edit.extractedType!=null) 
 			editor.getViewer().getGuessBox().setSelectedItem(edit.extractedType);
-		if (edit.trueType!=null)
+		if (edit.trueType!=null) {
 			editor.getViewer().getTruthBox().setSelectedItem(edit.trueType);
+		}
 
 		if (base.showResult) {
 			new ViewerFrame("Output of editing", new SmartVanillaViewer(editorOutputLabels));
