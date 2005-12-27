@@ -119,6 +119,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable
         ZoomedViewer zooomer = new ZoomedViewer(indexViewer, evaluationKeyViewer);
         zooomer.setHorizontal();
 
+	// precision recall
         Viewer prViewer = new ComponentViewer() {
             public JComponent componentFor(Object o) {
                 EvaluationGroup group = (EvaluationGroup)o;
@@ -135,8 +136,28 @@ public class EvaluationGroup implements Visible,Serializable,Saveable
                 return lc.getPanel("11Pt Interpolated Precision vs Recall", "Recall", "Precision");
             }
         };
-        main.addSubView("Interpolated Precision/Recall",prViewer);
-
+        Viewer avgPRViewer = new ComponentViewer() {
+            public JComponent componentFor(Object o) {
+                EvaluationGroup group = (EvaluationGroup)o;
+                LineCharter lc = new LineCharter();
+		double [] sum = new double[11];
+		int n = 0;
+                for (Iterator i=group.members.keySet().iterator(); i.hasNext(); ) {
+                    Object key = i.next();
+                    Evaluation e = (Evaluation)group.members.get(key);
+                    double[] p = e.elevenPointPrecision();
+		    for (int j=0; j<=10; j++) sum[j] += p[j];
+		    n++;
+		}
+		lc.startCurve( "Average of all "+n+" 11pt P-R Curves" );
+		for (int j=0; j<=10; j++) {
+		    lc.addPoint(j/10.0, sum[j]/n);
+		}
+                return lc.getPanel("Averaged 11Pt Interpolated Precision vs Recall", "Recall", "Precision");
+            }
+        };
+        main.addSubView("11Pt Precision/Recall - Details",prViewer);
+        main.addSubView("11Pt Precision/Recall - Average",avgPRViewer);
         main.addSubView( "Details", zooomer );
         main.setContent(this);
         return main;

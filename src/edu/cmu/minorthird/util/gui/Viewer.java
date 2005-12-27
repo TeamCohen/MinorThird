@@ -92,7 +92,7 @@ public abstract class Viewer extends JPanel
 		setContent(content,false);
 	}
 	/** Change the object being displayed by this viewer.
-	 * If forceUpdate is false, to not force the display
+	 * If forceUpdate is false, do not force the display
 	 * to be changed.
 	 */
 	final public void setContent(Object content,boolean forceUpdate)
