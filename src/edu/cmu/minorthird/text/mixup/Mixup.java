@@ -672,13 +672,13 @@ public class Mixup
 		// see if repPrim[i] is "any"
 		if (rp.primList.size()==1) {
 		    Prim prim = (Prim)rp.primList.get(0);
-		    isAny[i] = (ANY == prim.function && !prim.negated);
+		    isAny[i] = (ANY == prim.function && !prim.negated && !rp.leftMost && !rp.rightMost);
 		}
 		if (!isAny[i]) {
 		    // find all places this matches
 		    int numMatches = 0;
 		    if (rp.type!=null) {
-			// look up matches from the labels
+			// look up matches from the labels for a spantype repPrim, eg @foo
 			for (Span.Looper el=labels.instanceIterator(rp.type, span.getDocumentId()); el.hasNext(); ) {
 			    if (numMatches>=maxRepeatedPrimMatches) {
 				overflowWarning(numMatches,maxRepeatedPrimMatches,span,i);
@@ -697,6 +697,7 @@ public class Mixup
 			}
 		    }
 		    if (rp.type==null || (rp.type!=null && rp.minCount==0)) {
+			// something besides @foo or @foo?
 			// check all possible subspans
 			for (int j=0; j<=span.size(); j++) {
 			    int topLen = Math.min(maxLen[i], span.size()-j);
