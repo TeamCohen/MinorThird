@@ -59,7 +59,9 @@ public class DatasetLoader
 	classLabelDict.put( ExampleSchema.NEG_CLASS_NAME, ClassLabel.negativeLabel(-1));
     }
 
-    /** Save a dataset to a file */
+    /** Save a dataset to a file.  This should save each example in
+     * the order provided by the dataset.iterator() 
+     */
     static public void save(Dataset dataset,File file) throws IOException
     {
 	PrintStream out = new PrintStream(new FileOutputStream(file));
@@ -223,6 +225,14 @@ public class DatasetLoader
 	}
     }
 
+    /** The value that will be returned by example.getSource() for the example
+     * read in from the designated location.
+     */
+    static public String getSourceAssignedToExample(String fileName,int lineNumber)
+    {
+	return fileName+":"+lineNumber;
+    }
+
     static private Example parseLine(String line, File file, LineNumberReader in)
     {
 	String[] arr = line.split("\\s+");
@@ -230,7 +240,7 @@ public class DatasetLoader
 	    throw new IllegalArgumentException("too few values at line#"+in.getLineNumber()+" of "+file.getName());
 	for (int i=0; i<3; i++) arr[i] = stringCoder.decode(arr[i]);
 	String subpopulationId = arr[1];
-	String source = file.getName()+":"+in.getLineNumber();
+	String source = getSourceAssignedToExample(file.getName(), in.getLineNumber());
 	if ("NUL".equals(arr[1])) subpopulationId = null;
 	MutableInstance instance = new MutableInstance(source,subpopulationId);
 	for (int i=3; i<arr.length; i++) {

@@ -32,81 +32,88 @@ import java.util.Iterator;
 
 public class ParallelViewer extends Viewer
 {
-	static private Logger log = Logger.getLogger(ParallelViewer.class);
+    static private Logger log = Logger.getLogger(ParallelViewer.class);
 
-	private JTabbedPane parallelPane;
-	private ArrayList subViewList;
+    private JTabbedPane parallelPane;
+    private ArrayList subViewList;
 
-	public ParallelViewer()
-	{
-		super();
-	}
+    public ParallelViewer()
+    {
+	super();
+    }
 
-	/** Called at creation time. */
-	protected void initialize() 
-	{
-		setLayout(new GridBagLayout());
-		parallelPane = new JTabbedPane();
-		subViewList = new ArrayList();
-		add( parallelPane, fillerGBC() );
-		parallelPane.addChangeListener( new ChangeListener() {
-				public void stateChanged(ChangeEvent ev) {
-					// update the content of the currently selected view
-					receiveContent( ParallelViewer.this.getContent() );
-				}
-			});
-	}
+    /** Called at creation time. */
+    protected void initialize() 
+    {
+	setLayout(new GridBagLayout());
+	parallelPane = new JTabbedPane();
+	subViewList = new ArrayList();
+	add( parallelPane, fillerGBC() );
+	parallelPane.addChangeListener( new ChangeListener() {
+		public void stateChanged(ChangeEvent ev) {
+		    // update the content of the currently selected view
+		    receiveContent( ParallelViewer.this.getContent() );
+		}
+	    });
+    }
 	
-	/** Add a new way of viewing the content object. */
-	public void addSubView(String title,Viewer view)
-	{
-		view.setSuperView(this,title);
-		subViewList.add(view);
-		parallelPane.add(title,view);
-	}
+    /** Change default look of tabbed pane to put tabs on the left */
+    public void putTabsOnLeft()
+    {
+	parallelPane.setTabPlacement( JTabbedPane.LEFT );
+	parallelPane.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
+    }
 
-	public void receiveContent(Object content)
-	{
-		// just send content to the currently selected subview
-		Viewer subView = (Viewer)subViewList.get( parallelPane.getSelectedIndex() );
-		subView.setContent(content);
-	}
+    /** Add a new way of viewing the content object. */
+    public void addSubView(String title,Viewer view)
+    {
+	view.setSuperView(this,title);
+	subViewList.add(view);
+	parallelPane.add(title,view);
+    }
 
-	/* override the default definition, to make sure the subView
-		 returned is current. */
-	public Viewer getNamedSubView(String name) 
-	{ 
-		Viewer subviewer = super.getNamedSubView(name);
-		subviewer.setContent( getContent() );
-		return subviewer;
-	}
+    public void receiveContent(Object content)
+    {
+	// just send content to the currently selected subview
+	Viewer subView = (Viewer)subViewList.get( parallelPane.getSelectedIndex() );
+	subView.setContent(content);
+    }
 
-
-	public boolean canReceive(Object content)
-	{
-		for (Iterator i=subViewList.iterator(); i.hasNext(); ) {
-			Viewer subView = (Viewer)i.next();
-			if (!subView.canReceive(content))  return false;
-		}
-		return true;
-	}
-
-	public void clearContent()
-	{
-		for (Iterator i=subViewList.iterator(); i.hasNext(); ) {
-			Viewer subView = (Viewer)i.next();
-			subView.clearContent();
-		}
-	}
+    /* override the default definition, to make sure the subView
+       returned is current. */
+    public Viewer getNamedSubView(String name) 
+    { 
+	Viewer subviewer = super.getNamedSubView(name);
+	subviewer.setContent( getContent() );
+	return subviewer;
+    }
 
 
-	protected void handle(int signal,Object argument,ArrayList senders) 
-	{
-		throw new IllegalStateException("signal:"+signal+" argument:"+argument+" at:"+this);
+    public boolean canReceive(Object content)
+    {
+	for (Iterator i=subViewList.iterator(); i.hasNext(); ) {
+	    Viewer subView = (Viewer)i.next();
+	    if (!subView.canReceive(content))  return false;
 	}
-	protected boolean canHandle(int signal,Object argument,ArrayList senders) 
-	{
-		return false;
+	return true;
+    }
+
+    public void clearContent()
+    {
+	for (Iterator i=subViewList.iterator(); i.hasNext(); ) {
+	    Viewer subView = (Viewer)i.next();
+	    subView.clearContent();
 	}
+    }
+
+
+    protected void handle(int signal,Object argument,ArrayList senders) 
+    {
+	throw new IllegalStateException("signal:"+signal+" argument:"+argument+" at:"+this);
+    }
+    protected boolean canHandle(int signal,Object argument,ArrayList senders) 
+    {
+	return false;
+    }
 
 }

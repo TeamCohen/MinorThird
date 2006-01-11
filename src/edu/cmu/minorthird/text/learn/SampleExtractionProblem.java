@@ -38,10 +38,10 @@ public class SampleExtractionProblem
   final static public String LABEL = "trueName";
   static private String[] labelingProgram = {
 		// useful features for learning
-		"defDict fn = William, Carmen, George, Curious, Hillary",
 		"defTokenProp cap:t =: ... [re('^[A-Z][a-z]+')] ...",
-		"defTokenProp name:first =: ... [a(fn)] ... ",
-		"defTokenProp name:last =: ... a(fn) [any] ... ",
+		//"defDict +case fn = William, Carmen, George, Curious, Hillary",
+		//"defTokenProp name:first =: ... [a(fn)] ... ",
+		//"defTokenProp name:last =: ... a(fn) [any] ... ",
 		// used to label the true names
 		"defSpanType trueName =~ trie William Cohen,William Clinton,Hillary Clinton,George Washington,"
 		  +"Carmen Sandiego,George Bush,Curious George,George Mason",

@@ -264,7 +264,7 @@ public class CommandLineUtil
 	    interp.eval("import edu.cmu.minorthird.text.*;");
 	    interp.eval("import edu.cmu.minorthird.ui.*;");
 	    interp.eval("import edu.cmu.minorthird.util.*;");
-	    if (!s.startsWith("new"))	s = "new "+s;
+	    if (!s.startsWith("new") && !s.startsWith("bsh.source"))	s = "new "+s;
 	    Object o = interp.eval(s);
 	    if (!expectedType.isInstance(o)) {
 		throw new IllegalArgumentException(s+" did not produce "+expectedType);
@@ -293,7 +293,7 @@ public class CommandLineUtil
 	    interp.eval("import edu.cmu.minorthird.text.learn.*;");
 	    interp.eval("import edu.cmu.minorthird.text.*;");
 	    interp.eval("import edu.cmu.minorthird.ui.*;");
-	    if (!s.startsWith("new"))	s = "new "+s;
+	    if (!s.startsWith("new") && !s.startsWith("bsh.source"))	s = "new "+s;
 	    Object o = interp.eval(s);
 	    return o;
 	} catch (bsh.EvalError e) {

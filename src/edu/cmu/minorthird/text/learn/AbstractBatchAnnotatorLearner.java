@@ -40,11 +40,11 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 	}
 	public AbstractBatchAnnotatorLearner(int history,SpanFeatureExtractor fe,Extraction2TaggingReduction reduction)
 	{
-    this.historySize = history;
+	    this.historySize = history;
 		this.reduction = reduction;
 		this.fe = fe;
-    seqData = new SequenceDataset();
-    seqData.setHistorySize(historySize);
+		seqData = new SequenceDataset();
+		seqData.setHistorySize(historySize);
 	}
 
 	public void reset() {	seqData = new SequenceDataset(); seqData.setHistorySize(historySize); }
@@ -78,7 +78,7 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 	private Span.Looper documentLooper;
 
 	/** Accept the pool of unlabeled documents. */
-	public void setDocumentPool(Span.Looper documentLooper) {	this.documentLooper = documentLooper; }
+	public void setDocumentPool(Span.Looper documentLooper) { this.documentLooper = documentLooper; }
 
 	/** Ask for labels on every document. */
 	public boolean hasNextQuery() {	return documentLooper.hasNext();}
@@ -94,17 +94,17 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 		Span document = answeredQuery.getDocumentSpan();
 		Example[] sequence = new Example[document.size()];
 		for (int i=0; i<document.size(); i++) {
-			Token tok = document.getToken(i);
-			String value = answerLabels.getProperty(tok,reduction.getTokenProp());
-			if (value!=null) {
-				ClassLabel classLabel = new ClassLabel(value);
-				Span tokenSpan = document.subSpan(i,1);
-				Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
-				sequence[i] = example;
-			} else {
-				log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
-				return;
-			}
+		    Token tok = document.getToken(i);
+		    String value = answerLabels.getProperty(tok,reduction.getTokenProp());
+		    if (value!=null) {
+			ClassLabel classLabel = new ClassLabel(value);
+			Span tokenSpan = document.subSpan(i,1);
+			Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
+			sequence[i] = example;
+		    } else {
+			log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
+			return;
+		    }
 		}
 		seqData.addSequence( sequence );
 	}

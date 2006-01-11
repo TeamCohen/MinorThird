@@ -26,3 +26,10 @@ Version # Format: Version#.Year.Month.Day
 		- Fixed MultiClassifier explanation facilities
 		- Added and updated documentation
 		- Fixed SpanTypeTextBase to extract more than one span Type per document
+7.6.1.11	- added demos/MyFE.java as an example 
+		- modified CommandLineUtil.newObjectFromBSH to allow bsh.source(file)
+		- added PreprocessTextForClassifier, PreprocessTextForExtractor
+		- added text.learn.BeginContinueOutsideReduction
+		- updated selectableTypes as appropriate
+		- fixed buggy implementation of span.getLoChar(), span.getHiChar()
+ 

@@ -15,3 +15,8 @@ edu.cmu.minorthird.ui.Recommended$CRFAnnotatorLearner
 edu.cmu.minorthird.ui.Recommended$SemiCRFAnnotatorLearner
 edu.cmu.minorthird.classify.sequential.SegmentCollinsPerceptronLearner
 edu.cmu.minorthird.classify.sequential.SegmentCRFLearner
+edu.cmu.minorthird.ui.PreprocessTextForClassifier
+edu.cmu.minorthird.ui.PreprocessTextForClassifier$LinkFileParams
+edu.cmu.minorthird.ui.PreprocessTextForExtractor
+edu.cmu.minorthird.ui.PreprocessTextForExtractor$ExtractionReductionParams
+edu.cmu.minorthird.text.learn.BeginContinueOutsideReduction

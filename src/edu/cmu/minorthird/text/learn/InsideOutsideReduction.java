@@ -14,9 +14,6 @@ import java.io.*;
  * @author William Cohen
  */
 
-// to do - test with spanProp
-
-
 public class InsideOutsideReduction extends Extraction2TaggingReduction implements Serializable
 {
 	private static final long serialVersionUID = 1;
