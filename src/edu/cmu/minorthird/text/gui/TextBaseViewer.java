@@ -332,9 +332,9 @@ public class TextBaseViewer extends JComponent
 			double sr = spanDifference.spanRecall()*100; 
 			double sp = spanDifference.spanPrecision()*100; 
 			statusMsg.display("Token recall: "+fmt.format(tr)
-												+" precision: "+fmt.format(tp)
-												+" Span recall: "+fmt.format(sr)
-												+" precision: "+fmt.format(sp));
+					  +" precision: "+fmt.format(tp)
+					  +" Span recall: "+fmt.format(sr)
+					  +" precision: "+fmt.format(sp));
 		}
 		
 		public void paintDocument(String documentId)

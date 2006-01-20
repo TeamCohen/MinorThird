@@ -474,7 +474,6 @@ public class MixupProgram
 				trie.addWords( "phrase#"+i, toks );
 			    } else {
 				StringBuffer defFile = new StringBuffer("");
-				
 				for (int j=1; j<toks.length-1; j++) {
 				    defFile.append(toks[j]);
 				}
