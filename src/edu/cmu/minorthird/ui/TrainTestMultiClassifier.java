@@ -73,7 +73,7 @@ public class TrainTestMultiClassifier extends UIMain
 	if (trainTest.labels!=null) {
 	    MultiDataset testData = 
 		CommandLineUtil.toMultiDataset((MonotonicTextLabels)trainTest.labels,train.fe,signal.multiSpanProp);
-	    trainTest.splitter = new FixedTestSetSplitter(testData.iterator());
+	    trainTest.splitter = new FixedTestSetSplitter(testData.multiIterator());
 	}
 
 	// do the experiment

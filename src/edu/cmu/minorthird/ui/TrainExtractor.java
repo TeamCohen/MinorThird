@@ -54,13 +54,12 @@ public class TrainExtractor extends UIMain
 	{
 		// check that inputs are valid
 		if (train.learner==null) throw new IllegalArgumentException("-learner must be specified");
-		if (signal.spanType==null) throw new IllegalArgumentException("-spanType must be specified");
 
 		if (train.fe != null) train.learner.setSpanFeatureExtractor(train.fe);
 		train.learner.setAnnotationType( train.output );
 
 		// do the training
-		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( base.labels, signal.spanType );
+		AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( base.labels, signal.spanType, signal.spanProp );
 		ann = teacher.train( train.learner );
 
 		if (base.showResult) {

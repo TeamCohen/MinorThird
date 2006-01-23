@@ -57,8 +57,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
 			
     /** Helper to handle command-line processing, in either gui or text mode. */
     public void callMain(final String[] args) 
-    {
-	   
+    {	   
 	try {
 	    getCLP().processArguments(args);
 	    if (!useGUI) {		
