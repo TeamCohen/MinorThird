@@ -68,7 +68,34 @@ public class CRFLearner
     }
   public void setSchema(ExampleSchema sch) {;}
   public int getHistorySize() {return histsize;}
-	
+
+  public void setMaxIters (int newMaxIters) {
+      defaults.setProperty("maxIters", Integer.toString(newMaxIters));
+  }
+  public int getMaxIters () {
+      String maxIters = defaults.getProperty("maxIters");
+      if (maxIters != null)
+	  return Integer.parseInt(maxIters);
+      return 100;
+  }
+  public String maxItersHelp = new String("Number of training iterations over the training set; default set to 100");
+  public String getMaxItersHelp() { return maxItersHelp; }
+
+  public boolean getUseHighPrecisionArithmetic() {
+      String value = defaults.getProperty("trainer");
+      if ((value != null) && (value.equals("ll")))
+	  return true;
+      return false;
+  }
+  public void setUseHighPrecisionArithmetic (boolean newUseHighPrecisionArithmetic) {
+      if (newUseHighPrecisionArithmetic == true)
+	  this.setLogSpaceOption();
+      else
+	  this.removeLogSpaceOption();
+  }
+  public String useHighPrecisionArithmeticHelp = new String("Make the learner use high precision arithmetic.");
+  public String getUseHighPrecisionArithmeticHelp() { return useHighPrecisionArithmeticHelp; }
+
   class DataSequenceC implements iitb.CRF.DataSequence {
     Instance[] sequence;
     int labels[];
