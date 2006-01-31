@@ -3,7 +3,7 @@
 package edu.cmu.minorthird.text.mixup;
 
 import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.*;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -19,11 +19,15 @@ import edu.cmu.minorthird.util.gui.*;
 BNF:
 STATEMENT -> provide ID
 STATEMENT -> require ID [,FILE]
+STATEMENT -> annotateWith FILE
 STATEMENT -> defDict [+case] NAME = ID, ... , ID
 STATEMENT -> defTokenProp PROP:VALUE = GEN
 STATEMENT -> defSpanProp PROP:VALUE = GEN
 STATEMENT -> defSpanType TYPE2 = GEN
 STATEMENT -> declareSpanType TYPE
+STATEMENT -> onLevel NAME
+STATEMENT -> offLevel NAME
+STATEMENT -> importFromLevel NAME TYPE = TYPE
   
 GEN -> [TYPE]: MIXUP-EXPR
 GEN -> [TYPE]- MIXUP-EXPR
@@ -130,6 +134,7 @@ public class MixupProgram
 	legalKeywords.add("declareSpanType"); 
 	legalKeywords.add("provide"); 
 	legalKeywords.add("require"); 
+	legalKeywords.add("annotateWith"); 
 	legalKeywords.add("defLevel");
 	legalKeywords.add("onLevel");
 	legalKeywords.add("offLevel");
@@ -181,7 +186,8 @@ public class MixupProgram
 	startProgram(program);
     }
 
-    public void startProgram(String program)throws Mixup.ParseException {
+    private void startProgram(String program)throws Mixup.ParseException 
+    {
 	program.trim();	
 	Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(program);
 	String keyword = tok.advance(legalKeywords);
@@ -241,7 +247,7 @@ public class MixupProgram
     // encodes a single program statement
     //
     private static class Statement {
-	private static int REGEX=1, MIXUP=2, FILTER=3, PROVIDE=4, REQUIRE=5, DECLARE=6, TRIE=7;
+	private static int REGEX=1, MIXUP=2, FILTER=3, PROVIDE=4, REQUIRE=5, DECLARE=6, TRIE=7, ANNOTATE_WITH=8;
 
 	// encodes the statement properties
 	private String keyword, property, type, startType, value;
@@ -308,6 +314,15 @@ public class MixupProgram
 		String marker = tok.advance(null); //Collections.singleton(","));
 		return;
 	    }
+	    if (keyword.equals("annotateWith")) {
+		statementType = ANNOTATE_WITH;
+		fileToLoad = tok.advance(null);
+		if (fileToLoad.charAt(0)=='\'') {
+		    fileToLoad = fileToLoad.substring(1, fileToLoad.length()-1);
+		}
+		tok.advance(null);
+		return;
+	    }
 	    if (keyword.equals("require")) {
 		statementType = REQUIRE;
 		annotationType = tok.advance(null);
@@ -316,25 +331,25 @@ public class MixupProgram
 		}
 		String marker = tok.advance(null); //Collections.singleton(","));
 		log.debug("marker: " + marker);
-		if (marker != null)
-		    {
-			
-			fileToLoad = tok.advance(null);
-			if (fileToLoad.charAt(0) == '\'')
-			    fileToLoad = fileToLoad.substring(1, fileToLoad.length() - 1);
-			tok.advance(null);
-		    }
+		if (marker != null)  {
+		    fileToLoad = tok.advance(null);
+		    if (fileToLoad.charAt(0) == '\'')
+			fileToLoad = fileToLoad.substring(1, fileToLoad.length() - 1);
+		    tok.advance(null);
+		}
 		return;
 	    }
-	   if("onLevel".equals(keyword) || "offLevel".equals(keyword)) {
+	    if("onLevel".equals(keyword) || "offLevel".equals(keyword)) {
 		level = tok.advance(null);		
 		if("offLevel".equals(keyword))
 		    level = "original";
 		tok.advance(null);
 		return;
-	    } else if("importFromLevel".equals(keyword)) {
+	    } 
+	    if("importFromLevel".equals(keyword)) {
 		importLevel = tok.advance(null);
-	   } 
+		// continue to parse NEWTYPE = OLDTYPE
+	    } 
 	    String propOrType = tok.advance(null);  // read property or type
 	    importType = propOrType;
 	    String token = tok.advance(colonEqualsOrCase); // read ':' or '='
@@ -515,6 +530,7 @@ public class MixupProgram
 	    } else if("offLevel".equals(keyword)) {
 		labels.offLevel();
 	    } else if("importFromLevel".equals(keyword)) {
+		System.out.println("exec: importFromLevel "+oldType+" -> "+type);
 		labels.importFromLevel(importLevel, oldType, type);		
 	    } else if ("declareSpanType".equals(keyword)) {
 		labels.declareType( type );
@@ -522,6 +538,13 @@ public class MixupProgram
 		labels.setAnnotatedBy(annotationType);
 	    } else if (statementType==REQUIRE) {
 		labels.require(annotationType,fileToLoad);
+	    } else if (statementType==ANNOTATE_WITH) {
+		try {
+		    Annotator ann = (Annotator)IOUtil.loadSerialized(new File(fileToLoad));
+		    ann.annotate( labels );
+		} catch (IOException ex) {
+		    throw new IllegalStateException("no serialized annotator found in '"+fileToLoad+"': error = "+ex);
+		}
 	    } else {
 		Span.Looper input = null;
 		if ("top".equals(startType)) {
@@ -629,6 +652,8 @@ public class MixupProgram
 		return keyword+" "+annotationType;
 	    } else if (statementType==REQUIRE) {
 		return keyword+" "+annotationType+","+fileToLoad;
+	    } else if (statementType==ANNOTATE_WITH) {
+		return keyword+" "+fileToLoad;
 	    } else {
 		String genString = "???";
 		if (statementType==MIXUP) {

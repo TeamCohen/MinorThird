@@ -32,4 +32,5 @@ Version # Format: Version#.Year.Month.Day
 		- added text.learn.BeginContinueOutsideReduction
 		- updated selectableTypes as appropriate
 		- fixed buggy implementation of span.getLoChar(), span.getHiChar()
- 
+7.6.1.31	- added main to SpanDifference
+		- added mixup command 'annotateWith FILE'
