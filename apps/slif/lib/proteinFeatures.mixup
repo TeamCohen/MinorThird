@@ -1,0 +1,39 @@
+provide 'proteinFeatures';
+require 'pos';
+
+defTokenProp suffix:1 =top: ... [re('ase$')] ... ;
+defTokenProp suffix:2 =top: ... [re('in$')] ... ;
+
+defTokenProp case:mixed =: [...] ;
+defTokenProp case:upper =: ... [re('^[A-Z]{2,}$')] ... ;
+defTokenProp case:capital =: ... [re('^[A-Z][a-z]*$')] ... ;
+defTokenProp case:lower =: ... [re('^[a-z]+$')]...;
+defTokenProp case:digit =: ... [re('[0-9]+$')]...;
+defTokenProp case:punct =: ... [re('[^a-zA-Z0-9]+$')]...;
+
+defSpanType capitalCase =: ... [case:capital] ...;
+defSpanType mixedCase =: ... [case:mixed] ... ;
+
+
+// unusual case words are upper, capital, or mixed-case
+defTokenProp unusual:1 =: ... [case:upper] ... || ... [case:capital] ... || ... [case:mixed] ...;
+
+// capitalized words aren't unusual at start of sentence
+defTokenProp unusual:0 =: ... eq('.') [case:capital] ... ;
+defTokenProp unusual:0 =: [case:capital] ... ;
+
+// capitalized words aren't unusual as abbreviations
+defTokenProp unusual:0 =: ... [<case:capital,re('^[A-Z]$')>] eq('.') ... ;
+
+// this might be a ticker symbol...
+defTokenProp unusual:0 =: ... '(' [ !case:lower{1,4} ] ')' ... ;
+
+
+// include separators like '-', '&', between "unusual"-case words
+defTokenProp unusual:1 =: ... unusual:1 ['-'] unusual:1 ... ;
+
+// can't use semicolon easily here, due to bugs in parser!!!
+defTokenProp unusual:1 =: ... unusual:1 ['&' 'amp' any] unusual:1 ... ; 
+defTokenProp unusual:1 =: ... unusual:1 [case:digit] unusual:1 ... ;
+// include capitalized initial word if it looks like a company after it
+
