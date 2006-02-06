@@ -1,0 +1,6 @@
+
+defDict commonWord = "commonWords.txt";
+defDict separators = "commonSeparators.txt";
+defDict splitTechnical = "commonWords.txt","commonSeparators.txt";
+
+defSpanType technical =: ... [L !ai(splitTechnical)+ R] ... ;
