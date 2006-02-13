@@ -38,3 +38,5 @@ Version # Format: Version#.Year.Month.Day
 		- fixed semiCRF saving bug
 		- fixed DecisionTree Print
 		- Updated MinorTagger and MinorTaggerClient to output labels format and run on velmak
+		- Cleaned up commandLineUtil
+		- Fixed bug in RefUtils

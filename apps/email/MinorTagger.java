@@ -173,7 +173,7 @@ public class MinorTagger {
 				while ((line = br.readLine()) != null) {
 					boolean end_close = false;
 					boolean end_continue = false;
-					if(line.equals("label")) {
+					if(line.equals("labels")) {
 					    label = true;
 					} else if(line.startsWith("***")) {
 					    setFileName(line.substring(3));
