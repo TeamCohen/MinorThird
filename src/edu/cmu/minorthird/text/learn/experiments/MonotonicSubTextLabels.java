@@ -28,21 +28,21 @@ public class MonotonicSubTextLabels extends SubTextLabels implements MonotonicTe
 	}
 		
 	public void setProperty(Token token,String prop,String value) {
-		monotonicLabels.setProperty(token,prop,value);
+	    monotonicLabels.setProperty(token,prop,value);
 	}
 
 	public void setProperty(Token token,String prop,String value,Details details) {
-		monotonicLabels.setProperty(token,prop,value,details);
+	    monotonicLabels.setProperty(token,prop,value,details);
 	}
 
 	public void setProperty(Span span,String prop,String value) {
-		if (subBase.contains(span))	
-			monotonicLabels.setProperty(span,prop,value);
+	    if (subBase.contains(span))	
+	    	monotonicLabels.setProperty(span,prop,value);
 	}
 
 	public void setProperty(Span span,String prop,String value,Details details) {
-		if (subBase.contains(span))	
-			monotonicLabels.setProperty(span,prop,value,details);
+	    if (subBase.contains(span))	
+		    monotonicLabels.setProperty(span,prop,value,details);
 	}
 
 	public void addToType(Span span,String type) {
@@ -60,11 +60,11 @@ public class MonotonicSubTextLabels extends SubTextLabels implements MonotonicTe
 	}
 	
 	public void require(String annotationType,String fileToLoad) { 
-		monotonicLabels.require(annotationType,fileToLoad);
+	    monotonicLabels.require(annotationType,fileToLoad);
 	}
 
 	public void require(String annotationType,String fileToLoad,AnnotatorLoader loader) { 
-		monotonicLabels.require(annotationType,fileToLoad,loader);
+	    monotonicLabels.require(annotationType,fileToLoad,loader);
 	}
 
 }

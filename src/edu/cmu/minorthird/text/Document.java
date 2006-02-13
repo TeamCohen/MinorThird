@@ -1,6 +1,6 @@
 package edu.cmu.minorthird.text;
 
-
+import java.io.Serializable;
 
 /**
  * This class holds a single text 'document'.
@@ -9,7 +9,7 @@ package edu.cmu.minorthird.text;
  * This is the only direct pointer to the documentText.
  * @author ksteppe
  */
-public class Document
+public class Document implements Serializable
 {
 	private String documentId;   // name of document
 	private String documentText; // string version of text

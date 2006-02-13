@@ -130,11 +130,11 @@ public class TextLabelsExperiment implements Visible
 	    fullTestLabels = new NestedTextLabels( testLabelsUsedInSplitter );
 	    testLabels = new MonotonicTextLabels[1];
 	    testLabels[0] = fullTestLabels;
-	}
+	}	
 
 	for (int i=0; i<splitter.getNumPartitions(); i++) {
 	    log.info("For partition "+(i+1)+" of "+splitter.getNumPartitions());
-	    log.info("Creating teacher and train partition...");
+	    log.info("Creating teacher and train partition...");	    
 
 	    SubTextLabels trainLabels = null;
 	    try {
@@ -144,21 +144,20 @@ public class TextLabelsExperiment implements Visible
 		throw new IllegalStateException("error building trainBase "+i+": "+ex);
 	    }
 	    AnnotatorTeacher teacher = new TextLabelsAnnotatorTeacher( trainLabels, inputType, inputProp );
-
+	    
 	    log.info("Training annotator: inputType="+inputType+" inputProp="+inputProp);
 	    annotators[i] = teacher.train( learner );
 
 	    //log.info("annotators["+i+"]="+annotators[i]);
 	    log.info("Creating test partition...");
 	    try {
-		SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );
-		testLabels[i] = new MonotonicSubTextLabels( testBase, fullTestLabels );
+		SubTextBase testBase = new SubTextBase( labels.getTextBase(), splitter.getTest(i) );		
+		testLabels[i] = new MonotonicSubTextLabels( testBase, fullTestLabels );		
 	    } catch (SubTextBase.UnknownDocumentException ex) {
 		// do nothing since testLabels[i] is already set
-	    }
+	    }	
 
 	    log.info("Labeling test partition, size="+testLabels[i].getTextBase().size());  
-	    //new ViewerFrame("annotator"+(i+1), new SmartVanillaViewer(annotators[i]));
 	    annotators[i].annotate( testLabels[i] );
 
 	    log.info("Evaluating test partition...");

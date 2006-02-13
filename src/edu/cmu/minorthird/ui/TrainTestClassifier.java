@@ -77,6 +77,8 @@ public class TrainTestClassifier extends UIMain
 
 		// construct the splitter, if necessary
 		if (trainTest.labels!=null) {
+		    MonotonicTextLabels spanPropLabels = trainTest.labels;
+		    if(signal.spanProp != null) CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
 			Dataset testData = 
 				CommandLineUtil.toDataset(trainTest.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
 			trainTest.splitter = new FixedTestSetSplitter(testData.iterator());

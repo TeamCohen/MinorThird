@@ -5,7 +5,7 @@ provide 'zall';
 // a nested mixup annotator, which calls xtime
 require 'xdate'; 
 // a java annotator, in RoomNumber.class
-require 'rooms', 'RoomNumber';
+require 'RoomNumber';
 
 // a big dictionary found in the library
 defDict name = "allnames.txt";

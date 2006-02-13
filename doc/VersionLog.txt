@@ -34,3 +34,7 @@ Version # Format: Version#.Year.Month.Day
 		- fixed buggy implementation of span.getLoChar(), span.getHiChar()
 7.6.1.31	- added main to SpanDifference
 		- added mixup command 'annotateWith FILE'
+8.6.2.13	- Changed createSpanProp to implement Mixup
+		- fixed semiCRF saving bug
+		- fixed DecisionTree Print
+		- Updated MinorTagger and MinorTaggerClient to output labels format and run on velmak

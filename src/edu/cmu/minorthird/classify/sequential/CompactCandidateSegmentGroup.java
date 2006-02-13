@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
+import java.io.Serializable;
 import java.util.*;
 import gnu.trove.*;
 
@@ -17,7 +18,7 @@ import gnu.trove.*;
  * @author William Cohen
  */
 
-public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
+public class CompactCandidateSegmentGroup implements CandidateSegmentGroup, Serializable
 {
     private int maxWindowSize,sequenceLength, totalSize;
     private Set classNameSet;
@@ -112,7 +113,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
      * weights of the unit instances between start and end.
      */
 
-    private class Delta
+    private class Delta implements Serializable
     {
 	public TObjectDoubleHashMap deltaWeight = new TObjectDoubleHashMap();
 	public THashSet zeroWeights = new THashSet();
@@ -143,7 +144,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup
     /** Construct an instance from the unit instances and a delta. 
      */
 
-    private class DeltaInstance extends AbstractInstance
+    private class DeltaInstance extends AbstractInstance implements Serializable
     {
 	private int start,end;
 	private Delta diff;

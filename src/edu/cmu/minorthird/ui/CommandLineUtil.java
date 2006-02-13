@@ -53,7 +53,7 @@ public class CommandLineUtil
 	    return CANT_SET_ME;
 	}
     }
-    private static void safeSetRequiredAnnotation(SpanFeatureExtractor fe,String s)
+    protected static void safeSetRequiredAnnotation(SpanFeatureExtractor fe,String s)
     {
 	// this might be called from a gui, so do something reasonable with blank strings
 	if ("".equals(s) || CANT_SET_ME.equals(s)) return; // no update 
@@ -200,28 +200,24 @@ public class CommandLineUtil
     static public MultiDataset 
 	toMultiDataset(MonotonicTextLabels textLabels, SpanFeatureExtractor fe,String[] multiSpanProp)
     {	
-
 	// use this to print out a summary
 	Map countByClass = new HashMap();
 
 	NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
 
-	//System.out.println(textLabels.getTextBase().size());
-
-	//Span.Looper documentLooper =  textLabels.getTextBase().documentSpanIterator();
-
 	// k-class dataset
 	if (multiSpanProp!=null) {
 	    MultiDataset dataset = new MultiDataset();
+	    
 	    for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 		Span s = i.nextSpan();
 		String[] classNames = new String[multiSpanProp.length];
 		ClassLabel[] classLabels = new ClassLabel[multiSpanProp.length];
+
 		//Creates the array of classLabels for each document
 		for(int j=0; j<multiSpanProp.length; j++) {
 		    String spanProp = multiSpanProp[j];
-		    classNames[j] = textLabels.getProperty(s,spanProp);
-		
+		    classNames[j] = textLabels.getProperty(s,spanProp);		
 		    if (classNames[j]==null) {
 			classLabels[j] = new ClassLabel("NEG");
 		    } else {
@@ -230,11 +226,8 @@ public class CommandLineUtil
 		    Integer cnt = (Integer)countByClass.get( classNames[j] );
 		    if (cnt==null) countByClass.put( classNames[j], new Integer(1) );
 		    else countByClass.put( classNames[j], new Integer(cnt.intValue()+1) );
-		}
-		
-		dataset.addMulti( new MultiExample( fe.extractInstance(safeLabels,s),new MultiClassLabel(classLabels)));
-		
-		System.out.println("Number of examples by class: "+countByClass); 	    
+		}		
+		dataset.addMulti( new MultiExample( fe.extractInstance(safeLabels,s),new MultiClassLabel(classLabels)));	    
 	    }
 	    return dataset;
 	}
@@ -392,17 +385,17 @@ public class CommandLineUtil
 	public String getSaveAsHelp() { return saveHelp; }
     }
 
-  /** Parameters used by all 'train' routines. */
-  public static class EditParams extends BasicCommandLineProcessor {
+    /** Parameters used by all 'train' routines. */
+    public static class EditParams extends BasicCommandLineProcessor {
 	public File editFile=null;
 	private String editFileName=null;
 	public String extractedType=null,trueType=null;
 	public void extractedType(String s) { this.extractedType=s; }
 	public void trueType(String s) { this.trueType=s; }
 	public void edit(String fileName) { this.editFile = new File(fileName); this.editFileName=fileName; }
-      private String editFilenameHelp = new String("stored result of hand-edited changes to labels in FILE");
-      private String extractedTypeHelp = new String("debugging or labeling proposed spans of type TYPE");
-      private String trueTypeHelp = new String("hand-corrected labels saved as type TYPE");
+	private String editFilenameHelp = new String("stored result of hand-edited changes to labels in FILE");
+	private String extractedTypeHelp = new String("debugging or labeling proposed spans of type TYPE");
+	private String trueTypeHelp = new String("hand-corrected labels saved as type TYPE");
 	public void usage() {
 	    System.out.println("edit parameters:");
 	    System.out.println(" [-edit FILE]             " + editFilenameHelp);
@@ -417,31 +410,30 @@ public class CommandLineUtil
 	public void setExtractedType(String s) { extractedType( "n/a".equals(s) ? null : s ); }
 	public String getTrueType() { return trueType==null ? "n/a" : trueType; }
 	public void setTrueType(String s) { trueType( "n/a".equals(s) ? null : s ); }
-      // help buttons
-      public String getEditFilenameHelp() { return editFilenameHelp; }
-      public String getExtractedTypeHelp() { return extractedTypeHelp; }
-      public String getTrueTypeHelp() { return trueTypeHelp; }
+	// help buttons
+	public String getEditFilenameHelp() { return editFilenameHelp; }
+	public String getExtractedTypeHelp() { return extractedTypeHelp; }
+	public String getTrueTypeHelp() { return trueTypeHelp; }
     }
 
     /** Parameters encoding the 'training signal' for classification learning. */
     public static class ClassificationSignalParams extends BasicCommandLineProcessor {
 	private BaseParams base=new BaseParams();
-	private String spanPropString = null;
+	protected String spanPropString = null;
 	/** Not recommended, but required for bean-shell like visualization */
 	public ClassificationSignalParams() {super();}
 	public ClassificationSignalParams(BaseParams base) {
 	    this.base=base;
-	    if (spanPropString!=null) this.spanProp = createSpanProp(this.spanPropString,this.base);
+	    if (spanPropString!=null) this.spanProp = createSpanProp(this.spanPropString,this.base.labels);
 	}
 	public String spanType=null;
 	public String spanProp=null;
 	public void spanType(String s) { this.spanType=s; }
 	public void spanProp(String s) { 
-	    if(s.indexOf(',') == -1)
-		this.spanProp=s; 
+	    if(s.indexOf(',') == -1) this.spanProp=s; 
 	    else {
 		this.spanPropString = s;
-		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base);
+		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base.labels);
 	    }
 	}
 	public String candidateType=null;
@@ -510,56 +502,16 @@ public class CommandLineUtil
 	}
 	public void mixup(String s) { safeSetRequiredAnnotation(fe,s);	}
 	public void embed(String s) { embeddedAnnotators=s; safeSetAnnotatorLoader(fe,s);	}
-	public void option(String s, Object o) {
-	    int i = s.indexOf("=");
-	    if(i > 0) {
-		String ans = s.substring(0,i);
-		int slen = s.length();
-		String value = s.substring(i+1,slen);
-			
-		try {
-		    //Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
-		    //Object o = (Object)learner;
-		    BeanInfo info = Introspector.getBeanInfo(o.getClass());
-		    PropertyDescriptor[] props = info.getPropertyDescriptors();
-			    
-		    String pname = new String (" ");
-		    Class type = null;
-		    Method writer = null, reader = null;
-		    int x=0, len = props.length;
-		    while (!pname.equals(ans)&& x<len) {
-			pname = props[x].getDisplayName();
-			type = props[x].getPropertyType();
-			reader = props[x].getReadMethod();
-			writer = props[x].getWriteMethod();
-			x++;
-		    }
-		    if (x == len)
-			System.out.println("Did not find Classifier Option!");
-
-		    if (type.equals(boolean.class)) {
-			writer.invoke(o,new Object[]{new Boolean(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(int.class)) {
-			writer.invoke(o,new Object[]{new Integer(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(double.class)) {
-			writer.invoke(o,new Object[]{new Double(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(String.class)) {
-			writer.invoke(o,new Object[]{new String(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    }
-		} catch (Exception e) {
-		    System.out.println("Cannot find class");
-		}
-	    } else {
-		System.out.println ("Cannot compute option - no object defined");
-	    }
+	public void other(String s) {
+	    option(s);
+	}
+	public void option(String s) {
+	    Object o = this;
+	    RefUtils.modify(o,s);
 	}
 	public void LearnerOp(String s) { 
 	    Object o = (Object)learner;
-	    option(s, o);		    
+	    RefUtils.modify(o,s);
 	}
 	public void learnerOp(String s) { 
 	    LearnerOp(s); 
@@ -567,9 +519,8 @@ public class CommandLineUtil
 	public void feOp(String s) {
 	    if(fe != null) {
 		Object o = (Object)fe;
-		option(s, o);			
-	    } else 
-		System.out.println("You must define a feature extractor before setting it's options");
+		RefUtils.modify(o,s);			
+	    } else System.out.println("You must define a feature extractor before setting it's options");
 	}
 	private String learnerHelp = new String("Bean-shell code to create a ClassifierLearner\n - default is \"new Recommended.NaiveBayes()\"");   
 	private String showDataHelp = new String("interactively view the constructed training dataset");
@@ -799,68 +750,19 @@ public class CommandLineUtil
     /** Parameters for doing train/test evaluation of a classifier. */
     public static class SplitterParams extends BasicCommandLineProcessor {
 	public Splitter splitter=new RandomSplitter(0.70); 
-	public TextLabels labels=null;
+	public MonotonicTextLabels labels=null;
 	public boolean showTestDetails=true;
 	private String repositoryKey="";
 	public void splitter(String s) { this.splitter = toSplitter(s); }
 	public void showTestDetails(String bool) { this.showTestDetails=(new Boolean(bool)).booleanValue(); }
 	public void test(String s) { 
 	    this.repositoryKey = s;
-	    this.labels = (TextLabels)FancyLoader.loadTextLabels(repositoryKey); 
+	    this.labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(repositoryKey); 
 	    //this.labels = FancyLoader.loadTextLabels(s); 
-	}
-	public void option(String s, Object o) {
-	    int i = s.indexOf("=");
-	    if(i > 0) {
-		String ans = s.substring(0,i);
-		int slen = s.length();
-		String value = s.substring(i+1,slen);
-			
-		try {
-		    //Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
-		    //Object o = (Object)learner;
-		    BeanInfo info = Introspector.getBeanInfo(o.getClass());
-		    PropertyDescriptor[] props = info.getPropertyDescriptors();
-			    
-		    String pname = new String (" ");
-		    Class type = null;
-		    Method writer = null, reader = null;
-		    int x=-1, len = props.length;
-		    while (!pname.equals(ans)&& x<len) {
-			x++;
-			pname = props[x].getDisplayName();
-			type = props[x].getPropertyType();
-			reader = props[x].getReadMethod();
-			writer = props[x].getWriteMethod();
-				
-		    }
-		    if (x == len)
-			System.out.println("Did not find Splitter Option!");
-
-		    if (type.equals(boolean.class)) {
-			writer.invoke(o,new Object[]{new Boolean(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(int.class)) {
-			writer.invoke(o,new Object[]{new Integer(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(double.class)) {
-			writer.invoke(o,new Object[]{new Double(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(String.class)) {
-			writer.invoke(o,new Object[]{new String(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    }
-
-		} catch (Exception e) {
-		    System.out.println("Cannot find class");
-		}
-			    
-	    } else
-		System.out.println ("Cannot compute option - no object defined");
-	}
+	}	    
 	public void SplitterOp(String s) { 
 	    Object o = (Object)splitter;
-	    option(s, o);		    
+	    RefUtils.modify(o,s);		    
 	}
 	private String splitterHelp = new String("The Splitter you would like to use to divide your training and testing data");
 	private String showTestDetailsHelp = new String("visualize test examples along with evaluation");
@@ -895,48 +797,37 @@ public class CommandLineUtil
 	public String getTestFilenameHelp() {return testHelp; }
     }
 
-    /** Separate comma separated spanType and puts them in a Vector */
-    private static Vector separateTypes(String types, Vector typeVector)
-    {
-	String type = new String("");
-	int commaIndex = types.indexOf(",");
-	if(commaIndex > -1) {
-	    type = types.substring(0,commaIndex);
-	    typeVector.add(type);
-	    typeVector = separateTypes(types.substring(commaIndex+1,types.length()), typeVector);
-	} else {
-	    typeVector.add(types);
-	}
-	return typeVector;
-    }
-
     /** Creates a Mixup program that defines a SpanProp from a list of Span Types */
-    private static String createSpanProp(String spanTypes, BaseParams base)
+    public static String createSpanProp(String spanTypes, MonotonicTextLabels labels)
     {
+	String createSpanPropMixup = "";
+	createSpanPropMixup += "provide createSpanPropMixup;\n";
+
 	String property = new String("_property");
 	int catIndex = spanTypes.indexOf(":");
 	if(catIndex > -1)
 	    property = spanTypes.substring(0,catIndex);
 
-	Vector types = new Vector();
-	types = separateTypes(spanTypes.substring(catIndex+1,spanTypes.length()), types);
-	//if (types==null) throw new IllegalArgumentException("null types for '"+spanTypes+"'");
+	String[] types = spanTypes.substring(catIndex+1,spanTypes.length()).split(",");
 
-	for(int i=0; i<types.size(); i++) {
-	    for(Span.Looper sl = base.labels.instanceIterator((String)types.get(i)); sl.hasNext();){
+	for(int i=0; i<types.length; i++) {
+	    for(Span.Looper sl = labels.instanceIterator(types[i]); sl.hasNext();){
 		Span s = sl.nextSpan();
-		for(int t=0; t<s.size(); t++) {
-		    Token tk = s.getToken(t);
-		    //base.labels.setProperty(tk,property,(String)types.get(i));
-		}
-		base.labels.setProperty(s,property,(String)types.get(i));
+		//labels.setProperty(s,property,types[i]);
+		createSpanPropMixup += "defSpanProp " + property + ":" +types[i] + "=: ... [@" + types[i] + "] ...;\n";
 	    }
 	}
-
-	return property;
+	try {
+	    MixupProgram prog = new MixupProgram(createSpanPropMixup);
+	    prog.eval(labels, labels.getTextBase());
+	    return property;
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	return null;
     }
 
-    private static String[] createMultiSpanProp(File multiSpanProps, BaseParams base) throws Exception{
+    private static String[] createMultiSpanProp(File multiSpanProps, MonotonicTextLabels labels) throws Exception{
 	ProgressCounter pc = new ProgressCounter("loading file "+multiSpanProps.getName(), "line");
 	LineNumberReader in = null;
 	try {
@@ -948,15 +839,11 @@ public class CommandLineUtil
 	String line;
 	ArrayList spanPropList = new ArrayList();
 	String[] spanProps;
-	//try {
 	if(in != null) {
 	    while ((line = in.readLine())!=null) {
-		spanPropList.add(createSpanProp(line,base));
+		spanPropList.add(createSpanProp(line,labels));
 		pc.progress();
 	    }
-	    //} catch (Exception e) {
-	    //e.printStackTrace();
-	    //}
 	spanProps = (String[])spanPropList.toArray(new String[0]);
 	return spanProps;
 	}
@@ -966,13 +853,13 @@ public class CommandLineUtil
     /** Parameters encoding the 'training signal' for extraction learning. */
     public static class ExtractionSignalParams extends BasicCommandLineProcessor {
 	private BaseParams base=new BaseParams();
-	private String spanPropString = null;
+	protected String spanPropString = null;
 	/** Not recommended, but required for bean-shell like visualization */
 	public ExtractionSignalParams() {;}
 	public ExtractionSignalParams(BaseParams base) 
 	{
 	    this.base=base;
-	    if (spanPropString!=null) this.spanProp = createSpanProp(this.spanPropString,this.base);
+	    if (spanPropString!=null) this.spanProp = createSpanProp(this.spanPropString,this.base.labels);
 	}
 	public String spanType=null;
 	public String spanProp=null;
@@ -982,7 +869,7 @@ public class CommandLineUtil
 		this.spanProp=s; 
 	    else {
 		this.spanPropString = s;
-		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base);
+		if (base.labels!=null) this.spanProp = createSpanProp(this.spanPropString, this.base.labels);
 	    }
 	}
 	private String spanTypeHelp = new String("learn how to extract the given TYPE");
@@ -1027,7 +914,7 @@ public class CommandLineUtil
 	{
 	    this.base=base;
 	    try {
-		if (multiSpanPropFile!=null) this.multiSpanProp = createMultiSpanProp(multiSpanPropFile,this.base);
+		if (multiSpanPropFile!=null) this.multiSpanProp = createMultiSpanProp(multiSpanPropFile,this.base.labels);
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
@@ -1037,7 +924,7 @@ public class CommandLineUtil
 	    File f = new File(s);
 	    multiSpanPropFile = f;
 	    try {
-		multiSpanProp = createMultiSpanProp(f, this.base);
+		multiSpanProp = createMultiSpanProp(f, this.base.labels);
 	    } catch(Exception e) {
 		e.printStackTrace();
 	    }
@@ -1061,7 +948,7 @@ public class CommandLineUtil
 	    File f = new File(s);
 	    multiSpanPropFile=f; 
 	    try {
-		multiSpanProp=createMultiSpanProp(multiSpanPropFile,this.base); 
+		multiSpanProp=createMultiSpanProp(multiSpanPropFile,this.base.labels); 
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
@@ -1101,6 +988,7 @@ public class CommandLineUtil
     public static class TrainExtractorParams extends BasicCommandLineProcessor {
 	public AnnotatorLearner learner = new Recommended.VPHMMLearner();
 	public SpanFeatureExtractor fe = null;
+	public String mixup = null;	
 	private String learnerName;
 	private String embeddedAnnotators="";
 	public String output="_prediction";
@@ -1115,65 +1003,23 @@ public class CommandLineUtil
 	    Object o = this;
 	    RefUtils.modify(o,s);
 	}
-	public void option(String s, Object o) {
-	    int i = s.indexOf("=");
-	    if(i > 0) {
-		String ans = s.substring(0,i);
-		int slen = s.length();
-		String value = s.substring(i+1,slen);
-		    
-		try {
-		    //Object o = newObjectFromBSH(sub,AnnotatorLearner.class); 
-		    //Object o = (Object)learner;
-		    BeanInfo info = Introspector.getBeanInfo(o.getClass());
-		    PropertyDescriptor[] props = info.getPropertyDescriptors();
-			
-		    String pname = new String (" ");
-		    Class type = null;
-		    Method writer = null, reader = null;
-		    int x=-1, len = props.length;
-		    while (!pname.equals(ans)&& x<len) {
-			x++;
-			pname = props[x].getDisplayName();
-			type = props[x].getPropertyType();
-			reader = props[x].getReadMethod();
-			writer = props[x].getWriteMethod();
-			    
-		    }
-		    if (x == len)
-			System.out.println("Did not find Option!");
-			
-		    if (type.equals(boolean.class)) {
-			writer.invoke(o,new Object[]{new Boolean(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(int.class)) {
-			writer.invoke(o,new Object[]{new Integer(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(double.class)) {
-			writer.invoke(o,new Object[]{new Double(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    } else if (type.equals(String.class)) {
-			writer.invoke(o,new Object[]{new String(value)});
-			Object val = reader.invoke(o,new Object[]{});
-		    }
-		} catch (Exception e) {
-		    System.out.println("Cannot find class");
-		}
-	    } else
-		System.out.println ("Cannot compute option - no object defined");
+	public void option(String s) {
+	    Object o = this;
+	    RefUtils.modify(o,s);
 	}
-	public void LearnerOp(String s) { 
+	public void learnerOp(String s) { 
 	    Object o = (Object)learner;
-	    option(s, o);		    
+	    RefUtils.modify(o,s);		    
 	}
 	public void feOp(String s) {
 	    if(fe != null) {
 		Object o = (Object)fe;
-		option(s, o);			
+		RefUtils.modify(o,s);			
 	    } else 
 		System.out.println("You must define a Feature Extrator before setting it's options");
 	}
 	public void mixup(String s) { 
+	    mixup = s;
 	    if (fe==null) fe = learner.getSpanFeatureExtractor();
 	    safeSetRequiredAnnotation(fe,s);	
 	}
@@ -1208,7 +1054,7 @@ public class CommandLineUtil
 	    System.out.println(" [-embed STRING]          embed the listed annotators in the feature extractor");
 	    System.out.println(" [-output STRING]         the type or property that is produced by the learned");
 	    System.out.println("                           Annotator - default is \"_prediction\"");
-	    System.out.println(" [-LearnerOp STRING=VALUE] Extra options that can be defined with the learner");
+	    System.out.println(" [-learnerOp STRING=VALUE] Extra options that can be defined with the learner");
 	    System.out.println("                           - defaults are set");
 	    System.out.println("                           - ex: displayDatasetBeforeLearning=true");
 	    System.out.println(" [-feOp STRING=VALUE]      Extra options that can be defined with the feature extractor");

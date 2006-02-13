@@ -19,6 +19,12 @@ public class MinorTagger {
 	private static final boolean DEBUG = false;
 	private static final int DEFAULT_PORT = 9998;
 
+    private static String fileName = "TaggedFile";
+
+    protected static void setFileName (String name) {
+	fileName = name;
+    }
+
 	public static void main (String args[]) {
 		ServerSocket echoServer = null;
 		Socket clientSocket = null;
@@ -47,6 +53,7 @@ public class MinorTagger {
 		}
 	}
 
+    /* Outputs document marked up with sgml */
 	private static String tag (String in) throws Exception {
 		if (in.replaceAll("\\s+", "").length() == 0) return "";
 		String tagged = in;
@@ -74,7 +81,34 @@ public class MinorTagger {
 		tagged = filterXML(tagged, keepXML);
 
 		// fix the problem so that end-tag doesn't stick to the next begin-tag.
-		// tagged = tagged.replaceAll("(<[^<>]+>[^<>]+?)(\\s+)(</[^<>]+>)", "$1$3$2");
+		tagged = tagged.replaceAll("(<[^<>]+>[^<>]+?)(\\s+)(</[^<>]+>)", "$1$3$2");
+
+		return tagged;
+	}
+
+    /* Outputs minorthird stand off labels */
+    private static String label (String in) throws Exception {
+		if (in.replaceAll("\\s+", "").length() == 0) return "";
+		String tagged = in;
+
+		// load text base
+		TextBaseLoader baseLoader = new TextBaseLoader();
+		File tempFile = createFile(tagged);
+		TextBase base = baseLoader.load(tempFile);
+		tempFile.delete();
+
+		// get XML labels
+		MutableTextLabels labels = baseLoader.getLabels();
+
+		// evaluate mixup
+		MixupProgram p = new MixupProgram(NAMEMIXUP);
+		p.eval(labels, base);
+		p = new MixupProgram(DATEMIXUP);
+		p.eval(labels, base);
+
+		TextLabelsLoader labelsLoader = new TextLabelsLoader();
+
+		tagged = labelsLoader.printTypesAsOps(labels);
 
 		return tagged;
 	}
@@ -101,11 +135,12 @@ public class MinorTagger {
 	}
 
 	// create a temp file from a string
-	private static File createFile (String content) {
+    private static File createFile (String content) {
 		File temp = null;
 		BufferedWriter bWriter;
 		try {
-			temp = File.createTempFile("tmp", "");
+		    temp =  new File(fileName);
+		    //temp = File.createTempFile(fileName, "");
 			temp.deleteOnExit();
 			bWriter = new BufferedWriter(new FileWriter(temp));
 			bWriter.write(content);
@@ -128,7 +163,8 @@ public class MinorTagger {
 			StringBuffer buf = new StringBuffer();
 			BufferedReader br;
 			PrintStream os;
-			String line;
+			String line, fileName;
+			boolean label = false; //determines whether to output labels or sgml
 
 			try {
 				br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -137,17 +173,25 @@ public class MinorTagger {
 				while ((line = br.readLine()) != null) {
 					boolean end_close = false;
 					boolean end_continue = false;
-					if (line.endsWith("$$$")) {
-						end_close = true;
-						line = line.substring(0, line.length() - 3);
+					if(line.equals("label")) {
+					    label = true;
+					} else if(line.startsWith("***")) {
+					    setFileName(line.substring(3));
+					}else if (line.endsWith("$$$")) {
+					    end_close = true;
+					    line = line.substring(0, line.length() - 3);
+					    buf.append(line + "\n");
 					} else if (line.endsWith("$$")) {
-						end_continue = true;
-						line = line.substring(0, line.length() - 2);
+					    end_continue = true;
+					    line = line.substring(0, line.length() - 2);
+					    buf.append(line + "\n");
 					}
-					buf.append(line + "\n");
+										
 					if (end_close || end_continue) {
-						os.println(tag(buf.toString()));
-						buf.setLength(0);
+					    if (label)
+						os.println(label(buf.toString()));
+					    else os.println(tag(buf.toString()));
+					    buf.setLength(0);
 					}
 					if (end_close) {
 						os.close();

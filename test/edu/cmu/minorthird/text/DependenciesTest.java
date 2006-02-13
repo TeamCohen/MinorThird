@@ -60,7 +60,7 @@ public class DependenciesTest extends TestCase
     try
     {
       log.debug("first call");
-      Dependencies.getDependency("names");
+      //Dependencies.getDependency("names");
 
       assertEquals("names.mixup", Dependencies.getDependency("names"));
       assertEquals("date.mixup", Dependencies.getDependency("date"));

@@ -30,8 +30,8 @@ public class RefUtils
    */
 	static private Object toObject(String s,Class c)
 	{
-		if ((c==Boolean.class  || c==boolean.class) && c.equals("true")) return new Boolean(true);
-		else if ((c==Boolean.class || c==boolean.class) && s.equals("false")) return new Boolean(false);
+		if ((c==Boolean.class  || c==boolean.class) && s.equalsIgnoreCase("true")) return new Boolean(true);
+		else if ((c==Boolean.class || c==boolean.class) && s.equalsIgnoreCase("false")) return new Boolean(false);
 		else if (c==Integer.class || c==int.class) return new Integer(StringUtil.atoi(s));
 		else if (c==Double.class || c==double.class) return new Double(StringUtil.atof(s));
 		else try {

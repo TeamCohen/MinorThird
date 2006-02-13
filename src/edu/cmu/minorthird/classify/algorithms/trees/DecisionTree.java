@@ -38,8 +38,8 @@ import java.io.Serializable;
     if (this instanceof InternalNode) {
       InternalNode in = (InternalNode)this;
       buf.append(in.test+">="+in.threshold+":\n");
-      in.getTrueBranch().toString(buf,tab+1);
-      in.getFalseBranch().toString(buf,tab+1);
+      //in.getTrueBranch().toString(buf,tab+1);
+      //in.getFalseBranch().toString(buf,tab+1);
     } else {
       Leaf leaf = (Leaf)this;
       buf.append(leaf.getScore()+"\n");
@@ -132,7 +132,7 @@ import java.io.Serializable;
       return "leaf: "+myScore;
     }
       public Explanation getExplanation(Instance instance) {
-	  Explanation.Node top = new Explanation.Node("Leaf: " +myScore);
+	  Explanation.Node top = new Explanation.Node("leaf: " +myScore);
 	  Explanation ex = new Explanation(top);
 	  return ex;
       }
@@ -176,7 +176,7 @@ import java.io.Serializable;
         return new DefaultMutableTreeNode(dtree);
       } else {
         InternalNode internal = (InternalNode)dtree;
-        DefaultMutableTreeNode n = new DefaultMutableTreeNode(dtree);
+        DefaultMutableTreeNode n = new DefaultMutableTreeNode(internal);
         n.add( createNodes(internal.ifTrue) );
         n.add( createNodes(internal.ifFalse) );
         return n;

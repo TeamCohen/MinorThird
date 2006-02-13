@@ -25,8 +25,10 @@ public abstract class   AnnotatorTeacher
 		// active or passive learning from labeled data
 		while (learner.hasNextQuery() && hasAnswers()) {
 			Span query = learner.nextQuery();
+			//answeredQuery different between commandline and mixup spanProp creation?
 			AnnotationExample answeredQuery = labelInstance(query);
 			if (answeredQuery!=null) {
+			    //answeredquery does not include mixup created spanProp
 				learner.setAnswer( answeredQuery );
 				pc.progress();
 			}
