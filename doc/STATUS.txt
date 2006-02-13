@@ -1,3 +1,27 @@
+RANKING ISSUES
+
+ Simple approach: like multi
+  - classify.rank includes RankingLearner, which extends BatchBinaryClassifierLearner
+  batchTrain does a split into subpops and then does batchTrain(subpops) - which might be
+  a sequenceDataset?
+  - RankingEvaluation is a new class (should we include abstract type of evaluation? or just
+  build the intelligence to build the correct type into Tester? 
+  - GraphSearchEval will extend (or wrap) a RankingEvaluation
+
+ There are now a bunch of parallel train/test/eval routines:
+
+ classify (Dataset, ClassifierTeacher, ClassifierLearner, Classifier, Evaluation)
+ classify.sequential (SequenceDataset, SequenceClassifierTeacher, BatchSequenceClassifierLearner, 
+		      SequenceClassifier, and same Evaluation)
+ classify.multi (same everything)
+ classify.rank would be yet another...
+ learn.text. ....
+ 
+ Each includes: Teacher, Learner, Performer, TrainingData, Splitter, Evaluation
+ can we have generic algorithms for training, CV-based testing, etc?
+ 
+ 
+
 PROPOSED EXTENSION TO HANDLE RETOKENIZED TEXTBASES:
 
  in text: 
