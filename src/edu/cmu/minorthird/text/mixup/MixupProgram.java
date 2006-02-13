@@ -540,7 +540,9 @@ public class MixupProgram
 		labels.require(annotationType,fileToLoad);
 	    } else if (statementType==ANNOTATE_WITH) {
 		try {
-		    Annotator ann = (Annotator)IOUtil.loadSerialized(new File(fileToLoad));
+		    //Annotator ann = (Annotator)IOUtil.loadSerialized(new File(fileToLoad));
+		    InputStream s = ClassLoader.getSystemResourceAsStream(fileToLoad);
+		    Annotator ann = (Annotator)IOUtil.loadSerialized(s);
 		    ann.annotate( labels );
 		} catch (IOException ex) {
 		    throw new IllegalStateException("no serialized annotator found in '"+fileToLoad+"': error = "+ex);
