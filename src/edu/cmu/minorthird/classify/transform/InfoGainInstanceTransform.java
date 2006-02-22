@@ -1,7 +1,9 @@
 package edu.cmu.minorthird.classify.transform;
 
 import edu.cmu.minorthird.classify.*;
+
 import java.util.*;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -102,6 +104,20 @@ public class InfoGainInstanceTransform implements InstanceTransform
   {
     Pair p = new Pair( infoGain,f );
     igValues.add( p );
+  }
+  
+  /** get top ranked features*/
+  public String toString(int top){
+    int maxIndex = Math.min( igValues.size(),top );
+    StringBuffer sb = new StringBuffer();
+    for (int j=0; j<maxIndex; j++)
+    {
+        Feature f = ((Pair)igValues.get(j)).feature;
+        double val = ((Pair)igValues.get(j)).value;
+        sb.append(f.toString()+" , "+val+"\n");
+    }
+  	    
+    return sb.toString();
   }
 
 }
