@@ -72,7 +72,7 @@ public class TrainTestExtractor extends UIMain
 			
 		// set up the splitter
 		if (trainTest.labels!=null) {
-		    if(signal.spanProp != null) CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
+		    if(signal.spanPropString != null) CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
 			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
 			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}

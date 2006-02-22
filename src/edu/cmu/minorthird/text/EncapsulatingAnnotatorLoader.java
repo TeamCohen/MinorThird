@@ -91,7 +91,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 		}
 	}
 
-	private class EncapsulatingClassLoader extends ClassLoader implements Serializable
+	public class EncapsulatingClassLoader extends ClassLoader implements Serializable
 	{
 		static private final long serialVersionUID = 1;
 		private final int CURRENT_VERSION_NUMBER = 1;
@@ -108,5 +108,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 				return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className);
 			}
 		}
+
+	    
 	}
 }

@@ -683,7 +683,9 @@ public class MixupProgram
 	if (file.exists())
 	    return mixupReader(file);
 	else {
-	    InputStream s = ClassLoader.getSystemResourceAsStream(fileName);
+	    InputStream s;
+	    s = EncapsulatingAnnotatorLoader.EncapsulatingClassLoader.getSystemResourceAsStream(fileName);
+	    if (s==null) s = ClassLoader.getSystemResourceAsStream(fileName);
 	    if (s==null) throw new IllegalArgumentException("No file named '"+fileName+"' found on classpath");
 	    return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
 	}

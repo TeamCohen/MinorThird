@@ -800,6 +800,8 @@ public class CommandLineUtil
     /** Creates a Mixup program that defines a SpanProp from a list of Span Types */
     public static String createSpanProp(String spanTypes, MonotonicTextLabels labels)
     {
+	if(spanTypes.indexOf(",")==-1) return spanTypes;
+
 	String createSpanPropMixup = "";
 	createSpanPropMixup += "provide createSpanPropMixup;\n";
 
