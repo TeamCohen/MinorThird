@@ -10,13 +10,20 @@ import java.util.*;
 
 /**
  * A boosted version for ranking.
- * An implementation of Collins - give ref and page.
+ * An implementation of - "Michael Collins and Terry Koo, Discriminative Reranking for Natural Language Parsing.
+ *                                          Computational Linguistics, March 2005", see page 45.
+ *
+ * Requirements of this class:
+ *  - Considers only binary features
+ *  - Requires a particular cont. feature named "walkerScore", that contains the original prob. for the example
+ *
+ * To do:
+ *  - Handle multiple positive answers.
+ *  - It is possible to incorporate example 'importance' weights, according to some 'goodness' evaluation measure. See Collins'.
+ *
  * Author of this class: Einat Minkov
  */
 
-// Suppose I am given binary features of examples.
-// Then, I actually need to construct alternative features that consist of all binary features with extension 1 or 0.
-// Also, take care of multiple positive answers.
 
 public class RankingBoosted extends BatchRankingLearner
 {
@@ -48,33 +55,18 @@ public class RankingBoosted extends BatchRankingLearner
 
 	Map rankingMap = splitIntoRankings(data);
 
-    /**
-    //Idetify all features in examples
-    for (Iterator i=rankingMap.keySet().iterator(); i.hasNext(); ) {
-		String subpop = (String)i.next();
-		List ranking = orderExamplesList((List)rankingMap.get(subpop));
-        for (int j=0; j<exampleSize;j++){
-            for (Iterator it=((Example)ranking.get(j)).binaryFeatureIterator();it.hasNext();)
-                features.add(it.next());
-        }
-    } **/
-
-    //All ranked lists are in a double array, to allow non-sequential access
+    //Put all ranked lists in a double array, to allow non-sequential access
     Example[][] rankedExamples = new Example[rankingMap.size()][exampleSize];
     int index=0;
     for (Iterator i=rankingMap.keySet().iterator(); i.hasNext(); ) {
 		String subpop = (String)i.next();
 		List ranking = orderExamplesList((List)rankingMap.get(subpop));
-        for (int j=0; j<exampleSize;j++){
-            // Consider complementing binary features with 'negative' feature here.
-            // for example: if the exmaple contains features x,y but not z: shoud add binary feature z.0
+        for (int j=0; j<exampleSize;j++)
             rankedExamples[index][j]=(Example)ranking.get(j);
-        }
         index++;
     }
     Hyperplane s = populate_A(rankedExamples,new Hyperplane());
-    s.increment(score,bestBias(rankedExamples));
-    //s.setBias(bestBias(rankedExamples));
+    s.increment(score,best_w0(rankedExamples));
     margins = initializeMargins(rankedExamples,s);
 
 	ProgressCounter pc = new ProgressCounter("boosted perceptron training", "epoch", numEpochs);
@@ -88,7 +80,9 @@ public class RankingBoosted extends BatchRankingLearner
 	return s;
     }
 
-    //Features are required to be binary
+    // Map example indexes into A_Pos, A_Neg sets per feature, where
+    // A_Neg: Feature that is included in example i, but no in the correct answer example.
+    // A_Pos: oppositve same.
     private Hyperplane populate_A(Example[][] rankedExamples, Hyperplane s){
         for (int i=0; i<rankedExamples.length; i++){
             Example correctEx = rankedExamples[i][0];
@@ -125,30 +119,29 @@ public class RankingBoosted extends BatchRankingLearner
     }
 
 
-    //Choose initial bias that minimizes the exp-loss of initial assigned probabilities, using brute-force search
-    private double bestBias(Example[][] rankedExamples){
-        double bestBias = 0.001;
+    //Choose weight that minimizes the exp-loss of initial assigned probabilities, using brute-force search
+    // (this weight - named here as w0 - is not modified later.)
+    private double best_w0(Example[][] rankedExamples){
+        double w0 = 0.001;
         double minExpLoss = 100000000;
         for (double w=0.001; w<10; w=w+0.001){
             double expLoss = initialExpLoss(w,rankedExamples);
             if (expLoss<minExpLoss){
-                bestBias=w;
+                w0=w;
                 minExpLoss = expLoss;
             }
         }
-        System.out.println("BEST BIAS: " + bestBias);
-        return bestBias;
+        return w0;
     }
 
-    public double initialExpLoss(double bias, Example[][] rankedExamples)
+    public double initialExpLoss(double w0, Example[][] rankedExamples)
     {
         double expLoss = 0;
         for (int i=0; i<rankedExamples.length; i++) {
             for (int j=0; j<exampleSize; j++) {
                 if (rankedExamples[i][j].getLabel().toString().endsWith("NEG 1.0]"))
-                    expLoss += Math.exp(-bias*(Math.log(rankedExamples[i][0].getWeight(score))-Math.log(rankedExamples[i][j].getWeight(score))));
-                    //expLoss += Math.exp(-bias*(rankedExamples[i][0].getWeight(score))-(rankedExamples[i][j].getWeight(score)));
-            }
+                    expLoss += Math.exp(-w0*(Math.log(rankedExamples[i][0].getWeight(score))-Math.log(rankedExamples[i][j].getWeight(score))));
+             }
         }
         return expLoss;
     }
@@ -205,20 +198,15 @@ public class RankingBoosted extends BatchRankingLearner
             W_Pos = cur_W_Pos; W_Neg = cur_W_Neg;
         }
     }
-    //update
     if (bestFeature!=null){
         double Z = expLoss(margins);
         double delta = 0.5*Math.log((W_Pos+SMOOTH_PARAM*Z)/(W_Neg+SMOOTH_PARAM*Z));
-
+        /**
         System.out.println("best feature: " + bestFeature + " " + delta);
-        Set set = (Set)A_pos.get(bestFeature);
-        if (set!=null) System.out.println("positive feature example size: " + set.size());
-        set = (Set)A_neg.get(bestFeature);
-                if (set!=null) System.out.println("negative feature example size: " + set.size());
         System.out.println("W_Pos: " + W_Pos);
         System.out.println("W_Neg: " + W_Neg);
         System.out.println("Z: " + Z);
-
+        **/
         updateMargins(bestFeature,delta);
         s.increment(bestFeature,delta);
     }
@@ -226,6 +214,7 @@ public class RankingBoosted extends BatchRankingLearner
     }
 
 
+    //update margins, for examples that are in A_Pos and A_Neg per the selected feature.
     private void updateMargins(Feature feature, double delta){
         Set pos = (Set)A_pos.get(feature);
         Set neg = (Set)A_neg.get(feature);
