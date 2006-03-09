@@ -34,6 +34,8 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
     private Set annotatedBySet = new HashSet();
     private Map detailMap = new TreeMap();
     private AnnotatorLoader loader = new DefaultAnnotatorLoader();
+    // for statementType = TRIE
+    public Trie trie = null;
 
     // don't serialize this, it's too big!
     transient private TextBase textBase = null;
@@ -102,6 +104,16 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	}
     }
 
+    public void annotateWith(String annotationType, String fileToLoad) {
+	annotateWith(this, annotationType, fileToLoad);
+    }
+
+    static public void annotateWith(MonotonicTextLabels labels, String annotationType, String fileToLoad) {
+	AnnotatorLoader theLoader = labels.getAnnotatorLoader();
+	Annotator annotator = theLoader.findAnnotator(annotationType, fileToLoad);
+	annotator.annotate(labels);
+    }
+
     //
     // maintain dictionaries
     //
@@ -119,6 +131,68 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	textTokenDictMap.put(dictName,dictionary);
 	if (log.isDebugEnabled())
 	    log.debug("added to token dictionary: " + dictName + " values " + ((Set)textTokenDictMap.get(dictName)));
+    }
+
+    /** Associate a dictionary from this file */
+    public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase) {
+	Set wordSet = new HashSet();
+	AnnotatorLoader theLoader = this.getAnnotatorLoader();
+	for(int i=0; i<fileNames.size(); i++) {	
+	    String fileName = (String)fileNames.get(i);
+	    InputStream stream = theLoader.findFileResource(fileName);	
+	    try {
+		LineNumberReader bReader = new LineNumberReader(new BufferedReader(new InputStreamReader(stream)));
+		String s = null;
+		while ((s = bReader.readLine()) != null) {
+		    s = s.trim(); // remove trailing blanks
+		    if (ignoreCase) s = s.toLowerCase();
+		    wordSet.add( s );
+		}
+		bReader.close();
+	    } catch (IOException ioe) {
+		//parseError("Error when reading " + fileName.toString() + ": " + ioe);
+		ioe.printStackTrace();
+	    }
+	}
+	defineDictionary(dictName, wordSet);
+    }
+
+    /** Return a trie if defined */
+    public Trie getTrie() {
+	return trie;
+    }
+
+    /** Define a trie */
+    public void defineTrie(ArrayList phraseList) {	
+	trie = new Trie();
+	BasicTextBase tokenizerBase = new BasicTextBase();
+	for (int i=0; i<phraseList.size(); i++) {
+	    String[] toks = tokenizerBase.splitIntoTokens((String)phraseList.get(i));
+	    if (toks.length<=2 || !"\"".equals(toks[0]) || !"\"".equals(toks[toks.length-1])) {
+		trie.addWords( "phrase#"+i, toks );
+	    } else {
+		StringBuffer defFile = new StringBuffer("");
+		for (int j=1; j<toks.length-1; j++) {
+		    defFile.append(toks[j]);
+		}
+		AnnotatorLoader theLoader = this.getAnnotatorLoader();
+		InputStream stream = theLoader.findFileResource(defFile.toString());
+		try {
+		    LineNumberReader bReader = new LineNumberReader(new BufferedReader(new InputStreamReader(stream)));
+		    String s = null;
+		    int line=0;
+		    while ((s = bReader.readLine()) != null) {
+			line++;
+			String[] words = tokenizerBase.splitIntoTokens(s);
+			trie.addWords(defFile+".line."+line, words);
+		    }
+		    bReader.close();				    
+		} catch (IOException ioe) {
+		    //parseError("Error when reading " + defFile.toString() + ": " + ioe);
+		    ioe.printStackTrace();
+		}
+	    } // file load 
+	} // each phrase
     }
 
 

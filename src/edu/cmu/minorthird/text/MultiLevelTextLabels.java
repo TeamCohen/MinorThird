@@ -93,6 +93,9 @@ public class MultiLevelTextLabels implements MonotonicTextLabels, Serializable, 
      * one. */
     public void require(String annotationType,String fileToLoad,AnnotatorLoader loader) {curLabels.require(annotationType, fileToLoad, loader); }
 
+    /** Annotate labels with annotator named fileToLoad */
+    public void annotateWith(String annotationType, String fileToLoad) {curLabels.annotateWith(annotationType, fileToLoad); }
+
     /** Returns the TextBase which is annotated by this TextLabels, or null if that
      * isn't set yet. */
     public TextBase getTextBase() { return curLabels.getTextBase(); }
@@ -168,6 +171,15 @@ public class MultiLevelTextLabels implements MonotonicTextLabels, Serializable, 
 
     /** Associate a dictionary with this labeling. */
     public void defineDictionary(String dictName, Set dictionary) { curLabels.defineDictionary(dictName, dictionary); }
+
+    /** Associate a dictionary from this file */
+    public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase) { curLabels.defineDictionary(dictName, fileNames, ignoreCase); }
+
+    /** Return a trie if defined */
+    public Trie getTrie() { return curLabels.getTrie(); }
+
+    /** Define a trie */
+    public void defineTrie(ArrayList phraseList) { curLabels.defineTrie(phraseList); }
 
     /** Assert that TextToken textToken has the given value of the given property. */
     public void setProperty(Token token,String prop,String value) { curLabels.setProperty(token, prop, value); }

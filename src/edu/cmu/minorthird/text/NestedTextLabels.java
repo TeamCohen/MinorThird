@@ -73,6 +73,15 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 		outer.defineDictionary(dictName, dict);
 	}
 
+    /** Associate a dictionary from this file */
+    public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase) { outer.defineDictionary(dictName, fileNames, ignoreCase); }
+
+    /** Return a trie if defined */
+    public Trie getTrie() { return outer.getTrie(); }
+
+    /** Define a trie */
+    public void defineTrie(ArrayList phraseList) { outer.defineTrie(phraseList); }
+
 	public boolean inDict(Token token, String dictionary) {
     boolean outDict = outer.hasDictionary(dictionary);
     boolean innerDict = inner.hasDictionary(dictionary);
@@ -219,6 +228,11 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible
 	public void require(String annotationType,String fileToLoad,AnnotatorLoader loader) { 
 		BasicTextLabels.doRequire(this,annotationType,fileToLoad,loader);
 	}
+
+    /** Annotate labels with annotator named fileToLoad */
+    public void annotateWith(String annotationType, String fileToLoad) {
+	BasicTextLabels.annotateWith(this, annotationType, fileToLoad);
+    }
 
 	public String showTokenProp(TextBase base, String prop) {
 		return "outer: "+outer.showTokenProp(base,prop)+" inner: "+inner.showTokenProp(base,prop);

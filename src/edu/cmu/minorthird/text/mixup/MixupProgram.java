@@ -253,6 +253,10 @@ public class MixupProgram
 	private String keyword, property, type, startType, value;
 	// set of words, for a dictionary
 	private Set wordSet = null;
+	// file containing dictionary
+	private File dictFile = null;
+	// Variable for whether to ignore case in dictionary
+	private boolean ignoreCase;
 	// split string for retokenizing textBase
 	private String split, patt;
 	// current tokenization level 
@@ -263,15 +267,18 @@ public class MixupProgram
 	private int statementType;
 	// for statementType = MIXUP or FILTER
 	private Mixup mixupExpr = null;
+	// for statementType TRIE
+	private ArrayList phraseList;
 	// for statementType = REGEX
 	private String regex = null;
-	private int regexGroup;
-	// for statementType = TRIE
-	private Trie trie = null;
-	// for statementType=PROVIDE,REQUIRE
-	private String annotationType,fileToLoad;
+	private int regexGroup;	
+	// for statementType=PROVIDE,REQUIRE,ANNOTATEWITH,DICTIONARY
+	private String annotationType, fileToLoad;
+	private ArrayList filesToLoad;
 	// for parsing
 	private Matcher matcher;
+	// for TRIE
+	private Trie trie;
 	private int lastTokenStart;
 	private String input;
 	private static Set generatorStart = new HashSet();
@@ -378,7 +385,7 @@ public class MixupProgram
 		// syntax is "defDict [+case] dictName = ", so either
 		// propOrType = dictName and token = '=', or else 
 		// propOrType = + and token = 'case', or else 
-		boolean ignoreCase = true;
+		ignoreCase = true;
 		if ("case".equals(token)) {
 		    ignoreCase = false;
 		    if (!"+".equals(propOrType)) parseError("illegal defDict");
@@ -388,6 +395,7 @@ public class MixupProgram
 		    type = propOrType;					
 		}
 		wordSet = new HashSet();
+		filesToLoad = new ArrayList();
 		while (true) {
 		    String w =  tok.advance(null);
 		    // read in each line of the file name embraced by double quotes	
@@ -395,18 +403,8 @@ public class MixupProgram
 			StringBuffer defFile = new StringBuffer("");
 			while (!(w = tok.advance(null)).equals("\""))
 			    defFile.append(w);
-			try {
-			    LineNumberReader bReader = mixupReader(defFile.toString());
-			    String s = null;
-			    while ((s = bReader.readLine()) != null) {
-				s = s.trim(); // remove trailing blanks
-				if (ignoreCase) s = s.toLowerCase();
-				wordSet.add( s );
-			    }
-			    bReader.close();
-			} catch (IOException ioe) {
-			    parseError("Error when reading " + defFile.toString() + ": " + ioe);
-			}
+			fileToLoad = defFile.toString();
+			filesToLoad.add(fileToLoad);
 		    } else {
 			wordSet.add( ignoreCase?w.toLowerCase() : w );
 		    }
@@ -465,7 +463,7 @@ public class MixupProgram
 			}
 		    } else if ("trie".equals(token)) {
 			statementType = TRIE;
-			ArrayList phraseList = new ArrayList();
+			phraseList = new ArrayList();
 			String word = tok.advance(null);
 			word.trim();
 			String fullWord = "";
@@ -521,8 +519,13 @@ public class MixupProgram
 	    log.info("Evaluating: "+this);
 	    long start = System.currentTimeMillis();
 	    if ("defDict".equals(keyword)) {
-		log.debug("defining dictionary of: " + wordSet);
-		labels.defineDictionary( type, wordSet );
+		if(filesToLoad.size() > 0) {
+		    labels.defineDictionary( type, filesToLoad, ignoreCase );
+		    filesToLoad.clear();
+		} else {
+		    log.debug("defining dictionary of: " + wordSet);
+		    labels.defineDictionary( type, wordSet );
+		}
 	    } else if("defLevel".equals(keyword)) {
 		labels.createLevel(type, split, patt);
 	    } else if("onLevel".equals(keyword)) {
@@ -539,14 +542,7 @@ public class MixupProgram
 	    } else if (statementType==REQUIRE) {
 		labels.require(annotationType,fileToLoad);
 	    } else if (statementType==ANNOTATE_WITH) {
-		try {
-		    //Annotator ann = (Annotator)IOUtil.loadSerialized(new File(fileToLoad));
-		    InputStream s = ClassLoader.getSystemResourceAsStream(fileToLoad);
-		    Annotator ann = (Annotator)IOUtil.loadSerialized(s);
-		    ann.annotate( labels );
-		} catch (IOException ex) {
-		    throw new IllegalStateException("no serialized annotator found in '"+fileToLoad+"': error = "+ex);
-		}
+		labels.annotateWith(fileToLoad.substring(0,fileToLoad.length()-4), fileToLoad);
 	    } else {
 		Span.Looper input = null;
 		if ("top".equals(startType)) {
@@ -577,9 +573,10 @@ public class MixupProgram
 			extendLabels( labels, ((Span)i.next()) );
 		    }
 		} else if (statementType==TRIE) {
+		    labels.defineTrie(phraseList);
 		    while (input.hasNext()) {
 			Span span = input.nextSpan();
-			Span.Looper output = trie.lookup( span );
+			Span.Looper output = labels.getTrie().lookup( span );
 			while (output.hasNext()) {
 			    extendLabels( labels, output.nextSpan() );
 			}

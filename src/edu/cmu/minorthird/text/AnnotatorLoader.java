@@ -49,12 +49,10 @@ public abstract class AnnotatorLoader
 	{
 		String redirect;
 		InputStream s;
-
 		log.info("finding annotator for "+annotationType+" source="+source);
-
-		if (source!=null && source.endsWith(".mixup")) {
+		if (source!=null && (source.endsWith(".mixup") || source.endsWith(".ann"))) {
 			log.debug("non-null mixup");
-			return findMixupAnnotatorFromStream(source,findFileResource(source));
+			return findMixupAnnotatorFromStream(source,findFileResource(source));		    
 		} else if (source!=null) {
 			log.debug("non-null non-mixup");
 			return findNativeAnnotatorFromString(source);
@@ -78,10 +76,23 @@ public abstract class AnnotatorLoader
 			return null;
 		} 
 		try {
+		    if(fileName.endsWith(".mixup")) {
 			byte[] buf = new byte[s.available()];
 			s.read(buf);
 			MixupProgram p = new MixupProgram(new String(buf));
 			return new MixupAnnotator(p);
+		    } else { //ends with .ann			
+			try {
+			    byte[] buf = new byte[s.available()];
+			    s.read(buf);
+			    ByteArrayInputStream input = new ByteArrayInputStream(buf);
+			    ObjectInputStream objInput = new ObjectInputStream(input);
+			    return (Annotator)objInput.readObject();
+			} catch (Exception e) {
+			    e.printStackTrace();
+			}
+		    }
+		    return null;
 		} catch (Mixup.ParseException e) {
 			log.warn("error parsing "+fileName+": "+e);
 			return null;

@@ -125,6 +125,11 @@ public class SubTextLabels implements TextLabels,Visible
 		labels.require(annotationType,fileToLoad,loader);
 	}
 
+    /** Annotate labels with annotator named fileToLoad */
+    public void annotateWith(String annotationType, String fileToLoad) {
+	labels.annotateWith(annotationType, fileToLoad);
+    }
+
 	private Span.Looper filter(Span.Looper i) {
 		List list = new ArrayList();
 		while (i.hasNext()) {

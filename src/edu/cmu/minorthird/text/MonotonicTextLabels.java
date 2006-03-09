@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text;
 
 import java.util.Set;
+import java.util.ArrayList;
 
 /** Maintains assertions about 'types' and 'properties' of contiguous
  * Spans of these Seq's.  Assertions can never be deleted from a
@@ -13,6 +14,15 @@ public interface MonotonicTextLabels extends TextLabels
 {
 	/** Associate a dictionary with this labeling. */
 	public void defineDictionary(String dictName, Set dictionary);
+
+    /** Associate a dictionary from this file */
+    public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase);
+
+    /** Return a trie if defined */
+    public Trie getTrie();
+
+    /** Define a trie */
+    public void defineTrie(ArrayList phraseList);
 
 	/** Assert that TextToken textToken has the given value of the given property. */
 	public void setProperty(Token token,String prop,String value);

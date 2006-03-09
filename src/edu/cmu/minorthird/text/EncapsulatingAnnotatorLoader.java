@@ -101,14 +101,13 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 			log.info("looking for class "+className+" with encapsulated loader");
 			byte[] contents = (byte[])fileNameToContentsMap.get(className+".class");
 			if (contents!=null) {
-				log.info("encapsulated class definition found containing "+contents.length+" bytes");
-				return defineClass(className,contents,0,contents.length);
-			}	else {
-				log.info("calling default class loader to find class");
-				return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className);
+			    log.info("encapsulated class definition found containing "+contents.length+" bytes");
+			    return defineClass(className,contents,0,contents.length);
+			} else {
+			    log.info("calling default class loader to find class");
+			    return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className);
 			}
 		}
-
 	    
 	}
 }

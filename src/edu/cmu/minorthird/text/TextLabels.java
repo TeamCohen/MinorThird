@@ -18,6 +18,9 @@ public interface TextLabels
 	 * it (if possible) or throw an error. */
 	public void require(String annotationType,String fileToLoad);
 
+    /** Annotate labels with annotator named fileToLoad */
+    public void annotateWith(String annotationType, String fileToLoad);
+
 	/** Ensure that this TextLabels contains a particular type of
 	 * annotation.  If the annotation is not present, then either load
 	 * it (if possible) or throw an error. Use the provided

@@ -2,6 +2,7 @@ package edu.cmu.minorthird.text.learn.experiments;
 
 import edu.cmu.minorthird.text.*;
 import java.util.Set;
+import java.util.ArrayList;
 
 /** A subset of another TextLabels that can be added to.
  * Additions are propogated back to the underlying MonotonicTextLabels
@@ -26,6 +27,17 @@ public class MonotonicSubTextLabels extends SubTextLabels implements MonotonicTe
 	public void defineDictionary(String dictName,Set dict) {
 		monotonicLabels.defineDictionary( dictName, dict );
 	}
+
+    /** Associate a dictionary from this file */
+    public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase) {
+	monotonicLabels.defineDictionary(dictName, fileNames, ignoreCase); 
+    }
+
+    /** Return a trie if defined */
+    public Trie getTrie() { return monotonicLabels.getTrie(); }
+
+    /** Define a trie */
+    public void defineTrie(ArrayList phraseList) { monotonicLabels.defineTrie(phraseList); }
 		
 	public void setProperty(Token token,String prop,String value) {
 	    monotonicLabels.setProperty(token,prop,value);
