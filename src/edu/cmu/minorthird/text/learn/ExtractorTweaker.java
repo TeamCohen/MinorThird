@@ -136,7 +136,7 @@ public class ExtractorTweaker
         tweak(annotator,0);
         double v = getOldBias();
         if (v<0) v = -v;
-	if (v==0) v = 0.1;
+				if (v==0) v = 0.1;
         if (!loSpecified) lo = -10*v;
         if (!hiSpecified) hi = 10*v;
         System.out.println("oldBias term was "+v+" testing between "+lo+" and "+hi);

@@ -12,9 +12,12 @@ import java.util.LinkedList;
 import java.util.List;
 import edu.cmu.minorthird.ui.*;
 
+import java.text.DecimalFormat;
+
 final public class ProgressCounter
 {
     static private Logger log = Logger.getLogger(ProgressCounter.class);
+	static private DecimalFormat format = new DecimalFormat("0.00");
     static JProgressBar[] graphicContext = new JProgressBar[0];
 
     public static void setGraphicContext(JProgressBar[] context)
@@ -99,15 +102,15 @@ final public class ProgressCounter
 		} catch (Exception e) {
 		}
 		System.out.println("Task "+task+": "
-				   +(100.0*stepsCompleted/numSteps)
-				   +"% ("+stepsCompleted+"/"+numSteps+" "+step+"s) in "
-				   +(time-startTime)/1000.0+" sec");
+											 +format.format(100.0*stepsCompleted/numSteps)
+											 +"% ("+stepsCompleted+"/"+numSteps+" "+step+"s) in "
+											 +format.format((time-startTime)/1000.0)+" sec");
 	    } else {
 		try{
 		    System.out.flush();
 		} catch (Exception e) {
 		}
-		System.out.println("Task "+task+": "+stepsCompleted+" "+step+"(s) in "+(time-startTime)/1000.0+" sec");
+		System.out.println("Task "+task+": "+stepsCompleted+" "+step+"(s) in "+format.format((time-startTime)/1000.0)+" sec");
 	    }
 	    lastOutputTime = time;
 	}

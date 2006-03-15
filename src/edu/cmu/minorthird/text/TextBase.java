@@ -36,7 +36,7 @@ public interface TextBase
    */
   public void loadDocument(String documentId, String text);
 
-    public void loadDocument(String documentId, String documentString, int charOffset);
+	public void loadDocument(String documentId, String documentString, int charOffset);
 
 	/** Tokenize a string. */
 	public String[] splitIntoTokens(String string);
@@ -55,22 +55,22 @@ public interface TextBase
 	/** Set the group that a document belongs to */
 	public void setDocumentGroupId(String documentId,String documentGroupId);
 
-    /**Returns the document with the given ID */
-    public Document getDocument(String docID);
+	/**Returns the document with the given ID */
+	public Document getDocument(String docID);
 
-    /**Tokenize a text base differently*/
-    public TextBase retokenize(Tokenizer tok);
+	/**Tokenize a text base differently*/
+	public TextBase retokenize(Tokenizer tok);
 
-    /**Retokenize the textBase creating psuedotokens for a certain spanType */
-    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType);
+	/**Retokenize the textBase creating psuedotokens for a certain spanType */
+	public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType);
 
-    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
+	/**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+	public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels);
 
-    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public MonotonicTextLabels importLabels(TextLabels parentLabels);
+	/**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
+	public MonotonicTextLabels importLabels(TextLabels parentLabels);
 
-    /**Import Labels of type from another TextBase - as long as the current TextBase is some subset of the original */
-    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName);
+	/**Import Labels of type from another TextBase - as long as the current TextBase is some subset of the original */
+	public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName);
     
 }

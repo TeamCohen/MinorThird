@@ -16,68 +16,74 @@ import java.io.*;
 
 public class RankingPerceptron extends BatchRankingLearner
 {
-    private int numEpochs;
+	private int numEpochs;
+	private static final double MARGIN = 0.1;
 
-    public RankingPerceptron() 
-    { 
-	this(100);
-    }
+	public RankingPerceptron() 
+	{ 
+		this(100);
+	}
 
-    public RankingPerceptron(int numEpochs)
-    { 
-	this.numEpochs=numEpochs;
-    }
+	public RankingPerceptron(int numEpochs)
+	{ 
+		this.numEpochs=numEpochs;
+	}
 
-    public Classifier batchTrain(Dataset data) 
-    {
-	Hyperplane h = new Hyperplane();
-	Hyperplane s = new Hyperplane();
-	int numUpdates = 0;
-	Map rankingMap = splitIntoRankings(data);
-	ProgressCounter pc = new ProgressCounter("perceptron training", "epoch", numEpochs);
-	for (int e=0; e<numEpochs; e++) {
+	public Classifier batchTrain(Dataset data) 
+	{
+		Hyperplane h = new Hyperplane();
+		Hyperplane s = new Hyperplane();
+		int numUpdates = 0;
+		Map rankingMap = listsWithOneExampleEach( splitIntoRankings(data) );
+		//Map rankingMap = splitIntoRankings(data);
+		ProgressCounter pc = new ProgressCounter("perceptron training", "epoch", numEpochs);
+		for (int e=0; e<numEpochs; e++) {
 	    //System.out.println("epoch "+e+"/"+numEpochs);
 	    for (Iterator i=rankingMap.keySet().iterator(); i.hasNext(); ) {
-		String subpop = (String)i.next();
-		List ranking = (List)rankingMap.get(subpop);
-		numUpdates += batchTrainSubPop( h, s, ranking );
+				String subpop = (String)i.next();
+				List ranking = (List)rankingMap.get(subpop);
+				numUpdates += batchTrainSubPop( h, s, ranking );
 	    }
 	    pc.progress();
+		}
+		pc.finished();
+		// turn sum hyperplane into an average
+		s.multiply( 1.0/((double)numUpdates) );
+		//new ViewerFrame("hyperplane", s.toGUI());
+		return s;
 	}
-	pc.finished();
-	// turn sum hyperplane into an average
-	s.multiply( 1.0/((double)numUpdates) );
-	//new ViewerFrame("hyperplane", s.toGUI());
-	return s;
-    }
 
-    // return the number of times h has been updated
-    private int batchTrainSubPop( Hyperplane h, Hyperplane s, List ranking )
-    {
-	int updates = 0;
-	sortByScore(h,ranking);
-	boolean positiveExampleEncountered = false;
-	boolean negativeExampleEncountered = false;
-	int lowestBadPositiveExample = -1, highestBadNegativeExample = ranking.size();
-	for (int i=0; i<ranking.size(); i++) {	
+	// return the number of times h has been updated
+	private int batchTrainSubPop( Hyperplane h, Hyperplane s, List ranking )
+	{
+		sortByScore(h,ranking);
+		int updates = 0;
+		int highestNegativeIndex = ranking.size();
+		Example highestNegativeExample = null;
+		for (int i=0; i<ranking.size(); i++) {	
 	    Example exi = (Example)ranking.get(i);
-	    if (exi.getLabel().isNegative() && !positiveExampleEncountered) {
-		highestBadNegativeExample = Math.min(i, highestBadNegativeExample);
-	    } else if (exi.getLabel().isPositive() && negativeExampleEncountered) {
-		lowestBadPositiveExample = Math.max(i, lowestBadPositiveExample);
-	    }
-	    if (exi.getLabel().isPositive()) positiveExampleEncountered=true;
-	    if (exi.getLabel().isNegative()) negativeExampleEncountered=true;
+			if (exi.getLabel().isNegative()) {
+				highestNegativeIndex = i;
+				highestNegativeExample = (Example)ranking.get(i);		
+				break;
+			}
+		}
+		// look for positive example, update
+		for (int i=0; i<ranking.size(); i++) {	
+	    Example exi = (Example)ranking.get(i);
+			if (exi.getLabel().isPositive()) {			
+				if (highestNegativeExample!=null && (h.score(exi) < h.score(highestNegativeExample)+MARGIN)) {
+				//if (i>highestNegativeIndex) {
+					// the positive example is ranked below the
+					// highestNegativeExample, which is incorrect
+					Example pos = (Example)ranking.get(i);
+					h.increment( highestNegativeExample, -1.0);
+					h.increment( pos, +1.0 );
+				}
+				s.increment( h );
+				updates++;
+			}
+		}
+		return updates;
 	}
-	if (lowestBadPositiveExample>=0 && highestBadNegativeExample<ranking.size()) {
-	    Example neg = (Example)ranking.get(highestBadNegativeExample);		
-	    Example pos = (Example)ranking.get(lowestBadPositiveExample);
-	    h.increment( neg, -1.0 );
-	    h.increment( pos, +1.0 );
-	    s.increment( h );
-	    updates++;
-	}
-	return updates;
-    }
-
 }

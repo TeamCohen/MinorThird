@@ -39,41 +39,41 @@ import java.io.*;
 
 public class VotedPerceptron extends OnlineBinaryClassifierLearner implements Serializable
 {
-    private Hyperplane s_t,w_t;
-    private boolean ignoreWeights=false;
+	private Hyperplane s_t,w_t;
+	private boolean ignoreWeights=false;
 
-    public VotedPerceptron() { 
-	this(false); 
-    }
+	public VotedPerceptron() { 
+		this(false); 
+	}
 
-    /** If ignoreWeights is true, treat all weights as binary. For
-     * backward compatibility with an older buggy version.
-     */
-    public VotedPerceptron(boolean ignoreWeights) { this.ignoreWeights = ignoreWeights; reset(); }
+	/** If ignoreWeights is true, treat all weights as binary. For
+	 * backward compatibility with an older buggy version.
+	 */
+	public VotedPerceptron(boolean ignoreWeights) { this.ignoreWeights = ignoreWeights; reset(); }
 
-    public void reset() 
-    {
-	s_t = new Hyperplane();
-	w_t = new Hyperplane();
-	if (ignoreWeights) {
+	public void reset() 
+	{
+		s_t = new Hyperplane();
+		w_t = new Hyperplane();
+		if (ignoreWeights) {
 	    s_t.startIgnoringWeights();
 	    w_t.startIgnoringWeights();
+		}
 	}
-    }
 
-    public void addExample(Example example)
-    {
-	double y_t = example.getLabel().numericLabel();
-	if (w_t.score(example.asInstance()) * y_t <= 0) {
+	public void addExample(Example example)
+	{
+		double y_t = example.getLabel().numericLabel();
+		if (w_t.score(example.asInstance()) * y_t <= 0) {
 	    w_t.increment( example, y_t );
+		}
+		s_t.increment( w_t, 1.0 );
 	}
-	s_t.increment( w_t, 1.0 );
-    }
 
-    public Classifier getClassifier() 
-    {
-	return s_t;
-    }
+	public Classifier getClassifier() 
+	{
+		return s_t;
+	}
 
-    public String toString() { return "VotedPerceptron"; }
+	public String toString() { return "VotedPerceptron"; }
 }

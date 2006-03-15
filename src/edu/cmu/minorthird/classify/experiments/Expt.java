@@ -207,6 +207,7 @@ public class Expt implements CommandLineProcessor.Configurable
          interp.eval("import edu.cmu.minorthird.classify.*;");
          interp.eval("import edu.cmu.minorthird.classify.algorithms.linear.*;");
          interp.eval("import edu.cmu.minorthird.classify.algorithms.trees.*;");
+         interp.eval("import edu.cmu.minorthird.classify.algorithms.ranking.*;");
          interp.eval("import edu.cmu.minorthird.classify.algorithms.knn.*;");
          interp.eval("import edu.cmu.minorthird.classify.algorithms.svm.*;");
          interp.eval("import edu.cmu.minorthird.classify.transform.*;");

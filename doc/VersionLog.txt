@@ -40,3 +40,7 @@ Version # Format: Version#.Year.Month.Day
 		- Updated MinorTagger and MinorTaggerClient to output labels format and run on velmak
 		- Cleaned up commandLineUtil
 		- Fixed bug in RefUtils
+8.6.3.15	- cleaned up output in ProgressCounter
+		- fixed some bugs in TextBaseLoader, for reading in text with XML labels
+		- added ProgressCounter to TextBaseLoader for loading directories
+		- made OneVsAllLearner work for Online learners
