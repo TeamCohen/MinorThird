@@ -310,6 +310,7 @@ public class MixupProgram
 	    if (keyword.equals("declareSpanType")) {
 		statementType = DECLARE;
 		type = tok.advance(null);
+		tok.advance(null); // advance to end-of-statement marker
 		return;
 	    }
 	    if (keyword.equals("provide")) {
@@ -447,14 +448,14 @@ public class MixupProgram
 		    if ("re".equals(token)) {
 			statementType = REGEX;
 			regex = tok.advance(null);
-			System.out.println("THIS IS THE REGEX: " + regex);
+			//System.out.println("THIS IS THE REGEX: " + regex);
 			if (regex.startsWith("'")) {
 			    regex = regex.substring(1,regex.length()-1);
 			    regex = regex.replaceAll("\\\\'","'");
 			}
 			token = tok.advance(Collections.singleton(","));
 			token = tok.advance(null);
-			System.out.println("THIS IS THE EXPECTED GROUP NUMBER: " + token);
+			//System.out.println("THIS IS THE EXPECTED GROUP NUMBER: " + token);
 			try {
 			    regexGroup = Integer.parseInt(token);
 			    token = tok.advance(null);
