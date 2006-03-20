@@ -1,0 +1,15 @@
+Trained using the Recommended.VPHMMLearner with the following properties:
+	History Size = 3
+	Feature Window Size = 3
+	Epochs = 50
+
+Training set was 400 Genia documents.  In addition a bsh loader script 
+was used to split this set of documents into ~1500 sub-documents based on 
+'context' as defined in apps/slif/cell.mixup.  This restricts learning to
+only places that are near a cell end.
+
+Also a dictionary of known cell line names was added as features prior to 
+learning.  This dictionary can be found in apps/slif/AllCellLines.txt
+
+This annotator is an encapsulated annotator with all of the necessary 
+files embedded inside, so it can be used as is with ApplyAnnotator.
