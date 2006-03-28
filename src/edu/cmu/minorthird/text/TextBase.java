@@ -9,8 +9,6 @@ package edu.cmu.minorthird.text;
  * from some sort of set of containing documents - typically found by
  * tokenization.
  *
- *<p>
- * Implementations of TextBase should also implement Serializable.
  *
  * @author William Cohen
 */
