@@ -259,7 +259,7 @@ public class TypeSelector extends ComponentViewer
 		    //JFrame popupFrame = new JFrame(title);
 		    JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
 		    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
-		    dialog.show();
+		    dialog.setVisible(true);
 		}
 	    }));
 	//Possible Help Button
@@ -284,7 +284,7 @@ public class TypeSelector extends ComponentViewer
 				//JFrame popupFrame = new JFrame(title);
 				JOptionPane optionPane = new JOptionPane(new Object[]{editor});
 				JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
-				dialog.show();
+				dialog.setVisible(true);
 			    }
 			}));
 		}
@@ -348,7 +348,7 @@ public class TypeSelector extends ComponentViewer
 	//JFrame popupFrame = new JFrame(title);
 	JOptionPane optionPane = new JOptionPane(new Object[]{title,editor});
 	JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
-	dialog.show();
+	dialog.setVisible(true);
     }
 
     private boolean isInLine(String c)
@@ -688,7 +688,7 @@ public class TypeSelector extends ComponentViewer
 				    //JFrame popupFrame = new JFrame(title);
 				    JOptionPane optionPane = new JOptionPane(new Object[]{editor});
 				    JDialog dialog = optionPane.createDialog(TypeSelector.this,title);
-				    dialog.show();
+				    dialog.setVisible(true);
 				}
 			    }), gbc(1,row));		
 			}		    

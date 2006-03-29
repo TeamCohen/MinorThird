@@ -108,6 +108,6 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 			    return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className);
 			}
 		}
-	    
+
 	}
 }
