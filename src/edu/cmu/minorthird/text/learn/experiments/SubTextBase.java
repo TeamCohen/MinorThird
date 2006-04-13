@@ -82,33 +82,27 @@ public class SubTextBase implements TextBase
 
     public TextBase retokenize(Tokenizer tok)
     {
+	TextBaseMapper mapper = new TextBaseMapper(this);
+	return retokenize(tok, mapper);
+    }
+
+    public TextBase retokenize(Tokenizer tok, TextBaseMapper mapper)
+    {
 	TextBase tb = new BasicTextBase();
-	tb = base.retokenize(tok);
+	tb = base.retokenize(tok, mapper);
 	return tb;
     }
 
     /**Retokenize the textBase creating psuedotokens for a certain spanType */
     public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType) {
+	TextBaseMapper mapper = new TextBaseMapper(this);
+	return createPseudotokens(labels, spanType, mapper);
+    }
+
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType, TextBaseMapper mapper) {
 	TextBase tb = new BasicTextBase();
-	MonotonicTextLabels tl = base.createPseudotokens(labels, spanType);
+	MonotonicTextLabels tl = base.createPseudotokens(labels, spanType, mapper);
 	return tl;
-    }
-
-    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
-	MonotonicTextLabels childLabels = base.importLabels(origLabels, parentLabels);
-	return childLabels;
-    }
-
-    public MonotonicTextLabels importLabels(TextLabels parentLabels) 
-    {
-	MonotonicTextLabels childLabels = base.importLabels(parentLabels);
-	return childLabels;
-    }    
-
-    public TextLabels importLabels(MonotonicTextLabels origLabels,TextLabels parentLabels, String type, String newName) 
-    {
-	TextLabels childLabels = base.importLabels(origLabels, parentLabels, type, newName);
-	return childLabels;
     }
 }

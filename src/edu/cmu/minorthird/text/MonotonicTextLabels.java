@@ -63,9 +63,4 @@ public interface MonotonicTextLabels extends TextLabels
 
 	/** Get the current AnnotatorLoader. */
 	public AnnotatorLoader getAnnotatorLoader();
-
-    /** Retokenizes the TextBase associated with the labels and imports the existing labels
-	to the new retokenized TextBase.  Note:  Do not use this method the old labels cannot
-	be translated to the new TextBase. */
-    public MonotonicTextLabels retokenize(Tokenizer tok);
 }

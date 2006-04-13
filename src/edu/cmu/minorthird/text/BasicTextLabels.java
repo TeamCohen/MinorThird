@@ -43,6 +43,45 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
     public BasicTextLabels() { this.textBase = null; }
     public BasicTextLabels(TextBase textBase) { this.textBase = textBase; }
 
+        /** Import the labels from the parent TextBase */
+    public BasicTextLabels(SpanTypeTextBase base, TextLabels parentLabels) {
+	this.textBase = base;
+	//labels = new BasicTextLabels(base);
+	Span.Looper parentIterator = parentLabels.instanceIterator(base.spanType);
+	String prevDocId = "";
+	int docNum = 0;
+	//Reiterate over the spans with spanType in the parent labels
+	while(parentIterator.hasNext()) {
+	    Span parentSpan = parentIterator.nextSpan();
+	    String docID = parentSpan.getDocumentId();
+	    if(docID.equals(prevDocId))
+		docNum++;
+	    else docNum=0;
+	    Span childDocSpan = base.documentSpan("childTB" + docNum + "-" + docID); //The matching span in the child textbase
+	    prevDocId = docID;
+	    int childDocStartIndex = parentSpan.getLoTextToken();
+	    Set types = parentLabels.getTypes();  
+	    Iterator typeIterator = types.iterator();
+	    //Iterate over span types in the parent textBase
+	    while(typeIterator.hasNext()) {
+		String type = (String)typeIterator.next();
+		Set spansWithType = parentLabels.getTypeSet(type, docID);
+		Iterator spanIterator = spansWithType.iterator();
+		//Iterate over the spans with a type
+		while(spanIterator.hasNext()) {
+		    Span s = (Span)spanIterator.next();
+		    //See if the parent span conains the span
+		    if(parentSpan.contains(s) && childDocSpan.size()>=s.getLoTextToken()-childDocStartIndex+s.size() ) {
+			//find the matching span in the child doc span and add it to the child Labels
+			Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
+			addToType(subSpan, type);			
+		    }
+		}		
+		closeTypeInside(type, childDocSpan);
+	    } 	    
+	}
+    }
+
     public TextBase getTextBase() { return textBase; }
 
     public boolean hasDictionary(String dictionary)
@@ -534,12 +573,6 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	    buf.append("\n");
 	}
 	return buf.toString();
-    }
-
-    public MonotonicTextLabels retokenize(Tokenizer tok) {
-	TextBase tb = textBase.retokenize(tok);
-	MonotonicTextLabels tl = tb.importLabels(this);
-	return tl;
     }
 
     public Viewer toGUI() 

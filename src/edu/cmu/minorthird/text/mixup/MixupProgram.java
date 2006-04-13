@@ -25,6 +25,7 @@ STATEMENT -> defTokenProp PROP:VALUE = GEN
 STATEMENT -> defSpanProp PROP:VALUE = GEN
 STATEMENT -> defSpanType TYPE2 = GEN
 STATEMENT -> declareSpanType TYPE
+STATEMENT -> defLevel NAME
 STATEMENT -> onLevel NAME
 STATEMENT -> offLevel NAME
 STATEMENT -> importFromLevel NAME TYPE = TYPE
@@ -104,6 +105,20 @@ require "req1"; //requires that "abc" type spans have already been labeled.  If 
 		//label longest span of 0 or more address tokens at the beginning of the document
 		defSpanType shortList =: ... [address{2,3}] ...; //label spans of 2 or 3 address tokens
 		defSpanType xyz =header: ...[capProp] ...; //providing the promised xyz labeling
+		//creates a new level where each document is a span with spanType
+		defLevel newLevel = filter spanType;
+		//creates a new level where tokens of spanType are combined into a single token
+		defLevel newLevel = pseudotoken spanType;
+		//creates a new level where the textBase is retokenized by splitting a a certain token
+		defLevel newLevel = split '.';
+		//create a new level where the textBase is retokenized using a regular expression
+		defLevel newLevel = re '([^\n]+)';
+		//switches current textBase and Labels to Level
+		onLevel levelName;
+		//returns to root (or original) level - levelName is the name of the child level which you are switching off
+		offLevel childLevelName;
+		//Imports spans of Type in the child level to spans of newType in the parent level
+		importFromLevel childLevelName newType = type;
 		</pre>
 		*
 		* @author William Cohen
@@ -530,8 +545,9 @@ public class MixupProgram
 	    } else if("defLevel".equals(keyword)) {
 		labels.createLevel(type, split, patt);
 	    } else if("onLevel".equals(keyword)) {
-		labels.onLevel(level);		
+		labels.onLevel(level);	
 	    } else if("offLevel".equals(keyword)) {
+		//new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(labels));
 		labels.offLevel();
 	    } else if("importFromLevel".equals(keyword)) {
 		System.out.println("exec: importFromLevel "+oldType+" -> "+type);
@@ -542,8 +558,9 @@ public class MixupProgram
 		labels.setAnnotatedBy(annotationType);
 	    } else if (statementType==REQUIRE) {
 		labels.require(annotationType,fileToLoad);
-	    } else if (statementType==ANNOTATE_WITH) {
+	    } else if (statementType==ANNOTATE_WITH) {		
 		labels.annotateWith(fileToLoad.substring(0,fileToLoad.length()-4), fileToLoad);
+		new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(labels));
 	    } else {
 		Span.Looper input = null;
 		if ("top".equals(startType)) {

@@ -21,12 +21,13 @@ public class MultiLevelTextLabels implements MonotonicTextLabels, Serializable, 
 {
     private MonotonicTextLabels curLabels;
     private String curLevel;
-    private HashMap levels = new HashMap(); // collection of TextLabels with different tokenizations
+    private LevelManager manager;
+    //private HashMap levels = new HashMap(); // collection of TextLabels with different tokenizations
 
     public MultiLevelTextLabels(MonotonicTextLabels labels) {
 	curLabels = labels;
-	curLevel = "original";
-	levels.put(curLevel,curLabels);
+	curLevel = "root";
+	manager = new LevelManager(labels);
     }
 
     /** Returns the current level */
@@ -36,48 +37,42 @@ public class MultiLevelTextLabels implements MonotonicTextLabels, Serializable, 
 
     /** Returns the original TextLabels */
     public MonotonicTextLabels getOriginal() {
-	return (MonotonicTextLabels)levels.get("original");
+	return manager.getLevel("root");
     }
 
-    /** Creates a new level */
-    public void createLevel(String level, String tokType, String tokDef){
-	TextBase newTextBase;
-	TextLabels newLabels;
-	if("pseudotoken".equals(tokType)) {
-	    newLabels = curLabels.getTextBase().createPseudotokens(curLabels, tokDef);		    
-	} else if("filter".equals(tokType)) {
-	    newTextBase = new SpanTypeTextBase(curLabels, tokDef);
-	    newLabels = newTextBase.importLabels((TextLabels)curLabels);
-	} else {
-	    Tokenizer baseTok;
-	    if(tokType.equals("tokType")) {
-		baseTok = new Tokenizer(Tokenizer.SPLIT, tokDef );
-	    }else baseTok = new Tokenizer(Tokenizer.REGEX, tokDef); //split = re
-	    newTextBase = curLabels.getTextBase().retokenize(baseTok);
-	    newLabels = new BasicTextLabels(newTextBase); 		
-	}
-	levels.put(level, newLabels);  //Add
+    /** Creates a new level and imports labels from parent.  Where levelType defines whether to create a retokenized, a spanType, or
+     *  a pseudotoken textBase and pattern is the regular expression or spanType to use to create the new TextBase. */
+    public void createLevel(String level, String levelType, String pattern){
+	manager.createLevel(level,levelType,pattern);	
     }
 
+    /** Changes current labels to level. */
     public void onLevel(String level) {
-	if(levels.containsKey(level)) {
-	    curLabels = (MonotonicTextLabels)levels.get(level);
+	if(manager.containsLevel(level)) {
+	    curLabels = manager.getLevel(level);
 	    curLevel = level;
 	} else System.out.println("Level: " + level + " is not defined");
     }
 
     public void offLevel() {
-	curLabels = (MonotonicTextLabels)levels.get("original");
-	curLevel = "original";
+	curLabels = manager.getLevel("root");
+	curLevel = "root";
     }
 
+    /** imports child labels to parent */
     public void importFromLevel(String importLevel, String oldType, String newType  ) {
-	if(!levels.containsKey(importLevel))
+	if(!manager.containsLevel(importLevel))
 	    System.out.println("Level: " + importLevel + " not defined for importFromLevel");
-	TextLabels importLabels = (TextLabels)levels.get(importLevel);
-	curLabels = (MonotonicTextLabels)(curLabels.getTextBase().importLabels(curLabels, importLabels, oldType, newType));
+	TextBaseMapper mapper = manager.getTextBaseMapper(importLevel);
+	MonotonicTextLabels childLabels = manager.getLevel(importLevel);
+	Span.Looper childLooper = childLabels.instanceIterator(oldType);
+	while(childLooper.hasNext()) {
+	    Span childSpan = childLooper.nextSpan();
+	    Span parentSpan = mapper.getMatchingParentSpan(childSpan);
+	    curLabels.addToType(parentSpan, newType);
+	}
     }
-
+    
     /** See if the TextLabels contains a particular type of annotation */
     public boolean isAnnotatedBy(String s) { return curLabels.isAnnotatedBy(s); }
 
@@ -220,11 +215,6 @@ public class MultiLevelTextLabels implements MonotonicTextLabels, Serializable, 
 
     /** Get the current AnnotatorLoader. */
     public AnnotatorLoader getAnnotatorLoader() { return curLabels.getAnnotatorLoader(); }
-
-    /** Retokenizes the TextBase associated with the labels and imports the existing labels
-	to the new retokenized TextBase.  Note:  Do not use this method the old labels cannot
-	be translated to the new TextBase. */
-    public MonotonicTextLabels retokenize(Tokenizer tok) { return curLabels.retokenize(tok); }
 
     public Viewer toGUI() { return new ZoomingTextLabelsViewer(curLabels); }
 

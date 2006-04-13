@@ -19,12 +19,17 @@ public class SpanTypeTextBase extends ImmutableTextBase
 {
     private Set validDocumentSpans;
     private TextBase base;
-    private String spanType;
+    public String spanType;
     private BasicTextLabels labels;
 
     /** Initialize a TextBase with a single spanType from a parent TextBase */
     public SpanTypeTextBase(TextLabels parentLabels, String spanType)
     {
+	TextBaseMapper mapper = new TextBaseMapper(this);
+	new SpanTypeTextBase(parentLabels, spanType, mapper);
+    }
+
+    public SpanTypeTextBase(TextLabels parentLabels, String spanType, TextBaseMapper mapper) {
 	base = new BasicTextBase(); 
 	this.spanType = spanType;
 	validDocumentSpans = new TreeSet();
@@ -43,83 +48,10 @@ public class SpanTypeTextBase extends ImmutableTextBase
 	    String docText = s.asString();
 	    int startIndex = s.getLoChar();
 	    base.loadDocument(docID, docText, startIndex);
+	    Span docSpan = base.documentSpan(docID);
+	    validDocumentSpans.add(docSpan);
+	    mapper.mapDocument(curDocId, docSpan, startIndex); 
 	}
-	for(Span.Looper j = base.documentSpanIterator(); j.hasNext(); ) {
-	    Span span = j.nextSpan();
-	    validDocumentSpans.add(span);
-	}
-    }
-
-    /**Import Labels from another TextBase - as long as the current TextBase is some subset of the original */
-    public MonotonicTextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels) {
-	return origLabels;
-    }
-
-    /** Import the labels from the parent TextBase */
-    public MonotonicTextLabels importLabels(TextLabels parentLabels) {
-	labels = new BasicTextLabels(base);
-	Span.Looper parentIterator = parentLabels.instanceIterator(spanType);
-	String prevDocId = "";
-	int docNum = 0;
-	//Reiterate over the spans with spanType in the parent labels
-	while(parentIterator.hasNext()) {
-	    Span parentSpan = parentIterator.nextSpan();
-	    String docID = parentSpan.getDocumentId();
-	    if(docID.equals(prevDocId))
-		docNum++;
-	    else docNum=0;
-	    Span childDocSpan = base.documentSpan("childTB" + docNum + "-" + docID); //The matching span in the child textbase
-	    prevDocId = docID;
-	    int childDocStartIndex = parentSpan.getLoTextToken();
-	    Set types = parentLabels.getTypes();  
-	    Iterator typeIterator = types.iterator();
-	    //Iterate over span types in the parent textBase
-	    while(typeIterator.hasNext()) {
-		String type = (String)typeIterator.next();
-		Set spansWithType = parentLabels.getTypeSet(type, docID);
-		Iterator spanIterator = spansWithType.iterator();
-		//Iterate over the spans with a type
-		while(spanIterator.hasNext()) {
-		    Span s = (Span)spanIterator.next();
-		    //See if the parent span conains the span
-		    if(parentSpan.contains(s) && childDocSpan.size()>=s.getLoTextToken()-childDocStartIndex+s.size() ) {
-			//find the matching span in the child doc span and add it to the child Labels
-			Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
-			labels.addToType(subSpan, type);			
-		    }
-		}		
-		labels.closeTypeInside(type, childDocSpan);
-	    } 	    
-	}
-	return labels;
-    }
-
-    /** Import the labels of type from the parent TextBase */
-    public TextLabels importLabels(MonotonicTextLabels origLabels, TextLabels parentLabels, String type, String newName) {
-	labels = new BasicTextLabels(base);
-	Span.Looper parentIterator = parentLabels.instanceIterator(spanType);
-	//Reiterate over the spans with spanType in the parent labels
-	while(parentIterator.hasNext()) {
-	    Span parentSpan = parentIterator.nextSpan();
-	    String docID = parentSpan.getDocumentId();
-	    Span childDocSpan = base.documentSpan(docID); //The matching span in the child textbase
-	    //int childDocStartIndex = base.getDocument(docID).charOffset; //the number of charaters the child span is offset
-	    int childDocStartIndex = parentSpan.getLoTextToken();
-	    Set spansWithType = ((BasicTextLabels)parentLabels).getTypeSet(type, docID);
-	    Iterator spanIterator = spansWithType.iterator();
-	    //Iterate over the spans with a type
-	    while(spanIterator.hasNext()) {
-		Span s = (Span)spanIterator.next();
-		//See if the parent span conains the span
-		if(parentSpan.contains(s)) {
-		    //find the matching span in the child doc span and add it to the child Labels
-		    //Span subSpan = childDocSpan.charIndexSubSpan(s.getLoChar()-childDocStartIndex, s.getHiChar()-childDocStartIndex);
-		    Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
-		    labels.addToType(subSpan, newName);
-		}
-	    }
-	}	    	    	
-	return labels;
     }
 
     public int size() { return validDocumentSpans.size(); }
@@ -138,16 +70,31 @@ public class SpanTypeTextBase extends ImmutableTextBase
 	return validDocumentSpans.contains( span.documentSpan() );
     }
 
+
     public TextBase retokenize(Tokenizer tok)
     {
-	TextBase tb = new BasicTextBase();
-	tb = base.retokenize(tok);
+	TextBaseMapper mapper = new TextBaseMapper(this);
+	return retokenize(tok,mapper);
+    }
+
+    public TextBase retokenize(Tokenizer tok, TextBaseMapper mapper)
+    {
+	TextBase tb = base;
+	tb = tb.retokenize(tok, mapper);
 	return tb;
     }
 
     /**Retokenize the textBase creating psuedotokens for a certain spanType */
     public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType) {
-	return labels;
+	TextBaseMapper mapper = new TextBaseMapper(this);
+	return createPseudotokens(labels, spanType, mapper);
+    }
+
+    /**Retokenize the textBase creating psuedotokens for a certain spanType */
+    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType, TextBaseMapper mapper) {
+	TextBase tb = base;
+	MonotonicTextLabels newLabels = tb.createPseudotokens(labels, spanType, mapper);
+	return newLabels;
     }
 
 }
