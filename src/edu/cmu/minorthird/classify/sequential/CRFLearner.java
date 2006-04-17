@@ -227,9 +227,8 @@ public class CRFLearner
       for (int i = 0; i < labelNames.length; i++) {
         features[i] = new Feature(new String[]{ HISTORY_FEATURE, "1", labelNames[i]});
       }
-      //addFeature(new iitb.Model.EdgeFeatures(this, features));
-      //addFeature(
-      //new iitb.Model.StartFeatures(this, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
+      addFeature(new iitb.Model.EdgeFeatures(this, features));
+      addFeature(new iitb.Model.StartFeatures(this, new Feature(new String[]{ HISTORY_FEATURE, "1", NULL_CLASS_NAME})));
 
       //wwc: I don't think this feature should be used for minorthird....
       //addFeature(new iitb.Model.EndFeatures(model, new Feature("E")));
