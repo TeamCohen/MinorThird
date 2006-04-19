@@ -44,3 +44,10 @@ Version # Format: Version#.Year.Month.Day
 		- fixed some bugs in TextBaseLoader, for reading in text with XML labels
 		- added ProgressCounter to TextBaseLoader for loading directories
 		- made OneVsAllLearner work for Online learners
+9.6.4.19	- NEW classify GUI
+		- fixed bug in CRFLearner
+		- New LevelManager and TexBaseMapper for handling multiple levels
+		- importLabels taken out of TextBase
+		- Encapsulated Annotator Loader fixed
+		- Updated Documentation
+		- Cammie's Last Day!

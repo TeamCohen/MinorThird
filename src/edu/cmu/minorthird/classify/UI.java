@@ -104,53 +104,49 @@ public class UI
         public void doMain()
         {
 	    //Work in more tests
-            if (trainTestParams.trainData==null) {
+            if (trainTestParams.getTrainData()==null) {
                 System.out.println("The training data needs to be specified with the -data option.");
                 return;
             }
-            if (trainTestParams.sequential && (!(trainTestParams.trainData instanceof SequenceDataset))) {
+            if (trainTestParams instanceof ClassifyCommandLineUtil.SeqTrainTestParams && (!(trainTestParams.getTrainData() instanceof SequenceDataset))) {
                 System.out.println("The training data should be a sequence dataset");
                 return;
             }
-	    if (trainTestParams.multi>0 && (!(trainTestParams.trainData instanceof MultiDataset))) {
+	    if (trainTestParams.multi>0 && (!(trainTestParams.getTrainData() instanceof MultiDataset))) {
                 System.out.println("The training data should be a multi dataset");
                 return;
             }
-            if (trainTestParams.showData) new ViewerFrame("Training data",trainTestParams.trainData.toGUI());
+            if (trainTestParams.showData) new ViewerFrame("Training data",trainTestParams.getTrainData().toGUI());
           
-	    if (trainTestParams.showTestDetails && trainTestParams.sequential) {
-		//CrossValidatedSequenceDataset cvd
-		//	= new CrossValidatedSequenceDataset(trainTestParams.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
+	    if (trainTestParams.showTestDetails && trainTestParams.typeString.equals("seq")) {
 		CrossValidatedSequenceDataset cvd
-		    = new CrossValidatedSequenceDataset(trainTestParams.seqLnr.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
+		    = new CrossValidatedSequenceDataset(trainTestParams.seqLnr.seqLearner,(SequenceDataset)trainTestParams.getTrainData(),trainTestParams.splitter);
 		trainTestParams.resultToShow = cvd;
 		trainTestParams.resultToSave = cvd.getEvaluation();
 		((Evaluation)trainTestParams.resultToSave).summarize();
-	    } else if (!trainTestParams.showTestDetails && trainTestParams.sequential) {
-		//Evaluation e = Tester.evaluate(trainTestParams.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
-		Evaluation e = Tester.evaluate(trainTestParams.seqLnr.seqLearner,(SequenceDataset)trainTestParams.trainData,trainTestParams.splitter);
+	    } else if (!trainTestParams.showTestDetails && trainTestParams.typeString.equals("seq")){
+		Evaluation e = Tester.evaluate(trainTestParams.seqLnr.seqLearner,(SequenceDataset)trainTestParams.getTrainData(),trainTestParams.splitter);
 		trainTestParams.resultToShow = trainTestParams.resultToSave = e;
 		((Evaluation)trainTestParams.resultToSave).summarize();
-	    }else if (trainTestParams.showTestDetails && trainTestParams.multi>0) {
-		//CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, trainTestParams.trainData, trainTestParams.splitter);
-		MultiCrossValidatedDataset cvd = new MultiCrossValidatedDataset(trainTestParams.clsLnr.clsLearner, (MultiDataset)trainTestParams.trainData, trainTestParams.splitter);
+	    }else if (trainTestParams.showTestDetails && trainTestParams.typeString.equals("multi")) {
+		MultiCrossValidatedDataset cvd = new MultiCrossValidatedDataset(trainTestParams.clsLnr.clsLearner, (MultiDataset)trainTestParams.getTrainData(), trainTestParams.splitter);
 		trainTestParams.resultToShow = cvd;
 		trainTestParams.resultToSave = cvd.getEvaluation();
 		((MultiEvaluation)trainTestParams.resultToSave).summarize();
-	    } else if (!trainTestParams.showTestDetails && trainTestParams.multi>0) {
-		//Evaluation e = Tester.evaluate(trainTestParams.clsLearner,trainTestParams.trainData,trainTestParams.splitter);
-		MultiEvaluation e = Tester.multiEvaluate(trainTestParams.clsLnr.clsLearner,(MultiDataset)trainTestParams.trainData,trainTestParams.splitter);
+	    } else if (!trainTestParams.showTestDetails && trainTestParams.typeString.equals("multi")) {
+		//Evaluation e = Tester.evaluate(trainTestParams.clsLearner,trainTestParams.getTrainData(),trainTestParams.splitter);
+		MultiEvaluation e = Tester.multiEvaluate(trainTestParams.clsLnr.clsLearner,(MultiDataset)trainTestParams.getTrainData(),trainTestParams.splitter);
 		trainTestParams.resultToShow = trainTestParams.resultToSave = e;
 		((MultiEvaluation)trainTestParams.resultToSave).summarize();
-	    } else if (trainTestParams.showTestDetails && !trainTestParams.sequential) {
-		//CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, trainTestParams.trainData, trainTestParams.splitter);
-		CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLnr.clsLearner, trainTestParams.trainData, trainTestParams.splitter);
+	    } else if (trainTestParams.showTestDetails && !(trainTestParams.equals("seq"))) {
+		//CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLearner, trainTestParams.getTrainData(), trainTestParams.splitter);
+		CrossValidatedDataset cvd = new CrossValidatedDataset(trainTestParams.clsLnr.clsLearner, trainTestParams.getTrainData(), trainTestParams.splitter);
 		trainTestParams.resultToShow = cvd;
 		trainTestParams.resultToSave = cvd.getEvaluation();
 		((Evaluation)trainTestParams.resultToSave).summarize();
-	    } else if (!trainTestParams.showTestDetails && !trainTestParams.sequential) {
-		//Evaluation e = Tester.evaluate(trainTestParams.clsLearner,trainTestParams.trainData,trainTestParams.splitter);
-		Evaluation e = Tester.evaluate(trainTestParams.clsLnr.clsLearner,trainTestParams.trainData,trainTestParams.splitter);
+	    } else if (!trainTestParams.showTestDetails && !(trainTestParams.typeString.equals("seq"))) {
+		//Evaluation e = Tester.evaluate(trainTestParams.clsLearner,trainTestParams.getTrainData(),trainTestParams.splitter);
+		Evaluation e = Tester.evaluate(trainTestParams.clsLnr.clsLearner,trainTestParams.getTrainData(),trainTestParams.splitter);
 		trainTestParams.resultToShow = trainTestParams.resultToSave = e;
 		((Evaluation)trainTestParams.resultToSave).summarize();
 	    }
@@ -162,6 +158,7 @@ public class UI
 	      ((Evaluation)resultToSave).setProperty(prop,clp.propertyValue(prop));
 	      }*/
           
+	    
             if (trainTestParams.showResult) new ViewerFrame("Result", new SmartVanillaViewer(trainTestParams.resultToShow));
             if (trainTestParams.saveAs!=null) {
                 if (IOUtil.saveSomehow(trainTestParams.resultToSave,trainTestParams.saveAs)) {

@@ -34,8 +34,7 @@ public class Train
 
     private static final Class[] SELECTABLE_TYPES = new Class[]{
         DataClassificationTask.class,
-        ClassifyCommandLineUtil.TrainParams.class,
-        ClassifyCommandLineUtil.TestParams.class, 
+        ClassifyCommandLineUtil.SimpleTrainParams.class, ClassifyCommandLineUtil.MultiTrainParams.class, ClassifyCommandLineUtil.SeqTrainParams.class,
         ClassifyCommandLineUtil.Learner.SequentialLnr.class, ClassifyCommandLineUtil.Learner.ClassifierLnr.class,
         KnnLearner.class, NaiveBayes.class,
         VotedPerceptron.class,	SVMLearner.class,
@@ -64,9 +63,18 @@ public class Train
         // for gui
 	public ClassifyCommandLineUtil.TrainParams getTrainParams() {return trainParams;}
 	public void setTrainParams(ClassifyCommandLineUtil.TrainParams train) {trainParams = train;}
-
+	public String getTrainParamsHelp() { return "Define what type of experiment you would like to run: <br>" +
+		"Simple - Standard classify experiment <br> " +
+		"Multi  - Classify Experiment with Multiple labels per example <br>" +
+		"Seq    - Classify experiment with a Sequential Dataset, where each example has a history, <br> " +
+		"          and uses a Sequential Learner"; }
         protected class GUIParams extends BasicCommandLineProcessor {
-            public void gui() { useGUI=true; }
+            public void gui() { 
+		useGUI=true; 
+		if(trainParams.type != null)
+		    trainParams = trainParams.type;
+		else trainParams = new ClassifyCommandLineUtil.SimpleTrainParams();
+	    }
             public void usage() {
                 System.out.println("presentation parameters:");
                 System.out.println(" -gui                     use graphic interface to set parameters");
@@ -113,22 +121,17 @@ public class Train
                 System.out.println("The training data needs to be specified with the -data option.");
                 return;
             }
-            if (trainParams.sequential && (!(trainParams.trainData instanceof SequenceDataset))) {
+            if ((trainParams.typeString.equals("seq")) && (!(trainParams.trainData instanceof SequenceDataset))) {
                 System.out.println("The training data should be a sequence dataset");
                 return;
             }
             if (trainParams.showData) new ViewerFrame("Training data",trainParams.trainData.toGUI());
           
-                if (trainParams.sequential) {
+	    if (trainParams.typeString.equals("seq")) {
                     DatasetSequenceClassifierTeacher teacher = new DatasetSequenceClassifierTeacher((SequenceDataset)trainParams.trainData);
-                    //SequenceClassifier c = teacher.train(trainParams.seqLearner);
                     SequenceClassifier c = teacher.train(trainParams.seqLnr.seqLearner);
                     trainParams.resultToShow = trainParams.resultToSave = c;
-                } else if (trainParams.multi > 0) {
-		    /*if(trainParams.crossDim) {
-			    md = annotateData((MultiClassifier)c, md);
-			    new ViewerFrame("Annotated data",md.toGUI());
-			    }*/
+                } else if (trainParams.typeString.equals("multi")) {
 		    MultiDataset multiData;
 		    if(trainParams.crossDim)
 			multiData = annotateData((MultiDataset)trainParams.trainData);
@@ -138,7 +141,6 @@ public class Train
 		    trainParams.resultToShow = trainParams.resultToSave = c;
 		} else {
                     ClassifierTeacher teacher = new DatasetClassifierTeacher(trainParams.trainData);
-                    //Classifier c = teacher.train(trainParams.clsLearner);
                     Classifier c = teacher.train(trainParams.clsLnr.clsLearner);
                     trainParams.resultToShow = trainParams.resultToSave = c;
                 }

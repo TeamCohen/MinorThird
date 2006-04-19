@@ -34,8 +34,8 @@ public class Test
 
     private static final Class[] SELECTABLE_TYPES = new Class[]{
         DataClassificationTask.class,
-        ClassifyCommandLineUtil.TrainParams.class,
-        ClassifyCommandLineUtil.TestParams.class, 
+        //ClassifyCommandLineUtil.SimpleTrainParams.class, ClassifyCommandLineUtil.MultiTrainParams.class, ClassifyCommandLineUtil.SeqTrainParams.class,
+        ClassifyCommandLineUtil.SimpleTestParams.class, ClassifyCommandLineUtil.MultiTestParams.class, ClassifyCommandLineUtil.SeqTestParams.class,
         ClassifyCommandLineUtil.Learner.SequentialLnr.class, ClassifyCommandLineUtil.Learner.ClassifierLnr.class,
         KnnLearner.class, NaiveBayes.class,
         VotedPerceptron.class,	SVMLearner.class,
@@ -64,9 +64,19 @@ public class Test
         // for gui
         public ClassifyCommandLineUtil.TestParams getTestParameters() { return testParams; }
         public void setTestParameters(ClassifyCommandLineUtil.TestParams p) { testParams=p; }
+	public String getTestParamsHelp() { return "Define what type of experiment you would like to run: <br>" +
+		"Simple - Standard classify experiment <br> " +
+		"Multi  - Classify Experiment with Multiple labels per example <br>" +
+		"Seq    - Classify experiment with a Sequential Dataset, where each example has a history, <br> " +
+		"          and uses a Sequential Learner"; }
 
         protected class GUIParams extends BasicCommandLineProcessor {
-            public void gui() { useGUI=true; }
+            public void gui() { 
+		useGUI=true; 
+		if(testParams.type != null)
+		    testParams = testParams.type;
+		else testParams = new ClassifyCommandLineUtil.SimpleTestParams();
+	    }
             public void usage() {
                 System.out.println("presentation parameters:");
                 System.out.println(" -gui                     use graphic interface to set parameters");
@@ -107,7 +117,7 @@ public class Test
                 System.out.println("The testing data needs to be specified with the -test option.");
                 return;
             }
-            if (testParams.sequential && (!(testParams.testData instanceof SequenceDataset))) {
+            if ((testParams.typeString.equals("seq")) && (!(testParams.testData instanceof SequenceDataset))) {
                 System.out.println("The training data should be a sequence dataset");
                 return;
             }
@@ -118,13 +128,13 @@ public class Test
 		    return;
 		}                    
 		Object c;
-		if (testParams.sequential) {
+		if (testParams.typeString.equals("seq")) {
 		    Evaluation e = new Evaluation(testParams.testData.getSchema());
 		    c = IOUtil.loadSerialized(testParams.loadFrom);
 		    e.extend((SequenceClassifier)c, (SequenceDataset)testParams.testData);
 		    e.summarize();
 		    testParams.resultToShow = testParams.resultToSave = e;
-		} else if (testParams.multi > 0) {
+		} else if (testParams.typeString.equals("multi")) {
 		    MultiDataset md = (MultiDataset)testParams.testData;
 		    MultiEvaluation e = new MultiEvaluation(md.getMultiSchema());
 		    c = IOUtil.loadSerialized(testParams.loadFrom);
@@ -143,7 +153,7 @@ public class Test
 		    testParams.resultToShow = testParams.resultToSave = e;
 		}                                        
 		if (testParams.showTestDetails) {
-		    if (testParams.sequential) {
+		    if (testParams instanceof ClassifyCommandLineUtil.SeqTestParams) {
 			ClassifiedSequenceDataset cd =
 			    new ClassifiedSequenceDataset((SequenceClassifier)c, (SequenceDataset)testParams.testData);
 			testParams.resultToShow = cd;
@@ -262,7 +272,7 @@ public class Test
                                     PrintStream oldSystemOut = System.out;
                                     ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
                                     System.setOut(new PrintStream(outBuffer));
-                                    //clp.usage();
+                                    getCLP().usage();
                                     console.append(outBuffer.toString());
                                     System.setOut(oldSystemOut);
                                 }
