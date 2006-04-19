@@ -7,3 +7,5 @@
   - "_" causes error in trie
   - failed test in MixupProgram
   - trie defined with dictionary
+- TreeView does not show features that are not at the bottom level
+- other command does not work in config file
