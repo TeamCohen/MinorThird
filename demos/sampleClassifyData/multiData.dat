@@ -1,0 +1,14 @@
+b week1 NEG POS sunny humid hot
+b week2 POS POS sunny dry hot
+b week3 POS NEG cloudy dry cold
+b week4 NEG NEG cloudy rainy hot
+b week5 POS POS sunny dry hot
+b week6 POS NEG cloudy dry cold
+b week7 POS POS sunny humid hot
+b week8 NEG NEG cloudy dry cold
+b week9 NEG NEG sunny dry cold
+b week10 POS NEG cloudy humid cold
+b week11 NEG NEG cloudy rainy cold
+b week12 POS POS sunny dry hot
+b week13 POS POS cloudy dry hot
+b week14 POS POS cloudy humid hot
