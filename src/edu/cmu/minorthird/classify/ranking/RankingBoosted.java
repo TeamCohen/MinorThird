@@ -15,13 +15,14 @@ import java.util.*;
  *
  * Requirements of this class:
  *  - Considers only binary features
- *  - Requires a particular cont. feature named "walkerScore", that contains the original prob. for the example
+ *  - Requires a particular cont. feature named "walkerScore", that contains the original log-probability for an example
  *
  * To do:
  *  - Handle multiple positive answers.
+ *  - Automatically discretize real-value features into binary.
  *  - It is possible to incorporate example 'importance' weights, according to some 'goodness' evaluation measure. See Collins'.
  *
- * Author of this class: Einat Minkov
+ * @Author: Einat Minkov
  */
 
 
@@ -39,17 +40,17 @@ public class RankingBoosted extends BatchRankingLearner
     // note: the initial score/prob. is turned into log(score).
 
     public RankingBoosted()
-    { 
+    {
 	this(500,20);
     }
 
     public RankingBoosted(int numEpochs, int exampleSize)
-    { 
+    {
 	this.numEpochs=numEpochs;
     this.exampleSize=exampleSize;
     }
 
-    public Classifier batchTrain(Dataset data) 
+    public Classifier batchTrain(Dataset data)
     {
 	int numUpdates = 0;
 
@@ -91,7 +92,6 @@ public class RankingBoosted extends BatchRankingLearner
                 correctFtrs.add(it.next());
             for (int j=1; j<exampleSize; j++){
                 Example ex=rankedExamples[i][j];
-                s.increment(ex,0);
                 Set actualFtrs = new HashSet();
                 for (Iterator it=ex.binaryFeatureIterator(); it.hasNext(); ){
                     Feature ftr = (Feature)it.next();
