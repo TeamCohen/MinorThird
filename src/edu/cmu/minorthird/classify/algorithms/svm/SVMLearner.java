@@ -100,6 +100,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner
         parameters.nr_weight = 0;
         parameters.weight_label = new int[0];
         parameters.weight = new double[0];
+	parameters.probability = 0;
     }
 
 
@@ -107,10 +108,89 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     /**
      * @param type integer from the svm_parameter class
      */
-    public void setParameterSVMType(int type)
-    {
-        parameters.svm_type = type;
+    public void setParameterSVMType(int type) { parameters.svm_type = type; }
+    public int getParameterSVMType() { return parameters.svm_type; }
+    public String parameterSVMTypeHelp = new String("Set the SVM type to use.");
+    public String getParameterSVMTypeHelp() { return parameterSVMTypeHelp; }
+
+    public void setKernelType(int type) { parameters.kernel_type = type; }
+    public int getKernelType() { return parameters.kernel_type; }
+    public String kernelTypeHelp = new String("Set the type of kernel function.");
+    public String getKernelTypeHelp() { return kernelTypeHelp; }
+
+    public void setDegree(double deg) { parameters.degree = deg; }
+    public double getDegree() { return parameters.degree; }
+    public String degreeHelp = new String("Set the degree in kernel function.");
+    public String getDegreeHelp() { return degreeHelp; }
+
+    public void setGamma(double g) { parameters.gamma = g; }
+    public double getGamma() { return parameters.gamma; }
+    public String gammaHelp = new String("Set the gamma in kernel function.");
+    public String getGammaHelp() { return gammaHelp; }
+
+    public void setCoef0(double c) { parameters.coef0 = c; }
+    public double getCoef0() { return parameters.coef0; }
+    public String coef0Help = new String("Set the coef0 in kernel function.");
+    public String getCoef0Help() { return coef0Help; }
+
+    public void setNu(double n) { parameters.nu = n; }
+    public double getNu() { return parameters.nu; }
+    public String nuHelp = new String("Set the parameter nu. (For nu-SVC, one-class SVM, and nu-SVR only)");
+    public String getNuHelp() { return nuHelp; }
+
+    public void setCacheSize(double s) { parameters.cache_size = s; }
+    public double getCacheSize() { return parameters.cache_size; }
+    public String cacheSizeHelp = new String("Set the cache memory size in MB.");
+    public String getCacheSizeHelp() { return cacheSizeHelp; }
+
+    public void setCParameter(double c) { parameters.C = c; }
+    public double getCParameter() { return parameters.C; }
+    public String cParameterHelp = new String("Set the parameter C. (For C-SVC, epsilon-SVR, and nu-SVR only)");
+    public String getCParameterHelp() { return cParameterHelp; }
+
+    public void setStoppingCriteria(double c) { parameters.eps = c; }
+    public double getStoppingCriteria() { return parameters.eps; }
+    public String stoppingCriteriaHelp = new String("Set the tolerance of termination criterion.");
+    public String getStoppingCriteriaHelp() { return stoppingCriteriaHelp; }
+
+    public void setLossFunctionEpsilon(double l) { parameters.p = l; }
+    public double getLossFunctionEpsilon() { return parameters.p; }
+    public String lossFunctionEpsilonHelp = new String("Set the epsilon in the loss function of epsilon-SVR.");
+    public String getLossFunctionEpsilonHelp() { return lossFunctionEpsilonHelp; }
+
+    public void setUseShrinkingHeuristics(boolean flag) { 
+	if (flag)
+	    parameters.shrinking = 1;
+	else
+	    parameters.shrinking = 0;
     }
+    public boolean getUseShrinkingHeuristics() {
+	if (parameters.shrinking == 0) 
+	    return false;
+	return true;
+    }
+    public String useShrinkingHeuristicsHelp = new String("Whether or not to use shrinking heuristics.");
+    public String getUseShrinkingHeuristicsHelp() { return useShrinkingHeuristicsHelp; }
+
+    public void setCParameterWeight(int w) { parameters.nr_weight = w; }
+    public int getCParameterWeight() { return parameters.nr_weight; }
+    public String cParameterWeightHelp = new String("Set the parameter C of class i to weight*C for C-SVC.");
+    public String getCParameterWeightHelp() { return cParameterWeightHelp; }
+
+    public void setDoProbabilityEstimates(boolean flag) { 
+	if (flag)
+	    parameters.probability = 1;
+	else
+	    parameters.probability = 0;
+    }
+    public boolean getDoProbabilityEstimates() {
+	if (parameters.probability == 0) 
+	    return false;
+	return true;
+    }
+    public String doProbabilityEstimatesHelp = new String("Whether to train for probability estimates. (For SVC and SVR models only).");
+    public String getDoProbabilityEstimatesHelp() { return doProbabilityEstimatesHelp; }
+
 
     /**
      * Default kernel type is linear
