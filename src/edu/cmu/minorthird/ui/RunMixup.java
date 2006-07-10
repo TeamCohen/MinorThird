@@ -17,26 +17,28 @@ import java.io.*;
 
 public class RunMixup extends UIMain
 {
-  private static Logger log = Logger.getLogger(RunMixup.class);
+    private static Logger log = Logger.getLogger(RunMixup.class);
 
-	// private data needed 
-	private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	private CommandLineUtil.MixupParams mixup = new CommandLineUtil.MixupParams();
-	public MultiLevelTextLabels annotatedLabels = null;
+    // private data needed 
+    private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
+    private CommandLineUtil.MixupParams mixup = new CommandLineUtil.MixupParams();
+    private CommandLineUtil.AnnotatorOutputParams output = new CommandLineUtil.AnnotatorOutputParams();
+    public MultiLevelTextLabels annotatedLabels = null;
 
-	public CommandLineUtil.MixupParams getMixupParameters() { return mixup; }
-	public void setMixupParameters(CommandLineUtil.MixupParams p) { mixup=p; }
-	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
-	public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+    // for gui
+    public CommandLineUtil.MixupParams getMixupParameters() { return mixup; }
+    public void setMixupParameters(CommandLineUtil.MixupParams p) { mixup=p; }
+    public CommandLineUtil.SaveParams getSaveParameters() { return save; }
+    public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
 
     public String getRunMixupHelp() {
 	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/Mixup%20Tutorial.htm\">Mixup Tutorial</A></html>";
     }
 
-	public CommandLineProcessor getCLP()
-	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,mixup});
-	}
+    public CommandLineProcessor getCLP()
+    {
+	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,mixup,output});
+    }
 
 	//
 	// run the mixup program
@@ -72,12 +74,21 @@ public class RunMixup extends UIMain
 		if (base.showResult) new ViewerFrame("Result of "+mixup.fileName, new SmartVanillaViewer(annotatedLabels));
 
 		if (save.saveAs!=null) {
-			try {
-				new TextLabelsLoader().saveTypesAsOps(annotatedLabels, save.saveAs);
-				System.out.println("saved to "+save.saveAs);
-			} catch (IOException e) {
-				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
+		    try {
+			if ("minorthird".equals(output.format)) {
+			    new TextLabelsLoader().saveTypesAsOps(annotatedLabels, save.saveAs);
+			} else if ("strings".equals(output.format)) {
+			    new TextLabelsLoader().saveTypesAsStrings(annotatedLabels, save.saveAs, true );
+			} else {
+			    throw new IllegalArgumentException("illegal output format "+output.format+" allowed values are "
+							       +StringUtil.toString(output.getAllowedOutputFormatValues()));
 			}
+
+			System.out.println("saved to "+save.saveAs);
+
+		    } catch (IOException e) {
+			throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
+		    }
 		}
 	}
 
