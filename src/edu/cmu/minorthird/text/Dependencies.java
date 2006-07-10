@@ -110,12 +110,13 @@ public class Dependencies
   {
 
     if (providerProps == null)
-    {
+    {  
       //read Properties file
-
-      InputStream inStream =
-			  ClassLoader.getSystemResourceAsStream(configFile);
-//			  Dependencies.class.getClassLoader().getResourceAsStream(configFile);
+      // There is a problem with ClassLoader's static getSystemResource method in java 1.4.2  
+      // The following is a work around that seems to work
+      InputStream inStream = Dependencies.class.getClassLoader().getResourceAsStream(configFile);
+      // This is the preferred way to access system resources, but it is broken
+      // ClassLoader.getSystemResourceAsStream(configFile);
       log.debug("in stream = " + inStream);
       if (inStream == null)
       { throw new IllegalStateException("can't find " + configFile + " on classpath"); }
