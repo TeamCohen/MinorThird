@@ -18,6 +18,6 @@ public class RoomNumber extends AbstractAnnotator
 				}
 			}
 		}
-		labels.setAnnotatedBy("rooms");
+		labels.setAnnotatedBy("RoomNumber");
 	}
 }

@@ -17,6 +17,7 @@ import edu.cmu.minorthird.util.gui.*;
 
 <pre>
 BNF:
+STATEMENT -> declareSpanType TYPE
 STATEMENT -> provide ID
 STATEMENT -> require ID [,FILE]
 STATEMENT -> annotateWith FILE
@@ -24,7 +25,6 @@ STATEMENT -> defDict [+case] NAME = ID, ... , ID
 STATEMENT -> defTokenProp PROP:VALUE = GEN
 STATEMENT -> defSpanProp PROP:VALUE = GEN
 STATEMENT -> defSpanType TYPE2 = GEN
-STATEMENT -> declareSpanType TYPE
 STATEMENT -> defLevel NAME
 STATEMENT -> onLevel NAME
 STATEMENT -> offLevel NAME
@@ -293,7 +293,6 @@ public class MixupProgram
 	// for parsing
 	private Matcher matcher;
 	// for TRIE
-	private Trie trie;
 	private int lastTokenStart;
 	private String input;
 	private static Set generatorStart = new HashSet();
@@ -431,7 +430,7 @@ public class MixupProgram
 	    } else if("defLevel".equals(keyword)) {
 		split =  tok.advance(defLevelType);
 		patt = tok.advance(null);
-		if(patt.charAt(0)==39 && patt.charAt(patt.length()-1)==39)
+		if(patt.charAt(0)=='\'' && patt.charAt(patt.length()-1)=='\'')
 		    patt = patt.substring(1,patt.length()-1);
 		tok.advance(null);
 	    } else {
@@ -495,33 +494,6 @@ public class MixupProgram
 			}
 			phraseList.add(fullWord);
 			//String[] phrases = (String[])phraseList.toArray();
-			trie = new Trie();
-			BasicTextBase tokenizerBase = new BasicTextBase();
-			for (int i=0; i<phraseList.size(); i++) {
-			    String[] toks = tokenizerBase.splitIntoTokens((String)phraseList.get(i));
-			    if (toks.length<=2 || !"\"".equals(toks[0]) || !"\"".equals(toks[toks.length-1])) {
-				trie.addWords( "phrase#"+i, toks );
-			    } else {
-				StringBuffer defFile = new StringBuffer("");
-				for (int j=1; j<toks.length-1; j++) {
-				    defFile.append(toks[j]);
-				}
-				try {
-				    //BufferedReader bReader = new BufferedReader(new FileReader(defFile.toString()));
-				    LineNumberReader bReader = mixupReader(defFile.toString());
-				    String s = null;
-				    int line=0;
-				    while ((s = bReader.readLine()) != null) {
-					line++;
-					String[] words = tokenizerBase.splitIntoTokens(s);
-					trie.addWords(defFile+".line."+line, words);
-				    }
-				    bReader.close();				    
-				} catch (IOException ioe) {
-				    parseError("Error when reading " + defFile.toString() + ": " + ioe);
-				}
-			    } // file load 
-			} // each phrase
 		    } else {
 			parseError("expected 're' or 'trie'");
 		    }
