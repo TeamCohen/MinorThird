@@ -77,6 +77,8 @@ public class ApplyAnnotator extends UIMain
 		    new TextLabelsLoader().saveTypesAsOps( annLabels, save.saveAs );
 		} else if ("strings".equals(output.format)) {
 		    new TextLabelsLoader().saveTypesAsStrings( annLabels, save.saveAs, true );					
+                } else if ("xml".equals(output.format)) {
+                    new TextLabelsLoader().saveDocsWithEmbeddedTypes( annLabels, save.saveAs );
 		} else {
 		    throw new IllegalArgumentException("illegal output format "+output.format+" allowed values are "
 						       +StringUtil.toString(output.getAllowedOutputFormatValues()));

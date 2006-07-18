@@ -73,23 +73,26 @@ public class RunMixup extends UIMain
 
 		if (base.showResult) new ViewerFrame("Result of "+mixup.fileName, new SmartVanillaViewer(annotatedLabels));
 
-		if (save.saveAs!=null) {
-		    try {
-			if ("minorthird".equals(output.format)) {
-			    new TextLabelsLoader().saveTypesAsOps(annotatedLabels, save.saveAs);
-			} else if ("strings".equals(output.format)) {
-			    new TextLabelsLoader().saveTypesAsStrings(annotatedLabels, save.saveAs, true );
-			} else {
-			    throw new IllegalArgumentException("illegal output format "+output.format+" allowed values are "
-							       +StringUtil.toString(output.getAllowedOutputFormatValues()));
-			}
 
-			System.out.println("saved to "+save.saveAs);
+                if (save.saveAs!=null) {
+                    try {
+                        if ("minorthird".equals(output.format)) {
+                            new TextLabelsLoader().saveTypesAsOps(annotatedLabels, save.saveAs);
+                        } else if ("strings".equals(output.format)) {
+                            new TextLabelsLoader().saveTypesAsStrings(annotatedLabels, save.saveAs, true );
+                        } else if ("xml".equals(output.format)) {
+                            new TextLabelsLoader().saveDocsWithEmbeddedTypes( annotatedLabels, save.saveAs );
+                        } else {
+                            throw new IllegalArgumentException("illegal output format "+output.format+" allowed values are "
+                                                               +StringUtil.toString(output.getAllowedOutputFormatValues()));
+                        }
 
-		    } catch (IOException e) {
-			throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
-		    }
-		}
+                        System.out.println("saved to "+save.saveAs);
+
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
+                    }
+                }
 	}
 
 	public Object getMainResult() { return annotatedLabels; }
