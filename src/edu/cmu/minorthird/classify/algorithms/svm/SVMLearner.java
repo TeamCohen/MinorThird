@@ -103,8 +103,9 @@ public class SVMLearner extends BatchBinaryClassifierLearner
 	parameters.probability = 0;
     }
 
+    
+    // Stuff for the GUI
 
-    //C, gamma, kernel_type
     /**
      * @param type integer from the svm_parameter class
      */
@@ -191,6 +192,10 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     public String doProbabilityEstimatesHelp = new String("Whether to train for probability estimates. (For SVC and SVR models only).");
     public String getDoProbabilityEstimatesHelp() { return doProbabilityEstimatesHelp; }
 
+
+    // These aren't used anywhere in the distribution, so what was the reason for adding them?
+
+    //C, gamma, kernel_type
 
     /**
      * Default kernel type is linear
