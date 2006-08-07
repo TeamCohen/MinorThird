@@ -52,9 +52,10 @@ public class FeatureTest extends TestCase
 
   public void testSimpleFactoryConstruct()
   {
-    Feature f = Feature.Factory.getFeature("token eq hello");
-    assertNotNull(f);
-    assertTrue(Feature.Factory.contains(f));
+      FeatureFactory factory = new FeatureFactory();
+      Feature f = factory.getFeature("token eq hello");
+      assertNotNull(f);
+      assertTrue(factory.contains(f));
   }
 
   /**
@@ -62,10 +63,10 @@ public class FeatureTest extends TestCase
    */
   public void testFeatureTest()
   {
-    Feature f = Feature.Factory.getFeature(new String[] {"token","eq", "hello"});
-    assertNotNull(f);
-    assertTrue(Feature.Factory.contains(f));
-
+      FeatureFactory factory = new FeatureFactory();
+      Feature f = factory.getFeature(new String[] {"token","eq", "hello"});
+      assertNotNull(f);
+      assertTrue(factory.contains(f));
   }
 
   /**
