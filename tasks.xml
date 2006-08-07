@@ -135,7 +135,7 @@
         <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> 
          <!-- requires test data -->
         <exclude name="**/IOUtilTest.class"/>         <!-- data -->
-        <exclude name="**/LibsvmTest.class"/>         <!-- data -->
+<!--        <exclude name="**/LibsvmTest.class"/>  -->
         <exclude name="**/classify/Test.class"/>
         <exclude name="**/classify/TrainTest.class"/>
         <exclude name="**/LearnToClassifyTest.class"/>
