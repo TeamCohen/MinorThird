@@ -92,10 +92,10 @@ public class Feature implements Comparable,Serializable
    *
    * @return id integer for the feature
    */
-  public int numericName()
-  {
-    return Factory.getID(this);
-  }
+     public int numericName()
+     {
+       return Factory.getID(this);
+     }
 
   static public class Looper extends AbstractLooper {
 		public Looper(Iterator i) { super(i); }

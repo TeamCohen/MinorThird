@@ -35,7 +35,6 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup, Seri
      */
     public CompactCandidateSegmentGroup(FeatureFactory factory,CandidateSegmentGroup group)
     { 
-	System.out.println("new CompactCandidateSegmentGroup");
 	this.sequenceLength = group.getSequenceLength();
 	this.maxWindowSize = group.getMaxWindowSize ();
 	this.totalSize = group.size();
