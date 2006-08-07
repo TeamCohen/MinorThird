@@ -108,6 +108,8 @@ public class Feature implements Comparable,Serializable
    * This ensures that only a single feature instance exists with a particular name.
    *
    * It also maintains feature->id mappings for numeric feature based learners
+   *
+   * @deprecated Use {@link edu.cmu.minorthird.classify.FeatureFactory} instead
    */
   public static class Factory
   {
@@ -153,6 +155,9 @@ public class Feature implements Comparable,Serializable
       }
     }
 
+      /**
+       * @deprecated Use {@link edu.cmu.minorthird.classify.FeatureIdFactory} instead.
+       */
     public static int getID(Feature feature)
     {
       int id = featureIds.get(feature);
