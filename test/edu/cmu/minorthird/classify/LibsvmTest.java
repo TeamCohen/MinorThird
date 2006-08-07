@@ -1,5 +1,13 @@
 package edu.cmu.minorthird.classify;
 
+import edu.cmu.minorthird.classify.experiments.Evaluation;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
 import edu.cmu.minorthird.classify.*;
 import junit.framework.Test;
@@ -20,9 +28,9 @@ import java.util.StringTokenizer;
 public class LibsvmTest extends AbstractClassificationChecks
 {
   Logger log = Logger.getLogger(this.getClass());
-  private static final String trainFile = "testData/a1a.dat";
+  private static final String trainFile = "edu/cmu/minorthird/classify/testData/a1a.dat";
   private static final String model = "modelFile.dat";
-  private static final String testFile = "testData/a1a.t.dat";
+  private static final String testFile = "edu/cmu/minorthird/classify/testData/a1a.t.dat";
 
   /**
    * Standard test class constructior for LibsvmTest
@@ -61,70 +69,119 @@ public class LibsvmTest extends AbstractClassificationChecks
     //TODO clean up resources if needed
   }
 
-  /**
-   * tests using svm_train.main, etc.
-   */
-  public void testDirectCode()
-  {
-    log.debug("start");
+    /**
+     * tests using svm_train.main, etc.
+     */
+    public void testDirectCode() {
+        log.debug("start");
+        
+        try {
+            //svm_train.main(new String[]{"-t", "0", trainFile, model});
 
-    try
+            log.debug("trained, sent model to: " + model);
+            /*double[] results = prediction(new String[]{testFile, model, "results.dat"});
+            log.debug("ran predict on testfile");
+            
+            double[] expect = new double[]{0.8352766230693838, 0.6588935077224645, 0.28752077092970524};
+            checkStats(results, expect);
+            */
+        }
+        catch (Exception e) {
+            log.error(e, e);
+            fail("exception");
+        }
+    }
+
+    /**
+     * use wrapper on the provided data, should get same results
+     * as the direct
+     */
+    public void testWrapper()
     {
-	//svm_train.main(new String[]{"-t", "0", trainFile, model});
-
-      log.debug("trained, sent model to: " + model);
-      /*double[] results = prediction(new String[]{testFile, model, "results.dat"});
-      log.debug("ran predict on testfile");
-
-      double[] expect = new double[]{0.8352766230693838, 0.6588935077224645, 0.28752077092970524};
-      checkStats(results, expect);*/
+        try { 
+            //get datasets
+            Dataset trainData = DatasetLoader.loadSVMStyle(new File(trainFile));
+            Dataset testData = DatasetLoader.loadSVMStyle(new File(testFile));
+            
+            //send expectations to checkClassifyText()
+            double[] expect = new double[]{0.13769470404984424, 0.6011745705024105, 0.6934812760055479, 1.3132616875183545};
+            
+            super.setCheckStandards(true);
+            super.checkClassify(new SVMLearner(), trainData, testData, expect);
+        }
+        catch (Exception e) {
+            log.error(e, e);
+        }
     }
-    catch (Exception e)
+
+    /**
+     * run the svm wrapper on the sample data
+     */
+    public void testSampleData()
     {
-      log.error(e, e);
-      fail("exception");
+        double[] refs = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //0-6 are 0
+                                     1.0, 1.0, //7-8 are 1
+                                     1.3132616875182228,
+                                     1.0, 1.0, 1.0, //10-12 are 1
+                                     1.0 }; //13 is 1
+        super.checkClassify(new SVMLearner(), SampleDatasets.toyTrain(), SampleDatasets.toyTest(), refs);
     }
 
-  }
+    /**
+     *  Test a full cycle of training, testing, saving (serializing), loading, and testing again.
+     **/
+    public void testSerialization() {
+        try {
+            // Create a classifier using the SVMLearner and the toyTrain dataset
+            SVMLearner l = new SVMLearner();
+            Classifier c1 = new DatasetClassifierTeacher(SampleDatasets.toyTrain()).train(l);
 
-  /**
-   * use wrapper on the provided data, should get same results
-   * as the direct
-   */
-  public void testWrapper()
-  {
-    try
-    { //get datasets
-      Dataset trainData = DatasetLoader.loadSVMStyle(new File(trainFile));
-      Dataset testData = DatasetLoader.loadSVMStyle(new File(testFile));
-//      log.debug("loaded: " + dataset);
+            // Evaluate it immediately saving the stats
+            Evaluation e1 = new Evaluation(SampleDatasets.toyTrain().getSchema());
+            e1.extend(c1, SampleDatasets.toyTest(), 1);
+            double[] stats1 = new double[4];
+            stats1[0] = e1.errorRate();
+            stats1[1] = e1.averagePrecision();
+            stats1[2] = e1.maxF1();
+            stats1[3] = e1.averageLogLoss();
+            
+            // Serialize the classifier to disk
+            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("SVMTest.classifier")));
+            out.writeObject(c1);
+            out.flush();
+            out.close();
+            
+            // Load it back in.
+            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream("SVMTest.classifier")));
+            Classifier c2 = (Classifier)in.readObject();
+            in.close();
+            
+            // Evaluate again saving the stats
+            Evaluation e2 = new Evaluation(SampleDatasets.toyTrain().getSchema());
+            e2.extend(c2, SampleDatasets.toyTest(), 1);
+            //double[] stats2 = e2.summaryStatistics();
+            double[] stats2 = new double[4];
+            stats2[0] = e2.errorRate();
+            stats2[1] = e2.averagePrecision();
+            stats2[2] = e2.maxF1();
+            stats2[3] = e2.averageLogLoss();       
 
-      //create the SVMLearner
+            // Only use the basic stats for now because some of the advanced stats
+            //  come back as NaN for both datasets and the check stats method can't
+            //  handle NaN's
+            log.info("using Standard stats only (4 of them)");
 
-      //send expectations to checkClassifyText()
-      double[] expect = new double[]{0.16472337693061612, 0.5532531341004251, 0.6413123436810357, 1.3132616875183545};
+            // Compare the stats produced from each run to make sure they are identical
+            checkStats(stats1, stats2);
 
-      super.setCheckStandards(true);
-      super.checkClassify(new SVMLearner(), trainData, testData, expect);
+            // Remove the temporary classifier file
+            File theClassifier = new File("SVMTest.classifier");
+            theClassifier.delete();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    catch (Exception e)
-    {
-      log.error(e, e);
-    }
-  }
-
-  /**
-   * run the svm wrapper on the sample data
-   */
-  public void testSampleData()
-  {
-    double[] refs = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //0-5 are 0
-                                 1.0, 1.0, //6-7 are 1
-                                 1.3132616875182228,
-                                 1.0, 1.0, 1.0, //9-11 are 1
-                                 1.0 }; //12 is 1
-    super.checkClassify(new SVMLearner(), SampleDatasets.toyTrain(), SampleDatasets.toyTest(), refs);
-  }
 
 
   /**
@@ -226,3 +283,4 @@ public class LibsvmTest extends AbstractClassificationChecks
   }
 
 }
+
