@@ -30,6 +30,7 @@ public class CRFLearner
   iitb.CRF.CRF crfModel;
   java.util.Properties defaults;
   java.util.Properties options;
+  private FeatureIdFactory idFactory;
 	
   private static final boolean CONVERT_TO_MINORTHIRD_HYPERPLANE=true;
 
@@ -212,8 +213,8 @@ public class CRFLearner
       f.yend = stateId;
       f.ystart = -1;
       f.val = (float)example.getWeight(feature);
-      setFeatureIdentifier(feature.numericName()*numStates+stateId, stateId, feature,f);
-      advance();
+      setFeatureIdentifier(idFactory.getID(feature)*numStates+stateId, stateId, feature,f);
+     advance();
     }
   };
 	
@@ -264,6 +265,7 @@ public class CRFLearner
   public SequenceClassifier batchTrain(SequenceDataset dataset)
   {
     try {
+      idFactory = new FeatureIdFactory(dataset);
       schema = dataset.getSchema();
       return doTrain(allocModel(dataset));
     } catch (Exception e) {
@@ -347,5 +349,9 @@ public class CRFLearner
     v.setContent(this);
     return v;
   }
-	
+
+    public FeatureIdFactory getIdFactory()
+    {
+        return this.idFactory;
+    }
 }
