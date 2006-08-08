@@ -8,6 +8,7 @@ import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.FeatureIdFactory;
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Instance;
 import libsvm.svm;
 import libsvm.svm_model;
@@ -23,22 +24,44 @@ import java.io.*;
  *
  * @author ksteppe
  */
-public class SVMClassifier implements Classifier, Serializable
+public class SVMClassifier extends BinaryClassifier
 {
     private svm_model model;
     private FeatureIdFactory idFactory;
 
-    public ClassLabel classification(Instance instance)
-    {
+    public double score(Instance instance) {
         //need the nodeArray
         svm_node[] nodeArray = SVMUtils.instanceToNodeArray(instance, idFactory);
+        double prediction;
 
-        double prediction = svm.svm_predict(model, nodeArray);
-        return ClassLabel.binaryLabel(prediction);
+        // If the model is set to calculate probability estimates (aka confidences) then
+        //   create an array of doubles of length 2 (because this is a binary classifier)
+        //   and use the predict_probability method which returns that class and fills in 
+        //   the probability array passed in.
+        if (svm.svm_check_probability_model(model) == 1) {
+            double[] probs = new double[2];
+            prediction = svm.svm_predict_probability(model, nodeArray, probs);
+            
+            // We want to return the probability estimates embedded in the prediction.  The actual
+            //   value will go into the ClassLabel as the labels weight and since this is a binary 
+            //   classifier the probability estimate of the other class is 1 - |prediction|.
+            // Also, the svm_predict_* methods return 1 or -1 for the binary case so all we need to
+            //   do to is return the svm_predict result multiplied by the highest probability.
+            if (probs[0] > probs[1])
+                prediction = prediction * probs[0];
+            else
+                prediction = prediction * probs[1];
+        }
+        // Otherwise just call the predict method, which simply returns the class.  This
+        //   method is faster than predict_probability.
+        else {
+            prediction = svm.svm_predict(model, nodeArray);
+        }
+
+        return prediction;
     }
 
-    public String explain(Instance instance)
-    {
+    public String explain(Instance instance) {
         return "I have no idea how I came up with this answer";
     }
 
