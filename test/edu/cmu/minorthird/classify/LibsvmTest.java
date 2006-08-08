@@ -28,9 +28,9 @@ import java.util.StringTokenizer;
 public class LibsvmTest extends AbstractClassificationChecks
 {
   Logger log = Logger.getLogger(this.getClass());
-  private static final String trainFile = "edu/cmu/minorthird/classify/testData/a1a.dat";
+  private static final String trainFile = "test/edu/cmu/minorthird/classify/testData/a1a.dat";
   private static final String model = "modelFile.dat";
-  private static final String testFile = "edu/cmu/minorthird/classify/testData/a1a.t.dat";
+  private static final String testFile = "test/edu/cmu/minorthird/classify/testData/a1a.t.dat";
 
   /**
    * Standard test class constructior for LibsvmTest
