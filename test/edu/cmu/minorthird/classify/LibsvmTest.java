@@ -135,6 +135,7 @@ public class LibsvmTest extends AbstractClassificationChecks
             // Create a classifier using the SVMLearner and the toyTrain dataset
             SVMLearner l = new SVMLearner();
             Classifier c1 = new DatasetClassifierTeacher(SampleDatasets.toyTrain()).train(l);
+            File tempFile = File.createTempFile("SVMTest", "classifier");
 
             // Evaluate it immediately saving the stats
             Evaluation e1 = new Evaluation(SampleDatasets.toyTrain().getSchema());
@@ -146,13 +147,15 @@ public class LibsvmTest extends AbstractClassificationChecks
             stats1[3] = e1.averageLogLoss();
             
             // Serialize the classifier to disk
-            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("SVMTest.classifier")));
+            //ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("SVMTest.classifier")));
+            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)));
             out.writeObject(c1);
             out.flush();
             out.close();
             
             // Load it back in.
-            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream("SVMTest.classifier")));
+            //ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream("SVMTest.classifier")));
+            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(tempFile)));
             Classifier c2 = (Classifier)in.readObject();
             in.close();
             
@@ -175,8 +178,7 @@ public class LibsvmTest extends AbstractClassificationChecks
             checkStats(stats1, stats2);
 
             // Remove the temporary classifier file
-            File theClassifier = new File("SVMTest.classifier");
-            theClassifier.delete();
+            tempFile.delete();
         }
         catch (Exception e) {
             e.printStackTrace();
