@@ -17,18 +17,22 @@ import libsvm.svm_node;
 import java.io.*;
 
 /**
- * SVMClassifier wrapps the prediction code from the libsvm library
- * It implements the Classifier interface so that using libsvm should be identical
- * to any other Classifer.  A SVMClassifier must be built from a model, using
- * the svm_model class from libsvm.  This is best done by running the learner.
+ * SVMClassifier wrapps the prediction code from the libsvm library for binary problems
+ * A SVMClassifier must be built from a model, using the svm_model class from libsvm.  
+ * This is best done by running the learner.
  *
- * @author ksteppe
+ * @author qcm
  */
 public class SVMClassifier extends BinaryClassifier
 {
     private svm_model model;
     private FeatureIdFactory idFactory;
 
+    /**
+     * Computes the predicted weight for an instance.  The sign of the score indicates
+     * the class (>0 = POS and <0 = NEG) and the absolute value of the score is the
+     * weight in logits of this prediction.
+     */
     public double score(Instance instance) {
         //need the nodeArray
         svm_node[] nodeArray = SVMUtils.instanceToNodeArray(instance, idFactory);
@@ -45,12 +49,16 @@ public class SVMClassifier extends BinaryClassifier
             // We want to return the probability estimates embedded in the prediction.  The actual
             //   value will go into the ClassLabel as the labels weight and since this is a binary 
             //   classifier the probability estimate of the other class is 1 - |prediction|.
-            // Also, the svm_predict_* methods return 1 or -1 for the binary case so all we need to
-            //   do to is return the svm_predict result multiplied by the highest probability.
+            // Also, the svm_predict_* methods return 1 or -1 for the binary case, but we need the 
+            //   probability of the prediction (given in the prob[]), then we need to convert this
+            //   probability into logits (logit = p/1-p).  Finally we need to multiply by the
+            //   prediction (1 or -1) to embedd the predicted class into the weight.
             if (probs[0] > probs[1])
-                prediction = prediction * probs[0];
+                prediction = prediction * (Math.log(probs[0]/(1 - probs[0])));
             else
-                prediction = prediction * probs[1];
+                prediction = prediction * (Math.log(probs[1]/(1 - probs[1])));
+
+            //System.out.println("THE PREDICTION IS: " + prediction);
         }
         // Otherwise just call the predict method, which simply returns the class.  This
         //   method is faster than predict_probability.
