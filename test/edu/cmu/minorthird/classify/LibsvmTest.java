@@ -1,6 +1,9 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.experiments.Evaluation;
+import java.net.URL;
+import java.net.URI;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.BufferedInputStream;
@@ -28,9 +31,9 @@ import java.util.StringTokenizer;
 public class LibsvmTest extends AbstractClassificationChecks
 {
   Logger log = Logger.getLogger(this.getClass());
-  private static final String trainFile = "test/edu/cmu/minorthird/classify/testData/a1a.dat";
+  private static final String trainFile = "edu/cmu/minorthird/classify/testcases/a1a.dat";
   private static final String model = "modelFile.dat";
-  private static final String testFile = "test/edu/cmu/minorthird/classify/testData/a1a.t.dat";
+  private static final String testFile = "edu/cmu/minorthird/classify/testcases/a1a.t.dat";
 
   /**
    * Standard test class constructior for LibsvmTest
@@ -100,9 +103,11 @@ public class LibsvmTest extends AbstractClassificationChecks
     {
         try { 
             //get datasets
-            Dataset trainData = DatasetLoader.loadSVMStyle(new File(trainFile));
-            Dataset testData = DatasetLoader.loadSVMStyle(new File(testFile));
-            
+            URL url = this.getClass().getClassLoader().getResource(trainFile);
+            Dataset trainData = DatasetLoader.loadSVMStyle(new File(new URI(url.toExternalForm())));
+            url = this.getClass().getClassLoader().getResource(testFile);
+            Dataset testData = DatasetLoader.loadSVMStyle(new File(new URI(url.toExternalForm())));
+
             //send expectations to checkClassifyText()
             double[] expect = new double[]{0.13769470404984424, 0.6011745705024105, 0.6934812760055479, 1.3132616875183545};
             
