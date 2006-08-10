@@ -229,9 +229,7 @@ public class MixupProgram
 	for (int i=0; i<statementList.size(); i++) {
 	    ((Statement)statementList.get(i)).eval(labels);
 	    pc.progress();
-	    //new ViewerFrame("Labels " + currentLevel, new SmartVanillaViewer(labels));
 	}
-	//new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(lbls));	
 	pc.finished();
     }
 
@@ -519,7 +517,6 @@ public class MixupProgram
 	    } else if("onLevel".equals(keyword)) {
 		labels.onLevel(level);	
 	    } else if("offLevel".equals(keyword)) {
-		//new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(labels));
 		labels.offLevel();
 	    } else if("importFromLevel".equals(keyword)) {
 		System.out.println("exec: importFromLevel "+oldType+" -> "+type);
@@ -532,7 +529,6 @@ public class MixupProgram
 		labels.require(annotationType,fileToLoad);
 	    } else if (statementType==ANNOTATE_WITH) {		
 		labels.annotateWith(fileToLoad.substring(0,fileToLoad.length()-4), fileToLoad);
-		new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(labels));
 	    } else {
 		Span.Looper input = null;
 		if ("top".equals(startType)) {
@@ -590,7 +586,6 @@ public class MixupProgram
 		    throw new IllegalStateException("illegal statement type "+statementType);
 		}
 	    }
-	    //new ViewerFrame("Result of ", new SmartVanillaViewer(labels));
 	    long end = System.currentTimeMillis();
 	    log.info("time: "+((end-start)/1000.0)+" sec");
 	}
