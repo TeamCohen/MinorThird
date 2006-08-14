@@ -85,6 +85,57 @@ public class CrfTest extends AbstractClassificationChecks
         junit.textui.TestRunner.run(suite());
     }
 
+    //  Test the basic functions of CRFLearner to make sure they are working properly
+    public void testBasicCRF() {
+        double[] refs = new double[]{0.0, // Error Rate
+                                     0.0, // std. deviation of Error Rate
+                                     0.0, // Balanced Error Rate
+                                     0.0, // Error Rate on POS
+                                     0.0, // std. deviation of Error Ratr on POS
+                                     0.0, // Error Rate on NEG
+                                     0.0, // std. deviation of Error Ratr on NEG
+                                     1.0, // Average Precision
+                                     1.0, // Maximum F1
+                                     3.277534399186934, // Average Log Loss
+                                     1.0, // Recall
+                                     1.0, // Precision
+                                     1.0, // F1
+                                     1.0}; // Kappa        
+        CRFLearner l = new CRFLearner();
+        SequenceClassifier c = new DatasetSequenceClassifierTeacher(SampleDatasets.makeToySequenceData()).train(l);
+
+        // Evaluate it immediately saving the stats
+        Evaluation e = new Evaluation(SampleDatasets.makeToySequenceData().getSchema());
+        e.extend(c, SampleDatasets.makeToySequenceTestData());
+        checkStats(e.summaryStatistics(), refs);
+    }
+
+    // Test the SegmentCRFLearner subclass of CRFLearner to make sure that its basic 
+    //   functions are working properly
+    public void testSegmentCRF() {
+        double[] refs = new double[]{0.0, // Error Rate
+                                     0.0, // std. deviation of Error Rate
+                                     0.0, // Balanced Error Rate
+                                     0.0, // Error Rate on POS
+                                     0.0, // std. deviation of Error Ratr on POS
+                                     0.0, // Error Rate on NEG
+                                     0.0, // std. deviation of Error Ratr on NEG
+                                     1.0, // Average Precision
+                                     1.0, // Maximum F1
+                                     3.277534399186934, // Average Log Loss
+                                     1.0, // Recall
+                                     1.0, // Precision
+                                     1.0, // F1
+                                     1.0}; // Kappa
+        SegmentCRFLearner l = new SegmentCRFLearner();
+        SequenceClassifier c = new DatasetSequenceClassifierTeacher(SampleDatasets.makeToySequenceData()).train(l);
+
+        // Evaluate it immediately saving the stats
+        Evaluation e = new Evaluation(SampleDatasets.makeToySequenceData().getSchema());
+        e.extend(c, SampleDatasets.makeToySequenceTestData());
+        checkStats(e.summaryStatistics(), refs);
+    }
+
 
     /**
      *  Test a full cycle of training, testing, saving (serializing), loading, and testing again.<br>
