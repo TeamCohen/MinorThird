@@ -350,8 +350,11 @@ public class CRFLearner
     return v;
   }
 
-    public FeatureIdFactory getIdFactory()
-    {
+    // Accessors for the feature id factory
+    public FeatureIdFactory getIdFactory() {
         return this.idFactory;
+    }
+    public void setIdFactory(FeatureIdFactory f) {
+        this.idFactory = f;
     }
 }
