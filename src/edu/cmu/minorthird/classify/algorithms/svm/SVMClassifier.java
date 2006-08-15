@@ -57,8 +57,6 @@ public class SVMClassifier extends BinaryClassifier
                 prediction = prediction * (Math.log(probs[0]/(1 - probs[0])));
             else
                 prediction = prediction * (Math.log(probs[1]/(1 - probs[1])));
-
-            //System.out.println("THE PREDICTION IS: " + prediction);
         }
         // Otherwise just call the predict method, which simply returns the class.  This
         //   method is faster than predict_probability.
