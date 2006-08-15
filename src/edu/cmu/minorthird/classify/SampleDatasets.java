@@ -288,6 +288,13 @@ public class SampleDatasets
     return d;
   }
 
+    /**
+     * Makes a sample 3 class dataset
+     *
+     * @param r A random number generator for building the dataset.
+     * @param m The number of instances to be created.
+     *
+     */
   public static Dataset makeToy3ClassData(Random r,int m)
   {
     Dataset result = new BasicDataset();
