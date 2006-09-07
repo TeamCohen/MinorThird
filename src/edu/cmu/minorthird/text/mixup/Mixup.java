@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.*;
+
 /** A simple pattern-matching and information extraction language.
 
 <pre>
@@ -62,8 +64,12 @@ The name's an acronym for My Information eXtraction and Understanding Package.
 * @author William Cohen
 */
 
-public class Mixup 
+public class Mixup implements Serializable
 {
+    static private final long serialVersionUID = 1;
+    private final int CURRENT_VERSION_NUMBER = 1;
+
+
     /** Without constraints, the maximum number of times a mixup
      * expression can extract something from a document of length N is
      * O(N*N).  The maxNumberOfMatches... variables below constrain
@@ -399,7 +405,11 @@ public class Mixup
     //
     // encodes a pattern that matches a single TextToken
     //
-    private static class Prim {
+    private static class Prim implements Serializable
+    {
+        static private final long serialVersionUID = 1;
+        private final int CURRENT_VERSION_NUMBER = 1;
+
 	public boolean negated = false;
 	public int function = -1;
 	public String funcString = "";
@@ -479,7 +489,11 @@ public class Mixup
     }
 
     // encodes a pattern matching a series of Token's
-    private static class RepeatedPrim {
+    private static class RepeatedPrim implements Serializable
+    {
+        static private final long serialVersionUID = 1;
+        private final int CURRENT_VERSION_NUMBER = 1;
+
 	public boolean leftMost=false;
 	public boolean rightMost=false;
 	public List primList = new ArrayList();
@@ -590,12 +604,15 @@ public class Mixup
     //
     // encodes a basicExpr in the BNF above
     //
-    private static class BasicExpr 
+    private static class BasicExpr implements Serializable
     {
+        static private final long serialVersionUID = 1;
+        private final int CURRENT_VERSION_NUMBER = 1;
+
 	public final Expr expr;
 	public final RepeatedPrim[] repPrim;
 	public final int leftBracket, rightBracket;
-	private Logger log = Logger.getLogger(this.getClass());
+	private static Logger log = Logger.getLogger(BasicExpr.class);
 
 	public BasicExpr(Expr expr) {
 	    this.expr = expr;
@@ -861,7 +878,12 @@ public class Mixup
     //
     // encodes an expression in the BNF above
     //
-    private static class Expr {
+    private static class Expr implements Serializable
+    {
+        static private final long serialVersionUID = 1;
+        private final int CURRENT_VERSION_NUMBER = 1;
+
+
 	private BasicExpr expr1;
 	private Expr expr2;
 	private String op;

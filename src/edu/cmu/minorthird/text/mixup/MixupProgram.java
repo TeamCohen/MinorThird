@@ -25,11 +25,16 @@ STATEMENT -> defDict [+case] NAME = ID, ... , ID
 STATEMENT -> defTokenProp PROP:VALUE = GEN
 STATEMENT -> defSpanProp PROP:VALUE = GEN
 STATEMENT -> defSpanType TYPE2 = GEN
-STATEMENT -> defLevel NAME
+STATEMENT -> defLevel NAME = LEVELDEF
 STATEMENT -> onLevel NAME
 STATEMENT -> offLevel NAME
 STATEMENT -> importFromLevel NAME TYPE = TYPE
   
+LEVELDEF -> filter TYPE
+LEVELDEF -> pseudotoken TYPE
+LEVELDEF -> split TOKEN
+LEVELDEF -> re 'REGEX'
+
 GEN -> [TYPE]: MIXUP-EXPR
 GEN -> [TYPE]- MIXUP-EXPR
 GEN -> [TYPE]~ re 'REGEX',NUMBER
@@ -124,9 +129,13 @@ require "req1"; //requires that "abc" type spans have already been labeled.  If 
 		* @author William Cohen
 		*/
 
-public class MixupProgram 
+public class MixupProgram implements Serializable
 {
+    static private final long serialVersionUID = 1;
+    private final int CURRENT_VERSION_NUMBER = 1;
+
     private static Logger log = Logger.getLogger(MixupProgram.class);
+
 
     private ArrayList statementList = new ArrayList();
     // maps dictionary names to the sets they correspond to 
@@ -259,7 +268,11 @@ public class MixupProgram
     //
     // encodes a single program statement
     //
-    private static class Statement {
+    private static class Statement implements Serializable
+    {
+        static private final long serialVersionUID = 1;
+        private final int CURRENT_VERSION_NUMBER = 1;
+
 	private static int REGEX=1, MIXUP=2, FILTER=3, PROVIDE=4, REQUIRE=5, DECLARE=6, TRIE=7, ANNOTATE_WITH=8;
 
 	// encodes the statement properties

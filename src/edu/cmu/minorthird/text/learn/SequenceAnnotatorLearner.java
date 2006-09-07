@@ -186,7 +186,6 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner
 	    v.setContent(this);
 	    return v;
 	}
-		
     }
 
     static public void main(String[] args)

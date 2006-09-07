@@ -4,6 +4,7 @@ import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.mixup.Mixup;
 
 import java.util.Collections;
+import java.io.*;
 
 /**
  * Finds spans using a mixup expression evaluated in a fixed labeling.
@@ -11,8 +12,11 @@ import java.util.Collections;
  * @author William Cohen
  */
 
-public class MixupFinder implements SpanFinder
+public class MixupFinder implements SpanFinder, Serializable
 {
+    static private final long serialVersionUID = 1;
+    private final int CURRENT_VERSION_NUMBER = 1;
+
 	private static final TextLabels EMPTY_LABELS = new EmptyLabels();
 
 	private Mixup mixup;

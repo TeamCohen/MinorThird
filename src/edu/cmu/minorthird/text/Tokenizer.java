@@ -5,7 +5,7 @@ package edu.cmu.minorthird.text;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,13 +23,37 @@ import java.util.regex.Pattern;
 
 public class Tokenizer
 {
+    private static Logger log = Logger.getLogger(Tokenizer.class);
+
+    /** How to split tokens up */
+    public static final String TOKEN_REGEX_PROP = "edu.cmu.minorthird.tokenRegex";
+    public static final String TOKEN_REGEX_DEFAULT_VALUE = "\\s*([0-9]+|[a-zA-Z]+|\\W)\\s*";
+
+    public static String standardTokenRegexPattern;
+    static {
+        Properties props = new Properties();
+	try {
+	    InputStream in = FancyLoader.class.getClassLoader().getResourceAsStream("token.properties");
+	    if (in != null) {
+		props.load(in);
+		log.debug("loaded properties from stream "+in);
+	    } else {
+		log.info("no token.properties found on classpath");
+	    }
+        } catch (Exception ex) {
+            log.debug("can't open token.properties:"+ex);
+        }
+        standardTokenRegexPattern = 
+            props.getProperty(TOKEN_REGEX_PROP, System.getProperty(TOKEN_REGEX_PROP,TOKEN_REGEX_DEFAULT_VALUE));
+        log.info("tokenization regex: "+standardTokenRegexPattern);
+    }
+
     public final static int REGEX = 0;
     public final static int SPLIT = 1;
     public int parseType = REGEX;
 
     public String splitString = " ";
-    public String regexPattern = "\\s*([0-9]+|[a-zA-Z]+|\\W)\\s*";
-    //public String regexPattern = "([^\\r])\\r";
+    public String regexPattern = standardTokenRegexPattern;
 
     public Tokenizer() {}
 

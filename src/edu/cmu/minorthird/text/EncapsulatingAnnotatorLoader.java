@@ -15,13 +15,37 @@ import java.io.*;
 
 public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Serializable
 {
-	static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
+    static private final long serialVersionUID = 1;
+    private final int CURRENT_VERSION_NUMBER = 1;
+
+    // special serialization code
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
+    {
+        System.out.println("reading EncapsulatingAnnotatorLoader");
+        in.defaultReadObject();
+        for (Iterator i=fileNameToContentsMap.keySet().iterator(); i.hasNext(); ) {
+            String fileName = (String)i.next();
+            if (fileName.endsWith(".class")) {
+                String className = fileName.substring(0, fileName.length()-".class".length());
+                try {
+                    System.out.println("loading class "+className);
+                    myClassLoader.loadClass(className);
+                    //ClassLoader.getSystemClassLoader().loadClass(className);
+                } catch (ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                    log.warn("error recovering class: "+ex);
+                }
+            }
+        }
+    }
+
 
 	static private Logger log = Logger.getLogger(EncapsulatingAnnotatorLoader.class);
 
 	private Map fileNameToContentsMap;
 	private ClassLoader myClassLoader;
+
+
 
 	/**
 	 * @param path Filenames, separated by the current value of

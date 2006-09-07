@@ -6,6 +6,7 @@ import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 
 import java.util.TreeMap;
+import java.io.*;
 
 /**
  * Finds spans by filtering a list of proposed candidates with a
@@ -15,8 +16,11 @@ import java.util.TreeMap;
  * @author William Cohen
  */
 
-public class FilteredFinder extends AbstractSpanFinder
+public class FilteredFinder extends AbstractSpanFinder implements Serializable
 {
+    static private final long serialVersionUID = 1;
+    private final int CURRENT_VERSION_NUMBER = 1;
+
 	private BinaryClassifier spanFilter;
 	private SpanFeatureExtractor fe;
 	private SpanFinder candidateFinder;

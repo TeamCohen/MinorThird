@@ -27,7 +27,6 @@ public class DefaultAnnotatorLoader extends AnnotatorLoader
 	/** Find the named resource class - usually an annotator. */
 	public Class findClassResource(String className)
 	{
-	    System.out.println("DEFAULT!!!!");
 		try {
 			return DefaultAnnotatorLoader.class.getClassLoader().loadClass(className);
 		} catch (ClassNotFoundException e) {

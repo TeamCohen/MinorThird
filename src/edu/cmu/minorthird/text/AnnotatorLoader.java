@@ -67,9 +67,11 @@ public abstract class AnnotatorLoader
                     // First check to see if the saved annotator is being served as a object from a 
                     //   stream such as if the annotator is encapsulated inside another annotator.
                     ann = findSavedAnnotatorFromStream(source, findFileResource(source));
-                    if (ann == null)
+                    if (ann == null) {
                         // Otherwise find the native annotator for the provided source.
+                        //ann = findNativeAnnotatorFromString(source);
                         ann = findNativeAnnotatorFromString(source);
+                    }
                     return ann;
                 }
             } 
