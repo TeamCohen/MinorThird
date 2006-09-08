@@ -25,33 +25,12 @@ public class LearnImagePtrExtractor
     // initialize
     static {
 	try {
-	    candidateFinder = new MixupFinder( new Mixup("... [L eq('(') !eq(')'){1,15} eq(')') R] ...") );
+	    candidateFinder = new MixupFinder( new Mixup("... [L eq('(') !eq(')'){1,15}R eq(')') R] ...") );
 	    featureProgram = 	new MixupProgram( new File("lib/features.mixup" ) );
 	} catch (Exception e) {
 	    throw new IllegalStateException("mixup or io error: "+e);
 	}
     }
-
-    /** Feature extractor used by the learners */
-    static public class ImgPtrFE implements SpanFeatureExtractor {
-	private int windowSize=3;
-	public Instance extractInstance(Span s)	{
-	    throw new UnsupportedOperationException("can't!");
-	}
-	public Instance extractInstance(TextLabels labels, Span s)	{
-	    FeatureBuffer buf = new FeatureBuffer(labels,s);
-	    SpanFE.from(s,buf).tokens().emit(); 
-	    for (int i=0; i<windowSize; i++) {
-		SpanFE.from(s,buf).tokens().emit();
-		SpanFE.from(s,buf).tokens().prop("cap").emit();
-		SpanFE.from(s,buf).left().token(-i-1).emit(); 
-		SpanFE.from(s,buf).left().token(-i-1).prop("cap").emit(); 
-		SpanFE.from(s,buf).right().token(i).emit(); 
-		SpanFE.from(s,buf).right().token(i).prop("cap").emit(); 
-	    }
-	    return buf.getInstance();
-	}
-    };
 
     /** Create the learner */
     static private BatchFilteredFinderLearner makeAnnotatorLearner(BinaryClassifierLearner classifierLearner)

@@ -43,20 +43,35 @@ public class MakeReleasableComponents
     {
         String sep = File.pathSeparator;
         String[] exportedTypes = new String[]{"protein","fillMeInLater"};
-        File distDir = new File("dist");
+        File distDir = new File("dist"); // for things to distribute
+        File helperDir = new File(distDir,"helper"); // temporary items
         
-        // convert trained filters to annotators
+        // convert trained filters to encapsulated annotators
         for (int i=0; i<IMG_PTR_CLASSES.length; i++) {
             String ci = IMG_PTR_CLASSES[i];
             BinaryClassifier filter = (BinaryClassifier)IOUtil.loadSerialized(new File("lib/"+ci+"Filter.ser"));
-            ImgPtrFilterAnnotator filterAnnotator = new ImgPtrFilterAnnotator(filter,ci);
-            IOUtil.saveSerialized(filterAnnotator,new File("dist/helper/"+ci+"Filter.ann"));
+            FinderAnnotator filterAnnotator = 
+                new FinderAnnotator(new FilteredFinder(filter,new ImgPtrFE(),LearnImagePtrExtractor.candidateFinder),
+                                    ci);
+            String annotatorFileName = ci+"Filter.ann";
+            IOUtil.saveSerialized(filterAnnotator,new File(helperDir,annotatorFileName));
+            // this stuff is needed to encapsulate the localFilter.ann, regionalFilter.ann
+            makeFilterHelper(annotatorFileName,ci);
+            String pathi = "class/ImgPtrFE.class" +sep+ "dist/helper/"+annotatorFileName +sep+ "dist/helper/"+ci+".mixup";
+            EncapsulatedAnnotator anni = new EncapsulatedAnnotator(ci,pathi);
+            System.out.println("encapsulating "+ci+" with "+pathi);
+            IOUtil.saveSerialized(anni,new File(helperDir,ci+"Filter.eann"));
         }
-        // build the annotator for scopes
+
+        // none of the stuff below needs to be tested just yet...
+        if (true) return;
+
+        // build the annotator for scopes, which uses the filter annotators
         String path0 = 
             "class/ImagePointerAnnotator.class" +sep+
+            "class/ImgPtrFE.class" +sep+
             "dist/helper/scope.mixup" +sep+ "dist/helper/local.mixup" +sep+ "dist/helper/regional.mixup" +sep+ 
-            "dist/helper/regionalFilter.ann" +sep+ "dist/helper/localFilter.ann" +sep+ "dist/helper/features.mixup" +sep+
+            "dist/helper/regionalFilter.eann" +sep+ "dist/helper/localFilter.eann" +sep+ "dist/helper/features.mixup" +sep+
             "dist/helper/caption.mixup";
         System.out.println("encapsulating caption with "+path0);
         EncapsulatedAnnotator ann0 = new EncapsulatedAnnotator("caption",path0);
@@ -81,33 +96,6 @@ public class MakeReleasableComponents
         IOUtil.saveSerialized((Serializable)cann,new File(distDir,"CellLine.eann"));
     }
 
-    /**
-     * A serializable annotator based on a learned filter of image pointer candidates. 
-     */
-    static private class ImgPtrFilterAnnotator extends AbstractAnnotator implements Serializable
-    {
-        private BinaryClassifier filter;
-        private String className;
-        private transient Annotator annotator = null;
-
-        public ImgPtrFilterAnnotator(BinaryClassifier filter,String className) 
-        { 
-            this.filter=filter; this.className=className; 
-        }
-
-        public String explainAnnotation(TextLabels labels,Span span) { return "no explanation"; }
-
-        public void doAnnotate(MonotonicTextLabels labels)
-        {
-            if (annotator==null) {
-                SpanFeatureExtractor fe = new LearnImagePtrExtractor.ImgPtrFE();
-                SpanFinder candidateFinder = LearnImagePtrExtractor.candidateFinder; 
-                annotator = new FinderAnnotator( new FilteredFinder(filter,fe,candidateFinder), className);
-            }
-            annotator.annotate(labels);
-        }
-    }
-
     static private void makeHelper(String annotator,String cleanAnnotator,String requiredAnnotation) throws IOException,FileNotFoundException
     {
         PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File("dist/helper/"+requiredAnnotation+".mixup"))));
@@ -116,6 +104,15 @@ public class MakeReleasableComponents
         out.println("annotateWith "+annotator+";");
         out.println("defSpanType protein =_prediction: [...];");
         out.println("defSpanType proteinFrom"+cleanAnnotator+" =_prediction: [...];");
+        out.close();
+    }
+
+    static private void makeFilterHelper(String annotatorFileName,String requiredAnnotation) throws IOException,FileNotFoundException
+    {
+        PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(new File("dist/helper/"+requiredAnnotation+".mixup"))));
+        out.println("provide '"+requiredAnnotation+"';");
+        out.println();
+        out.println("annotateWith '"+annotatorFileName+"';");
         out.close();
     }
 }

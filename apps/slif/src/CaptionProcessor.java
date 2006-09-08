@@ -224,7 +224,7 @@ public class CaptionProcessor
 	private static Annotator loadAnnotator(String className) throws IOException
 	{
 		BinaryClassifier filter = (BinaryClassifier)IOUtil.loadSerialized(new File("lib/"+className+"Filter.ser"));
-		SpanFeatureExtractor fe = new LearnImagePtrExtractor.ImgPtrFE();
+		SpanFeatureExtractor fe = new ImgPtrFE();
 		SpanFinder candidateFinder = LearnImagePtrExtractor.candidateFinder; 
 		String output = className;
 		Annotator learnedAnnotator = new FinderAnnotator( new FilteredFinder(filter,fe,candidateFinder), output );
