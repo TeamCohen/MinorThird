@@ -1,4 +1,4 @@
 set CLASSPATH=
-set CLASSPATH=.;./lib;./config;./class;dist/helper
+set CLASSPATH=.;./lib;./config;./class
 ..\..\script\setup
 

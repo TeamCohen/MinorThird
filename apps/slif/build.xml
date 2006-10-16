@@ -3,6 +3,7 @@
   <property name="src" location="src"/>
   <property name="javadoc" location="javadoc"/>
   <property name="build" location="class"/>
+  <property name="dist" location="dist"/>
 
   <target name="build-clean" depends="clean,build"  description="compile the source from scratch"/>
 
@@ -10,6 +11,26 @@
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}" debug="on"/>
+  </target>
+
+  <target name="jar" description="ready-to-use jar" depends="dist">
+    <echo>Before you do this, make sure that there is a current jar file for minorthird.</echo>
+    <echo>In other words: first run 'ant jar' in the minorthird main directory.</echo>
+    <mkdir dir="tmp"/>
+    <mkdir dir="jar"/>
+    <unjar dest="tmp" src="../../dist/minorThird.jar"/>
+    <jar destfile="jar/slifTextComponent.jar">
+       <fileset dir="tmp"/>
+       <fileset dir="${build}"/>
+       <fileset dir="config"/>
+       <fileset dir="${dist}"><include name="*.eann"/></fileset>
+    </jar>
+  </target>
+
+  <target name="dist" description="files to use for distribution" depends="build">
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${dist}/helper"/>
+    <java classname="MakeReleasableComponents"/>
   </target>
 
   <target name="init" description="clean up" >
