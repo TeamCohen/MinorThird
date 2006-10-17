@@ -1,0 +1,62 @@
+provide 'newproteinFeatures';
+
+//require 'pos';
+
+defTokenProp suffix:1 =top: ... [re('ase$')] ... || ... [re('in$')] ... || ... [re('nogen$')] ...;
+
+
+
+
+
+
+// greek
+defDict greekLetter = 
+	alpha,beta,gamma,delta,epsilon,kappa;
+defTokenProp greek:1 =top: ... [ai(greekLetter)] ... ;  
+
+
+
+defTokenProp ADA:1 =: ... [re('^[a-z]+[\d]+[a-z]*$')] ... ;
+defTokenProp AaDa:1 =: ... [re('^[a-zA-Z]+[\d]+[a-z]*$')] ... ;
+defTokenProp A_Da:1 =: ... [re('^[A-Za-z]\-\d+$')]...;
+defTokenProp Aa_Da:1 =: ... [re('^[A-Za-z\-]+[\d]+[a-z]*$')]...;
+defTokenProp DD:1 =: ... [re('^[\d]+$')]...;
+defTokenProp MyPunct_Name:1 =: ... [re('[A-Z]+[a-z]+\,[A-Z]+')]...;
+defTokenProp MyPunct:1 =: ... [re('\,')]...;
+
+defTokenProp AA:1 =: ... [re('^([A-Z]{1,2})+$')]...;
+defTokenProp AaAa:1 =: ... [re('^([A-Z])+([a-z])+([A-Z])+([a-z])+$')]...;
+defTokenProp aAa:1 =: ... [re('^([a-z])+([A-Z])+([a-z])+$')]...;
+defTokenProp aA:1 =: ... [re('^([a-z])+([A-Z])+$')]...;
+defTokenProp Aa:1 =: ... [re('^([A-Z])+([a-z])+$')]...;
+defTokenProp AaA:1 =: ... [re('([A-Z])+([a-z])+([A-Z])+')]...;
+
+defDict stoplist = 
+	a,did,it,perhaps,these,about,do,its,quite,they,
+again,does,itself,rather,this,
+all,done,just,really,those,
+almost,due,kg,regarding,through,
+also,during,km,seem,thus,
+although,each,made,seen,to,
+always,either,mainly,several,upon,
+among,enough,make,should,use,
+an,especially,may,show,used,
+and,etc,mg,showed,using,
+another,for,might,shown,various,
+any,found,ml,shows,very,
+are,from,mm,significantly,was,
+as,further,most,since,we,
+at,had,mostly,so,were,
+be,has,must,some,what,
+because,have,nearly,such,when,
+been,having,neither,than,which,
+before,here,no,that,while,
+being,how,nor,the,with,
+between,however,obtained,their,within,
+both,i,of,theirs,without,
+but,if,often,them,would,
+by,in,on,then,
+can,into,our,there,
+could,is,overall,therefore;
+
+defTokenProp stop:1 =top: ... [ai(stoplist)] ... ;  
