@@ -404,6 +404,12 @@ public class ConditionalSemiMarkovModel
 	{
 		public CSMMSpanFE() { super(); }
 		public CSMMSpanFE(int windowSize) { super(windowSize); }
+
+	        public CSMMSpanFE(String mixupFile) {
+		super();
+		setRequiredAnnotation(mixupFile,mixupFile+".mixup");
+		setTokenPropertyFeatures("*"); 
+		}
 		
 		public void extractFeatures(Span span) {
 			extractFeatures(new EmptyLabels(),span);
