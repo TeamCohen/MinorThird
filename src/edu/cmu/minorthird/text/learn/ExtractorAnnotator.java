@@ -3,7 +3,7 @@ package edu.cmu.minorthird.text.learn;
 import edu.cmu.minorthird.text.*;
 
 /** 
- * An annotator that uses a learned Classifier to mark up document spans.
+ * An annotator that uses a learned extractor to mark up document spans.
  */
 
 public interface ExtractorAnnotator extends Annotator
