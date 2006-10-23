@@ -51,3 +51,6 @@ Version # Format: Version#.Year.Month.Day
 		- Encapsulated Annotator Loader fixed
 		- Updated Documentation
 		- Cammie's Last Day!
+10.6.10.12	- Added confidence calculation capability to the SVM learner
+		- Fixed encapsulated annotators so that they can require other encapsulated annotators.
+10.6.10.23	- Fixed errors in MixupPrograms handling of regular expressions.
