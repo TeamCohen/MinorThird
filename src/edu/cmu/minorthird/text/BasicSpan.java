@@ -209,14 +209,39 @@ public class BasicSpan implements Span,Serializable,Visible
 		    if (DEBUG) log.debug("minEndDist => "+minEndDist+" for token "+getTextToken(i));
 		}
 	    } else {
-		if (getTextToken(i).getLo()>=lo && firstTextToken<0) {
-		    firstTextToken = i;
-		    if (DEBUG) log.debug("firstTextToken => "+getTextToken(i));
-		}
-		if (getTextToken(i).getHi()<=hi) {
-		    lastTextToken = i;
-		    if (DEBUG) log.debug("lastTextToken => "+getTextToken(i));
-		}
+                // The lo character offset may lie on a whitespace character before a token, at the 
+                // boundry of a token, or in the middle of a token.  In any of these cases we want to 
+                // make sure to include this token in the span. So simply check that the lo character 
+                // offset is less than the hi index of the token. That is check that at least one 
+                // character of the token is included in the char offsets.
+                if (firstTextToken<0 && lo<=getTextToken(i).getHi()) {
+                    firstTextToken = i;
+                    if (DEBUG) log.debug("firstTextToken => "+getTextToken(i));
+                }
+                /* OLD LOGIC HERE:
+                   if (getTextToken(i).getLo()>=lo && firstTextToken<0) {
+                   firstTextToken = i;
+                   if (DEBUG) log.debug("firstTextToken => "+getTextToken(i));
+                   }
+                */
+
+                // The hi character offset may lie on a whitespace character after a token, at the 
+                // boundry of a token, or in the middle of a token.  Again, we need to include this
+                // token in the subspan in any of these cases.  So continually increas the last
+                // included token index (lastTextToken) for each subsequent token that is included in
+                // in the span.  Do this by simply checking that the hi character offset is greater
+                // than the token's lo character index.
+                if (hi>getTextToken(i).getLo()) {
+                    lastTextToken = i;
+                    if (DEBUG) log.debug("lastTextToken => "+getTextToken(i));
+                }
+
+                /* OLD LOGIC HERE
+                   if (getTextToken(i).getHi()<=hi) {
+                   lastTextToken = i;
+                   if (DEBUG) log.debug("lastTextToken => "+getTextToken(i));
+                   }
+                */
 	    }
 	} 
 	if (firstTextToken<0 || lastTextToken<0) {

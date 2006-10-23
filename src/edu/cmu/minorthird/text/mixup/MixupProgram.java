@@ -473,14 +473,12 @@ public class MixupProgram implements Serializable
 		    if ("re".equals(token)) {
 			statementType = REGEX;
 			regex = tok.advance(null);
-			//System.out.println("THIS IS THE REGEX: " + regex);
 			if (regex.startsWith("'")) {
 			    regex = regex.substring(1,regex.length()-1);
 			    regex = regex.replaceAll("\\\\'","'");
 			}
 			token = tok.advance(Collections.singleton(","));
 			token = tok.advance(null);
-			//System.out.println("THIS IS THE EXPECTED GROUP NUMBER: " + token);
 			try {
 			    regexGroup = Integer.parseInt(token);
 			    token = tok.advance(null);
@@ -584,7 +582,9 @@ public class MixupProgram implements Serializable
 		    Pattern pattern = Pattern.compile(regex); 
 		    while (input.hasNext()) {
 			Span span = input.nextSpan();
-			Matcher matcher = pattern.matcher( span.asString() );
+                        // Don't use this method as it drops leading and trailing spaces from the document text.
+			//Matcher matcher = pattern.matcher( span.asString() );
+                        Matcher matcher = pattern.matcher( span.getDocumentContents() );
 			while (matcher.find()) {
 			    try {
 				Span subspan = span.charIndexProperSubSpan( matcher.start(regexGroup),matcher.end(regexGroup));
