@@ -47,7 +47,7 @@ public class PreprocessTextForExtractor extends PreprocessTextForClassifier
     }
     public CommandLineProcessor getCLP() {
 	return new JointCommandLineProcessor(new CommandLineProcessor[]{ 
-	    new GUIParams(),new LinkFileParams(),new ExtractionReductionParams(),base,signal,save});
+	    new LinkFileParams(),new ExtractionReductionParams(),gui,base,signal,save});
     }
     public int getHistorySize() { return historySize; }
     public void setHistorySize(int n) { this.historySize=n; }

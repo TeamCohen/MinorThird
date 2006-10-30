@@ -35,7 +35,7 @@ public class DebugMixup extends UIMain
 
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,edit,mixup});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,edit,mixup});
 	}
 
 	//

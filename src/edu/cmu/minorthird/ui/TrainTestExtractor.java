@@ -38,7 +38,7 @@ public class TrainTestExtractor extends UIMain
 	// for command-line ui
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,train,trainTest});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,save,signal,train,trainTest});
 	}
 
 	// for GUI

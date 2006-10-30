@@ -14,6 +14,8 @@ import org.apache.log4j.*;
 
 public class SlifTextComponent extends UIMain
 {
+    static final String VERSION_NUMBER = "1.0 (2006.10.18; 9.6.4.19)";
+
     MonotonicTextLabels annLabels = null;
 
     private ComponentListParams component = new ComponentListParams();
@@ -110,6 +112,7 @@ public class SlifTextComponent extends UIMain
     }
     public static void main(String args[])
     {
+        System.out.println("SLIF Text Component Package Version "+VERSION_NUMBER);
 	new SlifTextComponent().callMain(args);
     }
 

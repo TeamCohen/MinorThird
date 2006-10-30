@@ -35,7 +35,7 @@ public class TrainTestTagger extends UIMain
 	// for command-line ui
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,signal,train,trainTest});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,signal,train,trainTest});
 	}
 
 	// for GUI
@@ -75,7 +75,7 @@ public class TrainTestTagger extends UIMain
 		//+" features: "+index.numberOfFeatures()
 		//+" avg features/examples: "+index.averageFeaturesPerExample());
 
-		System.out.println("showData="+train.showData+" showResult="+base.showResult+" useGUI="+useGUI);
+		//System.out.println("showData="+train.showData+" showResult="+base.showResult+" useGUI="+useGUI);
 		CrossValidatedSequenceDataset cvd = null;
 		Evaluation evaluation = null;
 		if (trainTest.showTestDetails) {

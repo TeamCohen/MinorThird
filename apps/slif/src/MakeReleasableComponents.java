@@ -118,7 +118,8 @@ public class MakeReleasableComponents
                 .replaceAll("semi","Semi");
             String req = "protein"+cleanPi;
             makeHelper(pi,cleanPi,req);
-            String path = "lib/"+pi +sep+ "lib/proteinFeatures.mixup" +sep+ "dist/helper/protein"+cleanPi+".mixup";
+            String path = "lib/"+pi +sep+ "lib/proteinFeatures.mixup" +sep+ "lib/newproteinFeatures.mixup" 
+                +sep+ "dist/helper/protein"+cleanPi+".mixup";
             exportedTypes[1] = "proteinFrom"+cleanPi;
             System.out.println("encapsulating "+pi);
             EncapsulatedAnnotator ann = new EncapsulatedAnnotator(req,path,exportedTypes);

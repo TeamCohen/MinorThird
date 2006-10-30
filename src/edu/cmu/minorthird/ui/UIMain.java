@@ -31,19 +31,14 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
     // some basic parameters and CommandLineProcessor items shared by everyone
     //
 
-    protected boolean useGUI=false;
-    protected class GUIParams extends BasicCommandLineProcessor {
-	public void gui() { useGUI=true; }
-	public void usage() {
-	    System.out.println("presentation parameters:");
-	    System.out.println(" -gui                     use graphic interface to set parameters");
-	    System.out.println();
-	}
-    }
     protected CommandLineUtil.BaseParams base = new CommandLineUtil.BaseParams();
+    protected CommandLineUtil.GUIParams gui = new CommandLineUtil.GUIParams();
+
     public CommandLineUtil.BaseParams getBaseParameters() { return base; }
     public void setBaseParameters(CommandLineUtil.BaseParams base) { this.base=base; }
 	
+    public void helloWorld() { System.out.println("hello world"); }
+
     /**Do the main action, after setting all parameters. */
     abstract public void doMain();
 	
@@ -60,7 +55,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable, Conso
     {	   
 	try {
 	    getCLP().processArguments(args);
-	    if (!useGUI) {		
+	    if (!gui.useGUI) {		
 		if (base.labels==null) throw new IllegalArgumentException("-labels must be specified");
 		if (base.showLabels) new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(base.labels));
 		doMain();

@@ -43,7 +43,7 @@ public class ApplyAnnotator extends UIMain
 
     public CommandLineProcessor getCLP()
     {
-	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,load,output});
+	return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,save,load,output});
     }
 
     //

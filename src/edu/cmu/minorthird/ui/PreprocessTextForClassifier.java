@@ -50,7 +50,7 @@ public class PreprocessTextForClassifier extends UIMain
     } 
     public CommandLineProcessor getCLP() {
 	return new JointCommandLineProcessor(new CommandLineProcessor[]{ 
-	    new GUIParams(),new LinkFileParams(),base,signal,save});
+	    new LinkFileParams(),gui,base,signal,save});
     }
     public String getLinkFile() { return linkFileName; }
     public void setLinkFile(String s) { linkFileName=s; }

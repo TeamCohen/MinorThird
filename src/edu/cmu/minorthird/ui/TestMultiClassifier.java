@@ -41,7 +41,7 @@ public class TestMultiClassifier extends UIMain
 
 	public CommandLineProcessor getCLP()
 	{
-		return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,test});
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,save,signal,test});
 	}
 
 	//

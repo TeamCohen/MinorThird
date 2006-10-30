@@ -42,7 +42,7 @@ public class TrainClassifier extends UIMain
 
     public CommandLineProcessor getCLP()
     {
-	return new JointCommandLineProcessor(new CommandLineProcessor[]{new GUIParams(),base,save,signal,train});
+	return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,save,signal,train});
     }
 
     //

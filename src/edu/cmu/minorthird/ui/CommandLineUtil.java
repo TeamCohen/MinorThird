@@ -327,6 +327,8 @@ public class CommandLineUtil
     // useful sets of parameters that can be read from command line
     // 
 
+    
+
     /** Basic parameters used by almost everything. */
     public static class BaseParams extends BasicCommandLineProcessor {
 	public MonotonicTextLabels labels=null;
@@ -367,6 +369,17 @@ public class CommandLineUtil
 	//public void setShowResult(boolean flag ) { showResult=flag; }
     }
 	
+    /** Basic parameters used by everything with a gui. */
+    public static class GUIParams extends BasicCommandLineProcessor {
+        public boolean useGUI;
+	public void gui() { useGUI=true; }
+	public void usage() {
+	    System.out.println("presentation parameters:");
+	    System.out.println(" -gui                     use graphic interface to set parameters");
+	    System.out.println();
+	}
+    }
+
     /** Parameters used by all 'train' routines. */
     public static class SaveParams extends BasicCommandLineProcessor {
 	public File saveAs=null;
@@ -1166,14 +1179,13 @@ public class CommandLineUtil
 	private static final String[] ALLOWED_VALUES = {"minorthird","xml","strings"};
 	public String format = "minorthird";
 	public void format(String s) { format=s; }
-	public void toXML(String directoryName) {
-	    System.out.println("Creating XML documents");
-	}
-	private String mixupHelp = new String("run mixup program in FILE (existing file, or name on classpath)");
-	private String formatHelp = new String("output results in appropriate TYPE, which must be either\n 'minorthird', 'xml', or 'strings'");
+        //this wasn't used?
+	//public void toXML(String directoryName) {
+        //System.out.println("Creating XML documents");
+        //}
+	private String formatHelp = new String("output results in format TYPE (either 'minorthird', 'xml', or 'strings'");
 	public void usage() {
 	    System.out.println("annotation output parameters:");
-	    System.out.println(" -mixup FILE              " + mixupHelp);
 	    System.out.println(" -format TYPE             " + formatHelp);                          
 	    System.out.println();
 	}
