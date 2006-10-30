@@ -1,0 +1,38 @@
+	      Partial Parsing via Finite-State Cascades
+
+			     Steven Abney
+    SfS, Wilhelmstr. 113, University of Tubingen, 72074 Tubingen,
+			       Germany
+
+Finite state cascades represent an attractive architecture for parsing
+unrestricted text.  Deterministic parsers specified by finite state
+cascades are fast and reliable.  They can be extended at modest cost
+to construct parse trees with finite feature structures.  Finally ,
+such deterministic parsers do not necessarily involve trading off
+accuracy against speed --- they may in fact be more accurate than
+exhaustive search stochastic context free parsers.  
+
+Finite State Cascades
+
+Of current interest in corpus oriented computational linguistics are
+techniques for bootstrapping broad coverage parsers from text corpora.
+The work described here is a step along the way toward a bootstrapping
+scheme that involves inducing a tagger from word distributions, a
+lowlevel "chunk" parser from a tagged corpus, and lexical dependencies
+from a chunked corpus.  In particular, I describe a chunk parsing
+technique based on what I will call a finite state cascade.  Though I
+shall not address the question of inducing such a parser from a
+corpus, the parsing technique has been implemented and is being used
+in a project for inducing lexical dependencies from corpora in English
+and German.  The resulting parsers are robust and very fast.
+
+A finite state cascade consists of a sequence of levels.  Phrases at
+one level are built on phrases at the previous level, and there is no
+recursion: phrases never contain same level or higher level phrases.
+Two levels of special importance are the level of chunks and the level
+of simplex clauses.  Chunks are the non-recursive cores of `` major ''
+phrases, i.e., NP, VP, PP, AP, AdvP.  Simplex clauses are clauses in
+which embedded clauses have been turned into siblings --- tail
+recursion has been replaced with iteration, so to speak.  To
+illustrate, Table 1 shows a parse tree represented as a sequence of
+levels.

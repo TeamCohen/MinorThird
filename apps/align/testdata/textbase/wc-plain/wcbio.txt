@@ -1,0 +1,20 @@
+William Cohen received his bachelor's degree in Computer Science from
+Duke University in 1984, and a PhD in Computer Science from Rutgers
+University in 1990.  From 1990 to 2000 Dr. Cohen worked at AT&T Bell
+Labs and later AT&T Labs-Research, and from April 2000 to May 2002
+Dr. Cohen worked at Whizbang Labs, a company specializing in
+extracting information from the web.  Dr. Cohen is member of the board
+of the International Machine Learning Society, and has served as an
+action editor for the Journal of Machine Learning Research, the
+journal Machine Learning and the Journal of Artificial Intelligence
+Research. He co-organized the 1994 International Machine Learning
+Conference and also was co-program chair for the 2006 International
+Machine Learning Conference, and has served on more than 20 program
+committees or advisory committees.
+
+
+Dr. Cohen's research interests include information integration and
+machine learning, particularly information extraction, text
+categorization and learning from large datasets. He holds seven
+patents related to learning, discovery, information retrieval, and
+data integration, and is the author of more than 100 publications.

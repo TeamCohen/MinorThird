@@ -1,0 +1,637 @@
+<title>
+  <nx>
+    <jj> Partial</jj>
+    <nn> Parsing</nn></nx>
+  <pp>
+    <in> via</in>
+    <nx>
+      <jj> Finite-State</jj>
+      <nns> Cascades</nns></nx></pp>
+</title>
+<author>
+  <nx>
+    <person>
+      <fn> Steven</fn>
+      <nnp> Abney</nnp></person></nx>
+</author>
+<address>
+  <nx>
+    <name>
+      <nnp> SfS</nnp></name></nx>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> Wilhelmstr.</nnp></name></nx>
+  <nx>
+    <cd> 113</cd></nx>
+  <cma> ,</cma>
+  <ng>
+    <nx>
+      <name>
+        <nnp> University</nnp></name></nx>
+    <of> of</of>
+    <nx>
+      <name>
+        <nnp> T\"ubingen</nnp></name></nx></ng>
+  <cma> ,</cma>
+  <nx>
+    <cd> 72074</cd>
+    <name>
+      <nnp> T\"ubingen</nnp></name></nx>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> Germany</nnp></name></nx>
+</address>
+<abstract>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <jj> Finite</jj>
+        <nn> state</nn>
+        <nns> cascades</nns></nx>
+      <vx>
+        <vbp> represent</vbp></vx></c0>
+    <nx>
+      <dt> an</dt>
+      <jj> attractive</jj>
+      <nn> architecture</nn></nx>
+    <pp>
+      <in> for</in>
+      <nx>
+        <vbg> parsing</vbg>
+        <jj> unrestricted</jj>
+        <nn> text</nn></nx></pp></c>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <jj> Deterministic</jj>
+        <nns> parsers</nns></nx>
+      <vnp>
+        <vnx>
+          <vbn> specified</vbn></vnx>
+        <pp>
+          <by> by</by>
+          <nx>
+            <jj> finite</jj>
+            <nn> state</nn>
+            <nns> cascades</nns></nx></pp></vnp>
+      <vx>
+        <ber> are</ber>
+        <jj> fast</jj></vx></c0></c>
+  <cc> and</cc>
+  <ax>
+    <jj> reliable</jj></ax>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <prp> They</prp></nx>
+      <vx>
+        <md> can</md>
+        <be> be</be>
+        <vbn> extended</vbn></vx></c0>
+    <pp>
+      <in> at</in>
+      <nx>
+        <jj> modest</jj>
+        <nn> cost</nn></nx></pp></c>
+  <infp>
+    <inf>
+      <to> to</to>
+      <vb> construct</vb></inf>
+    <nx>
+      <nn> parse</nn>
+      <nns> trees</nns></nx>
+    <pp>
+      <in> with</in>
+      <nx>
+        <jj> finite</jj>
+        <nn> feature</nn>
+        <nns> structures</nns></nx></pp></infp>
+  <per> .</per>
+</s>
+<s>
+  <rb> Finally</rb>
+  <cma> ,</cma>
+  <c>
+    <c0>
+      <nx>
+        <such> such</such>
+        <jj> deterministic</jj>
+        <nns> parsers</nns></nx>
+      <vx>
+        <do> do</do>
+        <rb> not</rb>
+        <rb> necessarily</rb>
+        <vb> involve</vb></vx></c0></c>
+  <vgp>
+    <vgx>
+      <vbg> trading</vbg></vgx></vgp>
+  <rp> off</rp>
+  <nx>
+    <nn> accuracy</nn></nx>
+  <pp>
+    <in> against</in>
+    <nx>
+      <nn> speed</nn></nx></pp>
+  <:> ---</:>
+  <c>
+    <c0>
+      <nx>
+        <prp> they</prp></nx>
+      <vx>
+        <md> may</md></vx></c0>
+    <pp>
+      <in> in</in>
+      <nx>
+        <nn> fact</nn></nx></pp></c>
+  <vp>
+    <vx>
+      <be> be</be>
+      <more> more</more>
+      <jj> accurate</jj></vx>
+    <pp>
+      <than> than</than>
+      <nx>
+        <jj> exhaustive</jj>
+        <nn> search</nn>
+        <jj> stochastic</jj>
+        <nn> context</nn>
+        <jj> free</jj>
+        <nns> parsers</nns></nx></pp></vp>
+  <per> .</per>
+</s>
+</abstract>
+<heading>
+  <nx>
+    <jj> Finite</jj>
+    <nn> State</nn>
+    <nns> Cascades</nns></nx>
+</heading>
+<s>
+  <pp>
+    <of> Of</of>
+    <nx>
+      <jj> current</jj>
+      <nn> interest</nn></nx></pp>
+  <pp>
+    <in> in</in>
+    <nx>
+      <nn> corpus</nn></nx></pp>
+  <c>
+    <c0>
+      <nx>
+        <vbn> oriented</vbn>
+        <jj> computational</jj>
+        <nns> linguistics</nns></nx>
+      <vx>
+        <ber> are</ber></vx></c0>
+    <nx>
+      <nns> techniques</nns></nx>
+    <pp>
+      <in> for</in>
+      <nx>
+        <vbg> bootstrapping</vbg>
+        <jj> broad</jj>
+        <nn> coverage</nn>
+        <nns> parsers</nns></nx></pp>
+    <pp>
+      <in> from</in>
+      <nx>
+        <nn> text</nn>
+        <nns> corpora</nns></nx></pp></c>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <dt> The</dt>
+        <nn> work</nn></nx>
+      <vnp>
+        <vnx>
+          <vbn> described</vbn></vnx></vnp>
+      <vx>
+        <rb> here</rb>
+        <bez> is</bez></vx></c0>
+    <nx>
+      <dt-a> a</dt-a>
+      <nn> step</nn></nx>
+    <pp>
+      <in> along</in>
+      <nx>
+        <dt> the</dt>
+        <nn> way</nn></nx></pp>
+    <pp>
+      <in> toward</in>
+      <nx>
+        <dt-a> a</dt-a>
+        <vbg> bootstrapping</vbg>
+        <nn> scheme</nn></nx></pp></c>
+  <rc>
+    <src0>
+      <wp> that</wp>
+      <vx>
+        <vbz> involves</vbz></vx></src0></rc>
+  <vgp>
+    <vgx>
+      <vbg> inducing</vbg></vgx>
+    <nx>
+      <dt-a> a</dt-a>
+      <nn> tagger</nn></nx>
+    <pp>
+      <in> from</in>
+      <nx>
+        <nn> word</nn>
+        <nns> distributions</nns></nx></pp></vgp>
+  <cma> ,</cma>
+  <nx>
+    <dt-a> a</dt-a>
+    <jj> lowlevel</jj>
+    <nil> ``</nil>
+    <nn> chunk</nn>
+    <nil> ''</nil>
+    <nn> parser</nn></nx>
+  <pp>
+    <in> from</in>
+    <nx>
+      <dt-a> a</dt-a>
+      <vbn> tagged</vbn>
+      <nn> corpus</nn></nx></pp>
+  <cma> ,</cma>
+  <cc> and</cc>
+  <nx>
+    <jj> lexical</jj>
+    <nns> dependencies</nns></nx>
+  <pp>
+    <in> from</in>
+    <nx>
+      <dt-a> a</dt-a>
+      <vbn> chunked</vbn>
+      <nn> corpus</nn></nx></pp>
+  <per> .</per>
+</s>
+<s>
+  <pp>
+    <in> In</in>
+    <nx>
+      <nn> particular</nn></nx></pp>
+  <cma> ,</cma>
+  <c>
+    <c0>
+      <nx>
+        <prp> I</prp></nx>
+      <vx>
+        <vbp> describe</vbp></vx></c0>
+    <nx>
+      <dt-a> a</dt-a>
+      <nn> chunk</nn>
+      <nn> parsing</nn>
+      <nn> technique</nn></nx></c>
+  <vnp>
+    <vnx>
+      <vbn> based</vbn></vnx>
+    <in> on</in></vnp>
+  <rc>
+    <orc0>
+      <wp> what</wp>
+      <nx>
+        <prp> I</prp></nx>
+      <vx>
+        <md> will</md>
+        <vb> call</vb></vx></orc0>
+    <nx>
+      <dt-a> a</dt-a>
+      <nil> <it></nil>
+      <jj> finite</jj>
+      <nn> state</nn>
+      <nn> cascade</nn></nx></rc>
+  <nil> </it></nil>
+  <per> .</per>
+</s>
+<s>
+  <subc>
+    <subc0>
+      <comp> Though</comp>
+      <nx>
+        <prp> I</prp></nx>
+      <vx>
+        <md> shall</md>
+        <rb> not</rb>
+        <vb> address</vb></vx></subc0>
+    <nx>
+      <dt> the</dt>
+      <nn> question</nn></nx></subc>
+  <of> of</of>
+  <vgp>
+    <vgx>
+      <vbg> inducing</vbg></vgx>
+    <nx>
+      <such> such</such>
+      <dt-a> a</dt-a>
+      <nn> parser</nn></nx>
+    <pp>
+      <in> from</in>
+      <nx>
+        <dt-a> a</dt-a>
+        <nn> corpus</nn></nx></pp></vgp>
+  <cma> ,</cma>
+  <c>
+    <c0>
+      <nx>
+        <dt> the</dt>
+        <nn> parsing</nn>
+        <nn> technique</nn></nx>
+      <vx>
+        <hvz> has</hvz>
+        <ben> been</ben>
+        <vbn> implemented</vbn></vx></c0></c>
+  <cc> and</cc>
+  <vp>
+    <vx>
+      <bez> is</bez>
+      <vbg> being</vbg></vx></vp>
+  <vnp>
+    <vnx>
+      <vbn> used</vbn></vnx>
+    <pp>
+      <in> in</in>
+      <nx>
+        <dt-a> a</dt-a>
+        <nn> project</nn></nx></pp>
+    <pp>
+      <in> for</in>
+      <nx>
+        <vbg> inducing</vbg>
+        <jj> lexical</jj>
+        <nns> dependencies</nns></nx></pp>
+    <pp>
+      <in> from</in>
+      <nx>
+        <nns> corpora</nns></nx></pp>
+    <pp>
+      <in> in</in>
+      <ng>
+        <nx>
+          <name>
+            <nnp> English</nnp></name></nx>
+        <cc> and</cc>
+        <nx>
+          <name>
+            <nnp> German</nnp></name></nx></ng></pp></vnp>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <dt> The</dt>
+        <vbg> resulting</vbg>
+        <nns> parsers</nns></nx>
+      <vx>
+        <ber> are</ber>
+        <jj> robust</jj></vx></c0></c>
+  <cc> and</cc>
+  <ax>
+    <rb> very</rb>
+    <jj> fast</jj></ax>
+  <per> .</per>
+</s>
+<p>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <dt-a> A</dt-a>
+        <jj> finite</jj>
+        <nn> state</nn>
+        <nn> cascade</nn></nx>
+      <vx>
+        <vbz> consists</vbz></vx></c0>
+    <pp>
+      <of> of</of>
+      <ng>
+        <nx>
+          <dt-a> a</dt-a>
+          <nn> sequence</nn></nx>
+        <of> of</of>
+        <nil> <it></nil>
+        <nx>
+          <nns> levels</nns></nx></ng></pp></c>
+  <nil> </it></nil>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <nns> Phrases</nns></nx>
+      <pp>
+        <in> at</in>
+        <nx>
+          <cd> one</cd>
+          <nn> level</nn></nx></pp>
+      <vx>
+        <ber> are</ber>
+        <vbn> built</vbn></vx></c0>
+    <pp>
+      <in> on</in>
+      <nx>
+        <nns> phrases</nns></nx></pp>
+    <pp>
+      <in> at</in>
+      <nx>
+        <dt> the</dt>
+        <jj> previous</jj>
+        <nn> level</nn></nx></pp></c>
+  <cma> ,</cma>
+  <cc> and</cc>
+  <c>
+    <c0>
+      <nx>
+        <ex> there</ex></nx>
+      <vx>
+        <bez> is</bez></vx></c0>
+    <nx>
+      <dt> no</dt>
+      <nn> recursion</nn></nx></c>
+  <:> :</:>
+  <c>
+    <c0>
+      <nx>
+        <nns> phrases</nns></nx>
+      <vx>
+        <rb> never</rb>
+        <vbp> contain</vbp></vx></c0>
+    <ng>
+      <nx>
+        <jj> same</jj>
+        <nn> level</nn></nx>
+      <cc> or</cc>
+      <nx>
+        <jjr> higher</jjr>
+        <nn> level</nn>
+        <nns> phrases</nns></nx></ng></c>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <ng>
+        <nx>
+          <cd> Two</cd>
+          <nns> levels</nns></nx>
+        <of> of</of>
+        <nx>
+          <jj> special</jj>
+          <nn> importance</nn></nx></ng>
+      <vx>
+        <ber> are</ber></vx></c0>
+    <ng>
+      <nx>
+        <dt> the</dt>
+        <nn> level</nn></nx>
+      <of> of</of>
+      <nil> <it></nil>
+      <nx>
+        <nns> chunks</nns></nx>
+      <nil> </it></nil>
+      <cc> and</cc>
+      <nx>
+        <dt> the</dt>
+        <nn> level</nn></nx>
+      <of> of</of>
+      <nil> <it></nil>
+      <nx>
+        <jj> simplex</jj>
+        <nns> clauses</nns></nx></ng></c>
+  <nil> </it></nil>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <nns> Chunks</nns></nx>
+      <vx>
+        <ber> are</ber></vx></c0>
+    <ng>
+      <nx>
+        <dt> the</dt>
+        <jj> non-recursive</jj>
+        <nns> cores</nns></nx>
+      <of> of</of>
+      <nil> ``</nil>
+      <nx>
+        <jj> major</jj>
+        <nil> ''</nil>
+        <nns> phrases</nns></nx></ng></c>
+  <cma> ,</cma>
+  <rb> i.e.</rb>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> NP</nnp></name></nx>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> VP</nnp></name></nx>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> PP</nnp></name></nx>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> AP</nnp></name></nx>
+  <cma> ,</cma>
+  <nx>
+    <name>
+      <nnp> AdvP</nnp></name></nx>
+  <per> .</per>
+</s>
+<s>
+  <c>
+    <c0>
+      <nx>
+        <jj> Simplex</jj>
+        <nns> clauses</nns></nx>
+      <vx>
+        <ber> are</ber></vx></c0>
+    <nx>
+      <nns> clauses</nns></nx>
+    <in> in</in></c>
+  <rc>
+    <orc0>
+      <wp> which</wp>
+      <nx>
+        <vbn> embedded</vbn>
+        <nns> clauses</nns></nx>
+      <vx>
+        <hv> have</hv>
+        <ben> been</ben>
+        <vbn> turned</vbn></vx></orc0>
+    <pp>
+      <in> into</in>
+      <nx>
+        <nns> siblings</nns></nx></pp></rc>
+  <:> ---</:>
+  <c>
+    <c0>
+      <nx>
+        <nn> tail</nn>
+        <nn> recursion</nn></nx>
+      <vx>
+        <hvz> has</hvz>
+        <ben> been</ben>
+        <vbn> replaced</vbn></vx></c0>
+    <pp>
+      <in> with</in>
+      <nx>
+        <nn> iteration</nn></nx></pp></c>
+  <cma> ,</cma>
+  <infp>
+    <inf>
+      <rb> so</rb>
+      <to> to</to>
+      <vb> speak</vb></inf></infp>
+  <per> .</per>
+</s>
+<s>
+  <infp>
+    <inf>
+      <to> To</to>
+      <vb> illustrate</vb></inf></infp>
+  <cma> ,</cma>
+  <c>
+    <c0>
+      <nx>
+        <nn> Table</nn>
+        <cd> 1</cd></nx>
+      <vx>
+        <vbz> shows</vbz></vx></c0>
+    <nx>
+      <dt-a> a</dt-a>
+      <nn> parse</nn>
+      <nn> tree</nn></nx></c>
+  <vnp>
+    <vnx>
+      <vbn> represented</vbn></vnx>
+    <pp>
+      <as> as</as>
+      <ng>
+        <nx>
+          <dt-a> a</dt-a>
+          <nn> sequence</nn></nx>
+        <of> of</of>
+        <nx>
+          <nns> levels</nns></nx></ng></pp></vnp>
+  <per> .</per>
+</s>

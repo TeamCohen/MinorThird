@@ -1,0 +1,637 @@
+<title>
+  [nx
+    [jj Partial]
+    [nn Parsing]]
+  [pp
+    [in via]
+    [nx
+      [jj Finite-State]
+      [nns Cascades]]]
+</title>
+<author>
+  [nx
+    [person
+      [fn Steven]
+      [nnp Abney]]]
+</author>
+<address>
+  [nx
+    [name
+      [nnp SfS]]]
+  [cma ,]
+  [nx
+    [name
+      [nnp Wilhelmstr.]]]
+  [nx
+    [cd 113]]
+  [cma ,]
+  [ng
+    [nx
+      [name
+        [nnp University]]]
+    [of of]
+    [nx
+      [name
+        [nnp T\"ubingen]]]]
+  [cma ,]
+  [nx
+    [cd 72074]
+    [name
+      [nnp T\"ubingen]]]
+  [cma ,]
+  [nx
+    [name
+      [nnp Germany]]]
+</address>
+<abstract>
+<s>
+  [c
+    [c0
+      [nx
+        [jj Finite]
+        [nn state]
+        [nns cascades]]
+      [vx
+        [vbp represent]]]
+    [nx
+      [dt an]
+      [jj attractive]
+      [nn architecture]]
+    [pp
+      [in for]
+      [nx
+        [vbg parsing]
+        [jj unrestricted]
+        [nn text]]]]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [jj Deterministic]
+        [nns parsers]]
+      [vnp
+        [vnx
+          [vbn specified]]
+        [pp
+          [by by]
+          [nx
+            [jj finite]
+            [nn state]
+            [nns cascades]]]]
+      [vx
+        [ber are]
+        [jj fast]]]]
+  [cc and]
+  [ax
+    [jj reliable]]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [prp They]]
+      [vx
+        [md can]
+        [be be]
+        [vbn extended]]]
+    [pp
+      [in at]
+      [nx
+        [jj modest]
+        [nn cost]]]]
+  [infp
+    [inf
+      [to to]
+      [vb construct]]
+    [nx
+      [nn parse]
+      [nns trees]]
+    [pp
+      [in with]
+      [nx
+        [jj finite]
+        [nn feature]
+        [nns structures]]]]
+  [per .]
+</s>
+<s>
+  [rb Finally]
+  [cma ,]
+  [c
+    [c0
+      [nx
+        [such such]
+        [jj deterministic]
+        [nns parsers]]
+      [vx
+        [do do]
+        [rb not]
+        [rb necessarily]
+        [vb involve]]]]
+  [vgp
+    [vgx
+      [vbg trading]]]
+  [rp off]
+  [nx
+    [nn accuracy]]
+  [pp
+    [in against]
+    [nx
+      [nn speed]]]
+  [: ---]
+  [c
+    [c0
+      [nx
+        [prp they]]
+      [vx
+        [md may]]]
+    [pp
+      [in in]
+      [nx
+        [nn fact]]]]
+  [vp
+    [vx
+      [be be]
+      [more more]
+      [jj accurate]]
+    [pp
+      [than than]
+      [nx
+        [jj exhaustive]
+        [nn search]
+        [jj stochastic]
+        [nn context]
+        [jj free]
+        [nns parsers]]]]
+  [per .]
+</s>
+</abstract>
+<heading>
+  [nx
+    [jj Finite]
+    [nn State]
+    [nns Cascades]]
+</heading>
+<s>
+  [pp
+    [of Of]
+    [nx
+      [jj current]
+      [nn interest]]]
+  [pp
+    [in in]
+    [nx
+      [nn corpus]]]
+  [c
+    [c0
+      [nx
+        [vbn oriented]
+        [jj computational]
+        [nns linguistics]]
+      [vx
+        [ber are]]]
+    [nx
+      [nns techniques]]
+    [pp
+      [in for]
+      [nx
+        [vbg bootstrapping]
+        [jj broad]
+        [nn coverage]
+        [nns parsers]]]
+    [pp
+      [in from]
+      [nx
+        [nn text]
+        [nns corpora]]]]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [dt The]
+        [nn work]]
+      [vnp
+        [vnx
+          [vbn described]]]
+      [vx
+        [rb here]
+        [bez is]]]
+    [nx
+      [dt-a a]
+      [nn step]]
+    [pp
+      [in along]
+      [nx
+        [dt the]
+        [nn way]]]
+    [pp
+      [in toward]
+      [nx
+        [dt-a a]
+        [vbg bootstrapping]
+        [nn scheme]]]]
+  [rc
+    [src0
+      [wp that]
+      [vx
+        [vbz involves]]]]
+  [vgp
+    [vgx
+      [vbg inducing]]
+    [nx
+      [dt-a a]
+      [nn tagger]]
+    [pp
+      [in from]
+      [nx
+        [nn word]
+        [nns distributions]]]]
+  [cma ,]
+  [nx
+    [dt-a a]
+    [jj lowlevel]
+    [nil ``]
+    [nn chunk]
+    [nil '']
+    [nn parser]]
+  [pp
+    [in from]
+    [nx
+      [dt-a a]
+      [vbn tagged]
+      [nn corpus]]]
+  [cma ,]
+  [cc and]
+  [nx
+    [jj lexical]
+    [nns dependencies]]
+  [pp
+    [in from]
+    [nx
+      [dt-a a]
+      [vbn chunked]
+      [nn corpus]]]
+  [per .]
+</s>
+<s>
+  [pp
+    [in In]
+    [nx
+      [nn particular]]]
+  [cma ,]
+  [c
+    [c0
+      [nx
+        [prp I]]
+      [vx
+        [vbp describe]]]
+    [nx
+      [dt-a a]
+      [nn chunk]
+      [nn parsing]
+      [nn technique]]]
+  [vnp
+    [vnx
+      [vbn based]]
+    [in on]]
+  [rc
+    [orc0
+      [wp what]
+      [nx
+        [prp I]]
+      [vx
+        [md will]
+        [vb call]]]
+    [nx
+      [dt-a a]
+      [nil <it>]
+      [jj finite]
+      [nn state]
+      [nn cascade]]]
+  [nil </it>]
+  [per .]
+</s>
+<s>
+  [subc
+    [subc0
+      [comp Though]
+      [nx
+        [prp I]]
+      [vx
+        [md shall]
+        [rb not]
+        [vb address]]]
+    [nx
+      [dt the]
+      [nn question]]]
+  [of of]
+  [vgp
+    [vgx
+      [vbg inducing]]
+    [nx
+      [such such]
+      [dt-a a]
+      [nn parser]]
+    [pp
+      [in from]
+      [nx
+        [dt-a a]
+        [nn corpus]]]]
+  [cma ,]
+  [c
+    [c0
+      [nx
+        [dt the]
+        [nn parsing]
+        [nn technique]]
+      [vx
+        [hvz has]
+        [ben been]
+        [vbn implemented]]]]
+  [cc and]
+  [vp
+    [vx
+      [bez is]
+      [vbg being]]]
+  [vnp
+    [vnx
+      [vbn used]]
+    [pp
+      [in in]
+      [nx
+        [dt-a a]
+        [nn project]]]
+    [pp
+      [in for]
+      [nx
+        [vbg inducing]
+        [jj lexical]
+        [nns dependencies]]]
+    [pp
+      [in from]
+      [nx
+        [nns corpora]]]
+    [pp
+      [in in]
+      [ng
+        [nx
+          [name
+            [nnp English]]]
+        [cc and]
+        [nx
+          [name
+            [nnp German]]]]]]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [dt The]
+        [vbg resulting]
+        [nns parsers]]
+      [vx
+        [ber are]
+        [jj robust]]]]
+  [cc and]
+  [ax
+    [rb very]
+    [jj fast]]
+  [per .]
+</s>
+<p>
+<s>
+  [c
+    [c0
+      [nx
+        [dt-a A]
+        [jj finite]
+        [nn state]
+        [nn cascade]]
+      [vx
+        [vbz consists]]]
+    [pp
+      [of of]
+      [ng
+        [nx
+          [dt-a a]
+          [nn sequence]]
+        [of of]
+        [nil <it>]
+        [nx
+          [nns levels]]]]]
+  [nil </it>]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [nns Phrases]]
+      [pp
+        [in at]
+        [nx
+          [cd one]
+          [nn level]]]
+      [vx
+        [ber are]
+        [vbn built]]]
+    [pp
+      [in on]
+      [nx
+        [nns phrases]]]
+    [pp
+      [in at]
+      [nx
+        [dt the]
+        [jj previous]
+        [nn level]]]]
+  [cma ,]
+  [cc and]
+  [c
+    [c0
+      [nx
+        [ex there]]
+      [vx
+        [bez is]]]
+    [nx
+      [dt no]
+      [nn recursion]]]
+  [: :]
+  [c
+    [c0
+      [nx
+        [nns phrases]]
+      [vx
+        [rb never]
+        [vbp contain]]]
+    [ng
+      [nx
+        [jj same]
+        [nn level]]
+      [cc or]
+      [nx
+        [jjr higher]
+        [nn level]
+        [nns phrases]]]]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [ng
+        [nx
+          [cd Two]
+          [nns levels]]
+        [of of]
+        [nx
+          [jj special]
+          [nn importance]]]
+      [vx
+        [ber are]]]
+    [ng
+      [nx
+        [dt the]
+        [nn level]]
+      [of of]
+      [nil <it>]
+      [nx
+        [nns chunks]]
+      [nil </it>]
+      [cc and]
+      [nx
+        [dt the]
+        [nn level]]
+      [of of]
+      [nil <it>]
+      [nx
+        [jj simplex]
+        [nns clauses]]]]
+  [nil </it>]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [nns Chunks]]
+      [vx
+        [ber are]]]
+    [ng
+      [nx
+        [dt the]
+        [jj non-recursive]
+        [nns cores]]
+      [of of]
+      [nil ``]
+      [nx
+        [jj major]
+        [nil '']
+        [nns phrases]]]]
+  [cma ,]
+  [rb i.e.]
+  [cma ,]
+  [nx
+    [name
+      [nnp NP]]]
+  [cma ,]
+  [nx
+    [name
+      [nnp VP]]]
+  [cma ,]
+  [nx
+    [name
+      [nnp PP]]]
+  [cma ,]
+  [nx
+    [name
+      [nnp AP]]]
+  [cma ,]
+  [nx
+    [name
+      [nnp AdvP]]]
+  [per .]
+</s>
+<s>
+  [c
+    [c0
+      [nx
+        [jj Simplex]
+        [nns clauses]]
+      [vx
+        [ber are]]]
+    [nx
+      [nns clauses]]
+    [in in]]
+  [rc
+    [orc0
+      [wp which]
+      [nx
+        [vbn embedded]
+        [nns clauses]]
+      [vx
+        [hv have]
+        [ben been]
+        [vbn turned]]]
+    [pp
+      [in into]
+      [nx
+        [nns siblings]]]]
+  [: ---]
+  [c
+    [c0
+      [nx
+        [nn tail]
+        [nn recursion]]
+      [vx
+        [hvz has]
+        [ben been]
+        [vbn replaced]]]
+    [pp
+      [in with]
+      [nx
+        [nn iteration]]]]
+  [cma ,]
+  [infp
+    [inf
+      [rb so]
+      [to to]
+      [vb speak]]]
+  [per .]
+</s>
+<s>
+  [infp
+    [inf
+      [to To]
+      [vb illustrate]]]
+  [cma ,]
+  [c
+    [c0
+      [nx
+        [nn Table]
+        [cd 1]]
+      [vx
+        [vbz shows]]]
+    [nx
+      [dt-a a]
+      [nn parse]
+      [nn tree]]]
+  [vnp
+    [vnx
+      [vbn represented]]
+    [pp
+      [as as]
+      [ng
+        [nx
+          [dt-a a]
+          [nn sequence]]
+        [of of]
+        [nx
+          [nns levels]]]]]
+  [per .]
+</s>

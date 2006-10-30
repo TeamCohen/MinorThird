@@ -1,0 +1,32 @@
+<project name="import" default="build" basedir=".">
+  <description>Import markup from a modified version of a textbase</description>
+  <property name="src" location="src"/>
+  <property name="javadoc" location="javadoc"/>
+  <property name="build" location="class"/>
+
+  <target name="build-clean" depends="clean,build"  description="compile the source from scratch"/>
+
+  <target name="build" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" debug="on"/>
+  </target>
+
+  <target name="init" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <mkdir dir="${build}"/>
+    <mkdir dir="${javadoc}"/>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${javadoc}"/>
+  </target>
+
+  <target name="javadoc" description="rebuild java docs">
+    <delete dir="${javadoc}"/>    
+    <mkdir dir="${javadoc}"/>
+    <javadoc sourcepath="${src}" destdir="${javadoc}" packagenames="*"/>
+  </target>
+</project>
