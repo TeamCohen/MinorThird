@@ -21,124 +21,139 @@ import java.util.TreeSet;
 
 public class TestPackage extends TestSuite 
 {
-	public static final boolean DEBUG = false;
-
-	public TestPackage(String name) { super(name); }
-
-	public static TestSuite suite() {
-		TestSuite suite = new TestSuite();
-		suite.addTest( new ToXMLTest("doTest") );
-		suite.addTest( new DiffTest("doTest") );
-		suite.addTest( new TrieTest("doTest") );
-		suite.addTest( new MixupTest("doTest") );
-		suite.addTest( new LabelsTest("doTest") );
-		suite.addTest( new TokenizationTest("doTest") );
-		return suite;
-	}
-
-    public static class TokenizationTest extends TestCase
-    {
-		public TokenizationTest(String string)
-		{
-			super(string);
-		}
-		public void doTest() 
-		{
-			TextBaseLoader baseLoader = new TextBaseLoader();
-			TextBase b = new BasicTextBase(), childTB = null;
-			b.loadDocument("letters", "a b c d\ne f g h\ni j k l\nm n o p\nr s t u");
-			Tokenizer tok = new Tokenizer(1, "\n");
-			childTB = b.retokenize(tok);
-			MutableTextLabels lab = new BasicTextLabels(childTB);
-			try {
-				MixupProgram p = 
-				    new MixupProgram(new String[]{"defTokenProp token:first =: [any] ...",
-								  "defSpanType first =: [token:first] ...",
-								  "defTokenProp token:last =: ... [any]",
-								  "defSpanType last =: ... [token:last]"});
-				p.eval(lab,childTB);
-				Span.Looper looper = lab.instanceIterator("first");
-				assertTrue( looper.hasNext() );
-				assertEquals( "a b c d", looper.nextSpan().asString()  ); 
-				Span.Looper looper2 = lab.instanceIterator("last");
-				assertTrue( looper2.hasNext() );
-				assertEquals( "r s t u", looper2.nextSpan().asString()  ); 
-			} catch (Mixup.ParseException e) {
-				throw new IllegalStateException(e.toString());
-			}
-		}
+    public static final boolean DEBUG = false;
+    
+    public TestPackage(String name) { super(name); }
+    
+    public static TestSuite suite() {
+        TestSuite suite = new TestSuite();
+        suite.addTest( new ToXMLTest("doTest") );
+        suite.addTest( new DiffTest("doTest") );
+        suite.addTest( new TrieTest("doTest") );
+        suite.addTest( new MixupTest("doTest") );
+        suite.addTest( new LabelsTest("doTest") );
+        suite.addTest( new TokenizationTest("doTest") );
+        return suite;
     }
-		
-	public static class LabelsTest extends TestCase 
-	{
-		public LabelsTest(String string)
-		{
-			super(string);
-		}
-		public void doTest() 
-		{
-			TextBase b = new BasicTextBase();
-			MutableTextLabels lab = new BasicTextLabels(b);
-			b.loadDocument("d1", "a b c b d");
-			try {
-				MixupProgram p = 
-					new MixupProgram(new String[]{"defSpanProp startsWith:b =: ... ['b' any]...",
-																				"defSpanProp startsWith:c =: ... ['c' any]...",
-																				"defSpanProp endsWith:b =: ... [any 'b']..."});
-				p.eval(lab,b);
-				Span.Looper looper = lab.getSpansWithProperty("startsWith");
-				assertTrue( looper.hasNext() );
-				assertEquals( "b c", looper.nextSpan().asString()  ); 
-				assertTrue( looper.hasNext() );
-				assertEquals( "c b", looper.nextSpan().asString()  ); 
-				assertTrue( looper.hasNext() );
-				assertEquals( "b d", looper.nextSpan().asString()  ); 
-				assertTrue( !looper.hasNext() );
-			} catch (Mixup.ParseException e) {
-				throw new IllegalStateException(e.toString());
-			}
-		}
-	}
 
-	public static class ToXMLTest extends TestCase {
-		private TextBase b;
-		public ToXMLTest(String string) {
-			super(string);
-			b = new BasicTextBase();
-			b.loadDocument("test", "a b c d e f g");
-		}			
-		public void doTest() {
-			MutableTextLabels e1 = new BasicTextLabels(b);
-			e1.addToType( testSpan(1,3), "x" );
-			checkXML(e1, "<root>a <x>b c d </x>e f g</root>");
-			e1.addToType( testSpan(2,1), "y" );
-			checkXML(e1, "<root>a <x>b </x><overlap value=\"x,y\">c </overlap><x>d </x>e f g</root>");
-			MutableTextLabels e2 = new BasicTextLabels(b);
-			e2.addToType( testSpan(1,2), "x" );
-			e2.addToType( testSpan(4,1), "y" );
-			checkXML(e2, "<root>a <x>b c </x>d <y>e </y>f g</root>");
-			MutableTextLabels e3 = new BasicTextLabels(b);
-			e3.addToType( testSpan(0,3), "x" );
-			e3.addToType( testSpan(3,1), "y" );
-			checkXML(e3, "<root><x>a b c </x><y>d </y>e f g</root>");
-			e3.addToType( testSpan(5,2), "z" );
-			checkXML(e3, "<root><x>a b c </x><y>d </y>e <z>f g</z></root>");
-			MutableTextLabels e4 = new BasicTextLabels(b);
-			e4.addToType( testSpan(1,3), "x" );
-			checkXML(e4, "<root>a <x>b c d </x>e f g</root>");
-			e4.addToType( testSpan(2,3), "y" );
-			checkXML(e4, "<root>a <x>b </x><overlap value=\"x,y\">c d </overlap><y>e </y>f g</root>");
-		}
-		private void checkXML(TextLabels e,String expected) {
-			String actual = new TextLabelsLoader().markupDocumentSpan("test", e);
-			//System.out.println("expected: '"+expected+"'");
-			//System.out.println("actual:   '"+actual+"'");
-			assertEquals(expected,actual);
-		}
-		private Span testSpan(int lo,int len) {
-			return b.documentSpan("test").subSpan(lo,len);
-		}
-	}
+    public static class TokenizationTest extends TestCase {
+
+        public TokenizationTest(String string) {
+            super(string);
+        }
+        public void doTest() {
+            TextBaseLoader baseLoader = new TextBaseLoader();
+            TextBase b = new BasicTextBase(), childTB = null;
+            b.loadDocument("letters", "a b c d\ne f g h\ni j k l\nm n o p\nr s t u");
+            Tokenizer tok = new Tokenizer(1, "\n");
+            childTB = b.retokenize(tok);
+            MutableTextLabels lab = new BasicTextLabels(childTB);
+            try {
+                MixupProgram p = 
+                    new MixupProgram(new String[]{"defTokenProp token:first =: [any] ...",
+                                                  "defSpanType first =: [token:first] ...",
+                                                  "defTokenProp token:last =: ... [any]",
+                                                  "defSpanType last =: ... [token:last]"});
+                p.eval(lab,childTB);
+                Span.Looper looper = lab.instanceIterator("first");
+                assertTrue( looper.hasNext() );
+                assertEquals( "a b c d", looper.nextSpan().asString()  ); 
+                Span.Looper looper2 = lab.instanceIterator("last");
+                assertTrue( looper2.hasNext() );
+                assertEquals( "r s t u", looper2.nextSpan().asString()  ); 
+            } catch (Mixup.ParseException e) {
+                throw new IllegalStateException(e.toString());
+            }
+        }
+    }
+    
+    public static class LabelsTest extends TestCase {
+
+        public LabelsTest(String string) {
+            super(string);
+        }
+        public void doTest() {
+            TextBase b = new BasicTextBase();
+            MutableTextLabels lab = new BasicTextLabels(b);
+            b.loadDocument("d1", "a b c b d");
+            try {
+                MixupProgram p = 
+                    new MixupProgram(new String[]{"defSpanProp startsWith:b =: ... ['b' any]...",
+                                                  "defSpanProp startsWith:c =: ... ['c' any]...",
+                                                  "defSpanProp endsWith:b =: ... [any 'b']..."});
+                p.eval(lab,b);
+                Span.Looper looper = lab.getSpansWithProperty("startsWith");
+                assertTrue( looper.hasNext() );
+                assertEquals( "b c", looper.nextSpan().asString()  ); 
+                assertTrue( looper.hasNext() );
+                assertEquals( "c b", looper.nextSpan().asString()  ); 
+                assertTrue( looper.hasNext() );
+                assertEquals( "b d", looper.nextSpan().asString()  ); 
+                assertTrue( !looper.hasNext() );
+            } catch (Mixup.ParseException e) {
+                throw new IllegalStateException(e.toString());
+            }
+        }
+    }
+
+    public static class ToXMLTest extends TestCase {
+        private TextBase b;
+        public ToXMLTest(String string) {
+            super(string);
+            b = new BasicTextBase();
+            b.loadDocument("test", "a b c d e f g");
+        }
+        public void doTest() {
+            // Test marking up nested spans first
+            MutableTextLabels e1 = new BasicTextLabels(b);
+            e1.addToType( testSpan(1,3), "x" );
+            checkXML(e1, "<root>a <x>b c d</x> e f g</root>");
+            e1.addToType( testSpan(2,1), "y" );
+            checkXML(e1, "<root>a <x>b <y>c</y> d</x> e f g</root>");
+
+            // Test marking up multiple non-nested spans next.
+            MutableTextLabels e2 = new BasicTextLabels(b);
+            e2.addToType( testSpan(1,2), "x" );
+            e2.addToType( testSpan(4,1), "y" );
+            checkXML(e2, "<root>a <x>b c</x> d <y>e</y> f g</root>");
+
+            // Test marking up spans where the one ends on the same token that one begins.
+            MutableTextLabels e3 = new BasicTextLabels(b);
+            e3.addToType( testSpan(0,3), "x" );
+            e3.addToType( testSpan(3,1), "y" );
+            checkXML(e3, "<root><x>a b c</x> <y>d</y> e f g</root>");
+            e3.addToType( testSpan(5,2), "z" );
+            checkXML(e3, "<root><x>a b c</x> <y>d</y> e <z>f g</z></root>");
+
+            // Add an overlapping span and check that the system throws an IllegalArgumentException.
+            //   This is because overlapping spans cannot be written as straight XML.
+            MutableTextLabels e4 = new BasicTextLabels(b);
+            e4.addToType( testSpan(1,3), "x" );
+            checkXML(e4, "<root>a <x>b c d</x> e f g</root>");
+            e4.addToType( testSpan(2,3), "y" );
+            boolean caughtException = false;
+            try {
+                new TextLabelsLoader().createXMLmarkup("test", e4);
+            }
+            catch (IllegalArgumentException e) {
+                caughtException = true;
+            }
+            assertEquals(caughtException, true);
+        }
+
+        private void checkXML(TextLabels e,String expected) {
+            String actual = new TextLabelsLoader().createXMLmarkup("test", e);
+            if (DEBUG) {
+                System.out.println("expected: '"+expected+"'");
+                System.out.println("actual:   '"+actual+"'");
+                System.out.println("");
+            }
+            assertEquals(expected,actual);
+        }
+        private Span testSpan(int lo,int len) {
+            return b.documentSpan("test").subSpan(lo,len);
+        }
+    }
 
 	//
 	// difference-testing code
@@ -170,8 +185,6 @@ public class TestPackage extends TestSuite
 			} catch (Mixup.ParseException ex) {
 				ex.printStackTrace();
 			}
-			//System.out.println("guess = "+guess);
-			//System.out.println("truth = "+truth);
 			SpanDifference sd = new SpanDifference(new BasicSpanLooper(guess.iterator()),
 																						 new BasicSpanLooper(truth.iterator()));
 			DiffExpects[] expects = new DiffExpects[] {
@@ -249,8 +262,7 @@ public class TestPackage extends TestSuite
 				List ids = (List)idList.get(i);
 				assertEquals( expects[i].ids.length, ids.size() );
 				for (int j=0; j<expects[i].ids.length; j++) {
-					//System.out.println("checking for "+expects[i].ids[j]+" in "+ids);
-					assertTrue( ids.contains( expects[i].ids[j] ));
+                                    assertTrue( ids.contains( expects[i].ids[j] ));
 				}
 			}
 		}
