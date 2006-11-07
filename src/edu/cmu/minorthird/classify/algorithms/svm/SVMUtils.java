@@ -5,6 +5,7 @@ import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.ExampleSchema;
 import libsvm.svm_node;
 import libsvm.svm_problem;
 import org.apache.log4j.Logger;
@@ -45,11 +46,27 @@ public class SVMUtils
         {
             Example example = it.nextExample();
             problem.y[i] = example.getLabel().numericLabel();
-
             problem.x[i] = instanceToNodeArray(example, idFactory);
         }
-//    outputProblem(problem);
+        return problem;
+    }
 
+    protected static svm_problem convertToMultiClassSVMProblem(Dataset dataset, FeatureIdFactory idFactory, ExampleSchema schema)
+    {
+        //count number for length
+        svm_problem problem = new svm_problem();
+
+        Example.Looper it = dataset.iterator();
+        problem.l = it.estimatedSize();
+        problem.y = new double[problem.l];
+        problem.x = new svm_node[problem.l][];
+
+        for (int i = 0; it.hasNext(); i++)
+        {
+            Example example = it.nextExample();
+            problem.y[i] = schema.getClassIndex(example.getLabel().bestClassName());
+            problem.x[i] = instanceToNodeArray(example, idFactory);
+        }
         return problem;
     }
 

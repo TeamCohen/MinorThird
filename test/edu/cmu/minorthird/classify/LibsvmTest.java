@@ -10,8 +10,11 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Random;
 
 import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
+import edu.cmu.minorthird.classify.algorithms.svm.MultiClassSVMLearner;
+import edu.cmu.minorthird.classify.algorithms.svm.MultiClassSVMClassifier;
 import edu.cmu.minorthird.classify.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -184,6 +187,84 @@ public class LibsvmTest extends AbstractClassificationChecks
 
             // Remove the temporary classifier file
             tempFile.delete();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Test the MultiClass classification stuff.  There are two cases to consider: with and without 
+     * calculation of probability estimates.  The libsvm documentation states that these two cases
+     * may return different classifications.  These tests simply classify a sample dataset and 
+     * check the stats produced against expected values.
+     */
+    public void testMultiClassClassification() {
+        Dataset trainSet = SampleDatasets.makeToy3ClassData(new Random(12345), 100);
+        Dataset testSet = SampleDatasets.makeToy3ClassData(new Random(67890), 100);
+
+        try {
+            // Create a classifier using the SVMLearner and the toyTrain dataset
+            MultiClassSVMLearner l = new MultiClassSVMLearner();
+
+            // First run the test without probability estimates
+            l.setDoProbabilityEstimates(false);
+            MultiClassSVMClassifier c1 = (MultiClassSVMClassifier)(new DatasetClassifierTeacher(trainSet).train(l));
+            Evaluation e1 = new Evaluation(trainSet.getSchema());
+            e1.extend(c1, testSet, 1);
+            double[] stats1 = new double[4];
+            stats1[0] = e1.errorRate();
+            stats1[1] = e1.averagePrecision();
+            stats1[2] = e1.maxF1();
+            stats1[3] = e1.averageLogLoss();
+
+            System.out.println("Error Rate: " + e1.errorRate());
+            System.out.println("Avg Precision: " + e1.averagePrecision());
+            System.out.println("Max F1: " + e1.maxF1());
+            System.out.println("Avg Log Loss: " + e1.averageLogLoss());
+
+            // The stats we expect the classification to return.
+            double[] expected = new double[4];
+            expected[0] = 0.07;
+            expected[1] = -1.0;
+            expected[2] = -1.0;
+            expected[3] = Double.POSITIVE_INFINITY;
+
+            // Compare the stats produced from the run without probability estimates with expected values;
+            checkStats(stats1, expected);
+
+
+            //
+            // On a small dataset libsvm may return vastly different stats from run to run so for now 
+            //  this test is commented out.
+            //
+            // Now do it with probability estimates
+            l.setDoProbabilityEstimates(true);
+            MultiClassSVMClassifier c2 = (MultiClassSVMClassifier)(new DatasetClassifierTeacher(trainSet).train(l));
+            Evaluation e2 = new Evaluation(trainSet.getSchema());
+            e2.extend(c2, testSet, 1);
+            double[] stats2 = new double[4];
+            stats2[0] = e2.errorRate();
+            stats2[1] = e2.averagePrecision();
+            stats2[2] = e2.maxF1();
+            stats2[3] = e2.averageLogLoss();
+
+            System.out.println("Error Rate2: " + e2.errorRate());
+            System.out.println("Avg Precision2: " + e2.averagePrecision());
+            System.out.println("Max F1-2: " + e2.maxF1());
+            System.out.println("Avg Log Loss2: " + e2.averageLogLoss());
+
+            // The stats we expect the classification to return.
+            expected[0] = 0.08;
+            expected[1] = -1.0;
+            expected[2] = -1.0;
+            expected[3] = 1.194999431381944;
+            
+            // Compare the stats produced from the run with probability estimates with expected values.  The libsvm
+            //  package doesn't always come up with the "exact" same stats, but they are within 0.05 of each other
+            //  so update the delta acordingly.
+            setDelta(0.05);
+            checkStats(stats2, expected);
         }
         catch (Exception e) {
             e.printStackTrace();

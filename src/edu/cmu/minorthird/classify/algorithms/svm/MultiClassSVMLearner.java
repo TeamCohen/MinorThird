@@ -1,9 +1,10 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
 import edu.cmu.minorthird.classify.FeatureIdFactory;
-import edu.cmu.minorthird.classify.BatchBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.BatchClassifierLearner;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.ExampleSchema;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_parameter;
@@ -11,7 +12,7 @@ import libsvm.svm_problem;
 import org.apache.log4j.Logger;
 
 /**
- * Wraps the svm.svm_train algorithm from libsvm
+ * Wraps the svm.svm_train algorithm from libsvm for multi-class problems
  * (http://www.csie.ntu.edu.tw/~cjlin/libsvm/)
  * <p/>
  * Parameterization is done via a svm_parameter object (see initParameters or libsvm
@@ -20,13 +21,14 @@ import org.apache.log4j.Logger;
  * There are a few setParameterXXX methods to do some changes.  Use these after calling new SVMLearner()
  * and before starting training.
  *
- * @author ksteppe
+ * @author qcm
  */
-public class SVMLearner extends BatchBinaryClassifierLearner 
+public class MultiClassSVMLearner extends BatchClassifierLearner 
 {
     private svm_model model;
     private FeatureIdFactory idFactory;
     private svm_parameter parameters;
+    private ExampleSchema exampleSchema;
     Logger log = Logger.getLogger(SVMLearner.class);
 
     /**
@@ -34,7 +36,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner
      *
      * @param params svm_parameter
      */
-    public SVMLearner(svm_parameter params)
+    public MultiClassSVMLearner(svm_parameter params)
     {
         parameters = params;
     }
@@ -42,9 +44,14 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     /**
      * default constructor
      */
-    public SVMLearner()
+    public MultiClassSVMLearner()
     {
         initParameters();
+    }
+
+    final public void setSchema(ExampleSchema schema)
+    {
+        exampleSchema = schema;
     }
 
     /**
@@ -57,23 +64,18 @@ public class SVMLearner extends BatchBinaryClassifierLearner
      */
     public Classifier batchTrain(Dataset dataset)
     {
-        try
-        { //train up the svm on the dataset
-
+        try {
+            //train up the svm on the dataset
             idFactory = new FeatureIdFactory(dataset);
-            svm_problem problem = SVMUtils.convertToSVMProblem(dataset, idFactory);
+            svm_problem problem = SVMUtils.convertToMultiClassSVMProblem(dataset, idFactory, dataset.getSchema());
             model = svm.svm_train(problem, parameters);
-
-            if (log.isDebugEnabled())
-                svm.svm_save_model("./modelTest.mdl", model);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             log.error(e, e);
         }
 
         //now I need to construct a Classifier out of the svm_model
-        return new SVMClassifier(model, idFactory);
+        return new MultiClassSVMClassifier(model, idFactory, dataset.getSchema());
     }
 
 
@@ -178,13 +180,6 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     public String cParameterWeightHelp = new String("Set the parameter C of class i to weight*C for C-SVC.");
     public String getCParameterWeightHelp() { return cParameterWeightHelp; }
 
-    /**
-     * Tell the learner to train a classifier capable of computing probability estimates
-     * for each class. Default to False.  Turning this option on will cause the training 
-     * to take a longer time.
-     *
-     * @param flag Boolean value telling the learner whether or not to compute probability estimates
-     */
     public void setDoProbabilityEstimates(boolean flag) { 
 	if (flag)
 	    parameters.probability = 1;
@@ -198,40 +193,6 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     }
     public String doProbabilityEstimatesHelp = new String("Whether to train for probability estimates. (For SVC and SVR models only).");
     public String getDoProbabilityEstimatesHelp() { return doProbabilityEstimatesHelp; }
-
-
-    // These aren't used anywhere in the distribution, so what was the reason for adding them?
-
-    //C, gamma, kernel_type
-
-    /**
-     * Default kernel type is linear
-     *
-     * @param type integer from the svm_parameter class
-     */
-    public void setParameterKernelType(int type)
-    {
-        parameters.kernel_type = type;
-    }
-
-    /**
-     * The default for Gamma is 0, which works for a linear kernel, but not for
-     * other types of kernels
-     *
-     * @param gamma double to be used as the gamma parameter.  Default is 0
-     */
-    public void setParameterGamma(double gamma)
-    {
-        parameters.gamma = gamma;
-    }
-
-    /**
-     * @param c double to be used as the C parameter.  Default is 1
-     */
-    public void setParameterC(double c)
-    {
-        parameters.C = c;
-    }
 
     /**
      * Get the underlying svm_model object.  See libsvm for documentation details
@@ -249,4 +210,3 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     }
 
 }
-
