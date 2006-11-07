@@ -17,7 +17,11 @@ import java.io.*;
  * multi-class models.  It implements the Classifier interface so that using 
  * it should be identical to any other Classifer.  A MultiClassSVMClassifier 
  * must be built from a model, using the svm_model class from libsvm.  This 
- * is best done by using {@link edu.cmu.minorthird.classify.algorithms.svm.MultiClassSVMLearner}.
+ * is best done by using {@link edu.cmu.minorthird.classify.algorithms.svm.MultiClassSVMLearner}.<br>
+ * <br>
+ * Note that due to the way libsvm computes probabilities you may get different 
+ * predictions for the same instance if you turn on probabilities compared to 
+ * when you leave it turned off.  See the libsvm home page for more details.
  *
  * @author qcm
  */

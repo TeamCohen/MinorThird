@@ -19,7 +19,11 @@ import java.io.*;
 /**
  * SVMClassifier wrapps the prediction code from the libsvm library for binary problems
  * A SVMClassifier must be built from a model, using the svm_model class from libsvm.  
- * This is best done by running the learner.
+ * This is best done by running the learner. <br>
+ * <br>
+ * Note that due to the way libsvm computes probabilities you may get different
+ * predictions for the same instance if you turn on probabilities compared to
+ * when you leave it turned off.  See the libsvm home page for more details.
  *
  * @author qcm
  */
