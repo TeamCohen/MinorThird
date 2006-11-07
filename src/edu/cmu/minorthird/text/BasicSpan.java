@@ -248,8 +248,6 @@ public class BasicSpan implements Span,Serializable,Visible
 	    throw new IllegalArgumentException("no proper subspan for lo="+lo+" hi="+hi+" for: "+this);
 	}
 
-	//System.out.println("closest first ["+firstTextToken+"] "+getTextToken(firstTextToken));
-	//System.out.println("closest last ["+lastTextToken+"] "+getTextToken(lastTextToken));
 	return subSpan(loCharIndex, firstTextToken,lastTextToken-firstTextToken+1);
     }
 
