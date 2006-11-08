@@ -1,3 +1,45 @@
+CONFIDENCE FOR EXTRACTORS
+
+classify.sequential:
+ SequenceClassifier {
+  // replace null values in prediction with the best classifications 
+  // that are consistent with the non-null values
+  void consistentlyClassify(ClassLabel[] prediction,Instance[] seq);
+ }
+ CMM {
+  // needs to implement this
+ }
+
+// this wraps a text.learn.SequenceAnnotatorLearner.SequenceAnnotator
+// and adds confidences
+text.learn.ConfidenceReportingSequenceAnnotator implements ExtractorAnnotator,Serializable,Visible
+{
+ doAnnotate {
+   Span.Looper i = labels.getTextBase().documentSpanIterator();
+   while (i.hasNext() ) {
+       Span s = i.nextSpan();
+       String documentId = ...
+       MonotonicSubTextLabels tmpLabels = ... // contains just this document
+       Instance[] sequence = new Instance[s.size()];
+       for (int j=0; j<s.size(); j++) {
+           Span tokenSpan = s.subSpan(j,1);
+           sequence[j] = fe.extractInstance(labels,tokenSpan);
+       }
+       ClassLabel[] classLabels = seqClassifier.classification( sequence );
+       double confidence = ...
+       for (int j=0; j<classLabels.length; j++) {
+           labels.setProperty( s.getToken(j), reduction.getTokenProp(), classLabels[j].bestClassName() );
+	   reduction.extractFromTags( annotationType, tmpLabels );
+	   for each annotationType label in tmpLabels {
+	       use consistentlyClassify to find best classification consistent with NOT including this extraction
+	       add the correct classification to labels
+	   }
+       }
+   }
+ }
+}
+ 
+
 RANKING ISSUES
 
  Simple approach: like multi
@@ -19,7 +61,6 @@ RANKING ISSUES
  
  Each includes: Teacher, Learner, Performer, TrainingData, Splitter, Evaluation
  can we have generic algorithms for training, CV-based testing, etc?
- 
  
 
 PROPOSED EXTENSION TO HANDLE RETOKENIZED TEXTBASES:
