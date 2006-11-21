@@ -3,7 +3,7 @@ package edu.cmu.minorthird.util;
 /** Stores the version number */
 public class Version {
 
-	private static String version = "Version 11.6.10.23";
+    private static String version = "Version 11.6.11.21";
 	
 
     public static String getVersion() {

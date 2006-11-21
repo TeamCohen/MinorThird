@@ -12,7 +12,7 @@ classify.sequential:
 
 // this wraps a text.learn.SequenceAnnotatorLearner.SequenceAnnotator
 // and adds confidences
-text.learn.ConfidenceReportingSequenceAnnotator implements ExtractorAnnotator,Serializable,Visible
+text.learn.ConfidenceReportingSequenceAnnotator implements ExtractorAnnotator,Serializable,Visible extends AbstractAnno
 {
  doAnnotate {
    Span.Looper i = labels.getTextBase().documentSpanIterator();
