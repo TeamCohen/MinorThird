@@ -12,11 +12,11 @@ import edu.cmu.minorthird.classify.Instance;
 
 public interface SequenceClassifier
 {
-	/** Return a predicted type for each element of the sequence. */
-	public ClassLabel[] classification(Instance[] sequence);
+    /** Return a predicted type for each element of the sequence. */
+    public ClassLabel[] classification(Instance[] sequence);
 
-	/** Return some string that 'explains' the classification */
-	public String explain(Instance[] sequence);
+    /** Return some string that 'explains' the classification */
+    public String explain(Instance[] sequence);
 
     /** Return and explanation for a classification */
     public Explanation getExplanation(Instance[] sequence);
