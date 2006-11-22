@@ -28,6 +28,8 @@ import java.util.*;
 
 public class AlignMarkup
 {
+    static private final boolean NO_ADJUSTMENT=false; // if true, suppress the 'adjustment' phase
+
     static private boolean checkAlignments = true;
 
     static public void main(String[] args) throws Exception
@@ -64,10 +66,12 @@ public class AlignMarkup
         ApproxNeedlemanWunsch aligner = new ApproxNeedlemanWunsch(CharMatchScore.DIST_01, 1.0);
         ApproxNeedlemanWunsch errorCounter = new ApproxNeedlemanWunsch(CharMatchScore.DIST_01, 1.0);
         aligner.setWidth(200);
+
         double totErrors = 0;
         double totErrorDistance = 0;
         double totDistance = 0;
         double totAlignments = 0;
+        double totAdjustments = 0;
 
         for (Span.Looper i=plainTextLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
             Span plainDocSpan = i.nextSpan();
@@ -77,17 +81,22 @@ public class AlignMarkup
             String markupDocId = 
                 plainDocId.substring( 0, plainDocId.length()-plainTextExtension.length() ) + markupExtension;
 
-            System.out.println("aligning "+plainDocId+" to "+markupDocId);
+            System.out.print("aligning "+plainDocId+" to "+markupDocId);
 
             Document markupDoc = markupLabels.getTextBase().getDocument(markupDocId);
-            if (markupDoc==null) throw new IllegalStateException("can't find marked version of "+plainDocId);
+            if (markupDoc==null) {
+                //throw new IllegalStateException("can't find marked version of "+plainDocId);                
+                System.out.println("WARNING: can't find marked version of "+plainDocId);                
+                continue;
+            }
+
             String markupString = markupDoc.getText();
 
-            System.out.println("string lengths: "+plainString.length()+","+markupString.length());
+            System.out.print(" string lengths: "+plainString.length()+","+markupString.length());
             long t0 = System.currentTimeMillis();
             double score = aligner.score(markupString,plainString);
             long tf = System.currentTimeMillis();
-            System.out.println("score = "+score+" runtime = "+((tf-t0)/1000.0)+" sec"); 
+            System.out.println(" score = "+score+" runtime = "+((tf-t0)/1000.0)+" sec"); 
             //System.out.println( aligner.explainScore(markupString,plainString) );
 
             for (Iterator j=markupLabels.getTypes().iterator(); j.hasNext(); ) {
@@ -109,40 +118,127 @@ public class AlignMarkup
                             totErrorDistance += hi-lo;
                             totDistance += hi-lo;
                         } else {
-
                             Span plainSpan = plainDocSpan.charIndexSubSpan(lo1,hi1);
-                            plainTextLabels.addToType( plainSpan, type );
+                            Alignment alignment = new Alignment(plainSpan,markupSpan,plainTextLabels,markupLabels);
+                            totAdjustments += alignment.adjust();
+                            alignment.commit(type);
                             totAlignments++;
 
                             //a check on quality
-                            if (checkAlignments) {
-                                boolean ok = true;
-                                String[] markupToks = markupLabels.getTextBase().splitIntoTokens(markupSpan.asString());
-                                String[] plainToks = markupLabels.getTextBase().splitIntoTokens(plainSpan.asString());
-                                if (markupToks.length!=plainToks.length) {
-                                    ok = false;
+                            if (checkAlignments && !alignment.match()) {
+                                //System.out.println(markupSpan+" aligned to "+plainSpan);
+                                //System.out.println(type+" align: "+lo+","+hi+" => "+lo1+","+hi1);
+                                //System.out.println("error? '"+markupString.substring(lo,hi)+"' => '"+plainString.substring(lo1,hi1)+"'");
+                                //System.out.println("error? '"+markupSpan.asString()+"' => '"+plainSpan.asString()+"'");
+                                totErrors++;
+                                double errorDistance = -errorCounter.score( markupString.substring(lo,hi), plainString.substring(lo1,hi1) );
+                                if (errorDistance>Math.max( hi-lo, hi1-lo1 )) {
+                                    //totErrorDistance += Math.max( hi-lo, hi1-lo1 );
+                                    System.out.println("WARNING: infinite error distance for possible mis-alignment?");
                                 } else {
-                                    for (int m=0; ok && m<markupToks.length; m++) {
-                                        if (!markupToks[m].equals(plainToks[m])) ok=false;
-                                    }
-                                }
-                                if (!ok) {
-                                    //System.out.println(markupSpan+" aligned to "+plainSpan);
-                                    //System.out.println(type+" align: "+lo+","+hi+" => "+lo1+","+hi1);
-                                    //System.out.println("error? '"+markupString.substring(lo,hi)+"' => '"+plainString.substring(lo1,hi1)+"'");
-                                    //System.out.println("error? '"+markupSpan.asString()+"' => '"+plainSpan.asString()+"'");
-                                    totErrors++;
-                                    totErrorDistance += -errorCounter.score( markupString.substring(lo,hi), plainString.substring(lo1,hi1) );
-                                    totDistance += Math.max( hi-lo, hi1-lo1 );
+                                    totErrorDistance += errorDistance;
+                                    //System.out.println("errorDistance: "+errorDistance+" totErrorDistance="+totErrorDistance);
                                 }
                             } // end check
                         } // end alignment found
+                        totDistance += Math.max( hi-lo, hi1-lo1 );
                     } // end if markupSpan.size>0
                 } // for span k of type j
                 plainTextLabels.closeTypeInside(type,plainDocSpan);
             } // for type j
         } // for document i
+        if (totAlignments>0) System.out.println("adjustments:      "+totAdjustments+"/"+totAlignments+" = "+(totAdjustments/totAlignments));
         if (totAlignments>0) System.out.println("alignment errors: "+totErrors+"/"+totAlignments+" = "+(totErrors/totAlignments));
         if (totDistance>0) System.out.println("Error distance: "+totErrorDistance +"/"+ totDistance + " = "+(totErrorDistance/totDistance));
+    }
+
+    static private class Alignment
+    {
+        private static final int LO_DELTA1 = -3, LO_DELTA2 = +3;
+        private static final int LEN_DELTA1 = -3, LEN_DELTA2 = +3; 
+
+        Span plainSpan;
+        final Span markupSpan;
+        final MutableTextLabels plainLabels; 
+        final TextLabels markupLabels;
+        // save result of last doTokenMatch comparison
+        private Boolean priorResult = null;
+
+        public Alignment(Span plainSpan,Span markupSpan,MutableTextLabels plainLabels,TextLabels markupLabels)
+        {
+            this.plainSpan=plainSpan; this.markupSpan=markupSpan;
+            this.plainLabels=plainLabels; this.markupLabels=markupLabels;
+        }
+        /** Change the plainTextLabels by adding the plainSpan to the type */
+        public void commit(String type)
+        {
+            plainLabels.addToType(plainSpan,type);
+        }
+        /** Try and improve the local alignment by moving the
+         * boundaries of the plainText span by a token or so in either
+         * direction. Return 1 or 0, indicating if an adjustment was
+         * made. */
+        public int adjust()
+        {
+            if (NO_ADJUSTMENT) return 0;
+
+            if (markupSpanMatch(plainSpan)) {
+                priorResult = new Boolean(true);
+                return 0; // none necessary
+            }
+            //System.out.println("adjusting plainSpan to match "+markupSpan);
+            Span docSpan = plainSpan.documentSpan();
+            for (int lo=plainSpan.documentSpanStartIndex()+LO_DELTA1; lo<=plainSpan.documentSpanStartIndex()+LO_DELTA2; lo++) {
+                for (int len=plainSpan.size()+LEN_DELTA1; len<=plainSpan.size()+LEN_DELTA2; len++) {
+                    if (lo>0 && lo+len<=docSpan.size()) {
+                        //System.out.println("testing "+lo+":"+(lo+len));
+                        Span adjustedPlainSpan = docSpan.subSpan( lo, len );
+                        if (markupSpanMatch(adjustedPlainSpan)) {
+                            //System.out.println("correcting plainSpan from "+plainSpan+" to "+adjustedPlainSpan);
+                            plainSpan = adjustedPlainSpan;
+                            priorResult = new Boolean(true);
+                            return 1;
+                        }
+                    }
+                }
+            }
+            //if (!mungedTokens()) System.out.println("adjustment fails for "+plainSpan+"==>"+markupSpan);
+            priorResult = new Boolean(false); // no adjustment worked
+            return 0;
+        }
+
+        // plainText/markupText results match token-by-token
+        public boolean match()
+        {
+            if (priorResult==null) priorResult=new Boolean(markupSpanMatch(plainSpan));
+            return priorResult.booleanValue() || mungedTokens();
+        }
+
+        // a likely explanation for apparent mis-alignments
+        private boolean mungedTokens()
+        {
+            if (plainSpan.asString().indexOf("'t")>=0) return true; 
+            if (markupSpan.asString().indexOf("-LBR-")>=0) return true; 
+            if (markupSpan.asString().indexOf("-RBR-")>=0) return true; 
+            if (markupSpan.asString().indexOf("--")>=0) return true; 
+            return false;            
+        }
+
+        private boolean markupSpanMatch(Span span)
+        {
+            // token match is hopeless for these...
+            boolean ok = true;
+            String[] markupToks = markupLabels.getTextBase().splitIntoTokens(markupSpan.asString());
+            String[] plainToks = markupLabels.getTextBase().splitIntoTokens(span.asString());
+            if (markupToks.length!=plainToks.length) {
+                ok = false;
+            } else {
+                for (int m=0; ok && m<markupToks.length; m++) {
+                    if (!markupToks[m].equals(plainToks[m])) ok=false;
+                }
+            }
+            priorResult = new Boolean(ok);
+            return ok;
+        }
     }
 }
