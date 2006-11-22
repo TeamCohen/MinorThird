@@ -5,6 +5,10 @@ classify.sequential:
   // replace null values in prediction with the best classifications 
   // that are consistent with the non-null values
   void consistentlyClassify(ClassLabel[] prediction,Instance[] seq);
+
+  basic idea: in beam searcher, discard candidates that are inconsistent
+  with constraints, as they are generated.
+
  }
  CMM {
   // needs to implement this

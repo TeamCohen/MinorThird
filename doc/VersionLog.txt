@@ -55,3 +55,4 @@ Version # Format: Version#.Year.Month.Day
 		- Fixed encapsulated annotators so that they can require other encapsulated annotators.
 10.6.10.23	- Fixed errors in MixupPrograms handling of regular expressions.
 11.6.11.21	- Initial version of extractor-confidence computation
+11.6.11.22	- Better version of extractor-confidence computation, with BeamSearch modified appropriately

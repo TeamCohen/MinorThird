@@ -16,7 +16,38 @@ import org.apache.log4j.Logger;
 /**
  * Wraps an Annotator learned by SequenceAnnotatorLearner with code to
  * compute confidences for each extracted span. 
+ * 
+ * <p>Sample use, in code:
+ * <code><pre>
+ * // below, 'ann' might be trained, or pulled off disk - this
+ * // is the sort of object that the SequenceAnnotatorLearner instances
+ * // (like CRFAnnotatorLearner and VPHMMLearner) produce
+ * SequenceAnnotatorLearner.SequenceAnnotator ann = ...;
+ * ConfidenceReportingSequenceAnnotator crAnn = new ConfidenceReportingSequenceAnnotator(ann);
+ * crAnn.annotate(textLabels);
+ * // print the confidence of each extracted span
+ * for (Span.Looper i=textLabels.instanceIterator(crAnn.getSpanType()); i.hasNext(); ) {
+ *    Span s = i.nextSpan();
+ *    Details d = labels.getDetails(s,crAnn.getSpanType());
+ *    System.out.println("confidence="+d.getConfidence()+" for span "+s);
+ * }
+ * </pre></code>
  *
+ * <p>Sample use, from command line:
+ * <code><pre>
+ * # train SequenceAnnotatorLearner.SequenceAnnotator object and save in 'old.ann'
+ * % java edu.cmu.minorthird.ui.TrainExtractor -labels sample1.train -saveAs old.ann -spanType trueName 
+ * # convert to a ConfidenceReportingSequenceAnnotator 'new.ann'
+ * % java edu.cmu.minorthird.text.learn.ConfidenceReportingSequenceAnnotator old.ann new.ann
+ * # apply the annotator and view the results - the last column is confidence
+ * % java edu.cmu.minorthird.ui.ApplyAnnotator -labels sample1.test -loadFrom new.ann -saveAs new.labels
+ * % grep _prediction new.labels
+ * addToType testStrings[0] 0 12 _prediction 141.0
+ * addToType testStrings[1] 19 15 _prediction 312.0
+ * addToType testStrings[2] 8 12 _prediction 188.0
+ * addToType testStrings[3] 47 11 _prediction 374.0
+ * </pre></code>
+ *  
  * Status: EXPERIMENTAL.  
  *
  * @author William Cohen
@@ -25,6 +56,7 @@ import org.apache.log4j.Logger;
 public class ConfidenceReportingSequenceAnnotator extends AbstractAnnotator implements ExtractorAnnotator,Serializable,Visible
 {
     private static Logger log = Logger.getLogger(ConfidenceReportingSequenceAnnotator.class);
+    private static final boolean DEBUG = false;
 
     private SequenceAnnotatorLearner.SequenceAnnotator sequenceAnnotator;
 
@@ -76,8 +108,8 @@ public class ConfidenceReportingSequenceAnnotator extends AbstractAnnotator impl
             //new ViewerFrame(docId,new SmartVanillaViewer(tmpLabels));
             for (Span.Looper k=tmpLabels.instanceIterator(sequenceAnnotator.getSpanType()); k.hasNext(); ) {
                 Span extractedSpan = k.nextSpan();
-                double confidence = computeConfidence( extractedSpan, classLabels );
-                log.info("confidence: "+confidence+" for "+extractedSpan);
+                double confidence = computeConfidence( sequenceAnnotator.getSequenceClassifier(), sequence, extractedSpan, classLabels );
+                if (DEBUG) log.info("confidence: "+confidence+" for "+extractedSpan);
                 labels.addToType(extractedSpan, sequenceAnnotator.getSpanType(), new Details(confidence,ConfidenceReportingSequenceAnnotator.class));
             }
             pc.progress();
@@ -85,11 +117,21 @@ public class ConfidenceReportingSequenceAnnotator extends AbstractAnnotator impl
         pc.finished();
     }
     
-    private double computeConfidence( Span extractedSpan, ClassLabel[] classLabels)
+    private double computeConfidence( SequenceClassifier seqClassifier, Instance[] sequence, Span extractedSpan, ClassLabel[] predictedLabels )
     {
         int startIndex = extractedSpan.documentSpanStartIndex();
         int endIndex = startIndex+extractedSpan.size();
-        return ConfidenceUtils.sumPredictedWeights(classLabels,startIndex,endIndex);
+        if (seqClassifier instanceof ConfidenceReportingSequenceClassifier) {
+            ConfidenceReportingSequenceClassifier crSeqClassifier = (ConfidenceReportingSequenceClassifier)seqClassifier;
+            // report confidence if the positions startIndex...endIndex-1 are constrained to be 'NEG'
+            ClassLabel[] alternateLabels = new ClassLabel[ predictedLabels.length ];
+            for (int i=startIndex; i<endIndex; i++) {
+                alternateLabels[i] = ClassLabel.negativeLabel(-1.0);
+            }
+            return crSeqClassifier.confidence( sequence, predictedLabels, alternateLabels, startIndex, endIndex );
+        } else {
+            return ConfidenceUtils.sumPredictedWeights(predictedLabels,startIndex,endIndex);
+        }
     }
 
     public String explainAnnotation(TextLabels labels,Span documentSpan)
@@ -112,7 +154,26 @@ public class ConfidenceReportingSequenceAnnotator extends AbstractAnnotator impl
     
     static public void main(String[] args) 
     {
-        if (args.length!=2) {
+        if (args.length==3 && "-test".equals(args[0])) {
+            // undocumented usage mode: -test previouslySavedAnnotatorFile labelsKey
+            File loadFile = new File(args[1]);
+            MonotonicTextLabels labels = new NestedTextLabels(FancyLoader.loadTextLabels(args[2]));
+            SequenceAnnotatorLearner.SequenceAnnotator ann = null;
+            try {
+                ann = (SequenceAnnotatorLearner.SequenceAnnotator)IOUtil.loadSerialized(loadFile);
+            } catch (IOException ex) {
+                throw new IllegalArgumentException("can't load annotator from "+loadFile+": "+ex);
+            }
+            ConfidenceReportingSequenceAnnotator crAnn = new ConfidenceReportingSequenceAnnotator(ann);
+            crAnn.annotate(labels);
+            // print the confidence of each extracted span
+            for (Span.Looper i=labels.instanceIterator(crAnn.getSpanType()); i.hasNext(); ) {
+                Span s = i.nextSpan();
+                Details d = labels.getDetails(s,crAnn.getSpanType());
+                System.out.println("confidence="+d.getConfidence()+" for span "+s);
+            }
+            return;
+        } else if (args.length!=2) {
             throw new IllegalArgumentException("usage: previouslySavedAnnotatorFile newAnnotatorFile");
         } 
         File loadFile = new File(args[0]);
