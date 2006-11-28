@@ -138,15 +138,16 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 
 			log.info("split on "+bestFeature+">"+bestThreshold);
 
-			// split the data
+			// split the data.  No need to compress the examples again so
+                        //  call the appropriate add method in Dataset.
 			Dataset trueData = new BasicDataset();
 			Dataset falseData = new BasicDataset();
 			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {			
 				Example example = i.nextExample();
 				if (example.getWeight(bestFeature)>bestThreshold) {
-					trueData.add(example);
+					trueData.add(example, false);
 				} else {
-					falseData.add(example);
+					falseData.add(example, false);
 				}
 			}
 
