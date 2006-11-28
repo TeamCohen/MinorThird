@@ -59,13 +59,38 @@ public class SegmentDataset implements Dataset
 	else return schema;
     }
 
-    /** Add a new example to the dataset. */
-    public void add(Example example)
-    {
-	MutableCandidateSegmentGroup g = new MutableCandidateSegmentGroup(1,1);
-	g.setSubsequence(0,1,example.asInstance(),example.getLabel());
-	addCandidateSegmentGroup(g);
+    /**
+     * Add an example to the dataset. <br>
+     * <br>
+     * This method compresses the example before adding it to the dataset.  If
+     * you want/need the example to be compressed then call {@link #add(Example, boolean)}
+     *
+     * @param example The Example that you want to add to the dataset.
+     */
+    public void add(Example example) {
+        add(example, false);
     }
+
+    /**
+     * Add an Example to the dataset. <br>
+     * <br>
+     * This method lets the caller specify whether or not to compress the example
+     * before adding it to the dataset.
+     *
+     * @param example The example to add to the dataset
+     * @param compress Boolean specifying whether or not to compress the example.
+     */
+    public void add(Example example, boolean compress) {
+        MutableCandidateSegmentGroup g = new MutableCandidateSegmentGroup(1,1);
+
+        if (compress)
+            g.setSubsequence(0,1,factory.compress(example.asInstance()),example.getLabel());
+        else
+            g.setSubsequence(0,1,example.asInstance(),example.getLabel());
+        addCandidateSegmentGroup(g);
+    }
+
+
 
     /** Iterate over all examples */
     public Example.Looper iterator()

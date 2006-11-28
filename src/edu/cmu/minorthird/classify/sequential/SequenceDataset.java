@@ -52,23 +52,65 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 		else return schema;
 	}
 
-	/** Add a new example to the dataset. */
-	public void add(Example example)
-	{
-		addSequence(new Example[]{example});
-	}
+    /** Add a new example to the dataset. <br>
+     * <br>
+     * This method compresses the example before adding it to the
+     * the dataset.  To prevent this compresstion call {@link #add(Example, boolean)}.
+     *
+     * @param example The example to add to the dataset.
+     */
+    public void add(Example example) {
+        addSequence(new Example[]{example});
+    }
+    
+    /** Add a new example to the dataset. <br>
+     * <br>
+     * This method allows the caller to specify if they want the examples to be
+     * compressed or not.
+     *
+     * @param example The example to add to the dataset.
+     * @param compress Boolean specifying whether or not to compress the example.
+     */
+    public void add(Example example, boolean compress) {
+        addSequence(new Example[]{example}, compress);
+    }
 
-	/** Add a new sequence of examples to the dataset. */
-	public void addSequence(Example[] sequence)
-	{
-		Example[] compressedSeq = new Example[sequence.length];
-		for (int i=0; i<sequence.length; i++) {
-			compressedSeq[i] = factory.compress( sequence[i] );
-			classNameSet.addAll( sequence[i].getLabel().possibleLabels() );
-		}
-		sequenceList.add(compressedSeq);
-		totalSize += sequence.length;
-	}
+    /** Add a new sequence of examples to the dataset. <br>
+     * <br>
+     * This method compresses each example before adding it to the
+     * the dataset.  To prevent this compresstion call {@link #addSequence(Example[], boolean)}.
+     */
+    public void addSequence(Example[] sequence) {
+        addSequence(sequence, true);
+    }
+
+    /** Add a new sequence of examples to the dataset <br>
+     * <br>
+     * This method allows the caller to specify if they want the examples to be 
+     * compressed or not.
+     *
+     * @param sequence The sequence of examples to add to the dataset
+     * @param compress Boolean specifying whether or not to compress the examples.
+     */
+    public void addSequence(Example[] sequence, boolean compress) {       
+        // If the user wants to compress the examples in the sequence then
+        //   create a new array and fill it with the compressed examples.
+        //   Then add the new array of examples to the dataset.
+        if (compress) {
+            Example[] compressedSeq = new Example[sequence.length];
+            for (int i=0; i<sequence.length; i++) {
+                compressedSeq[i] = factory.compress( sequence[i] );
+                classNameSet.addAll( sequence[i].getLabel().possibleLabels() );
+            }
+            sequenceList.add(compressedSeq);
+        }
+        // If the caller doesn't want the examples compressed then just add 
+        //   the array of examples to the dataset.
+        else {
+            sequenceList.add(sequence);
+        }
+        totalSize += sequence.length;
+    }
 
 	/** Iterate over all examples, extended so as to contain history information. */
 	public Example.Looper iterator()

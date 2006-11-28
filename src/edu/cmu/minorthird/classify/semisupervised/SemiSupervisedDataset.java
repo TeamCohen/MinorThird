@@ -39,14 +39,38 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,Visi
    public boolean hasUnlabeled() { return (unlabeledExamples.size()>0)? true : false; }
 
 
-   //
-   // methods for labeled data,  part of the Dataset interface
-   //
-   public void add(Example example)
-   {
-      examples.add( factory.compress(example) );
-      classNameSet.addAll( example.getLabel().possibleLabels() );
-   }
+    //
+    // methods for labeled data,  part of the Dataset interface
+    //
+    
+    /**
+     * Add an example to the dataset. <br>
+     * <br>
+     * This method compresses the example before adding it to the dataset.  If
+     * you don't want/need the example to be compressed then call {@link #add(Example, boolean)}
+     *
+     * @param example The Example that you want to add to the dataset.
+     */
+    public void add(Example example) {
+        add(example, true);
+    }
+    
+    /**
+     * Add an Example to the dataset. <br>
+     * <br>
+     * This method lets the caller specify whether or not to compress the example
+     * before adding it to the dataset.
+     *
+     * @param example The example to add to the dataset
+     * @param compress Boolean specifying whether or not to compress the example.
+     */
+    public void add(Example example, boolean compress) {
+        if (compress)
+            examples.add( factory.compress(example) );
+        else
+            examples.add(example);
+        classNameSet.addAll( example.getLabel().possibleLabels() );
+    }
 
    public Example.Looper iterator()
    {

@@ -56,8 +56,6 @@ public class BasicDataset implements Visible,Saveable,Dataset,Serializable
      * @param example The Example that you want to add to the dataset.
      */
     public void add(Example example) {
-        //examples.add( factory.compress(example) );
-        //classNameSet.addAll( example.getLabel().possibleLabels() );
         this.add(example, true);
     }
     

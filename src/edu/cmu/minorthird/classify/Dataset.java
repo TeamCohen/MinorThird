@@ -17,8 +17,10 @@ public interface Dataset extends Visible
 	/** Get the schema associated with the dataset */
 	public ExampleSchema getSchema();
 
-	/** Add a new example to the dataset. */
-	public void add(Example example); 
+    /** Add a new example to the dataset. */
+    public void add(Example example); 
+    /** Add a new example to the dataset. Specifying whether or not to compress it. */
+    public void add(Example example, boolean compress);
 
 	/** Return an iterator over all examples.  This iterator must always
 	 * return examples in the order in which they were added, unless the

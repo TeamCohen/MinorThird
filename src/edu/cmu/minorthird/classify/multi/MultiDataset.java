@@ -62,6 +62,9 @@ public class MultiDataset implements Dataset,Visible,Saveable
     public void add(Example example) {
 	throw new IllegalArgumentException("You must add a MultiExample to a MutiDataset");
     }
+    public void add(Example example, boolean compress) {
+        throw new IllegalArgumentException("You must add a MultiExample to a MutiDataset");
+    }
 
    //
    // methods for labeled data,  part of the Dataset interface
