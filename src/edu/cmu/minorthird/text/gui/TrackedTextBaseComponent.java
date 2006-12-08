@@ -107,10 +107,10 @@ public class TrackedTextBaseComponent extends JComponent
         frame.getContentPane().add(main, BorderLayout.CENTER);
         frame.addWindowListener(new WindowAdapter()
         {
-            public void windowClosing(WindowEvent e)
-            {
-                System.exit(0);
-            }
+            //public void windowClosing(WindowEvent e)
+            //{
+            //   System.exit(0);
+            //}
         });
         frame.pack();
         frame.setVisible(true);

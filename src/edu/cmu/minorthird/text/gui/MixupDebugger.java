@@ -291,8 +291,8 @@ public class MixupDebugger extends JComponent
 			MixupDebugger debugger = new MixupDebugger(base,baseLabels,groundTruthLabelsFile,mixupProgramFile,false,false);
 			frame.getContentPane().add( debugger, BorderLayout.CENTER );
 			frame.addWindowListener(new WindowAdapter() {
-					public void windowClosing(WindowEvent e) { System.exit(0); }
-				});
+                                //public void windowClosing(WindowEvent e) { System.exit(0); }
+                            });
 			frame.pack();
 			frame.setVisible(true);
 			return debugger;
@@ -369,8 +369,8 @@ public class MixupDebugger extends JComponent
 				new MixupDebugger(base,groundTruthLabelsFile,mixupProgramFile,readOnly,stem);
 			frame.getContentPane().add( debugger, BorderLayout.CENTER );
 			frame.addWindowListener(new WindowAdapter() {
-					public void windowClosing(WindowEvent e) { System.exit(0); }
-				});
+                                //public void windowClosing(WindowEvent e) { System.exit(0); }
+                            });
 			frame.pack();
 			frame.setVisible(true);
 		} catch (Exception e) {
