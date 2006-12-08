@@ -1179,10 +1179,6 @@ public class CommandLineUtil
 	private static final String[] ALLOWED_VALUES = {"minorthird","xml","strings"};
 	public String format = "minorthird";
 	public void format(String s) { format=s; }
-        //this wasn't used?
-	//public void toXML(String directoryName) {
-        //System.out.println("Creating XML documents");
-        //}
 	private String formatHelp = new String("output results in format TYPE (either 'minorthird', 'xml', or 'strings'");
 	public void usage() {
 	    System.out.println("annotation output parameters:");
