@@ -36,7 +36,7 @@ minorthird) you can use anonymous CVS access.
 Set these environment variables:
 
     CVS_RSH=ssh
-    cvsroot=:pserver:anonymous@raff.cald.cs.cmu.edu:/usr1/cvsroot
+    cvsroot=:pserver:anonymous@raff.ml.cmu.edu:/usr1/cvsroot
 
 Then use these commands:
 
@@ -52,7 +52,7 @@ If you want write access to the source (you plan to change or add to
 our software) you need an account on the Raff computer.  You can then
 use the following to access minorthird:
 
-    % cvs -d :ext:you@raff.cald.cs.cmu.edu:/usr1/cvsroot checkout minorthird
+    % cvs -d :ext:you@raff.ml.cmu.edu:/usr1/cvsroot checkout minorthird
 
 ==============================================================================
 COMPILING THE CODE
