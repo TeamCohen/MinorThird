@@ -38,6 +38,7 @@ public class Minorthird extends JFrame
 	private void initContent()
 	{
 		JPanel panel = new JPanel();
+                panel.setLayout(new GridLayout(2,2));
 		panel.setBorder(new TitledBorder("Applications to Launch"));
 
 		JPanel tcPanel = new JPanel();
@@ -71,7 +72,7 @@ public class Minorthird extends JFrame
 
 		//addHelpPane(panel);
 
-		panel.setPreferredSize(new java.awt.Dimension(800,100));
+		panel.setPreferredSize(new java.awt.Dimension(800,200));
 		getContentPane().removeAll();
 		getContentPane().add(panel, BorderLayout.CENTER);
 		setTitle("Minorthird LaunchPad");
