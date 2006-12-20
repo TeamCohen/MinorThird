@@ -176,6 +176,8 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
     public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase) {
 	Set wordSet = new HashSet();
 	AnnotatorLoader theLoader = this.getAnnotatorLoader();
+        Tokenizer tok = new Tokenizer();
+        String[] currentEntryTokens;
 	for(int i=0; i<fileNames.size(); i++) {	
 	    String fileName = (String)fileNames.get(i);
 	    InputStream stream = theLoader.findFileResource(fileName);	
@@ -184,8 +186,16 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 		String s = null;
 		while ((s = bReader.readLine()) != null) {
 		    s = s.trim(); // remove trailing blanks
-		    if (ignoreCase) s = s.toLowerCase();
-		    wordSet.add( s );
+                    // Split the entry into tokens and add it to the set only if there is a single token.  
+                    // Otherwise give an warning and ignore the entry.
+                    currentEntryTokens = tok.splitIntoTokens(s);
+                    if (currentEntryTokens.length > 1) {
+                        log.warn("Ignoring entry: \'" + s + "\' because it contains more than 1 token.  Use a Trie to match against sequences of tokens.");
+                    }
+                    else {
+                        if (ignoreCase) s = s.toLowerCase();
+                        wordSet.add( s );
+                    }
 		}
 		bReader.close();
 	    } catch (IOException ioe) {
