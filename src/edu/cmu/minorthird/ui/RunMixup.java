@@ -30,6 +30,8 @@ public class RunMixup extends UIMain
     public void setMixupParameters(CommandLineUtil.MixupParams p) { mixup=p; }
     public CommandLineUtil.SaveParams getSaveParameters() { return save; }
     public void setSaveParameters(CommandLineUtil.SaveParams p) { save=p; }
+    public CommandLineUtil.AnnotatorOutputParams getAnnotatorOutputParams() { return output; }
+    public void setAnnotatorOutputParams(CommandLineUtil.AnnotatorOutputParams p) { output=p; }
 
     public String getRunMixupHelp() {
 	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/Mixup%20Tutorial.htm\">Mixup Tutorial</A></html>";
