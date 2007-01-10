@@ -43,6 +43,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    throw new IllegalArgumentException("Error loading '"+s+"': "+ex);
 	}
     }
+
     private static SequenceClassifierLearner toSeqLearner(String s)
     {
 	try {
@@ -119,16 +120,17 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
 	public ClassifyCommandLineUtil.Learner lnr = clsLnr;  
 	public String typeString = "simple";
-	public static TrainParams type;
+	public static TrainParams type = new SimpleTrainParams();
 	// For Multi label experiment - to create the correct type of dataset in train and test
 	public int multi=-1;
 	public boolean crossDim = false;
 	
-	public TrainParams() { super(); }
+	public TrainParams() { 
+            super(); 
+        }
 
 	public void type(String s) { 
 	    typeString = s;
-	    
 	    if(s.equalsIgnoreCase("simple")) 
 		type = new SimpleTrainParams();
 	    else if (s.equalsIgnoreCase("seq")) 
@@ -199,12 +201,10 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    trainData = safeToDataset(s, false, -1);  //creates a simple dataset
 	    trainDataFilename = s; 
 	}
-	
 	public void learner(String s) {
 	    clsLnr.clsLearner = Expt.toLearner(s); 
 	    lnr = clsLnr;
 	}
-
 	//for gui
 	public String getDatasetFilename() { return trainDataFilename; }
 	public void setDatasetFilename(String s) { 
@@ -476,7 +476,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	public Object resultToShow=null, resultToSave=null;
 	public ClassifyCommandLineUtil.BaseParams base;
 	public Splitter splitter = new RandomSplitter(.7);
-	public static TrainTestParams type;		
+	public static TrainTestParams type=new SimpleTrainTestParams();
 	public ClassifyCommandLineUtil.Learner.SequentialLnr seqLnr = new ClassifyCommandLineUtil.Learner.SequentialLnr();
 	public ClassifyCommandLineUtil.Learner.ClassifierLnr clsLnr = new ClassifyCommandLineUtil.Learner.ClassifierLnr();
 	public ClassifyCommandLineUtil.Learner lnr = clsLnr;  
@@ -593,6 +593,8 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	}
 	public String getTestsetFilename() { return testDataFilename; }
 	public void setTestsetFilename(String s) { testData = safeToDataset(s, false, -1); testDataFilename=s; }
+
+	public ClassifyCommandLineUtil.Learner.ClassifierLnr getLearnerParameters() { return clsLnr; }
 	public void setLearnerParameters(ClassifyCommandLineUtil.Learner.ClassifierLnr learn) { 
 	    clsLnr = learn;
 	    lnr = clsLnr; 
