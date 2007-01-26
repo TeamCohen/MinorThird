@@ -1,0 +1,4 @@
+EXISTS ON left
+EXISTS ON right
+EXISTS ON up
+EXISTS ON down
