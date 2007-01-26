@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.experiments;
 
 import edu.cmu.minorthird.classify.*;
+import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
 import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedClassifier;
 import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedDataset;
 import edu.cmu.minorthird.classify.sequential.SequenceClassifier;
@@ -61,6 +62,39 @@ public class Evaluation implements Visible,Serializable,Saveable
 		isBinary = schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
 	}
 
+//classification(RealRelationalDataset dataset)
+	/** Test the classifier on the examples in the dataset and store the results. */
+	public void extend4SGM(StackedGraphicalLearner.StackedGraphicalClassifier c,RealRelationalDataset d, int cvID)
+	{
+		ProgressCounter pc = new ProgressCounter("classifying","example",d.size());
+		HashMap rlt = c.classification(d);
+
+
+		for(Iterator i=rlt.keySet().iterator(); i.hasNext(); ){
+			String ID = (String)i.next();
+			ClassLabel predicted = (ClassLabel)rlt.get(ID); 
+			Example example = d.getExamplewithID(ID);
+
+			if (predicted.bestClassName()==null)
+		    throw new IllegalArgumentException("predicted can't be null! for example: "+example);
+			if (example.getLabel()==null) throw new IllegalArgumentException("predicted can't be null!");
+			if (log.isDebugEnabled()) {
+		    String ok = predicted.isCorrect(example.getLabel()) ? "Y" : "N";
+		    log.debug("ok: "+ok+"\tpredict: "+predicted+"\ton: "+example);
+			}
+			entryList.add( new Entry(example.asInstance(), predicted, example.getLabel(), entryList.size(), cvID) );
+			// calling these extends the schema to cover these classes
+			extendSchema( example.getLabel() );
+			extendSchema( predicted );
+			// clear caches
+			cachedPRCMatrix = null;
+			
+		}
+
+
+	}
+
+
 
 	/** Test the classifier on the examples in the dataset and store the results. */
 	public void extend(Classifier c,Dataset d, int cvID)
@@ -74,7 +108,9 @@ public class Evaluation implements Visible,Serializable,Saveable
 		}
 		pc.finished();
 	}
-
+	
+	
+	
 	/** Test the SequenceClassifier on the examples in the dataset and store the results. */
 	public void extend(SequenceClassifier c,SequenceDataset d)
 	{
@@ -117,6 +153,9 @@ public class Evaluation implements Visible,Serializable,Saveable
 		// clear caches
 		cachedPRCMatrix = null;
 	}
+
+
+
 
 	public void setProperty(String prop,String value)
 	{

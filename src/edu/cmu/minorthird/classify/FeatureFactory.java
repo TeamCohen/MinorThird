@@ -77,7 +77,7 @@ public class FeatureFactory implements Serializable
 	    if (instance.getFactory()==this) return example;
 	}
 	Instance compressedInstance = new CompactInstance(example.asInstance());
-	return new Example(compressedInstance, example.getLabel(), example.getWeight());
+	return new Example(compressedInstance, example.getLabel(), example.getExampleID(), example.getWeight());
     }
 
     /** Return a version of the example in which all features have been

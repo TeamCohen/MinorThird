@@ -7,10 +7,9 @@ import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.util.IOUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
-
-import java.io.File;
-import java.io.Serializable;
-import java.util.Collections;
+import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * Trains a ClassifierLearner using the information in  a labeled Dataset.
@@ -45,8 +44,17 @@ public class DatasetClassifierTeacher extends ClassifierTeacher
 		return dataset.getSchema();
 	}
 
+	public HashMap getLinksMap()
+	{
+		return ((RealRelationalDataset)dataset).getLinksMap();
+	}
+	public HashMap getAggregators(){
+		return ((RealRelationalDataset)dataset).getAggregators();
+	}
+	
 	public Example.Looper examplePool() 
 	{ 
+//		System.out.println(dataset);
 		return activeLearning? 
 			new Example.Looper(Collections.EMPTY_SET.iterator()) : dataset.iterator();
 	}

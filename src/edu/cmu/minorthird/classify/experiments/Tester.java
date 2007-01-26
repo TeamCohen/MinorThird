@@ -2,6 +2,7 @@
 
 package edu.cmu.minorthird.classify.experiments;
 
+import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.semisupervised.*;
@@ -22,6 +23,29 @@ public class Tester
 	static private Logger log = Logger.getLogger(Tester.class);
 	private static final boolean DEBUG = log.getEffectiveLevel().isGreaterOrEqual( Level.DEBUG );
 
+
+	/** Do some sort of hold-out experiment, as determined by the splitter */
+	static public Evaluation evaluate(StackedBatchClassifierLearner learner,RealRelationalDataset d,Splitter splitter, String stacked)
+	{
+		Evaluation v = new Evaluation(d.getSchema()); 
+		Dataset.Split s = d.split(splitter);
+		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
+		for (int k=0; k<s.getNumPartitions(); k++) {
+			RealRelationalDataset trainData = (RealRelationalDataset)s.getTrain(k);
+			RealRelationalDataset testData = (RealRelationalDataset)s.getTest(k);
+			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
+							 +" and test on "+testData.size());
+			Classifier c = new DatasetClassifierTeacher(trainData).trainStacked(learner);
+			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
+			v.extend4SGM( (StackedGraphicalLearner.StackedGraphicalClassifier)c, testData, k );
+			log.info("splitting with "+splitter+", completed train-test round");
+			pc.progress();
+		}
+		pc.finished();
+		return v;
+	}
+	
+	
 	/** Do some sort of hold-out experiment, as determined by the splitter */
 	static public Evaluation evaluate(ClassifierLearner learner,Dataset d,Splitter splitter)
 	{
@@ -42,6 +66,7 @@ public class Tester
 		pc.finished();
 		return v;
 	}
+
 
     /** Do some sort of hold-out experiment, as determined by the splitter */
 	static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter splitter)

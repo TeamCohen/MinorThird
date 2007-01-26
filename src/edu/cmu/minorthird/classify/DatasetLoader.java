@@ -7,6 +7,7 @@ import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import org.apache.log4j.Logger;
+import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
 
 import java.io.*;
 import java.util.*;
@@ -118,6 +119,70 @@ public class DatasetLoader
 	pc.finished();
 	return dataset;
     }
+
+
+    /** Load a relational dataset from a file specifying objs */
+    static public void loadRelFile(File file, RealRelationalDataset dataset) throws IOException,NumberFormatException
+    {
+//	Dataset dataset = new BasicDataset();
+	ProgressCounter pc = new ProgressCounter("loading file "+file.getName(), "line");
+	LineNumberReader in = new LineNumberReader(new FileReader(file));
+	String line;
+	while ((line = in.readLine())!=null) {
+	    dataset.add( RelparseLine(line,file,in) );
+//	    System.out.println(dataset);
+	    pc.progress();
+	}
+	log.info("loaded "+dataset.size()+" examples from "+file.getName());
+	in.close();
+	pc.finished();
+//	return dataset;
+    }
+
+
+
+    /** Load a link file */
+    static public void loadLinkFile(File file, RealRelationalDataset dataset) throws IOException,NumberFormatException
+    {
+//	Dataset dataset = new RealRelationalDataset();
+	ProgressCounter pc = new ProgressCounter("loading file "+file.getName(), "line");
+	LineNumberReader in = new LineNumberReader(new FileReader(file));
+	String line;
+	while ((line = in.readLine())!=null) {
+	    dataset.addLink( LinkparseLine(line,file,in) );
+	    pc.progress();
+	}
+	log.info("loaded "+dataset.size()+" examples from "+file.getName());
+	in.close();
+	pc.finished();
+//	return dataset;
+    }
+
+    /** Load a relational template file */
+    static public void loadRelTempFile(File file, RealRelationalDataset dataset) throws IOException,NumberFormatException
+    {
+//	Dataset dataset = new RealRelationalDataset();
+	ProgressCounter pc = new ProgressCounter("loading file "+file.getName(), "line");
+	LineNumberReader in = new LineNumberReader(new FileReader(file));
+	String line;
+	while ((line = in.readLine())!=null) {
+
+		String[] arr = line.split("\\s+");
+		if (arr.length<3)
+		    throw new IllegalArgumentException("too few values at line#"+in.getLineNumber()+" of "+file.getName());
+		if (!arr[1].equals("ON"))
+		    throw new IllegalArgumentException("the format of the relational template is COUNT ON LEFT");	
+	    
+	    dataset.addAggregator( arr[0], arr[2] );
+	    pc.progress();
+	}
+	log.info("loaded "+dataset.size()+" examples from "+file.getName());
+	in.close();
+	pc.finished();
+//	return dataset;
+    }
+
+
 
     /** Load a dataset from a file */
     static public Dataset loadMulti(File file, int numDim) throws IOException,NumberFormatException
@@ -269,6 +334,54 @@ public class DatasetLoader
 	return new Example(instance,label);
     }
 
+
+
+    static private Example RelparseLine(String line, File file, LineNumberReader in)
+    {
+	String[] arr = line.split("\\s+");
+	if (arr.length<4)
+	    throw new IllegalArgumentException("too few values at line#"+in.getLineNumber()+" of "+file.getName());
+	String ID = arr[0];
+	for (int i=1; i<4; i++) arr[i] = stringCoder.decode(arr[i]);
+	String subpopulationId = arr[2];
+	String source = getSourceAssignedToExample(file.getName(), in.getLineNumber());
+	if ("NUL".equals(arr[2])) subpopulationId = null;
+	MutableInstance instance = new MutableInstance(source,subpopulationId);
+	for (int i=4; i<arr.length; i++) {
+	    int eqPos = arr[i].indexOf("=");
+	    if (eqPos>=0) {
+		try {
+		    String feature = arr[i].substring(0,eqPos);
+		    String value = arr[i].substring(eqPos+1);
+		    double weight = Double.parseDouble(value); 
+		    instance.addNumeric( parseFeatureName(feature), weight);
+		} catch (NumberFormatException e) {
+		    throw new IllegalArgumentException("bad feature# "+i+" line#"+in.getLineNumber()+" of "+file.getName());
+		}
+	    } else {
+		instance.addBinary( parseFeatureName(arr[i]) );
+	    }
+	}
+	ClassLabel label = (ClassLabel) classLabelDict.get(arr[3]);
+	if (label==null) {
+	    if ("b".equals(arr[1])) {
+		throw new IllegalArgumentException(
+						   "should be POS/NEG but label is '"+arr[3]+"' at line#"+in.getLineNumber()+" of "+file.getName());
+	    }
+	    classLabelDict.put( arr[3], (label = new ClassLabel(arr[3])) );
+	}
+	return new Example(instance,label ,ID);
+  }
+  
+  
+    static private Link LinkparseLine(String line, File file, LineNumberReader in)
+    {
+	String[] arr = line.split("\\s+");
+	if (arr.length<3)
+	    throw new IllegalArgumentException("too few values at line#"+in.getLineNumber()+" of "+file.getName());
+	return new Link(arr[0],arr[1] ,arr[2]);
+  }  
+  
     static private MultiExample parseMultiLine(String line, File file,LineNumberReader in, int numDim)
     {
 	String[] arr = line.split("\\s+");
