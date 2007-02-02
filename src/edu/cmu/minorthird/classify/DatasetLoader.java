@@ -129,7 +129,7 @@ public class DatasetLoader
 	LineNumberReader in = new LineNumberReader(new FileReader(file));
 	String line;
 	while ((line = in.readLine())!=null) {
-	    dataset.add( RelparseLine(line,file,in) );
+	    dataset.addSGM( RelparseLine(line,file,in) );
 //	    System.out.println(dataset);
 	    pc.progress();
 	}
@@ -336,7 +336,7 @@ public class DatasetLoader
 
 
 
-    static private Example RelparseLine(String line, File file, LineNumberReader in)
+    static private SGMExample RelparseLine(String line, File file, LineNumberReader in)
     {
 	String[] arr = line.split("\\s+");
 	if (arr.length<4)
@@ -370,7 +370,7 @@ public class DatasetLoader
 	    }
 	    classLabelDict.put( arr[3], (label = new ClassLabel(arr[3])) );
 	}
-	return new Example(instance,label ,ID);
+	return new SGMExample(instance,label ,ID);
   }
   
   
