@@ -11,7 +11,7 @@ import java.io.*;
 /** An instance that is associated with a ClassLabel.  Implements the
  * Instance interface by delegating to a wrapped Instance, so
  * subclasses just need to attach the right label construct.
- * Modified by Zhenzhen Kou to include an ExmapleID
+ *
  * @author William Cohen
  */
 
@@ -23,8 +23,7 @@ public class Example implements Instance,Visible,Serializable
     protected Instance instance;
     protected ClassLabel label;
     protected double weight;
-		protected String ExampleID;
-		
+
     public Example(Instance instance,ClassLabel label) 
     {
 	this(instance,label,1.0);
@@ -36,33 +35,11 @@ public class Example implements Instance,Visible,Serializable
 	this.weight = weight;
     }
 
-    public Example(Instance instance,ClassLabel label , String ID) 
-    {
-	this(instance,label,ID, 1.0);
-    }
-    public Example(Instance instance,ClassLabel label, String ID,double weight) 
-    {
-	this.instance = instance;
-	this.label = label;
-	this.weight = weight;
-	this.ExampleID=ID;
-    }
     /** get the label associated with the underlying object */
     public ClassLabel getLabel() { return label; }
 
     /** Get the underlying object */
     final public Object getSource() { return instance.getSource(); }
-
-    /** Get the ExampleID */
-    final public String getExampleID() { return this.ExampleID; }
-
-    /** Get the ExampleID */
-    final public boolean hasID( String ID) { 
-    	if( ExampleID.equals(ID) )
-    	return true;
-    	else
-    	return false;
-    }
 
     /** Get the weight assigned to a feature in the instance.
      */
@@ -89,7 +66,7 @@ public class Example implements Instance,Visible,Serializable
     /** Return an unlabeled version of the example (an Instance) */
     final public Instance asInstance() { return instance; }
 
-    public String toString() { return "[ ID: "+getExampleID()+" example: "+getLabel()+" "+asInstance().toString()+"]"; }
+    public String toString() { return "[example: "+getLabel()+" "+asInstance().toString()+"]"; }
 
     /** Create a viewer */
     public Viewer toGUI() { return new GUI.ExampleViewer(this);	}
