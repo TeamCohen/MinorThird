@@ -69,11 +69,16 @@ public class RealRelationalDataset extends CoreRelationalDataset implements Visi
    private RealRelationalDataset invertIteration(Iterator i)
    {
       RealRelationalDataset copy = new RealRelationalDataset();
-      while (i.hasNext()) copy.add((Example)i.next());
+      while (i.hasNext()) copy.addSGM((SGMExample)i.next());
       copy.setAggregators(this.Aggregators);
 			copy.setLinksMap(this.getLinksMap());
       return copy;
    }   
+   
+
+
+   
+   
    //
    // test routine
    //
@@ -95,7 +100,7 @@ public class RealRelationalDataset extends CoreRelationalDataset implements Visi
 */         System.out.println("Links: "+data.getLinksMap());
          System.out.println("aggregators: "+data.getAggregators());
          for ( Iterator i= data.examples.iterator(); i.hasNext(); ){
-						Example e=(Example)i.next();
+						SGMExample e=(SGMExample)i.next();
 		         System.out.println(e);
          
         }

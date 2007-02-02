@@ -33,9 +33,11 @@ public class Tester
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			RealRelationalDataset trainData = (RealRelationalDataset)s.getTrain(k);
 			RealRelationalDataset testData = (RealRelationalDataset)s.getTest(k);
+			
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
-			Classifier c = new DatasetClassifierTeacher(trainData).trainStacked(learner);
+
+			Classifier c = new StackedDatasetClassifierTeacher(trainData).trainStacked(learner);
 			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
 			v.extend4SGM( (StackedGraphicalLearner.StackedGraphicalClassifier)c, testData, k );
 			log.info("splitting with "+splitter+", completed train-test round");

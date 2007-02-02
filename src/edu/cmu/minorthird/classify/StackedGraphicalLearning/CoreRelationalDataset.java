@@ -21,6 +21,31 @@ public class CoreRelationalDataset extends BasicDataset implements Visible,Savea
 {
    
    protected static HashMap LinksMap = new HashMap();
+	 protected SGMFeatureFactory factory = new SGMFeatureFactory();
+
+
+
+
+    public void addSGM(SGMExample example) {
+        this.addSGM(example, true);
+    }
+    
+    /**
+     * Add an Example to the dataset. <br>
+     * <br>
+     * This method lets the caller specify whether or not to compress the example
+     * before adding it to the dataset.
+     *
+     * @param example The example to add to the dataset
+     * @param compress Boolean specifying whether or not to compress the example.
+     */
+    public void addSGM (SGMExample example, boolean compress) {
+        if (compress)
+            examples.add(factory.compressSGM(example));
+        else
+            examples.add(example);
+        classNameSet.addAll(example.getLabel().possibleLabels());
+    }
 
 
 
@@ -57,9 +82,9 @@ public class CoreRelationalDataset extends BasicDataset implements Visible,Savea
 
     }
 
-		public Example getExamplewithID( String ID){
+		public SGMExample getExamplewithID( String ID){
 			for ( Iterator i= examples.iterator(); i.hasNext(); ){
-				Example e=(Example)i.next();
+				SGMExample e=(SGMExample)i.next();
 				if( e.hasID(ID) )
 					return e;
 				
@@ -71,6 +96,7 @@ public class CoreRelationalDataset extends BasicDataset implements Visible,Savea
 			this.LinksMap=inputLinksMap;
 			
 		}
+
    //
    // test routine
    //
@@ -91,5 +117,7 @@ public class CoreRelationalDataset extends BasicDataset implements Visible,Savea
          e.printStackTrace();
       }
    }
+
+
 
 }

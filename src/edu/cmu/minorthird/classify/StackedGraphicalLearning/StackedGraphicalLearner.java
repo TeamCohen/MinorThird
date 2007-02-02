@@ -42,8 +42,8 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 	public static class StackingParams {
 		public int stackingDepth=1;
 		public boolean useLogistic=true,useTargetPrediction=true,useConfidence=true;
-		public Splitter splitter=new CrossValSplitter(10);
-		int crossValSplits=10;
+		public Splitter splitter=new CrossValSplitter(5);
+		int crossValSplits=5;
 		
 		/** If true, adjust all class confidences by passing them thru a logistic function */
 		public boolean getUseLogisticOnConfidences() { return useLogistic; }
@@ -103,14 +103,12 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 
 	public Classifier batchTrain(RealRelationalDataset dataset)
 	{
-
 		Classifier[] m = new Classifier[params.stackingDepth+1];
 		RealRelationalDataset stackedDataset = dataset;
 
 		ProgressCounter pc = new ProgressCounter("training stacked learner","stacking level",params.stackingDepth+1);
 		
 		for (int d=0; d<=params.stackingDepth; d++) {
-
 			m[d] = new DatasetClassifierTeacher(stackedDataset).train(baseLearner);
 			if (d+1 <= params.stackingDepth) {
 				stackedDataset = stackDataset(stackedDataset);
@@ -140,6 +138,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 		HashMap rlt= new HashMap();
 		
 		for (int k=0; k<s.getNumPartitions(); k++) {
+
 			RealRelationalDataset trainData = (RealRelationalDataset)s.getTrain(k);
 			RealRelationalDataset testData = (RealRelationalDataset)s.getTest(k);
 			log.info("splitting with "+params.splitter+", preparing to train on "+trainData.size()
@@ -147,7 +146,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 			Classifier c = new DatasetClassifierTeacher(trainData).train(baseLearner);
 
 			for (Example.Looper i=testData.iterator(); i.hasNext(); ) {
-		    Example ex = i.nextExample();
+		    SGMExample ex = (SGMExample)i.nextExample();
 		    ClassLabel p = c.classification( ex );
 		    rlt.put(ex.getExampleID(), p);
 			}
@@ -161,8 +160,8 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 		HashMap Aggregators = dataset.getAggregators();
 
 		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-				Example ex = i.nextExample();
-				Example AugmentEx = AugmentExample(ex, LinksMap, Aggregators, rlt);
+				SGMExample ex = (SGMExample)i.nextExample();
+				SGMExample AugmentEx = AugmentExample(ex, LinksMap, Aggregators, rlt);
 				
 				result.add( AugmentEx );
 		}
@@ -171,7 +170,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 		return result;
 	}
 
-	private Example AugmentExample(Example ex, HashMap LinksMap, HashMap Aggregators, HashMap PredictedRlt){
+	private SGMExample AugmentExample(SGMExample ex, HashMap LinksMap, HashMap Aggregators, HashMap PredictedRlt){
 		
 		int numNewFeatures = 0;
 
@@ -227,7 +226,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 			truevalues[i] = values[i];
 		}
 				Instance stackedInstance = new AugmentedInstance(ex.asInstance(),truefeatures,truevalues);
-				return new Example( stackedInstance, ex.getLabel(), ex.getExampleID());	
+				return new SGMExample( stackedInstance, ex.getLabel(), ex.getExampleID());	
 		
 		}else{
 			return ex;
@@ -273,9 +272,8 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 				RealRelationalDataset testData = dataset;
 
 				for (int d=0; d<=params.stackingDepth; d++) {
-
 					for (Example.Looper i=testData.iterator(); i.hasNext(); ) {
-				    Example ex = i.nextExample();
+				    SGMExample ex = (SGMExample)i.nextExample();
 				    ClassLabel p = m[d].classification( ex );
 				    rlt.put(ex.getExampleID(), p);
 					}
@@ -283,7 +281,6 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 					if (d+1 <= params.stackingDepth) {
 						testData = stackTestDataset(testData, rlt);
 					}
-
 				}
 			return rlt;
 		}		
@@ -299,9 +296,9 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 			HashMap Aggregators = dataset.getAggregators();
 	
 			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-					Example ex = i.nextExample();
-					Example AugmentEx = AugmentExample(ex, LinksMap, Aggregators, predictions);
-					result.add( AugmentEx );
+					SGMExample ex = (SGMExample)i.nextExample();
+					SGMExample AugmentEx = AugmentExample(ex, LinksMap, Aggregators, predictions);
+					result.addSGM( AugmentEx );
 			}
 	
 			return result;

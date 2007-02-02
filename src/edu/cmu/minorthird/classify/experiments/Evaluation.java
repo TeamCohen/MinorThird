@@ -63,7 +63,7 @@ public class Evaluation implements Visible,Serializable,Saveable
 	}
 
 //classification(RealRelationalDataset dataset)
-	/** Test the classifier on the examples in the dataset and store the results. */
+	/** Test the classifier on the examples in the relational dataset and store the results. */
 	public void extend4SGM(StackedGraphicalLearner.StackedGraphicalClassifier c,RealRelationalDataset d, int cvID)
 	{
 		ProgressCounter pc = new ProgressCounter("classifying","example",d.size());
@@ -73,7 +73,7 @@ public class Evaluation implements Visible,Serializable,Saveable
 		for(Iterator i=rlt.keySet().iterator(); i.hasNext(); ){
 			String ID = (String)i.next();
 			ClassLabel predicted = (ClassLabel)rlt.get(ID); 
-			Example example = d.getExamplewithID(ID);
+			SGMExample example = d.getExamplewithID(ID);
 
 			if (predicted.bestClassName()==null)
 		    throw new IllegalArgumentException("predicted can't be null! for example: "+example);
