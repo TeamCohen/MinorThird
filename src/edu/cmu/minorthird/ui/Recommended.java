@@ -509,6 +509,7 @@ public class Recommended
 	protected int windowSize=3;
 	protected boolean useCharType=false;
 	protected boolean useCharTypePattern=true;
+	protected boolean useTokenValues=true;
 	//
 	// getters and setters, for gui-based configuration
 	//
@@ -521,6 +522,9 @@ public class Recommended
 	/** If true, produce features like "token.charTypePattern.Aa+" for the word "Bill". */
 	public void setUseCharTypePattern(boolean flag) { useCharTypePattern=flag; }
 	public boolean getUseCharTypePattern() { return useCharTypePattern; }
+	/** If true, produce features like "token.lc.bill" for the word "Bill". */
+	public void setUseTokenValues(boolean flag) { useTokenValues=flag; }
+	public boolean getUseTokenValues() { return useTokenValues; }
 	//
 	// command-line based configuration
 	//
@@ -534,6 +538,7 @@ public class Recommended
 	    public void noCharTypes() { useCharType = false; }
 	    public void charTypePattern() { useCharTypePattern = true; }
 	    public void noCharTypePattern() { useCharTypePattern = false; }
+	    public void noTokenValues() { useTokenValues = false; }
 	    public void tokenProps(String s) { setTokenPropertyFeatures(s); }
 	}
 	//
@@ -543,15 +548,15 @@ public class Recommended
 	{
 	    requireMyAnnotation(labels);
 	    setMyTokenPropertyList(labels);
-	    from(s).tokens().eq().lc().emit();
+	    if (useTokenValues) from(s).tokens().eq().lc().emit();
 	    if (useCharTypePattern) from(s).tokens().eq().charTypePattern().emit();
 	    if (useCharType) from(s).tokens().eq().charTypes().emit();
 	    for (int j=0; j<tokenPropertyFeatures.length; j++) {
 		from(s).tokens().prop(tokenPropertyFeatures[j]).emit();
 	    }
 	    for (int i=0; i<windowSize; i++) {
-		from(s).left().token(-i-1).eq().lc().emit();
-		from(s).right().token(i).eq().lc().emit();
+		if (useTokenValues) from(s).left().token(-i-1).eq().lc().emit();
+		if (useTokenValues) from(s).right().token(i).eq().lc().emit();
 		for (int j=0; j<tokenPropertyFeatures.length; j++) {
 		    from(s).left().token(-i-1).prop(tokenPropertyFeatures[j]).emit();
 		    from(s).right().token(i).prop(tokenPropertyFeatures[j]).emit();
