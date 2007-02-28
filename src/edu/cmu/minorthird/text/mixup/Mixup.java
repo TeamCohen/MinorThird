@@ -90,7 +90,7 @@ public class Mixup implements Serializable
      * O(N*N), since any token can be the begin or end of an extracted
      * span.  This limits the number of matches to a fixed number.
      */
-    public static int maxNumberOfMatches = 0;
+    public static int maxNumberOfMatches = 134217728; //2^27
 
     private static final boolean DEBUG = false;
 
@@ -659,13 +659,27 @@ public class Mixup implements Serializable
 	    // there are at most span.length^2 matches of every repeated primitive
 	    log.debug("matching span id/size="+span.getDocumentId()+"/"+span.size());
 	    log.debug("before alloc: max/free="+Runtime.getRuntime().maxMemory()+"/"+Runtime.getRuntime().freeMemory());
-	    int maxRepeatedPrimMatches = span.size() * (span.size()+1);
+            // We may overflow the int datatype if there are too many tokens in the span, in which case we should use 
+            // the largest available int as it is highly unlikely that there will *actually* be anywhere near that
+            // many matches to store.
+	    //int maxRepeatedPrimMatches = span.size() * (span.size()+1);
+            int maxRepeatedPrimMatches;
+            if (span.size() > (Integer.MAX_VALUE / (span.size()+1)))
+                maxRepeatedPrimMatches=Integer.MAX_VALUE; // overflow
+            else 
+                maxRepeatedPrimMatches=span.size() * (span.size()+1);
+            // Now apply any constraints that may further limit the number of possible matches
 	    if (maxRepeatedPrimMatches>minMatchesToApplyConstraints) {
-		// apply constraints
 		if (maxNumberOfMatchesPerToken>0) {
-		    maxRepeatedPrimMatches = Math.min(maxNumberOfMatchesPerToken*span.size(), maxRepeatedPrimMatches);
+                    // If the span is large enough (ie has more than Integer.MAX_VALUE/maxNumberOfMatchesPerToken tokens) then we will
+                    // overflow int again here so check for that and only attempt to adjust for the constraint if it will
+                    // succeed.  Otherwise stick with the maximum int value.
+                    if (span.size() > (Integer.MAX_VALUE / maxNumberOfMatchesPerToken))
+                        maxRepeatedPrimMatches = Math.min(maxNumberOfMatchesPerToken*span.size(), maxRepeatedPrimMatches);
 		}
-		if (maxNumberOfMatches>0) {
+                // Now we can arbitrarily set a limit to the number of matches so if this is the case, then we should 
+                // use that limit if it is larger than the number of possible matches we computed.
+		if ((maxNumberOfMatches>0) && (maxNumberOfMatches<maxRepeatedPrimMatches)) {
 		    maxRepeatedPrimMatches = maxNumberOfMatches;
 		}
 	    }
