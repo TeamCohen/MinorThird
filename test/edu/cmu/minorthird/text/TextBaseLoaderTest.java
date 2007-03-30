@@ -1,7 +1,6 @@
 package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.experiments.Evaluation;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
@@ -19,327 +18,257 @@ import java.util.Iterator;
  * This class is responsible for...
  *
  * @author ksteppe
-
  */
 public class TextBaseLoaderTest extends TestCase
 {
-  Logger log = Logger.getLogger(this.getClass());
+    Logger log = Logger.getLogger(this.getClass());
+    protected final String testCaseDir="test/edu/cmu/minorthird/text/testcases";
 
-  /**
-   * Standard test class constructior for TextBaseLoaderTest
-   * @param name Name of the test
-   */
-  public TextBaseLoaderTest(String name)
-  {
-    super(name);
-  }
 
-  /**
-   * Convinence constructior for TextBaseLoaderTest
-   */
-  public TextBaseLoaderTest()
-  {
-    super("TextBaseLoaderTest");
-  }
-
-  /**
-   * setUp to run before each test
-   */
-  protected void setUp()
-  {
-    Logger.getRootLogger().removeAllAppenders();
-    org.apache.log4j.BasicConfigurator.configure();
-    //TODO add initializations if needed
-  }
-
-  /**
-   * clean up to run after each test
-   */
-  protected void tearDown()
-  {
-    //TODO clean up resources if needed
-  }
-
-  /**
-   * read the seminar-subset data into a labels
-   * then takes the smaller version, and checks that labels are as expected
-   */
-  public void testSeminarSet()
-  {
-    try
-    {
-      log.info("----------------- SeminarSet -----------------");
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, true);
-      File dataLocation = new File(Globals.DATA_DIR + "seminar-subset");
-      TextBase textBase = loader.load(dataLocation);
-      //TextLabels labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
-      TextLabels labels = loader.getLabels();
-
-      dataLocation = new File(Globals.DATA_DIR + "tblTest");
-      textBase = loader.load(dataLocation);
-      labels = loader.getLabels();
-      //labels = TextBaseLoader.loadDirOfTaggedFiles(dataLocation);
-      log.info("labels: " + labels.toString());
-
-      log.debug("types::: " + labels.getTypes());
-
-      //now check that it's right
-      textBase = labels.getTextBase();
-      assertEquals(4, textBase.size());
-      assertNotNull(textBase.documentSpan("cil-2.txt"));
-
-      checkSeminarSample(labels);
-    }
-    catch (Exception e)
-    {
-      log.fatal(e, e);
-      fail();
-    }
-    log.info("----------------- SeminarSet -----------------");
-  }
-
-  /** explicit labeling check of 4 docs from seminar set */
-  protected void checkSeminarSample(TextLabels labels)
-  {
-    checkType(labels, "stime", "cil-2.txt", "4:00", 1);
-    checkType(labels, "stime", "cil-5.txt", "12:00pm", 1);
-    checkType(labels, "stime", "cil-22.txt", "4:30 pm", 1);
-    checkType(labels, "stime", "cil-28.txt", "12:00pm", 1);
-    checkType(labels, "location", "cil-2.txt", "Adamson Wing, Baker Hall", 1);
-    checkType(labels, "location", "cil-5.txt", "3005 Hamburg Hall", 1);
-    checkType(labels, "location", "cil-22.txt", "Wean 7500", 1);
-    checkType(labels, "location", "cil-28.txt", "Student Center, Room 207", 1);
-    checkType(labels, "speaker", "cil-2.txt", "George W. Cobb", 1);
-    checkType(labels, "speaker", "cil-5.txt", "Karen Schriver", 1);
-    checkType(labels, "speaker", "cil-22.txt", "Bruce Sherwood", 1);
-    checkType(labels, "speaker", "cil-28.txt", "David Banks", 1);
-
-    assertEquals(2, getNumLables(labels, "sentence", "cil-2.txt"));
-    assertEquals(2, getNumLables(labels, "sentence", "cil-5.txt"));
-    assertEquals(3, getNumLables(labels, "sentence", "cil-22.txt"));
-    assertEquals(4, getNumLables(labels, "sentence", "cil-28.txt"));
-  }
-
-  /**
-   * returns the number of times the given type appears in the doc
-   */
-  protected int getNumLables(TextLabels labels, String type, String doc)
-  {
-    int i = 0;
-    for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); )
-    {
-      log.debug(l.nextSpan().asString());
-      i++;
+    /**
+     * Standard test class constructior for TextBaseLoaderTest
+     * @param name Name of the test
+     */
+    public TextBaseLoaderTest(String name) {
+        super(name);
     }
 
-    return i;
-  }
-
-  /**
-   * asserts that the type has the specified value and that it appears (with that value!) the
-   * specified number of times
-   */
-  protected void checkType(TextLabels labels, String type, String doc, String value, int num)
-  {
-    int i = 0;
-    for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); i++)
-    {
-      Span s = l.nextSpan();
-      log.debug("span type: " + type + " : " + s.asString());
-      assertEquals(new String(value), s.asString());
-    }
-    assertEquals(num, i);
-  }
-
-  /**
-   * loads xmlLines.base and checks that the labels are as expected
-   */
-  public void testLoadLabeledLines()
-  {
-    try
-    {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, true);
-      TextBase textBase = loader.load(new File(Globals.DATA_DIR + "xmlLines.base"));
-      TextLabels labels = loader.getLabels();
-
-      assertEquals(7, textBase.size());
-      assertNotNull(textBase.documentSpan("doc1"));
-
-      checkType(labels, "stime", "doc1", "4:00", 1);
-      checkType(labels, "location", "doc1", "Adamson Wing, Baker Hall", 1);
-      checkType(labels, "speaker", "doc2", "George W. Cobb", 1);
-      checkType(labels, "title", "doc3", "Title: Three Ways to Gum up a Statistics Course", 1);
-      checkType(labels, "sentence", "doc4", "My talk will be in two parts", 1);
-      checkType(labels, "comment", "doc5", "comments and observations", 1);
-      checkType(labels, "country", "doc6", "US", 1);
-
-      Iterator it = labels.getTypes().iterator();
-      while (it.hasNext())
-      {
-        assertEquals(0, this.getNumLables(labels, it.next().toString(), "doc7"));
-      }
-
-    }
-    catch (Exception e)
-    {
-      log.fatal(e, e);
-      fail();
+    /** Convinence constructior for TextBaseLoaderTest */
+    public TextBaseLoaderTest() {
+        super("TextBaseLoaderTest");
     }
 
-  }
-
-  /**
-   * loads webmaster-noid.base and checks that msgs 1-3 have expected text
-   */
-  public void testLinesNoId()
-  {
-    try
-    {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
-      File dataLocation = new File(Globals.DATA_DIR + "webmaster-noid.base");
-      TextBase base = loader.load(dataLocation);
-
-      Span.Looper l = base.documentSpanIterator();
-      while (l.hasNext())
-      {
-        log.info("*" + l.nextSpan().getDocumentId() + "*");
-      }
-
-      String msg1 = "Please add the attached publication to the web site in the ``Publications\" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO\" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.";
-      String msg2 = "Please add the folder ``Publications\" to the web site.";
-      String msg3 = "Please change the string ``VLDB\" to ``International Conference on Very Large Databases\" on the ``Publications\" page.";
-
-      assertEquals(msg1, base.documentSpan("webmaster-noid.base@line:1").asString());
-      assertEquals(msg2, base.documentSpan("webmaster-noid.base@line:2").asString());
-      assertEquals(msg3, base.documentSpan("webmaster-noid.base@line:3").asString());
-    }
-    catch (Exception e)
-    {
-      log.fatal(e, e);
-      fail();
-    }
-  }
-
-  /**
-   * loads webmasterCommands.base and checks that msgs 1-3 have expected text
-   */
-  public void testLines()
-  {
-    try
-    {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
-      File dataLocation = new File(Globals.DATA_DIR + "webmasterCommands.base");
-      TextBase base = loader.load(dataLocation);
-
-      //base = TextBaseLoader.loadDocPerLine(dataLocation, false);
-
-      checkWebMasterLines(base);
-    }
-    catch (Exception e)
-    {
-      log.fatal(e, e);
-      fail();
-    }
-  }
-
-  /** checks string representation of msges 1-3 of seminar set */
-  protected void checkWebMasterLines(TextBase base)
-  {
-    String msg1 = "Please add the attached publication to the web site in the ``Publications\" folder. The authors are Anthony Tomasic, Louiqa Raschid and Patrick Valduriez. The title is ``Scaling Access to Heterogeneous Databases with DISCO\" and it appeared in the IEEE Transactions on Knowledge and Data Engineering, 1998.";
-    String msg2 = "Please add the folder ``Publications\" to the web site.";
-    String msg3 = "Please change the string ``VLDB\" to ``International Conference on Very Large Databases\" on the ``Publications\" page.";
-
-    assertEquals(msg1, base.documentSpan("msg01").asString());
-    assertEquals(msg2, base.documentSpan("msg02").asString());
-    assertEquals(msg3, base.documentSpan("msg03").asString());
-  }
-
-  /**
-   * Load from blankLines.base
-   * checks that the extra lines are thrown out
-   */
-  public void testBlankLines()
-  {
-    try
-    {
-	TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE);
-      TextBase base = loader.load(new File(Globals.DATA_DIR + "blankLines.base"));
-      //check that I can get a token from every document
-      Span.Looper it = base.documentSpanIterator();
-      while (it.hasNext())
-      {
-        assertNotNull(it.nextSpan().getTextToken(0));
-      }
-      //check that # of documents is 1
-      assertEquals(1, base.size());
-    }
-    catch (Exception e)
-    {
-      log.error(e, e);
-      fail();
+    /** setUp to run before each test */
+    protected void setUp() {
+        Logger.getRootLogger().removeAllAppenders();
+        org.apache.log4j.BasicConfigurator.configure();
+        //TODO add initializations if needed
     }
 
-  }
-
-  /**
-   * Base test for TextBaseLoaderTest
-   */
-  public void testDirectories()
-  {
-    try
-    {
-      TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, false, true);
-
-      //log.info("loader labels: " + loader.isLabelsInFile());
-      File dir = new File(Globals.DATA_DIR + "20newgroups/20news-bydate-train");
-      TextBase base = loader.load(dir);
-  //    loader.loadLabeledDir(base, dir);
-      log.debug("loaded training set");
-
-      // set up the labels
-      MutableTextLabels labels = loader.getLabels();
-
-
-      log.debug("passed first assertion");
-      log.debug("base size = " + base.size());
-      // for verification/correction of the labels, if we care...
-      // TextBaseLabeler.label( labels, new File("my-document-labels.env"));
-
-      // set up a simple bag-of-words feature extractor
-      edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe = edu.cmu.minorthird.text.learn.SampleFE.BAG_OF_LC_WORDS; //SimpleFeatureExtractor();
-
-      // create a binary dataset for the class 'delete'
-      Dataset data = extractDataset(base, labels, fe);
-
-      log.debug("extracted dataset");
-      log.debug("data size = " + data.size());
-
-      Example.Looper it = data.iterator();
-      log.debug("got looper: " + it);
-
-      }
-    catch (Exception e)
-    {
-      log.error(e, e);  //To change body of catch statement use Options | File Templates.
-      fail();
+    /** clean up to run after each test */
+    protected void tearDown() {
+        //TODO clean up resources if needed
     }
 
-  }
 
-  private Dataset extractDataset(TextBase base, MutableTextLabels labels, edu.cmu.minorthird.text.learn.SpanFeatureExtractor fe)
-  {
-    Dataset data = new BasicDataset();
-    int numSpans = 0;
-    for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
-    {
-      log.debug("span: " + numSpans++);
-      Span s = i.nextSpan();
-      double label = labels.hasType(s, "delete") ? +1 : -1;
-      TextLabels textLabels = new EmptyLabels();
-      data.add(new Example(fe.extractInstance(textLabels,s), ClassLabel.binaryLabel(label)));
+    //
+    // The Tests
+    //
+
+    /**
+     * Begin by testing the basic loading of a data file functionality.  It tests both using the default
+     * tokenizer or specifying a custom tokenizer.
+     */
+    public void testLoadDataFile() {
+        try {
+            //
+            // Try the basic test of just loading a file with good data (ie no blamk lines, etc) using the standard tokenizer
+            //
+            TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.USE_XML);
+            TextBase base = loader.load(new File(testCaseDir+"/DocPerLineTestData.base"));
+            MutableTextLabels labels = loader.getLabels();
+            
+            // Check that the proper number of documents were loaded from the file.
+            assertEquals(7, base.size());
+
+            // Check that all the docs were loaded correctly
+            Span docSpan = base.documentSpan("DocPerLineTestData.base@line:1");
+            assertNotNull(docSpan);
+            assertEquals(19, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData.base@line:2");
+            assertNotNull(docSpan);
+            assertEquals(12, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData.base@line:3");
+            assertNotNull(docSpan);
+            assertEquals(12, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData.base@line:4");
+            assertNotNull(docSpan);
+            assertEquals(19, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData.base@line:5");
+            assertNotNull(docSpan);
+            assertEquals(11, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData.base@line:6");
+            assertNotNull(docSpan);
+            assertEquals(17, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData.base@line:7");
+            assertNotNull(docSpan);
+            assertEquals(6, docSpan.size());
+
+            // Lastly make sure that all embedded types were loaded
+            this.checkType(labels, "stime", "DocPerLineTestData.base@line:1", "4:00", 1);
+            this.checkType(labels, "location", "DocPerLineTestData.base@line:1", "Adamson Wing, Baker Hall", 1);
+            this.checkType(labels, "speaker", "DocPerLineTestData.base@line:2", "George W. Cobb", 1);
+            this.checkType(labels, "title", "DocPerLineTestData.base@line:3", "Title: Three Ways to Gum up a Statistics Course", 1);
+            this.checkType(labels, "sentence", "DocPerLineTestData.base@line:4", "My talk will be in two parts", 1);
+            this.checkType(labels, "comment", "DocPerLineTestData.base@line:5", "comments and observations", 1);
+            this.checkType(labels, "country", "DocPerLineTestData.base@line:6", "US", 1);
+
+
+            //
+            // Next repeat these tests with a dataset that has blank lines in it to make sure these are skipped
+            //
+            loader = new TextBaseLoader(TextBaseLoader.DOC_PER_LINE, TextBaseLoader.USE_XML);
+            base = loader.load(new File(testCaseDir+"/DocPerLineTestData_WithBlanks.base"));
+            labels = loader.getLabels();
+            
+            // Check that the proper number of documents were loaded from the file.
+            //WARNING: THIS IS A KNOWN BUG THAT BLANK LINES ARE INCLUDED.  LEAVE THE TEST FAILING 
+            //         TO REMIND US TO FIX THE BUG!!!
+            assertEquals(7, base.size());
+
+            // Check that all the docs were loaded correctly
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:4");
+            assertNotNull(docSpan);
+            assertEquals(19, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:5");
+            assertNotNull(docSpan);
+            assertEquals(12, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:6");
+            assertNotNull(docSpan);
+            assertEquals(12, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:7");
+            assertNotNull(docSpan);
+            assertEquals(19, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:11");
+            assertNotNull(docSpan);
+            assertEquals(11, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:12");
+            assertNotNull(docSpan);
+            assertEquals(17, docSpan.size());
+            docSpan = base.documentSpan("DocPerLineTestData_WithBlanks.base@line:13");
+            assertNotNull(docSpan);
+            assertEquals(6, docSpan.size());
+
+            // Lastly make sure that all embedded types were loaded
+            this.checkType(labels, "stime", "DocPerLineTestData_WithBlanks.base@line:4", "4:00", 1);
+            this.checkType(labels, "location", "DocPerLineTestData_WithBlanks.base@line:4", "Adamson Wing, Baker Hall", 1);
+            this.checkType(labels, "speaker", "DocPerLineTestData_WithBlanks.base@line:5", "George W. Cobb", 1);
+            this.checkType(labels, "title", "DocPerLineTestData_WithBlanks.base@line:6", "Title: Three Ways to Gum up a Statistics Course", 1);
+            this.checkType(labels, "sentence", "DocPerLineTestData_WithBlanks.base@line:7", "My talk will be in two parts", 1);
+            this.checkType(labels, "comment", "DocPerLineTestData_WithBlanks.base@line:11", "comments and observations", 1);
+            this.checkType(labels, "country", "DocPerLineTestData_WithBlanks.base@line:12", "US", 1);
+        }
+        catch (Exception e) {
+            log.fatal(e.getMessage(), e);
+            fail("testLoadDataFile failed because an exception occurred: " + e.getMessage());
+        }
     }
-    return data;
-  }
+
+
+    public void testLoadDirectoryOfFiles() {
+        try {
+            //First test loading a directory of files that have embedded labels
+            TextBaseLoader loader = new TextBaseLoader(TextBaseLoader.DOC_PER_FILE, TextBaseLoader.USE_XML);
+            TextBase base = loader.load(new File(testCaseDir+"/SeminarAnnouncements"));
+            MutableTextLabels labels = loader.getLabels();
+
+            // Check that the proper number of documents were loaded from the directory.
+            assertEquals(15, base.size());
+
+            // Check that all the docs were loaded correctly
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2450_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2457_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2477_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2513_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2516_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2527_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2611_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2627_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2633_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2674_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2680_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2737_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2752_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2811_0"));
+            assertNotNull(base.documentSpan("cmu.andrew.official.cmu-news-2912_1"));
+
+            // Check the the correct number of instances of each label were loaded
+            assertEquals(3, this.getNumLabels(labels, "etime"));
+            assertEquals(15, this.getNumLabels(labels, "location"));
+            assertEquals(18, this.getNumLabels(labels, "paragraph"));
+            assertEquals(49, this.getNumLabels(labels, "sentence"));
+            assertEquals(12, this.getNumLabels(labels, "speaker"));
+            assertEquals(14, this.getNumLabels(labels, "stime"));
+
+            // Check a number of the embedded type to make sure they were loaded correctly
+            this.checkType(labels, "etime", "cmu.andrew.official.cmu-news-2611_0", "5:00 P.M.", 1);
+            this.checkType(labels, "etime", "cmu.andrew.official.cmu-news-2457_0", "1:00pm", 1);
+            this.checkType(labels, "etime", "cmu.andrew.official.cmu-news-2674_0", "1:30 p.m.", 1);
+            this.checkType(labels, "location", "cmu.andrew.official.cmu-news-2527_0", "Baker Hall 235A", 1);
+            this.checkType(labels, "speaker", "cmu.andrew.official.cmu-news-2611_0", "FARRO F. RADJY, PH.D.", 1);
+            this.checkType(labels, "stime", "cmu.andrew.official.cmu-news-2752_0", "12:00 pm", 1);
+        }
+        catch(Exception e) {
+            log.fatal(e.getMessage(), e);
+            fail("testLoadDirectoryOfFiles failed because an exception occurred: " + e.getMessage());
+        }
+    }
+
+    public void testLoadWordPerLineFile() {
+        try {
+            TextBaseLoader loader = new TextBaseLoader();
+            TextBase base = loader.loadWordPerLineFile(new File(testCaseDir+"/eng.base"));
+            MutableTextLabels labels = loader.getLabels();
+
+            // Check that the proper number of documents were loaded from the file.
+            assertEquals(216, base.size());
+
+            // Check a couple of the docs to make sure that the text was loaded correctly
+            String msg1 = "BOXING - JOHNSON WINS UNANIMOUS POIUNTS VERDICT . DUBLIN 1996-08-31 American Tom Johnson successfully defended his IBF featherweight title when he earned a unanimous points decision over Venezuela 's Ramon Guzman on Saturday . ";
+            String msg2 = "SOCCER - RESULT IN SPANISH FIRST DIVISION . MADRID 1996-08-31 Result of game played in the Spanish first division on Saturday : Deportivo Coruna 1 Real Madrid 1 ";
+            String msg3 = "SOCCER - ARMENIA AND PORTUGAL DRAW 0-0 IN WORLD CUP QUALIFIER . YEREVAN 1996-08-31 Armenia and Portugal drew 0-0 in a World Cup soccer European group 9 qualifier on Saturday . Attendance : 5,000 ";
+            String msg4 = "SOCCER - AUSTRIA DRAW 0-0 WITH SCOTLAND IN WORLD CUP QUALIFIER . VIENNA 1996-08-31 Austria and Scotland drew 0-0 in a World Cup soccer European group four qualifier on Saturday . Attendance : 29,500 ";
+            String msg5 = "BASKETBALL - INTERNATIONAL TOURNAMENT RESULT . BELGRADE 1996-08-30 Result in an international basketball tournament on Friday : Red Star ( Yugoslavia ) beat Dinamo ( Russia ) 92-90 ( halftime 47-47 ) ";
+            String msg6 = "RUGBY LEAGUE - WIGAN BEAT BRADFORD 42-36 IN SEMIFINAL . WIGAN , England 1996-08-31 Result of English rugby league premiership semifinal played on Saturday : Wigan 42 Bradford Bulls 36 ";
+
+            assertEquals(msg1, base.getDocument("eng.base-155").getText());
+            assertEquals(msg2, base.getDocument("eng.base-160").getText());
+            assertEquals(msg3, base.getDocument("eng.base-136").getText());
+            assertEquals(msg4, base.getDocument("eng.base-162").getText());
+            assertEquals(msg5, base.getDocument("eng.base-5").getText());
+            assertEquals(msg6, base.getDocument("eng.base-102").getText());
+
+            // Some of the fields in this format get translated to span types.  Check that these
+            // get created (and in the correct amounts).
+            assertEquals(4, this.getNumLabels(labels, "B-MISC"));
+            assertEquals(2094, this.getNumLabels(labels, "I-LOC"));
+            assertEquals(1264, this.getNumLabels(labels, "I-MISC"));
+            assertEquals(2092, this.getNumLabels(labels, "I-ORG"));
+            assertEquals(3149, this.getNumLabels(labels, "I-PER"));
+
+        }
+        catch (Exception e) {
+            log.fatal(e.getMessage(), e);
+            fail("testLoadWordPerLineFile failed because an exception occurred: " + e.getMessage());
+        }
+    }
+
+
+    //
+    // Helper methods 
+    //
+
+    // returns the number of times the given type appears in the doc
+    private int getNumLabels(TextLabels labels, String type) {
+        int i = 0;
+        for (Span.Looper l = labels.instanceIterator(type); l.hasNext(); ) {
+            log.debug(l.nextSpan().asString());
+            i++;
+        }
+        
+        return i;
+    }
+
+    // Asserts that there is an instance of the specified type, that this instance has the specified 
+    // value and that it appears (with that value) the specified number of times
+    private void checkType(TextLabels labels, String type, String doc, String value, int num) {
+        int i = 0;
+        for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); i++) {
+            Span s = l.nextSpan();
+            assertEquals(value, s.asString());
+        }
+        assertEquals(num, i);
+    }
 
   /**
    * Creates a TestSuite from all testXXX methods

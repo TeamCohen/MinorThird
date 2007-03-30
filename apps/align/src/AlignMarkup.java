@@ -228,8 +228,8 @@ public class AlignMarkup
         {
             // token match is hopeless for these...
             boolean ok = true;
-            String[] markupToks = markupLabels.getTextBase().splitIntoTokens(markupSpan.asString());
-            String[] plainToks = markupLabels.getTextBase().splitIntoTokens(span.asString());
+            String[] markupToks = markupLabels.getTextBase().getTokenizer().splitIntoTokens(markupSpan.asString());
+            String[] plainToks = markupLabels.getTextBase().getTokenizer().splitIntoTokens(span.asString());
             if (markupToks.length!=plainToks.length) {
                 ok = false;
             } else {

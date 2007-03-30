@@ -76,7 +76,7 @@ abstract public class ViewerTracker extends JComponent implements ListSelectionL
 
     protected Span nullSpan()
     {
-        TextBase b = new BasicTextBase();
+        BasicTextBase b = new BasicTextBase();
         b.loadDocument(DUMMY_ID, "[" + documentList.getModel().getSize() + " spans being viewed.\n"
                 + " Select one to make it appear here.]");
         return b.documentSpanIterator().nextSpan();

@@ -40,7 +40,7 @@ public class BOWClassifierWrapper
 
 	public double getScore(String string)
 	{
-		edu.cmu.minorthird.text.TextBase base = new BasicTextBase();
+		edu.cmu.minorthird.text.BasicTextBase base = new BasicTextBase();
 		base.loadDocument("dummyID",string);
 		edu.cmu.minorthird.text.Span span = base.documentSpan("dummyID");
 		Instance instance = fe.extractInstance(new EmptyLabels(),span);

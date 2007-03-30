@@ -4,6 +4,7 @@ package edu.cmu.minorthird.text.learn;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 import edu.cmu.minorthird.text.mixup.Mixup.ParseException;
 import edu.cmu.minorthird.text.learn.ExtractorAnnotator;
 import edu.cmu.minorthird.util.*;
@@ -151,12 +152,14 @@ public class ExtractorNameMatcher
 
       MixupProgram p = null;
       try{
+      //BUG: THIS FILE DOES NOT EXIST AND THE WAY ITS ACCESSED IS WRONG
       p = new MixupProgram(new File("c:\\minorthird\\apps\\names\\fixEnv.mixup"));}
       catch (Exception e){
          System.out.println(e);
       }
-      //p.eval(textLabels, textLabels.getTextBase());
-      p.eval(annLabels, annLabels.getTextBase());
+      
+      MixupInterpreter interp = new MixupInterpreter(p);
+      interp.eval(annLabels);
 
       if (saveAs!=null) {
 			try {
@@ -219,17 +222,18 @@ public class ExtractorNameMatcher
    }
 
     private Span dictLookup (ArrayList nameList, Span tokenWindow) {
-        BasicTextBase base = new BasicTextBase();
-		for (Iterator i = nameList.iterator(); i.hasNext();) {
-			String name = (String) i.next();
-			String tokens = tokenWindow.asString().replaceAll("[\r\n\\s]+", " ");
-			if (tokens.toLowerCase().matches("(?i)(?s)^\\Q" + name + "\\E(\\W|$).*")) {
-				int numTokens = base.splitIntoTokens(name).length;
-				return tokenWindow.subSpan(0, numTokens);
-			}
-		}
-		return null;
-	}
+        // old code created a BasicTextBase() and called splitIntoTokens(name)
+        RegexTokenizer tokenizer = new RegexTokenizer();
+        for (Iterator i = nameList.iterator(); i.hasNext();) {
+            String name = (String) i.next();
+            String tokens = tokenWindow.asString().replaceAll("[\r\n\\s]+", " ");
+            if (tokens.toLowerCase().matches("(?i)(?s)^\\Q" + name + "\\E(\\W|$).*")) {
+                int numTokens = tokenizer.splitIntoTokens(name).length;
+                return tokenWindow.subSpan(0, numTokens);
+            }
+        }
+        return null;
+    }
 
 
    private void transformDict(FreqAnal fa) {

@@ -53,27 +53,28 @@ public class InsideOutsideReduction extends Extraction2TaggingReduction implemen
 
 	public TextLabels getTaggedLabels() { return taggedLabels; }
 
-	/** Return a TextLabels in which tagged tokens are used 
-	 * to solve the extraction problem. */
-	public void extractFromTags(String output,MonotonicTextLabels taggedLabels)
-	{
-		try {
-			MixupProgram p = new MixupProgram();
-			if (tagset.size()==1 && tagset.iterator().next().equals(ExampleSchema.POS_CLASS_NAME)) {
-				p.addStatement("defSpanType "+output+" =: "+makePattern(ExampleSchema.POS_CLASS_NAME));
-			} else {
-				for (Iterator i=tagset.iterator(); i.hasNext(); ) {
-					String tag = (String)i.next();
-					p.addStatement("defSpanProp "+output+":"+tag+" =: "+makePattern(tag));
-				}
-			}
-			p.eval(taggedLabels,taggedLabels.getTextBase());
-		} catch (Mixup.ParseException ex) {
-			throw new IllegalStateException("mixup error: "+ex);
-		}
-	}
-	private String makePattern(String val)
-	{
-		return "... [L "+tokenProp+":"+val+"+ R] ...";
-	}
+    /** Return a TextLabels in which tagged tokens are used 
+     * to solve the extraction problem. */
+    public void extractFromTags(String output,MonotonicTextLabels taggedLabels) {
+        try {
+            MixupProgram p = new MixupProgram();
+            if (tagset.size()==1 && tagset.iterator().next().equals(ExampleSchema.POS_CLASS_NAME)) {
+                p.addStatement("defSpanType "+output+" =: "+makePattern(ExampleSchema.POS_CLASS_NAME));
+            } else {
+                for (Iterator i=tagset.iterator(); i.hasNext(); ) {
+                    String tag = (String)i.next();
+                    p.addStatement("defSpanProp "+output+":"+tag+" =: "+makePattern(tag));
+                }
+            }
+            MixupInterpreter interp = new MixupInterpreter(p);
+            interp.eval(taggedLabels);
+        } catch (Mixup.ParseException ex) {
+            throw new IllegalStateException("mixup error: "+ex);
+        }
+    }
+
+    private String makePattern(String val)
+    {
+        return "... [L "+tokenProp+":"+val+"+ R] ...";
+    }
 }

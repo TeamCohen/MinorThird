@@ -64,7 +64,7 @@ public class LabeledDirectory implements CommandLineProcessor.Configurable
     private TextBase getTextBase(File f) throws IOException
     {
 	String contents = IOUtil.readFile(f);
-	TextBase base = new BasicTextBase();
+	BasicTextBase base = new BasicTextBase();
 	base.loadDocument( "someFile", contents );
 	return base;
     }

@@ -341,12 +341,12 @@ public class CommandLineUtil
 	public void showLabels() { this.showLabels=true; }
 	public void showResult() { this.showResult=true; }
 	public void classic() {this.classic=true; }
-	public String labelsFilenameHelp = new String("<html>The Directory of labeled or unlabeled documents you would like to load OR the repository key </html>");
+	public String labelsFilenameHelp = new String("The Directory of labeled or unlabeled documents you\n                                 would like to load OR the repository key");
 	public void usage() {
 	    System.out.println("basic parameters:");
-	    System.out.println(" -labels REPOSITORY_KEY   " + labelsFilenameHelp);
-	    System.out.println(" [-showLabels]            interactively view textBase loaded by -labels");
-	    System.out.println(" [-showResult]            interactively view final result of this operation");
+	    System.out.println(" -labels REPOSITORY_KEY          " + labelsFilenameHelp);
+	    System.out.println(" [-showLabels]                   interactively view textBase loaded by -labels");
+	    System.out.println(" [-showResult]                   interactively view final result of this operation");
 	    System.out.println();
 	}
 	// for GUI
@@ -375,7 +375,7 @@ public class CommandLineUtil
 	public void gui() { useGUI=true; }
 	public void usage() {
 	    System.out.println("presentation parameters:");
-	    System.out.println(" -gui                     use graphic interface to set parameters");
+	    System.out.println(" -gui                            use graphic interface to set parameters");
 	    System.out.println();
 	}
     }
@@ -388,7 +388,7 @@ public class CommandLineUtil
 	public String saveHelp = new String("Save final result of this operation in FILE");
 	public void usage() {
 	    System.out.println("save parameters:");
-	    System.out.println(" [-saveAs FILE]           " + saveHelp);
+	    System.out.println(" [-saveAs FILE]                  " + saveHelp);
 	    System.out.println();
 	}
 	// for gui
@@ -454,15 +454,15 @@ public class CommandLineUtil
 	// useful abstractions
 	public String getOutputType(String output) { return spanType==null ? null : output;	}
 	public String getOutputProp(String output) { return spanProp==null ? null : output; }
-	private String spanTypeHelp = new String("create binary dataset, where candidates that\n are marked with spanType TYPE are positive");
-	private String spanPropHelp = new String("create multi-class dataset, where candidates\n are given a class determine by the spanProp PROP");
-	private String candidateTypeHelp = new String("classify all spans of the given TYPE\n - default is to classify all document spans");
+	private String spanTypeHelp = new String("create binary dataset, where candidates that\n                                 are marked with spanType TYPE are positive");
+	private String spanPropHelp = new String("create multi-class dataset, where candidates\n                                 are given a class determine by the spanProp PROP");
+	private String candidateTypeHelp = new String("classify all spans of the given TYPE.\n                                 - default is to classify all document spans");
 	public void usage() {
 	    System.out.println("classification 'signal' parameters:");
-	    System.out.println(" -spanType TYPE           " + spanTypeHelp);
-	    System.out.println(" -spanProp PROP           " + spanPropHelp);
-	    System.out.println("                          - exactly one of spanType, spanProp should be specified");
-	    System.out.println(" [-candidateType TYPE]    " + candidateTypeHelp);
+	    System.out.println(" -spanType TYPE                  " + spanTypeHelp);
+	    System.out.println(" -spanProp PROP                  " + spanPropHelp);
+	    System.out.println("                                 - exactly one of spanType, spanProp should be specified");
+	    System.out.println(" [-candidateType TYPE]           " + candidateTypeHelp);
 	    System.out.println();
 	}
 	// for gui
@@ -535,28 +535,28 @@ public class CommandLineUtil
 		RefUtils.modify(o,s);			
 	    } else System.out.println("You must define a feature extractor before setting it's options");
 	}
-	private String learnerHelp = new String("Bean-shell code to create a ClassifierLearner\n - default is \"new Recommended.NaiveBayes()\"");   
+	private String learnerHelp = new String("Bean-shell code to create a ClassifierLearner\n                                 - default is \"new Recommended.NaiveBayes()\"");   
 	private String showDataHelp = new String("interactively view the constructed training dataset");
-	private String feHelp = new String("Bean-shell code to create a SpanFeatureExtractor\n - default is \"new Recommended.DocumentFE()\" ");
+	private String feHelp = new String("Bean-shell code to create a SpanFeatureExtractor\n                                 - default is \"new Recommended.DocumentFE()\" ");
 	private String mixupHelp = new String("run named mixup code before extracting features");
 	private String embedHelp = new String("embed the listed annotators in the feature extractor");
-	private String outputHelp = new String("the type or property that is produced by the learned\n ClassifierAnnotator - default is \"_prediction\"");
+	private String outputHelp = new String("the type or property that is produced by the learned\n                                 ClassifierAnnotator - default is \"_prediction\"");
 	public void usage() {
 	    System.out.println("classification training parameters:");
-	    System.out.println(" [-learner BSH]           " + learnerHelp);                     
-	    System.out.println(" [-showData]              " + showDataHelp);
-	    System.out.println(" [-fe FE]                 " + feHelp);
-	    System.out.println("                          - if FE implements CommandLineProcessor.Configurable then" );
-	    System.out.println("                            immediately following command-line arguments are passed to it");
-	    System.out.println(" [-mixup STRING]          " + mixupHelp);
-	    System.out.println(" [-embed STRING]          " + embedHelp);
-	    System.out.println(" [-output STRING]         " + outputHelp);                           
-	    System.out.println(" [-LearnerOp STRING=VALUE] Extra options that can be defined with the learner");
-	    System.out.println("                           - defaults are set");
-	    System.out.println("                           - ex: displayDatasetBeforeLearning=true");
-	    System.out.println(" [-feOp STRING=VALUE]      Extra options that can be defined with the feature extractor");
-	    System.out.println("                           - defaults are set");
-	    System.out.println("                           - ex: featureWindowSize=4");
+	    System.out.println(" [-learner BSH]                  " + learnerHelp);                     
+	    System.out.println(" [-showData]                     " + showDataHelp);
+	    System.out.println(" [-fe FE]                        " + feHelp);
+	    System.out.println("                                 - if FE implements CommandLineProcessor.Configurable then" );
+	    System.out.println("                                   immediately following command-line arguments are passed to it");
+	    System.out.println(" [-mixup STRING]                 " + mixupHelp);
+	    System.out.println(" [-embed STRING]                 " + embedHelp);
+	    System.out.println(" [-output STRING]                " + outputHelp);                           
+	    System.out.println(" [-LearnerOp STRING=VALUE]       Extra options that can be defined with the learner");
+	    System.out.println("                                  - defaults are set");
+	    System.out.println("                                  - ex: displayDatasetBeforeLearning=true");
+	    System.out.println(" [-feOp STRING=VALUE]            Extra options that can be defined with the feature extractor");
+	    System.out.println("                                  - defaults are set");
+	    System.out.println("                                  - ex: featureWindowSize=4");
 	    System.out.println();
 	}
 	// for gui
@@ -782,13 +782,13 @@ public class CommandLineUtil
 	private String testHelp = new String("Specify directory or repository key of test data\n  -Note: splitter will be ignored with this option");
 	public void usage() {
 	    System.out.println("train/test experimentation parameters:");
-	    System.out.println(" -splitter SPLITTER       specify splitter, e.g. -k5, -s10, -r70");
-	    System.out.println(" [-showTestDetails]       " + showTestDetailsHelp);
-	    System.out.println(" -test REPOSITORY_KEY     specify source for test data");
-	    System.out.println("                          - at most one of -splitter, -test should be specified");
-	    System.out.println("                            default splitter is r70");
-	    System.out.println(" [-SplitterOp STRING=VALUE]Extra options that can be defined with the splitter");
-	    System.out.println("                           - ex: trainFraction=.07");
+	    System.out.println(" -splitter SPLITTER               specify splitter, e.g. -k5, -s10, -r70");
+	    System.out.println("                                  - At most one of -splitter, -test should be specified.");
+	    System.out.println("                                  - The default splitter is r70.");
+	    System.out.println(" [-showTestDetails true|false]    " + showTestDetailsHelp);
+	    System.out.println(" -test REPOSITORY_KEY             specify source for test data");
+	    System.out.println(" [-SplitterOp STRING=VALUE]       Extra options that can be defined with the splitter");
+	    System.out.println("                                  - ex: trainFraction=.07");
 	    System.out.println();
 	}
 	//for the gui
@@ -834,7 +834,8 @@ public class CommandLineUtil
 	}
 	try {
 	    MixupProgram prog = new MixupProgram(createSpanPropMixup);
-	    prog.eval(labels, labels.getTextBase());
+            MixupInterpreter interpreter = new MixupInterpreter(prog);
+	    interpreter.eval(labels);
 	    return property;
 	} catch (Exception e) {
 	    e.printStackTrace();

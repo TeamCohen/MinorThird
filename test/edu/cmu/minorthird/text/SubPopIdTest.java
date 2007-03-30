@@ -27,7 +27,7 @@ public class SubPopIdTest extends TestCase
 	
 	public void testSubPop()
 	{
-		TextBase base = new BasicTextBase();
+		BasicTextBase base = new BasicTextBase();
 
 		base.loadDocument("b1","Mud Club");
 		base.setDocumentGroupId("b1","bar");

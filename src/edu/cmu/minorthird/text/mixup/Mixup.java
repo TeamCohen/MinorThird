@@ -939,7 +939,7 @@ public class Mixup implements Serializable
 	try {
 	    Mixup mixup = new Mixup(args[0]);
 	    System.out.println("normalized expression = "+mixup);
-	    TextBase b = new BasicTextBase();
+	    BasicTextBase b = new BasicTextBase();
 	    MonotonicTextLabels labels = new BasicTextLabels(b);
 	    for (int i=1; i<args.length; i++) {
 		b.loadDocument("arg_"+i, args[i]);

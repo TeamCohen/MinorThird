@@ -45,7 +45,7 @@ public class ExtractorAnnotatorWrapper
 	 */
 	public String[] extractFrom(String source)
 	{
-		TextBase base = new BasicTextBase();
+		BasicTextBase base = new BasicTextBase();
 		base.loadDocument("noSource", source);
 		MutableTextLabels labels = new BasicTextLabels(base);
 		annotator.annotate(labels);

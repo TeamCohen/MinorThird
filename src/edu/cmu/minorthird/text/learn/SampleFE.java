@@ -152,27 +152,27 @@ public class SampleFE
 	 */
 	public static void main(String[] args)
 	{
-		try {
-			SpanFeatureExtractor fe = BAG_OF_LC_WORDS;
-			TextBase base = new BasicTextBase();
-			for (int i=0; i<SampleDatasets.posTrain.length; i++) {
-				base.loadDocument("pos"+i, SampleDatasets.posTrain[i]);
-			}
-			for (int i=0; i<SampleDatasets.negTrain.length; i++) {
-				base.loadDocument("neg"+i, SampleDatasets.negTrain[i]);
-			}
-			Dataset dataset = new BasicDataset();
-			for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-				Span s = i.nextSpan();
-				String id = s.getDocumentId();
-				ClassLabel label = ClassLabel.binaryLabel( id.startsWith("pos") ? +1 : -1 );
-				TextLabels textLabels = new EmptyLabels();
-				dataset.add(new Example(fe.extractInstance(textLabels,s), label));
-			}
-			ViewerFrame f = new ViewerFrame("Toy data", dataset.toGUI());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            try {
+                SpanFeatureExtractor fe = BAG_OF_LC_WORDS;
+                BasicTextBase base = new BasicTextBase();
+                for (int i=0; i<SampleDatasets.posTrain.length; i++) {
+                    base.loadDocument("pos"+i, SampleDatasets.posTrain[i]);
+                }
+                for (int i=0; i<SampleDatasets.negTrain.length; i++) {
+                    base.loadDocument("neg"+i, SampleDatasets.negTrain[i]);
+                }
+                Dataset dataset = new BasicDataset();
+                for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
+                    Span s = i.nextSpan();
+                    String id = s.getDocumentId();
+                    ClassLabel label = ClassLabel.binaryLabel( id.startsWith("pos") ? +1 : -1 );
+                    TextLabels textLabels = new EmptyLabels();
+                    dataset.add(new Example(fe.extractInstance(textLabels,s), label));
+                }
+                ViewerFrame f = new ViewerFrame("Toy data", dataset.toGUI());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 	}
 
 }

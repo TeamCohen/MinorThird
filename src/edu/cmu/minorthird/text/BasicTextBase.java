@@ -4,11 +4,11 @@ import edu.cmu.minorthird.util.gui.*;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
-
 import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.Iterator;
 
 /** Maintains information about what's in a set of documents.
  * Specifically, this contains a set of character sequences (TextToken's)
@@ -17,273 +17,120 @@ import java.util.regex.Pattern;
  *
  * @author William Cohen
  * @author Cameron Williams
+ * @author Quinten Mercer
  */
 
-public class BasicTextBase implements TextBase, Serializable
+public class BasicTextBase extends MutableTextBase implements Serializable
 {
-	static private Logger log = Logger.getLogger(BasicTextBase.class);
+    // Minorthird administrative stuff
+    static private Logger log = Logger.getLogger(BasicTextBase.class);
+    static private final long serialVersionUID = 1;
+    private static final int CURRENT_VERSION_NUMBER = 1;
 
-	static private final long serialVersionUID = 1;
-	private static final int CURRENT_VERSION_NUMBER = 1;
+    // Underlying document store.
+    private Map documentMap = new HashMap();
 
-	//private final String defaultRegexPattern = "\\s*(\\w+|\\W)\\s*";
-	//private Tokenizer tokenizer = new Tokenizer(Tokenizer.SPLIT,"\n");
-	private Tokenizer tokenizer = new Tokenizer();
+    // map documentId to name of 'group' of documents it belongs to
+    private Map documentGroupMap = new TreeMap();
 
-	private Map documentMap = new HashMap();
+    /** Default constructor creates a new TextBase with the default Tokenizer. */
+    public BasicTextBase() { super(new RegexTokenizer()) ; }
 
-	// map documentId to name of 'group' of documents it belongs to
-	private Map documentGroupMap = new TreeMap();
+    /** Constructor that specifies a custom Tokenizer to be used with this TextBase. */
+    public BasicTextBase(Tokenizer t) { super(t); }
 
-	// map token value to index
-	private Map indexMap = new TreeMap();
-	// next allocatable index
-	private int nextIndex = 0;
+    //
+    // Implementations of MutableTextBase abstract methods
+    //
+    /** Adds a document to this TextBase with documentId as its identifier and with text specified by documentString. */
+    public void loadDocument(String documentId, String documentString) {
+        //create the document and add the tokens to that document
+        Document document = new Document(documentId, documentString);	
+        TextToken[] tokenArray = getTokenizer().splitIntoTokens(document);
+        document.setTokens(tokenArray);
+        documentMap.put(documentId, document);
+    }
 
-	public BasicTextBase() { ; }
+    /** Adds a document to this TextBase with documentId as its identifier and with text specified by 
+     *  documentString.  Also, this method sets the offset parameter in the new Document to the 
+     *  specified charOffset.
+     */
+    public void loadDocument(String documentId, String documentString, int charOffset) {
+        //create the document and add the tokens to that document
+        Document document = new Document(documentId, documentString, charOffset);
+        TextToken[] tokenArray = getTokenizer().splitIntoTokens(document);
+        document.setTokens(tokenArray);
+        documentMap.put(documentId, document);
+    }
 
-	public void loadDocument(String documentId, String documentString, String regexPattern)
-	{ loadRegex(documentId, documentString, regexPattern); }
+    /** Sets the document group id for the specified documentId to the specified document group id. */
+    public void setDocumentGroupId(String documentId,String documentGroupId) { 
+        documentGroupMap.put(documentId,documentGroupId); 
+    }
 
-	public void loadDocument(String documentId, String documentString, Tokenizer tok)
-	{
-		this.tokenizer = tok;
-		String regexPattern = tokenizer.regexPattern;
-		loadRegex(documentId, documentString, regexPattern); 
-	}
+    /** Returns the number of documents currently in this TextBase. */
+    public int size() { return documentMap.size(); }
 
-	public void loadDocument(String documentId, String documentString)
-	{
-		String regexPattern = tokenizer.regexPattern;
-		loadRegex(documentId, documentString, regexPattern); 
-	}
+    /** Returns the Document instance that corresponds to the specified documentId or null if no document
+     *  exists with the specified documentId.
+     */
+    public Document getDocument(String documentId) { return (Document)documentMap.get(documentId); }
 
-	public void loadDocument(String documentId, String documentString, int charOffset)
-	{
-		String regexPattern = tokenizer.regexPattern;
-		loadRegex(documentId, documentString, charOffset, regexPattern); 
-	}
+    /** Returns a Span instance that encloses all of the tokens in the document specified by documentId.  Note that this
+     *  Span instance will NOT include any white space that comes before the first token or after the last token.
+     */
+    public Span documentSpan(String documentId)	{
+        TextToken[] textTokens = getTokenArray(documentId);
+        if (textTokens==null) return null;
+        else return new BasicSpan(documentId,textTokens,0,textTokens.length,(String)documentGroupMap.get(documentId));
+    }
 
-	public void loadDocument(Document document, TextToken[] tokenArray) {
-		document.setTokens(tokenArray);
-		documentMap.put(document.getId(), document);
-	}
+    /** Returns a Span.Looper instance that includes a document span for every document in this TextBase. */
+    public Span.Looper documentSpanIterator() {	return new MyDocumentSpanLooper(); }
 
-	/** Load all substrings of a string that match group 1 of a given regex pattern.
-	 */
-	protected void loadRegex(String documentId, String string, String regexPattern)
-	{
-		//create the document and add the tokens to that document
-	
-		tokenizer.regexPattern = regexPattern;
-		Document document = new Document(documentId, string);
-	
-		TextToken[] tokenArray = tokenizer.splitIntoTokens(document, string);
-	
-		document.setTokens(tokenArray);
-
-		documentMap.put(documentId, document);
-	}
-
-	/** Load all substrings of a string that match group 1 of a given regex pattern.
-	 */
-	protected void loadRegex(String documentId, String string, int charOffset, String regexPattern)
-	{
-		//create the document and add the tokens to that document
-	
-		tokenizer.regexPattern = regexPattern;
-		Document document = new Document(documentId, string, charOffset);
-	
-		TextToken[] tokenArray = tokenizer.splitIntoTokens(document, string);
-	
-		document.setTokens(tokenArray);
-
-		documentMap.put(documentId, document);
-	}
-
-	public Document getDocument(String docID) {
-		Document doc = (Document)documentMap.get(docID);
-		return doc;
-	}
-
-	/** Tokenize a string. */
-	public String[] splitIntoTokens(String string)
-	{
-		String[] stringArray = tokenizer.splitIntoTokens(string);
-		return stringArray;
-	
-	}
-
-	/** The number of documents in the tesst base. */
-	public int size()
-	{ return documentMap.size(); }
-
-	/** An iterator over all documents.
-	 */
-	public Span.Looper documentSpanIterator()
-	{	
-		return new MyDocumentSpanLooper();	
-	}
-
-	/** Find the document span for the given id */
-	public Span documentSpan(String documentId)
-	{
-		TextToken[] textTokens = getTokenArray(documentId);
-		if (textTokens==null) return null;
-		else return new BasicSpan(documentId,textTokens,0,textTokens.length,(String)documentGroupMap.get(documentId));
-	}
-
-	public void setDocumentGroupId(String documentId,String documentGroupId)
-	{	documentGroupMap.put(documentId,documentGroupId); }
-
-	private class MyDocumentSpanLooper implements Span.Looper
-	{
-		private Iterator k = documentMap.keySet().iterator();
-		public MyDocumentSpanLooper() {;}
-		public void remove() { throw new UnsupportedOperationException("not implemented"); }
-		public boolean hasNext() { return k.hasNext(); }
-		public Span nextSpan() { return (Span)next(); }
-		public Object next() {
+    /** Helper class that is used to iterate through document spans. */
+    private class MyDocumentSpanLooper implements Span.Looper {
+        private Iterator k = documentMap.keySet().iterator();
+        public MyDocumentSpanLooper() {;}
+        public void remove() { throw new UnsupportedOperationException("Cannot remove documents from a TextBase."); }
+        public boolean hasNext() { return k.hasNext(); }
+        public Span nextSpan() { return (Span)next(); }
+        public Object next() {
 	    String documentId = (String)k.next();
 	    TextToken[] textTokens = getTokenArray(documentId);
 	    Span s = new BasicSpan(documentId,textTokens,0,textTokens.length,(String)documentGroupMap.get(documentId));
-	    int offset = getOffset(documentId);
-	    //System.out.println("The Offset is: " + offset);
-	    //s.setCharOffset(getOffset(documentId));
+            s.setCharOffset(getOffset(documentId));
 	    return s;
-		}
-		public int estimatedSize() { return documentMap.keySet().size(); }
-	}
+        }
+        public int estimatedSize() { return documentMap.keySet().size(); }
+    }
 
-	private int getOffset(String documentId) {
-		Document document = (Document)documentMap.get(documentId);
-		if (document!=null)
-	    return document.charOffset;
-		else
-	    return -1;
-	}
-    
-	private TextToken[] getTokenArray(String documentId)
-	{
-		Document document = (Document)documentMap.get(documentId);
-		if (document!=null)
+    private int getOffset(String documentId) {
+        Document document = (Document)documentMap.get(documentId);
+        if (document!=null)
+            return document.charOffset;
+        else
+            return -1;
+    }
+
+    /** Helper method used internally to make getting at the token array for a specific document id easier. */
+    private TextToken[] getTokenArray(String documentId) {
+        Document document = (Document)documentMap.get(documentId);
+        if (document!=null)
 	    return document.getTokens();
-		else
-	    return null;
-	}
-
-	/** Separate the tokens in a text Base differently */
-    public TextBase retokenize(Tokenizer tok)
-    {
-	TextBaseMapper mapper = new TextBaseMapper(this);
-	return retokenize(tok, mapper);
-    }
-    
-    /** Separate the tokens in a text Base differently */
-    public TextBase retokenize(Tokenizer tok, TextBaseMapper mapper)
-    {
-	TextBase tb = new BasicTextBase();
-	Object[] docs = documentMap.values().toArray();
-	for(int i=0; i<docs.length; i++) {
-	    String docId = ((Document)docs[i]).getId();
-	    tb.loadDocument(docId,((Document)docs[i]).getText(),tok);
-	    Span docSpan = tb.documentSpan(docId);
-	    mapper.mapDocument(docId,docSpan,0);
-	}
-	return tb;
-    }
-    
-    /**Retokenize the textBase creating psuedotokens for a certain spanType */
-    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType) {
-	TextBaseMapper mapper = new TextBaseMapper(this);
-	return createPseudotokens(labels, spanType, mapper);
+        return null;
     }
 
-    /**Retokenize the textBase creating psuedotokens for a certain spanType */
-    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType, TextBaseMapper mapper) {
-	BasicTextBase tb = new BasicTextBase();
-	Span.Looper looper = labels.getTextBase().documentSpanIterator();
-	ArrayList pseudotokenList = new ArrayList();
-	while(looper.hasNext()) {
-	    Span docSpan = looper.nextSpan();
-	    String docId = docSpan.getDocumentId();
-	    Document doc = labels.getTextBase().getDocument(docId);
-	    String docString = doc.getText();
-	    Span.Looper typeIterator = labels.instanceIterator(spanType, docId);
-	    ArrayList docSplits = new ArrayList(); //List of string split at the pseudotokens
-	    int docPos = 0;
-	    while(typeIterator.hasNext()) {
-		Span typeSpan = typeIterator.nextSpan();
-		if(docPos != typeSpan.getTextToken(0).getLo()) {
-		    Span before = docSpan.charIndexSubSpan(docPos, typeSpan.getTextToken(0).getLo());		
-		    docSplits.add(new Pseudotoken(before, null));
-		}
-		docSplits.add(new Pseudotoken(typeSpan, spanType));		
-		docPos = typeSpan.getTextToken(typeSpan.size() - 1).getHi();
-	    }
-	    Span after = docSpan.charIndexSubSpan(docPos, docSpan.getTextToken(docSpan.size() - 1).getHi());
-	    docSplits.add(new Pseudotoken(after, null));
-	    ArrayList tokenList = new ArrayList();
-	    
-	    int numToks = 0;
-	    for(int i=0; i<docSplits.size(); i++) {
-		Pseudotoken tok = (Pseudotoken)docSplits.get(i);
-		if(tok.tokenValue == null) { //this split is not a pseudotoken
-		    TextToken[] tokens = tokenizer.splitIntoTokens(doc, tok.text.asString(), tok.text.getTextToken(0).getLo());
-		    for(int j=0; j<tokens.length; j++) {
-			tokenList.add(tokens[j]);
-		    }
-		} else { //Split is a pseudotoken
-		    TextToken ptoken = new TextToken(doc, tok.text.getTextToken(0).getLo(), 
-						     tok.text.asString().length());
-		    //System.out.println("Pseudo: " + ptoken.asString());
-		    tokenList.add(ptoken);
-		    pseudotokenList.add(ptoken);
-		}
-		numToks = tokenList.size()-1;
-	    }
-	    /*for(int x=0; x<tokenList.size(); x++) {
-	      TextToken token = (TextToken)tokenList.get(x);
-	      System.out.println(token.asString());
-	      }*/
-	    TextToken[] tokenArray = (TextToken[])tokenList.toArray(new TextToken[0]);
-	    tb.loadDocument(doc, tokenArray);	    
-	    mapper.mapDocument(docId, docSpan, 0);
-	}	
-	MonotonicTextLabels newLabels = new BasicTextLabels(tb);	
-	 
-	for(int i=0; i<pseudotokenList.size(); i++) {
-	    TextToken pseudotok = (TextToken)pseudotokenList.get(i);
-	    newLabels.setProperty((Token)pseudotok, "pseudotoken", spanType);
-	}
-
-	return newLabels;
-    }
-
-	public static class IllegalArgumentException extends Exception {
-		public IllegalArgumentException(String s) { super(s); }
-	}
-    
-	private class Pseudotoken {
-		public Span text;
-		public String tokenValue;
-		public Pseudotoken(Span text, String tokValue) {
-	    this.text = text;
-	    this.tokenValue = tokValue;
-		}
-	}
-
-	//
-	// test routine
-	//
-
-	static public void main(String[] args) {
-		TextBase b = new BasicTextBase();
-		for (int i=0; i<args.length; i++) {
+    //
+    // basic test routine that loads each argument as a document, then iterates through them printing them out.
+    //    
+    static public void main(String[] args) {
+        BasicTextBase b = new BasicTextBase();
+        for (int i=0; i<args.length; i++) {
 	    b.loadDocument("arg_"+i, args[i]);
-		}
-		for (Iterator i=b.documentSpanIterator(); i.hasNext(); ) {
+        }
+        for (Iterator i=b.documentSpanIterator(); i.hasNext(); ) {
 	    System.out.println(i.next());
-		}
-	}
+        }
+    }
 }

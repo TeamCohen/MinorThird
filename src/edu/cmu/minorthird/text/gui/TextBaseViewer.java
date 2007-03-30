@@ -752,18 +752,18 @@ public class TextBaseViewer extends JComponent
 		frame.setVisible(true);
 	}
 	
-	public static void main(String[] args)
-	{
-		try {
-			TextLabels labels = FancyLoader.loadTextLabels(args[0]);
-			if (args.length>1) {
-				MixupProgram p = new MixupProgram(new File(args[1]));
-				p.eval((MonotonicTextLabels)labels, labels.getTextBase());
-			}
-			view(labels);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("usage: TextBaseViewer key [mixupProgram]");
-		}
-	}
+    public static void main(String[] args) {
+        try {
+            TextLabels labels = FancyLoader.loadTextLabels(args[0]);
+            if (args.length>1) {
+                MixupProgram p = new MixupProgram(new File(args[1]));
+                MixupInterpreter interp = new MixupInterpreter(p);
+                interp.eval((MonotonicTextLabels)labels);
+            }
+            view(labels);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("usage: TextBaseViewer key [mixupProgram]");
+        }
+    }
 }

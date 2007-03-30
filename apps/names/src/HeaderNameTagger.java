@@ -22,7 +22,8 @@ public class HeaderNameTagger extends AbstractAnnotator
 		try {
 			MixupProgram prog = new MixupProgram(	new String[] 
 				{ "defSpanType _header =top~ re '\\n(From|To|Cc):\\s*\\S+\\s+([^\\n]+)',2" } );
-			prog.eval(labels, labels.getTextBase() );
+                        MixupInterpreter interp = new MixupInterpreter(prog);
+			interp.eval(labels);
 		} catch (Mixup.ParseException e) {
 			throw new IllegalStateException("mixup error: "+e);
 		}

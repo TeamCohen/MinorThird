@@ -84,8 +84,9 @@ public class BeginContinueOutsideReduction extends Extraction2TaggingReduction i
 		    p.addStatement("defSpanProp "+output+":"+baseTag+" =: "+makePattern(baseTag));
 		}
 	    }
-	    //System.out.println("extractFromTags program:\n"+p);
-	    p.eval(taggedLabels,taggedLabels.getTextBase());
+            MixupInterpreter interp = new MixupInterpreter(p);
+	    interp.eval(taggedLabels);
+            
 	} catch (Mixup.ParseException ex) {
 	    throw new IllegalStateException("mixup error: "+ex);
 	}

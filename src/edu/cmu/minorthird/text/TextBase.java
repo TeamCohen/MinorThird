@@ -2,70 +2,30 @@
 
 package edu.cmu.minorthird.text;
 
-
-
 /** Maintains information about what's in a set of documents.
  * Specifically, this contains a set of character sequences (TextToken's)
  * from some sort of set of containing documents - typically found by
  * tokenization.
  *
- *
  * @author William Cohen
-*/
+ * @author Quinten Mercer
+ */
 
-public interface TextBase
-{
-  /**
-   * Load a text document (represented by the given string) and tokenize
-   * according to group 1 of a given regex pattern
-   */
-  public void loadDocument(String documentId, String documentString, String regexPattern);
+public interface TextBase {
 
+    /** Returns the {@link edu.cmu.minorthird.text.Tokenizer} used on the documents in this text base. */
+    Tokenizer getTokenizer();
     
-  /**
-   * Load a text document (represented by the given string) and tokenize
-   * according to the Tokenizer
-   */
-  public void loadDocument(String documentId, String documentString, Tokenizer tokenizer);
+    /** Returns the number of documents contained in this TextBase. */
+    public int size();
 
-  /**
-   * Load a text document (represented by the given string) and tokenize
-   * using the default regex pattern
-   */
-  public void loadDocument(String documentId, String text);
+    /** Returns the {@link Document} with the given ID */
+    public Document getDocument(String docID);
 
-	public void loadDocument(String documentId, String documentString, int charOffset);
-
-	/** Tokenize a string. */
-	public String[] splitIntoTokens(String string);
-
-	/** The number of documents. */
-	public int size();
-
-	/** An iterator over all documents. */
-	public Span.Looper documentSpanIterator();
-
-	/** Find the document span for the given id.
-	 * If no such document span exists, then return null.
-	 */
-	public Span documentSpan(String documentId);
-
-	/** Set the group that a document belongs to */
-	public void setDocumentGroupId(String documentId,String documentGroupId);
-
-	/**Returns the document with the given ID */
-	public Document getDocument(String docID);
-
-	/**Tokenize a text base differently*/
-	public TextBase retokenize(Tokenizer tok);
-
-    /**Tokenize a text base differently*/
-    public TextBase retokenize(Tokenizer tok, TextBaseMapper mapper);
-
-	/**Retokenize the textBase creating psuedotokens for a certain spanType */
-	public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType);
-
-    /**Retokenize the textBase creating psuedotokens for a certain spanType */
-    public MonotonicTextLabels createPseudotokens(MonotonicTextLabels labels, String spanType, TextBaseMapper mapper);
+    /** Returns an iterator over the documents in this TextBase. */
+    public Span.Looper documentSpanIterator();
     
+    /** Looks up the document Span for the given documentId.  Returns the Span or 
+        null if a document with documentId was not found in this TextBase. */
+    public Span documentSpan(String documentId);
 }

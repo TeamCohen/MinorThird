@@ -26,7 +26,7 @@ public class BasicSpan implements Span,Serializable,Visible
     private String documentGroupId;
     public int loTextTokenIndex, loCharIndex = -1, hiCharIndex = -1;
     private int charOffset = 0;
-    private int spanLen;
+    private int spanLen;  // The number of tokens in the span.
     private TextToken[] textTokens;
     private String text = null;
 
@@ -55,27 +55,31 @@ public class BasicSpan implements Span,Serializable,Visible
 	else return textTokens[0].getDocument();
     }
 
+    /** Returns the number of tokens in the span. */
     public int size() { 
 	return spanLen; 
     }
 
+    /** Retrieves the ith TextToken in the span */
     public TextToken getTextToken(int i) {
 	if (i<0 || i>=spanLen) throw new IllegalArgumentException("out of range: "+i);
 	return textTokens[loTextTokenIndex+i]; 
     }
 
+    /** Retrieves the ith TextToken in the span */
     public Token getToken(int i) {
 	//return getTextToken(i);
 	if (i<0 || i>=spanLen) throw new IllegalArgumentException("out of range: "+i);
 	return textTokens[loTextTokenIndex+i]; 
     }
 
-    /** Create a subspan of this span, covering the indicated TextToken's. */
+    /** Create a new BasicSpan, covering the indicated TextToken's. */
     public Span subSpan(int start,int len) {
 	if (start<0 || start+len>spanLen) throw new IllegalArgumentException("out of range: "+start+","+len);
 	return new BasicSpan(documentId,textTokens,loTextTokenIndex+start,len,documentGroupId);
     }
 
+    /** Create a SubSpan of this span, covering the indicated TextToken's. */
     public SubSpan subSpan(int startIndex, int start, int len) {
 	if (start<0 || start+len>spanLen) throw new IllegalArgumentException("out of range: "+start+","+len);
 	return new SubSpan(documentId,textTokens,loTextTokenIndex+start,len,documentGroupId, startIndex);

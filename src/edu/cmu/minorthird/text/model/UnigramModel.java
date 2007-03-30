@@ -123,7 +123,7 @@ public class UnigramModel
         } else {
             UnigramModel model = new UnigramModel();
             model.load(new File(args[0]));
-            TextBase base = new BasicTextBase();
+            BasicTextBase base = new BasicTextBase();
             for (int i=1; i<args.length; i++) {
                 base.loadDocument("argv."+i, args[i]);
             }

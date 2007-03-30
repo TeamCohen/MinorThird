@@ -68,7 +68,7 @@ public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator impleme
     /** Provide document string with a label and add to the learner*/
     public void addDocument(String label, String text) 
     {
-	TextBase tb = new BasicTextBase();
+	BasicTextBase tb = new BasicTextBase();
 	docNum++;
 	String docID = DOC + docNum;
 	tb.loadDocument(docID, text);

@@ -218,18 +218,20 @@ public class FancyLoader
 		    log.error("Can't find documents for key '"+script+"'");
 		    return null;
 		}
-		MutableTextLabels labels = sgmlExpected ? tbl.getLabels() : new BasicTextLabels(base);
 
+		MonotonicTextLabels labels = sgmlExpected ? tbl.getLabels() : new BasicTextLabels(base);
 		File labelFile = new File(script + ".labels");
 		if (labelFile.exists()) {
 		    log.info("Loading annotations from "+labelFile);
-		    new TextLabelsLoader().importOps(labels,base,labelFile);
+		    new TextLabelsLoader().importOps((MutableTextLabels)labels,base,labelFile);
 		}
 
 		File mixupFile = new File(script + ".mixup");
 		if (mixupFile.exists()) {
 		    log.info("Adding annotations with "+mixupFile);
-		    new MixupProgram(mixupFile).eval(labels,base);
+                    MixupInterpreter interp = new MixupInterpreter(new MixupProgram(mixupFile));
+		    interp.eval(labels);
+                    labels = interp.getCurrentLabels();
 		}
 		return labels;
 	    } catch (IOException ex) {

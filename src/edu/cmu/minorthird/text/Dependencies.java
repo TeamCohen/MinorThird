@@ -10,6 +10,8 @@ import java.util.*;
  * Contains static methods to run annotators (either mixup or java code)
  * see runDependency(MonotonicTextLabels, String, String)
  * @author ksteppe
+ * @deprecated Use the require mechanism instead.
+ * deprecatd as of 3/9/2007
  */
 public class Dependencies
 {
@@ -23,6 +25,11 @@ public class Dependencies
    *
    * If no file is given and no default is registered then a null pointer will be thrown
    * Exceptions are converted to IllegalStateException objects
+   *
+   * If the file provided is a mixup program it runs the program.  However, this assumes that
+   * if the program creates new levels using mixup's multilevel capabilities, that the program
+   * itself will import any results back to the root level.  This method does not inspect any
+   * levels created by the mixup program for annotations created.
    *
    * note here - could catch the annotate exception stuff
    *
@@ -44,28 +51,32 @@ public class Dependencies
       if (file == null)
         throw new Exception("no annotator found for '" + reqAnnotation + "'");
 
-      if (file.endsWith("mixup"))
-      {
-        File f = new File(file);
-        InputStream inStream;
-        if (f.exists())
-          inStream = new FileInputStream(f);
-        else
-          inStream = Dependencies.class.getClassLoader().getResourceAsStream(file);
+      if (file.endsWith("mixup")) {
+          File f = new File(file);
+          InputStream inStream;
+          if (f.exists())
+              inStream = new FileInputStream(f);
+          else
+              inStream = Dependencies.class.getClassLoader().getResourceAsStream(file);
+          
+          log.debug("got stream " + inStream);
+          byte[] chars = new byte[inStream.available()];
+          inStream.read(chars);
+          
+          String program = new String(chars);
+          
+          log.info("Evaluating mixup program "+file+" to provide "+reqAnnotation);
+          MixupProgram subProgram =  new MixupProgram(program);
+          MixupInterpreter interp = new MixupInterpreter(subProgram);
 
-        log.debug("got stream " + inStream);
-        byte[] chars = new byte[inStream.available()];
-        inStream.read(chars);
+          // Evaluate the loaded program here.  Note that this code assumes that the program will
+          // export all results back to the root level if it creates any new new levels during 
+          // it's execution.
+          interp.eval(labels);
 
-        String program = new String(chars);
-
-				log.info("Evaluating mixup program "+file+" to provide "+reqAnnotation);
-        MixupProgram subProgram =  new MixupProgram(program);
-        subProgram.eval(labels, labels.getTextBase());
-				if (!labels.isAnnotatedBy(reqAnnotation)) {
-					throw new IllegalArgumentException(
-						"file "+file+" did not provide expected annotation type "+reqAnnotation);
-				}
+          if (!labels.isAnnotatedBy(reqAnnotation)) {
+            throw new IllegalArgumentException("file "+file+" did not provide expected annotation type "+reqAnnotation);
+          }
       }
       else // if (file.endsWith("java") || file.endsWith(("class")))
       {

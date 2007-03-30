@@ -135,7 +135,6 @@
         <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> 
          <!-- requires test data -->
         <exclude name="**/IOUtilTest.class"/>         <!-- data -->
-<!--        <exclude name="**/LibsvmTest.class"/>  -->
         <exclude name="**/classify/Test.class"/>
         <exclude name="**/classify/TrainTest.class"/>
         <exclude name="**/LearnToClassifyTest.class"/>
@@ -146,10 +145,10 @@
         <exclude name="com/lgc/wsh/inv/GaussNewtonSolverTest.class"/>
 
         <!-- long running time (>5 seconds) -->
-<!--      <exclude name="**/MixupProgramTest.class"/>  -->
+        <!-- <exclude name="**/MixupProgramTest.class"/> -->
 
         <!-- even longer running time (>20 secs) -->
-        <exclude name="**/TextBaseLoaderTest.class"/>
+        <!-- <exclude name="**/TextBaseLoaderTest.class"/> -->
 
         <!-- VERY long running time (>1 minute) -->
       </fileset>

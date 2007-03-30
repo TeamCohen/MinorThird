@@ -2,6 +2,7 @@ package edu.cmu.minorthird.text;
 
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 
 import java.util.Iterator;
 
@@ -28,22 +29,23 @@ public class SampleTextBases {
 		"defSpanType start =top: ( [any{5}] any+ || [any{,5}])",
 	};
 	
-	static private TextBase base;
+	static private BasicTextBase base;
 	static private MutableTextLabels truthLabels;
 	static private MonotonicTextLabels guessLabels;
 	static {
 		try {
 			base = new BasicTextBase();
 			for (int i=0; i<testStrings.length; i++) {
-				base.loadDocument("testStrings["+i+"]", testStrings[i]);
+                            base.loadDocument("testStrings["+i+"]", testStrings[i]);
 			}
 			truthLabels = new BasicTextLabels(base);
 			MixupProgram prog = new MixupProgram(testProgram);
-			prog.eval(truthLabels, base);
+                        MixupInterpreter interp = new MixupInterpreter(prog);
+			interp.eval(truthLabels);
 			guessLabels = new NestedTextLabels( truthLabels );
-			MixupProgram guessProg = new MixupProgram(
-				new String[] { "defSpanType guess =: [ any{2} ] ..." });
-			guessProg.eval(guessLabels, base);
+			MixupProgram guessProg = new MixupProgram(new String[] { "defSpanType guess =: [ any{2} ] ..." });
+                        interp.setProgram(guessProg);
+			interp.eval(guessLabels);
 		} catch (Mixup.ParseException e) {
 			e.printStackTrace();
 		}

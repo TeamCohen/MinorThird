@@ -40,81 +40,51 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
     // don't serialize this, it's too big!
     transient private TextBase textBase = null;
 
+    /** Creates an empty TextLabels not associated with a TextBase */
     public BasicTextLabels() { this.textBase = null; }
+    /** Creates an empty TextLabels associated with the specified TextBase */
     public BasicTextLabels(TextBase textBase) { this.textBase = textBase; }
 
-        /** Import the labels from the parent TextBase */
-    public BasicTextLabels(SpanTypeTextBase base, TextLabels parentLabels) {
-	this.textBase = base;
-	//labels = new BasicTextLabels(base);
-	Span.Looper parentIterator = parentLabels.instanceIterator(base.spanType);
-	String prevDocId = "";
-	int docNum = 0;
-	//Reiterate over the spans with spanType in the parent labels
-	while(parentIterator.hasNext()) {
-	    Span parentSpan = parentIterator.nextSpan();
-	    String docID = parentSpan.getDocumentId();
-	    if(docID.equals(prevDocId))
-		docNum++;
-	    else docNum=0;
-	    Span childDocSpan = base.documentSpan("childTB" + docNum + "-" + docID); //The matching span in the child textbase
-	    prevDocId = docID;
-	    int childDocStartIndex = parentSpan.getLoTextToken();
-	    Set types = parentLabels.getTypes();  
-	    Iterator typeIterator = types.iterator();
-	    //Iterate over span types in the parent textBase
-	    while(typeIterator.hasNext()) {
-		String type = (String)typeIterator.next();
-		Set spansWithType = parentLabels.getTypeSet(type, docID);
-		Iterator spanIterator = spansWithType.iterator();
-		//Iterate over the spans with a type
-		while(spanIterator.hasNext()) {
-		    Span s = (Span)spanIterator.next();
-		    //See if the parent span conains the span
-		    if(parentSpan.contains(s) && childDocSpan.size()>=s.getLoTextToken()-childDocStartIndex+s.size() ) {
-			//find the matching span in the child doc span and add it to the child Labels
-			Span subSpan = childDocSpan.subSpan(s.getLoTextToken()-childDocStartIndex, s.size());
-			addToType(subSpan, type);			
-		    }
-		}		
-		closeTypeInside(type, childDocSpan);
-	    } 	    
-	}
-    }
-
+    /** Returns the TextBase associated with this labels set or NULL if it has not been set. */
     public TextBase getTextBase() { return textBase; }
 
-    public boolean hasDictionary(String dictionary)
-    {
+    /** Returns whether this labels set knows about the specified dictionary */
+    public boolean hasDictionary(String dictionary) {
 	return textTokenDictMap.containsKey(dictionary);
     }
 
+    /** Sets the TextBase associated with this labels set.
+     * @throws java.lang.IllegalStateException If the TextBase has already been set.
+     */
     public void setTextBase(TextBase textBase) {
 	if (this.textBase!=null) throw new IllegalStateException("textBase already set");
 	this.textBase = textBase;
     }
 
-    /** A convenience method which creates empty labels
-     * containing a single string.
-     */
+    /** A convenience method which creates empty labels containing a single string. */
     public BasicTextLabels(String s) {
 	this(new BasicTextBase());
-	getTextBase().loadDocument("nullId",s);
+	((BasicTextBase)getTextBase()).loadDocument("nullId",s);
     }
 
     //
-    // maintain annotation history
+    // methods used to maintain annotation history
     //
+
+    /** Returns whether or not this labels set has been annotated to include the specified type. */
     public boolean isAnnotatedBy(String s) { return annotatedBySet.contains(s); }
 
+    /** Adds the specified type to the list of annotation types that this labels set has been 
+     *  annotated to contain. */
     public void setAnnotatedBy(String s) { annotatedBySet.add(s); }
  
+    /** Sets the loader used to locate annotators. */
     public void setAnnotatorLoader(AnnotatorLoader newLoader) { this.loader=newLoader; }
 
+    /** Returns the current loader used to locate annotators. */
     public AnnotatorLoader getAnnotatorLoader() { return loader; }
 
-    public void require(String annotationType,String fileToLoad)
-    {
+    public void require(String annotationType,String fileToLoad) {
 	require(annotationType,fileToLoad,loader);
     }
 
@@ -176,7 +146,9 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
     public void defineDictionary(String dictName, ArrayList fileNames, boolean ignoreCase) {
 	Set wordSet = new HashSet();
 	AnnotatorLoader theLoader = this.getAnnotatorLoader();
-        Tokenizer tok = new Tokenizer();
+        // We should use the same tokenizer that the text base associated with this labels set uses for new docs.
+        //RegexTokenizer tok = new RegexTokenizer();
+        Tokenizer tok = this.getTextBase().getTokenizer();
         String[] currentEntryTokens;
 	for(int i=0; i<fileNames.size(); i++) {	
 	    String fileName = (String)fileNames.get(i);
@@ -214,9 +186,11 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
     /** Define a trie */
     public void defineTrie(ArrayList phraseList) {	
 	trie = new Trie();
-	BasicTextBase tokenizerBase = new BasicTextBase();
+        // We should use the same tokenizer that the text base associated with this labels set uses for new docs.
+	//RegexTokenizer tokenizer = new RegexTokenizer();
+        Tokenizer tokenizer = this.getTextBase().getTokenizer();
 	for (int i=0; i<phraseList.size(); i++) {
-	    String[] toks = tokenizerBase.splitIntoTokens((String)phraseList.get(i));
+	    String[] toks = tokenizer.splitIntoTokens((String)phraseList.get(i));
 	    if (toks.length<=2 || !"\"".equals(toks[0]) || !"\"".equals(toks[toks.length-1])) {
 		trie.addWords( "phrase#"+i, toks );
 	    } else {
@@ -232,7 +206,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 		    int line=0;
 		    while ((s = bReader.readLine()) != null) {
 			line++;
-			String[] words = tokenizerBase.splitIntoTokens(s);
+			String[] words = tokenizer.splitIntoTokens(s);
 			trie.addWords(defFile+".line."+line, words);
 		    }
 		    bReader.close();				    

@@ -132,10 +132,10 @@ public class Trie
 
     public static void main(String[] argv)
     {
-	TextBase base = new BasicTextBase();
+	BasicTextBase base = new BasicTextBase();
 	Trie trie = new Trie();
 	for (int i=0; i<argv.length-1; i++) {
-	    trie.addWords( ("argv"+i), base.splitIntoTokens(argv[i]) );
+	    trie.addWords( ("argv"+i), base.getTokenizer().splitIntoTokens(argv[i]) );
 	}
 	System.out.println(trie.toString());
 	base.loadDocument("span",argv[argv.length-1]);

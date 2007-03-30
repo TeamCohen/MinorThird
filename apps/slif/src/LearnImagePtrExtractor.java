@@ -60,7 +60,8 @@ public class LearnImagePtrExtractor
     {
 	// load the labels and compute the features
 	MutableTextLabels labels = loadLabels();
-	featureProgram.eval(labels,labels.getTextBase());
+	MixupInterpreter interp = new MixupInterpreter(featureProgram);
+        interp.eval(labels);
 
 	if (argv.length>0 && "-expt".equals(argv[0])) {
 	    String className = argv.length>=2 ? argv[1] : "regional";

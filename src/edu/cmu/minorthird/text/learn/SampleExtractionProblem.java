@@ -6,6 +6,7 @@ import edu.cmu.minorthird.text.learn.AnnotatorTeacher;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 import edu.cmu.minorthird.classify.experiments.Expt;
 import org.apache.log4j.Logger;
 
@@ -59,19 +60,21 @@ public class SampleExtractionProblem
 	};
 	
 	static public TextLabels trainLabels() {
-		try {
-      BasicTextBase base = trainBase();
-      BasicTextLabels labels = new BasicTextLabels(base);
-			MixupProgram prog = new MixupProgram(labelingProgram);
-			prog.eval(labels, base);
-			for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-				labels.closeTypeInside( LABEL, i.nextSpan() );
-			}
-			new TextLabelsLoader().closeLabels(labels,TextLabelsLoader.CLOSE_ALL_TYPES);
-			return labels;
-		} catch (Mixup.ParseException e) {
-			throw new IllegalStateException("error: "+e);
-		}
+            try {
+                BasicTextBase base = trainBase();
+                BasicTextLabels labels = new BasicTextLabels(base);
+                MixupProgram prog = new MixupProgram(labelingProgram);
+                MixupInterpreter interp = new MixupInterpreter(prog);
+                interp.eval(labels);
+                for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
+                    labels.closeTypeInside( LABEL, i.nextSpan() );
+                }
+                new TextLabelsLoader().closeLabels(labels,TextLabelsLoader.CLOSE_ALL_TYPES);
+                return labels;
+            } 
+            catch (Mixup.ParseException e) {
+                throw new IllegalStateException("error: "+e);
+            }
 	}
 
 	static public TextLabels taggerTrainLabels() { return tagNames(trainLabels()); }
@@ -79,14 +82,15 @@ public class SampleExtractionProblem
 		
 	static private TextLabels tagNames(TextLabels labels) 
 	{
-		try {
-			MonotonicTextLabels labels1 = new NestedTextLabels(labels);
-			MixupProgram p = new MixupProgram(new String[]{"defTokenProp partOfName:true =: ... [@trueName] ... "});
-			p.eval(labels1, labels1.getTextBase());
-			return labels1; 
-		} catch (Mixup.ParseException e) {
-			throw new IllegalStateException("error: "+e);			
-		}
+            try {
+                MonotonicTextLabels labels1 = new NestedTextLabels(labels);
+                MixupProgram p = new MixupProgram(new String[]{"defTokenProp partOfName:true =: ... [@trueName] ... "});
+                MixupInterpreter interp = new MixupInterpreter(p);
+                interp.eval(labels1);
+                return labels1; 
+            } catch (Mixup.ParseException e) {
+                throw new IllegalStateException("error: "+e);			
+            }
 	}
 
   static public BasicTextBase trainBase()
@@ -99,17 +103,18 @@ public class SampleExtractionProblem
   }
 
   static public TextLabels testLabels() {
-		try {
-      BasicTextBase base = testBase();
-      BasicTextLabels labels = new BasicTextLabels(base);
-			MixupProgram prog = new MixupProgram(labelingProgram);
-			prog.eval(labels, base);
-			new TextLabelsLoader().closeLabels(labels,TextLabelsLoader.CLOSE_ALL_TYPES);
-			return labels;
-		} catch (Mixup.ParseException e) {
-			throw new IllegalStateException("error: "+e);
-		}
-	}
+      try {
+          BasicTextBase base = testBase();
+          BasicTextLabels labels = new BasicTextLabels(base);
+          MixupProgram prog = new MixupProgram(labelingProgram);
+          MixupInterpreter interp = new MixupInterpreter(prog);
+          interp.eval(labels);
+          new TextLabelsLoader().closeLabels(labels,TextLabelsLoader.CLOSE_ALL_TYPES);
+          return labels;
+      } catch (Mixup.ParseException e) {
+          throw new IllegalStateException("error: "+e);
+      }
+  }
 
   static public BasicTextBase testBase()
   {

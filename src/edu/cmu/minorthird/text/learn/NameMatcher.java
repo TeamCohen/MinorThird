@@ -5,6 +5,7 @@ import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.text.gui.SpanViewer.TextViewer;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 import edu.cmu.minorthird.text.mixup.Mixup.ParseException;
 import edu.cmu.minorthird.text.learn.*;
 import edu.cmu.minorthird.text.learn.ExtractorNameMatcher;
@@ -158,19 +159,19 @@ public class NameMatcher extends AbstractAnnotator
      this.postLabels = labels;
   }
 
-
+    
     private Span dictLookup (ArrayList nameList, Span tokenWindow) {
-        BasicTextBase base = new BasicTextBase();
-		for (Iterator i = nameList.iterator(); i.hasNext();) {
-			String name = (String) i.next();
-			String tokens = tokenWindow.asString().replaceAll("[\r\n\\s]+", " ");
-			if (tokens.toLowerCase().matches("(?i)(?s)^\\Q" + name + "\\E(\\W|$).*")) {
-				int numTokens = base.splitIntoTokens(name).length;
-				return tokenWindow.subSpan(0, numTokens);
-			}
-		}
-		return null;
-	}
+        RegexTokenizer tokenizer = new RegexTokenizer();
+        for (Iterator i = nameList.iterator(); i.hasNext();) {
+            String name = (String) i.next();
+            String tokens = tokenWindow.asString().replaceAll("[\r\n\\s]+", " ");
+            if (tokens.toLowerCase().matches("(?i)(?s)^\\Q" + name + "\\E(\\W|$).*")) {
+                int numTokens = tokenizer.splitIntoTokens(name).length;
+                return tokenWindow.subSpan(0, numTokens);
+            }
+        }
+        return null;
+    }
 
 
    private void transformDict(FreqAnal fa) {
@@ -361,18 +362,16 @@ public class NameMatcher extends AbstractAnnotator
 
       MixupProgram p = null;
       try{
-          p = new MixupProgram(	new String[]
-                {"defTokenProp email:t = ~re'([\\.\\-\\w+]+\\@[\\.\\-\\w\\+]+)',1;"}) ;
+          p = new MixupProgram(	new String[] {"defTokenProp email:t = ~re'([\\.\\-\\w+]+\\@[\\.\\-\\w\\+]+)',1;"});
           p.addStatement("defSpanType email =: ... [email:t+R] ... ;");
           p.addStatement("defTokenProp predicted_name:1 =: ... [@_prediction_updated] ... || ... [@_prediction] ... ;");
           p.addStatement("defSpanType _prediction_updated_fixed =: ... [L <predicted_name:1, !email:t, !delete:t>+ R] ... ;");
       }
-
       catch (Exception e){
          System.out.println(e);
       }
-
-      p.eval(postLabels, postLabels.getTextBase());
+      MixupInterpreter interp = new MixupInterpreter(p);
+      interp.eval(postLabels);
       TextBaseViewer.view(postLabels);
 
 

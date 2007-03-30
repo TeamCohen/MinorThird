@@ -100,7 +100,7 @@ public class LoadingUtils
          //data.add(new BinaryExample(fe.extractInstance(s), label));
          String str = labels.hasType(s, targetClass) ? "POS" : "NEG";
          ClassLabel label = new ClassLabel(str);
-         data.add(new Example(fe.extractInstance(s), label));
+         data.add(new Example(fe.extractInstance(labels, s), label));
          progressCounter.progress();
       }
       progressCounter.finished();

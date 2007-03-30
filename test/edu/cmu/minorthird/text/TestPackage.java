@@ -5,6 +5,7 @@ package edu.cmu.minorthird.text;
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.mixup.Mixup;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -43,10 +44,12 @@ public class TestPackage extends TestSuite
         }
         public void doTest() {
             TextBaseLoader baseLoader = new TextBaseLoader();
-            TextBase b = new BasicTextBase(), childTB = null;
+            BasicTextBase b = new BasicTextBase();
             b.loadDocument("letters", "a b c d\ne f g h\ni j k l\nm n o p\nr s t u");
-            Tokenizer tok = new Tokenizer(1, "\n");
-            childTB = b.retokenize(tok);
+            Tokenizer tok = new SplitTokenizer("\n");
+            TextBaseManager tbman = new TextBaseManager("root", b);
+            MutableTextBase childTB = tbman.retokenize(tok, "root", "childtb");
+            //childTB = b.retokenize(tok);
             MutableTextLabels lab = new BasicTextLabels(childTB);
             try {
                 MixupProgram p = 
@@ -54,7 +57,8 @@ public class TestPackage extends TestSuite
                                                   "defSpanType first =: [token:first] ...",
                                                   "defTokenProp token:last =: ... [any]",
                                                   "defSpanType last =: ... [token:last]"});
-                p.eval(lab,childTB);
+                MixupInterpreter interp = new MixupInterpreter(p);
+                interp.eval(lab);
                 Span.Looper looper = lab.instanceIterator("first");
                 assertTrue( looper.hasNext() );
                 assertEquals( "a b c d", looper.nextSpan().asString()  ); 
@@ -73,7 +77,7 @@ public class TestPackage extends TestSuite
             super(string);
         }
         public void doTest() {
-            TextBase b = new BasicTextBase();
+            BasicTextBase b = new BasicTextBase();
             MutableTextLabels lab = new BasicTextLabels(b);
             b.loadDocument("d1", "a b c b d");
             try {
@@ -81,7 +85,8 @@ public class TestPackage extends TestSuite
                     new MixupProgram(new String[]{"defSpanProp startsWith:b =: ... ['b' any]...",
                                                   "defSpanProp startsWith:c =: ... ['c' any]...",
                                                   "defSpanProp endsWith:b =: ... [any 'b']..."});
-                p.eval(lab,b);
+                MixupInterpreter interp = new MixupInterpreter(p);
+                interp.eval(lab);
                 Span.Looper looper = lab.getSpansWithProperty("startsWith");
                 assertTrue( looper.hasNext() );
                 assertEquals( "b c", looper.nextSpan().asString()  ); 
@@ -97,7 +102,7 @@ public class TestPackage extends TestSuite
     }
 
     public static class ToXMLTest extends TestCase {
-        private TextBase b;
+        private BasicTextBase b;
         public ToXMLTest(String string) {
             super(string);
             b = new BasicTextBase();
@@ -166,7 +171,7 @@ public class TestPackage extends TestSuite
 		public void doTest() {
 			TreeSet guess = new TreeSet();
 			TreeSet truth = new TreeSet();
-			TextBase b = new BasicTextBase();
+			BasicTextBase b = new BasicTextBase();
 			TextLabels e = new BasicTextLabels(b);
 			b.loadDocument("a-d", "a b c d");
 			b.loadDocument("e-h", "e f g h");
@@ -186,7 +191,7 @@ public class TestPackage extends TestSuite
 				ex.printStackTrace();
 			}
 			SpanDifference sd = new SpanDifference(new BasicSpanLooper(guess.iterator()),
-																						 new BasicSpanLooper(truth.iterator()));
+                                                               new BasicSpanLooper(truth.iterator()));
 			DiffExpects[] expects = new DiffExpects[] {
 				new DiffExpects("b c",SpanDifference.FALSE_NEG),
 				new DiffExpects("f",SpanDifference.FALSE_POS),
@@ -220,59 +225,59 @@ public class TestPackage extends TestSuite
 
 	public static class TrieTest extends TestCase
 	{
-		private TextBase b = new BasicTextBase();
-		private Trie trie = new Trie();
-		public TrieTest(String string) {
-			super(string);
-		}
-		public void doTest() {
-			trie.addWords("wwc", b.splitIntoTokens("william cohen"));
-			trie.addWords("wjc", b.splitIntoTokens("william clinton"));
-			trie.addWords("pc", b.splitIntoTokens("paul cohen"));
-			trie.addWords("j2p2", b.splitIntoTokens("pope john paul II"));
-			trie.addWords("theMan", b.splitIntoTokens("william cohen"));
-			b.loadDocument("t1","aint william cohen a great guy?");
-			b.loadDocument("t2","men of the year: william william cohen ; william clinton ; and - bill gates??");
-			b.loadDocument("t3","cohen & jensen was written by (a) william cohen (b) paul cohen (c) all of the above");
-			b.loadDocument("t4","is the pope john paul II or not?");
-			checkLookup( "t1", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},1,2) } );
-			checkLookup( "t2", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},6,2),
-																							 new TrieExpects(new String[]{"wjc"},9,2) });
-			checkLookup( "t3", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},9,2),
-																							 new TrieExpects(new String[]{"pc"},14,2) });
-			checkLookup( "t4", new TrieExpects[] { new TrieExpects(new String[]{"j2p2"},2,4) } );
-		}
-		private void checkLookup( String documentId, TrieExpects[] expects) {
-			Span span = b.documentSpan(documentId);
-			ArrayList spanList = new ArrayList();
-			ArrayList idList = new ArrayList();
-			if (DEBUG) System.out.println("lookup in "+span);
-			int k = 0;
-			for (Trie.ResultLooper i = trie.lookup(span); i.hasNext(); ) {
-				spanList.add( i.next() );
-				idList.add ( i.getAssociatedIds() );
-				k++;
-				if (DEBUG) System.out.println("found "+spanList.get(k-1)+" ids: "+idList.get(k-1) );
-			}
-			assertEquals( expects.length, spanList.size() );
-			for (int i=0; i<expects.length; i++) {
-				Span s = (Span)spanList.get(i);
-				assertEquals( expects[i].start, s.documentSpanStartIndex() );
-				assertEquals( expects[i].length, s.size() );
-				List ids = (List)idList.get(i);
-				assertEquals( expects[i].ids.length, ids.size() );
-				for (int j=0; j<expects[i].ids.length; j++) {
-                                    assertTrue( ids.contains( expects[i].ids[j] ));
-				}
-			}
-		}
-		public static class TrieExpects {
-			public String[] ids;
-			int start,length;
-			public TrieExpects(String[] ids, int start, int length) {
-				this.ids = ids;	this.start = start;	this.length = length;
-			}
-		}
+            private BasicTextBase b = new BasicTextBase();
+            private Trie trie = new Trie();
+            public TrieTest(String string) {
+                super(string);
+            }
+            public void doTest() {
+                trie.addWords("wwc", b.getTokenizer().splitIntoTokens("william cohen"));
+                trie.addWords("wjc", b.getTokenizer().splitIntoTokens("william clinton"));
+                trie.addWords("pc", b.getTokenizer().splitIntoTokens("paul cohen"));
+                trie.addWords("j2p2", b.getTokenizer().splitIntoTokens("pope john paul II"));
+                trie.addWords("theMan", b.getTokenizer().splitIntoTokens("william cohen"));
+                b.loadDocument("t1","aint william cohen a great guy?");
+                b.loadDocument("t2","men of the year: william william cohen ; william clinton ; and - bill gates??");
+                b.loadDocument("t3","cohen & jensen was written by (a) william cohen (b) paul cohen (c) all of the above");
+                b.loadDocument("t4","is the pope john paul II or not?");
+                checkLookup( "t1", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},1,2) } );
+                checkLookup( "t2", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},6,2),
+                                                       new TrieExpects(new String[]{"wjc"},9,2) });
+                checkLookup( "t3", new TrieExpects[] { new TrieExpects(new String[]{"wwc", "theMan"},9,2),
+                                                       new TrieExpects(new String[]{"pc"},14,2) });
+                checkLookup( "t4", new TrieExpects[] { new TrieExpects(new String[]{"j2p2"},2,4) } );
+            }
+            private void checkLookup( String documentId, TrieExpects[] expects) {
+                Span span = b.documentSpan(documentId);
+                ArrayList spanList = new ArrayList();
+                ArrayList idList = new ArrayList();
+                if (DEBUG) System.out.println("lookup in "+span);
+                int k = 0;
+                for (Trie.ResultLooper i = trie.lookup(span); i.hasNext(); ) {
+                    spanList.add( i.next() );
+                    idList.add ( i.getAssociatedIds() );
+                    k++;
+                    if (DEBUG) System.out.println("found "+spanList.get(k-1)+" ids: "+idList.get(k-1) );
+                }
+                assertEquals( expects.length, spanList.size() );
+                for (int i=0; i<expects.length; i++) {
+                    Span s = (Span)spanList.get(i);
+                    assertEquals( expects[i].start, s.documentSpanStartIndex() );
+                    assertEquals( expects[i].length, s.size() );
+                    List ids = (List)idList.get(i);
+                    assertEquals( expects[i].ids.length, ids.size() );
+                    for (int j=0; j<expects[i].ids.length; j++) {
+                        assertTrue( ids.contains( expects[i].ids[j] ));
+                    }
+                }
+            }
+            public static class TrieExpects {
+                public String[] ids;
+                int start,length;
+                public TrieExpects(String[] ids, int start, int length) {
+                    this.ids = ids;	this.start = start;	this.length = length;
+                }
+            }
 	}
 
 	//
@@ -281,8 +286,8 @@ public class TestPackage extends TestSuite
 
 	public static class MixupTest extends TestCase 
 	{
-		private TextBase b = new BasicTextBase();
-		private TextLabels e = new BasicTextLabels(b);
+            private BasicTextBase b = new BasicTextBase();
+            private TextLabels e = new BasicTextLabels(b);
 		
 		public MixupTest(String string) { 
 			super(string);
@@ -373,15 +378,16 @@ public class TestPackage extends TestSuite
 			}
 		}
 		private void checkProg(String[] statements, String[] expected) {
-			try {
-				MixupProgram program = new MixupProgram(statements);
-				MutableTextLabels labels = new BasicTextLabels(b);
-				if (DEBUG) System.out.println("checking program "+program);
-				program.eval(labels, b);
-				checkLooper( expected, labels.instanceIterator("out") );
-			} catch (Mixup.ParseException e) {
-				throw new IllegalStateException("parse error"+e);
-			}
+                    try {
+                        MixupProgram program = new MixupProgram(statements);
+                        MutableTextLabels labels = new BasicTextLabels(b);
+                        if (DEBUG) System.out.println("checking program "+program);
+                        MixupInterpreter interp = new MixupInterpreter(program);
+                        interp.eval(labels);
+                        checkLooper( expected, labels.instanceIterator("out") );
+                    } catch (Mixup.ParseException e) {
+                        throw new IllegalStateException("parse error"+e);
+                    }
 		}
 		private void checkExpr(TextLabels e,String pattern,String[] expected) {
 			if (DEBUG) System.out.println("checking "+pattern);
@@ -402,7 +408,7 @@ public class TestPackage extends TestSuite
 			}
 			assertEquals( expected.length, list.size() );
 			for (int i=0; i<list.size(); i++) {
-				String[] toks = b.splitIntoTokens( expected[i] );
+				String[] toks = b.getTokenizer().splitIntoTokens( expected[i] );
 				Span span = (Span)list.get(i);
 				assertEquals( toks.length, span.size() );
 				if (DEBUG) System.out.print( "checking '"+span.toString()+"' vs expected '"+expected[i]+"'");

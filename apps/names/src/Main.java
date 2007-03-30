@@ -64,7 +64,8 @@ public class Main
 			MutableTextLabels labels = (MutableTextLabels)FancyLoader.loadTextLabels(labelsKey);
 			System.out.println("loading "+mixupFileStem+".mixup...");
 			MixupProgram program = new MixupProgram(new File(mixupFileStem+".mixup"));
-			program.eval(labels, labels.getTextBase());
+                        MixupInterpreter interp = new MixupInterpreter(program);
+			interp.eval(labels);
 
 			if ("train".equals(command)) {
 				SequenceClassifierLearner learner = SequenceAnnotatorExpt.toSeqLearner(learnerName);
@@ -213,7 +214,8 @@ public class Main
 		try {
 			MixupProgram prog = new MixupProgram(new String[]{
 				"defTokenProp inTrueName:t =top: ... [@true_"+classToLearn+"] ..."});
-			prog.eval(labels,labels.getTextBase());
+                        MixupInterpreter interp = new MixupInterpreter(prog);
+			interp.eval(labels);
 			for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 				Span s = i.nextSpan(); 
 				for (int j=0; j<s.size(); j++) {

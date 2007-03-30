@@ -26,8 +26,9 @@ public class PersonNameTagger extends AbstractAnnotator
 
 	public void doAnnotate(MonotonicTextLabels labels)
 	{
-		featureProgram.eval( labels, labels.getTextBase() );
-		learnedAnnotator.annotate( labels );
+            MixupInterpreter interp = new MixupInterpreter(featureProgram);
+            interp.eval(labels);
+            learnedAnnotator.annotate( labels );
 	}
 
 	public String explainAnnotation(TextLabels labels,Span span)

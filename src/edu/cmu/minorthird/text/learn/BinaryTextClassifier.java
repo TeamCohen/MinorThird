@@ -37,7 +37,7 @@ public class BinaryTextClassifier implements TextClassifier
     /** Returns the weight for a String being in the positive class */
     public double score(String text) 
     {
-	TextBase tb = new BasicTextBase();
+	BasicTextBase tb = new BasicTextBase();
 	docNum++;
 	String docID = DOC + docNum;
 	tb.loadDocument(docID, text);	

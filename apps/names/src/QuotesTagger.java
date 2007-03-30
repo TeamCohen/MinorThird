@@ -17,7 +17,8 @@ public class QuotesTagger extends AbstractAnnotator
 		try {
 			MixupProgram prog = new MixupProgram
 			(new String[] { "defTokenProp notQuote:t =~ re '\\S(\\')\\S',1"});
-			prog.eval(labels, labels.getTextBase() );
+                        MixupInterpreter interp = new MixupInterpreter(prog);
+			interp.eval(labels);
 		} catch (Mixup.ParseException e) {
 			throw new IllegalStateException("mixup error: "+e);
 		}		

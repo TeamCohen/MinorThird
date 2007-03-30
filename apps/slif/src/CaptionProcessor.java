@@ -51,102 +51,107 @@ public class CaptionProcessor
 
 	public void processCaption(String caption,String proteinFile,String cellFile, String labelFile)
 	{
-		TextBase base = new BasicTextBase();
+		BasicTextBase base = new BasicTextBase();
 		base.loadDocument("theCaption",caption);
 		MonotonicTextLabels labels = new BasicTextLabels(base);
 		processLabels(labels,proteinFile,cellFile,labelFile);
 	}
 
-	public void processLabels(MonotonicTextLabels labels,String proteinFile,String cellFile, String labelFile)
-	{
-		if (DEBUG) System.out.println("feature construction...");
-		LearnImagePtrExtractor.featureProgram.eval(labels, labels.getTextBase());
-		if (DEBUG) System.out.println("regional annotator...");
-		regionalAnnotator.annotate(labels);
-		if (DEBUG) System.out.println("local annotator...");
-		localAnnotator.annotate(labels);
-		if (DEBUG) System.out.println("finding cells...");
-		cellTypeProgram.eval(labels, labels.getTextBase());
-		if (DEBUG) System.out.println("finding proteins...");
-		proteinProgram.eval(labels, labels.getTextBase());
-		if (DEBUG) System.out.println("scoping...");
-		scopingProgram.eval(labels, labels.getTextBase());
+    public void processLabels(MonotonicTextLabels labels,String proteinFile,String cellFile, String labelFile)
+    {
+        MixupInterpreter interp = new MixupInterpreter();
+        if (DEBUG) System.out.println("feature construction...");
+        interp.setProgram(LearnImagePtrExtractor.featureProgram);
+        interp.eval(labels);
+        if (DEBUG) System.out.println("regional annotator...");
+        regionalAnnotator.annotate(labels);
+        if (DEBUG) System.out.println("local annotator...");
+        localAnnotator.annotate(labels);
+        if (DEBUG) System.out.println("finding cells...");
+        interp.setProgram(cellTypeProgram);
+        interp.eval(labels);
+        if (DEBUG) System.out.println("finding proteins...");
+        interp.setProgram(proteinProgram);
+        interp.eval(labels);
+        if (DEBUG) System.out.println("scoping...");
+        interp.setProgram(scopingProgram);
+        interp.eval(labels);
 
-		// figure out which image pointer 'owns' which scope
-		imgPtrForScope = new TreeMap(); 
-		imagePtrList = new ArrayList();
-		String[] ptrTypes = new String[] { "local", "regional" };
-		for (int i=0; i<ptrTypes.length; i++) {
-			for (Span.Looper j=labels.instanceIterator(ptrTypes[i]); j.hasNext(); ) {
-				Span imgPtrSpan = j.nextSpan(); 
-				imagePtrList.add(imgPtrSpan);
-				Span scopeSpan = findContainingSpan(imgPtrSpan, labels, ptrTypes[i]+"Scope");
-				if (scopeSpan!=null) imgPtrForScope.put( scopeSpan, imgPtrSpan );
-			}
-		}
+        // figure out which image pointer 'owns' which scope
+        imgPtrForScope = new TreeMap(); 
+        imagePtrList = new ArrayList();
+        String[] ptrTypes = new String[] { "local", "regional" };
+        for (int i=0; i<ptrTypes.length; i++) {
+            for (Span.Looper j=labels.instanceIterator(ptrTypes[i]); j.hasNext(); ) {
+                Span imgPtrSpan = j.nextSpan(); 
+                imagePtrList.add(imgPtrSpan);
+                Span scopeSpan = findContainingSpan(imgPtrSpan, labels, ptrTypes[i]+"Scope");
+                if (scopeSpan!=null) imgPtrForScope.put( scopeSpan, imgPtrSpan );
+            }
+        }
 
-		
-		// figure out which entities belong to which scopes
-		imagePtrEntityPairs = new ArrayList();
-		String[] entityTypes = new String[] { "protein", "cell" };
-		for (int i=0; i<entityTypes.length; i++) {
-			for (Span.Looper j=labels.instanceIterator(entityTypes[i]); j.hasNext(); ) {
-				Span entitySpan = j.nextSpan(); 
-				if (DEBUG) System.out.println("associating "+entitySpan);
-				// find scope of each type containing span and associate imgPtrForScope(scope) & span
-				for (int k=0; k<ptrTypes.length; k++) {
-					Span containingScope = findContainingSpan(entitySpan,labels,ptrTypes[k]+"Scope");
-					if (containingScope!=null && imgPtrForScope.get(containingScope)!=null) {
-						associate((Span)imgPtrForScope.get(containingScope), entityTypes[i], entitySpan);
-					} else {
-						if (DEBUG) System.out.println(" - not in "+ptrTypes[k]+" scope");
-					}
-				}//ptrType k
-				// stuff in global scope is associated with all img ptrs 
-				Span globalScope = findContainingSpan(entitySpan,labels,"globalScope");
-				if (globalScope!=null) {
-					if (DEBUG) System.out.println(" - in global scope");
-					String id = globalScope.getDocumentId();
-					for (int k=0; k<ptrTypes.length; k++) {
-						for (Span.Looper el=labels.instanceIterator(ptrTypes[k],id); el.hasNext(); ) {
-							Span imgPtrSpan = el.nextSpan();
-							associate(imgPtrSpan, entityTypes[i], entitySpan);
-						}
-					}
-				}//globalScope
-			} //entitySpan j
-		} //entity type i
-
-		// expand out the 'definition' of the image pointers
-		imagePtrDefinition = new TreeMap();
-		allLabels = new TreeSet();
-		Pattern p1 = Pattern.compile(".*\\b([A-Z])\\s*-\\s*([A-Z])\\b.*");
-		Pattern p2 = Pattern.compile(".*\\b([a-z])\\s*-\\s*([a-z])\\b.*");
-		Pattern p3 = Pattern.compile(".*\\b([A-Za-z])\\b.*");
-		for (Iterator i=imagePtrList.iterator(); i.hasNext(); ) {
-			Span span = (Span)i.next();
-			String string = span.asString();
-			Matcher m1 = p1.matcher(string);
-			while (m1.find()) defineRange(span,string,m1); 
-			Matcher m2 = p2.matcher(string);
-			while (m2.find()) defineRange(span,string,m2); 
-			Matcher m3 = p3.matcher(string);
-			while (m3.find()) defineLetter(span,string,m3);
-		}
-
-		try {
-			writeFacts( "protein", proteinFile );
-			writeFacts( "cell", cellFile );
-			PrintStream s = new PrintStream(new FileOutputStream(new File(labelFile)));
-			for (Iterator i=allLabels.iterator(); i.hasNext(); ) {
-				s.println( (String) i.next() );
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Error: "+e.toString());
-		}
-
-	}
+        
+        // figure out which entities belong to which scopes
+        imagePtrEntityPairs = new ArrayList();
+        String[] entityTypes = new String[] { "protein", "cell" };
+        for (int i=0; i<entityTypes.length; i++) {
+            for (Span.Looper j=labels.instanceIterator(entityTypes[i]); j.hasNext(); ) {
+                Span entitySpan = j.nextSpan(); 
+                if (DEBUG) System.out.println("associating "+entitySpan);
+                // find scope of each type containing span and associate imgPtrForScope(scope) & span
+                for (int k=0; k<ptrTypes.length; k++) {
+                    Span containingScope = findContainingSpan(entitySpan,labels,ptrTypes[k]+"Scope");
+                    if (containingScope!=null && imgPtrForScope.get(containingScope)!=null) {
+                        associate((Span)imgPtrForScope.get(containingScope), entityTypes[i], entitySpan);
+                    } else {
+                        if (DEBUG) System.out.println(" - not in "+ptrTypes[k]+" scope");
+                    }
+                }//ptrType k
+                // stuff in global scope is associated with all img ptrs 
+                Span globalScope = findContainingSpan(entitySpan,labels,"globalScope");
+                if (globalScope!=null) {
+                    if (DEBUG) System.out.println(" - in global scope");
+                    String id = globalScope.getDocumentId();
+                    for (int k=0; k<ptrTypes.length; k++) {
+                        for (Span.Looper el=labels.instanceIterator(ptrTypes[k],id); el.hasNext(); ) {
+                            Span imgPtrSpan = el.nextSpan();
+                            associate(imgPtrSpan, entityTypes[i], entitySpan);
+                        }
+                    }
+                }//globalScope
+            } //entitySpan j
+        } //entity type i
+        
+        // expand out the 'definition' of the image pointers
+        imagePtrDefinition = new TreeMap();
+        allLabels = new TreeSet();
+        Pattern p1 = Pattern.compile(".*\\b([A-Z])\\s*-\\s*([A-Z])\\b.*");
+        Pattern p2 = Pattern.compile(".*\\b([a-z])\\s*-\\s*([a-z])\\b.*");
+        Pattern p3 = Pattern.compile(".*\\b([A-Za-z])\\b.*");
+        for (Iterator i=imagePtrList.iterator(); i.hasNext(); ) {
+            Span span = (Span)i.next();
+            String string = span.asString();
+            Matcher m1 = p1.matcher(string);
+            while (m1.find()) defineRange(span,string,m1); 
+            Matcher m2 = p2.matcher(string);
+            while (m2.find()) defineRange(span,string,m2); 
+            Matcher m3 = p3.matcher(string);
+            while (m3.find()) defineLetter(span,string,m3);
+        }
+        
+        try {
+            writeFacts( "protein", proteinFile );
+            writeFacts( "cell", cellFile );
+            PrintStream s = new PrintStream(new FileOutputStream(new File(labelFile)));
+            for (Iterator i=allLabels.iterator(); i.hasNext(); ) {
+                s.println( (String) i.next() );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error: "+e.toString());
+        }
+        
+    }
 
 	// write out entity-related facts
 	private void writeFacts(String entityType, String fileName) throws IOException
@@ -256,7 +261,7 @@ public class CaptionProcessor
 				continue;
 			}
 			String caption = loadFileContent( fileNames[1]) ;
-			TextBase base = new BasicTextBase();
+			BasicTextBase base = new BasicTextBase();
 			base.loadDocument( fileNames[0], caption );
 			MutableTextLabels labels = new BasicTextLabels(base);
 			for (int i=0; i<100; i++) {

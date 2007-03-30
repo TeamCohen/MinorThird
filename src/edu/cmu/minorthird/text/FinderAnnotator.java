@@ -8,6 +8,8 @@ import java.io.*;
  * Annotator based on a SpanFinder.
  *
  * @author William Cohen
+ * @deprecated Use {@link edu.cmu.minorthird.text.MixupAnnotator} instead
+ * This class is no longer supported as of 3-9-2007
  */
 
 public class FinderAnnotator extends AbstractAnnotator implements SpanFinder, Serializable
@@ -65,7 +67,8 @@ public class FinderAnnotator extends AbstractAnnotator implements SpanFinder, Se
             try {
                 MixupProgram p = new MixupProgram(new String[]{
                     "defSpanType "+tmpSpanName+" =: ... [L "+tmpPropName+":t+ R] ..."});
-                p.eval(tmpLabels,tmpLabels.getTextBase());
+                MixupInterpreter interp = new MixupInterpreter(p);
+                interp.eval(tmpLabels);
             } catch (Mixup.ParseException e) {
                 throw new IllegalStateException("parse error: "+e);
             }

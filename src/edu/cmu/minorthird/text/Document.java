@@ -11,26 +11,26 @@ import java.io.Serializable;
  */
 public class Document implements Serializable
 {
-	private String documentId;   // name of document
-	private String documentText; // string version of text
+    private String documentId;   // name of document
+    private String documentText; // string version of text
     public int charOffset = 0; // used when the document is a subdocument of another
-	private TextToken[] tokens;  // tokenized version of text
-
-  public Document(String documentId, String documentText)
-  {
-		this.documentId = documentId;
-		this.documentText = documentText;
-	}
-
+    private TextToken[] tokens;  // tokenized version of text
+    
+    public Document(String documentId, String documentText)
+    {
+        this.documentId = documentId;
+        this.documentText = documentText;
+    }
+    
     public Document(String documentId, String documentText, int charOffset)
-  {
-		this.documentId = documentId;
-		this.documentText = documentText;
-		this.charOffset = charOffset;
-	}
-
-	public String getText() { return this.documentText; }
-  public void setTokens(TextToken[] tokenArray)  { this.tokens = tokenArray; }
-  public String getId() { return this.documentId; }
-	public TextToken[] getTokens() { return tokens; }
+    {
+        this.documentId = documentId;
+        this.documentText = documentText;
+        this.charOffset = charOffset;
+    }
+    
+    public String getText() { return this.documentText; }
+    public void setTokens(TextToken[] tokenArray)  { this.tokens = tokenArray; }
+    public String getId() { return this.documentId; }
+    public TextToken[] getTokens() { return tokens; }
 }

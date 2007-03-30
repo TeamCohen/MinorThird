@@ -23,7 +23,7 @@ public class RunMixup extends UIMain
     private CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
     private CommandLineUtil.MixupParams mixup = new CommandLineUtil.MixupParams();
     private CommandLineUtil.AnnotatorOutputParams output = new CommandLineUtil.AnnotatorOutputParams();
-    public MultiLevelTextLabels annotatedLabels = null;
+    public TextLabels annotatedLabels = null;
 
     // for gui
     public CommandLineUtil.MixupParams getMixupParameters() { return mixup; }
@@ -62,19 +62,21 @@ public class RunMixup extends UIMain
 
 		// check that inputs are valid
 		if (program==null) {
-			log.error("Cannot runMixup unless a valid mixup program is specified.");
-			return;
+                    log.error("Cannot runMixup unless a valid mixup program is specified.");
+                    return;
 		}
 
 		// echo the program
 		System.out.println("Will execute this program:\n"+program);
 
+                
+                MixupInterpreter interpreter = new MixupInterpreter(program);
+
 		// run the mixup on a copy
-		annotatedLabels = new MultiLevelTextLabels(new NestedTextLabels(base.labels));
-		program.eval(annotatedLabels);
-
+                annotatedLabels = new NestedTextLabels(base.labels);
+                interpreter.eval((NestedTextLabels)annotatedLabels);
+                
 		if (base.showResult) new ViewerFrame("Result of "+mixup.fileName, new SmartVanillaViewer(annotatedLabels));
-
 
                 if (save.saveAs!=null) {
                     try {

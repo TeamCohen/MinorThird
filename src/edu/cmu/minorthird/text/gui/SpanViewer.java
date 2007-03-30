@@ -2,6 +2,7 @@ package edu.cmu.minorthird.text.gui;
 
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 import edu.cmu.minorthird.util.gui.*;
 
 import javax.swing.*;
@@ -195,32 +196,30 @@ public class SpanViewer extends ParallelViewer implements Controllable
 		}
 	}
 
-	// fancy test case
-	public static void main(String[] argv)
-	{
-		try {
-			TextLabels labels0 = FancyLoader.loadTextLabels("demos/sampleData/seminar-subset");
-			final MonotonicTextLabels labels = new NestedTextLabels(labels0);
-			MixupProgram p = 
-				new MixupProgram(
-					new String[] { 
-						"defTokenProp entity:time =top: ... [@stime] ...",
-						"defTokenProp entity:speaker =top: ... [@speaker] ...",
-						"defTokenProp entity:loc =top: ... [@location] ...",
-						"defTokenProp freeText:true =top: ... [@sentence] ...",
-					});
-			p.eval(labels,labels.getTextBase());
-			
-			Span s = labels.getTextBase().documentSpanIterator().nextSpan();
-			SpanViewer sv = new SpanViewer(labels,s);
-			MarkupControls mp = new MarkupControls(labels);
-			ControlledViewer v = new ControlledViewer(sv,mp);
-			v.setContent(s);
-			//Span subspan = s.subSpan(10,5);
-			//Viewer u = new ControlledTextViewer(subspan);
-			ViewerFrame f = new ViewerFrame("SpanViewer",v);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    // fancy test case
+    public static void main(String[] argv){
+        try {
+            TextLabels labels0 = FancyLoader.loadTextLabels("demos/sampleData/seminar-subset");
+            final MonotonicTextLabels labels = new NestedTextLabels(labels0);
+            MixupProgram p = 
+                new MixupProgram(new String[] { 
+                    "defTokenProp entity:time =top: ... [@stime] ...",
+                    "defTokenProp entity:speaker =top: ... [@speaker] ...",
+                    "defTokenProp entity:loc =top: ... [@location] ...",
+                    "defTokenProp freeText:true =top: ... [@sentence] ...",
+                });
+            MixupInterpreter interp = new MixupInterpreter(p);
+            interp.eval(labels);
+            Span s = labels.getTextBase().documentSpanIterator().nextSpan();
+            SpanViewer sv = new SpanViewer(labels,s);
+            MarkupControls mp = new MarkupControls(labels);
+            ControlledViewer v = new ControlledViewer(sv,mp);
+            v.setContent(s);
+            //Span subspan = s.subSpan(10,5);
+            //Viewer u = new ControlledTextViewer(subspan);
+            ViewerFrame f = new ViewerFrame("SpanViewer",v);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
