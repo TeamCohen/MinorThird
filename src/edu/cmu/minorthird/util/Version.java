@@ -101,6 +101,14 @@ package edu.cmu.minorthird.util;
  *    <tr valign=top><td align="right">11.6.11.22</td>
  *      <td align="left"> - Better version of extractor-confidence computation, with BeamSearch modified appropriately
  *    </td></tr>
+ *    <tr valign=top><td align="right">12.7.3.30</td>
+ *      <td align="left"> - Added support for a hierarchy of text bases and text labels that can be used in code or mixup<br>
+ *      <td align="left"> - Refactored the Tokenizer class to support multiple tokenization schemes<br>
+ *      <td align="left"> - Refactored the TextBase hierarchy to make the TextBase interface immutable with a mutable abstract
+ *                          implementation defining the mutable functionality. <br>
+ *      <td align="left"> - Created a TextBaseManager class to manage text bases that are derived from each other.<br>
+ *      <td align="left"> - Added keywords to the mixup language to provide access to the TextBaseManager functionality.<br>
+ *    </td></tr>
  * </table>
  */
 public class Version {
