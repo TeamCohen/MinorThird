@@ -35,12 +35,15 @@ import java.io.*;
   KS_t(x) = KS_{t-1}(x) + KW_t(x)
 
   But that's not implemented here.
+  
+  April 2007: see KernelVotedPerceptron.java for implementation of this algorithm with kernels.
 */
 
 public class VotedPerceptron extends OnlineBinaryClassifierLearner implements Serializable
 {
 	private Hyperplane s_t,w_t;
 	private boolean ignoreWeights=false;
+	private long mistakeCount;
 
 	public VotedPerceptron() { 
 		this(false); 
@@ -59,16 +62,36 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner implements Se
 	    s_t.startIgnoringWeights();
 	    w_t.startIgnoringWeights();
 		}
+		mistakeCount=0;
 	}
 
+	//faster implementation.
 	public void addExample(Example example)
 	{
 		double y_t = example.getLabel().numericLabel();
-		if (w_t.score(example.asInstance()) * y_t <= 0) {
-	    w_t.increment( example, y_t );
+		if (w_t.score(example.asInstance()) * y_t <= 0) {			
+	        updateVotedHyperplane(mistakeCount);
+			mistakeCount =1;			
+			w_t.increment( example, y_t );
 		}
-		s_t.increment( w_t, 1.0 );
+		else{
+			mistakeCount++;
+		}
 	}
+	
+	public void updateVotedHyperplane(double count){		
+		s_t.increment(w_t,count);		
+	}
+	
+	//old implementation
+//	public void addExample(Example example)
+//	{
+//		double y_t = example.getLabel().numericLabel();
+//		if (w_t.score(example.asInstance()) * y_t <= 0) {
+//	    w_t.increment( example, y_t );
+//		}
+//		s_t.increment( w_t, 1.0 );
+//	}
 
 	public Classifier getClassifier() 
 	{
