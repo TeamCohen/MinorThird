@@ -39,7 +39,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 {
 	static private final long serialVersionUID = 1;//serialization stuff
 	private final int CURRENT_SERIAL_VERSION = 1;
-	private long excount=0;
+	
 	private Hyperplane v_k; //current hypothesis
 	private int c_k;//mistake counter
 	private ArrayList listVK,listCK;//list with v_k, and list with c_k
@@ -114,7 +114,6 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 	//update rule for training: Figure 1 in Freund & Schapire paper
 	public void addExample(Example example)
 	{
-		excount++;
 		double y_t = example.getLabel().numericLabel();		
 		if (Kernel(v_k,example.asInstance()) * y_t <= 0) {//prediction error occurred
 			store(v_k,c_k);
@@ -159,8 +158,12 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 				if(mode.equalsIgnoreCase("voted")){
 					dec = calculateVoted(ins);
 				}
-				if(mode.equalsIgnoreCase("averaged")){
+				else if(mode.equalsIgnoreCase("averaged")){
 					dec = calculateAveraged(ins);
+				}
+				else{
+					System.out.println("Mode("+mode+") is not allowed\n Please use either \"voted\" or \"averaged\"");
+					System.exit(0);
 				}
 				return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec);
 			}
