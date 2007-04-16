@@ -144,6 +144,7 @@ public abstract class AnnotatorLoader
 
 	final private Annotator findNativeAnnotatorFromString(String className)
 	{
+            log.debug("looking for native annotator "+className);
 		try {
 			Class c = findClassResource(className);
 			Object o = c.newInstance();

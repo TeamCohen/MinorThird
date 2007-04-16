@@ -107,8 +107,17 @@ public class TextLabelsLoader
                     String docId = advance(tok, in, file);
                     String type = advance(tok, in, file);
                     Span span = base.documentSpan(docId);
-                    labels.closeTypeInside(type, span);
-                    log.debug("closed " + type + " on " + docId);
+                    if (span!=null) {
+                        labels.closeTypeInside(type, span);
+                        log.debug("closed " + type + " on " + docId);
+                    } else {
+                        warnings++;
+                        if (warnings<MAX_WARNINGS) {
+                            log.warn("unknown id '"+docId+"' in closeType");
+                        } else if (warnings==MAX_WARNINGS) {
+                            log.warn("there will be no more warnings of this sort given");
+                        }
+                    }
                 } else if ("closeAllTypes".equalsIgnoreCase(op)) {
                     String docId = advance(tok, in, file);
                     docList.add(docId);
@@ -145,7 +154,7 @@ public class TextLabelsLoader
 	    if (span==null) {
                 warnings++;
                 if (warnings<MAX_WARNINGS) {
-                    log.warn("unknown id '"+id+"'");
+                    log.warn("unknown id '"+id+"' in addToType "+lo+" "+len);
                 }	else if (warnings == MAX_WARNINGS) {
                     log.warn("there will be no more warnings of this sort given");
                 }

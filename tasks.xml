@@ -74,6 +74,8 @@
   </jar>
 </target>
 
+<target name="jar" description="alias for 'dist'" depends="dist"/>
+
 <target name="dist" description="generate the distribution" depends="openJars">
   <mkdir dir="${distDir}"/>
   <!-- Put everything in ${classDir} into the minorThird-${DSTAMP}.jar file -->
@@ -97,6 +99,7 @@
       <include name="org/*"/>
     </fileset>
   </jar>
+  <copy file="${distDir}/minorThird-${DSTAMP}.jar" toFile="${distDir}/minorThird.jar"/>
 </target>
 
 <target name="clean" description="clean up">

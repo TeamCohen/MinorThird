@@ -11,8 +11,10 @@ echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 if "%MINORTHIRD%"=="" set MINORTHIRD=.
 set CLASSPATH=%CLASSPATH%;.
 set CLASSPATH=%CLASSPATH%;%MINORTHIRD%
-set CLASSPATH=%CLASSPATH%;%MINORTHIRD%\class
-set CLASSPATH=%CLASSPATH%;%MINORTHIRD%\config
-set CLASSPATH=%CLASSPATH%;%MINORTHIRD%\lib\minorThirdIncludes.jar
-set CLASSPATH=%CLASSPATH%;%MINORTHIRD%\lib\mixup;
+set CLASSPATH=%CLASSPATH%;%MINORTHIRD%/class
+set CLASSPATH=%CLASSPATH%;%MINORTHIRD%/config
+set CLASSPATH=%CLASSPATH%;%MINORTHIRD%/lib/minorThirdIncludes.jar
+set CLASSPATH=%CLASSPATH%;%MINORTHIRD%/lib/mixup;
 set MONTYLINGUA=%MINORTHIRD%/lib/montylingua
+
+

@@ -1,3 +1,53 @@
+==============================================================================
+interface TextBase {
+	Tokenizer getTokenizer();
+	// 
+	// document access routines;	 
+	public void loadDocument(String docId,String docContent);
+}
+
+class TextBaseLevelManager {
+        // 				
+	retokenize(Tokenizer tok,"parentLevel","childLevel");
+	TextBaseMapping getTextBase("levelName");
+	TextBaseMapping getMap("srcLevel","dstLevel");
+}
+
+interface TextBaseMapping {
+	  Span mapSpan(Span oldSpan);	
+}
+
+abstract class OneStepMapping implements TextBaseMapping {
+
+	abstract void mapPlace(String docId, int charOffset);
+	abstract String getMappedDocId();
+	abstract Span getMappedDocSpan();
+	abstract String getMappedOffset();
+		
+	// return span in next text base with correspondoing char offsets
+	final public Span mapSpan(Span oldSpan)
+	{
+		// return corresponding span in textBase that you are
+		// mapping to, using getMappedDocId
+		mapPlace( oldSpan.getDocumentId(), oldSpan.getTextToken(0).charLo() );
+		String idLo = getMappedDocId();
+		int offsetLo = getMappedOffset();
+		mapPlace( oldSpan.getDocumentId(), oldSpan.getTextToken(oldSpan.size()-1).charHi() );
+		String idHi = getMappedDocId();
+		int offsetHi = getMappedOffset();		
+		// make sure idHi==idLo
+		Span docSpan = getMappedDocSpan().charIndexSubSpan( offsetLo, offsetHi);
+	}
+}
+
+
+==============================================================================
+
+DICTIONARIES
+ - have case-sensitive and case-insenstive dictionaries
+ - have a(dict) fold case or not, depending on dict type
+
+
 CONFIDENCE FOR EXTRACTORS
 
 classify.sequential:
@@ -84,6 +134,13 @@ PROPOSED EXTENSION TO HANDLE RETOKENIZED TEXTBASES:
           | token ( re RE | class CLASS | filter MIXUP_TOKENEXPR )
           | pseudoToken ATOM=SPANTYPE(, ATOM=SPANTYPE)+
  GENERATOR -> importFromLevel name SPANTYPE=SPANTYPE (,SPANTYPE=SPANTYPE)+
+
+ for example:
+
+ defSpanType personName = ... 
+
+ defLevel abstractLevel: pseudoToken person=personName, company=companyName;
+
 
 PRIORITIES:
  - SVMs: update svmlib to get confidences?

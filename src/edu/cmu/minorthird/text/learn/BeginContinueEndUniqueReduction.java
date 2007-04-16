@@ -49,7 +49,9 @@ public class BeginContinueEndUniqueReduction extends Extraction2TaggingReduction
 			Span span = i.nextSpan();
 			String baseTag = useSpanType?spanType:taggedLabels.getProperty(span,spanProp);
 			tagset.add(baseTag);
-			if (span.size()==1) {
+			if (span.size()==0) {
+                            throw new IllegalStateException("empty span "+span);
+                        } if (span.size()==1) {
 				String tag = baseTag+"Unique";
 				taggedLabels.setProperty( span.getToken(0), tokenProp, tag );
 			} else {
