@@ -9,6 +9,7 @@ import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.TestPackage;
 import edu.cmu.minorthird.classify.algorithms.linear.Winnow.MyClassifier;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
 import edu.cmu.minorthird.util.gui.TransformedViewer;
@@ -17,6 +18,8 @@ import edu.cmu.minorthird.util.gui.Visible;
 
 import java.io.*;
 import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
 
 /**
  * Voted perceptron algorithm.  As described in "Large Margin
@@ -39,6 +42,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 {
 	static private final long serialVersionUID = 1;//serialization stuff
 	private final int CURRENT_SERIAL_VERSION = 1;
+	private static Logger log = Logger.getLogger(KernelVotedPerceptron.class);
 	
 	private Hyperplane v_k; //current hypothesis
 	private int c_k;//mistake counter
@@ -66,7 +70,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 	}
 	
 	/**
-	 * Standard Constructor: degree=3 and mode="voted"
+	 * Default Constructor: degree=3 and mode="voted"
 	 */
 	public KernelVotedPerceptron() { 
 		reset(); 
@@ -148,7 +152,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 		public MyClassifier(ArrayList li, ArrayList cc) 
 		{
 			this.listVK = li;this.counts=cc; 
-			System.out.println("KernelVotedPerceptron: number sup vectors = "+listVK.size()+" mode="+mode+" kernel="+degree);
+			log.info("info: KernelVotedPerceptron: number sup vectors = "+listVK.size()+" mode="+mode+" kernel="+degree);
 		}
 		
 			//implements decision rule

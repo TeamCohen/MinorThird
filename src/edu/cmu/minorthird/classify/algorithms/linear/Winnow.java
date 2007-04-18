@@ -53,6 +53,14 @@ public class Winnow extends OnlineBinaryClassifierLearner implements Serializabl
 		this(1.5, 0.5,false);//default
 	}
 	
+	/**
+	 * Constructor: voted="true" (more stable) or "false"(more aggressive)
+	 * @param voted
+	 */
+	public Winnow(boolean voted) {
+		this(1.5, 0.5, voted);
+	}
+	
 	public Winnow(double a, double b, boolean voted) {
 		if((a < 1)||(b<0)||(b>1)){
 			System.out.println("Error in Winnow initial parameters");

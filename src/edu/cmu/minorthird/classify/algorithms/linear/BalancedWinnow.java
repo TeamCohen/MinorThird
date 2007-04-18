@@ -50,6 +50,14 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements Ser
 	public BalancedWinnow() {
 		this(1.5, 0.5, false);
 	}
+	
+	/**
+	 * Constructor: voted="true" (more stable) or "false"(more aggressive)
+	 * @param voted
+	 */
+	public BalancedWinnow(boolean voted) {
+		this(1.5, 0.5, voted);
+	}
 
 	public BalancedWinnow(double a, double b, boolean voted) {
 		if((a < 1)||(b<0)||(b>1)){

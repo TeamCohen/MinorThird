@@ -48,9 +48,20 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner implement
 	private double W_MAX = Math.pow(2,200), W_MIN = 1/Math.pow(2,200);//over-underflow ceiling
 	private int votedCount = 0;//number of hyperplanes to vote
 
+	/**
+	 * Constructor
+	 */
 	public VitorBalancedWinnow() {
 		this(1.5, 0.5, false);//non-voted: recommended
 //		this(1.5, 0.5, true);//voted: recommended
+	}
+	
+	/**
+	 * Constructor: voted="true" (more stable) or "false"(more aggressive)
+	 * @param voted
+	 */
+	public VitorBalancedWinnow(boolean voted) {
+		this(1.5, 0.5, voted);
 	}
 
 	public VitorBalancedWinnow(double alpha, double beta, boolean voted) {
