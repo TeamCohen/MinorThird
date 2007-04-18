@@ -65,38 +65,47 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner implements Se
 		mistakeCount=0;
 	}
 
-	//faster implementation.
 	public void addExample(Example example)
 	{
 		double y_t = example.getLabel().numericLabel();
-		if (w_t.score(example.asInstance()) * y_t <= 0) {			
-	        updateVotedHyperplane(mistakeCount);
-			mistakeCount =1;			
-			w_t.increment( example, y_t );
+		if (w_t.score(example.asInstance()) * y_t <= 0) {
+	    w_t.increment( example, y_t );
 		}
-		else{
-			mistakeCount++;
-		}
+		s_t.increment( w_t, 1.0 );
 	}
 	
-	public void updateVotedHyperplane(double count){		
-		s_t.increment(w_t,count);		
+	public Classifier getClassifier(){
+		return s_t;
 	}
+
 	
-	//old implementation
+	//-------------------------------------------------------
+	//Faster implementation. Not tested yet.
+	//
 //	public void addExample(Example example)
 //	{
 //		double y_t = example.getLabel().numericLabel();
-//		if (w_t.score(example.asInstance()) * y_t <= 0) {
-//	    w_t.increment( example, y_t );
+//		if (w_t.score(example.asInstance()) * y_t <= 0) {			
+//	        updateVotedHyperplane(mistakeCount);
+//			mistakeCount =1;			
+//			w_t.increment( example, y_t );
 //		}
-//		s_t.increment( w_t, 1.0 );
+//		else{
+//			mistakeCount++;
+//		}
+//	}	
+//	public void updateVotedHyperplane(double count){		
+//		s_t.increment(w_t,count);		
+//	}	
+//	public Classifier getClassifier() 
+//	{
+//		updateVotedHyperplane(mistakeCount);
+//		mistakeCount = 0;
+//		return s_t;
 //	}
+	//---------------------------------------------------------
+	
 
-	public Classifier getClassifier() 
-	{
-		return s_t;
-	}
 
 	public String toString() { return "VotedPerceptron"; }
 }
