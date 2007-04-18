@@ -38,8 +38,13 @@ public class TestPackage extends TestSuite
     suite.addTest( new LearnerTest( "toy", new NaiveBayes(), 1.0/7.0, 1.0/7.0 ));
     suite.addTest( new LearnerTest( "bayes", new PoissonLearner(), 1.0/7.0, 1.0/7.0  ));
     suite.addTest( new LearnerTest( "toy", new BinaryBatchVersion(new VotedPerceptron()), 0.0, 1.0/7.0 ));
+    suite.addTest( new LearnerTest( "toy", new BinaryBatchVersion(new KernelVotedPerceptron(),5), 0.0, 0.0 ));
     suite.addTest( new LearnerTest( "toy", new VotedPerceptron(), 1.0/7.0, 1.0/7.0 ));
-    suite.addTest( new LearnerTest( "toy", new DecisionTreeLearner(5,2), 1.0/7.0, 1.0/7.0 ));
+    suite.addTest( new LearnerTest( "toy", new KernelVotedPerceptron(), 0.0, 0.0 ));
+    suite.addTest( new LearnerTest( "toy", new Winnow(), 0.0, 0.0 ));
+    suite.addTest( new LearnerTest( "toy", new BalancedWinnow(), 1.0/7.0, 0.0 ));
+    suite.addTest( new LearnerTest( "toy", new VitorBalancedWinnow(), 0.0, 0.0 ));
+    suite.addTest( new LearnerTest( "toy", new DecisionTreeLearner(5,2), 1.0/7.0, 1.0/7.0 ));    
     suite.addTest( new LearnerTest( "toy", new KnnLearner(10), 0.0, 0.10 ));
     suite.addTest( new LearnerTest( "toy3", new KnnLearner(10), 0.20,  0.10 ));
     suite.addTest( new LearnerTest( "toy", new AdaBoost(new DecisionTreeLearner(5,2), 10), 1.0/7.0, 1.0/7.0 ));
