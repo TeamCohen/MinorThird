@@ -1,0 +1,10 @@
++1 bright red:2 sports car
+-1 ugly old:2 car
++1 bright yellow toy duck
+-1 ugly:3 black umbrella
++1 little red fire engine
++1 big ugly:2 red brick
+-1 old black rusty car
+-1 big old yellow taxi
+-1 big:2 old ugly:2 duck boots
++1 little red:3 ugly:-10 dinner dress:2
