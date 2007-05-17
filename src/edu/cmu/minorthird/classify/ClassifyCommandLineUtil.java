@@ -453,7 +453,8 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor
 	    typeString = "seq";
 	}
 	public void test(String s) {  
-	    testData = safeToDataset(s, false, -1);  //creates a simple dataset
+	    //testData = safeToDataset(s, false, -1);  creates a simple dataset
+            testData = safeToDataset(s, true, -1);  //creates a sequential dataset
 	    testDataFilename = s;
 	    Iterator it; 
 	    it = ((SequenceDataset)testData).sequenceIterator();

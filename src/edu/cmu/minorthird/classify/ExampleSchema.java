@@ -36,6 +36,17 @@ public class ExampleSchema implements Serializable
 		}
 	}
 
+    // Added extend method to extend the schema with new class label value
+    public void extend(String newClassName) { 
+        String newValidClassNames [] = new String[validClassNames.length+1];
+        for (int i = 0; i < validClassNames.length; i++) {
+            newValidClassNames[i] = validClassNames[i]; 
+        }
+        newValidClassNames[validClassNames.length] = newClassName;
+        validClassNames = newValidClassNames;
+        validClassNameSet.add(newClassName);
+    } 
+
 	/** Get an array of all valid class names. */
 	public String[] validClassNames() 
 	{

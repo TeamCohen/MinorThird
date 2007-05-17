@@ -1294,12 +1294,19 @@ public class Evaluation implements Visible,Serializable,Saveable
 		if (!classLabel.isBinary()) isBinary = false;
 		int r = classIndexOf(classLabel.bestClassName());
 		if (r < 0) {
-	    //System.out.println("extending");
-	    // extend the schema
-	    String[] currentNames = schema.validClassNames();
-	    String[] newNames = new String[currentNames.length+1];
-	    for (int i=0; i<currentNames.length; i++) newNames[i] = currentNames[i];
-	    newNames[currentNames.length] = classLabel.bestClassName();
+                    //System.out.println("extending");
+                    // extend the schema
+
+                    //Add the provided label to the set of valid values 
+                    //for the class using the extend method on the
+                    //schema object
+                    schema.extend(classLabel.bestClassName());
+
+                    //commented old code 
+                    //String[] currentNames = schema.validClassNames();
+                    //String[] newNames = new String[currentNames.length+1];
+                    //for (int i=0; i<currentNames.length; i++) newNames[i] = currentNames[i];
+                    //newNames[currentNames.length] = classLabel.bestClassName();
 		}
 	}
 
