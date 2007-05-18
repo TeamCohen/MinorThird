@@ -7,7 +7,7 @@ import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import org.apache.log4j.Logger;
-import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
+import edu.cmu.minorthird.classify.relational.*;
 
 import java.io.*;
 import java.util.*;

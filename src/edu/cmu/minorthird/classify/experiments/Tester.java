@@ -2,7 +2,7 @@
 
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
+import edu.cmu.minorthird.classify.relational.*;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.multi.*;
 import edu.cmu.minorthird.classify.semisupervised.*;

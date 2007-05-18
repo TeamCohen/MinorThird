@@ -7,7 +7,7 @@ import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.util.IOUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
-import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
+import edu.cmu.minorthird.classify.relational.*;
 import java.io.*;
 import java.util.*;
 

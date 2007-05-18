@@ -16,7 +16,7 @@ import edu.cmu.minorthird.ui.*;
 import edu.cmu.minorthird.ui.Recommended.SVMCMMLearner;
 import edu.cmu.minorthird.classify.sequential.*;
 import libsvm.*;
-import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
+import edu.cmu.minorthird.classify.relational.*;
 import java.io.File;
 import java.io.IOException;
 

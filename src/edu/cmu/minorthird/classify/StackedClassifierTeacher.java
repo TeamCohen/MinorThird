@@ -1,6 +1,6 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.StackedGraphicalLearning.*;
+import edu.cmu.minorthird.classify.relational.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
