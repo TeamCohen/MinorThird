@@ -58,7 +58,7 @@ abstract public class BasicCommandLineProcessor implements CommandLineProcessor,
 			if (pos+1<args.length) {
 			    log.info(getClass()+" consuming '-"+arg+"' '"+args[pos+1]+"'");
 			    System.out.println("option: "+arg+"="+args[pos+1]);
-			    Object result = ms.invoke(this, new String[]{args[pos+1]});
+			    Object result = ms.invoke(this, new Object[]{args[pos+1]});
 			    pos += 2;
 			    if (result instanceof CommandLineProcessor) {
 				pos += ((CommandLineProcessor)result).consumeArguments(args,pos);
