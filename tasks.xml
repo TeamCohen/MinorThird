@@ -8,7 +8,8 @@
 <property name="classDir" location="class"/>
 <property name="libDir" location="lib"/>
 <property name="reportsDir" location="testReports"/>
-<property name="deprecation" value="on"/>
+<property name="deprecation" value="off"/>
+<property name="verbose" value="no"/>
 <!-- <property name="MINORTHIRD" value="."/> -->
 <!-- <property name="cvsRoot" value=":pserver:cvs@bb.isri.cmu.edu:/usr0/cvs"/> -->
 
@@ -31,8 +32,8 @@
 
 <target name="build" depends="init, copy-testcases"  description="build the source ">
   <!-- Compile the java code from ${src} into ${classDir} -->
-  <javac source="1.4" srcdir="${src}" destdir="${classDir}" 
-   debug="on" classpathref="classpath" deprecation="${deprecation}"/>
+  <javac source="1.5" srcdir="${src}" destdir="${classDir}" 
+   verbose="${verbose}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
 </target>
 
 <target name="copy-testcases" description="copy files from testcase directory into class directory">
