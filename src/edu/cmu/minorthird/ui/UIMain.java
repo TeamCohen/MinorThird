@@ -7,9 +7,13 @@ import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.*;
 
+// Don't use: import java.io.*;  Because this causes java.io.Console to be included, 
+// which conflicts with edu.cmu.minorthird.util.gui.Console
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
+
 import org.apache.log4j.Logger;
 import java.util.*;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;

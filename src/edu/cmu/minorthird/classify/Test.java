@@ -15,7 +15,13 @@ import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
 import java.util.*;
-import java.io.*;
+
+// Don't use: import java.io.*;  Because this causes java.io.Console to be included, 
+// which conflicts with edu.cmu.minorthird.util.gui.Console
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;

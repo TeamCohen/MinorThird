@@ -14,8 +14,12 @@ import edu.cmu.minorthird.classify.sequential.*;
 import edu.cmu.minorthird.util.*;
 import edu.cmu.minorthird.util.gui.*;
 
+// Don't use: import java.io.*;  Because this causes java.io.Console to be included, 
+// which conflicts with edu.cmu.minorthird.util.gui.Console
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
+
 import java.util.*;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
