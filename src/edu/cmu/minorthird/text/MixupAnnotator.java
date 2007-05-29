@@ -31,7 +31,7 @@ public class MixupAnnotator extends AbstractAnnotator implements Serializable
      * caller is expected to get the results directly out of the labels set that was passed in
      * originally.  This means that if the program creates new levels, it should also populate
      * any final results back to the root level using the importLabelsFromLevel method in
-     * {@line edu.cmu.minorthird.text.mixup.MixupInterprete}.  Otherwise these results will be lost.
+     * {@link edu.cmu.minorthird.text.mixup.MixupInterpreter}.  Otherwise these results will be lost.
      */
     protected void doAnnotate(MonotonicTextLabels labels) { 
         MixupInterpreter interp = new MixupInterpreter(program);

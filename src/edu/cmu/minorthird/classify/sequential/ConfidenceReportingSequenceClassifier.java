@@ -44,7 +44,7 @@ public interface ConfidenceReportingSequenceClassifier extends SequenceClassifie
      * @param lo is an index into sequence[] (or equivalently, any of the other array arguments)
      * @param hi is another index into sequence[]
      *
-     * @returns some value that monotonic in confidence
+     * @return some value that monotonic in confidence
      */
     public double confidence(Instance[] sequence,ClassLabel[] predictedClasses,ClassLabel[] alternateClasses,int lo,int hi);
 }

@@ -196,8 +196,6 @@ public class MultiClassSVMLearner extends BatchClassifierLearner
 
     /**
      * Get the underlying svm_model object.  See libsvm for documentation details
-     *
-     * @return
      */
     public svm_model getModel()
     {

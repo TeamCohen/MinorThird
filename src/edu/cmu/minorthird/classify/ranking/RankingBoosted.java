@@ -22,7 +22,7 @@ import java.util.*;
  *  - Automatically discretize real-value features into binary.
  *  - It is possible to incorporate example 'importance' weights, according to some 'goodness' evaluation measure. See Collins'.
  *
- * @Author: Einat Minkov
+ * @author Einat Minkov
  */
 
 

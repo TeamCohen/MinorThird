@@ -79,7 +79,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner impleme
 	/**
 	 * set degree of poly kernel  K(x,y) = (coef0+ gamma*<x,y>)^d
 	 * if set to 0, usual <x,v> crossproduct is used.
-	 * @param degree
+	 * @param d
 	 */
 	public void setKernel(int d){degree = d;}
 	/**

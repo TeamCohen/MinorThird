@@ -29,13 +29,12 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup, Seri
     private ClassLabel[][] label;
     private Object[][] segmentSource;
 
-    /** Creates a new holder for sliding-window instances.
-     * @param maxWindowSize the maximum length of any sliding window
-     * @param sequenceLength the length of the original sequence
-     */
+    /** Creates a new holder for sliding-window instances. */
     public CompactCandidateSegmentGroup(FeatureFactory factory,CandidateSegmentGroup group)
     { 
+        // The length of the original sequence
 	this.sequenceLength = group.getSequenceLength();
+        // The maximum length of any sliding window
 	this.maxWindowSize = group.getMaxWindowSize ();
 	this.totalSize = group.size();
 	this.classNameSet = group.classNameSet();

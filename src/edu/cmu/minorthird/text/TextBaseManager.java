@@ -1,16 +1,21 @@
 package edu.cmu.minorthird.text;
 
-/**
- *  Manages the mappings between TextBases.
- *
- * @author Quinten Mercer
- */
-
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+/**
+ *  Manages the mappings between TextBases.
+ *
+ *  This class maintains a mapping of names to instances of TextBase.  All of the TextBases in the 
+ *  mapping are derived from the "root" level TextBase that was added first.  Currently there are 
+ *  two ways to derive a new TextBase from an existing one: {@link #filter(String, TextLabels, String, String) filter}
+ *  and {@link #retokenize(Tokenizer, String, String) retokenize}.  
+ *  
+ * 
+ * @author Quinten Mercer
+ */
 public class TextBaseManager {
 
     private HashMap textBases = new HashMap();
@@ -186,6 +191,11 @@ public class TextBaseManager {
         return matchingSpan;
     }
 
+    /**
+     * Creates a new TextBase named newLevelName from an existing TextBase named parentLevelName.  This
+     * new TextBase has the exact same document set as the parent, but all the docs will be retokenized
+     * using the specified Tokenizer.
+     */
     public MutableTextBase retokenize(Tokenizer newTokenizer, String parentLevelName, String  newLevelName) {
 
         TextBaseEntry parentEntry = (TextBaseEntry)textBases.get(parentLevelName);
@@ -209,6 +219,14 @@ public class TextBaseManager {
         return newTextBase;
     }
 
+    /**
+     * Creates a new TextBase named newLevelName from an existing TextBase named parentLevelName.  This
+     * new TextBase will contain a document for each instance of the provided spanType in the parent
+     * TextBase (specified by parentLabels).  For example if a document in the parent TextBase has 3 
+     * instances of the specified spanType, then the new TextBase will have 3 separate documents.  All
+     * text that is not part of the specified spanType is filtered out and does not appear in the 
+     * new TextBase anywhere.
+     */
     public TextBase filter(String parentLevelName, TextLabels parentLabels, String newLevelName, String spanType) {
 
         BasicTextBase newTextBase = new BasicTextBase(new FilterTokenizer(this, newLevelName, parentLevelName));
@@ -280,6 +298,17 @@ public class TextBaseManager {
             this.childToParentMap = new HashMap();
         }
         
+        /**
+         * Adds a mapping between two documents.  This has the effect of mapping a point in the parent
+         * document to a point in the child document (and vice versa).  However, it is assumed that all
+         * following characters up to the next mapped point are also mapped in order.
+         *
+         * For instance:  Say the parent document is 20 characters long and there are two children docs
+         * each of which is 10 characters long.  If there are mappings from parent:0 to child1:0 and 
+         * from parent:11 to child2:0, then what we really have is a mapping of the first 10 chars of the
+         * parent to the first 10 chars in child1 and a mapping of the last 10 chars in parent to the
+         * first 10 chars in child2.
+         */
         public void mapPlace(String parentDocId, int parentOffset, String childDocId, int childOffset) {
             TreeSet parentEntry = (TreeSet)parentToChildMap.get(parentDocId);
             if (parentEntry == null) {
@@ -296,6 +325,9 @@ public class TextBaseManager {
             childEntry.add(new MapEntry(childDocId, childOffset, parentDocId, parentOffset));
         }
 
+        /**
+         * Gets the MapEntry for the parent TextBase that includes the position listed in parentOffset
+         */
         public MapEntry getParentMapping(String parentDocId, int parentOffset, int length) {
             TreeSet parentDocMap = (TreeSet)parentToChildMap.get(parentDocId);
             if (parentDocMap == null)
@@ -320,6 +352,9 @@ public class TextBaseManager {
             return parentEntry;
         }
 
+        /**
+         * Gets the MapEntry for the child TextBase that includes the position listed in childOffset
+         */
         public MapEntry getChildMapping(String childDocId, int childOffset, int length) {
             TreeSet childDocMap = (TreeSet)childToParentMap.get(childDocId);
             if (childDocMap == null)
@@ -345,6 +380,9 @@ public class TextBaseManager {
             return childEntry;
         }
 
+        /**
+         * Finds the span in the child TextBase that corresponds to the provided span in the parent TextBase.
+         */
         public Span getMappedChildSpan(Span parentSpan) {
             if (parent.getDocument(parentSpan.getDocumentId()) == null)
                 throw new IllegalArgumentException("Document containing parent span not in the child text base of this mapper.");
@@ -364,7 +402,10 @@ public class TextBaseManager {
             return child.documentSpan(parentEntry.dstDocId).charIndexSubSpan(parentEntry.dstOffset + (parentLo-parentEntry.srcOffset), 
                                                                              parentEntry.dstOffset + (parentHi-parentEntry.srcOffset));        
         }
-        
+
+        /**
+         * Finds the span in the parent TextBase that corresponds to the provided span in the child TextBase.
+         */        
         public Span getMappedParentSpan(Span childSpan) {
             if (child.getDocument(childSpan.getDocumentId()) == null)
                 throw new IllegalArgumentException("Document containing child span not in the parent text base of this mapper.");
@@ -419,6 +460,10 @@ public class TextBaseManager {
             System.out.println("****************************************************\n\n");
         }
 
+        /**
+         * A mapping of an offset between documents.  This is used by {@link edu.cmu.minorthird.text.TextBaseManager TextBaseManager}
+         * to map spans from one TextBase to one that was derived from it.
+         */
         public class MapEntry implements Comparable {
             public String srcDocId;
             public int srcOffset;
