@@ -40,14 +40,14 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner
     }
     public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,SpanFeatureExtractor fe)
     {
-	super(seqLearner.getHistorySize(),fe,new InsideOutsideReduction());
+	super(fe,new InsideOutsideReduction());
 	this.seqLearner = seqLearner;
     }
     public SequenceAnnotatorLearner(BatchSequenceClassifierLearner seqLearner,
 				    SpanFeatureExtractor fe,
 				    Extraction2TaggingReduction reduction)
     {
-	super(seqLearner.getHistorySize(),fe,reduction);
+	super(fe,reduction);
 	this.seqLearner = seqLearner;
     }
 

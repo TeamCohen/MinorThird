@@ -30,31 +30,22 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 
 	protected SpanFeatureExtractor fe;
 	protected String annotationType = "_prediction";
-	protected int historySize;
 	protected SequenceDataset seqData;
 	protected Extraction2TaggingReduction reduction;
 
-	public AbstractBatchAnnotatorLearner()
-	{
-		this(3,new Recommended.TokenFE(),new InsideOutsideReduction());
+	public AbstractBatchAnnotatorLearner() {
+            this(new Recommended.TokenFE(),new InsideOutsideReduction());
 	}
-	public AbstractBatchAnnotatorLearner(int history,SpanFeatureExtractor fe,Extraction2TaggingReduction reduction)
-	{
-	    this.historySize = history;
-		this.reduction = reduction;
-		this.fe = fe;
-		seqData = new SequenceDataset();
-		seqData.setHistorySize(historySize);
+	public AbstractBatchAnnotatorLearner(SpanFeatureExtractor fe,Extraction2TaggingReduction reduction) {
+            this.reduction = reduction;
+            this.fe = fe;
+            seqData = new SequenceDataset();
 	}
 
-	public void reset() {	seqData = new SequenceDataset(); seqData.setHistorySize(historySize); }
+    public void reset() { 
+        seqData = new SequenceDataset(); 
+    }
 
-  /** History to remember, for a sequential learner */
-	public int getHistorySize() { return historySize; }
-	public void setHistorySize(int historySize) { this.historySize=historySize; }
-
-    // Help Button
-    public String getHistorySizeHelp() { return "Number of tokens to look back on. <br>The predicted labels for the history are used as features to help classify the current token." ;}
 
   /** Scheme for reducing extraction to a token-classification problem */
 	public Extraction2TaggingReduction getTaggingReduction() { return reduction; }

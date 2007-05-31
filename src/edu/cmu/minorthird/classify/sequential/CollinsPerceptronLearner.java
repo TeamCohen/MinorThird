@@ -47,6 +47,9 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 	public int getNumberOfEpochs() { return numberOfEpochs; }
 	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
 	public int getHistorySize() { return historySize; }
+        public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
+        // Help Button
+        public String getHistorySizeHelp() { return "Number of tokens to look back on. <br>The predicted labels for the history are used as features to help classify the current token." ;}
 
 	public void setSchema(ExampleSchema schema)	{	;	}
 
