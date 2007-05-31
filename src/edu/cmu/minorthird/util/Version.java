@@ -109,11 +109,18 @@ package edu.cmu.minorthird.util;
  *      <td align="left"> - Created a TextBaseManager class to manage text bases that are derived from each other.<br>
  *      <td align="left"> - Added keywords to the mixup language to provide access to the TextBaseManager functionality.<br>
  *    </td></tr>
+ *    <tr valign=top><td align="right">12.7.5.31</td>
+ *      <td align="left"> - Fixed bug where history size variable for certain learners was being ignored<br>
+ *      <td align="left"> - Added new Random Forests learners<br>
+ *      <td align="left"> - Fixed bugs that prevented compilation under java 1.6<br>
+ *      <td align="left"> - Switched the build mode from java 1.4 to java 1.5 in the ant build scripts<br>
+ *      <td align="left"> - Created new layout for documentation<br>
+ *    </td></tr>
  * </table>
  */
 public class Version {
 
-    private static String version = "Version 11.6.11.22";
+    private static String version = "Version 12.7.5.31";
 
     public static String getVersion() {
         return version;
