@@ -67,6 +67,7 @@ class KnnClassifier implements Classifier,Serializable
 	    }
 	}
 	if (tot==0 || Double.isNaN(tot)) {
+	    if (Double.isNaN(tot)) log.warn("total similarity to neighbors is not defined for: "+instance);
 	    // if no neighbors, use class priors instead, by putting
 	    // them in classCounts
 	    tot = 0;
