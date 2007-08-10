@@ -116,11 +116,14 @@ package edu.cmu.minorthird.util;
  *      <td align="left"> - Switched the build mode from java 1.4 to java 1.5 in the ant build scripts<br>
  *      <td align="left"> - Created new layout for documentation<br>
  *    </td></tr>
+ *    <tr valign=top><td align="right">12.7.8.10</td>
+ *      <td align="left"> - Fixed bug in KnnClassifier: now when no neighbors are found, class priors are used
+ *    </td></tr>
  * </table>
  */
 public class Version {
 
-    private static String version = "Version 12.7.5.31";
+    private static String version = "Version 12.7.8.10";
 
     public static String getVersion() {
         return version;
