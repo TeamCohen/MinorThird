@@ -1,20 +1,18 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
-/**
- * modificaiton made to wrap the idFactory in the classifier
- */
-
 import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.FeatureIdFactory;
-import edu.cmu.minorthird.classify.ClassLabel;
-import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.util.gui.Visible;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
-
 import java.io.*;
+import javax.swing.JComponent;
 
 /**
  * SVMClassifier wrapps the prediction code from the libsvm library for binary problems
@@ -27,28 +25,58 @@ import java.io.*;
  *
  * @author qcm
  */
-public class SVMClassifier extends BinaryClassifier
-{
-    private svm_model model;
-    private FeatureIdFactory idFactory;
+public class SVMClassifier
+  extends    BinaryClassifier 
+  implements Visible,
+             Serializable {
+	
+    private FeatureIdFactory m_featureIdFactory;
+	
+    private svm_model        m_svmModel;
+	
+    public SVMClassifier(svm_model          model, 
+			 FeatureIdFactory   idFactory)
+    {
+	m_featureIdFactory = idFactory;
+	m_svmModel = model;
+    }
+    
+    public String explain(Instance instance) {
+	return "I have no idea how I came up with this answer";
+    }
 
+    public Explanation getExplanation(Instance instance) {
+    	Explanation ex = new Explanation(explain(instance));
+    	return ex;
+    }
+    
+    public FeatureIdFactory getIdFactory() {
+    	
+    	return m_featureIdFactory;
+    }
+    
+    public svm_model getSVMModel() {
+    	
+    	return m_svmModel;
+    }
+    
     /**
      * Computes the predicted weight for an instance.  The sign of the score indicates
      * the class (>0 = POS and <0 = NEG) and the absolute value of the score is the
      * weight in logits of this prediction.
      */
     public double score(Instance instance) {
-        //need the nodeArray
-        svm_node[] nodeArray = SVMUtils.instanceToNodeArray(instance, idFactory);
+    	
+        svm_node[] nodeArray = SVMUtils.instanceToNodeArray(instance, m_featureIdFactory);
         double prediction;
 
         // If the model is set to calculate probability estimates (aka confidences) then
         //   create an array of doubles of length 2 (because this is a binary classifier)
         //   and use the predict_probability method which returns that class and fills in 
         //   the probability array passed in.
-        if (svm.svm_check_probability_model(model) == 1) {
+        if (svm.svm_check_probability_model(m_svmModel) == 1) {
             double[] probs = new double[2];
-            prediction = svm.svm_predict_probability(model, nodeArray, probs);
+            prediction = svm.svm_predict_probability(m_svmModel, nodeArray, probs);
             
             // We want to return the probability estimates embedded in the prediction.  The actual
             //   value will go into the ClassLabel as the labels weight and since this is a binary 
@@ -65,24 +93,41 @@ public class SVMClassifier extends BinaryClassifier
         // Otherwise just call the predict method, which simply returns the class.  This
         //   method is faster than predict_probability.
         else {
-            prediction = svm.svm_predict(model, nodeArray);
+            prediction = svm.svm_predict(m_svmModel, nodeArray);
         }
-
         return prediction;
     }
+    
+    /************************************************************************
+     * GUI
+     *************************************************************************/
+    public Viewer toGUI() {
 
-    public String explain(Instance instance) {
-        return "I have no idea how I came up with this answer";
+	SVMViewer svmViewer0 = new SVMViewer();
+		
+	svmViewer0.setContent(this);
+
+	return svmViewer0;
+		
     }
-
-    public Explanation getExplanation(Instance instance) {
-	Explanation ex = new Explanation(explain(instance));
-	return ex;
-    }
-
-    public SVMClassifier(svm_model model, FeatureIdFactory idFactory)
-    {
-        this.model = model;
-        this.idFactory = idFactory;
+	
+    static private class SVMViewer 
+	extends ComponentViewer {
+	
+	public boolean canReceive(Object o) {
+			
+	    return o instanceof SVMClassifier;
+	}
+	
+	public JComponent componentFor(Object o) {
+			
+	    final SVMClassifier svmClassifier1 = (SVMClassifier) o;
+			
+            // transform to visible SVM
+	    VisibleSVM vsSVMtemp = new VisibleSVM( svmClassifier1.getSVMModel(), 
+						   svmClassifier1.getIdFactory());
+			
+	    return vsSVMtemp.toGUI();
+	}
     }
 }
