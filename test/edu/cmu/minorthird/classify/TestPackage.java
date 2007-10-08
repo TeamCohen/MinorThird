@@ -11,6 +11,7 @@ import java.util.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.algorithms.trees.*;
 import edu.cmu.minorthird.classify.algorithms.knn.*;
+import edu.cmu.minorthird.classify.algorithms.svm.*;
 import edu.cmu.minorthird.classify.experiments.*;
 import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedNaiveBayesLearner;
 
@@ -51,6 +52,8 @@ public class TestPackage extends TestSuite
     suite.addTest( new LearnerTest( "num", new DecisionTreeLearner(5,2), 0.05, 0.10 ) );
     suite.addTest( new LearnerTest( "sparseNum", new DecisionTreeLearner(5,2), 0.0, 0.10 ) );
     suite.addTest( new LogisticRegressionTest() );
+    suite.addTest( new LearnerTest( "toy", new SVMLearner(), 0.0, 0.0) );
+    suite.addTest( new LearnerTest( "toy3", new MultiClassSVMLearner(), 0.0, 0.1) );
     suite.addTest( new XValTest(10,1) );
     suite.addTest( new XValTest(3,5) );
     suite.addTest( new XValTest(50,1,true) );
