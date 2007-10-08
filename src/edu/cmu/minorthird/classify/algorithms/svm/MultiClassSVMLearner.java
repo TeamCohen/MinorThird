@@ -69,6 +69,7 @@ public class MultiClassSVMLearner extends BatchClassifierLearner
             idFactory = new FeatureIdFactory(dataset);
             svm_problem problem = SVMUtils.convertToMultiClassSVMProblem(dataset, idFactory, dataset.getSchema());
             model = svm.svm_train(problem, parameters);
+            
         }
         catch (Exception e) {
             log.error(e, e);
@@ -121,8 +122,8 @@ public class MultiClassSVMLearner extends BatchClassifierLearner
     public String kernelTypeHelp = new String("Set the type of kernel function.");
     public String getKernelTypeHelp() { return kernelTypeHelp; }
 
-    public void setDegree(double deg) { parameters.degree = deg; }
-    public double getDegree() { return parameters.degree; }
+    public void setDegree(int deg) { parameters.degree = deg; }
+    public int getDegree() { return parameters.degree; }
     public String degreeHelp = new String("Set the degree in kernel function.");
     public String getDegreeHelp() { return degreeHelp; }
 

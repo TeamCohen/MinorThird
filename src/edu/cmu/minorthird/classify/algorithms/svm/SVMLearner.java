@@ -66,6 +66,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner
 
             if (log.isDebugEnabled())
                 svm.svm_save_model("./modelTest.mdl", model);
+
         }
         catch (Exception e)
         {
@@ -119,8 +120,8 @@ public class SVMLearner extends BatchBinaryClassifierLearner
     public String kernelTypeHelp = new String("Set the type of kernel function.");
     public String getKernelTypeHelp() { return kernelTypeHelp; }
 
-    public void setDegree(double deg) { parameters.degree = deg; }
-    public double getDegree() { return parameters.degree; }
+    public void setDegree(int deg) { parameters.degree = deg; }
+    public int getDegree() { return parameters.degree; }
     public String degreeHelp = new String("Set the degree in kernel function.");
     public String getDegreeHelp() { return degreeHelp; }
 
