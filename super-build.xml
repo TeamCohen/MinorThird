@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project
-[<!ENTITY buildfile SYSTEM "tasks.xml">]>
-
 <project default="build">
-	&buildfile;
+
+	<description>Extended build file for MinorThird</description>
+	<import file="./tasks.xml"/>
 
 <target name="build-ks" depends="init"
   description="build the source ">
