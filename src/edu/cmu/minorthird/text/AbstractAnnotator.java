@@ -1,11 +1,5 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.*;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 /**
  * Generic implementation of an annotator.
  *
