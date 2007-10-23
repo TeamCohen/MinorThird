@@ -114,7 +114,7 @@
 
 	<target name="test" depends="build,build-test" description="run the tests, NOT halting on failure">
 		<mkdir dir="${reportsDir}"/>
-		<junit maxmemory="500M" printsummary="yes" haltonfailure="no">
+		<junit maxmemory="2048m" printsummary="yes" haltonfailure="no">
 			<classpath>
 				<path refid="classpath"/>
 			</classpath>
