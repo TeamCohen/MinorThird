@@ -1,3 +1,5 @@
+package edu.cmu.minorthird.text.mixup.testcases;
+
 import edu.cmu.minorthird.text.*;
 
 /** Trivial annotator used as test case. */
