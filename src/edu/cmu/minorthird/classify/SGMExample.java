@@ -1,7 +1,6 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.util.AbstractLooper;
-import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
 
 import java.util.Collection;
@@ -17,37 +16,39 @@ import java.io.*;
 public class SGMExample extends Example implements Instance,Visible,Serializable
 {
 
-		protected String ExampleID;
+	static final long serialVersionUID=20071015;
 
-    public SGMExample(Instance instance,ClassLabel label , String ID) 
-    {
-				super(instance,label,1.0);
-				this.ExampleID=ID;
-    }
-    public SGMExample(Instance instance,ClassLabel label, String ID,double weight) 
-    {
-    		super(instance,label,weight);
-				this.ExampleID=ID;
-    }
+	protected String ExampleID;
 
-    /** Get the ExampleID */
-     public String getExampleID() { return ExampleID; }
+	public SGMExample(Instance instance,ClassLabel label , String ID) 
+	{
+		super(instance,label,1.0);
+		this.ExampleID=ID;
+	}
+	public SGMExample(Instance instance,ClassLabel label, String ID,double weight) 
+	{
+		super(instance,label,weight);
+		this.ExampleID=ID;
+	}
 
-    /** Has the ExampleID or not */
-     public boolean hasID( String ID) { 
-    	if( ExampleID.equals(ID) )
-    	return true;
-    	else
-    	return false;
-    }
+	/** Get the ExampleID */
+	public String getExampleID() { return ExampleID; }
 
-			public String toString() { return "[ ID: "+getExampleID()+" example: "+getLabel()+" "+asInstance().toString()+"]"; }
+	/** Has the ExampleID or not */
+	public boolean hasID( String ID) { 
+		if( ExampleID.equals(ID) )
+			return true;
+		else
+			return false;
+	}
 
-    static public class SGMLooper extends AbstractLooper {
-	public SGMLooper(Iterator i) { super(i); }
-	public SGMLooper(Collection c) { super(c); }
-	public SGMExample nextExample() { return (SGMExample)next(); }
-  }
-  
-  			
+	public String toString() { return "[ ID: "+getExampleID()+" example: "+getLabel()+" "+asInstance().toString()+"]"; }
+
+	static public class SGMLooper extends AbstractLooper {
+		public SGMLooper(Iterator i) { super(i); }
+		public SGMLooper(Collection c) { super(c); }
+		public SGMExample nextExample() { return (SGMExample)next(); }
+	}
+
+
 }

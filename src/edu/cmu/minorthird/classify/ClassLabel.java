@@ -34,7 +34,6 @@ import java.util.Set;
 public class ClassLabel implements Serializable
 {
   static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
 
 	private WeightedSet wset = new WeightedSet();
 	private String bestLabel = null;
@@ -48,7 +47,7 @@ public class ClassLabel implements Serializable
     static public ClassLabel multiPosLabel(String label, double score)
 	{
 		ClassLabel result = new ClassLabel(label,score);
-		String negLabel = "NOT" + label;
+		//String negLabel = "NOT" + label;
 		return result;
 	}
 

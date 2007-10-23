@@ -1,12 +1,10 @@
 package edu.cmu.minorthird;
 
-import edu.cmu.minorthird.util.gui.*;
 import edu.cmu.minorthird.ui.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.io.*;
 
 /**
  * A launch bar for Minorthird applications.
@@ -14,6 +12,9 @@ import java.io.*;
 
 public class Minorthird extends JFrame
 {
+
+	static final long serialVersionUID=20071015;
+
 	private String[] defaultArgs;
 
 	public Minorthird(String[] args) 
@@ -38,7 +39,7 @@ public class Minorthird extends JFrame
 	private void initContent()
 	{
 		JPanel panel = new JPanel();
-                panel.setLayout(new GridLayout(2,2));
+		panel.setLayout(new GridLayout(2,2));
 		panel.setBorder(new TitledBorder("Applications to Launch"));
 
 		JPanel tcPanel = new JPanel();
@@ -58,10 +59,11 @@ public class Minorthird extends JFrame
 		JPanel cPanel = new JPanel();
 		cPanel.setBorder(new TitledBorder("Non-Text Data"));
 		cPanel.add(new JButton(new AbstractAction("Expt/Train/Test") {
-				public void actionPerformed(ActionEvent ev) {
-					new edu.cmu.minorthird.classify.UI.DataClassificationTask().callMain(defaultArgs);
-				}
-			}));
+			static final long serialVersionUID=20071015;
+			public void actionPerformed(ActionEvent ev) {
+				new edu.cmu.minorthird.classify.UI.DataClassificationTask().callMain(defaultArgs);
+			}
+		}));
 		panel.add(cPanel);
 
 		JPanel oPanel = new JPanel();
@@ -81,12 +83,14 @@ public class Minorthird extends JFrame
 	private void addUIButton(final JPanel panel,final String tag,final UIMain m)
 	{
 		panel.add(new JButton(new AbstractAction(tag) {
-				public void actionPerformed(ActionEvent ev) {
-					m.callMain(defaultArgs);
-				}
-			}));
+			static final long serialVersionUID=20071015;
+			public void actionPerformed(ActionEvent ev) {
+				m.callMain(defaultArgs);
+			}
+		}));
 	}
 
+	/*
 	private void addHelpPane(JPanel panel) 
 	{
 		JEditorPane editorPane = new JEditorPane();
@@ -99,6 +103,7 @@ public class Minorthird extends JFrame
 		}
 		panel.add(new JScrollPane(editorPane));
 	}
+	 */
 
 	static public void main(String[] args)
 	{

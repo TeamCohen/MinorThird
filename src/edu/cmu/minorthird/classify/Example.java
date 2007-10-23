@@ -18,7 +18,6 @@ import java.io.*;
 public class Example implements Instance,Visible,Serializable
 {
     static private final long serialVersionUID = 1;
-    private final int CURRENT_VERSION_NUMBER = 1;
 
     protected Instance instance;
     protected ClassLabel label;

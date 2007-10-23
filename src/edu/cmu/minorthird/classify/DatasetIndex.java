@@ -15,7 +15,6 @@ import java.io.*;
 public class DatasetIndex implements Serializable
 {
 	static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
 
 	private TreeMap indexByFeature;
 	private TreeMap indexByClass;

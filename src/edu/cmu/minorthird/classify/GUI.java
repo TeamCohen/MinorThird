@@ -32,21 +32,26 @@ public class GUI
 		ParallelViewer main = new ParallelViewer();
 		main.addSubView("Features", new ExampleViewer() );
 		main.addSubView("Source", new TransformedViewer(new SmartVanillaViewer()) {
-				public Object transform(Object o) {
-					return ((Example)o).getSource();
-				}
-			});
+			static final long serialVersionUID=20071015;
+			public Object transform(Object o) {
+				return ((Example)o).getSource();
+			}
+		});
 		main.addSubView("Subpopulation", new TransformedViewer(new SmartVanillaViewer()) {
-				public Object transform(Object o) {
-					return "Subpopulation ID='"+((Example)o).getSubpopulationId()+"'";
-				}
-			});
+			static final long serialVersionUID=20071015;
+			public Object transform(Object o) {
+				return "Subpopulation ID='"+((Example)o).getSubpopulationId()+"'";
+			}
+		});
 		return main;
 	}
 
 	/** A viewer for examples. */
 	public static class ExampleViewer extends ComponentViewer
 	{
+		
+		static final long serialVersionUID=20071015;
+		
 		public ExampleViewer()
 		{
 			super();
@@ -68,7 +73,7 @@ public class GUI
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc = new GridBagConstraints();
 			p.add( new JLabel("Class label: "+e.getLabel().toDetails()), gbc );
-			
+
 			gbc = fillerGBC();
 			gbc.gridy = 1;
 			p.add( instanceComponent(e),  gbc);
@@ -79,6 +84,7 @@ public class GUI
 	/** A viewer for instances */
 	public static class InstanceViewer extends ComponentViewer
 	{
+		static final long serialVersionUID=20071015;
 		public InstanceViewer()	{	super();	}
 		public InstanceViewer(Instance instance){	super(instance);	}
 		public boolean canReceive(Object o) {	return (o instanceof Instance);	}
@@ -100,6 +106,6 @@ public class GUI
 		}
 		String[] columnNames = {"Feature Name", "Weight" };
 		JTable table = new JTable(tableData,columnNames);
- 		return new JScrollPane(table);
+		return new JScrollPane(table);
 	}
 }

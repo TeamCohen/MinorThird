@@ -1,6 +1,5 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.algorithms.linear.*;
 import edu.cmu.minorthird.classify.experiments.*;
 
 import java.util.*;
@@ -81,7 +80,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner
 	    //find learner with max positive examples
 	    for(int j=0; j<unsortedLearners.size(); j++) {
 		try {
-		    BatchClassifierLearner learner = ((BatchClassifierLearner)unsortedLearners.get(j));
+		    //BatchClassifierLearner learner = ((BatchClassifierLearner)unsortedLearners.get(j));
 		    Evaluation evaluation = (Evaluation)eval.get(j);
 		    double kappa = evaluation.kappa();
 		    if(kappa>=maxKappa) {

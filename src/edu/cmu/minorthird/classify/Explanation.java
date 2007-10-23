@@ -16,47 +16,50 @@ import javax.swing.tree.*;
 
 public class Explanation {
 
-    private String stringEx = null;
-    private JTree treeEx = null;
-    private Explanation.Node top = null;
+	private String stringEx = null;
+	private JTree treeEx = null;
+	private Explanation.Node top = null;
 
-    public Explanation (String explanation) {
-	stringEx = explanation;
-    }
-    
-    public Explanation(Explanation.Node top) {
-	this.top = top;
-	treeEx = new JTree(top);
-    }
+	public Explanation (String explanation) {
+		stringEx = explanation;
+	}
 
-    /** Returns the component to be displayed in the Explanation Panel of the Result.
-     *  A simple VanillaViewer if only the String explanation is defined or a Tree if 
-     *  a tree is defined */
-    public JComponent getExplanation() {
-	if(stringEx != null) {
-	    VanillaViewer viewer = new VanillaViewer();
-	    viewer.setContent(stringEx);
-	    return viewer;
+	public Explanation(Explanation.Node top) {
+		this.top = top;
+		treeEx = new JTree(top);
 	}
-	return treeEx;
-    }
 
-    /** Returns the top node of the explanation tree or creates a Node from the string explanation */
-    public Node getTopNode() {
-	if(top != null)
-	    return top;
-	else {
-	    Node simple = new Node(stringEx);
-	    return simple;
+	/** Returns the component to be displayed in the Explanation Panel of the Result.
+	 *  A simple VanillaViewer if only the String explanation is defined or a Tree if 
+	 *  a tree is defined */
+	public JComponent getExplanation() {
+		if(stringEx != null) {
+			VanillaViewer viewer = new VanillaViewer();
+			viewer.setContent(stringEx);
+			return viewer;
+		}
+		return treeEx;
 	}
-    }
-    
-    /** A Node in the Explanation Tree */
-    static public class Node extends DefaultMutableTreeNode
-    {
-	public Node(String ex) {
-	    super(ex);	    	    
+
+	/** Returns the top node of the explanation tree or creates a Node from the string explanation */
+	public Node getTopNode() {
+		if(top != null)
+			return top;
+		else {
+			Node simple = new Node(stringEx);
+			return simple;
+		}
 	}
-    }
+
+	/** A Node in the Explanation Tree */
+	static public class Node extends DefaultMutableTreeNode
+	{
+		
+		static final long serialVersionUID=20071015;
+		
+		public Node(String ex) {
+			super(ex);	    	    
+		}
+	}
 
 }

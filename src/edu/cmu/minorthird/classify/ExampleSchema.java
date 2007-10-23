@@ -12,16 +12,19 @@ import java.util.Set;
  * that the class labels are in some legal set.
  *
  * @author William Cohen
-*/
+ */
 
 public class ExampleSchema implements Serializable
 {
+
+	static final long serialVersionUID=20071015;
+
 	static public final String POS_CLASS_NAME="POS";
 	static public final String NEG_CLASS_NAME="NEG";
 
 	/** Schema for binary examples. */
 	final static public ExampleSchema BINARY_EXAMPLE_SCHEMA = 
-	  new ExampleSchema(new String[]{POS_CLASS_NAME,NEG_CLASS_NAME});
+		new ExampleSchema(new String[]{POS_CLASS_NAME,NEG_CLASS_NAME});
 
 	private String[] validClassNames;
 	private Set validClassNameSet;
@@ -36,23 +39,23 @@ public class ExampleSchema implements Serializable
 		}
 	}
 
-    // Added extend method to extend the schema with new class label value
-    public void extend(String newClassName) { 
-        String newValidClassNames [] = new String[validClassNames.length+1];
-        for (int i = 0; i < validClassNames.length; i++) {
-            newValidClassNames[i] = validClassNames[i]; 
-        }
-        newValidClassNames[validClassNames.length] = newClassName;
-        validClassNames = newValidClassNames;
-        validClassNameSet.add(newClassName);
-    } 
+	// Added extend method to extend the schema with new class label value
+	public void extend(String newClassName) { 
+		String newValidClassNames [] = new String[validClassNames.length+1];
+		for (int i = 0; i < validClassNames.length; i++) {
+			newValidClassNames[i] = validClassNames[i]; 
+		}
+		newValidClassNames[validClassNames.length] = newClassName;
+		validClassNames = newValidClassNames;
+		validClassNameSet.add(newClassName);
+	} 
 
 	/** Get an array of all valid class names. */
 	public String[] validClassNames() 
 	{
 		return validClassNames;
 	}
-	
+
 	/** Return number of valid class names */
 	public int getNumberOfClasses()
 	{

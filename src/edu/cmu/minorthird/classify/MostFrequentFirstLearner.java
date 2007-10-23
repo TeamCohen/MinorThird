@@ -1,7 +1,5 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-
 import java.util.*;
 
 /**

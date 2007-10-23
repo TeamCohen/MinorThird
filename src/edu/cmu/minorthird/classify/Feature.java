@@ -21,7 +21,7 @@ public class Feature implements Comparable,Serializable
     public final int CURRENT_VERSION_NUMBER = 1;
     
 	private String[] name;
-	private int id = -1;
+	//private int id = -1;
 
    /** Create a feature. */
 	public Feature(String[] name) {
@@ -31,7 +31,7 @@ public class Feature implements Comparable,Serializable
    /** Create a feature. */
 	public Feature(String[] name,int id) {
 		this.name = name;
-		this.id = id;
+		//this.id = id;
 	}
 
 	/** Create a feature. The parts of this name are delimited by periods. */

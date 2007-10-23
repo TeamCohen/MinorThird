@@ -371,7 +371,7 @@ public class SampleDatasets
         traceClassifier("Train", c, train );
         traceClassifier("Test", c, test );
         if (c instanceof Visible) {
-          ViewerFrame f = new ViewerFrame(args[1]+" on "+args[0],((Visible)c).toGUI());
+          new ViewerFrame(args[1]+" on "+args[0],((Visible)c).toGUI());
         }
       }
     } catch (Exception e) {

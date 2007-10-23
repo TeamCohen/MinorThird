@@ -12,6 +12,9 @@ package edu.cmu.minorthird.classify;
 
 public class RandomAccessDataset extends BasicDataset
 {
+	
+	static final long serialVersionUID=20071015;
+	
 	public RandomAccessDataset()  {super();}
 
 	public Example getExample(int i)

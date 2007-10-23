@@ -1,10 +1,7 @@
 package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.relational.*;
-import javax.swing.*;
-import java.awt.*;
 import java.util.*;
-import java.io.*;
 
 /**
  * Implements the teacher's side of the learner-teacher protocol for SGM.

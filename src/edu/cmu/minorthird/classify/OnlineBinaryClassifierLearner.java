@@ -2,10 +2,6 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-
-
-
 /**
  * Abstract class which implements the 'getBinaryClassifier' method of BinaryClassifierLearner's.
  *

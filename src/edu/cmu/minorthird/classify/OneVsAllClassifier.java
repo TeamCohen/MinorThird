@@ -4,8 +4,6 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.util.gui.*;
 import javax.swing.*;
-import javax.swing.JTree;
-import javax.swing.tree.*;
 import java.io.Serializable;
 
 
@@ -18,7 +16,6 @@ import java.io.Serializable;
 public class OneVsAllClassifier implements Classifier,Visible,Serializable
 {
 	static private final long serialVersionUID = 1;
-	private final int CURRENT_SERIAL_VERSION = 1;
 
 	private String[] classNames;
 	private Classifier[] binaryClassifiers;
@@ -56,17 +53,17 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 		return buf.toString();
 	}
 
-    public Explanation getExplanation(Instance instance) {
-	Explanation.Node top = new Explanation.Node("OneVsAll Explanation");
-	for (int i=0; i<binaryClassifiers.length; i++) {
-	    Explanation.Node binClassifierNode = new Explanation.Node(classNames[i] + " Tree");
-	    Explanation.Node explanation = binaryClassifiers[i].getExplanation(instance).getTopNode();
-	    binClassifierNode.add(explanation);
-	    top.add(binClassifierNode);
+	public Explanation getExplanation(Instance instance) {
+		Explanation.Node top = new Explanation.Node("OneVsAll Explanation");
+		for (int i=0; i<binaryClassifiers.length; i++) {
+			Explanation.Node binClassifierNode = new Explanation.Node(classNames[i] + " Tree");
+			Explanation.Node explanation = binaryClassifiers[i].getExplanation(instance).getTopNode();
+			binClassifierNode.add(explanation);
+			top.add(binClassifierNode);
+		}
+		Explanation ex = new Explanation(top);
+		return ex;
 	}
-	Explanation ex = new Explanation(top);
-	return ex;
-    }
 
 	public String[] getClassNames() { return classNames; }
 
@@ -82,19 +79,20 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 	public Viewer toGUI()
 	{
 		final Viewer v = new ComponentViewer() {
-				public JComponent componentFor(Object o) {
-					OneVsAllClassifier c = (OneVsAllClassifier)o;
-					JPanel panel = new JPanel();
-					for (int i=0; i<c.classNames.length; i++) {
-						panel.add(new JLabel(c.classNames[i]));
-						Viewer subView = new SmartVanillaViewer();
-						subView.setContent( c.binaryClassifiers[i] );
-						subView.setSuperView(this);
-						panel.add(subView);
-					}
-					return new JScrollPane(panel);
+			static final long serialVersionUID=20071015;
+			public JComponent componentFor(Object o) {
+				OneVsAllClassifier c = (OneVsAllClassifier)o;
+				JPanel panel = new JPanel();
+				for (int i=0; i<c.classNames.length; i++) {
+					panel.add(new JLabel(c.classNames[i]));
+					Viewer subView = new SmartVanillaViewer();
+					subView.setContent( c.binaryClassifiers[i] );
+					subView.setSuperView(this);
+					panel.add(subView);
 				}
-			};
+				return new JScrollPane(panel);
+			}
+		};
 		v.setContent(this);
 		return v;
 	}

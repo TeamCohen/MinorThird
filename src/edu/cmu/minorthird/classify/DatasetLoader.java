@@ -149,7 +149,7 @@ public class DatasetLoader
 	LineNumberReader in = new LineNumberReader(new FileReader(file));
 	String line;
 	while ((line = in.readLine())!=null) {
-	    dataset.addLink( LinkparseLine(line,file,in) );
+	    RealRelationalDataset.addLink( LinkparseLine(line,file,in) );
 	    pc.progress();
 	}
 	log.info("loaded "+dataset.size()+" examples from "+file.getName());
@@ -173,7 +173,7 @@ public class DatasetLoader
 		if (!arr[1].equals("ON"))
 		    throw new IllegalArgumentException("the format of the relational template is COUNT ON LEFT");	
 	    
-	    dataset.addAggregator( arr[0], arr[2] );
+		RealRelationalDataset.addAggregator( arr[0], arr[2] );
 	    pc.progress();
 	}
 	log.info("loaded "+dataset.size()+" examples from "+file.getName());
@@ -489,12 +489,11 @@ public class DatasetLoader
 	    boolean sequential = args[0].startsWith("-seq");
 	    boolean regression = args[0].startsWith("-reg");
 	    String dbName =  (sequential||regression) ? args[1] : args[0];
-	    DatasetLoader loader = new DatasetLoader();
 	    Dataset d = null;
-	    if (sequential) d = loader.loadSequence(new File(dbName));
-	    else if (regression) d = loader.loadRegression(new File(dbName));
-	    else d = loader.loadFile(new File(dbName));
-	    ViewerFrame f = new ViewerFrame("Data from "+dbName, d.toGUI());
+	    if (sequential) d = DatasetLoader.loadSequence(new File(dbName));
+	    else if (regression) d = DatasetLoader.loadRegression(new File(dbName));
+	    else d = DatasetLoader.loadFile(new File(dbName));
+	    new ViewerFrame("Data from "+dbName, d.toGUI());
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    System.out.println("usage: file");

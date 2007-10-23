@@ -91,7 +91,7 @@ public class StackedDatasetClassifierTeacher extends StackedClassifierTeacher
 			ClassifierLearner learner = Expt.toLearner(argv[1]);
 			Classifier c = new DatasetClassifierTeacher(dataset).train(learner);
 			if (c instanceof Visible) {
-				ViewerFrame f = new ViewerFrame("from "+argv[0]+" and "+argv[1],((Visible)c).toGUI());
+				new ViewerFrame("from "+argv[0]+" and "+argv[1],((Visible)c).toGUI());
 			} else {
 				System.out.println("Learnt classifier: "+c);
 			}

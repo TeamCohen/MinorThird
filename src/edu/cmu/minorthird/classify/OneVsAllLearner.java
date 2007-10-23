@@ -1,7 +1,5 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-
 import java.util.*;
 
 /**
@@ -50,6 +48,7 @@ public class OneVsAllLearner implements ClassifierLearner
 	}
 
 	public static class IllegalArgumentException extends Exception {
+		static final long serialVersionUID=20071015;
 		public IllegalArgumentException(String s) { super(s); }
 	}
 

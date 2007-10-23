@@ -4,11 +4,7 @@ package edu.cmu.minorthird.classify;
 
 import edu.cmu.minorthird.classify.algorithms.svm.*;
 import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.gui.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.*;
 

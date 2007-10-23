@@ -2,7 +2,6 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.classify.algorithms.knn.*;
 
 

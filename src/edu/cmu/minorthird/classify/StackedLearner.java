@@ -36,9 +36,9 @@ public class StackedLearner extends BatchClassifierLearner
 	public StackedLearner(BatchClassifierLearner innerLearner,Splitter splitter)
 	{
 		this(
-			new BatchClassifierLearner[]{innerLearner},	 
-			new MaxEntLearner(),
-			splitter);
+				new BatchClassifierLearner[]{innerLearner},	 
+				new MaxEntLearner(),
+				splitter);
 	}
 	/** Use stacked learning to calibrate the predictions of the inner learner
 	 * using logistic regression, using 3-CV to split.
@@ -46,9 +46,9 @@ public class StackedLearner extends BatchClassifierLearner
 	public StackedLearner(BatchClassifierLearner innerLearner)
 	{
 		this(
-			new BatchClassifierLearner[]{innerLearner},	 
-			new MaxEntLearner(),
-			new CrossValSplitter(3));
+				new BatchClassifierLearner[]{innerLearner},	 
+				new MaxEntLearner(),
+				new CrossValSplitter(3));
 	}
 	/** Use stacked learning to calibrate the predictions of AdaBoost
 	 * using logistic regression, using 3-CV to split.
@@ -56,16 +56,16 @@ public class StackedLearner extends BatchClassifierLearner
 	public StackedLearner()
 	{
 		this(
-			new BatchClassifierLearner[]{new AdaBoost()},	 
-			new MaxEntLearner(),
-			new CrossValSplitter(3));
+				new BatchClassifierLearner[]{new AdaBoost()},	 
+				new MaxEntLearner(),
+				new CrossValSplitter(3));
 	}
 	/** Create a stacked learner.
 	 */
 	public StackedLearner(
-		BatchClassifierLearner[] innerLearners,
-		BatchClassifierLearner finalLearner,
-		Splitter splitter)
+			BatchClassifierLearner[] innerLearners,
+			BatchClassifierLearner finalLearner,
+			Splitter splitter)
 	{
 		this.innerLearners = innerLearners;
 		this.finalLearner = finalLearner;
@@ -108,7 +108,7 @@ public class StackedLearner extends BatchClassifierLearner
 			for (int i=0; i<innerLearners.length; i++) {
 				innerLearners[i].reset();
 				log.info("training inner learner "+(i+1)+"/"+innerLearners.length
-								 +" on fold "+(k+1)+"/"+split.getNumPartitions());
+						+" on fold "+(k+1)+"/"+split.getNumPartitions());
 				innerClassifiers[i] = innerLearners[i].batchTrain(trainData);
 			}
 			Dataset testData = split.getTest(k);
@@ -118,7 +118,7 @@ public class StackedLearner extends BatchClassifierLearner
 				stackedData.add(new Example(transformInstance(schema,e,innerClassifiers), e.getLabel()));
 			}
 		}
-		
+
 		// train final learner on transformed data, and innerLearners on the real data
 		log.info("training level-1 learner");
 		Classifier finalClassifier = finalLearner.batchTrain(stackedData);
@@ -130,7 +130,7 @@ public class StackedLearner extends BatchClassifierLearner
 		classifier = new StackedClassifier(schema,innerClassifiers,finalClassifier);
 		return classifier;
 	}
-	
+
 	private static Instance 
 	transformInstance(ExampleSchema schema,Instance oldInstance,Classifier[] innerClassifiers)
 	{
@@ -161,7 +161,7 @@ public class StackedLearner extends BatchClassifierLearner
 				double w = ithPrediction.getWeight(className);
 				newInstance.addNumeric( new Feature(new String[]{learner,"class_"+className}), w); 
 				buf.append("learner#"+(i+1)+" predicts "+className+":\n"+
-									 innerClassifiers[i].explain(oldInstance)+"\n");
+						innerClassifiers[i].explain(oldInstance)+"\n");
 			}
 		}
 		if (DEBUG) log.debug("Transformed "+newInstance+" <= "+oldInstance);
@@ -197,35 +197,36 @@ public class StackedLearner extends BatchClassifierLearner
 			return buf.toString();
 		}
 
-	    public Explanation getExplanation(Instance instance) {
-		Explanation ex = new Explanation(explain(instance));
-		return ex;
-	    }
+		public Explanation getExplanation(Instance instance) {
+			Explanation ex = new Explanation(explain(instance));
+			return ex;
+		}
 		public Viewer toGUI()
 		{
 			Viewer v = new ComponentViewer() {
-					public JComponent componentFor(Object o) {
-						StackedClassifier sc = (StackedClassifier)o;
-						JPanel mainPanel = new JPanel();
-						mainPanel.setLayout(new BorderLayout());
-						mainPanel.setBorder(new TitledBorder("Stacked Classifier"));
-						JPanel finalPanel = new JPanel();
-						finalPanel.setBorder(new TitledBorder("Final classifier"));
-						Viewer w = new SmartVanillaViewer(sc.finalClassifier);
-						finalPanel.add(w);
-						w.setSuperView(this);
-						mainPanel.add(finalPanel,BorderLayout.NORTH);
-						JPanel innerPanel = new JPanel();
-						innerPanel.setBorder(new TitledBorder("Inner classifier(s)"));
-						for (int i=0; i<innerClassifiers.length; i++) {
-							Viewer u = new SmartVanillaViewer(innerClassifiers[i]);
-							innerPanel.add(u);
-							u.setSuperView(this);
-						}
-						mainPanel.add(innerPanel,BorderLayout.SOUTH);
-						return new JScrollPane(mainPanel);
+				static final long serialVersionUID=20071015;
+				public JComponent componentFor(Object o) {
+					StackedClassifier sc = (StackedClassifier)o;
+					JPanel mainPanel = new JPanel();
+					mainPanel.setLayout(new BorderLayout());
+					mainPanel.setBorder(new TitledBorder("Stacked Classifier"));
+					JPanel finalPanel = new JPanel();
+					finalPanel.setBorder(new TitledBorder("Final classifier"));
+					Viewer w = new SmartVanillaViewer(sc.finalClassifier);
+					finalPanel.add(w);
+					w.setSuperView(this);
+					mainPanel.add(finalPanel,BorderLayout.NORTH);
+					JPanel innerPanel = new JPanel();
+					innerPanel.setBorder(new TitledBorder("Inner classifier(s)"));
+					for (int i=0; i<innerClassifiers.length; i++) {
+						Viewer u = new SmartVanillaViewer(innerClassifiers[i]);
+						innerPanel.add(u);
+						u.setSuperView(this);
 					}
-				};
+					mainPanel.add(innerPanel,BorderLayout.SOUTH);
+					return new JScrollPane(mainPanel);
+				}
+			};
 			return v;
 		}
 	}
