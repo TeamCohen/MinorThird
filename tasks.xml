@@ -10,6 +10,10 @@
 <property name="reportsDir" location="testReports"/>
 <property name="deprecation" value="off"/>
 <property name="verbose" value="no"/>
+<!-- below added for testing JUnit -->
+<property name="lib" value="./lib"/>
+<property name="classes" value="./classes"/>
+
 <!-- <property name="MINORTHIRD" value="."/> -->
 <!-- <property name="cvsRoot" value=":pserver:cvs@bb.isri.cmu.edu:/usr0/cvs"/> -->
 
@@ -119,26 +123,26 @@
    classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
 </target>
 
-<target name="tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+<target name="tests" depends="build, build-test" description="run the tests, NOT halting on failure">
   <mkdir dir="${reportsDir}"/>
   <junit printsummary="yes" haltonfailure="no">
-    <!--<jvmarg value="-Xmx512m"/>-->
-<!--  not sure why, but new MixupProgramTest doesn't work with the local classpath... 
-    <classpath><path refid="classpath"/></classpath>
--->
+    <classpath>
+    	<path refid="classpath"/>
+    </classpath>
     <formatter type="plain"/>
     <batchtest fork="no" todir="${reportsDir}">
       <fileset dir="${classDir}">
         <!-- either TestPackage or *Test -->
         <include name="**/TestPackage.class"/>
         <include name="**/*Test.class"/>
+        <!-- exclude LongTestPackage because it takes up too much time -->
         <exclude name="**/LongTestPackage.class"/>
-
-        <exclude name="**/*$*.class"/> <!-- inner classes excluded -->
-        <!-- a base class, not to be run -->
+        <!-- inner classes excluded -->
+        <exclude name="**/*$*.class"/>
+        <!-- a base class, not to be run, unfortunately named -->
         <exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/> 
-         <!-- requires test data -->
-        <exclude name="**/IOUtilTest.class"/>         <!-- data -->
+        <!-- requires test data -->
+        <exclude name="**/IOUtilTest.class"/> <!-- data -->
         <exclude name="**/classify/Test.class"/>
         <exclude name="**/classify/TrainTest.class"/>
         <exclude name="**/LearnToClassifyTest.class"/>
@@ -147,14 +151,13 @@
         <exclude name="**/TextLabelsLoaderTest.class"/>
         <exclude name="**/SimpleTextLoaderTest.class"/>
         <exclude name="com/lgc/wsh/inv/GaussNewtonSolverTest.class"/>
-
+        
         <!-- long running time (>5 seconds) -->
         <!-- <exclude name="**/MixupProgramTest.class"/> -->
-
         <!-- even longer running time (>20 secs) -->
         <!-- <exclude name="**/TextBaseLoaderTest.class"/> -->
-
         <!-- VERY long running time (>1 minute) -->
+        
       </fileset>
     </batchtest>
   </junit>
