@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE project
-[<!ENTITY buildfile SYSTEM "tasks.xml">]>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "tasks.xml">]>
 
 <project default="build">
+	
 	&buildfile;
-
-
-
+	
 </project>
