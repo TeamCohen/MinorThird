@@ -105,7 +105,6 @@ public abstract class AnnotatorLoader{
 
 			// If all else fails attempt to load the annotation type as a class
 			log.debug("trying as class "+annotationType);
-			log.info(" => "+annotationType);
 			return findNativeAnnotatorFromString(annotationType);
 		}
 
