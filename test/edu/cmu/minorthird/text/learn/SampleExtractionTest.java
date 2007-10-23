@@ -1,21 +1,19 @@
 package edu.cmu.minorthird.text.learn;
 
-import edu.cmu.minorthird.classify.BatchVersion;
-import edu.cmu.minorthird.classify.ClassifierLearner;
-import edu.cmu.minorthird.classify.StackedLearner;
-import edu.cmu.minorthird.classify.experiments.RandomSplitter;
-import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
-import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
-import edu.cmu.minorthird.classify.algorithms.svm.*;
-import edu.cmu.minorthird.classify.sequential.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.ui.*;
-import edu.cmu.minorthird.text.gui.*;
-import edu.cmu.minorthird.text.learn.*;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
+import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
+import edu.cmu.minorthird.classify.sequential.CMMLearner;
+import edu.cmu.minorthird.text.Annotator;
+import edu.cmu.minorthird.text.SpanDifference;
+import edu.cmu.minorthird.text.TextBase;
+import edu.cmu.minorthird.text.TextLabels;
+import edu.cmu.minorthird.ui.Recommended;
 
 /**
  *
@@ -34,7 +32,7 @@ public class SampleExtractionTest extends TestCase
   protected TextBase testBase;
   protected TextLabels testLabels;
   /** span checking */
-  private String documentId;
+//  private String documentId;
   private String labelString;
 
 

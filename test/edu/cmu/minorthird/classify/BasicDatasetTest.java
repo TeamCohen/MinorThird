@@ -1,6 +1,5 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.util.gui.ViewerFrame;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -12,76 +11,70 @@ import org.apache.log4j.Logger;
  *
  * @author ksteppe
  */
-public class BasicDatasetTest extends TestCase
-{
-  Logger log = Logger.getLogger(this.getClass());
 
-  /**
-   * Standard test class constructior for BasicDatasetTest
-   * @param name Name of the test
-   */
-  public BasicDatasetTest(String name)
-  {
-    super(name);
-  }
+public class BasicDatasetTest extends TestCase{
+	
+	Logger log=Logger.getLogger(this.getClass());
 
-  /**
-   * Convinence constructior for BasicDatasetTest
-   */
-  public BasicDatasetTest()
-  {
-    super("BasicDatasetTest");
-  }
+	/**
+	 * Standard test class constructior for BasicDatasetTest
+	 * @param name Name of the test
+	 */
+	public BasicDatasetTest(String name){
+		super(name);
+	}
 
-  /**
-   * setUp to run before each test
-   */
-  protected void setUp()
-  {
-    Logger.getRootLogger().removeAllAppenders();
-    org.apache.log4j.BasicConfigurator.configure();
-    //TODO add initializations if needed
-  }
+	/**
+	 * Convinence constructior for BasicDatasetTest
+	 */
+	public BasicDatasetTest(){
+		super("BasicDatasetTest");
+	}
 
-  /**
-   * clean up to run after each test
-   */
-  protected void tearDown()
-  {
-    //TODO clean up resources if needed
-  }
+	/**
+	 * setUp to run before each test
+	 */
+	protected void setUp(){
+		Logger.getRootLogger().removeAllAppenders();
+		org.apache.log4j.BasicConfigurator.configure();
+		//TODO add initializations if needed
+	}
 
-  /**
-   * Base test for BasicDatasetTest
-   */
-  public void testBasicDatasetTest()
-  {
-    try {
-      BasicDataset data = (BasicDataset)SampleDatasets.sampleData("toy",false);
-      //ViewerFrame f = new ViewerFrame("Toy Dataset",data.toGUI());
-			assertTrue( data.toGUI() != null );
-      log.debug(data.getSchema());
-    } catch (Exception e) {
-      log.error(e, e);
-    }
+	/**
+	 * clean up to run after each test
+	 */
+	protected void tearDown(){
+		//TODO clean up resources if needed
+	}
 
-  }
+	/**
+	 * Base test for BasicDatasetTest
+	 */
+	public void testBasicDatasetTest(){
 
-  /**
-   * Creates a TestSuite from all testXXX methods
-   * @return TestSuite
-   */
-  public static Test suite()
-  {
-    return new TestSuite(BasicDatasetTest.class);
-  }
+		try{
+			BasicDataset data=(BasicDataset)SampleDatasets.sampleData("toy",false);
+			assertTrue(data.toGUI()!=null);
+			log.debug(data.getSchema());
+		}catch(Exception e){
+			log.error(e,e);
+		}
 
-  /**
-   * Run the full suite of tests with text output
-   * @param args - unused
-   */
-  public static void main(String args[])
-  {
-    junit.textui.TestRunner.run(suite());
-  }
+	}
+
+	/**
+	 * Creates a TestSuite from all testXXX methods
+	 * @return TestSuite
+	 */
+	public static Test suite(){
+		return new TestSuite(BasicDatasetTest.class);
+	}
+
+	/**
+	 * Run the full suite of tests with text output
+	 * @param args - unused
+	 */
+	public static void main(String args[]){
+		junit.textui.TestRunner.run(suite());
+	}
 }

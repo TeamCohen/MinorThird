@@ -1,17 +1,12 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.experiments.Evaluation;
-import edu.cmu.minorthird.classify.experiments.Tester;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
-import edu.cmu.minorthird.util.Globals;
+import java.io.File;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.util.Iterator;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -49,7 +44,6 @@ public class TextBaseLoaderTest extends TestCase
     protected void tearDown() {
         //TODO clean up resources if needed
     }
-
 
     //
     // The Tests
