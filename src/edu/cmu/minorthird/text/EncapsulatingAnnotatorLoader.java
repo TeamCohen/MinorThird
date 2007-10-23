@@ -129,7 +129,8 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 			    return defineClass(className,contents,0,contents.length);
 			} else {
 			    log.info("calling default class loader to find class");
-			    return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className+".class");
+			    return ClassLoader.getSystemClassLoader().loadClass(className);
+			    //return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className+".class");
 			}
 		}
 
