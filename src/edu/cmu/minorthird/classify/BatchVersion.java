@@ -5,9 +5,6 @@ package edu.cmu.minorthird.classify;
 import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.util.ProgressCounter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Batch version of an OnlineClassifierLearner. 
  *
@@ -18,7 +15,7 @@ public class BatchVersion extends BatchClassifierLearner
 {
 	private OnlineClassifierLearner innerLearner;
 	private int numberOfEpochs = 1;
-	private List exampleList = new ArrayList();
+	//private List<Example> exampleList = new ArrayList<Example>();
 
 	public BatchVersion(OnlineClassifierLearner innerLearner,int numberOfEpochs)
 	{
