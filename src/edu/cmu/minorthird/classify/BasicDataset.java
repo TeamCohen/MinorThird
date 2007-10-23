@@ -20,9 +20,9 @@ public class BasicDataset implements Visible,Saveable,Dataset,Serializable
 {
 	static private final long serialVersionUID = 1;
 
-	protected ArrayList examples = new ArrayList();
-	protected ArrayList unlabeledExamples = new ArrayList();
-	protected Set classNameSet = new TreeSet();
+	protected ArrayList<Example> examples = new ArrayList<Example>();
+	protected ArrayList<Instance> unlabeledExamples = new ArrayList<Instance>();
+	protected Set<String> classNameSet = new TreeSet<String>();
 	protected FeatureFactory factory = new FeatureFactory();
 
 	public ExampleSchema getSchema()
@@ -183,10 +183,11 @@ public class BasicDataset implements Visible,Saveable,Dataset,Serializable
 			public Dataset getTest(int k) { return invertIteration(splitter.getTest(k)); }
 		};
 	}
-	private Dataset invertIteration(Iterator i)
+	
+	private Dataset invertIteration(Iterator<Example> i)
 	{
 		BasicDataset copy = new BasicDataset();
-		while (i.hasNext()) copy.add((Example)i.next());
+		while (i.hasNext()) copy.add(i.next());
 		return copy;
 	}
 
