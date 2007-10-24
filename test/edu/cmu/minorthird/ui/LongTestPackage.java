@@ -2,16 +2,14 @@
 
 package edu.cmu.minorthird.ui;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.experiments.*;
-import edu.cmu.minorthird.text.learn.experiments.*;
-import edu.cmu.minorthird.text.*;
-
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import edu.cmu.minorthird.classify.TestUI;
+import edu.cmu.minorthird.classify.experiments.Evaluation;
+import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
 
 /**
  *
