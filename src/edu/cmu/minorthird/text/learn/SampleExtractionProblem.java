@@ -1,14 +1,17 @@
 package edu.cmu.minorthird.text.learn;
 
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.AnnotatorLearner;
-import edu.cmu.minorthird.text.learn.AnnotatorTeacher;
-import edu.cmu.minorthird.text.gui.TextBaseViewer;
+//import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.text.BasicTextBase;
+import edu.cmu.minorthird.text.BasicTextLabels;
+import edu.cmu.minorthird.text.MonotonicTextLabels;
+import edu.cmu.minorthird.text.NestedTextLabels;
+import edu.cmu.minorthird.text.Span;
+import edu.cmu.minorthird.text.TextLabels;
+import edu.cmu.minorthird.text.TextLabelsLoader;
 import edu.cmu.minorthird.text.mixup.Mixup;
-import edu.cmu.minorthird.text.mixup.MixupProgram;
 import edu.cmu.minorthird.text.mixup.MixupInterpreter;
-import edu.cmu.minorthird.classify.experiments.Expt;
-import org.apache.log4j.Logger;
+import edu.cmu.minorthird.text.mixup.MixupProgram;
 
 /** Some sample inputs to facilitate testing.
  *
@@ -17,7 +20,8 @@ import org.apache.log4j.Logger;
 
 public class SampleExtractionProblem
 {
-	static private Logger log = Logger.getLogger(SampleExtractionProblem.class);
+	
+	//static private Logger log = Logger.getLogger(SampleExtractionProblem.class);
 
 	static private String[] trainStrings = {
 		"Hello there, William Cohen, and welcome to CMU.", 

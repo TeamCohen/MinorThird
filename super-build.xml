@@ -7,7 +7,7 @@
 
 <target name="build-ks" depends="init"
   description="build the source ">
-  <!-- Compile the java code from ${src} into ${classDir} -->
+  <!-- Compile the java code from $ into ${classDir} -->
   <javac srcdir="apps/ksteppe/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
 </target>
 
@@ -119,25 +119,6 @@
       </batchtest>
     </junit>
   </target>
-	
-<!-- this seems to be a duplicate build target 
-  <target name="long-tests" depends="build, build-test" description="Run the long tests">
-    <junit printsummary="yes" haltonfailure="no">
-      <jvmarg value="-Xmx550m"/>
-      <classpath>
-        <path refid="classpath"/>
-      </classpath>
-      <formatter type="plain"/>
-
-      <batchtest fork="yes" todir="${reportsDir}">
-        <fileset dir="${classDir}">
-	  <include name="**/MixupProgramTest.class"/>
-	  <include name="**/LibsvmTest.class"/>
-        </fileset>
-      </batchtest>
-    </junit>
-  </target>
--->
 
   <target name="all-tests" depends="base-tests, visual-tests, data-tests, long-tests" description="run everything"/>
   <target name="raff-tests" depends="base-tests, data-tests, long-tests" description="run everything"/>

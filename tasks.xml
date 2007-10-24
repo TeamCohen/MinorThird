@@ -15,6 +15,7 @@
 		</fileset>
 	</path>
 
+	<!-- Initalization -->
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp/>
@@ -22,33 +23,39 @@
 		<mkdir dir="${classDir}"/>
 	</target>
 
-	<!-- Compile the java code from ${src} into ${classDir} -->
-	<target name="build" depends="init,copy-testcases" description="build source">
-		<javac source="1.5" srcdir="${src}" destdir="${classDir}" verbose="${verbose}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
+	<!-- Compile the java code from ${srcDir} into ${classDir} -->
+	<target name="build" depends="init" description="build source">
+		<javac source="1.5" srcdir="${srcDir}" destdir="${classDir}" verbose="${verbose}" debug="on" classpathref="classpath" deprecation="${deprecation}"/>
+	</target>
+	
+	<!-- Delete the ${classDir}, ${dist}, and other directory trees -->
+	<target name="clean" description="clean up">
+		<delete dir="${classDir}"/>
+		<delete dir="${reportsDir}"/>
+		<delete dir="${tmpDir}"/>
+	</target>
+	
+	<!-- Clean build -->
+	<target name="build-clean" depends="clean,build" description="compile the source from scratch">
 	</target>
 
+	<!-- Copy test cases into class dir for JUnit tests -->
 	<target name="copy-testcases" description="copy files from testcase directory into class directory">
 		<copy todir="${classDir}">
 			<fileset dir="test" includes="**/testcases/**"/>
 		</copy>
 	</target>
-
-	<target name="build-Names" depends="init" description="build the source for app/names">
-		<!-- Compile the java code from ${src} into ${classDir} -->
-		<javac srcdir="apps/Names/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
-	</target>
-
-	<target name="build-test" depends="init, build" description="compile test cases">
+	
+	<!-- Build JUnit tests -->
+	<target name="build-test" depends="init,build,copy-testcases" description="compile test cases">
 		<javac srcdir="${testDir}" destdir="${classDir}" 
    debug="on" classpathref="classpath" deprecation="${deprecation}"/>
 	</target>
 
 	<target name="build-tests" depends="build-test" description="alias for build-test"/>
 
-	<target name="build-clean" depends="clean,build" description="compile the source from scratch">
-	</target>
-
-	<target name="openJars" depends="build" description="unpack lib/*.jar into a tmp directory">
+	<!-- Open jar files for building dist -->
+	<target name="open-jars" depends="build" description="unpack lib/*.jar into a tmp directory">
 		<delete dir="${tmpDir}"/>
 		<mkdir dir="${tmpDir}"/>
 		<unjar dest="${tmpDir}">
@@ -56,21 +63,15 @@
 		</unjar>
 	</target>
 
-	<target name="build-apps" depends="build" description="build the source for the app directory">
-		<!-- Compile the java code from ${src} into ${classDir} -->
-		<javac srcdir="apps/" 
-  destdir="${classDir}" debug="on" classpathref="classpath"/>
-	</target>
-
-	<target name="mergeJars" depends="openJars" description="merge lib/*.jar into a single jar file">
+	<!-- Merge jar files for building dist -->
+	<target name="merge-jars" depends="open-jars" description="merge lib/*.jar into a single jar file">
 		<jar jarfile="minorThirdIncludes.jar" baseDir="${tmpDir}">
 			<fileset dir="${tmpDir}" includes="**/*.class"/>
 		</jar>
 	</target>
 
-	<target name="jar" description="alias for 'dist'" depends="dist"/>
-
-	<target name="dist" description="generate the distribution" depends="openJars">
+	<!-- Build distribution jar file -->
+	<target name="dist" description="generate the distribution" depends="open-jars">
 		<mkdir dir="${distDir}"/>
 		<!-- Put everything in ${classDir} into the minorThird-${DSTAMP}.jar file -->
 		<jar jarfile="${distDir}/minorThird-${DSTAMP}.jar" basedir="${classDir}">
@@ -80,6 +81,7 @@
 			<fileset dir="${classDir}">
 				<include name="edu/cmu/minorthird/**.class"/>
 			</fileset>
+			<!-- Why include tmpDir? -->
 			<fileset dir="${tmpDir}" includes="**/*"/>
 			<fileset dir="${configDir}">
 				<include name="*.properties"/>
@@ -96,24 +98,22 @@
 		<copy file="${distDir}/minorThird-${DSTAMP}.jar" toFile="${distDir}/minorThird.jar"/>
 	</target>
 
-	<target name="clean" description="clean up">
-		<!-- Delete the ${classDir} and ${dist} directory trees -->
-		<delete dir="${classDir}"/>
-		<delete dir="${reportsDir}"/>
-		<delete dir="${tmpDir}"/>
-	</target>
-
-	<target name="javadocs" depends="javadoc" description="alias for ant javadocs"/>
-
+	<target name="jar" depends="dist" description="alias for 'dist'"/>
+	
+	<!-- Build nice JavaDoc -->
 	<target name="javadoc" description="rebuild java docs">
-		<delete dir="${javadoc}"/>
-		<mkdir dir="${javadoc}/edu/cmu/minorthird/"/>
-		<javadoc sourcepath="${src}" destdir="${javadoc}" 
+		<delete dir="${javadocDir}"/>
+		<mkdir dir="${javadocDir}/edu/cmu/minorthird/"/>
+		<javadoc sourcepath="${srcDir}" destdir="${javadocDir}" 
    classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
 	</target>
+	
+	<target name="javadocs" depends="javadoc" description="alias for ant javadocs"/>
 
+	<!-- Run (not build) JUnit tests -->
 	<target name="test" depends="build,build-test" description="run the tests, NOT halting on failure">
 		<mkdir dir="${reportsDir}"/>
+		<!-- Apparently the maxmemory doesn't help to increase heap space. Ideas? -->
 		<junit maxmemory="2048m" printsummary="yes" haltonfailure="no">
 			<classpath>
 				<path refid="classpath"/>
@@ -141,13 +141,6 @@
 					<exclude name="**/TextLabelsLoaderTest.class"/>
 					<exclude name="**/SimpleTextLoaderTest.class"/>
 					<exclude name="com/lgc/wsh/inv/GaussNewtonSolverTest.class"/>
-
-					<!-- long running time (>5 seconds) -->
-					<!-- <exclude name="**/MixupProgramTest.class"/> -->
-					<!-- even longer running time (>20 secs) -->
-					<!-- <exclude name="**/TextBaseLoaderTest.class"/> -->
-					<!-- VERY long running time (>1 minute) -->
-
 				</fileset>
 			</batchtest>
 		</junit>
@@ -155,13 +148,11 @@
 
 	<target name="tests" depends="test" description="alias for test"/>
 
-	<target name="long-tests" depends="build, build-test" description="Run the tests, NOT halting on failure">
+	<!-- Longer JUnit tests -->
+	<target name="long-test" depends="build,build-test" description="Run the tests, NOT halting on failure">
 		<mkdir dir="${reportsDir}"/>
-		<junit printsummary="yes" haltonfailure="no">
-			<!--<jvmarg value="-Xmx512m"/>-->
-			<!--  not sure why, but new MixupProgramTest doesn't work with the local classpath... 
+		<junit printsummary="yes" haltonfailure="no"> 
     <classpath><path refid="classpath"/></classpath>
--->
 			<formatter type="plain"/>
 			<batchtest fork="no" todir="${reportsDir}">
 				<fileset dir="${classDir}">
@@ -170,4 +161,17 @@
 			</batchtest>
 		</junit>
 	</target>
+	
+	<target name="long-tests" depends="long-test" description="alias for long-test"/>
+	
+	<!-- Some app-building task -->
+	<target name="build-apps" depends="build" description="build the source for the app directory">
+		<javac srcdir="apps/" destdir="${classDir}" debug="on" classpathref="classpath"/>
+	</target>
+	
+	<!-- More app-building task -->
+	<target name="build-names" depends="init" description="build the source for app/names">
+		<javac srcdir="./apps/names/src" destdir="${classDir}" debug="on" classpathref="classpath"/>
+	</target>
+	
 </project>
