@@ -2,19 +2,20 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import com.wcohen.ss.api.*;
-import com.wcohen.ss.*;
-import com.wcohen.ss.lookup.*;
+import java.io.Serializable;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.*;
+import com.wcohen.ss.BasicStringWrapper;
+import com.wcohen.ss.api.StringDistance;
+import com.wcohen.ss.api.StringWrapper;
+import com.wcohen.ss.lookup.SoftDictionary;
 
-import java.io.*;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
 
-public class DictionaryTransform extends AbstractInstanceTransform implements Serializable
-{
+public class DictionaryTransform extends AbstractInstanceTransform implements Serializable{
+	
   static private final long serialVersionUID = 1;
-  private final int CURRENT_VERSION_NUMBER = 1;
 
   private SoftDictionary[] softDict;
   private String[] featurePattern;
