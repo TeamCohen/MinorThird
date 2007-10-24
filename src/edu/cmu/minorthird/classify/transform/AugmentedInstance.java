@@ -76,12 +76,12 @@ public class AugmentedInstance implements Instance
 		return new GUI.InstanceViewer(this);
 	}
 
-	public class MyIterator implements Iterator
+	public class MyIterator implements Iterator<Feature>
 	{
 		private int i=0;
 		public void remove() { throw new UnsupportedOperationException("can't remove"); }
 		public boolean hasNext() { return i<newFeatures.length; }
-		public Object next() { return newFeatures[i++]; }
+		public Feature next() { return newFeatures[i++]; }
 	}
 
 	static public void main(String[] argv)
