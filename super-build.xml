@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project default="build">
+<project name="MinorThirdSuperBuild" default="build">
 
 	<description>Extended build file for MinorThird</description>
 	<import file="./tasks.xml"/>
