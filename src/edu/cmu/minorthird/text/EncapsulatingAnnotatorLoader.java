@@ -64,7 +64,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 
 	/**
 	 *
-	 * @param asFiles: if true, elements of the path are file names.  If
+	 * @param asFiles if true, elements of the path are file names.  If
 	 * false, elements of the path should be resources that can be found
 	 * with getResourceAsStream().  The 'asFiles=false' option was
 	 * mostly provided so that file-system-independent unit tests

@@ -31,7 +31,8 @@ public class RealRelationalDataset extends CoreRelationalDataset implements Visi
     /**
      * Add an aggregator, i.e., save the info. in RelTemp sccript
      *
-     * @param oper, L_type.
+     * @param oper
+     * @param L_type 
      */
     static public void addAggregator(String oper, String L_type) {
 			

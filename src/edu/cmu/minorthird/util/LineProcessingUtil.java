@@ -14,8 +14,8 @@ import edu.cmu.minorthird.text.*;
 public class LineProcessingUtil
 {
 	/** Returns true if substring in input (or part of it) matches the pattern.
-	 * @param regexp (in String format)
-	 * @param line to be matched to regexp (in String format)
+	 * @param patternStr regexp (in String format)
+	 * @param tmpstr line to be matched to regexp (in String format)
 	 * @return true (if pattern is matched) or false (otherwise)
 	 * 
 	 * */
@@ -39,8 +39,8 @@ public class LineProcessingUtil
      *
      * @param line in String format
      * @param regexp in String format
-     * @param feature name to be added, in case the regexp matches the line substring
-     * @param StringBuffer to which the feature should be added
+     * @param featureName feature name to be added, in case the regexp matches the line substring
+     * @param features_out StringBuffer to which the feature should be added
      * 
      **/
 	public static void addFeature(String line, String regexp, String featureName, StringBuffer features_out)
@@ -180,8 +180,8 @@ public class LineProcessingUtil
      * detect a sequence of 2 lines starting with the same
      * punctuation (\p{Punct}) character
      *
-     * @param line1 in String format
-     * @param line2 in String format
+     * @param tmp line1 in String format
+     * @param tmp1 line2 in String format
      * @return true, if both lines start with same punctuation symbol    
      *
      */
@@ -200,7 +200,7 @@ public class LineProcessingUtil
     
       /**
       * Method to split a message (string format) into lines
-      * @param message as String
+      * @param tmp message as String
       * @return message lines in a String[]
       */ 
       public static String[] getMessageLines(String tmp){
@@ -212,7 +212,7 @@ public class LineProcessingUtil
      /**
       * Method to read a file and turn it into a string - based on rcwang's code
       *  
-      * @param String with the name of file
+      * @param in String with the name of file
       * @return the original fine in a String format
       *
       */
@@ -231,8 +231,8 @@ public class LineProcessingUtil
           
     /** Writes the contents of a String Buffer to an output file  
      *
-     * @param output File name (as a String)
-     * @param string buffer to be written to output file
+     * @param outputFileName output File name (as a String)
+     * @param aux string buffer to be written to output file
      */
 	public static void writeToOutputFile(String outputFileName, StringBuffer aux) throws IOException
 	{

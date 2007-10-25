@@ -12,9 +12,10 @@ import org.apache.log4j.*;
  * file, and those abbreviations for which a definition (long form) is
  * found are printed out, along with that definition, one per line.
  *
- * @see <a href="http://biotext.berkeley.edu/papers/psb03.pdf">A Simple Algorithm for Identifying Abbreviation Definitions in Biomedical Text</a>
+ * See:
+ * A Simple Algorithm for Identifying Abbreviation Definitions in Biomedical Text
  * A.S. Schwartz, M.A. Hearst; Pacific Symposium on Biocomputing 8:451-462(2003) 
- * for a detailed description of the algorithm.  
+ * for a detailed description of the algorithm. (http://biotext.berkeley.edu/papers/psb03.pdf)
  *
  * @author Ariel Schwartz and William Cohen
  * @version 03/12/03 and 11/04

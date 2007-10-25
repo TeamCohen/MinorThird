@@ -308,7 +308,7 @@ public class RandomForests extends BatchBinaryClassifierLearner
    * This should really be in the 'Dataset' interface
    * 
    * @param dataset
-   * @return
+   * @return a vector of all features in the dataset
    */
   public static Vector<Feature> getDatasetFeatures(Dataset dataset) {
 	  Example.Looper             it = dataset.iterator();
