@@ -144,6 +144,8 @@
 				</fileset>
 			</batchtest>
 		</junit>
+		<!-- Delete temporary files -->
+		<delete file="./tmp.ann"/>
 	</target>
 
 	<target name="tests" depends="test" description="alias for test"/>
