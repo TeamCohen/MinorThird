@@ -81,8 +81,7 @@
 			<fileset dir="${classDir}">
 				<include name="edu/cmu/minorthird/**.class"/>
 			</fileset>
-			<!-- Why include tmpDir? -->
-			<fileset dir="${tmpDir}" includes="**/*"/>
+			<fileset dir="${tmpDir}" includes="**/*"/> <!-- Why include tmpDir? -->
 			<fileset dir="${configDir}">
 				<include name="*.properties"/>
 				<include name="*.config"/>
