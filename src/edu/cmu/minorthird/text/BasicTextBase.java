@@ -1,14 +1,12 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.util.gui.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.Iterator;
 
 /** Maintains information about what's in a set of documents.
  * Specifically, this contains a set of character sequences (TextToken's)
