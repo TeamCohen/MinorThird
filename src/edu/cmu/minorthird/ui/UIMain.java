@@ -34,7 +34,7 @@ import edu.cmu.minorthird.util.gui.ViewerFrame;
  */
 
 public abstract class UIMain implements CommandLineProcessor.Configurable,
-		Console.Task{
+Console.Task{
 
 	private JPanel errorPanel;
 
@@ -76,7 +76,11 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 	/** Helper to handle command-line processing, in either gui or text mode. */
 	public void callMain(final String[] args){
 		try{
-			getCLP().processArguments(args);
+			CommandLineProcessor clp=getCLP();
+			clp.processArguments(args);
+			if(clp.shouldTerminate()){
+				return;
+			}
 			if(!gui.useGUI){
 				if(base.labels==null)
 					throw new IllegalArgumentException("-labels must be specified");
@@ -87,20 +91,20 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 			}else{
 				main=this;
 				final Viewer v=new ComponentViewer(){
-					
+
 					static final long serialVersionUID=20071024L;
 
 					public JComponent componentFor(Object o){
 						Viewer ts;
 						if(base.classic)
 							ts=
-									new TypeSelector(SelectableTypes.CLASSES,
-											"selectableTypes.txt",o.getClass());
+								new TypeSelector(SelectableTypes.CLASSES,
+										"selectableTypes.txt",o.getClass());
 						else
 							ts=
-									new TypeSelector(SelectableTypes.CLASSES,
-											InLineSelectableTypes.CLASSES,advancedParameters.NAMES,
-											"selectableTypes.txt",o.getClass());
+								new TypeSelector(SelectableTypes.CLASSES,
+										InLineSelectableTypes.CLASSES,advancedParameters.NAMES,
+										"selectableTypes.txt",o.getClass());
 						ts.setContent(o);
 
 						// we'll put the type selector in a nice panel
@@ -136,7 +140,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 						errorPanel=new JPanel();
 						errorPanel.setBorder(new TitledBorder("Error messages and output"));
 						final Console console=
-								new Console(main,base.labels!=null,viewButton);
+							new Console(main,base.labels!=null,viewButton);
 						errorPanel.add(console.getMainComponent());
 
 						// a button to start this thread
@@ -149,16 +153,16 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 
 						// and a button to show the current labels
 						JButton showLabelsButton=
-								new JButton(new AbstractAction("Show labels"){
-									static final long serialVersionUID=20071024L;
-									public void actionPerformed(ActionEvent ev){
-										if(base.labels==null)
-											noLabelsMessage(console);
-										else
-											new ViewerFrame("Labeled TextBase",
-													new SmartVanillaViewer(base.labels));
-									}
-								});
+							new JButton(new AbstractAction("Show labels"){
+								static final long serialVersionUID=20071024L;
+								public void actionPerformed(ActionEvent ev){
+									if(base.labels==null)
+										noLabelsMessage(console);
+									else
+										new ViewerFrame("Labeled TextBase",
+												new SmartVanillaViewer(base.labels));
+								}
+							});
 
 						// and a button to clear the errorArea
 						JButton clearButton=new JButton(new AbstractAction("Clear window"){
@@ -170,26 +174,26 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 
 						// and a button for help
 						JButton helpParamsButton=
-								new JButton(new AbstractAction("Parameters"){
-									static final long serialVersionUID=20071024L;
-									public void actionPerformed(ActionEvent ev){
-										PrintStream oldSystemOut=System.out;
-										ByteArrayOutputStream outBuffer=new ByteArrayOutputStream();
-										System.setOut(new PrintStream(outBuffer));
-										getCLP().usage();
-										console.append(outBuffer.toString());
-										System.setOut(oldSystemOut);
-									}
-								});
+							new JButton(new AbstractAction("Parameters"){
+								static final long serialVersionUID=20071024L;
+								public void actionPerformed(ActionEvent ev){
+									PrintStream oldSystemOut=System.out;
+									ByteArrayOutputStream outBuffer=new ByteArrayOutputStream();
+									System.setOut(new PrintStream(outBuffer));
+									getCLP().usage();
+									console.append(outBuffer.toString());
+									System.setOut(oldSystemOut);
+								}
+							});
 
 						// and another
 						JButton helpRepositoryButton=
-								new JButton(new AbstractAction("Repository"){
-									static final long serialVersionUID=20071024L;
-									public void actionPerformed(ActionEvent ev){
-										repositoryHelp(console);
-									}
-								});
+							new JButton(new AbstractAction("Repository"){
+								static final long serialVersionUID=20071024L;
+								public void actionPerformed(ActionEvent ev){
+									repositoryHelp(console);
+								}
+							});
 						subpanel2.add(goButton);
 						subpanel2.add(viewButton);
 						subpanel2.add(showLabelsButton);
@@ -231,7 +235,7 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 				};
 				v.setContent(this);
 				String className=
-						this.getClass().toString().substring("class ".length());
+					this.getClass().toString().substring("class ".length());
 				ViewerFrame f=new ViewerFrame(className+":  "+Version.getVersion(),v);
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			}
@@ -249,37 +253,37 @@ public abstract class UIMain implements CommandLineProcessor.Configurable,
 
 	private void repositoryHelp(Console console){
 		console
-				.append("The Minorthird repository is a collection of data previously labeled for extraction\n"
-						+"or classification learning. One version of the repository containing public data is on:\n"
-						+"   /afs/cs/project/extract-learn/repository.\n"
-						+"\n"
-						+"Your repository is now configured as follows:\n"+"  "+
-						FancyLoader.SCRIPTDIR_PROP+
-						" => "+
-						FancyLoader.getProperty(FancyLoader.SCRIPTDIR_PROP)+
-						"\n"+
-						"  "+
-						FancyLoader.DATADIR_PROP+
-						" => "+
-						FancyLoader.getProperty(FancyLoader.DATADIR_PROP)+
-						"\n"+
-						"  "+
-						FancyLoader.LABELDIR_PROP+
-						" => "+
-						FancyLoader.getProperty(FancyLoader.LABELDIR_PROP)+
-						"\n"+
-						"To change these parameters, put new values in a file \"data.properties\" on your classpath.\n"+
-						"\n"+
-						FancyLoader.SCRIPTDIR_PROP+
-						" should contain bean shell scripts that return labeled datasets,\n"+
-						"encoded as TextLabels objects. Usually these load documents from the directory pointed to by\n"+
-						FancyLoader.DATADIR_PROP+
-						" and load labels from the directory pointed to by\n"+
-						FancyLoader.LABELDIR_PROP+
-						"\n\n"+
-						"Instead of using script names from repositories as the \"keys\" for the -labels options\n"+
-						"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n"+
-						"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n"+
-						"and foo, where foo is a directory.\n");
+		.append("The Minorthird repository is a collection of data previously labeled for extraction\n"
+				+"or classification learning. One version of the repository containing public data is on:\n"
+				+"   /afs/cs/project/extract-learn/repository.\n"
+				+"\n"
+				+"Your repository is now configured as follows:\n"+"  "+
+				FancyLoader.SCRIPTDIR_PROP+
+				" => "+
+				FancyLoader.getProperty(FancyLoader.SCRIPTDIR_PROP)+
+				"\n"+
+				"  "+
+				FancyLoader.DATADIR_PROP+
+				" => "+
+				FancyLoader.getProperty(FancyLoader.DATADIR_PROP)+
+				"\n"+
+				"  "+
+				FancyLoader.LABELDIR_PROP+
+				" => "+
+				FancyLoader.getProperty(FancyLoader.LABELDIR_PROP)+
+				"\n"+
+				"To change these parameters, put new values in a file \"data.properties\" on your classpath.\n"+
+				"\n"+
+				FancyLoader.SCRIPTDIR_PROP+
+				" should contain bean shell scripts that return labeled datasets,\n"+
+				"encoded as TextLabels objects. Usually these load documents from the directory pointed to by\n"+
+				FancyLoader.DATADIR_PROP+
+				" and load labels from the directory pointed to by\n"+
+				FancyLoader.LABELDIR_PROP+
+				"\n\n"+
+				"Instead of using script names from repositories as the \"keys\" for the -labels options\n"+
+				"you can also use the name of (a) a directory containing XML-marked up data (b) the common stem\n"+
+				"\"foo\" of a pair of files foo.base and foo.labels or (c) the common stem of a pair foo.labels\n"+
+		"and foo, where foo is a directory.\n");
 	}
 }

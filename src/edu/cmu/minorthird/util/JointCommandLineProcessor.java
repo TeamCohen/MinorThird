@@ -13,16 +13,22 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 {
 	private static Logger log = Logger.getLogger(JointCommandLineProcessor.class);
 
+	private boolean helpConsumed;
 	private CommandLineProcessor[] subprocessor;
 
 	public JointCommandLineProcessor(CommandLineProcessor[] subprocessor) 
 	{ 
 		this.subprocessor=subprocessor; 
+		helpConsumed=false;
+	}
+	
+	public boolean shouldTerminate(){
+		return helpConsumed;
 	}
 
 	final public void processArguments(String[] args) 
 	{
-	    System.out.println("*** Minorthird: " + Version.getVersion() + " ***");
+		System.out.println("*** Minorthird: " + Version.getVersion() + " ***");
 		int k = 0;
 		while (k<args.length) {
 			int delta = consumeArguments(args,k);
@@ -47,6 +53,7 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 		boolean somethingConsumed=true;
 		while (pos<args.length && somethingConsumed) {
 			if ("-help".equals(args[pos]) || "--help".equals(args[pos])) {
+				helpConsumed=true;
 				help();
 				pos++;
 				continue;
@@ -97,12 +104,12 @@ public class JointCommandLineProcessor implements CommandLineProcessor
 	static public void main(String[] args)
 	{
 		CommandLineProcessor cp1 = new BasicCommandLineProcessor() {
-				public void one() { System.out.println("one"); }
-			};
+			public void one() { System.out.println("one"); }
+		};
 		CommandLineProcessor cp2 = new BasicCommandLineProcessor() {
-				public void two() { System.out.println("two"); }
-				public void tree() { System.out.println("three"); }
-			};
+			public void two() { System.out.println("two"); }
+			public void tree() { System.out.println("three"); }
+		};
 		CommandLineProcessor jcp = new JointCommandLineProcessor(new CommandLineProcessor[]{cp1,cp2});
 		jcp.processArguments(args);
 	}

@@ -1,8 +1,5 @@
 package edu.cmu.minorthird.util;
 
-import java.lang.reflect.*;
-import java.util.*;
-
 /**
  * A lightweight command-line processing tool.
  *
@@ -44,18 +41,28 @@ public interface CommandLineProcessor
      */
     public void processArguments(String[] args);
 
-    /** Try to consume a the command-line argument at position i.
+    /** 
+     * Try to consume a the command-line argument at position i.
      * Return the number of arguments successfully consumed.
      */
     public int consumeArguments(String[] args,int startPos);
 
-    /** Prints errorMessage and then calls usage(). 
+    /** 
+     * Prints errorMessage and then calls usage(). 
      */
     public void usage(String errorMessage); 
 
-    /** Give usage() information. 
+    /** 
+     * Give usage() information. 
      */
     public void usage();
+    
+    /** 
+     * Specifies whether the commandline processing should terminate.
+     * For example, if the usage is to be displayed, we should ignore
+     * other arguments and terminate.
+     */
+    public boolean shouldTerminate();
 
     /** Interface for objects that can be configured with command-line arguments.
      * Configuration for x is done by calling <code>x.getCLP().processArgs(ags).</code>
