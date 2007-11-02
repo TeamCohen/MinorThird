@@ -18,8 +18,15 @@ import java.util.StringTokenizer;
  * @author Richard Wang rcwang@cmu.edu
  */
 
-public class POSTagger extends StringAnnotator
-{
+public class POSTagger extends StringAnnotator{
+	
+	static{
+		String montyPath=System.getenv("MONTYLINGUA");
+		if(montyPath==null){
+			System.err.println("ERROR: Cannot find MontyLingua resource files. Please set the MONTYLINGUA environment variable to $MINORTHIRD/lib/montylingua");
+		}
+	}
+	
   private static Logger log = Logger.getLogger(POSTagger.class);
   private static JMontyLingua montyLingua = new JMontyLingua();
 
