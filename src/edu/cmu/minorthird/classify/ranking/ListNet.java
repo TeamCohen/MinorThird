@@ -113,17 +113,16 @@ public class ListNet extends BatchRankingLearner
 	}
 	
 	private void learnStep(Map queryMap, Hyperplane w){
-		Hyperplane lastDelta = new Hyperplane();
 	    for (Iterator i=queryMap.keySet().iterator(); i.hasNext(); ) {
 				String subpop = (String)i.next();
 				List ranking = (List)queryMap.get(subpop);
-				batchTrainSubPop( w, ranking, lastDelta );
+				batchTrainSubPop( w, ranking );
 	    }
 	}
 
 
 	// return the number of times h has been updated
-	private void batchTrainSubPop( Hyperplane w, List ranking, Hyperplane lastDelta )
+	private void batchTrainSubPop( Hyperplane w, List ranking )
 	{
 		//initialize normalizers and create prob distributions 
 		initialize(ranking,w);		
