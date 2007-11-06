@@ -29,7 +29,7 @@ STATEMENT -> defLevel NAME = LEVELDEF
 STATEMENT -> onLevel NAME
 STATEMENT -> offLevel NAME
 STATEMENT -> importFromLevel NAME TYPE = TYPE
-  
+
 LEVELDEF -> filter TYPE
 LEVELDEF -> pseudotoken TYPE
 LEVELDEF -> split TOKEN
@@ -125,199 +125,199 @@ require "req1"; //requires that "abc" type spans have already been labeled.  If 
 		//Imports spans of Type in the child level to spans of newType in the parent level
 		importFromLevel childLevelName newType = type;
 		</pre>
-		*
-		* @author William Cohen
-		*/
+ *
+ * @author William Cohen
+ */
 
 public class MixupProgram implements Serializable
 {
-    static private final long serialVersionUID = 1;
-    private final int CURRENT_VERSION_NUMBER = 1;
+	static private final long serialVersionUID = 1;
+	private final int CURRENT_VERSION_NUMBER = 1;
 
-    private static Logger log = Logger.getLogger(MixupProgram.class);
+	private static Logger log = Logger.getLogger(MixupProgram.class);
 
-    private ArrayList statementList = new ArrayList();
-    // maps dictionary names to the sets they correspond to 
-    private HashMap dictionaryMap = new HashMap();
+	private ArrayList statementList = new ArrayList();
+	// maps dictionary names to the sets they correspond to 
+	private HashMap dictionaryMap = new HashMap();
 
-    private static TextBase textBase = null;
-    private static MonotonicTextLabels labels = null;
-    private static HashMap textBases = new HashMap(); //List of TextBases with different tokenizations
-    private static HashMap textLabels = new HashMap(); //List of TextLabels with for textBases with different tokenizations
+	private static TextBase textBase = null;
+	private static MonotonicTextLabels labels = null;
+	private static HashMap textBases = new HashMap(); //List of TextBases with different tokenizations
+	private static HashMap textLabels = new HashMap(); //List of TextLabels with for textBases with different tokenizations
 
-    public static Set legalKeywords = new HashSet(); 
-    static { 
-	legalKeywords.add("defTokenProp"); 
-	legalKeywords.add("defSpanProp"); 
-	legalKeywords.add("defSpanType"); 
-	legalKeywords.add("defDict"); 
-	legalKeywords.add("declareSpanType"); 
-	legalKeywords.add("provide"); 
-	legalKeywords.add("require"); 
-	legalKeywords.add("annotateWith"); 
-	legalKeywords.add("defLevel");
-	legalKeywords.add("onLevel");
-	legalKeywords.add("offLevel");
-	legalKeywords.add("importFromLevel");
-	legalKeywords.add("//");
-	legalKeywords.add("\n");
-    }
-
-    public MixupProgram() {;}
-
-    /** Create a MixupProgram from an array of statements */
-    public MixupProgram(String[] statements) throws Mixup.ParseException {
-	String program = "";
-	for (int i=0; i<statements.length; i++) {
-	    program = program + statements[i] + ";\n";
+	public static Set legalKeywords = new HashSet(); 
+	static { 
+		legalKeywords.add("defTokenProp"); 
+		legalKeywords.add("defSpanProp"); 
+		legalKeywords.add("defSpanType"); 
+		legalKeywords.add("defDict"); 
+		legalKeywords.add("declareSpanType"); 
+		legalKeywords.add("provide"); 
+		legalKeywords.add("require"); 
+		legalKeywords.add("annotateWith"); 
+		legalKeywords.add("defLevel");
+		legalKeywords.add("onLevel");
+		legalKeywords.add("offLevel");
+		legalKeywords.add("importFromLevel");
+		legalKeywords.add("//");
+		legalKeywords.add("\n");
 	}
-	startProgram(program);
-    }
 
-    /** Create a MixupProgram from single string with a bunch of semicolon-separated statements. */
-    public MixupProgram(String program) throws Mixup.ParseException {
-	String[] lines  = program.split("\n");
-	StringBuffer buf = new StringBuffer();
-	String line;
-	for(int i=0; i<lines.length; i++) {
-	    int startComment = lines[i].indexOf("//");
-	    if (startComment>=0) line = lines[i].substring(0,startComment); else line = lines[i];
-	    buf.append(line);
-	    buf.append("\n");
+	public MixupProgram() {;}
+
+	/** Create a MixupProgram from an array of statements */
+	public MixupProgram(String[] statements) throws Mixup.ParseException {
+		String program = "";
+		for (int i=0; i<statements.length; i++) {
+			program = program + statements[i] + ";\n";
+		}
+		startProgram(program);
 	}
-	program = buf.toString();
-	startProgram(program);
-    }
 
-    /** Create a MixupProgram from the contents of a file. */
-    public MixupProgram(File file) throws Mixup.ParseException, FileNotFoundException, IOException {
-	//LineNumberReader in = new LineNumberReader(new FileReader(file));
-	LineNumberReader in = file.exists() ? mixupReader(file) : mixupReader(file.getName());
-	StringBuffer buf = new StringBuffer();
-	String line;
-	while ((line = in.readLine())!=null) {
-	    int startComment = line.indexOf("//");
-	    if (startComment>=0) line = line.substring(0,startComment);
-	    buf.append(line);
-	    buf.append("\n");
+	/** Create a MixupProgram from single string with a bunch of semicolon-separated statements. */
+	public MixupProgram(String program) throws Mixup.ParseException {
+		String[] lines  = program.split("\n");
+		StringBuffer buf = new StringBuffer();
+		String line;
+		for(int i=0; i<lines.length; i++) {
+			int startComment = lines[i].indexOf("//");
+			if (startComment>=0) line = lines[i].substring(0,startComment); else line = lines[i];
+			buf.append(line);
+			buf.append("\n");
+		}
+		program = buf.toString();
+		startProgram(program);
 	}
-	in.close();
-	String program = buf.toString();
-	startProgram(program);
-    }
 
-    private void startProgram(String program)throws Mixup.ParseException {
-	program.trim();	
-	Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(program);
-	String keyword = tok.advance(legalKeywords);
-	while(keyword!=null) {
-	    if(!keyword.startsWith("\n"))
-		addStatement(tok,keyword);
-	    keyword = tok.advance(legalKeywords);
-	    if(keyword == null) {
-                break;
-            }
+	/** Create a MixupProgram from the contents of a file. */
+	public MixupProgram(File file) throws Mixup.ParseException, FileNotFoundException, IOException {
+		//LineNumberReader in = new LineNumberReader(new FileReader(file));
+		LineNumberReader in = file.exists() ? mixupReader(file) : mixupReader(file.getName());
+		StringBuffer buf = new StringBuffer();
+		String line;
+		while ((line = in.readLine())!=null) {
+			int startComment = line.indexOf("//");
+			if (startComment>=0) line = line.substring(0,startComment);
+			buf.append(line);
+			buf.append("\n");
+		}
+		in.close();
+		String program = buf.toString();
+		startProgram(program);
 	}
-    }
 
-    /**
-     * @deprecated  Use MixupInterpreter to evaluate mixup programs
-     */
-    // Deprecated on 2/20/2007
-    public MonotonicTextLabels eval(MonotonicTextLabels labels, TextBase tb) {
-        MixupInterpreter interpreter = new MixupInterpreter(this);
-        interpreter.eval(labels);
-	return interpreter.getCurrentLabels();
-    }
-
-    /**
-     * @deprecated  Use MixupInterpreter to evaluate mixup programs
-     */
-    // Deprecated on 2/20/2007
-    public void eval(MonotonicTextLabels labels) {
-        MixupInterpreter interpreter = new MixupInterpreter(this);
-	ProgressCounter pc = new ProgressCounter("mixup program","statement",statementList.size());
-        interpreter.eval(labels);
-	pc.finished();
-    }
-
-    /** Add a single statement to the current mixup program. */
-    public void addStatement(Mixup.MixupTokenizer tok, String keyword) throws Mixup.ParseException {
-	statementList.add(new Statement(tok, keyword));
-    }
-
-    /** Add a single statement to the current mixup program. */
-    public void addStatement(String statement) throws Mixup.ParseException {
-	Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(statement);
-	String keyword = tok.advance(legalKeywords);
-	addStatement(tok, keyword);	
-    }
-
-    public Statement[] getStatements() {
-        return (Statement[])statementList.toArray(new Statement[0]);
-    }
-
-    /** List the program **/
-    public String toString() {
-	StringBuffer buf = new StringBuffer("");
-	for (int i=0; i<statementList.size(); i++) {
-	    buf.append(statementList.get(i).toString()+";\n");
-	}
-	return buf.toString();
-    }
-	
-    /** Convert a string to an input stream, then a LineNumberReader. */
-    static private LineNumberReader mixupReader(String fileName) throws IOException, FileNotFoundException
-    {
-	File file = new File(fileName);
-	if (file.exists())
-	    return mixupReader(file);
-	else {
-	    InputStream s;
-	    s = EncapsulatingAnnotatorLoader.EncapsulatingClassLoader.getSystemResourceAsStream(fileName);
-	    if (s==null) s = ClassLoader.getSystemResourceAsStream(fileName);
-	    if (s==null) throw new IllegalArgumentException("No file named '"+fileName+"' found on classpath");
-	    return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
-	}
-    }
-    static private LineNumberReader mixupReader(File file) throws IOException, FileNotFoundException
-    {
-	return new LineNumberReader(new BufferedReader(new FileReader(file)));
-    }
-
-
-    /**
-     * usage: programFile textFile/directory [outfile]
-     * evaluates the given program file against the specified data (either a file or directory of files)
-     * if an outfile is specified it outputs the types as operators to that file
-     */
-    public static void main(String[] args) {
-	try {
-	    MixupProgram program = new MixupProgram(new File(args[0]));
-	    System.out.println("program:\n" + program.toString());
-	    if (args.length>1) {
-		MonotonicTextLabels labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
-
-		program.eval(labels);
-
-		if (args.length > 2)
-		    {
-			File outFile = new File(args[2]);
-			new TextLabelsLoader().saveTypesAsOps(labels, outFile);
-		    }
-		else
-		    for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
-			String type = (String)i.next();
-			System.out.println("Type "+type+":");
-			for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
-			    Span span = j.nextSpan();
-			    System.out.println( "\t'"+span.asString()+"'" );
+	private void startProgram(String program)throws Mixup.ParseException {
+		program.trim();	
+		Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(program);
+		String keyword = tok.advance(legalKeywords);
+		while(keyword!=null) {
+			if(!keyword.startsWith("\n"))
+				addStatement(tok,keyword);
+			keyword = tok.advance(legalKeywords);
+			if(keyword == null) {
+				break;
 			}
-		    }
-	    }
-	} catch (Exception e) {
-	    System.out.println("usage: programFile textFile/directory [outfile]");
-	    e.printStackTrace();
+		}
 	}
-    }
+
+	/**
+	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
+	 */
+	// Deprecated on 2/20/2007
+	public MonotonicTextLabels eval(MonotonicTextLabels labels, TextBase tb) {
+		MixupInterpreter interpreter = new MixupInterpreter(this);
+		interpreter.eval(labels);
+		return interpreter.getCurrentLabels();
+	}
+
+	/**
+	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
+	 */
+	// Deprecated on 2/20/2007
+	public void eval(MonotonicTextLabels labels) {
+		MixupInterpreter interpreter = new MixupInterpreter(this);
+		ProgressCounter pc = new ProgressCounter("mixup program","statement",statementList.size());
+		interpreter.eval(labels);
+		pc.finished();
+	}
+
+	/** Add a single statement to the current mixup program. */
+	public void addStatement(Mixup.MixupTokenizer tok, String keyword) throws Mixup.ParseException {
+		statementList.add(new Statement(tok, keyword));
+	}
+
+	/** Add a single statement to the current mixup program. */
+	public void addStatement(String statement) throws Mixup.ParseException {
+		Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(statement);
+		String keyword = tok.advance(legalKeywords);
+		addStatement(tok, keyword);	
+	}
+
+	public Statement[] getStatements() {
+		return (Statement[])statementList.toArray(new Statement[0]);
+	}
+
+	/** List the program **/
+	public String toString() {
+		StringBuffer buf = new StringBuffer("");
+		for (int i=0; i<statementList.size(); i++) {
+			buf.append(statementList.get(i).toString()+";\n");
+		}
+		return buf.toString();
+	}
+
+	/** Convert a string to an input stream, then a LineNumberReader. */
+	static private LineNumberReader mixupReader(String fileName) throws IOException, FileNotFoundException
+	{
+		File file = new File(fileName);
+		if (file.exists())
+			return mixupReader(file);
+		else {
+			InputStream s;
+			s = EncapsulatingAnnotatorLoader.EncapsulatingClassLoader.getSystemResourceAsStream(fileName);
+			if (s==null) s = ClassLoader.getSystemResourceAsStream(fileName);
+			if (s==null) throw new IllegalArgumentException("No file named '"+fileName+"' found on classpath");
+			return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
+		}
+	}
+	static private LineNumberReader mixupReader(File file) throws IOException, FileNotFoundException
+	{
+		return new LineNumberReader(new BufferedReader(new FileReader(file)));
+	}
+
+
+	/**
+	 * usage: programFile textFile/directory [outfile]
+	 * evaluates the given program file against the specified data (either a file or directory of files)
+	 * if an outfile is specified it outputs the types as operators to that file
+	 */
+	public static void main(String[] args){
+		try {
+			MixupProgram program = new MixupProgram(new File(args[0]));
+			System.out.println("program:\n" + program.toString());
+			if (args.length>1) {
+				MonotonicTextLabels labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
+
+				program.eval(labels);
+
+				if (args.length > 2)
+				{
+					File outFile = new File(args[2]);
+					new TextLabelsLoader().saveTypesAsOps(labels, outFile);
+				}
+				else
+					for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
+						String type = (String)i.next();
+						System.out.println("Type "+type+":");
+						for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
+							Span span = j.nextSpan();
+							System.out.println( "\t'"+span.asString()+"'" );
+						}
+					}
+			}
+		} catch (Exception e) {
+			System.out.println("usage: programFile textFile/directory [outfile]");
+			e.printStackTrace();
+		}
+	}
 }
