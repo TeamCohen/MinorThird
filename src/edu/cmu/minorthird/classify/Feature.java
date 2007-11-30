@@ -124,7 +124,7 @@ public class Feature implements Comparable,Serializable
 		{
 			featureSet = new THashMap();
 			featureIds = new TObjectIntHashMap();
-			nextID = 1;			
+			nextID = 1;
 		}
 
     public static boolean contains(Feature f)
