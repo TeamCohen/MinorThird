@@ -23,14 +23,12 @@ public abstract class AnnotatorLoader{
 		if(s==null){
 			try{
 				s=new FileInputStream("./config/annotators.config");
-			}
-			catch(IOException e){
+			}catch(IOException e){
 				log.warn("Can't find annotators.config.");
 				log.warn("classpath: "+System.getProperty("java.class.path"));
 				log.warn(e);
 			}
-		}
-		else{
+		}else{
 			try{
 				redirectionProps.load(s);
 			}catch(IOException e){
@@ -70,7 +68,18 @@ public abstract class AnnotatorLoader{
 			// We treat mixup programs special.  They must end in ".mixup"
 			if(source.endsWith(".mixup")){
 				log.debug("non-null mixup");
-				return findMixupAnnotatorFromStream(source,findFileResource(source));
+				InputStream is=findFileResource(source);
+				if(is!=null){
+					return findMixupAnnotatorFromStream(source,is);
+				}else{
+					try{
+						is=new FileInputStream(source);
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+					return findMixupAnnotatorFromStream(source,is);
+				}
 			}
 			// If the source is not a mixup, then it is either part of an encapsulated annotator
 			//  or is a class that needs to be loaded natively by java.

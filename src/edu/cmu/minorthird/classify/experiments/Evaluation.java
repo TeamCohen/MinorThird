@@ -32,7 +32,6 @@ public class Evaluation implements Visible,Serializable,Saveable
 
 	// serialization stuff
 	static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
 
 	//
 	// private data

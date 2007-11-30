@@ -99,7 +99,7 @@ public class BasicTextLabels implements MutableTextLabels, Serializable, Visible
 	if (annotationType!=null && !labels.isAnnotatedBy(annotationType)) {
 	    if (theLoader==null) theLoader = labels.getAnnotatorLoader(); // use current loader as default
 	    Annotator annotator = theLoader.findAnnotator(annotationType,fileToLoad);
-	    if (annotator==null) throw new IllegalArgumentException("can't find annotator "+annotationType);
+	    if (annotator==null) throw new IllegalArgumentException("can't find annotator "+annotationType+" (file: "+fileToLoad+")");
 
 	    // annotate using theLoader for any recursively-required annotations,
 	    AnnotatorLoader savedLoader = labels.getAnnotatorLoader();
