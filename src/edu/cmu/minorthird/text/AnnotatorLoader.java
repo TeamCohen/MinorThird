@@ -61,7 +61,7 @@ public abstract class AnnotatorLoader{
 		Annotator ann=null;
 		String redirect;
 		InputStream s;
-		log.info("finding annotator for "+annotationType+" source="+source);
+		log.debug("finding annotator for \""+annotationType+"\" source="+source);
 
 		// First we check based on the provided source
 		if(source!=null){
@@ -70,8 +70,11 @@ public abstract class AnnotatorLoader{
 				log.debug("non-null mixup");
 				InputStream is=findFileResource(source);
 				if(is!=null){
+					log.debug("loading input stream from found file resource "+source);
 					return findMixupAnnotatorFromStream(source,is);
-				}else{
+				}
+				else{
+					log.debug("loading input stream directly from file "+source);
 					try{
 						is=new FileInputStream(source);
 					}
@@ -142,9 +145,8 @@ public abstract class AnnotatorLoader{
 		return null;
 	}
 
-	final private Annotator findMixupAnnotatorFromStream(String fileName,
-			InputStream s){
-		log.info("finding MixupProgram "+fileName+" in stream "+s);
+	final private Annotator findMixupAnnotatorFromStream(String fileName,InputStream s){
+		log.debug("finding MixupProgram "+fileName+" in stream "+s);
 		if(s==null){
 			log.warn("couldn't find mixup program "+fileName+" using "+this);
 			return null;
