@@ -62,6 +62,9 @@ public class MaxEntLearner extends BatchClassifierLearner
 	}
 
 	public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }
+	
+	public ExampleSchema getSchema(){return crfLearner.getSchema();}
+	
 	public Classifier batchTrain(Dataset dataset)
 	{
 		SequenceDataset seqData = new SequenceDataset();

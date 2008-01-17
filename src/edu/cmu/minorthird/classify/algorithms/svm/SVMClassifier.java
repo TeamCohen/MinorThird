@@ -9,7 +9,7 @@ import libsvm.svm_model;
 import libsvm.svm_node;
 import edu.cmu.minorthird.classify.BinaryClassifier;
 import edu.cmu.minorthird.classify.Explanation;
-import edu.cmu.minorthird.classify.FeatureIdFactory;
+import edu.cmu.minorthird.classify.FeatureFactory;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.util.gui.ComponentViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
@@ -26,17 +26,15 @@ import edu.cmu.minorthird.util.gui.Visible;
  *
  * @author qcm
  */
-public class SVMClassifier extends BinaryClassifier implements Visible,
-		Serializable{
+public class SVMClassifier extends BinaryClassifier implements Visible,Serializable{
 
 	static final long serialVersionUID=20071130L;
 	
-	private FeatureIdFactory m_featureIdFactory;
-
+	private FeatureFactory m_featureFactory;
 	private svm_model m_svmModel;
 
-	public SVMClassifier(svm_model model,FeatureIdFactory idFactory){
-		m_featureIdFactory=idFactory;
+	public SVMClassifier(svm_model model,FeatureFactory factory){
+		m_featureFactory=factory;
 		m_svmModel=model;
 	}
 
@@ -49,9 +47,8 @@ public class SVMClassifier extends BinaryClassifier implements Visible,
 		return ex;
 	}
 
-	public FeatureIdFactory getIdFactory(){
-
-		return m_featureIdFactory;
+	public FeatureFactory getFeatureFactory(){
+		return m_featureFactory;
 	}
 
 	public svm_model getSVMModel(){
@@ -67,7 +64,7 @@ public class SVMClassifier extends BinaryClassifier implements Visible,
 	public double score(Instance instance){
 
 		svm_node[] nodeArray=
-				SVMUtils.instanceToNodeArray(instance,m_featureIdFactory);
+				SVMUtils.instanceToNodeArray(instance);
 		double prediction;
 
 		// If the model is set to calculate probability estimates (aka confidences) then
@@ -125,9 +122,7 @@ public class SVMClassifier extends BinaryClassifier implements Visible,
 			final SVMClassifier svmClassifier1=(SVMClassifier)o;
 
 			// transform to visible SVM
-			VisibleSVM vsSVMtemp=
-					new VisibleSVM(svmClassifier1.getSVMModel(),svmClassifier1
-							.getIdFactory());
+			VisibleSVM vsSVMtemp=new VisibleSVM(svmClassifier1.getSVMModel(),svmClassifier1.getFeatureFactory());
 
 			return vsSVMtemp.toGUI();
 		}

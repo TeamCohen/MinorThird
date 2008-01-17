@@ -1,19 +1,21 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
-import edu.cmu.minorthird.classify.Explanation;
-import edu.cmu.minorthird.classify.FeatureIdFactory;
-import edu.cmu.minorthird.classify.ClassLabel;
-import edu.cmu.minorthird.classify.Classifier;
-import edu.cmu.minorthird.classify.Instance;
-import edu.cmu.minorthird.classify.ExampleSchema;
+import java.io.Serializable;
+
+import javax.swing.JComponent;
+
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
-import edu.cmu.minorthird.util.gui.Visible;
-import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.FeatureFactory;
+import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.util.gui.ComponentViewer;
-import java.io.*;
-import javax.swing.JComponent;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  * MultiClassSVMClassifier wrapps the prediction code from the libsvm library for 
@@ -32,26 +34,22 @@ public class MultiClassSVMClassifier implements Classifier,Serializable,Visible{
 	
 	static final long serialVersionUID=20071130L;
 
-	private FeatureIdFactory m_featureIdFactory;
+	private FeatureFactory m_featureFactory;
 
 	private ExampleSchema m_schema;
 
 	private svm_model m_svmModel;
 
-	public MultiClassSVMClassifier(svm_model model,FeatureIdFactory idFactory,
-			ExampleSchema schema){
+	public MultiClassSVMClassifier(svm_model model,FeatureFactory featureFactory,ExampleSchema schema){
 		this.m_svmModel=model;
-
-		this.m_featureIdFactory=idFactory;
-
+		this.m_featureFactory=featureFactory;
 		this.m_schema=schema;
 	}
 
 	public ClassLabel classification(Instance instance){
 
 		//need the nodeArray
-		svm_node[] nodeArray=
-				SVMUtils.instanceToNodeArray(instance,m_featureIdFactory);
+		svm_node[] nodeArray=SVMUtils.instanceToNodeArray(instance);
 		double prediction;
 		ClassLabel label=new ClassLabel();
 
@@ -91,9 +89,8 @@ public class MultiClassSVMClassifier implements Classifier,Serializable,Visible{
 		return ex;
 	}
 
-	public FeatureIdFactory getIdFactory(){
-
-		return m_featureIdFactory;
+	public FeatureFactory getFeatureFactory(){
+		return m_featureFactory;
 	}
 
 	public ExampleSchema getExampleSchema(){
@@ -136,7 +133,7 @@ public class MultiClassSVMClassifier implements Classifier,Serializable,Visible{
 			//transform to visible SVM
 			VisibleSVM vsSVMtemp=
 					new VisibleSVM(mcSvmClassifier1.getSVMModel(),mcSvmClassifier1
-							.getIdFactory(),mcSvmClassifier1.getExampleSchema());
+							.getFeatureFactory(),mcSvmClassifier1.getExampleSchema());
 
 			return vsSVMtemp.toGUI();
 

@@ -4,7 +4,6 @@ package edu.cmu.minorthird.classify;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /** 
@@ -14,92 +13,92 @@ import java.util.Set;
  * @author William Cohen
  */
 
-public class ExampleSchema implements Serializable
-{
+public class ExampleSchema implements Serializable{
 
 	static final long serialVersionUID=20071015;
 
-	static public final String POS_CLASS_NAME="POS";
-	static public final String NEG_CLASS_NAME="NEG";
+	public static final String POS_CLASS_NAME="POS";
+	public static final String NEG_CLASS_NAME="NEG";
 
 	/** Schema for binary examples. */
-	final static public ExampleSchema BINARY_EXAMPLE_SCHEMA = 
-		new ExampleSchema(new String[]{POS_CLASS_NAME,NEG_CLASS_NAME});
+	public final static ExampleSchema BINARY_EXAMPLE_SCHEMA=new ExampleSchema(new String[]{POS_CLASS_NAME,NEG_CLASS_NAME});
 
 	private String[] validClassNames;
-	private Set validClassNameSet;
+	private Set<String> validClassNameSet;
 
 	/** Create a new scheme with the given list of validClassNames */
-	public ExampleSchema(final String[] validClassNames)
-	{
-		this.validClassNames = validClassNames;
-		validClassNameSet = new HashSet();
-		for (int i=0; i<validClassNames.length; i++) {
-			validClassNameSet.add( validClassNames[i] );
+	public ExampleSchema(final String[] validClassNames){
+		this.validClassNames=validClassNames;
+		validClassNameSet=new HashSet<String>();
+		for(int i=0;i<validClassNames.length;i++){
+			validClassNameSet.add(validClassNames[i]);
 		}
 	}
 
-	// Added extend method to extend the schema with new class label value
-	public void extend(String newClassName) { 
-		String newValidClassNames [] = new String[validClassNames.length+1];
-		for (int i = 0; i < validClassNames.length; i++) {
-			newValidClassNames[i] = validClassNames[i]; 
+	/** Added extend method to extend the schema with new class label value */
+	public void extend(String newClassName){
+		String newValidClassNames[]=new String[validClassNames.length+1];
+		for(int i=0;i<validClassNames.length;i++){
+			newValidClassNames[i]=validClassNames[i];
 		}
-		newValidClassNames[validClassNames.length] = newClassName;
-		validClassNames = newValidClassNames;
+		newValidClassNames[validClassNames.length]=newClassName;
+		validClassNames=newValidClassNames;
 		validClassNameSet.add(newClassName);
-	} 
+	}
 
 	/** Get an array of all valid class names. */
-	public String[] validClassNames() 
-	{
+	public String[] validClassNames(){
 		return validClassNames;
 	}
 
 	/** Return number of valid class names */
-	public int getNumberOfClasses()
-	{
+	public int getNumberOfClasses(){
 		return validClassNames.length;
 	}
 
 	/** Return i-th valid class name. */
-	public String getClassName(int i)
-	{
+	public String getClassName(int i){
 		return validClassNames[i];
 	}
 
 	/** Return index of this class name, or -1 if it's not valid. */
-	public int getClassIndex(String name)
-	{
-		for (int i=0; i<validClassNames.length; i++) {
-			if (validClassNames[i].equals(name)) return i;
+	public int getClassIndex(String name){
+		for(int i=0;i<validClassNames.length;i++){
+			if(validClassNames[i].equals(name)){
+				return i;
+			}
 		}
 		return -1;
 	}
 
-	/** Determine if an example is valid with respect to the schema. */
-	public boolean isValid(Example e)
-	{
-		return isValid(e.getLabel());
-	}
-
 	/** Determine if a ClassLabel is valid with respect to the schema. */
-	public boolean isValid(ClassLabel label)
-	{
-		Set classNames = label.possibleLabels();
-		for (Iterator i=classNames.iterator(); i.hasNext(); ) {
-			if (!validClassNameSet.contains( i.next() )) return false;
+	public boolean isValid(ClassLabel label){
+		for(String l:label.possibleLabels()){
+			if(!validClassNameSet.contains(l)){
+				return false;
+			}
 		}
 		return true;
 	}
 
-	public boolean equals(Object o)
-	{
-		if (!(o instanceof ExampleSchema)) return false;
-		ExampleSchema b = (ExampleSchema)o;
-		return validClassNameSet.equals(b.validClassNameSet);
+	/** Determine if an example is valid with respect to the schema. */
+	public boolean isValid(Example e){
+		return isValid(e.getLabel());
 	}
 
-	public String toString() { return "[ExampleSchema: "+validClassNameSet+"]"; }
+	public boolean equals(Object o){
+		if(o instanceof ExampleSchema){
+			ExampleSchema b=(ExampleSchema)o;
+			return validClassNameSet.equals(b.validClassNameSet);
+		}
+		else{
+			return false;
+		}
+	}
+
+	public String toString(){
+		return "[ExampleSchema: "+validClassNameSet+"]";
+	}
+
 }
 

@@ -140,7 +140,7 @@ public class SGMFeatureFactory extends FeatureFactory
 					return null;
 			}
 
-			public Object next()
+			public Feature next()
 			{ return nextFeature(); }
 
 			public void remove()
@@ -156,7 +156,7 @@ public class SGMFeatureFactory extends FeatureFactory
 
 			public FeatureArrayLooper(Object[] features)
 			{
-				super((Iterator)null);
+				super((Iterator<Feature>)null);
 				curIndex = 0;
 				this.featureArray = features;
 			}
@@ -170,7 +170,7 @@ public class SGMFeatureFactory extends FeatureFactory
 			public int estimatedSize()
 			{ return featureArray.length; }
 
-			public Object next()
+			public Feature next()
 			{ return nextFeature(); }
 
 			public void remove()

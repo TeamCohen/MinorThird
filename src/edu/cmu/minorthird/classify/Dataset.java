@@ -12,15 +12,19 @@ import java.util.Random;
  * @author William Cohen
  */
 
-public interface Dataset extends Visible
-{
+public interface Dataset extends Visible{
+	
+	/** Get the FeatureFactory associated with the dataset */
+	public FeatureFactory getFeatureFactory();
+	
 	/** Get the schema associated with the dataset */
 	public ExampleSchema getSchema();
 
-    /** Add a new example to the dataset. */
-    public void add(Example example); 
-    /** Add a new example to the dataset. Specifying whether or not to compress it. */
-    public void add(Example example, boolean compress);
+	/** Add a new example to the dataset. */
+	public void add(Example example);
+	
+	/** Add a new example to the dataset. Specifying whether or not to compress it. */
+	public void add(Example example, boolean compress);
 
 	/** Return an iterator over all examples.  This iterator must always
 	 * return examples in the order in which they were added, unless the
@@ -31,9 +35,7 @@ public interface Dataset extends Visible
 	/** Return the number of examples. */
 	public int size(); 
 
-	//
 	// these operations are mostly to support train/testing experiments
-	//
 
 	/** Randomly re-order the examples. */
 	public void shuffle(Random r);
@@ -51,8 +53,7 @@ public interface Dataset extends Visible
 	/** 
 	 * 	A partitioning of the dataset into a number of train/test partitions 
 	 */
-	public interface Split 
-	{
+	public interface Split{
 		/** Return the number of partitions */
 		public int getNumPartitions();
 

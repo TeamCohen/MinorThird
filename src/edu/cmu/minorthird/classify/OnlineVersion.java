@@ -71,6 +71,10 @@ public class OnlineVersion extends OnlineClassifierLearner
 		innerLearner.setSchema(schema);	
 		bootstrapLearner.setSchema(schema); 
 	}
+	
+	final public ExampleSchema getSchema(){
+		return innerLearner.getSchema();
+	}
 
 	final public void reset()
 	{

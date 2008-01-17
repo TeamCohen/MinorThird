@@ -7,8 +7,8 @@ import edu.cmu.minorthird.util.gui.Visible;
  * Common code for all instance implementations
  * @author ksteppe
  */
-public abstract class AbstractInstance implements Instance, Visible
-{
+public abstract class AbstractInstance implements Instance,Visible{
+	
   protected Object source;
   protected String subpopulationId;
 
@@ -19,8 +19,8 @@ public abstract class AbstractInstance implements Instance, Visible
 	public String getSubpopulationId() { return subpopulationId; }
 
   /** Debugging view of an instance. */
-	public String toString() {
-		StringBuffer buf = new StringBuffer("[instance/"+subpopulationId+":");
+	public String toString(){
+		StringBuilder buf=new StringBuilder("[instance/"+subpopulationId+":");
 		for (Feature.Looper i=binaryFeatureIterator(); i.hasNext(); ) {
 			buf.append(" "+i.nextFeature());
 		}
@@ -32,10 +32,9 @@ public abstract class AbstractInstance implements Instance, Visible
 		return buf.toString();
 	}
 
-
   /** Retrieve Viewer for the instance */
-  public Viewer toGUI()	
-	{ 
-		return new GUI.InstanceViewer(this); 
+  public Viewer toGUI(){ 
+		return new GUI.InstanceViewer(this);
 	}
+  
 }

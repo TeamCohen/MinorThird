@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.algorithms.knn;
 
 import edu.cmu.minorthird.classify.*;
+
 import java.io.*;
 
 /**
@@ -42,6 +43,10 @@ public class KnnLearner extends OnlineClassifierLearner implements Serializable
 	public Classifier getClassifier() {	return new KnnClassifier(index, schema, k);	}
 
 	public void setSchema(ExampleSchema schema) { this.schema = schema; }
+	
+	public ExampleSchema getSchema(){
+		return schema;
+	}
 
 	public String toString() { return "[KnnLearner k:"+k+"]"; }
 }

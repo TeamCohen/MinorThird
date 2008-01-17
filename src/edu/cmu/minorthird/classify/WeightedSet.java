@@ -10,37 +10,47 @@ import java.util.Iterator;
 
 /** Set of objects, each with an associated weight */
 
-public class WeightedSet implements Serializable
-{
-  static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
-	private Map map = new TreeMap();
+public class WeightedSet<T> implements Serializable{
+	
+  static private final long serialVersionUID=20080116L;
+  
+	private Map<T,Double>map;
 
-	public WeightedSet() {;}
+	public WeightedSet(){
+		map=new TreeMap<T,Double>();
+	}
 
-	/** Add a new object.  Objects with weights of zero are ignored. */
-	public boolean add(Object object, double weight) {
-		boolean result = map.get(object)!=null;
-		map.put(object, new Double(weight));
+	/** Add a new object. */
+	public boolean add(T object,double weight){
+		boolean result=map.get(object)!=null;
+		map.put(object,weight);
 		return result;
 	}
+	
 	/** Get weight for an object. */
-	public double getWeight(Object object,double defaultWeight) {
-		Double d = (Double)map.get(object);
-		return (d==null ? defaultWeight : d.doubleValue());
+	public double getWeight(T object,double defaultWeight){
+		Double d=map.get(object);
+		return(d==null?defaultWeight:d.doubleValue());
 	}
-	public double getWeight(Object object) {
+	
+	public double getWeight(T object){
 		return getWeight(object,0.0);
 	}
-	public Set asSet() {
+	
+	public Set<T> asSet() {
 		return map.keySet();
 	}
-	public boolean contains(Object object) {
+	
+	public boolean contains(T object){
 		return map.get(object)!=null;
 	}
-  public Iterator iterator() {
+	
+  public Iterator<T> iterator(){
     return map.keySet().iterator();
   }
 
-	public String toString() { return map.toString(); }
+	public String toString(){
+		return map.toString();
+	}
+	
 }

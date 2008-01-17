@@ -1,15 +1,17 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
-import edu.cmu.minorthird.classify.FeatureIdFactory;
-import edu.cmu.minorthird.classify.BatchClassifierLearner;
-import edu.cmu.minorthird.classify.Classifier;
-import edu.cmu.minorthird.classify.Dataset;
-import edu.cmu.minorthird.classify.ExampleSchema;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
+
 import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.BatchClassifierLearner;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.FeatureFactory;
 
 /**
  * Wraps the svm.svm_train algorithm from libsvm for multi-class problems
@@ -25,15 +27,12 @@ import org.apache.log4j.Logger;
  */
 public class MultiClassSVMLearner extends BatchClassifierLearner{
 
-	private svm_model model;
-
-	private FeatureIdFactory idFactory;
-
-	private svm_parameter parameters;
-
-	private ExampleSchema exampleSchema;
-
 	Logger log=Logger.getLogger(SVMLearner.class);
+	
+	private svm_model model;
+	private svm_parameter parameters;
+	private FeatureFactory featureFactory;
+  private ExampleSchema exampleSchema;
 
 	/**
 	 * construct learner using given params
@@ -51,10 +50,18 @@ public class MultiClassSVMLearner extends BatchClassifierLearner{
 		initParameters();
 	}
 
-	final public void setSchema(ExampleSchema schema){
+	public void setSchema(ExampleSchema schema){
 		exampleSchema=schema;
 	}
-
+	
+	public ExampleSchema getSchema(){
+		return exampleSchema;
+	}
+	
+	public FeatureFactory getFeatureFactory(){
+		return featureFactory;
+	}
+		
 	/**
 	 * Train a classifier using the given dataset.
 	 * An svm_problem object is created from the dataset.  A svm_model is generated
@@ -66,18 +73,15 @@ public class MultiClassSVMLearner extends BatchClassifierLearner{
 	public Classifier batchTrain(Dataset dataset){
 		try{
 			//train up the svm on the dataset
-			idFactory=new FeatureIdFactory(dataset);
-			svm_problem problem=
-					SVMUtils.convertToMultiClassSVMProblem(dataset,idFactory,dataset
-							.getSchema());
+			svm_problem problem=SVMUtils.convertToMultiClassSVMProblem(dataset,dataset.getSchema());
 			model=svm.svm_train(problem,parameters);
-
-		}catch(Exception e){
+		}
+		catch(Exception e){
 			log.error(e,e);
 		}
 
 		//now I need to construct a Classifier out of the svm_model
-		return new MultiClassSVMClassifier(model,idFactory,dataset.getSchema());
+		return new MultiClassSVMClassifier(model,dataset.getFeatureFactory(),dataset.getSchema());
 	}
 
 	/**
@@ -319,8 +323,8 @@ public class MultiClassSVMLearner extends BatchClassifierLearner{
 		return model;
 	}
 
-	public FeatureIdFactory getIdFactory(){
-		return this.idFactory;
-	}
+//	public FeatureIdFactory getIdFactory(){
+//		return this.idFactory;
+//	}
 
 }

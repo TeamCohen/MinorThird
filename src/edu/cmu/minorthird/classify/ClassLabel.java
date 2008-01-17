@@ -35,7 +35,7 @@ public class ClassLabel implements Serializable
 {
   static private final long serialVersionUID = 1;
 
-	private WeightedSet wset = new WeightedSet();
+	private WeightedSet<String> wset = new WeightedSet<String>();
 	private String bestLabel = null;
 	private double bestWeight = -Double.MAX_VALUE;
 
@@ -128,7 +128,7 @@ public class ClassLabel implements Serializable
   }
 
 	/** Returns the set of labels that appear in the ranking. */
-	public Set possibleLabels() { return wset.asSet(); }
+	public Set<String> possibleLabels() { return wset.asSet(); }
 
 	/** Is this label correct, relative to another label? */
 	public boolean isCorrect(ClassLabel otherLabel) 

@@ -44,10 +44,10 @@ public interface Instance extends HasSubpopulationId,Visible
 
 	/** Iterator class */
 
-	static public class Looper extends AbstractLooper {
-		public Looper(Collection c) { super(c); }
-		public Looper(Iterator i) { super(i); }
-		public Instance nextInstance() { return (Instance)next(); }
+	static public class Looper extends AbstractLooper<Instance>{
+		public Looper(Collection<Instance> c){super(c);}
+		public Looper(Iterator<Instance> i){super(i);}
+		public Instance nextInstance(){return next();}
 	}
 
 }

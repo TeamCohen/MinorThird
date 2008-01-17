@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.classify.semisupervised;
 
 import edu.cmu.minorthird.classify.*;
+
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -29,6 +30,10 @@ public class SemiSupervisedNaiveBayesLearner extends SemiSupervisedBatchClassifi
     
    public void setSchema(ExampleSchema schema) { ; }
    public void setInstancePool(Instance.Looper i) { this.iteratorOverUnlabeled=i; }
+   
+  	public ExampleSchema getSchema(){
+  		return null;
+  	}
 
     public ClassifierLearner copy() {
 	ClassifierLearner learner = null;

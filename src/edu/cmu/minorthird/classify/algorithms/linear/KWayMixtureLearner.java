@@ -52,8 +52,11 @@ public class KWayMixtureLearner extends BatchClassifierLearner
       if (ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)) {
          throw new IllegalStateException("can only learn non-binary example data");
       }
-
    }
+   
+ 	public ExampleSchema getSchema(){
+		return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
+	}
 
    public Classifier batchTrain(Dataset dataset)
    {

@@ -30,6 +30,7 @@ public class BatchVersion extends BatchClassifierLearner
 	public void setInnerLearner(OnlineClassifierLearner learner) { this.innerLearner=learner; }
 
 	final public void setSchema(ExampleSchema schema)	{	innerLearner.setSchema(schema);	}
+	final public ExampleSchema getSchema(){return innerLearner.getSchema();}
 
 	public Classifier batchTrain(Dataset dataset)
 	{

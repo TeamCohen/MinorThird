@@ -37,6 +37,10 @@ public class TransformingBatchLearner extends BatchClassifierLearner
 	{
 		classifierLearner.setSchema(schema);
 	}
+	
+	public ExampleSchema getSchema(){
+		return classifierLearner.getSchema();
+	}
 
 	public TransformingBatchLearner(
 		InstanceTransformLearner transformLearner,

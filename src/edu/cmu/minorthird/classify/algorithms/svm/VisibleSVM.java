@@ -20,7 +20,7 @@ import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.ExampleSchema;
 import edu.cmu.minorthird.classify.Feature;
-import edu.cmu.minorthird.classify.FeatureIdFactory;
+import edu.cmu.minorthird.classify.FeatureFactory;
 import edu.cmu.minorthird.classify.GUI;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
@@ -72,10 +72,8 @@ public class VisibleSVM implements Visible,Serializable{
 	 *                  before converted into svm_node in svm_problem for LIBSVM training
 	 * 
 	 */
-	public VisibleSVM(svm_model model,FeatureIdFactory idFactory){
-
-		this(model,idFactory,null);
-
+	public VisibleSVM(svm_model model,FeatureFactory factory){
+		this(model,factory,null);
 	}
 
 	/**
@@ -88,12 +86,11 @@ public class VisibleSVM implements Visible,Serializable{
 	 * @param schema    ExampleSchema which has class label information
 	 *
 	 */
-	public VisibleSVM(svm_model model,FeatureIdFactory idFactory,
-			ExampleSchema schema){
+	public VisibleSVM(svm_model model,FeatureFactory factory,ExampleSchema schema){
 
 		initialize(model,schema);
 
-		setExamples(model,idFactory);
+		setExamples(model,factory);
 
 		if(m_hyperplanes.length>1){
 
@@ -262,7 +259,7 @@ public class VisibleSVM implements Visible,Serializable{
 	 *                  before converted into svm_node in svm_problem for LIBSVM training
 	 * 
 	 */
-	private void setExamples(svm_model model,FeatureIdFactory idFactory){
+	private void setExamples(svm_model model,FeatureFactory factory){
 		svm_node[][] supportVectorsTemp=m_gate.getSVMnodes();
 
 		//int[] labelTypes=m_gate.getLabelForEachClass();//numeric value of ClassLabel
@@ -291,7 +288,7 @@ public class VisibleSVM implements Visible,Serializable{
 
 			// construct example
 			Instance iTemp=
-					SVMUtils.nodeArrayToInstance(supportVectorsTemp[index],idFactory);
+					SVMUtils.nodeArrayToInstance(supportVectorsTemp[index],factory);
 			m_examples[index]=new Example(iTemp,clTemp,weightTemp);
 
 			// check if next SV belongs to different class label

@@ -71,6 +71,10 @@ public class QueryByCommittee implements ClassifierLearner
 	{
 		this.schema = schema;
 	}
+	
+	final public ExampleSchema getSchema(){
+		return schema;
+	}
 
 	//
 	// active learning code

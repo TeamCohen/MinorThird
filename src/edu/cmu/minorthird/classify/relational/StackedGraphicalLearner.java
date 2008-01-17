@@ -99,6 +99,10 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner
 	{
 		this.schema = schema;
 	}
+	
+	final public ExampleSchema getSchema(){
+		return schema;
+	}
 
 
 	public Classifier batchTrain(RealRelationalDataset dataset)

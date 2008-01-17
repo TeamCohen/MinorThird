@@ -14,7 +14,7 @@ import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.ExampleSchema;
 import edu.cmu.minorthird.classify.Feature;
-import edu.cmu.minorthird.classify.FeatureIdFactory;
+import edu.cmu.minorthird.classify.FeatureFactory;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 
@@ -35,8 +35,7 @@ public class SVMUtils{
 	 * @param dataset - must contain features with integer names
 	 * @return a fully loaded svm_problem object
 	 */
-	protected static svm_problem convertToMultiClassSVMProblem(Dataset dataset,
-			FeatureIdFactory idFactory,ExampleSchema schema){
+	protected static svm_problem convertToMultiClassSVMProblem(Dataset dataset,ExampleSchema schema){
 		//count number for length                                                                                                                                                                                                                                     
 		svm_problem problem=new svm_problem();
 
@@ -48,7 +47,7 @@ public class SVMUtils{
 		for(int i=0;it.hasNext();i++){
 			Example example=it.nextExample();
 			problem.y[i]=schema.getClassIndex(example.getLabel().bestClassName());
-			problem.x[i]=instanceToNodeArray(example,idFactory);
+			problem.x[i]=instanceToNodeArray(example);
 		}
 		return problem;
 	}
@@ -60,8 +59,7 @@ public class SVMUtils{
 	 * @param dataset - must contain features with integer names
 	 * @return a fully loaded svm_problem object
 	 */
-	protected static svm_problem convertToSVMProblem(Dataset dataset,
-			FeatureIdFactory idFactory){
+	protected static svm_problem convertToSVMProblem(Dataset dataset){
 		svm_problem problem=new svm_problem();
 		Example.Looper it=dataset.iterator();
 
@@ -73,7 +71,7 @@ public class SVMUtils{
 
 			Example example=it.nextExample();
 			problem.y[i]=example.getLabel().numericLabel();
-			problem.x[i]=instanceToNodeArray(example,idFactory);
+			problem.x[i]=instanceToNodeArray(example);
 		}
 
 		return problem;
@@ -82,15 +80,14 @@ public class SVMUtils{
 	/**
 	 * converts the feature into an svm_node
 	 *
-	 * @param f        Feature to convert into a node
+	 * @param feature Feature to convert into a node
 	 * @param instance Instance feature is in - used to retrieve the weight of the feature
 	 * @return svm_node
 	 */
-	protected static svm_node featureToNode(Feature f,Instance instance,
-			FeatureIdFactory idFactory){
+	protected static svm_node featureToNode(Feature feature,Instance instance){
 		svm_node svm_node=new svm_node();
-		svm_node.index=idFactory.getID(f);
-		svm_node.value=instance.getWeight(f);
+		svm_node.index=feature.getID();
+		svm_node.value=instance.getWeight(feature);
 		return svm_node;
 	}
 
@@ -100,15 +97,14 @@ public class SVMUtils{
 	 * @param instance Instance to convert
 	 * @return node array with all the features from the instance
 	 */
-	protected static svm_node[] instanceToNodeArray(Instance instance,
-			FeatureIdFactory idFactory){
+	protected static svm_node[] instanceToNodeArray(Instance instance){
 		Feature.Looper fLoop=instance.featureIterator();
 
 		svm_node[] nodeArray;
 		List<svm_node> nodeList=new ArrayList<svm_node>();
 		while(fLoop.hasNext()){
 			Feature f=fLoop.nextFeature();
-			nodeList.add(featureToNode(f,instance,idFactory));
+			nodeList.add(featureToNode(f,instance));
 		}
 
 		Collections.sort(nodeList,NODE_COMPARATOR);
@@ -126,15 +122,13 @@ public class SVMUtils{
 	 * @return  Instance       Instance with the Features converted from input node array
 	 * 
 	 */
-	protected static Instance nodeArrayToInstance(svm_node[] svmNodesInput,
-			FeatureIdFactory idFactory){
+	protected static Instance nodeArrayToInstance(svm_node[] svmNodesInput,FeatureFactory factory){
 		// convert node array into Feature array
 		Feature[] fTemp=new Feature[svmNodesInput.length];
 
 		for(int index=0;index<svmNodesInput.length;++index){
-
-			fTemp[index]=nodeToFeature(svmNodesInput[index],idFactory);//convert svm_node to Feature
-
+			//convert svm_node to Feature
+			fTemp[index]=nodeToFeature(svmNodesInput[index],factory);
 		}
 
 		//Generate instance from Feature array
@@ -166,9 +160,8 @@ public class SVMUtils{
 	 * @return Feature       Feature converted from svm_node
 	 * 
 	 */
-	protected static Feature nodeToFeature(svm_node svmNodeInput,
-			FeatureIdFactory idFactory){
-		return idFactory.getFeature(svmNodeInput.index);
+	protected static Feature nodeToFeature(svm_node svmNodeInput,FeatureFactory factory){
+		return factory.getFeature(svmNodeInput.index);
 	}
 
 	/**

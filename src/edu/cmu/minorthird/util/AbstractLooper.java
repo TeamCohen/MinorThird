@@ -13,18 +13,39 @@ package edu.cmu.minorthird.util;
 
 import java.util.*;
 
-public class AbstractLooper implements Iterator
-{
-	private Iterator i;
-	private int estSize = -1;
-	public AbstractLooper(Iterator i) { this.i = i; }
-	public AbstractLooper(Collection c) { this.i = c.iterator(); estSize = c.size(); }
-	public void remove() { i.remove(); }
-	public boolean hasNext() { return i.hasNext(); }
-	public Object next() { return i.next(); }
+public class AbstractLooper<T> implements Iterator<T>{
+	
+	private Iterator<T> i;
+	private int estSize=-1;
+	
+	public AbstractLooper(Iterator<T> i){
+		this.i=i;
+	}
+	
+	public AbstractLooper(Collection<T> c){
+		this.i=c.iterator();
+		estSize=c.size();
+	}
+	
+	public void remove(){
+		i.remove();
+	}
+	
+	public boolean hasNext(){
+		return i.hasNext();
+	}
+	
+	public T next(){
+		return i.next();
+	}
+	
 	/** Estimated number of items to be iterated over,
 	 * or -1 if the number is unknown.
 	 */
-	public int estimatedSize() { return estSize; }
+
+	public int estimatedSize(){
+		return estSize;
+	}
+	
 }
 

@@ -38,6 +38,9 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,Visi
    public int sizeUnlabeled() { return unlabeledExamples.size(); }
    public boolean hasUnlabeled() { return (unlabeledExamples.size()>0)? true : false; }
 
+  	public FeatureFactory getFeatureFactory(){
+  		return factory;
+  	}
 
     //
     // methods for labeled data,  part of the Dataset interface

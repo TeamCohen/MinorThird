@@ -1,14 +1,16 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
-import edu.cmu.minorthird.classify.FeatureIdFactory;
-import edu.cmu.minorthird.classify.BatchBinaryClassifierLearner;
-import edu.cmu.minorthird.classify.Classifier;
-import edu.cmu.minorthird.classify.Dataset;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
+
 import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.BatchBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.FeatureFactory;
 
 /**
  * Wraps the svm.svm_train algorithm from libsvm
@@ -24,13 +26,11 @@ import org.apache.log4j.Logger;
  */
 public class SVMLearner extends BatchBinaryClassifierLearner{
 
-	private svm_model model;
-
-	private FeatureIdFactory idFactory;
-
-	private svm_parameter parameters;
-
 	Logger log=Logger.getLogger(SVMLearner.class);
+	
+	private svm_model model;
+	private svm_parameter parameters;
+	private FeatureFactory featureFactory;
 
 	/**
 	 * construct learner using given params
@@ -59,8 +59,8 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 	public Classifier batchTrain(Dataset dataset){
 		try{ //train up the svm on the dataset
 
-			idFactory=new FeatureIdFactory(dataset);
-			svm_problem problem=SVMUtils.convertToSVMProblem(dataset,idFactory);
+			featureFactory=dataset.getFeatureFactory();
+			svm_problem problem=SVMUtils.convertToSVMProblem(dataset);
 			model=svm.svm_train(problem,parameters);
 
 			if(log.isDebugEnabled())
@@ -71,7 +71,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		}
 
 		//now I need to construct a Classifier out of the svm_model
-		return new SVMClassifier(model,idFactory);
+		return new SVMClassifier(model,featureFactory);
 	}
 
 	/**
@@ -350,8 +350,8 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return model;
 	}
 
-	public FeatureIdFactory getIdFactory(){
-		return this.idFactory;
+	public FeatureFactory getFeatureFactory(){
+		return featureFactory;
 	}
 
 }

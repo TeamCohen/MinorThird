@@ -33,6 +33,10 @@ public class SegmentDataset implements Dataset
     { 
 	compressGroups=flag; 
     }
+    
+    public FeatureFactory getFeatureFactory(){
+    	return factory;
+    }
 
     public int getMaxWindowSize() { return maxWindowSize; }
     public int size() { return totalSize; }

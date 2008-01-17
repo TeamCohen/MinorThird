@@ -123,6 +123,10 @@ public class OneVsAllLearner implements ClassifierLearner{
 			innerLearner.get(i).setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
 		}
 	}
+	
+	public ExampleSchema getSchema(){
+		return schema;
+	}
 
 	public void reset(){
 		if(innerLearner!=null){
@@ -133,9 +137,10 @@ public class OneVsAllLearner implements ClassifierLearner{
 	}
 
 	public void setInstancePool(Instance.Looper looper){
-		List<Object> list=new ArrayList<Object>();
-		while(looper.hasNext())
+		List<Instance> list=new ArrayList<Instance>();
+		while(looper.hasNext()){
 			list.add(looper.next());
+		}
 		for(int i=0;i<innerLearner.size();i++){
 			innerLearner.get(i).setInstancePool(new Instance.Looper(list));
 		}

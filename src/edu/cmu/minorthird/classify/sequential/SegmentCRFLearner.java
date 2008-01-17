@@ -149,7 +149,6 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
   }
   public Segmenter batchTrain(SegmentDataset dataset) {
     try {
-        setIdFactory(new FeatureIdFactory(dataset));
 	    schema = dataset.getSchema();
 	    doTrain(allocModel(dataset));
 	    return this;

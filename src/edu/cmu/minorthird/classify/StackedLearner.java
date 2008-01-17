@@ -92,6 +92,10 @@ public class StackedLearner extends BatchClassifierLearner
 		}
 		finalLearner.setSchema(schema);
 	}
+	
+	final public ExampleSchema getSchema(){
+		return schema;
+	}
 
 	public Classifier batchTrain(Dataset dataset)
 	{

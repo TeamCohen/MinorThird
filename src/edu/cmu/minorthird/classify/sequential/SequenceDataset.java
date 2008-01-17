@@ -26,6 +26,10 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	protected Set classNameSet = new HashSet();
 	protected FeatureFactory factory = new FeatureFactory();
 
+	public FeatureFactory getFeatureFactory(){
+		return factory;
+	}
+	
 	/** Set the current history length.
 	 * Examples produced by the iterator() will
 	 * contain the last k class labels as features.

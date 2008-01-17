@@ -16,6 +16,11 @@ public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLear
 			throw new IllegalStateException("can only learn binary example data: requested schema is "+schema);
 		}
 	}
+	
+	final public ExampleSchema getSchema(){
+		return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
+	}
+	
 	final public BinaryClassifier getBinaryClassifier()
 	{
 		return (BinaryClassifier)getClassifier();
