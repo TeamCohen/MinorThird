@@ -312,7 +312,7 @@ public class VisibleSVMTest extends TestCase{
 		Dataset dataset2=makeToy2Dataset();
 		m_toy2FeatureFactory=dataset2.getFeatureFactory();
 		m_toy2ExampleSchema=dataset2.getSchema();
-		svm_problem problem2=SVMUtils.convertToMultiClassSVMProblem(dataset2,m_toy2ExampleSchema);
+		svm_problem problem2=SVMUtils.convertToSVMProblem(dataset2);
 		m_toy2Model=svm.svm_train(problem2,parameters);
 
 	}

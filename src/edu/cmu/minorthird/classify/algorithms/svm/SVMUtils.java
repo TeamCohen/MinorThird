@@ -22,60 +22,42 @@ import edu.cmu.minorthird.classify.MutableInstance;
  * Provides some basic utilities for dealing with libsvm.
  * It can convert Features to nodes, instances to node arrays and Datasets to problems.
  *
- * @author ksteppe
+ * @author ksteppe, Frank Lin
  */
 public class SVMUtils{
 
-	private static Logger log=Logger.getLogger(SVMUtils.class);
+	static Logger logger=Logger.getLogger(SVMUtils.class);
 
-	/**
-	 * convert the given dataset into a svm_problem object by looping
-	 * through the examples and features - features are resorted numericly
-	 *
-	 * @param dataset - must contain features with integer names
-	 * @return a fully loaded svm_problem object
-	 */
-	protected static svm_problem convertToMultiClassSVMProblem(Dataset dataset,ExampleSchema schema){
-		//count number for length                                                                                                                                                                                                                                     
-		svm_problem problem=new svm_problem();
-
-		Example.Looper it=dataset.iterator();
-		problem.l=it.estimatedSize();
-		problem.y=new double[problem.l];
-		problem.x=new svm_node[problem.l][];
-
-		for(int i=0;it.hasNext();i++){
-			Example example=it.nextExample();
-			problem.y[i]=schema.getClassIndex(example.getLabel().bestClassName());
-			problem.x[i]=instanceToNodeArray(example);
-		}
-		return problem;
+	public static String toString(svm_node node){
+		StringBuilder b=new StringBuilder();
+		b.append(node.index).append("=").append(node.value);
+		return b.toString();
 	}
 
-	/**
-	 * convert the given dataset into a svm_problem object by looping
-	 * through the examples and features - features are resorted numericly
-	 *
-	 * @param dataset - must contain features with integer names
-	 * @return a fully loaded svm_problem object
-	 */
-	protected static svm_problem convertToSVMProblem(Dataset dataset){
-		svm_problem problem=new svm_problem();
-		Example.Looper it=dataset.iterator();
-
-		problem.l=it.estimatedSize();
-		problem.y=new double[problem.l];
-		problem.x=new svm_node[problem.l][];
-
-		for(int i=0;it.hasNext();i++){
-
-			Example example=it.nextExample();
-			problem.y[i]=example.getLabel().numericLabel();
-			problem.x[i]=instanceToNodeArray(example);
+	public static String toString(svm_node[] nodes){
+		StringBuilder b=new StringBuilder();
+		for(int i=0;i<nodes.length;i++){
+			b.append(nodes[i].index).append("=").append(nodes[i].value);
+			if(i<nodes.length-1){
+				b.append(" ");
+			}
 		}
-
-		return problem;
+		return b.toString();
 	}
+
+	public static String toString(svm_problem problem){
+		StringBuilder b=new StringBuilder();
+		for(int i=0;i<problem.y.length;i++){
+			b.append(problem.y[i]).append(" : ").append(toString(problem.x[i])).append("\n");
+		}
+		return b.toString();
+	}
+
+	private static final Comparator<svm_node> NODE_COMPARATOR=new Comparator<svm_node>(){
+		public int compare(svm_node n1,svm_node n2){
+			return n1.index-n2.index;
+		}
+	};
 
 	/**
 	 * converts the feature into an svm_node
@@ -84,9 +66,10 @@ public class SVMUtils{
 	 * @param instance Instance feature is in - used to retrieve the weight of the feature
 	 * @return svm_node
 	 */
-	protected static svm_node featureToNode(Feature feature,Instance instance){
+	public static svm_node featureToNode(Feature feature,Instance instance){
 		svm_node svm_node=new svm_node();
-		svm_node.index=feature.getID();
+		// important: LIBSVM feature index starts at 1, not 0
+		svm_node.index=feature.getID()+1;
 		svm_node.value=instance.getWeight(feature);
 		return svm_node;
 	}
@@ -97,99 +80,82 @@ public class SVMUtils{
 	 * @param instance Instance to convert
 	 * @return node array with all the features from the instance
 	 */
-	protected static svm_node[] instanceToNodeArray(Instance instance){
-		Feature.Looper fLoop=instance.featureIterator();
+	public static svm_node[] instanceToNodeArray(Instance instance){
+		List<svm_node> nodes=new ArrayList<svm_node>();
+		Feature.Looper it=instance.featureIterator();
+		while(it.hasNext()){
+			Feature feature=it.nextFeature();
+			nodes.add(featureToNode(feature,instance));
+		}
+		// sorting in ascending order is required by LIBSVM
+		Collections.sort(nodes,NODE_COMPARATOR);
+		return (svm_node[])nodes.toArray(new svm_node[nodes.size()]);
+	}
 
-		svm_node[] nodeArray;
-		List<svm_node> nodeList=new ArrayList<svm_node>();
-		while(fLoop.hasNext()){
-			Feature f=fLoop.nextFeature();
-			nodeList.add(featureToNode(f,instance));
+	/**
+	 * convert the given dataset into a svm_problem object by looping
+	 * through the examples and features - features are resorted numericly
+	 *
+	 * @param dataset - must contain features with integer names
+	 * @param schema - the class label schema
+	 * @return a fully loaded svm_problem object
+	 */
+	public static svm_problem convertToSVMProblem(Dataset dataset){
+
+		// create the problem data structure
+		svm_problem problem=new svm_problem();
+		problem.l=dataset.size();
+		problem.y=new double[problem.l];
+		problem.x=new svm_node[problem.l][];
+
+		// fill it with instance information
+		Example.Looper it=dataset.iterator();
+		for(int i=0;it.hasNext();i++){
+			Example example=it.nextExample();
+			// call different label index methods depending on schema
+			if(dataset.getSchema().equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)){
+				problem.y[i]=example.getLabel().numericLabel();
+			}
+			else{
+				problem.y[i]=dataset.getSchema().getClassIndex(example.getLabel().bestClassName());
+			}
+			problem.x[i]=instanceToNodeArray(example);
 		}
 
-		Collections.sort(nodeList,NODE_COMPARATOR);
-		nodeArray=(svm_node[])nodeList.toArray(new svm_node[0]);
+		return problem;
+	}
 
-		return nodeArray;
+	/**
+	 * convert a svm_node to a feature
+	 * 
+	 * @param node svm_node from LIBSVM
+	 * @param featureFactory FeatureIdFactory object holds feature and its id information.
+	 * @return Feature Feature converted from svm_node
+	 */
+	public static Feature nodeToFeature(svm_node node,FeatureFactory featureFactory){
+		// important: LIBSVM feature index starts at 1, not 0
+		return featureFactory.getFeature(node.index-1);
 	}
 
 	/**
 	 * creates an instance from the node array
 	 * 
-	 * @param   svmNodesInput  svm_node array from LIBSVM
-	 * @param   idFactory      FeatureIdFactory object holds feature and it's id information
-	 * 
-	 * @return  Instance       Instance with the Features converted from input node array
-	 * 
+	 * @param nodes svm_node array from LIBSVM
+	 * @param featureFactory FeatureFactory object holds feature and its id
+	 * @return Instance Instance with the Features converted from input node array
 	 */
-	protected static Instance nodeArrayToInstance(svm_node[] svmNodesInput,FeatureFactory factory){
-		// convert node array into Feature array
-		Feature[] fTemp=new Feature[svmNodesInput.length];
-
-		for(int index=0;index<svmNodesInput.length;++index){
-			//convert svm_node to Feature
-			fTemp[index]=nodeToFeature(svmNodesInput[index],factory);
-		}
-
-		//Generate instance from Feature array
-		MutableInstance instanceTemp=new MutableInstance();
-
-		for(int index=0;index<svmNodesInput.length;++index){
-
-			if(fTemp[index]==null){
-
-				log.debug("Unable to create an instance because of svm_node id = "+
-						svmNodesInput[index].index);
-
+	public static Instance nodeArrayToInstance(svm_node[] nodes,FeatureFactory featureFactory){
+		MutableInstance instance=new MutableInstance();
+		for(int i=0;i<nodes.length;i++){
+			Feature feature=nodeToFeature(nodes[i],featureFactory);
+			if(feature!=null){
+				instance.addNumeric(feature,nodes[i].value);
+			}
+			else{
 				return null;
 			}
-
-			instanceTemp.addNumeric(fTemp[index],svmNodesInput[index].value);
-
 		}
-
-		return instanceTemp;
+		return instance;
 	}
-
-	/**
-	 * convert the svm_node to the feature
-	 * 
-	 * @param  svmNodeInput  svm_node from LIBSVM
-	 * @param  idFactory     FeatureIdFactory object holds feature and it's id information.
-	 * 
-	 * @return Feature       Feature converted from svm_node
-	 * 
-	 */
-	protected static Feature nodeToFeature(svm_node svmNodeInput,FeatureFactory factory){
-		return factory.getFeature(svmNodeInput.index);
-	}
-
-	/**
-	 * prints the given svm_problem to string format
-	 * - if I fixed the line starters, and input a Writer, I could use this
-	 * to save svm_problem objects too
-	 *
-	 * @param problem svm_problem
-	 */
-	protected static void outputProblem(svm_problem problem){
-		log.debug("size: "+problem.l);
-		for(int i=0;i<problem.l;i++){
-			String data=problem.y[i]+" ";
-			for(int j=0;j<problem.x[i].length;j++){
-				data+=problem.x[i][j].index+":"+problem.x[i][j].value+" ";
-			}
-
-			log.debug("example: "+data);
-
-		}
-	}
-
-	private static Comparator<svm_node> NODE_COMPARATOR=new Comparator<svm_node>(){
-
-		public int compare(svm_node n1,svm_node n2){
-			return n1.index-n2.index;
-		}
-
-	};
 
 }

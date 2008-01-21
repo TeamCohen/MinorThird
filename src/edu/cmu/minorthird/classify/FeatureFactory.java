@@ -118,10 +118,14 @@ public class FeatureFactory implements Serializable{
 
 	public String toString(){
 		StringBuilder b=new StringBuilder();
-		b.append(super.toString()).append(":\n");
+		b.append(super.toString()).append(" : [");
 		for(int i=0;i<idFeatureMap.size();i++){
-			b.append(i).append(" ").append(idFeatureMap.get(i)).append("\n");
+			b.append(i).append("=").append(idFeatureMap.get(i));
+			if(i<idFeatureMap.size()-1){
+				b.append(" ");
+			}
 		}
+		b.append("]");
 		return b.toString();
 	}
 

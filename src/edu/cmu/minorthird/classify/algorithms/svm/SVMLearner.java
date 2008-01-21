@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
+import java.io.IOException;
+
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_parameter;
@@ -7,45 +9,77 @@ import libsvm.svm_problem;
 
 import org.apache.log4j.Logger;
 
-import edu.cmu.minorthird.classify.BatchBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.BatchClassifierLearner;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Dataset;
-import edu.cmu.minorthird.classify.FeatureFactory;
+import edu.cmu.minorthird.classify.ExampleSchema;
 
 /**
  * Wraps the svm.svm_train algorithm from libsvm
  * (http://www.csie.ntu.edu.tw/~cjlin/libsvm/)
  * <p/>
- * Parameterization is done via a svm_parameter object (see initParameters or libsvm
- * docs for examples/info).
+ * Parameterization is done via an SVM object (see libsvm docs for examples/info).
  * <p/>
  * There are a few setParameterXXX methods to do some changes.  Use these after calling new SVMLearner()
  * and before starting training.
  *
- * @author ksteppe
+ * @author ksteppe, Frank Lin
  */
-public class SVMLearner extends BatchBinaryClassifierLearner{
+public class SVMLearner extends BatchClassifierLearner{
 
-	Logger log=Logger.getLogger(SVMLearner.class);
+	static Logger logger=Logger.getLogger(SVMLearner.class);
 	
-	private svm_model model;
 	private svm_parameter parameters;
-	private FeatureFactory featureFactory;
+	private ExampleSchema schema;
 
 	/**
-	 * construct learner using given params
+	 * Construct learner using given params
 	 *
 	 * @param params svm_parameter
 	 */
-	public SVMLearner(svm_parameter params){
-		parameters=params;
+	public SVMLearner(svm_parameter parameters){
+		this.parameters=parameters;
 	}
 
 	/**
 	 * default constructor
 	 */
 	public SVMLearner(){
-		initParameters();
+		this(getDefaultParameters());
+	}
+	
+	/**
+	 * sets the default parameters for the svm
+	 * <p/>
+	 * use the setParameterXXX methods to adjust them
+	 */
+	protected static svm_parameter getDefaultParameters(){
+		svm_parameter p=new svm_parameter();
+		// default values
+		p.svm_type=svm_parameter.C_SVC;
+		p.kernel_type=svm_parameter.LINEAR;
+		p.degree=3;
+		p.gamma=0; // 1/k
+		p.coef0=0;
+		p.nu=0.5;
+		p.cache_size=40;
+		p.C=1;
+		p.eps=1e-3;
+		p.p=0.1;
+		p.shrinking=1;
+		p.nr_weight=0;
+		p.weight_label=new int[0];
+		p.weight=new double[0];
+		p.probability=0;
+		return p;
+	}
+	
+	public void setSchema(ExampleSchema schema){
+		this.schema=schema;
+	}
+	
+	public ExampleSchema getSchema(){
+		return schema;
 	}
 
 	/**
@@ -57,53 +91,22 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 	 * @return a SVMClassifier object which wraps the libsvm prediction code
 	 */
 	public Classifier batchTrain(Dataset dataset){
-		try{ //train up the svm on the dataset
-
-			featureFactory=dataset.getFeatureFactory();
+			// train the svm on the dataset
 			svm_problem problem=SVMUtils.convertToSVMProblem(dataset);
-			model=svm.svm_train(problem,parameters);
-
-			if(log.isDebugEnabled())
+			svm_model model=svm.svm_train(problem,parameters);
+			// why do we save a model here when debugging?
+			if(logger.isDebugEnabled()){
+				try{
 				svm.svm_save_model("./modelTest.mdl",model);
-
-		}catch(Exception e){
-			log.error(e,e);
-		}
-
-		//now I need to construct a Classifier out of the svm_model
-		return new SVMClassifier(model,featureFactory);
+				}
+				catch(IOException ioe){
+					ioe.printStackTrace();
+				}
+			}
+			// construct a Classifier out of the svm_model
+			return new SVMClassifier(model,dataset.getSchema(),dataset.getFeatureFactory());
 	}
 
-	/**
-	 * sets the default parameters for the svm
-	 * <p/>
-	 * use the setParameterXXX methods to adjust them
-	 */
-	protected void initParameters(){
-		parameters=new svm_parameter();
-		// default values
-		parameters.svm_type=svm_parameter.C_SVC;
-		parameters.kernel_type=svm_parameter.LINEAR;
-		parameters.degree=3;
-		parameters.gamma=0; // 1/k
-		parameters.coef0=0;
-		parameters.nu=0.5;
-		parameters.cache_size=40;
-		parameters.C=1;
-		parameters.eps=1e-3;
-		parameters.p=0.1;
-		parameters.shrinking=1;
-		parameters.nr_weight=0;
-		parameters.weight_label=new int[0];
-		parameters.weight=new double[0];
-		parameters.probability=0;
-	}
-
-	// Stuff for the GUI
-
-	/**
-	 * @param type integer from the svm_parameter class
-	 */
 	public void setParameterSVMType(int type){
 		parameters.svm_type=type;
 	}
@@ -112,7 +115,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.svm_type;
 	}
 
-	public String parameterSVMTypeHelp=new String("Set the SVM type to use.");
+	public static String parameterSVMTypeHelp="Set the SVM type to use.";
 
 	public String getParameterSVMTypeHelp(){
 		return parameterSVMTypeHelp;
@@ -126,7 +129,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.kernel_type;
 	}
 
-	public String kernelTypeHelp=new String("Set the type of kernel function.");
+	public static String kernelTypeHelp="Set the type of kernel function.";
 
 	public String getKernelTypeHelp(){
 		return kernelTypeHelp;
@@ -140,7 +143,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.degree;
 	}
 
-	public String degreeHelp=new String("Set the degree in kernel function.");
+	public static String degreeHelp="Set the degree in kernel function.";
 
 	public String getDegreeHelp(){
 		return degreeHelp;
@@ -154,7 +157,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.gamma;
 	}
 
-	public String gammaHelp=new String("Set the gamma in kernel function.");
+	public static String gammaHelp="Set the gamma in kernel function.";
 
 	public String getGammaHelp(){
 		return gammaHelp;
@@ -168,7 +171,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.coef0;
 	}
 
-	public String coef0Help=new String("Set the coef0 in kernel function.");
+	public static String coef0Help="Set the coef0 in kernel function.";
 
 	public String getCoef0Help(){
 		return coef0Help;
@@ -182,9 +185,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.nu;
 	}
 
-	public String nuHelp=
-			new String(
-					"Set the parameter nu. (For nu-SVC, one-class SVM, and nu-SVR only)");
+	public static String nuHelp="Set the parameter nu. (For nu-SVC, one-class SVM, and nu-SVR only)";
 
 	public String getNuHelp(){
 		return nuHelp;
@@ -198,7 +199,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.cache_size;
 	}
 
-	public String cacheSizeHelp=new String("Set the cache memory size in MB.");
+	public static String cacheSizeHelp="Set the cache memory size in MB.";
 
 	public String getCacheSizeHelp(){
 		return cacheSizeHelp;
@@ -212,9 +213,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.C;
 	}
 
-	public String cParameterHelp=
-			new String(
-					"Set the parameter C. (For C-SVC, epsilon-SVR, and nu-SVR only)");
+	public static String cParameterHelp="Set the parameter C. (For C-SVC, epsilon-SVR, and nu-SVR only)";
 
 	public String getCParameterHelp(){
 		return cParameterHelp;
@@ -228,8 +227,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.eps;
 	}
 
-	public String stoppingCriteriaHelp=
-			new String("Set the tolerance of termination criterion.");
+	public static String stoppingCriteriaHelp="Set the tolerance of termination criterion.";
 
 	public String getStoppingCriteriaHelp(){
 		return stoppingCriteriaHelp;
@@ -243,28 +241,26 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.p;
 	}
 
-	public String lossFunctionEpsilonHelp=
-			new String("Set the epsilon in the loss function of epsilon-SVR.");
+	public static String lossFunctionEpsilonHelp="Set the epsilon in the loss function of epsilon-SVR.";
 
 	public String getLossFunctionEpsilonHelp(){
 		return lossFunctionEpsilonHelp;
 	}
 
 	public void setUseShrinkingHeuristics(boolean flag){
-		if(flag)
+		if(flag){
 			parameters.shrinking=1;
-		else
+		}
+		else{
 			parameters.shrinking=0;
+		}
 	}
 
 	public boolean getUseShrinkingHeuristics(){
-		if(parameters.shrinking==0)
-			return false;
-		return true;
+		return parameters.shrinking>0;
 	}
 
-	public String useShrinkingHeuristicsHelp=
-			new String("Whether or not to use shrinking heuristics.");
+	public static String useShrinkingHeuristicsHelp="Whether or not to use shrinking heuristics.";
 
 	public String getUseShrinkingHeuristicsHelp(){
 		return useShrinkingHeuristicsHelp;
@@ -278,8 +274,7 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 		return parameters.nr_weight;
 	}
 
-	public String cParameterWeightHelp=
-			new String("Set the parameter C of class i to weight*C for C-SVC.");
+	public static String cParameterWeightHelp="Set the parameter C of class i to weight*C for C-SVC.";
 
 	public String getCParameterWeightHelp(){
 		return cParameterWeightHelp;
@@ -293,29 +288,25 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 	 * @param flag Boolean value telling the learner whether or not to compute probability estimates
 	 */
 	public void setDoProbabilityEstimates(boolean flag){
-		if(flag)
+		if(flag){
 			parameters.probability=1;
-		else
+		}
+		else{
 			parameters.probability=0;
+		}
 	}
 
 	public boolean getDoProbabilityEstimates(){
-		if(parameters.probability==0)
-			return false;
-		return true;
+		return parameters.probability>0;
 	}
 
-	public String doProbabilityEstimatesHelp=
-			new String(
-					"Whether to train for probability estimates. (For SVC and SVR models only).");
+	public static String doProbabilityEstimatesHelp="Whether to train for probability estimates. (For SVC and SVR models only).";
 
 	public String getDoProbabilityEstimatesHelp(){
 		return doProbabilityEstimatesHelp;
 	}
 
-	// These aren't used anywhere in the distribution, so what was the reason for adding them?
-
-	//C, gamma, kernel_type
+	// C, gamma, kernel_type
 
 	/**
 	 * Default kernel type is linear
@@ -341,17 +332,6 @@ public class SVMLearner extends BatchBinaryClassifierLearner{
 	 */
 	public void setParameterC(double c){
 		parameters.C=c;
-	}
-
-	/**
-	 * Get the underlying svm_model object.  See libsvm for documentation details
-	 */
-	public svm_model getModel(){
-		return model;
-	}
-
-	public FeatureFactory getFeatureFactory(){
-		return featureFactory;
 	}
 
 }

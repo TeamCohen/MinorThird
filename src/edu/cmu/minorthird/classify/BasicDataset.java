@@ -16,33 +16,47 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class BasicDataset implements Visible,Saveable,Dataset,Serializable
-{
-	static private final long serialVersionUID = 1;
+public class BasicDataset implements Visible,Saveable,Dataset,Serializable{
+	
+	static final long serialVersionUID=20080118L;
 
-	protected ArrayList<Example> examples = new ArrayList<Example>();
-	protected ArrayList<Instance> unlabeledExamples = new ArrayList<Instance>();
-	protected Set<String> classNameSet = new TreeSet<String>();
-	protected FeatureFactory factory = new FeatureFactory();
+	protected FeatureFactory featureFactory;
+	protected ArrayList<Example> examples;
+	protected ArrayList<Instance> unlabeledExamples;
+	protected Set<String> classNameSet;
+	
+	public BasicDataset(FeatureFactory featureFactory){
+		this.featureFactory=featureFactory;
+		examples=new ArrayList<Example>();
+		unlabeledExamples=new ArrayList<Instance>();
+		classNameSet=new TreeSet<String>();
+	}
+	
+	public BasicDataset(){
+		this(new FeatureFactory());
+	}
 
-	public ExampleSchema getSchema()
-	{
-		ExampleSchema schema = new ExampleSchema((String[])classNameSet.toArray(new String[classNameSet.size()]));
-		if (schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)) return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
-		else return schema;
+	public ExampleSchema getSchema(){
+		ExampleSchema schema=new ExampleSchema((String[])classNameSet.toArray(new String[classNameSet.size()]));
+		if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)){
+			return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
+		}
+		else{
+			return schema;
+		}
 	}
 
 	//
 	// methods for semisupervised data,  part of the SemiSupervisedDataset interface
 	//
-	public void addUnlabeled(Instance instance) { unlabeledExamples.add( factory.compress(instance) ); }
+	public void addUnlabeled(Instance instance) { unlabeledExamples.add( featureFactory.compress(instance) ); }
 	public Instance.Looper iteratorOverUnlabeled() { return new Instance.Looper( unlabeledExamples ); }
 	//public ArrayList getUnlabeled() { return this.unlabeledExamples; }
 	public int sizeUnlabeled() { return unlabeledExamples.size(); }
 	public boolean hasUnlabeled() { return (unlabeledExamples.size()>0)? true : false; }
 
  	public FeatureFactory getFeatureFactory(){
-		return factory;
+		return featureFactory;
 	}
 
 	//
@@ -72,7 +86,7 @@ public class BasicDataset implements Visible,Saveable,Dataset,Serializable
 	 */
 	public void add (Example example, boolean compress) {
 		if (compress)
-			examples.add(factory.compress(example));
+			examples.add(featureFactory.compress(example));
 		else
 			examples.add(example);
 		classNameSet.addAll(example.getLabel().possibleLabels());

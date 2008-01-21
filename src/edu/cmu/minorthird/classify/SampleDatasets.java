@@ -21,24 +21,34 @@ public class SampleDatasets{
 
 	static private Logger log=Logger.getLogger(SampleDatasets.class);
 
-	public static final String[] posTrain=
-	{"a pricy doll house","a little red fire truck","a red wagon",
-		"a pricy red sports car","punk queen barbie and ken",
-	"a little red bike"};
+	public static final String[] posTrain={
+		"a pricy doll house",
+		"a little red fire truck","a red wagon",
+		"a pricy red sports car",
+		"punk queen barbie and ken",
+		"a little red bike"
+	};
 
-	public static final String[] negTrain=
-	{"a a a a big 7-seater minivan with an automatic transmission",
+	public static final String[] negTrain={
+		"a a a a big 7-seater minivan with an automatic transmission",
 		"a big house in the suburbs with a crushing mortgage",
-		"a job for life at IBM","a huge pile of tax forms, due yesterday",
-	"huge pile of junk mail, bills, and catalogs"};
+		"a job for life at IBM",
+		"a huge pile of tax forms, due yesterday",
+		"huge pile of junk mail, bills, and catalogs"
+	};
 
-	public static final String[] posTest=
-	{"a pricy barbie doll","a little yellow toy car","a red 10 speed bike",
-	"a red convertible porshe"};
+	public static final String[] posTest={
+		"a pricy barbie doll",
+		"a little yellow toy car",
+		"a red 10 speed bike",
+		"a red convertible porshe"
+	};
 
-	public static final String[] negTest=
-	{"a big pile of paperwork","a huge backlog of email",
-	"a life of woe and trouble"};
+	public static final String[] negTest={
+		"a big pile of paperwork",
+		"a huge backlog of email",
+		"a life of woe and trouble"
+	};
 
 	private static Dataset makeData(String[] pos,String[] neg){
 		Dataset result=new BasicDataset();
@@ -335,17 +345,17 @@ public class SampleDatasets{
 	 *
 	 */
 	public static Dataset makeToy3ClassData(Random random,int numInstances){
-		
+
 		String[][] features=new String[][]{
 				{"money","cash","sleep","booze","chocolate","fun","beer","pizza"},
 				{"stocks","bonds","money","cash","influence","power","fame"},
 				{"chocolate","beer","pizza","pringles","popcorn","spam","crisco"}
 		};
-		
+
 		String[] labels=new String[]{"homer","marge","bart"};
-		
+
 		Dataset dataset=new BasicDataset();
-		
+
 		for(int i=0;i<numInstances;i++){
 			int classLabel=random.nextInt(labels.length);
 			int numFeatures=random.nextInt(3)+2;

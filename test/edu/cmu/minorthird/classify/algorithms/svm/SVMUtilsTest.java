@@ -5,6 +5,7 @@ import java.util.Random;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import libsvm.svm_node;
 
 import org.apache.log4j.Logger;
 
@@ -26,9 +27,9 @@ import edu.cmu.minorthird.classify.MutableInstance;
  */
 public class SVMUtilsTest extends TestCase{
 
-	Logger log=Logger.getLogger(this.getClass());
+	static Logger logger=Logger.getLogger(SVMUtilsTest.class);
 
-	FeatureFactory m_testDataFeatureFactory;
+	FeatureFactory featureFactory;
 
 	/**
 	 * Standard test class constructior for SVMUtilsTest
@@ -37,7 +38,7 @@ public class SVMUtilsTest extends TestCase{
 	public SVMUtilsTest(String name){
 		super(name);
 		Dataset testDataSet=createTestDataset();
-		m_testDataFeatureFactory=testDataSet.getFeatureFactory();
+		featureFactory=testDataSet.getFeatureFactory();
 	}
 
 	/**
@@ -65,21 +66,21 @@ public class SVMUtilsTest extends TestCase{
 
 	public void testNodeToFeature(){
 
-		System.out.println("Testing NodeToFeature()...");
+		System.out.println("Testing nodeToFeature()...");
 		
 		System.out.println("FeatureFactory:");
-		System.out.println(m_testDataFeatureFactory);
+		System.out.println(featureFactory);
 		
 		// test case 1
 		
 		libsvm.svm_node svmNodeTemp=new libsvm.svm_node();
-		svmNodeTemp.index=0;
+		svmNodeTemp.index=1;
 		svmNodeTemp.value=10.7;
 
-		Feature testFeature=m_testDataFeatureFactory.getFeature(svmNodeTemp.index);
+		Feature testFeature=featureFactory.getFeature(svmNodeTemp.index-1);
 		String featureStrName=testFeature.toString();
 
-		Feature returnedFeature=SVMUtils.nodeToFeature(svmNodeTemp,m_testDataFeatureFactory);
+		Feature returnedFeature=SVMUtils.nodeToFeature(svmNodeTemp,featureFactory);
 		
 		System.out.println("Feature Index "+svmNodeTemp.index+": "+returnedFeature);
 
@@ -92,7 +93,7 @@ public class SVMUtilsTest extends TestCase{
 		svmNodeTemp2.index=100;
 		svmNodeTemp2.value=10.7;
 
-		Feature returnedFeature2=SVMUtils.nodeToFeature(svmNodeTemp2,m_testDataFeatureFactory);
+		Feature returnedFeature2=SVMUtils.nodeToFeature(svmNodeTemp2,featureFactory);
 
 		System.out.println("Feature Index "+svmNodeTemp2.index+": "+returnedFeature2);
 		
@@ -102,77 +103,44 @@ public class SVMUtilsTest extends TestCase{
 
 	}
 
-	public void testInstanceToNodeArray(){
+	public void testNodeArrayToInstance(){
 
-		System.out.println("Testing InstanceToNodeArray()...");
-
-		//set up the parameters passed into the tested function
-		int numNodes=3; //at least 3
-
-		libsvm.svm_node[] svmNodes=new libsvm.svm_node[numNodes];
-
-		int[] featureId={0,1,2}; // size of array = numNodes
-
-		double[] featureWeight=new double[numNodes];
-
-		boolean[] isChecked=new boolean[numNodes];
-
-		String[] featureStrName=new String[numNodes];
-
-		for(int index=0;index<numNodes;index++){
-			featureStrName[index]=m_testDataFeatureFactory.getFeature(featureId[index]).toString();
-			featureWeight[index]=3.1+(double)index;
-			svmNodes[index]=new libsvm.svm_node();
-			svmNodes[index].index=featureId[index];
-			svmNodes[index].value=featureWeight[index];
-			isChecked[index]=false;
+		System.out.println("Testing nodeArrayToInstance()...");
+		
+		String[] featureNames=new String[3];
+		svm_node[] nodes=new svm_node[3];
+		for(int i=0;i<nodes.length;i++){
+			nodes[i]=new svm_node();
+			nodes[i].index=(i+1);
+			nodes[i].value=3.1+(double)i;
+			featureNames[i]=featureFactory.getFeature(i).toString();
 		}
 
-		// Calling tested function
-		Instance returnedInstance=SVMUtils.nodeArrayToInstance(svmNodes,m_testDataFeatureFactory);
+		// calling method and check returned object
+		Instance instance=SVMUtils.nodeArrayToInstance(nodes,featureFactory);
+		assertNotNull(instance);
+		checkInstance(instance,featureNames,nodes);
 
-		// Check returned object
-		assertNotNull(returnedInstance);
-		checkReturnedInstance(returnedInstance,featureStrName,featureWeight,numNodes,isChecked);
-
-		svmNodes[2].index = 100;//incorrect id
-		Instance returnedInstance2 = SVMUtils.nodeArrayToInstance(svmNodes, m_testDataFeatureFactory);
-		assertNull(returnedInstance2);
+		// call method with incorrect id
+		nodes[2].index=100;
+		instance=SVMUtils.nodeArrayToInstance(nodes,featureFactory);
+		assertNull(instance);
 		
 		System.out.println("Done.");
 
 	}
 
-	private void checkReturnedInstance(Instance returnedInstance, String[] featureStrName, double[] featureWeight, int nodesCount, boolean[] isChecked) {
-		for (Feature.Looper fl = returnedInstance.numericFeatureIterator(); fl.hasNext();) {
-
-			Feature returnedFeature = fl.nextFeature();
-
-			boolean isFound = false;
-
-			for(int index = 0; index < nodesCount; ++index) {
-
-				if(featureStrName[index].equals(returnedFeature.toString())) {
-
-					isFound = true;
-
-					assertEquals(featureWeight[index], returnedInstance.getWeight(returnedFeature));
-
-					isChecked[index] = true;
+	private static void checkInstance(Instance instance,String[] featureNames,svm_node[] nodes){
+		for(Feature.Looper it=instance.numericFeatureIterator();it.hasNext();){
+			Feature feature=it.nextFeature();
+			boolean found=false;
+			for(int i=0;i<nodes.length;i++){
+				if(featureNames[i].equals(feature.toString())){
+					found=true;
+					assertEquals(nodes[i].value,instance.getWeight(feature));
 				}
 			}
-
-			if(!isFound) {
-
-				assertNotNull(returnedFeature.toString() + " is not from node array.", null);
-
-			}
-		}
-
-		for(int index = 0; index < nodesCount; ++index) {
-			if (!isChecked[index]) {
-				assertNotNull("svm node with feature name (" + featureStrName[index] + ") is not generated in instance.", null);
-			}
+			assertTrue(found);
 		}
 	}
 
