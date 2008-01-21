@@ -25,6 +25,7 @@ import java.util.*;
 
 	/** Create a SubpopSorter. Iterator i must iterate over
 	 * Instances. */
+	// why are we passing in a RandomElement object but not using it?? - frank
 	public SubpopSorter(RandomElement random,Iterator i)
 	{
 		clusterMap = new TreeMap();

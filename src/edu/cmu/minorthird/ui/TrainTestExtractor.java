@@ -1,16 +1,18 @@
 package edu.cmu.minorthird.ui;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.experiments.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.*;
-import edu.cmu.minorthird.text.learn.experiments.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
+import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-import java.util.*;
-import java.io.*;
+
+import edu.cmu.minorthird.classify.experiments.FixedTestSetSplitter;
+import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
+import edu.cmu.minorthird.text.learn.experiments.TextLabelsExperiment;
+import edu.cmu.minorthird.util.CommandLineProcessor;
+import edu.cmu.minorthird.util.IOUtil;
+import edu.cmu.minorthird.util.JointCommandLineProcessor;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 
 /**
@@ -21,7 +23,7 @@ import java.io.*;
 
 public class TrainTestExtractor extends UIMain
 {
-  private static Logger log = Logger.getLogger(TrainTestExtractor.class);
+	static Logger log = Logger.getLogger(TrainTestExtractor.class);
 
 	// private data needed to train a extractor
 
@@ -31,10 +33,10 @@ public class TrainTestExtractor extends UIMain
 	private CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();    
 	private Object result = null;
 
-    public String getTrainTestExtractorHelp() {
-	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainTestExtractor%20Tutorial.htm\">TrainTestExtractor Tutorial</A></html>";
-    }
-	
+	public String getTrainTestExtractorHelp() {
+		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainTestExtractor%20Tutorial.htm\">TrainTestExtractor Tutorial</A></html>";
+	}
+
 	// for command-line ui
 	public CommandLineProcessor getCLP()
 	{
@@ -43,9 +45,9 @@ public class TrainTestExtractor extends UIMain
 
 	// for GUI
 	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
-	public void setSaveParameters(CommandLineUtil.SaveParams base) { this.save=save; }
+	public void setSaveParameters(CommandLineUtil.SaveParams save) { this.save=save; }
 	public CommandLineUtil.ExtractionSignalParams getSignalParameters() { return signal; }
-    public void setSignalParameters(CommandLineUtil.ExtractionSignalParams signal) { this.signal=signal; }
+	public void setSignalParameters(CommandLineUtil.ExtractionSignalParams signal) { this.signal=signal; }
 	public CommandLineUtil.TrainExtractorParams getTrainingParameters() { return train; }
 	public void setTrainingParameters(CommandLineUtil.TrainExtractorParams train) { this.train=train; }
 	public CommandLineUtil.SplitterParams getSplitterParameters() { return trainTest; }
@@ -63,22 +65,24 @@ public class TrainTestExtractor extends UIMain
 			throw new IllegalArgumentException("one of -spanProp or -spanType must be specified");
 		if (signal.spanProp!=null && signal.spanType!=null) 
 			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
-
+		
 		//no longer needed
 		//if (train.fe != null) {
 		//System.out.println("setting fe to "+train.fe);
 		//train.learner.setSpanFeatureExtractor(train.fe);
 		//}
-			
+
 		// set up the splitter
-		if (trainTest.labels!=null) {
-		    if(signal.spanPropString != null) CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
+		if(trainTest.labels!=null){
+			if(signal.spanPropString!=null){
+				CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
+			}
 			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
 			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
 		TextLabelsExperiment 
-			expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
-							 signal.spanType,signal.spanProp,train.output );
+		expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
+				signal.spanType,signal.spanProp,train.output );
 		expt.doExperiment();
 		ExtractionEvaluation evaluation = expt.getEvaluation();
 

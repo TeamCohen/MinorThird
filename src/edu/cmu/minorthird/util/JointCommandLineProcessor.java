@@ -1,8 +1,6 @@
 package edu.cmu.minorthird.util;
 
-import org.apache.log4j.*;
-import java.lang.reflect.*;
-import java.util.*;
+import org.apache.log4j.Logger;
 
 /**
  * A lightweight command-line processing tool.
