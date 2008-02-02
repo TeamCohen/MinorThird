@@ -72,7 +72,6 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable
 		int j = 0;
 		for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
 			spans[j] = i.nextSpan();
-			System.out.println(spans[j].getDocumentId());
 			viewers[j] = new SpanViewer.TextViewer(labels,spans[j]);
 			viewers[j].setContent(spans[j]);
 			viewers[j].setSuperView(this);
