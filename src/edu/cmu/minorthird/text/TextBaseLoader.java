@@ -361,6 +361,8 @@ public class TextBaseLoader{
 	private void loadFile(File file) throws IOException,ParseException{
 
 		log.debug("loadFile: "+file.getName());
+		
+		System.out.println("loadFile: "+file.getName());
 
 		//build the correct reader
 
