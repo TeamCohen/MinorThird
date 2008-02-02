@@ -329,6 +329,7 @@ public class TextBaseLoader{
 	private void loadDirectory(File directory) throws IOException,ParseException{
 		//loop on files in directory or loop on directories?
 		File[] files=directory.listFiles();
+		Arrays.sort(files);
 		if(files==null)
 			throw new IllegalArgumentException("can't list directory "+
 					directory.getName());
