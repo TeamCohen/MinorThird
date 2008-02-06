@@ -2,7 +2,8 @@ package edu.cmu.minorthird.text;
 
 import java.util.Set;
 
-/** Access assertions about 'types' and 'properties' of
+/** 
+ * Access assertions about 'types' and 'properties' of
  * contiguous Spans of these Seq's.  TextLabels's are immutable.
  *
  * @author William Cohen

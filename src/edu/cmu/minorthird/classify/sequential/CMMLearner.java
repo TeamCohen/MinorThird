@@ -1,7 +1,12 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.svm.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
 
 /**
  * Train a CMM (in batch mode).
@@ -36,8 +41,8 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 		baseLearner.reset();
 		baseLearner.setSchema( schema );
 		dataset.setHistorySize(historySize);
-		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
+		for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {
+			Example e = i.next();
 			baseLearner.addExample( e );
 		}
 		Classifier classifier = baseLearner.getClassifier();

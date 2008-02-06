@@ -2,6 +2,8 @@
 
 package edu.cmu.minorthird.classify;
 
+import java.util.Iterator;
+
 import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
 import edu.cmu.minorthird.util.ProgressCounter;
 
@@ -40,8 +42,8 @@ public class BatchVersion extends BatchClassifierLearner
 		ProgressCounter pc1 = new ProgressCounter("training "+innerLearner.getClass(), "epoch", numberOfEpochs);
 		for (int i=0; i<numberOfEpochs; i++) {
 			ProgressCounter pc2 = new ProgressCounter("training "+innerLearner.getClass(), "example", copy.size());
-			for (Example.Looper j=copy.iterator(); j.hasNext(); ) {
-				innerLearner.addExample( j.nextExample() );
+			for (Iterator<Example> j=copy.iterator(); j.hasNext(); ) {
+				innerLearner.addExample( j.next() );
 				pc2.progress();
 			}
 			pc2.finished();

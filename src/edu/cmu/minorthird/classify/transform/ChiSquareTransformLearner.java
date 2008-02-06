@@ -1,6 +1,12 @@
 package edu.cmu.minorthird.classify.transform;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.BasicFeatureIndex;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.SampleDatasets;
 
 /**
  * @author Vitor R. Carvalho
@@ -48,9 +54,9 @@ public class ChiSquareTransformLearner implements InstanceTransformLearner
           throw new IllegalStateException("ERROR - Dataset size and index size do not match");
       }
       
-      for (Feature.Looper i=index.featureIterator(); i.hasNext(); )
+      for (Iterator<Feature> i=index.featureIterator(); i.hasNext(); )
       {
-        Feature f = i.nextFeature();
+        Feature f = i.next();
         int a = index.size(f,ExampleSchema.POS_CLASS_NAME);
         int b = index.size(f,ExampleSchema.NEG_CLASS_NAME);
         int c = totalPos - a;

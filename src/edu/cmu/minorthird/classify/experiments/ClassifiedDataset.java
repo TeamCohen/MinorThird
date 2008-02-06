@@ -2,17 +2,44 @@
 
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
-import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.gui.*;
+import java.awt.Component;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
-import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
-import java.util.*;
+
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.DatasetClassifierTeacher;
+import edu.cmu.minorthird.classify.DatasetIndex;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.GUI;
+import edu.cmu.minorthird.classify.RandomAccessDataset;
+import edu.cmu.minorthird.classify.SampleDatasets;
+import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
+import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.Controllable;
+import edu.cmu.minorthird.util.gui.ControlledViewer;
+import edu.cmu.minorthird.util.gui.MessageViewer;
+import edu.cmu.minorthird.util.gui.VanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.ViewerControls;
+import edu.cmu.minorthird.util.gui.ViewerFrame;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /** Pairs a dataset and a classifier, for easy inspection
  * of the actions of a classifier.
@@ -38,8 +65,8 @@ public class ClassifiedDataset implements Visible
 			this.dataset = (RandomAccessDataset)dataset;
 		} else {
 			this.dataset = new RandomAccessDataset();
-			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-				this.dataset.add( i.nextExample() );
+			for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {
+				this.dataset.add( i.next() );
 			}
 		}
 		this.index = index;
@@ -60,6 +87,7 @@ public class ClassifiedDataset implements Visible
 	 */
 	private static class DataControls extends ViewerControls
 	{
+		static final long serialVersionUID=20080130L;
 		public JCheckBox filterOnFeatureBox;
 		public Feature targetFeature;
 		public JRadioButton correctButton, incorrectButton, allButton;
@@ -93,6 +121,7 @@ public class ClassifiedDataset implements Visible
 	 */
 	static private class ControlledDataViewer extends ComponentViewer implements Controllable
 	{
+		static final long serialVersionUID=20080130L;
 		// cached last display
 		private ClassifiedDataset cd;
 
@@ -142,8 +171,8 @@ public class ClassifiedDataset implements Visible
 			} else {
 				RandomAccessDataset filteredData = new RandomAccessDataset();
 				ProgressCounter pc = new ProgressCounter("classifying for ClassifiedDataset","example",filteredData.size());
-				for (Example.Looper i=cd.dataset.iterator(); i.hasNext(); ) {
-					Example e = i.nextExample();
+				for (Iterator<Example> i=cd.dataset.iterator(); i.hasNext(); ) {
+					Example e = i.next();
 					boolean pass1 = true;
 					if (filterOnCorrectness) 
 						pass1 = targetCorrectness==cd.classifier.classification(e).isCorrect(e.getLabel());
@@ -162,6 +191,7 @@ public class ClassifiedDataset implements Visible
 		/** models the data in the RandomAccessDataset of the ClassifiedDataset */
 		private class MyTableModel extends AbstractTableModel 
 		{
+			static final long serialVersionUID=20080130L;
 			private ClassifiedDataset cd;
 			public MyTableModel(ClassifiedDataset cd) { this.cd = cd; }
 			public int getRowCount() { return cd.dataset.size(); }
@@ -183,6 +213,7 @@ public class ClassifiedDataset implements Visible
 
     static public class ExplanationViewer extends ComponentViewer
     {
+    	static final long serialVersionUID=20080130L;
 	Explanation ex;
 
 	public ExplanationViewer(Explanation ex) {
@@ -205,6 +236,7 @@ public class ClassifiedDataset implements Visible
 	 */
 	static private class MyViewer extends ComponentViewer
 	{
+		static final long serialVersionUID=20080130L;
 		private Viewer instanceViewer,classifierViewer,explanationViewer;
 		private ControlledViewer dataViewer;
 		private ClassifiedDataset cd;
@@ -252,13 +284,15 @@ public class ClassifiedDataset implements Visible
 
 			return main;
 		}
-		protected boolean canHandle(int signal,Object argument,ArrayList senders) 
+		//protected boolean canHandle(int signal,Object argument,ArrayList senders) 
+		protected boolean canHandle(int signal,Object argument) 
 		{
 			return 
 				(signal==OBJECT_SELECTED) && (argument instanceof Example)
 				|| (signal==OBJECT_SELECTED) && (argument instanceof Feature);
 		}
-		protected void handle(int signal,Object argument,ArrayList senders) 
+		//protected void handle(int signal,Object argument,ArrayList senders) 
+		protected void handle(int signal,Object argument) 
 		{
 			if (argument instanceof Example) {
 				Example example = (Example)argument;
@@ -278,16 +312,16 @@ public class ClassifiedDataset implements Visible
 			buf.append(" appears in ");
 			buf.append(index.size(f));
 			buf.append(" examples:");
-			Map map = new TreeMap();
+			Map<String,Integer> map = new TreeMap<String,Integer>();
 			for (int i=0; i<index.size(f); i++) {
 				String label = index.getExample(f,i).getLabel().bestClassName();
-				Integer count = (Integer)map.get(label);
+				Integer count = map.get(label);
 				if (count==null) map.put(label, (count=new Integer(0)));
 				map.put(label, new Integer(count.intValue()+1));
 			}
-			for (Iterator j=map.keySet().iterator(); j.hasNext(); ) {
-				String label = (String)j.next();
-				Integer count = (Integer)map.get(label);
+			for (Iterator<String> j=map.keySet().iterator(); j.hasNext(); ) {
+				String label = j.next();
+				Integer count = map.get(label);
 				buf.append(" "+count+":"+label);
 			}
 			return buf.toString();
@@ -304,7 +338,7 @@ public class ClassifiedDataset implements Visible
 		Classifier cl = new DatasetClassifierTeacher(train).train(learner);
 		Dataset test = SampleDatasets.sampleData("toy",true);		
 		ClassifiedDataset cd = new ClassifiedDataset(cl,test);
-		ViewerFrame f = new ViewerFrame("ClassifiedDataset", cd.toGUI());
+		new ViewerFrame("ClassifiedDataset", cd.toGUI());
 	}
 }
 

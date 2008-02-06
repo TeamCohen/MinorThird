@@ -2,14 +2,22 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.StringUtil;
-import edu.cmu.minorthird.util.gui.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.FeatureFactory;
+import edu.cmu.minorthird.classify.GUI;
+import edu.cmu.minorthird.classify.Splitter;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.ZoomedViewer;
 
 /**
  * A SequenceDataset that additionally includes examples for 'sliding
@@ -18,183 +26,212 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class SegmentDataset implements Dataset
-{
-    int maxWindowSize = -1;
-    private ArrayList groupList = new ArrayList();
-    private Set classNameSet = new HashSet();
-    private int totalSize = 0;
-    private FeatureFactory factory = new FeatureFactory();
-    private boolean compressGroups = true;
+public class SegmentDataset implements Dataset{
 
-    public SegmentDataset() {;}
+	int maxWindowSize=-1;
 
-    public void setDataCompression(boolean flag) 
-    { 
-	compressGroups=flag; 
-    }
-    
-    public FeatureFactory getFeatureFactory(){
-    	return factory;
-    }
+	private ArrayList groupList=new ArrayList();
 
-    public int getMaxWindowSize() { return maxWindowSize; }
-    public int size() { return totalSize; }
+	private Set classNameSet=new HashSet();
 
-    public int getNumberOfSegmentGroups() { return groupList.size(); }
+	private int totalSize=0;
 
-    /** Add a new sequence of examples to the dataset. */
-    public void addCandidateSegmentGroup(CandidateSegmentGroup group)
-    {
-	if (maxWindowSize<0) maxWindowSize = group.getMaxWindowSize();
-	if (maxWindowSize>=0 && group.getMaxWindowSize()!=maxWindowSize) {
-	    throw new IllegalArgumentException("mismatched window sizes: "+maxWindowSize+", "+group.getMaxWindowSize());
+	private FeatureFactory factory=new FeatureFactory();
+
+	private boolean compressGroups=true;
+
+	public SegmentDataset(){
+		;
 	}
-	if (compressGroups) groupList.add(new CompactCandidateSegmentGroup(factory,group));
-	else groupList.add(group);
-	classNameSet.addAll( group.classNameSet() );
-	totalSize += group.size();
-    }
 
-    public ExampleSchema getSchema()
-    {
-	ExampleSchema schema = new ExampleSchema((String[])classNameSet.toArray(new String[classNameSet.size()]));
-	if (schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)) return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
-	else return schema;
-    }
+	public void setDataCompression(boolean flag){
+		compressGroups=flag;
+	}
 
-    /**
-     * Add an example to the dataset. <br>
-     * <br>
-     * This method compresses the example before adding it to the dataset.  If
-     * you want/need the example to be compressed then call {@link #add(Example, boolean)}
-     *
-     * @param example The Example that you want to add to the dataset.
-     */
-    public void add(Example example) {
-        add(example, false);
-    }
+	public FeatureFactory getFeatureFactory(){
+		return factory;
+	}
 
-    /**
-     * Add an Example to the dataset. <br>
-     * <br>
-     * This method lets the caller specify whether or not to compress the example
-     * before adding it to the dataset.
-     *
-     * @param example The example to add to the dataset
-     * @param compress Boolean specifying whether or not to compress the example.
-     */
-    public void add(Example example, boolean compress) {
-        MutableCandidateSegmentGroup g = new MutableCandidateSegmentGroup(1,1);
+	public int getMaxWindowSize(){
+		return maxWindowSize;
+	}
 
-        if (compress)
-            g.setSubsequence(0,1,factory.compress(example.asInstance()),example.getLabel());
-        else
-            g.setSubsequence(0,1,example.asInstance(),example.getLabel());
-        addCandidateSegmentGroup(g);
-    }
+	public int size(){
+		return totalSize;
+	}
 
+	public int getNumberOfSegmentGroups(){
+		return groupList.size();
+	}
 
-
-    /** Iterate over all examples */
-    public Example.Looper iterator()
-    {
-	ArrayList result = new ArrayList();
-	for (Iterator i=groupList.iterator(); i.hasNext(); ) {
-	    CandidateSegmentGroup g = (CandidateSegmentGroup)i.next();
-	    for (int j=0; j<g.getSequenceLength(); j++) {
-		for (int k=1; k<=g.getMaxWindowSize(); k++) {
-		    Example e = g.getSubsequenceExample(j,j+k);
-		    if (e!=null) result.add(e);
+	/** Add a new sequence of examples to the dataset. */
+	public void addCandidateSegmentGroup(CandidateSegmentGroup group){
+		if(maxWindowSize<0)
+			maxWindowSize=group.getMaxWindowSize();
+		if(maxWindowSize>=0&&group.getMaxWindowSize()!=maxWindowSize){
+			throw new IllegalArgumentException("mismatched window sizes: "+
+					maxWindowSize+", "+group.getMaxWindowSize());
 		}
-	    }
+		if(compressGroups)
+			groupList.add(new CompactCandidateSegmentGroup(factory,group));
+		else
+			groupList.add(group);
+		classNameSet.addAll(group.classNameSet());
+		totalSize+=group.size();
 	}
-	return new Example.Looper(result);
-    }
 
-
-    public SegmentDataset.Looper candidateSegmentGroupIterator()
-    {
-	return new Looper();
-    }
-
-    public class Looper implements Iterator 
-    {
-	private Iterator i = groupList.iterator();
-	public void remove() { throw new UnsupportedOperationException("can't remove!"); }
-	public boolean hasNext() { return i.hasNext(); }
-	public Object next() { return i.next(); }
-	public CandidateSegmentGroup nextCandidateSegmentGroup() { return (CandidateSegmentGroup)next(); }
-    }
-
-
-    public String toString()
-    {	
-	StringBuffer buf = new StringBuffer("");
-	buf.append("size = "+size()+"\n");
-	for (Iterator i=groupList.iterator(); i.hasNext(); ) {
-	    buf.append( i.next() + "\n" );
+	public ExampleSchema getSchema(){
+		ExampleSchema schema=
+				new ExampleSchema((String[])classNameSet
+						.toArray(new String[classNameSet.size()]));
+		if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA))
+			return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
+		else
+			return schema;
 	}
-	return buf.toString();
-    }
 
-    /** Randomly re-order the examples. */
-    public void shuffle(Random r)
-    {
-	Collections.shuffle(groupList,r);
-    }
-	
-    /** Randomly re-order the examples. */
-    public void shuffle()
-    {
-	Collections.shuffle(groupList,new Random(0));
-    }
-
-    /** Make a shallow copy of the dataset. */
-    public Dataset shallowCopy()
-    {
-	SegmentDataset copy = new SegmentDataset();
-	for (Iterator i=groupList.iterator(); i.hasNext(); ) {
-	    copy.addCandidateSegmentGroup( (CandidateSegmentGroup) i.next() );
+	/**
+	 * Add an example to the dataset. <br>
+	 * <br>
+	 * This method compresses the example before adding it to the dataset.  If
+	 * you want/need the example to be compressed then call {@link #add(Example, boolean)}
+	 *
+	 * @param example The Example that you want to add to the dataset.
+	 */
+	public void add(Example example){
+		add(example,false);
 	}
-	return copy;
-    }
 
-    //
-    // split
-    //
+	/**
+	 * Add an Example to the dataset. <br>
+	 * <br>
+	 * This method lets the caller specify whether or not to compress the example
+	 * before adding it to the dataset.
+	 *
+	 * @param example The example to add to the dataset
+	 * @param compress Boolean specifying whether or not to compress the example.
+	 */
+	public void add(Example example,boolean compress){
+		MutableCandidateSegmentGroup g=new MutableCandidateSegmentGroup(1,1);
 
-    public Split split(final Splitter splitter)
-    {
-	splitter.split(groupList.iterator());
-	return new Split() {
-		public int getNumPartitions() { return splitter.getNumPartitions(); }
-		public Dataset getTrain(int k) { return invertIteration(splitter.getTrain(k)); }
-		public Dataset getTest(int k) { return invertIteration(splitter.getTest(k)); }
-	    };
-    }
-    protected Dataset invertIteration(Iterator i) 
-    {
-	SegmentDataset copy = new SegmentDataset();
-	while (i.hasNext()) {
-	    Object o = i.next();
-	    copy.addCandidateSegmentGroup((CandidateSegmentGroup)o);
+		if(compress)
+			g.setSubsequence(0,1,factory.compress(example.asInstance()),example
+					.getLabel());
+		else
+			g.setSubsequence(0,1,example.asInstance(),example.getLabel());
+		addCandidateSegmentGroup(g);
 	}
-	return copy;
-    }
 
-    /** A GUI view of the dataset. */
-    public Viewer toGUI()
-    {
-	//return new VanillaViewer(this);
-	Viewer dbGui = new BasicDataset.SimpleDatasetViewer();
-	dbGui.setContent(this);
-	Viewer instGui = GUI.newSourcedExampleViewer();
-	return new ZoomedViewer(dbGui,instGui);
-    }
+	/** Iterate over all examples */
+	public Iterator<Example> iterator(){
+		ArrayList result=new ArrayList();
+		for(Iterator i=groupList.iterator();i.hasNext();){
+			CandidateSegmentGroup g=(CandidateSegmentGroup)i.next();
+			for(int j=0;j<g.getSequenceLength();j++){
+				for(int k=1;k<=g.getMaxWindowSize();k++){
+					Example e=g.getSubsequenceExample(j,j+k);
+					if(e!=null)
+						result.add(e);
+				}
+			}
+		}
+		return result.iterator();
+	}
 
-    public int getNumPosExamples() {
-	return -1;
-    }
+	public SegmentDataset.Looper candidateSegmentGroupIterator(){
+		return new Looper();
+	}
+
+	public class Looper implements Iterator{
+
+		private Iterator i=groupList.iterator();
+
+		public void remove(){
+			throw new UnsupportedOperationException("can't remove!");
+		}
+
+		public boolean hasNext(){
+			return i.hasNext();
+		}
+
+		public Object next(){
+			return i.next();
+		}
+
+		public CandidateSegmentGroup nextCandidateSegmentGroup(){
+			return (CandidateSegmentGroup)next();
+		}
+	}
+
+	public String toString(){
+		StringBuffer buf=new StringBuffer("");
+		buf.append("size = "+size()+"\n");
+		for(Iterator i=groupList.iterator();i.hasNext();){
+			buf.append(i.next()+"\n");
+		}
+		return buf.toString();
+	}
+
+	/** Randomly re-order the examples. */
+	public void shuffle(Random r){
+		Collections.shuffle(groupList,r);
+	}
+
+	/** Randomly re-order the examples. */
+	public void shuffle(){
+		Collections.shuffle(groupList,new Random(0));
+	}
+
+	/** Make a shallow copy of the dataset. */
+	public Dataset shallowCopy(){
+		SegmentDataset copy=new SegmentDataset();
+		for(Iterator i=groupList.iterator();i.hasNext();){
+			copy.addCandidateSegmentGroup((CandidateSegmentGroup)i.next());
+		}
+		return copy;
+	}
+
+	//
+	// split
+	//
+
+	public Split split(final Splitter splitter){
+		splitter.split(groupList.iterator());
+		return new Split(){
+
+			public int getNumPartitions(){
+				return splitter.getNumPartitions();
+			}
+
+			public Dataset getTrain(int k){
+				return invertIteration(splitter.getTrain(k));
+			}
+
+			public Dataset getTest(int k){
+				return invertIteration(splitter.getTest(k));
+			}
+		};
+	}
+
+	protected Dataset invertIteration(Iterator i){
+		SegmentDataset copy=new SegmentDataset();
+		while(i.hasNext()){
+			Object o=i.next();
+			copy.addCandidateSegmentGroup((CandidateSegmentGroup)o);
+		}
+		return copy;
+	}
+
+	/** A GUI view of the dataset. */
+	public Viewer toGUI(){
+		//return new VanillaViewer(this);
+		Viewer dbGui=new BasicDataset.SimpleDatasetViewer();
+		dbGui.setContent(this);
+		Viewer instGui=GUI.newSourcedExampleViewer();
+		return new ZoomedViewer(dbGui,instGui);
+	}
+
+	public int getNumPosExamples(){
+		return -1;
+	}
 }
-

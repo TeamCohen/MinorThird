@@ -1,10 +1,24 @@
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.util.StringUtil;
-import edu.cmu.minorthird.util.gui.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.Iterator;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+
+import edu.cmu.minorthird.util.StringUtil;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.ParallelViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.TransformedViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
 
 /** Support routines for building GUI's to view datasets, instances, and
  * etc.
@@ -93,13 +107,13 @@ public class GUI
 	private static JComponent instanceComponent(Instance instance)
 	{
 		int numRows = 0;
-		for (Feature.Looper i=instance.featureIterator(); i.hasNext(); i.next()) {
+		for (Iterator<Feature> i=instance.featureIterator(); i.hasNext(); i.next()) {
 			numRows++;
 		}
 		Object[][] tableData = new Object[numRows][2];
 		int k=0;
-		for (Feature.Looper i=instance.featureIterator(); i.hasNext(); ) {
-			Feature f = i.nextFeature();
+		for (Iterator<Feature> i=instance.featureIterator(); i.hasNext(); ) {
+			Feature f = i.next();
 			tableData[k][0] = f;
 			tableData[k][1] = new Double(instance.getWeight(f));
 			k++;

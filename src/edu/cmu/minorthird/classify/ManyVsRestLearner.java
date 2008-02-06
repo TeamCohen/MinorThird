@@ -49,7 +49,7 @@ public class ManyVsRestLearner extends OneVsAllLearner{
 
     public void addExample(Example answeredQuery)
     {    	
-    	Set possibleLabels = answeredQuery.getLabel().possibleLabels();    	
+    	Set<String> possibleLabels = answeredQuery.getLabel().possibleLabels();    	
     	for (int i=0; i<innerLearner.size(); i++) {
     		boolean positive = possibleLabels.contains(schema.getClassName(i));
     		ClassLabel label = positive ? ClassLabel.positiveLabel(1.0) : ClassLabel.negativeLabel(-1.0);

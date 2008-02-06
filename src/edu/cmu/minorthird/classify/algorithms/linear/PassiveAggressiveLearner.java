@@ -1,22 +1,15 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
+import java.io.Serializable;
+import java.util.Iterator;
+
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Example;
-import edu.cmu.minorthird.classify.ExampleSchema;
-import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
-import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner.MyClassifier;
-import edu.cmu.minorthird.classify.sequential.BeamSearcher;
-import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
-import edu.cmu.minorthird.util.gui.TransformedViewer;
-import edu.cmu.minorthird.util.gui.Viewer;
-import edu.cmu.minorthird.util.gui.Visible;
-
-import java.io.*;
 
 /**
  * Created on Sep 26, 2005
@@ -34,12 +27,13 @@ import java.io.*;
 
 
 public class PassiveAggressiveLearner extends OnlineBinaryClassifierLearner implements Serializable {
+	static final long serialVersionUID=20080130L;
 	private Hyperplane pos_t;//positive and negative hyperplanes 
 	private Hyperplane vpos_t;//voted hyperplane
 	private double eta; //insensitivity parameter (positive value)
 	private double gamma; //parameter for the unrealizable case
 	private int excount;//number of examples presented to the learner so far
-	private int numActiveFeatures;//number of active features in first example
+	//private int numActiveFeatures;//number of active features in first example
 	private boolean voted;
 
 	public PassiveAggressiveLearner() {
@@ -84,8 +78,8 @@ public class PassiveAggressiveLearner extends OnlineBinaryClassifierLearner impl
 	
 	public double getNormSquared(Instance ins){
 		double tmp = 0.0;
-		for (Feature.Looper j=ins.featureIterator(); j.hasNext(); ) {
-		    Feature f = j.nextFeature();
+		for (Iterator<Feature> j=ins.featureIterator(); j.hasNext(); ) {
+		    Feature f = j.next();
 		    double val = ins.getWeight(f);
 		    tmp += val*val;
 		}

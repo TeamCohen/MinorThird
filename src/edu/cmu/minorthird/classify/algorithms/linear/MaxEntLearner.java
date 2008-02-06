@@ -1,14 +1,24 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.sequential.*;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.BatchClassifierLearner;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.sequential.BeamSearcher;
+import edu.cmu.minorthird.classify.sequential.CMM;
+import edu.cmu.minorthird.classify.sequential.CRFLearner;
+import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.TransformedViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  * Maximum entropy learner.  Based on calling the CRFLearner with
@@ -68,8 +78,8 @@ public class MaxEntLearner extends BatchClassifierLearner
 	public Classifier batchTrain(Dataset dataset)
 	{
 		SequenceDataset seqData = new SequenceDataset();
-		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-	    Example e = i.nextExample();
+		for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {
+	    Example e = i.next();
 	    seqData.addSequence( new Example[]{e} );
 		}
 		CMM c = (CMM)crfLearner.batchTrain(seqData);
@@ -78,8 +88,7 @@ public class MaxEntLearner extends BatchClassifierLearner
     
 	public static class MyClassifier implements Classifier,Serializable,Visible
 	{
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_SERIAL_VERSION = 1;
+		static private final long serialVersionUID = 20080128L;
 	
 		private Classifier c;
 		private ExampleSchema schema;
@@ -187,6 +196,7 @@ public class MaxEntLearner extends BatchClassifierLearner
 		public Viewer toGUI()
 		{
 	    Viewer v = new TransformedViewer(new SmartVanillaViewer()) {
+	    	static final long serialVersionUID=20080128L;
 					public Object transform(Object o) {
 						MyClassifier mycl = (MyClassifier)o;
 						return mycl.c;

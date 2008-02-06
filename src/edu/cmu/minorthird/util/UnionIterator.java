@@ -1,39 +1,44 @@
 package edu.cmu.minorthird.util;
 
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class UnionIterator implements Iterator
-{
-	private Iterator i,j,current;
-	public UnionIterator(Iterator i,Iterator j)
-	{
-		this.i = i;
-		this.j = j;
+public class UnionIterator<E> implements Iterator<E>{
+	
+	private Iterator<E> a;
+	private Iterator<E> b;
+	
+	public UnionIterator(Iterator<E> a,Iterator<E> b){
+		this.a=a;
+		this.b=b;
 	}
-	public boolean hasNext() 
-	{ 
-		return i.hasNext() || j.hasNext(); 
+	
+	public boolean hasNext(){ 
+		return a.hasNext()||b.hasNext(); 
 	}
-	public Object next() {
-		if (i.hasNext()) {
-			current = i;
-			return i.next();
-		} else {
-			current = j;
-			return j.next();
+	
+	public E next(){
+		if(a.hasNext()){
+			return a.next();
+		}
+		else if(b.hasNext()){
+			return b.next();
+		}
+		else{
+			return null;
 		}
 	}
-	public void remove() 
-	{ 
-		current.remove();
+	
+	public void remove(){
+		System.err.println("remove() not implemented by "+this.getClass());
 	}
-	public static void main(String argv[])
-	{
-		ArrayList list = new ArrayList();
-		for (int i=0; i<argv.length; i++) list.add(argv[i]);
-		for (Iterator i=new UnionIterator(list.iterator(), list.iterator()); i.hasNext(); ) {
-			System.out.println(i.next());
+	
+	public static void main(String argv[]){
+		List<String> list=new ArrayList<String>();
+		for(int i=0;i<argv.length;i++){
+			list.add(argv[i]);
 		}
+		for(Iterator<String> i=new UnionIterator<String>(list.iterator(),list.iterator());i.hasNext();System.out.println(i.next()));
 	}
 }

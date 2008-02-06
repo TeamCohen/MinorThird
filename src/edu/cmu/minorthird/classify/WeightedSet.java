@@ -48,6 +48,10 @@ public class WeightedSet<T> implements Serializable{
   public Iterator<T> iterator(){
     return map.keySet().iterator();
   }
+  
+  public int size(){
+  	return map.size();
+  }
 
 	public String toString(){
 		return map.toString();

@@ -2,14 +2,16 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import com.wcohen.ss.api.*;
-import com.wcohen.ss.*;
-import com.wcohen.ss.lookup.*;
+import java.util.Iterator;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.*;
+import com.wcohen.ss.DistanceLearnerFactory;
+import com.wcohen.ss.api.StringDistance;
+import com.wcohen.ss.api.StringDistanceLearner;
+import com.wcohen.ss.lookup.SoftDictionary;
 
-import java.io.*;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
 
 /**
  * Construct a transformation of a dataset that includes "leave one out dictionary".
@@ -76,8 +78,8 @@ public class LeaveOneOutDictTransformLearner
 		for (int i=0; i<schema.getNumberOfClasses(); i++) {
 			softDict[i] = new SoftDictionary();
 		}
-		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-			Example ex = i.nextExample();
+		for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {
+			Example ex = i.next();
 			String text = DictionaryTransform.getFeatureValue(ex,featurePattern);
 			if (text!=null) {
 				//System.out.println("adding text '"+text+"' for dict "+ex.getLabel().bestClassName());

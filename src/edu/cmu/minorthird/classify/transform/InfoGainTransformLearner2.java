@@ -41,15 +41,14 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
    public void setSchema(ExampleSchema schema) {;}
 
    /** A class that we use to sort a TreeMap by values */
-   private class IGPair implements Comparable {
+   private class IGPair implements Comparable<IGPair> {
       double value;
       Feature feature;
       public IGPair(double v, Feature f) {
          this.value = v;
          this.feature = f;
       }
-      public int compareTo(Object o2) {
-         IGPair ig2 = (IGPair)o2;
+      public int compareTo(IGPair ig2) {
          if (value<ig2.value) return 1;
          else if (value>ig2.value) return -1;
          else return feature.compareTo( ig2.feature );
@@ -65,7 +64,7 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
       int N = schema.getNumberOfClasses();
       // figure out what features have high gain
       BasicFeatureIndex index = new BasicFeatureIndex(dataset);
-      ArrayList igValues = new ArrayList();
+      List<IGPair> igValues = new ArrayList<IGPair>();
 
       //if (!dataset.getSchema().equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA))
       //   throw new IllegalArgumentException("only works for binary data!");
@@ -81,9 +80,9 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
          }
          double totalEntropy = Entropy(classCnt,totalCnt);
 
-         for (Feature.Looper i=index.featureIterator(); i.hasNext(); )
+         for (Iterator<Feature> i=index.featureIterator(); i.hasNext(); )
          {
-            Feature f = i.nextFeature();
+            Feature f = i.next();
             double[] featureCntWithF = new double[ N ];
             double[] featureCntWithoutF = new double[ N ];
             double totalCntWithF = 0.0;
@@ -144,7 +143,7 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
       }
 
       Collections.sort( igValues );
-      final Set activeFeatureSet = new HashSet();
+      final Set<Feature> activeFeatureSet = new HashSet<Feature>();
       for (int i=0; i<numFeatures; i++) {
          activeFeatureSet.add( ((IGPair)igValues.get(i)).feature );
       }

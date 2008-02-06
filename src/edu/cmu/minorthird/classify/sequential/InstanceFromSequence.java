@@ -1,12 +1,18 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.GUI;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.util.UnionIterator;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /** 
  * An instance that appears as part of a sequence.
@@ -17,7 +23,7 @@ import java.util.Set;
 public class InstanceFromSequence implements Instance,SequenceConstants
 {
 	private Instance instance;
-	private Set history; 
+	private Set<Feature> history; 
 
 	/**
 	 * @param instance - the instance to extend
@@ -27,7 +33,7 @@ public class InstanceFromSequence implements Instance,SequenceConstants
 	public InstanceFromSequence(Instance instance,String[] previousLabels)
 	{
 		this.instance = instance;
-		history = new HashSet();
+		history = new HashSet<Feature>();
 		for (int i=0; i<previousLabels.length; i++) {
 			history.add( 
 				new Feature(
@@ -43,21 +49,26 @@ public class InstanceFromSequence implements Instance,SequenceConstants
 	//
 	final public Object getSource() { return instance.getSource(); }
 	final public String getSubpopulationId() { return instance.getSubpopulationId(); }
-	final public Feature.Looper numericFeatureIterator() { return instance.numericFeatureIterator(); }
+	final public Iterator<Feature> numericFeatureIterator() { return instance.numericFeatureIterator(); }
 
 	//
 	// extend the binary feature set
 	//
 
-	final public Feature.Looper binaryFeatureIterator() 
+	final public Iterator<Feature> binaryFeatureIterator() 
 	{ 
-		return new Feature.Looper( new UnionIterator( history.iterator(), instance.binaryFeatureIterator() ) );
+		return new UnionIterator<Feature>( history.iterator(), instance.binaryFeatureIterator() ) ;
 	}
 
-	final public Feature.Looper featureIterator() 
+	final public Iterator<Feature> featureIterator() 
 	{ 
-		return new Feature.Looper( new UnionIterator( history.iterator(), instance.featureIterator() ) );
+		return new UnionIterator<Feature>( history.iterator(), instance.featureIterator() );
 	}
+	
+	final public int numFeatures(){
+		throw new UnsupportedOperationException();
+	}
+	
 	final public double getWeight(Feature f) 
 	{ 
 		if (history.contains(f)) return 1.0;
@@ -111,6 +122,6 @@ public class InstanceFromSequence implements Instance,SequenceConstants
 		instance.addNumeric( new Feature("office"), 5317);
 		InstanceFromSequence inseq = 
 			new InstanceFromSequence(instance, new String[] { "dweeb","cool", "cool" }); 
-		ViewerFrame f = new ViewerFrame("TestInstance Viewer", inseq.toGUI());
+		new ViewerFrame("TestInstance Viewer", inseq.toGUI());
 	}
 }

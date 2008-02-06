@@ -79,41 +79,30 @@ public class FeatureFactory implements Serializable{
 	 * translated to canonical versions from the feature factory
 	 */
 
-	public Instance compress(Instance instance){
-		return new CompactInstance(instance);
+	public CompactInstance compress(Instance instance){
+		if(instance instanceof CompactInstance&&((CompactInstance)instance).getFactory()==this){
+			return (CompactInstance)instance;
+		}
+		else{
+			return new CompactInstance(instance);
+		}
 	}
 
 	/**
-	 * Return a version of the example in which all features have been
+	 * Return a version of the Example in which all features have been
 	 * translated to canonical versions from the feature factory.
 	 */
 
 	public Example compress(Example example){
-		if(example.asInstance() instanceof CompactInstance){
-			CompactInstance instance=(CompactInstance)example.asInstance();
-			if(instance.getFactory()==this){
-				// if the example is a CompactInstance already and is from the same factory, no need to compact it again
-				return example;
-			}
-		}
-		Instance compactInstance=new CompactInstance(example.asInstance());
-		return new Example(compactInstance,example.getLabel(),example.getWeight());
+		return new Example(compress(example.asInstance()),example.getLabel(),example.getWeight());
 	}
 
 	/**
-	 * Return a version of the example in which all features have been
+	 * Return a version of the MultiExample in which all features have been
 	 * translated to canonical versions from the feature factory.
 	 */
-	public MultiExample compressMulti(MultiExample example){
-		if(example.asInstance() instanceof CompactInstance){
-			CompactInstance instance=(CompactInstance)example.asInstance();
-			if(instance.getFactory()==this){
-				// if the example is a CompactInstance already and is from the same factory, no need to compact it again
-				return example;
-			}
-		}
-		Instance compactInstance=new CompactInstance(example.asInstance());
-		return new MultiExample(compactInstance,example.getMultiLabel(),example.getWeight());
+	public MultiExample compress(MultiExample example){
+		return new MultiExample(compress(example.asInstance()),example.getMultiLabel(),example.getWeight());
 	}
 
 	public String toString(){
@@ -134,7 +123,7 @@ public class FeatureFactory implements Serializable{
 	 * @author wcohen, ksteppe
 	 */
 
-	private class CompactInstance extends AbstractInstance implements Serializable{
+	protected class CompactInstance extends AbstractInstance implements Serializable{
 
 		static final long serialVersionUID=20071015L;
 
@@ -157,16 +146,16 @@ public class FeatureFactory implements Serializable{
 			SortedSet<Feature> set=new TreeSet<Feature>();
 
 			// iterate over binary features and store in array
-			for(Feature.Looper it=instance.binaryFeatureIterator();it.hasNext();){
-				set.add(getFeature(it.nextFeature()));
+			for(Iterator<Feature> it=instance.binaryFeatureIterator();it.hasNext();){
+				set.add(getFeature(it.next()));
 			}
 			binaryFeatures=(Feature[])set.toArray(new Feature[set.size()]);
 
 			set.clear();
 
 			// iterate over numeric features and store in array
-			for(Feature.Looper it=instance.numericFeatureIterator();it.hasNext();){
-				set.add(getFeature(it.nextFeature()));
+			for(Iterator<Feature> it=instance.numericFeatureIterator();it.hasNext();){
+				set.add(getFeature(it.next()));
 			}
 			numericFeatures=(Feature[])set.toArray(new Feature[set.size()]);
 
@@ -197,16 +186,20 @@ public class FeatureFactory implements Serializable{
 			}
 		}
 
-		public Feature.Looper binaryFeatureIterator(){
-			return new FeatureArrayLooper(binaryFeatures);
+		public Iterator<Feature> binaryFeatureIterator(){
+			return new FeatureArrayIterator(binaryFeatures);
 		}
 
-		public Feature.Looper numericFeatureIterator(){
-			return new FeatureArrayLooper(numericFeatures);
+		public Iterator<Feature> numericFeatureIterator(){
+			return new FeatureArrayIterator(numericFeatures);
 		}
 
-		public Feature.Looper featureIterator(){
-			return new UnionFeatureArrayLooper(binaryFeatures,numericFeatures);
+		public Iterator<Feature> featureIterator(){
+			return new UnionFeatureArrayIterator(binaryFeatures,numericFeatures);
+		}
+		
+		public int numFeatures(){
+			return binaryFeatures.length+numericFeatures.length;
 		}
 
 		public String toString(){
@@ -223,31 +216,22 @@ public class FeatureFactory implements Serializable{
 		}
 
 		/** a looper over a feature array with Feature.Looper type */
-		public class FeatureArrayLooper extends Feature.Looper{
+		public class FeatureArrayIterator implements Iterator<Feature>{
 
-			private int curIndex;
-			private Feature[] featureArray;
+			private int current;
+			private Feature[] features;
 
-			public FeatureArrayLooper(Feature[] features){
-				super((Iterator<Feature>)null);
-				curIndex=0;
-				this.featureArray=features;
+			public FeatureArrayIterator(Feature[] features){
+				current=0;
+				this.features=features;
 			}
 
 			public boolean hasNext(){
-				return curIndex<featureArray.length;
-			}
-
-			public Feature nextFeature(){
-				return featureArray[curIndex++];
-			}
-
-			public int estimatedSize(){
-				return featureArray.length;
+				return current<features.length;
 			}
 
 			public Feature next(){
-				return nextFeature();
+				return features[current++];
 			}
 
 			public void remove(){
@@ -257,9 +241,9 @@ public class FeatureFactory implements Serializable{
 		}
 
 		/** sequential composite of n FeatureArrayLoopers (constructor for 2) */
-		public class UnionFeatureArrayLooper extends FeatureArrayLooper{
+		public class UnionFeatureArrayIterator extends FeatureArrayIterator{
 
-			public UnionFeatureArrayLooper(Feature[] features,Feature[] moreFeatures){
+			public UnionFeatureArrayIterator(Feature[] features,Feature[] moreFeatures){
 				super(combine(features,moreFeatures));
 			}
 

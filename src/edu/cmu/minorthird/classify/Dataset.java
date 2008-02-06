@@ -2,9 +2,10 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.util.gui.Visible;
-
+import java.util.Iterator;
 import java.util.Random;
+
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  * A set of examples for learning.
@@ -26,11 +27,12 @@ public interface Dataset extends Visible{
 	/** Add a new example to the dataset. Specifying whether or not to compress it. */
 	public void add(Example example, boolean compress);
 
-	/** Return an iterator over all examples.  This iterator must always
+	/** 
+	 * Return an iterator over all examples.  This iterator must always
 	 * return examples in the order in which they were added, unless the
 	 * data has been shuffled.
 	 */
-	public Example.Looper iterator(); 
+	public Iterator<Example> iterator(); 
 
 	/** Return the number of examples. */
 	public int size(); 
@@ -48,7 +50,7 @@ public interface Dataset extends Visible{
 	public Dataset shallowCopy();
 
 	/** Partition the dataset as required by the splitter. */
-	public Split split(Splitter splitter);
+	public Split split(Splitter<Example> splitter);
 
 	/** 
 	 * 	A partitioning of the dataset into a number of train/test partitions 

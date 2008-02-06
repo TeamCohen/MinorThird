@@ -2,10 +2,16 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import edu.cmu.minorthird.classify.*;
-
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import edu.cmu.minorthird.classify.BasicFeatureIndex;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.MutableInstance;
 
 /**
  * @author Edoardo Airoldi
@@ -24,19 +30,19 @@ public class MakeBinaryTransform implements InstanceTransformLearner
    {
       BasicFeatureIndex fidx = new BasicFeatureIndex(dataset);
 
-      final Set activeFeatureSet = new HashSet();
-      for (Feature.Looper i=fidx.featureIterator(); i.hasNext();)
+      final Set<Feature> activeFeatureSet = new HashSet<Feature>();
+      for (Iterator<Feature> i=fidx.featureIterator(); i.hasNext();)
       {
-         activeFeatureSet.add( i.nextFeature() );
+         activeFeatureSet.add( i.next() );
       }
 
       // build an InstanceTransform that transforms counts into 0/1
       return new AbstractInstanceTransform() {
          public Instance transform(Instance instance) {
             Instance i = new MutableInstance();
-            for (Feature.Looper j=instance.featureIterator();j.hasNext();)
+            for (Iterator<Feature> j=instance.featureIterator();j.hasNext();)
             {
-               Feature ft = j.nextFeature();
+               Feature ft = j.next();
                double wgt = instance.getWeight(ft);
                if (wgt>0) { wgt=1.0; } else { wgt=0.0; }
                ((MutableInstance)i).addNumeric(ft,wgt);

@@ -2,6 +2,8 @@
 
 package edu.cmu.minorthird.classify;
 
+import java.util.Iterator;
+
 
 
 /**
@@ -13,7 +15,7 @@ package edu.cmu.minorthird.classify;
 
 public abstract class OnlineClassifierLearner implements ClassifierLearner
 {
-	final public void setInstancePool(Instance.Looper i) { ; }
+	final public void setInstancePool(Iterator<Instance> i) { ; }
 	final public boolean hasNextQuery() { return false; }
 	final public Instance nextQuery() { return null; }
 	public ClassifierLearner copy() { 

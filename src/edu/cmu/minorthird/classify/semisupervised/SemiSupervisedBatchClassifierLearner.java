@@ -1,7 +1,14 @@
 
 package edu.cmu.minorthird.classify.semisupervised;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Instance;
 
 
 /**
@@ -44,7 +51,7 @@ public abstract class SemiSupervisedBatchClassifierLearner implements Classifier
    /** subclasses should use this method to get the unlabeled examples available for
     * semi-supervised learning.
     */
-   abstract public void setInstancePool(Instance.Looper i);
+   abstract public void setInstancePool(Iterator<Instance> i);
 
    /** subclasses should use this method to implement a batch supervised learning algorithm.
     */

@@ -2,8 +2,14 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.multi.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.multi.MultiDataset;
+import edu.cmu.minorthird.classify.multi.MultiExample;
 
 /**
  * @author William Cohen
@@ -26,8 +32,8 @@ abstract public class AbstractInstanceTransform implements InstanceTransform
 	final public Dataset transform(Dataset dataset)
 	{ 
 		Dataset transformed = new BasicDataset();
-		for (Example.Looper i = dataset.iterator(); i.hasNext(); ) {
-			transformed.add( transform(i.nextExample()) );
+		for (Iterator<Example> i = dataset.iterator(); i.hasNext(); ) {
+			transformed.add( transform(i.next()) );
 		}
 		return transformed;
 	}
@@ -35,8 +41,8 @@ abstract public class AbstractInstanceTransform implements InstanceTransform
     final public MultiDataset transform(MultiDataset dataset)
 	{ 
 		MultiDataset transformed = new MultiDataset();
-		for (MultiExample.Looper i = dataset.multiIterator(); i.hasNext(); ) {
-			transformed.addMulti( transform(i.nextMultiExample()) );
+		for (Iterator<MultiExample> i = dataset.multiIterator(); i.hasNext(); ) {
+			transformed.addMulti( transform(i.next()) );
 		}
 		return transformed;
 	}

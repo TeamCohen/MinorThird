@@ -1,11 +1,12 @@
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.Splitter;
-import edu.cmu.minorthird.classify.algorithms.random.RandomElement;
-import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Splitter;
 
 /**
  * Works with datasets of binary examples.  Splits POS and NEG examples into
@@ -17,56 +18,66 @@ import java.util.List;
  * Date: Dec 8, 2003
  */
 
-public class StratifiedCrossValSplitter implements Splitter {
+public class StratifiedCrossValSplitter implements Splitter<Example>{
 
-    static private Logger log = Logger.getLogger(StratifiedCrossValSplitter.class);
+//    static private Logger log = Logger.getLogger(StratifiedCrossValSplitter.class);
 
-    private RandomElement random;
-    private int folds;
-    private List strata;
+	private Random random;
 
-    public StratifiedCrossValSplitter(RandomElement random, int folds) {
-        this.random = random; this.folds = folds;
-    }
-    public StratifiedCrossValSplitter(int folds) {
-        this(new RandomElement(), folds);
-    }
-    public StratifiedCrossValSplitter() {
-        this(new RandomElement(), 5);
-    }
+	private int folds;
 
-    public void split(Iterator i) {
-        strata = new ArrayList();
-        for (Iterator j = new StrataSorter(random,i).strataIterator(); j.hasNext(); ) {
-            strata.add( j.next() );
-        }
-    }
+	private List<List<Example>> strata;
 
-    public int getNumPartitions() { return folds; }
+	public StratifiedCrossValSplitter(Random random,int folds){
+		this.random=random;
+		this.folds=folds;
+	}
 
-    public Iterator getTrain(int k) {
-        List trainList = new ArrayList();
-        for (int i=0; i<strata.size(); i++) {
-            for (int j=0; j<((List)strata.get(i)).size(); j++) {
-                if (j%folds != k) {
-                    trainList.add( ((List)strata.get(i)).get(j) );
-                }
-            }
-        }
-        return trainList.iterator();
-    }
+	public StratifiedCrossValSplitter(int folds){
+		this(new Random(),folds);
+	}
 
-    public Iterator getTest(int k) {
-        List testList = new ArrayList();
-        for (int i=0; i<strata.size(); i++) {
-            for (int j=0; j<((List)strata.get(i)).size(); j++) {
-                if (j%folds == k) {
-                    testList.add( ((List)strata.get(i)).get(j) );
-                }
-            }
-        }
-        return testList.iterator();
-    }
-    public String toString() { return "["+folds+"-Stratified CV splitter]"; }
+	public StratifiedCrossValSplitter(){
+		this(5);
+	}
+
+	public void split(Iterator<Example> i){
+		strata=new ArrayList<List<Example>>();
+		for(Iterator<List<Example>> j=new StrataSorter(random,i).strataIterator();j.hasNext();){
+			strata.add(j.next());
+		}
+	}
+
+	public int getNumPartitions(){
+		return folds;
+	}
+
+	public Iterator<Example> getTrain(int k){
+		List<Example> trainList=new ArrayList<Example>();
+		for(int i=0;i<strata.size();i++){
+			for(int j=0;j<strata.get(i).size();j++){
+				if(j%folds!=k){
+					trainList.add(strata.get(i).get(j));
+				}
+			}
+		}
+		return trainList.iterator();
+	}
+
+	public Iterator<Example> getTest(int k){
+		List<Example> testList=new ArrayList<Example>();
+		for(int i=0;i<strata.size();i++){
+			for(int j=0;j<strata.get(i).size();j++){
+				if(j%folds==k){
+					testList.add(strata.get(i).get(j));
+				}
+			}
+		}
+		return testList.iterator();
+	}
+
+	public String toString(){
+		return "["+folds+"-Stratified CV splitter]";
+	}
 
 }

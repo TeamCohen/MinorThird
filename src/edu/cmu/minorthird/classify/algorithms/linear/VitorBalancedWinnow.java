@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
@@ -104,8 +105,8 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		Example example=Winnow.normalizeWeights(example2,true);
 
 		//add new feautures to hyperplane
-		for(Feature.Looper j=example.asInstance().featureIterator();j.hasNext();){
-			Feature f=j.nextFeature();
+		for(Iterator<Feature> j=example.asInstance().featureIterator();j.hasNext();){
+			Feature f=j.next();
 			if(!pos_t.hasFeature(f)){
 				pos_t.increment(f,2.0);//initialize weights to 2
 				neg_t.increment(f,1.0);//initialize weights to 1
@@ -130,8 +131,8 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 			}
 
 			if(example.getLabel().isPositive()){
-				for(Feature.Looper j=example.featureIterator();j.hasNext();){
-					Feature f=j.nextFeature();
+				for(Iterator<Feature> j=example.featureIterator();j.hasNext();){
+					Feature f=j.next();
 					//under and overflow - ceiling
 					if(pos_t.featureScore(f)<W_MAX)
 						pos_t.multiply(f,(1+example.getWeight(f))*(alpha));
@@ -139,8 +140,8 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 						neg_t.multiply(f,(1-example.getWeight(f))*(beta));
 				}
 			}else{
-				for(Feature.Looper j=example.featureIterator();j.hasNext();){
-					Feature f=j.nextFeature();
+				for(Iterator<Feature> j=example.featureIterator();j.hasNext();){
+					Feature f=j.next();
 					if(pos_t.featureScore(f)>W_MIN)
 						pos_t.multiply(f,(1-example.getWeight(f))*(beta));
 					if(neg_t.featureScore(f)<W_MAX)
@@ -209,8 +210,8 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		//the features that cannot be found in hyperplane are deleted from the example.
 		public Example filterFeat(Example ex){
 			MutableInstance ins=new MutableInstance();
-			for(Feature.Looper i=ex.asInstance().featureIterator();i.hasNext();){
-				Feature f=i.nextFeature();
+			for(Iterator<Feature> i=ex.asInstance().featureIterator();i.hasNext();){
+				Feature f=i.next();
 				if((lpos_h.hasFeature(f))){
 					ins.addNumeric(f,ex.getWeight(f));
 				}

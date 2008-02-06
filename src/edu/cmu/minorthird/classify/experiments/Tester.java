@@ -2,16 +2,39 @@
 
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.relational.*;
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.multi.*;
-import edu.cmu.minorthird.classify.semisupervised.*;
-import edu.cmu.minorthird.classify.sequential.*;
-import edu.cmu.minorthird.classify.transform.*;
-import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.gui.*;
+import java.util.Iterator;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.BinaryClassifier;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.DatasetClassifierTeacher;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Splitter;
+import edu.cmu.minorthird.classify.StackedDatasetClassifierTeacher;
+import edu.cmu.minorthird.classify.multi.MultiClassifier;
+import edu.cmu.minorthird.classify.multi.MultiDataset;
+import edu.cmu.minorthird.classify.multi.MultiDatasetClassifierTeacher;
+import edu.cmu.minorthird.classify.multi.MultiEvaluation;
+import edu.cmu.minorthird.classify.multi.MultiExample;
+import edu.cmu.minorthird.classify.relational.RealRelationalDataset;
+import edu.cmu.minorthird.classify.relational.StackedBatchClassifierLearner;
+import edu.cmu.minorthird.classify.relational.StackedGraphicalLearner;
+import edu.cmu.minorthird.classify.semisupervised.DatasetSemiSupervisedClassifierTeacher;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedClassifier;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedClassifierLearner;
+import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedDataset;
+import edu.cmu.minorthird.classify.sequential.DatasetSequenceClassifierTeacher;
+import edu.cmu.minorthird.classify.sequential.SequenceClassifier;
+import edu.cmu.minorthird.classify.sequential.SequenceClassifierLearner;
+import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.classify.transform.AbstractInstanceTransform;
+import edu.cmu.minorthird.classify.transform.PredictedClassTransform;
+import edu.cmu.minorthird.classify.transform.TransformingMultiClassifier;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 /** Test a classifier, in a number of ways.
  *
@@ -25,7 +48,7 @@ public class Tester
 
 
 	/** Do some sort of hold-out experiment, as determined by the splitter */
-	static public Evaluation evaluate(StackedBatchClassifierLearner learner,RealRelationalDataset d,Splitter splitter, String stacked)
+	static public Evaluation evaluate(StackedBatchClassifierLearner learner,RealRelationalDataset d,Splitter<Example> splitter, String stacked)
 	{
 		Evaluation v = new Evaluation(d.getSchema()); 
 		Dataset.Split s = d.split(splitter);
@@ -49,7 +72,7 @@ public class Tester
 	
 	
 	/** Do some sort of hold-out experiment, as determined by the splitter */
-	static public Evaluation evaluate(ClassifierLearner learner,Dataset d,Splitter splitter)
+	static public Evaluation evaluate(ClassifierLearner learner,Dataset d,Splitter<Example> splitter)
 	{
 		Evaluation v = new Evaluation(d.getSchema()); 
 		Dataset.Split s = d.split(splitter);
@@ -71,13 +94,13 @@ public class Tester
 
 
     /** Do some sort of hold-out experiment, as determined by the splitter */
-	static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter splitter)
+	static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter<MultiExample> splitter)
 	{
 	    return multiEvaluate(learner, d, splitter, false);
 	}
 
     /** Do some sort of hold-out experiment, as determined by the splitter */
-    static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter splitter, boolean cross)
+    static public MultiEvaluation multiEvaluate(ClassifierLearner learner,MultiDataset d,Splitter<MultiExample> splitter, boolean cross)
 	{
 		MultiEvaluation v = new MultiEvaluation(d.getMultiSchema()); 
 		MultiDataset.MultiSplit s = d.MultiSplit(splitter);
@@ -105,7 +128,7 @@ public class Tester
 	}    
 
 	/** Do some sort of hold-out experiment, as determined by the splitter */
-	static public Evaluation evaluate(SequenceClassifierLearner learner,SequenceDataset d,Splitter splitter)
+	static public Evaluation evaluate(SequenceClassifierLearner learner,SequenceDataset d,Splitter<Example> splitter)
 	{
 		Evaluation v = new Evaluation(d.getSchema()); 
 		Dataset.Split s = d.split(splitter);
@@ -126,7 +149,7 @@ public class Tester
 	}
 
    /** Do some sort of hold-out experiment, as determined by the splitter */
-   static public Evaluation evaluate(SemiSupervisedClassifierLearner learner,SemiSupervisedDataset d,Splitter splitter)
+   static public Evaluation evaluate(SemiSupervisedClassifierLearner learner,SemiSupervisedDataset d,Splitter<Example> splitter)
    {
       Evaluation v = new Evaluation(d.getSchema());
       Dataset.Split s = d.split(splitter);
@@ -149,7 +172,7 @@ public class Tester
 	/** Do a train and test experiment */
 	static public Evaluation evaluate(ClassifierLearner learner,Dataset trainData,Dataset testData)
 	{
-		Splitter trainTestSplitter = new FixedTestSetSplitter(testData.iterator());
+		Splitter<Example> trainTestSplitter = new FixedTestSetSplitter<Example>(testData.iterator());
 		return evaluate(learner,trainData,trainTestSplitter);
 	}
 
@@ -157,7 +180,7 @@ public class Tester
 	static public Evaluation 
 	evaluate(SequenceClassifierLearner learner,SequenceDataset trainData,SequenceDataset testData)
 	{
-		Splitter trainTestSplitter = new FixedTestSetSplitter(testData.iterator());
+		Splitter<Example> trainTestSplitter = new FixedTestSetSplitter<Example>(testData.iterator());
 		return evaluate(learner,trainData,trainTestSplitter);
 	}
 
@@ -165,7 +188,7 @@ public class Tester
    static public Evaluation
    evaluate(SemiSupervisedClassifierLearner learner,SemiSupervisedDataset trainData,SemiSupervisedDataset testData)
    {
-      Splitter trainTestSplitter = new FixedTestSetSplitter(testData.iterator());
+      Splitter<Example> trainTestSplitter = new FixedTestSetSplitter<Example>(testData.iterator());
       return evaluate(learner,trainData,trainTestSplitter);
    }
 
@@ -179,8 +202,8 @@ public class Tester
 	static public double logLoss(BinaryClassifier c,Dataset d) 
 	{
 		double loss = 0;
-		for (Example.Looper i=d.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
+		for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
+			Example e = i.next();
 			loss += logLoss(c, e);
 		}
 		return loss/d.size();
@@ -190,8 +213,8 @@ public class Tester
 	static public double errorRate(Classifier c,Dataset d) 
 	{
 		double errors = 0;
-		for (Example.Looper i=d.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
+		for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
+			Example e = i.next();
 			if (! c.classification(e).isCorrect( e.getLabel())) {
 				errors++;
 			}

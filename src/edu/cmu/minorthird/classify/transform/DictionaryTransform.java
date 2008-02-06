@@ -3,6 +3,7 @@
 package edu.cmu.minorthird.classify.transform;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 import com.wcohen.ss.BasicStringWrapper;
 import com.wcohen.ss.api.StringDistance;
@@ -95,8 +96,8 @@ public class DictionaryTransform extends AbstractInstanceTransform implements Se
 	static public String getFeatureValue(Instance instance,String[] featurePattern)
 	{
 		//System.out.println("looking for "+StringUtil.toString(featurePattern)+" in "+instance);
-		for (Feature.Looper i=instance.featureIterator(); i.hasNext(); ) {
-			Feature f = i.nextFeature();
+		for (Iterator<Feature> i=instance.featureIterator(); i.hasNext(); ) {
+			Feature f = i.next();
 			String[] name = f.getName();
 			if (matches(name,featurePattern)) return name[name.length-1];
 		}

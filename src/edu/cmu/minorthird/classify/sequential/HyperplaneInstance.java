@@ -1,15 +1,15 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
+import java.util.Collections;
+import java.util.Iterator;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
-import java.util.*;
-import org.apache.log4j.*;
+import javax.swing.JComponent;
+
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
 
 
 /**
@@ -34,6 +34,7 @@ public class HyperplaneInstance implements Instance
 	public Viewer toGUI() 
 	{ 
 		Viewer v = new ComponentViewer() {
+			static final long serialVersionUID=20080202L;
 				public JComponent componentFor(Object o) {
 					HyperplaneInstance hi = (HyperplaneInstance)o;
 					return hi.hyperplane.toGUI(); 
@@ -43,29 +44,31 @@ public class HyperplaneInstance implements Instance
 		return v;
 	}
 	public double getWeight(Feature f) { return hyperplane.featureScore(f); }
-	public Feature.Looper binaryFeatureIterator() { return new Feature.Looper(Collections.EMPTY_SET); }
-	public Feature.Looper numericFeatureIterator() { return hyperplane.featureIterator(); }
-	public Feature.Looper featureIterator() { return hyperplane.featureIterator(); }
+	public Iterator<Feature> binaryFeatureIterator() { return Collections.EMPTY_SET.iterator(); }
+	public Iterator<Feature> numericFeatureIterator() { return hyperplane.featureIterator(); }
+	public Iterator<Feature> featureIterator() { return hyperplane.featureIterator(); }
+	public int numFeatures() { throw new UnsupportedOperationException();}
 	public double getWeight() { return 1.0; }
 	public Object getSource() { return source; }
 	public String getSubpopulationId() { return subpopulationId; }
 	// iterate over all hyperplane features except the bias feature
-	private class MyIterator implements Iterator
-	{
-		private Iterator i;
-		private Object myNext = null; // buffers the next nonbias feature produced by i
-		public MyIterator() { this.i = hyperplane.featureIterator(); advance(); }
-		private void advance() 
-		{
-			if (!i.hasNext()) myNext = null;
-			else { 
-				myNext = i.next();
-				if (myNext.equals(Hyperplane.BIAS_TERM)) advance();
-			}
-		}
-		public void remove() { throw new UnsupportedOperationException("can't remove"); }
-		public boolean hasNext() { return myNext!=null; }
-		public Object next() { Object result=myNext; advance(); return result; }
-	}
+	// where is it used? - frank
+//	private class MyIterator implements Iterator<Feature>
+//	{
+//		private Iterator<Feature> i;
+//		private Feature myNext = null; // buffers the next nonbias feature produced by i
+//		public MyIterator() { this.i = hyperplane.featureIterator(); advance(); }
+//		private void advance() 
+//		{
+//			if (!i.hasNext()) myNext = null;
+//			else { 
+//				myNext = i.next();
+//				if (myNext.equals(Hyperplane.BIAS_TERM)) advance();
+//			}
+//		}
+//		public void remove() { throw new UnsupportedOperationException("can't remove"); }
+//		public boolean hasNext() { return myNext!=null; }
+//		public Feature next() { Feature result=myNext; advance(); return result; }
+//	}
 }
 

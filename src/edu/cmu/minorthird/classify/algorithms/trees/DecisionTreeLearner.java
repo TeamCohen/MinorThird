@@ -1,12 +1,19 @@
 package edu.cmu.minorthird.classify.algorithms.trees;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.BatchBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Feature;
 
 /** A simple decision tree learning algorithm.
  *
@@ -59,8 +66,8 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 	{
 		// see how put the dataset is
 		double posWeight=0,negWeight=0;
-		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-			Example example = i.nextExample();
+		for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {
+			Example example = i.next();
 			if (example.getLabel().numericLabel()>0) posWeight += example.getWeight();
 			else negWeight += example.getWeight();
 		}
@@ -80,21 +87,21 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 
 			double totalPosWeight = 0.0; 
 			double totalNegWeight = 0.0; 
-			Map binaryMap = new TreeMap();
-			Map numericMap = new TreeMap();
-			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-				Example example = i.nextExample();
+			Map<Feature,BinaryFeatureStats> binaryMap = new TreeMap<Feature,BinaryFeatureStats>();
+			Map<Feature,NumericFeatureStats> numericMap = new TreeMap<Feature,NumericFeatureStats>();
+			for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {
+				Example example = i.next();
 				if (example.getLabel().numericLabel()>0) totalPosWeight += example.getWeight();
 				else totalNegWeight += example.getWeight();					
-				for (Feature.Looper j=example.binaryFeatureIterator(); j.hasNext(); ) {
-					Feature f = j.nextFeature();
-					BinaryFeatureStats s = (BinaryFeatureStats)binaryMap.get(f);
+				for (Iterator<Feature> j=example.binaryFeatureIterator(); j.hasNext(); ) {
+					Feature f = j.next();
+					BinaryFeatureStats s = binaryMap.get(f);
 					if (s==null) binaryMap.put( f, (s = new BinaryFeatureStats()) );
 					s.update( example );
 				}
-				for (Feature.Looper j=example.numericFeatureIterator(); j.hasNext(); ) {
-					Feature f = j.nextFeature();
-					NumericFeatureStats s = (NumericFeatureStats)numericMap.get(f);
+				for (Iterator<Feature> j=example.numericFeatureIterator(); j.hasNext(); ) {
+					Feature f = j.next();
+					NumericFeatureStats s = numericMap.get(f);
 					if (s==null) numericMap.put( f, (s = new NumericFeatureStats()) );
 					s.update( example, example.getWeight(f) );
 				}
@@ -104,9 +111,9 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 			double bestValue = Double.MAX_VALUE;
 			double bestThreshold = -9999;
 			Feature bestFeature = null;
-			for (Iterator k=binaryMap.keySet().iterator(); k.hasNext(); ) {
-				Feature f = (Feature)k.next();
-				BinaryFeatureStats s = (BinaryFeatureStats)binaryMap.get(f);
+			for (Iterator<Feature> k=binaryMap.keySet().iterator(); k.hasNext(); ) {
+				Feature f = k.next();
+				BinaryFeatureStats s = binaryMap.get(f);
 				double v = s.value(totalPosWeight,totalNegWeight);
 				if (DEBUG) log.debug("feature "+f+" stats: "+s+" val: "+v);
 				if (v<bestValue) {
@@ -116,9 +123,9 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 					if (DEBUG) log.debug(" ==> BEST");
 				}
 			}
-			for (Iterator k=numericMap.keySet().iterator(); k.hasNext(); ) {
-				Feature f = (Feature)k.next();
-				NumericFeatureStats s = (NumericFeatureStats)numericMap.get(f);
+			for (Iterator<Feature> k=numericMap.keySet().iterator(); k.hasNext(); ) {
+				Feature f = k.next();
+				NumericFeatureStats s = numericMap.get(f);
 				double v = s.value(totalPosWeight,totalNegWeight);
 				double th = s.getBestThreshold();
 				if (DEBUG) log.debug("feature "+f+"<"+th+" stats: "+s+" val: "+v);
@@ -142,8 +149,8 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
                         //  call the appropriate add method in Dataset.
 			Dataset trueData = new BasicDataset();
 			Dataset falseData = new BasicDataset();
-			for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {			
-				Example example = i.nextExample();
+			for (Iterator<Example> i=dataset.iterator(); i.hasNext(); ) {			
+				Example example = i.next();
 				if (example.getWeight(bestFeature)>bestThreshold) {
 					trueData.add(example, false);
 				} else {
@@ -192,7 +199,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 	private class NumericFeatureStats 
 	{
     // maps feature values to BinaryFeatureStats for examples with exactly that value
-		private TreeMap map; 
+		private SortedMap<Double,BinaryFeatureStats> map; 
 
 		// total pos, neg weight of examples with non-zero weights
 		private double posNonZero=0;  
@@ -201,7 +208,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 		private double bestThreshold;
 		private double bestThresholdValue;
 
-		public NumericFeatureStats() { map = new TreeMap();}
+		public NumericFeatureStats() { map = new TreeMap<Double,BinaryFeatureStats> ();}
 
 		// update stats for this example
 		public void update(Example example, double featureWeight)
@@ -230,7 +237,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 			double posGT = totalPosWeight;
 			double negGT = totalNegWeight;
 			bestThresholdValue = Double.MAX_VALUE;
-			for (Iterator i=map.keySet().iterator(); i.hasNext(); ) {
+			for (Iterator<Double> i=map.keySet().iterator(); i.hasNext(); ) {
 				Double key = (Double)i.next();
 				double threshold = -1; // initialize to something lt zero
 				if (lastKey!=null) {
@@ -279,20 +286,20 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner
 		return 2 * ( Math.sqrt(wp1*wn1) + Math.sqrt(wp0*wn0) );
 	}
 
-	private static double entropy(double pos,double neg,double totalPos,double totalNeg)
-	{
-		// wij = feature=i,class=j
-		double tot = totalPos+totalNeg;
-		double epsilon = 0.1/tot;
-		double w11 = pos/tot + epsilon;
-		double w10 = neg/tot + epsilon;
-		double w01 = (tot-pos)/tot + epsilon;
-		double w00 = (tot-neg)/tot + epsilon;
-		log.debug("pos, neg, total = "+pos+", "+neg+", "+tot);
-		log.debug("w11,w10,w01,w00 = "+w11+","+w10+","+w01+","+w00);
-		//return 2 * ( Math.sqrt((wp1)*(wp0)) + Math.sqrt((wn1)*(wn0)) );
-		return - w11*Math.log(w11) - w10*Math.log(w10) - w01*Math.log(w01) - w00*Math.log(w00);
-	}
+//	private static double entropy(double pos,double neg,double totalPos,double totalNeg)
+//	{
+//		// wij = feature=i,class=j
+//		double tot = totalPos+totalNeg;
+//		double epsilon = 0.1/tot;
+//		double w11 = pos/tot + epsilon;
+//		double w10 = neg/tot + epsilon;
+//		double w01 = (tot-pos)/tot + epsilon;
+//		double w00 = (tot-neg)/tot + epsilon;
+//		log.debug("pos, neg, total = "+pos+", "+neg+", "+tot);
+//		log.debug("w11,w10,w01,w00 = "+w11+","+w10+","+w01+","+w00);
+//		//return 2 * ( Math.sqrt((wp1)*(wp0)) + Math.sqrt((wn1)*(wn0)) );
+//		return - w11*Math.log(w11) - w10*Math.log(w10) - w01*Math.log(w01) - w00*Math.log(w00);
+//	}
 
 }
 

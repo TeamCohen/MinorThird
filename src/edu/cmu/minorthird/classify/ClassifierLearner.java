@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.classify;
 
+import java.util.Iterator;
+
 /**
  * Learn an Classifier.  This describes the learner's side of the
  * protocol used to communicate between "learners" and "teachers".
@@ -40,7 +42,7 @@ public interface ClassifierLearner extends Cloneable{
 	 * <p>
 	 * Learners need not make use of the instance pool.
 	 */
-	public void setInstancePool(Instance.Looper i);
+	public void setInstancePool(Iterator<Instance> i);
 
 	/**
 	 * Returns true if the learner has more queries to answer. 

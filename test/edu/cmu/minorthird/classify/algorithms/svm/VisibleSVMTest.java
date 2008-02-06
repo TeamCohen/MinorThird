@@ -2,6 +2,7 @@ package edu.cmu.minorthird.classify.algorithms.svm;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 import junit.framework.Test;
@@ -252,13 +253,13 @@ public class VisibleSVMTest extends TestCase{
 	private Dataset makeToy1Dataset(){
 		Dataset result=SampleDatasets.sampleData("toy",false);
 		m_toy1Instances=new MutableInstance[result.size()];
-		Example.Looper it=result.iterator();
+		Iterator<Example> it=result.iterator();
 		for(int i=0;it.hasNext();i++){
-			Example example1=it.nextExample();
-			Feature.Looper fLoop=example1.featureIterator();
+			Example example1=it.next();
+			Iterator<Feature> fLoop=example1.featureIterator();
 			m_toy1Instances[i]=new MutableInstance();
 			for(int j=0;fLoop.hasNext();j++){
-				Feature f=fLoop.nextFeature();
+				Feature f=fLoop.next();
 				m_toy1Instances[i].addNumeric(f,example1.getWeight(f));
 			}
 		}
@@ -270,13 +271,13 @@ public class VisibleSVMTest extends TestCase{
 		Dataset result=SampleDatasets.makeToy3ClassData(new Random(100),5);
 		
 		m_toy2Instances=new MutableInstance[result.size()];
-		Example.Looper it=result.iterator();
+		Iterator<Example> it=result.iterator();
 		for(int i=0;it.hasNext();i++){
-			Example example1=it.nextExample();
-			Feature.Looper fLoop=example1.featureIterator();
+			Example example1=it.next();
+			Iterator<Feature> fLoop=example1.featureIterator();
 			m_toy2Instances[i]=new MutableInstance();
 			for(int j=0;fLoop.hasNext();j++){
-				Feature f=fLoop.nextFeature();
+				Feature f=fLoop.next();
 				m_toy2Instances[i].addNumeric(f,example1.getWeight(f));
 			}
 		}
@@ -331,9 +332,9 @@ public class VisibleSVMTest extends TestCase{
 		for(int index=0;index<instances.length;++index){
 			int subidx=0;
 			String temphold="";
-			for(Feature.Looper flidx1=instances[index].featureIterator();flidx1
+			for(Iterator<Feature> flidx1=instances[index].featureIterator();flidx1
 			.hasNext();){
-				Feature ftemp1=flidx1.nextFeature();
+				Feature ftemp1=flidx1.next();
 				originalNames[index][subidx]=ftemp1.toString();
 				originalNumNames[index][subidx]=ftemp1.numericName();
 				temphold+=originalNames[index][subidx]+" ";
@@ -348,9 +349,9 @@ public class VisibleSVMTest extends TestCase{
 			exampleChecked[index]=false;
 			int subidx=0;
 			String temphold="";
-			for(Feature.Looper flidx1=returnedExamples[index].featureIterator();flidx1
+			for(Iterator<Feature> flidx1=returnedExamples[index].featureIterator();flidx1
 			.hasNext();){
-				Feature ftemp1=flidx1.nextFeature();
+				Feature ftemp1=flidx1.next();
 				returnedNames[index][subidx]=ftemp1.toString();
 				returnedNumNames[index][subidx]=ftemp1.numericName();
 				temphold+=returnedNames[index][subidx]+" ";

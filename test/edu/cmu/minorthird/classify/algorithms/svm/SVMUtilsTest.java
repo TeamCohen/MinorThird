@@ -1,5 +1,6 @@
 package edu.cmu.minorthird.classify.algorithms.svm;
 
+import java.util.Iterator;
 import java.util.Random;
 
 import junit.framework.Test;
@@ -131,8 +132,8 @@ public class SVMUtilsTest extends TestCase{
 	}
 
 	private static void checkInstance(Instance instance,String[] featureNames,svm_node[] nodes){
-		for(Feature.Looper it=instance.numericFeatureIterator();it.hasNext();){
-			Feature feature=it.nextFeature();
+		for(Iterator<Feature> it=instance.numericFeatureIterator();it.hasNext();){
+			Feature feature=it.next();
 			boolean found=false;
 			for(int i=0;i<nodes.length;i++){
 				if(featureNames[i].equals(feature.toString())){

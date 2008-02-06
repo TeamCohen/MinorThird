@@ -2,14 +2,24 @@
 
 package edu.cmu.minorthird.classify.algorithms.knn;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.MathUtil;
-import org.apache.log4j.Logger;
-
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
-import java.io.*;
+
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.DatasetIndex;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.util.MathUtil;
 
 /** A k-nearest neighbor classifier. This is based on the
  * distance-weighted cosine classifiers introduced by Yang, eg in "An
@@ -45,18 +55,18 @@ class KnnClassifier implements Classifier,Serializable{
 		if(DEBUG)
 			log.debug("classifying: "+instance);
 		// compute distance to neighbors
-		TreeSet set=new TreeSet();
-		for(Example.Looper i=index.getNeighbors(instance);i.hasNext();){
-			Example e=i.nextExample();
+		Set<Neighbor> set=new TreeSet<Neighbor>();
+		for(Iterator<Example> i=index.getNeighbors(instance);i.hasNext();){
+			Example e=i.next();
 			double sim=computeSimilarity(instance,e);
 			set.add(new Neighbor(e,sim));
 		}
 		// compute weighted sim of distances
 		double tot=0.0;
-		HashMap classCounts=new HashMap();
+		Map<String,Double> classCounts=new HashMap<String,Double>();
 		int num=0;
-		for(Iterator j=set.iterator();num++<k&&j.hasNext();){
-			Neighbor n=(Neighbor)j.next();
+		for(Iterator<Neighbor> j=set.iterator();num++<k&&j.hasNext();){
+			Neighbor n=j.next();
 			String s=n.e.getLabel().bestClassName();
 			double w=n.e.getWeight()*n.sim;
 			Double d=(Double)classCounts.get(s);
@@ -85,15 +95,15 @@ class KnnClassifier implements Classifier,Serializable{
 
 		// create a new classlabel with log odds
 		ClassLabel result=new ClassLabel();
-		for(Iterator i=classCounts.keySet().iterator();i.hasNext();){
-			String s=(String)i.next();
-			double d=((Double)classCounts.get(s)).doubleValue();
+		for(Iterator<String> i=classCounts.keySet().iterator();i.hasNext();){
+			String s=i.next();
+			double d=classCounts.get(s);
 			result.add(s,Math.log(d/tot+0.001)-Math.log((tot-d)/tot+0.001));
 		}
 		return result;
 	}
 
-	private static class Neighbor implements Comparable{
+	private static class Neighbor implements Comparable<Neighbor>{
 
 		Example e;
 
@@ -104,8 +114,8 @@ class KnnClassifier implements Classifier,Serializable{
 			this.sim=sim;
 		}
 
-		public int compareTo(Object o){
-			return MathUtil.sign(((Neighbor)o).sim-sim);
+		public int compareTo(Neighbor n){
+			return MathUtil.sign(n.sim-sim);
 		}
 	}
 
@@ -121,16 +131,16 @@ class KnnClassifier implements Classifier,Serializable{
 	// cosine distance
 	private double computeSimilarity(Instance a,Instance b){
 		double aNorm=0,dotProd=0;
-		for(Feature.Looper i=a.featureIterator();i.hasNext();){
-			Feature f=i.nextFeature();
+		for(Iterator<Feature> i=a.featureIterator();i.hasNext();){
+			Feature f=i.next();
 			double aw=a.getWeight(f);
 			double bw=b.getWeight(f);
 			aNorm+=aw*aw;
 			dotProd+=aw*bw;
 		}
 		double bNorm=0;
-		for(Feature.Looper i=b.featureIterator();i.hasNext();){
-			Feature f=i.nextFeature();
+		for(Iterator<Feature> i=b.featureIterator();i.hasNext();){
+			Feature f=i.next();
 			double bw=b.getWeight(f);
 			bNorm+=bw*bw;
 		}

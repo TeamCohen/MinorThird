@@ -361,30 +361,30 @@ public class Arithmetic extends Constants {
 /*=
 * Returns the factorial of the argument.
 */
-   static private long fac1(int j) {
-      long i = j;
-      if(j < 0) i = Math.abs(j);
-      if (i>longFactorials.length) throw new IllegalArgumentException("Overflow");
-
-      long d = 1;
-      while (i > 1) d *= i--;
-
-      if (j < 0) return -d;
-      else return d;
-   }
+//   static private long fac1(int j) {
+//      long i = j;
+//      if(j < 0) i = Math.abs(j);
+//      if (i>longFactorials.length) throw new IllegalArgumentException("Overflow");
+//
+//      long d = 1;
+//      while (i > 1) d *= i--;
+//
+//      if (j < 0) return -d;
+//      else return d;
+//   }
 /*=
 * Returns the factorial of the argument.
 */
-   static private double fac2(int j) {
-      long i = j;
-      if (j < 0) i = Math.abs(j);
-
-      double d = 1.0;
-      while (i > 1) d *= i--;
-
-      if (j < 0) return -d;
-      else return d;
-   }
+//   static private double fac2(int j) {
+//      long i = j;
+//      if (j < 0) i = Math.abs(j);
+//
+//      double d = 1.0;
+//      while (i > 1) d *= i--;
+//
+//      if (j < 0) return -d;
+//      else return d;
+//   }
 /*=
 * Instantly returns the factorial <tt>k!</tt>.
 * @param k must hold <tt>k &gt;= 0</tt>.
@@ -525,7 +525,7 @@ public class Arithmetic extends Constants {
 /*=
 * Equivalent to <tt>Math.round(binomial(n,k))</tt>.
 */
-   private static long xlongBinomial(long n, long k) {
-      return Math.round(binomial(n,k));
-   }
+//   private static long xlongBinomial(long n, long k) {
+//      return Math.round(binomial(n,k));
+//   }
 }

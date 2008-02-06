@@ -1,6 +1,9 @@
 package edu.cmu.minorthird.classify.multi;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Instance;
 
 /**
  * Interface for something that trains multi label classifiers.
@@ -28,8 +31,8 @@ public abstract class MultiClassifierTeacher
 		multiLearner.setInstancePool( instancePool() );
 
 		// passive learning from already-available labeled data
-		for (MultiExample.Looper i=examplePool(); i.hasNext(); ) {
-		    multiLearner.addMultiExample( i.nextMultiExample() );
+		for (Iterator<MultiExample> i=examplePool(); i.hasNext(); ) {
+		    multiLearner.addMultiExample( i.next() );
 		}
 
 		// active learning 
@@ -59,13 +62,13 @@ public abstract class MultiClassifierTeacher
 	/** Labeled instances that will be sent to the multiLearner
 	 * via a call to addExample().
 	 */
-	abstract protected MultiExample.Looper examplePool();
+	abstract protected Iterator<MultiExample> examplePool();
 
 	/** Unlabeled instances, which will be provided to the multiLearner via
 	 * setInstancePool().  These can be used for semi-supervised
 	 * multiLearner, or to form queries for active learning.
 	 . */
-	abstract protected Instance.Looper instancePool();
+	abstract protected Iterator<Instance> instancePool();
 
 	/** Label an Instance chosen by the multiLearner.  Return null if the
 	 * query can't be answered, otherwise return a labeled version of

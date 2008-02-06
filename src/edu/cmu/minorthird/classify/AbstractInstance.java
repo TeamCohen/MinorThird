@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.classify;
 
+import java.util.Iterator;
+
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
 
@@ -21,11 +23,11 @@ public abstract class AbstractInstance implements Instance,Visible{
   /** Debugging view of an instance. */
 	public String toString(){
 		StringBuilder buf=new StringBuilder("[instance/"+subpopulationId+":");
-		for (Feature.Looper i=binaryFeatureIterator(); i.hasNext(); ) {
-			buf.append(" "+i.nextFeature());
+		for(Iterator<Feature> i=binaryFeatureIterator();i.hasNext();){
+			buf.append(" "+i.next());
 		}
-		for (Feature.Looper i=numericFeatureIterator(); i.hasNext(); ) {
-			Feature f = i.nextFeature();
+		for (Iterator<Feature> i=numericFeatureIterator();i.hasNext();){
+			Feature f = i.next();
 			buf.append(" "+f+":"+getWeight(f));
 		}
 		buf.append("]");

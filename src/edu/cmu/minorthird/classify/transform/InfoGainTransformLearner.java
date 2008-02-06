@@ -1,9 +1,13 @@
 package edu.cmu.minorthird.classify.transform;
 
-import org.apache.log4j.Logger;
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
 
-import java.util.TreeMap;
+import edu.cmu.minorthird.classify.BasicFeatureIndex;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.SampleDatasets;
 
 /**
  * @author Edoardo M. Airoldi
@@ -19,7 +23,7 @@ import java.util.TreeMap;
  */
 public class InfoGainTransformLearner implements InstanceTransformLearner
 {
-  static private Logger log = Logger.getLogger(T1InstanceTransformLearner.class);
+//  static private Logger log = Logger.getLogger(T1InstanceTransformLearner.class);
   private String frequencyModel;
 
 
@@ -56,9 +60,9 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
       double dCntNeg = (double)dataset.size() -dCntPos;
       double totalEntropy = Entropy( dCntPos/(dCntPos+dCntNeg),dCntNeg/(dCntPos+dCntNeg) );
 
-      for (Feature.Looper i=index.featureIterator(); i.hasNext(); )
+      for (Iterator<Feature> i=index.featureIterator(); i.hasNext(); )
       {
-        Feature f = i.nextFeature();
+        Feature f = i.next();
 
         double dCntWithF[] = new double[2];    // [0] neg, [1] pos
         double dCntWithoutF[] = new double[2]; // [0] neg, [1] pos
@@ -169,9 +173,9 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
   public double getLength(Example e)
   {
     double len=0.0;
-    for (Feature.Looper i=e.featureIterator(); i.hasNext(); )
+    for (Iterator<Feature> i=e.featureIterator(); i.hasNext(); )
     {
-      Feature f = i.nextFeature();
+      Feature f = i.next();
       len += e.getWeight(f);
     }
     return len;

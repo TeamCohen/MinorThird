@@ -57,8 +57,8 @@ import java.util.*;
 				String token;
 				for (int j=0; j<sequence.length; j++) {
 						ClassLabel label = sequence[j].getLabel();
-						size = sequence[j].numericFeatureIterator().nextFeature().size();
-						token = sequence[j].numericFeatureIterator().nextFeature().getPart(size-1);
+						size = sequence[j].numericFeatureIterator().next().size();
+						token = sequence[j].numericFeatureIterator().next().getPart(size-1);
 						tok[j] = token;
 						if ( dict_tok.containsKey(token) ){
 							int cnt = Integer.parseInt((String)dict_tok.get(token));
@@ -103,8 +103,8 @@ import java.util.*;
 			String[] ob_seq = new String[sequence.length];
 			
 			for (int i=0; i<sequence.length; i++) {		
-				int size = sequence[i].numericFeatureIterator().nextFeature().size();
-				ob_seq[i] = sequence[i].numericFeatureIterator().nextFeature().getPart(size-1);
+				int size = sequence[i].numericFeatureIterator().next().size();
+				ob_seq[i] = sequence[i].numericFeatureIterator().next().getPart(size-1);
 System.out.println("ob_seq["+i+"] is "+ob_seq[i]);				
 			}
 //			System.out.println("End of one call ");

@@ -2,6 +2,8 @@
 
 package edu.cmu.minorthird.classify.semisupervised;
 
+import java.util.Iterator;
+
 import edu.cmu.minorthird.classify.Instance;
 
 /**
@@ -20,7 +22,7 @@ public interface SemiSupervisedActions
    *  must always return examples in the order in which they were added,
    *  unless the data has been shuffled.
    */
-  public Instance.Looper iteratorOverUnlabeled();
+  public Iterator<Instance> iteratorOverUnlabeled();
 
   /** Return the number of semisupervised examples. */
   public int sizeUnlabeled();

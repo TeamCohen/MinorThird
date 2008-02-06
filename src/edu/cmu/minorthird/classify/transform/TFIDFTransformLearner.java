@@ -2,11 +2,16 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import edu.cmu.minorthird.classify.*;
-import java.util.*;
-import java.io.*;
-import gnu.trove.*;
+import java.io.Serializable;
+import java.util.Iterator;
 
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.MutableInstance;
+import gnu.trove.TObjectDoubleHashMap;
 
 /**
  * Replaces feature counts by a TFIDF version of counts.
@@ -14,69 +19,78 @@ import gnu.trove.*;
  * @author William Cohen
  */
 
-public class TFIDFTransformLearner implements InstanceTransformLearner,Serializable
-{
-	static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
+public class TFIDFTransformLearner implements InstanceTransformLearner,
+		Serializable{
 
-	private TObjectDoubleHashMap featureFreq; 
+	static final long serialVersionUID=20080201L;
+
+	private TObjectDoubleHashMap featureFreq;
+
 	private double numDocuments;
 
-  /** The schema's not used here... */
-  public void setSchema(ExampleSchema schema) {;}
+	/** The schema's not used here... */
+	public void setSchema(ExampleSchema schema){
+		;
+	}
 
-  public InstanceTransform batchTrain(Dataset dataset)
-  {
-    // figure out frequency of each feature
-		numDocuments = dataset.size();
-		featureFreq = new TObjectDoubleHashMap();
-		for (Example.Looper i=dataset.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
-			for (Feature.Looper j=e.featureIterator(); j.hasNext(); ) {
-				Feature f = j.nextFeature();
-				double d = featureFreq.get(f);
-				featureFreq.put(f, d+1);
+	public InstanceTransform batchTrain(Dataset dataset){
+		// figure out frequency of each feature
+		numDocuments=dataset.size();
+		featureFreq=new TObjectDoubleHashMap();
+		for(Iterator<Example> i=dataset.iterator();i.hasNext();){
+			Example e=i.next();
+			for(Iterator<Feature> j=e.featureIterator();j.hasNext();){
+				Feature f=j.next();
+				double d=featureFreq.get(f);
+				featureFreq.put(f,d+1);
 			}
 		}
 		// build an InstanceTransform that removes low-frequency features
 		return new TFIDFWeighter(numDocuments,featureFreq);
 	}
 
-	private class TFIDFWeighter extends AbstractInstanceTransform implements Serializable
-	{
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_VERSION_NUMBER = 1;
+	private class TFIDFWeighter extends AbstractInstanceTransform implements
+			Serializable{
+
+		static final long serialVersionUID=20080201L;
 
 		private double numDocuments;
+
 		private TObjectDoubleHashMap featureFreq;
-		public TFIDFWeighter(double numDocuments,TObjectDoubleHashMap featureFreq)
-		{
-			this.numDocuments = numDocuments;
-			this.featureFreq = featureFreq;
+
+		public TFIDFWeighter(double numDocuments,TObjectDoubleHashMap featureFreq){
+			this.numDocuments=numDocuments;
+			this.featureFreq=featureFreq;
 		}
-		public Instance transform(Instance instance)
-		{
-			double norm = 0.0;
-			for (Feature.Looper i = instance.featureIterator(); i.hasNext(); ) {
-				Feature g = i.nextFeature();
-				double unnormalized = unnormalizedTFIDFWeight( g, instance );
-				norm += unnormalized*unnormalized;
+
+		public Instance transform(Instance instance){
+			double norm=0.0;
+			for(Iterator<Feature> i=instance.featureIterator();i.hasNext();){
+				Feature g=i.next();
+				double unnormalized=unnormalizedTFIDFWeight(g,instance);
+				norm+=unnormalized*unnormalized;
 			}
-			norm = Math.sqrt(norm);
-			MutableInstance result = new MutableInstance(instance.getSource(), instance.getSubpopulationId());
-			for (Feature.Looper i=instance.featureIterator(); i.hasNext(); ) {
-				Feature f = i.nextFeature();
-				double w = unnormalizedTFIDFWeight(f, instance);
-				result.addNumeric( f, w/norm);
+			norm=Math.sqrt(norm);
+			MutableInstance result=
+					new MutableInstance(instance.getSource(),instance
+							.getSubpopulationId());
+			for(Iterator<Feature> i=instance.featureIterator();i.hasNext();){
+				Feature f=i.next();
+				double w=unnormalizedTFIDFWeight(f,instance);
+				result.addNumeric(f,w/norm);
 			}
 			return result;
 		}
-		private double unnormalizedTFIDFWeight(Feature f, Instance instance)
-		{
-			double df = featureFreq.get(f);
-			if (df==0) df = 1; // assume new words are important
-			return Math.log( instance.getWeight(f) + 1) * Math.log( numDocuments/df );
+
+		private double unnormalizedTFIDFWeight(Feature f,Instance instance){
+			double df=featureFreq.get(f);
+			if(df==0)
+				df=1; // assume new words are important
+			return Math.log(instance.getWeight(f)+1)*Math.log(numDocuments/df);
 		}
-		public String toString() { return "[TFIDFWeighter]"; }
+
+		public String toString(){
+			return "[TFIDFWeighter]";
+		}
 	}
 }

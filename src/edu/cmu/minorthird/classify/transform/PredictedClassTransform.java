@@ -2,10 +2,12 @@
 
 package edu.cmu.minorthird.classify.transform;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.multi.*;
-
 import java.io.Serializable;
+
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.multi.InstanceFromPrediction;
+import edu.cmu.minorthird.classify.multi.MultiClassLabel;
+import edu.cmu.minorthird.classify.multi.MultiClassifier;
 
 /**
  * @author Cameron Williams
@@ -15,17 +17,23 @@ import java.io.Serializable;
  * a feature to each instance.
  */
 
-public class PredictedClassTransform extends AbstractInstanceTransform implements Serializable
-{
-    private MultiClassifier multiClassifier;
+public class PredictedClassTransform extends AbstractInstanceTransform
+		implements Serializable{
 
-    public PredictedClassTransform(MultiClassifier multiClassifier) { this.multiClassifier = multiClassifier; }
-    
-    /*  Adds the predicted multiClassLabel as features to the instance */
-    public Instance transform(Instance instance)
-    {
-	MultiClassLabel predicted = multiClassifier.multiLabelClassification(instance);
-	Instance annotatedInstance = new InstanceFromPrediction(instance, predicted.bestClassName());
-	return annotatedInstance;
-    }
+	static final long serialVersionUID=20080201L;
+	
+	private MultiClassifier multiClassifier;
+
+	public PredictedClassTransform(MultiClassifier multiClassifier){
+		this.multiClassifier=multiClassifier;
+	}
+
+	/*  Adds the predicted multiClassLabel as features to the instance */
+	public Instance transform(Instance instance){
+		MultiClassLabel predicted=
+				multiClassifier.multiLabelClassification(instance);
+		Instance annotatedInstance=
+				new InstanceFromPrediction(instance,predicted.bestClassName());
+		return annotatedInstance;
+	}
 }

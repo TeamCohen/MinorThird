@@ -54,7 +54,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 
 	private void createRankings(){
 		// why 9?
-		Splitter splitter=new CrossValSplitter(9);
+		Splitter<Example> splitter=new CrossValSplitter<Example>(9);
 		eval=new ArrayList<Evaluation>();
 		for(int i=0;i<innerLearner.size();i++){
 			Evaluation evaluation=Tester.evaluate(innerLearner.get(i),data.get(i),splitter);

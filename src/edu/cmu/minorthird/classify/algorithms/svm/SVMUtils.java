@@ -3,6 +3,7 @@ package edu.cmu.minorthird.classify.algorithms.svm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import libsvm.svm_node;
@@ -82,9 +83,9 @@ public class SVMUtils{
 	 */
 	public static svm_node[] instanceToNodeArray(Instance instance){
 		List<svm_node> nodes=new ArrayList<svm_node>();
-		Feature.Looper it=instance.featureIterator();
+		Iterator<Feature> it=instance.featureIterator();
 		while(it.hasNext()){
-			Feature feature=it.nextFeature();
+			Feature feature=it.next();
 			nodes.add(featureToNode(feature,instance));
 		}
 		// sorting in ascending order is required by LIBSVM
@@ -109,9 +110,9 @@ public class SVMUtils{
 		problem.x=new svm_node[problem.l][];
 
 		// fill it with instance information
-		Example.Looper it=dataset.iterator();
+		Iterator<Example> it=dataset.iterator();
 		for(int i=0;it.hasNext();i++){
-			Example example=it.nextExample();
+			Example example=it.next();
 			// call different label index methods depending on schema
 			if(dataset.getSchema().equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)){
 				problem.y[i]=example.getLabel().numericLabel();

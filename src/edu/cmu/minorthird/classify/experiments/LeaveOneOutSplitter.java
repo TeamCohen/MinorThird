@@ -1,9 +1,14 @@
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.random.RandomElement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
-import java.util.*;
+import edu.cmu.minorthird.classify.HasSubpopulationId;
+import edu.cmu.minorthird.classify.Splitter;
 
 /** 
  * Do N-fold cross-validation, where N is the number of different
@@ -12,44 +17,53 @@ import java.util.*;
  * @author William Cohen
  */
 
-public class LeaveOneOutSplitter implements Splitter
-{
-	private RandomElement random;
-  private Splitter crossValSplitter;
-  
-	public LeaveOneOutSplitter()
-  {
-    this(new RandomElement(0));
-  }
+public class LeaveOneOutSplitter<T> implements Splitter<T>{
 
-	public LeaveOneOutSplitter(RandomElement random)
-	{
-		this.random = random; 
+	private Random random;
+
+	private Splitter<T> crossValSplitter;
+	
+	public LeaveOneOutSplitter(Random random){
+		this.random=random;
 	}
 
-  public void split(Iterator i)
-  {
-    List buf = new ArrayList();
-    Set subpops = new HashSet();
-    while (i.hasNext()) {
-      Object o = i.next();
-      buf.add(o);
-      // find subpop id, and record it
-      String id = (o instanceof HasSubpopulationId)
-                  ? ((HasSubpopulationId)o).getSubpopulationId()
-                  : "youNeeekID#"+subpops.size();
-      subpops.add(id);
-    }
-    crossValSplitter = new CrossValSplitter(random,subpops.size());
-    crossValSplitter.split(buf.iterator());
-  }
+	public LeaveOneOutSplitter(){
+		this(new Random());
+	}
 
-	public int getNumPartitions() { return crossValSplitter.getNumPartitions(); }
+	public void split(Iterator<T> i){
+		List<T> buf=new ArrayList<T>();
+		Set<String> subpops=new HashSet<String>();
+		while(i.hasNext()){
+			T t=i.next();
+			buf.add(t);
+			// find subpop id, and record it
+			String id;
+			if(t instanceof HasSubpopulationId){
+				id=((HasSubpopulationId)t).getSubpopulationId();
+			}
+			else{
+				id="youNeeekID#"+subpops.size();
+			}
+			subpops.add(id);
+		}
+		crossValSplitter=new CrossValSplitter<T>(random,subpops.size());
+		crossValSplitter.split(buf.iterator());
+	}
 
-	public Iterator getTrain(int k) { return crossValSplitter.getTrain(k); }
+	public int getNumPartitions(){
+		return crossValSplitter.getNumPartitions();
+	}
 
-	public Iterator getTest(int k) { return crossValSplitter.getTest(k); }
+	public Iterator<T> getTrain(int k){
+		return crossValSplitter.getTrain(k);
+	}
 
-	public String toString() { return "[LeaveOneOutSplitter]"; }
+	public Iterator<T> getTest(int k){
+		return crossValSplitter.getTest(k);
+	}
+
+	public String toString(){
+		return "[LeaveOneOutSplitter]";
+	}
 }
-

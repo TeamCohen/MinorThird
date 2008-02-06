@@ -1,9 +1,15 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Example;
-import edu.cmu.minorthird.classify.ExampleSchema;
 import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
@@ -13,10 +19,6 @@ import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
 import edu.cmu.minorthird.util.gui.TransformedViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created on Sep 22, 2005
@@ -38,318 +40,334 @@ import java.util.Map;
  * 
  */
 
+public class RegretWinnow extends OnlineBinaryClassifierLearner implements
+		Serializable{
 
-public class RegretWinnow extends OnlineBinaryClassifierLearner implements Serializable {
-	private Hyperplane pos_t,numGivenPos, numGivenNeg;//positive hyperplane and feature count hyperplanes
+	static final long serialVersionUID=20080130L;
+
+	private Hyperplane pos_t,numGivenPos,numGivenNeg;//positive hyperplane and feature count hyperplanes
+
 	private Hyperplane vpos_t;//voted hyperplane
-	private double theta=1.0; //threshold parameter (positive value)
-	private double alpha;//promotion parameter (positive value, bigger than 1)
-	private double beta; //demotion parameter (positive value, between 0 and 1)
-	private int excount;//number of examples presented to the learner so far
-	private double margin = 0.0;
-	private boolean voted, regret;//voted mode and/or regret mode
-	private Hyperplane lossH, lossF; //regret loss accumulated
-	private double W_MAX = Math.pow(2,200), W_MIN = 1/Math.pow(2,200);//over-underflow ceiling
-	double beta2 = 0.95;//regret beta
-	private int votedCount = 0;//number of hyperplanes to vote
-	private int mode;//regret mode (0 means no regret updates. 1,2,3,4,5: different feature losses)
-	private final int LIST_SIZE = 5;//history for regret mode 4
-	private Map fmap;//hash for regret mode 4
 
-	public RegretWinnow() {
-		this(1.5, 0.5, false, 1);
+	private double theta=1.0; //threshold parameter (positive value)
+
+	private double alpha;//promotion parameter (positive value, bigger than 1)
+
+	private double beta; //demotion parameter (positive value, between 0 and 1)
+
+	private int excount;//number of examples presented to the learner so far
+
+	private double margin=0.0;
+
+	private boolean voted,regret;//voted mode and/or regret mode
+
+	private Hyperplane lossH,lossF; //regret loss accumulated
+
+	private double W_MAX=Math.pow(2,200),W_MIN=1/Math.pow(2,200);//over-underflow ceiling
+
+	double beta2=0.95;//regret beta
+
+	private int votedCount=0;//number of hyperplanes to vote
+
+	private int mode;//regret mode (0 means no regret updates. 1,2,3,4,5: different feature losses)
+
+	private final int LIST_SIZE=5;//history for regret mode 4
+
+	private Map<Feature,List<ClassLabel>> fmap;//hash for regret mode 4
+
+	public RegretWinnow(){
+		this(1.5,0.5,false,1);
 	}
 
-	public RegretWinnow(double a, double b, boolean voted, int mode) {
-		if((a < 1)||(b<0)||(b>1)){
+	public RegretWinnow(double a,double b,boolean voted,int mode){
+		if((a<1)||(b<0)||(b>1)){
 			System.out.println("Error in BalancedWinnow initial parameters");
-			System.out.println("Possible problem: (theta<0)||(alpha < 1)||(beta<0)||(beta>1)");
+			System.out
+					.println("Possible problem: (theta<0)||(alpha < 1)||(beta<0)||(beta>1)");
 			System.exit(0);
 		}
-		this.alpha = a;
-		this.beta = b;
-		this.voted = voted;//improves performance and convergence
+		this.alpha=a;
+		this.beta=b;
+		this.voted=voted;//improves performance and convergence
 		if(mode==0){
-			this.regret = false;
+			this.regret=false;
+		}else{
+			this.regret=true;
+			this.mode=mode;
 		}
-		else{
-			this.regret = true;
-			this.mode = mode;
-		}
-		reset();		
+		reset();
 	}
 
-	public void reset() {
-		pos_t = new Hyperplane();
-		excount = 0;
+	public void reset(){
+		pos_t=new Hyperplane();
+		excount=0;
 		votedCount=0;
 		if(voted){
-			vpos_t = new Hyperplane();
-		}		
+			vpos_t=new Hyperplane();
+		}
 		if(regret){
-			lossH = new Hyperplane();
-			lossF = new Hyperplane();
+			lossH=new Hyperplane();
+			lossF=new Hyperplane();
 			if(mode==4){
-				fmap = new HashMap();
+				fmap=new HashMap<Feature,List<ClassLabel>>();
 			}
 			if(mode==2){
-				numGivenPos = new Hyperplane();
-				numGivenNeg = new Hyperplane();
+				numGivenPos=new Hyperplane();
+				numGivenNeg=new Hyperplane();
 			}
 		}
 	}
-	
-	public void addExample(Example example2) {	
-		
-		excount++;				
-		Example example = Winnow.normalizeWeights(example2,true);
-		
+
+	public void addExample(Example example2){
+
+		excount++;
+		Example example=Winnow.normalizeWeights(example2,true);
+
 		//bug
-		for (Feature.Looper j=example.asInstance().featureIterator(); j.hasNext(); ) {
-			Feature f = j.nextFeature();
+		for(Iterator<Feature> j=example.asInstance().featureIterator();j.hasNext();){
+			Feature f=j.next();
 			if(mode==2){
 				if(example.getLabel().isPositive()){
 					numGivenPos.increment(f,1.0);
-				}
-				else{
+				}else{
 					numGivenNeg.increment(f,1.0);
 				}
 			}
-			if(!pos_t.hasFeature(f)) {
+			if(!pos_t.hasFeature(f)){
 				pos_t.increment(f,1.0);//initialize weights to 1
-				
+
 				if((mode==4)&&(!fmap.containsKey(f))){
-					ArrayList mylist = new ArrayList(LIST_SIZE+1);
+					List<ClassLabel> mylist=new ArrayList<ClassLabel>(LIST_SIZE+1);
 					fmap.put(f,mylist);
 				}
 			}
 			if(mode==4){
-				ArrayList ll= (ArrayList)fmap.get(f);
+				List<ClassLabel> ll=fmap.get(f);
 				ll.add(0,example.getLabel());
-			    if(ll.size()>LIST_SIZE+1) {
-			    	ll.remove(LIST_SIZE+1);
-			    }
-			}
-		}
-		
-		//get label and prediction
-		double y_t = example.getLabel().numericLabel();
-		double y_t_hat = pos_t.score(example.asInstance()) - theta;
-//		 
-		//winnow update rule
-		if(y_t * y_t_hat<=margin){//error occurred
-			
-			if((voted)){
-				if(votedCount==0) updateVotedHyperplane(1);
-				else updateVotedHyperplane(votedCount);
-				votedCount =1;
-			}
-			
-			if(example.getLabel().isPositive()){
-				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
-				    Feature f = j.nextFeature();
-				    if(pos_t.featureScore(f)<W_MAX) pos_t.multiply(f,alpha);
+				if(ll.size()>LIST_SIZE+1){
+					ll.remove(LIST_SIZE+1);
 				}
 			}
-			else{
-				for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
-				    Feature f = j.nextFeature();
-				    if(pos_t.featureScore(f)>W_MIN) pos_t.multiply(f,beta);
-				}				
-			}			
 		}
-		else{//no error occurred
+
+		//get label and prediction
+		double y_t=example.getLabel().numericLabel();
+		double y_t_hat=pos_t.score(example.asInstance())-theta;
+//		 
+		//winnow update rule
+		if(y_t*y_t_hat<=margin){//error occurred
+
+			if((voted)){
+				if(votedCount==0)
+					updateVotedHyperplane(1);
+				else
+					updateVotedHyperplane(votedCount);
+				votedCount=1;
+			}
+
+			if(example.getLabel().isPositive()){
+				for(Iterator<Feature> j=example.featureIterator();j.hasNext();){
+					Feature f=j.next();
+					if(pos_t.featureScore(f)<W_MAX)
+						pos_t.multiply(f,alpha);
+				}
+			}else{
+				for(Iterator<Feature> j=example.featureIterator();j.hasNext();){
+					Feature f=j.next();
+					if(pos_t.featureScore(f)>W_MIN)
+						pos_t.multiply(f,beta);
+				}
+			}
+		}else{//no error occurred
 			if(voted){
 				votedCount++;
-			}			
-		}		
-		
+			}
+		}
+
 //		regret updates
 		if(regret){
-			for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
-				double localF=0, localH=0;
-			    Feature ff = j.nextFeature();
-			    if(y_t * y_t_hat > margin){
-	//		    	lossH.increment(ff,0.0);
-			    }
-			    else{
-			    	lossH.increment(ff,1.0);
-			    	localH++;
-			    }
-			    
-			    //weight of the feature predicts the true label correctly
-			    //criterion 1			    
-			    if(mode==1){
-				    if(y_t*(example.getWeight(ff))>0){
-		//		    	lossF.increment(ff,0);
-				    }
-				    else{
-				    	lossF.increment(ff,1);
-				    	localF++;
-				    }
-			    }
-			    
-			    //criterion 2
-			    if(mode==2){
-				    double posFactor = numGivenPos.featureScore(ff);
-				    double negFactor = numGivenNeg.featureScore(ff);
-				    double total = posFactor+negFactor;
-				    if(example.getLabel().isPositive()){
-				    	double coef = 1.0- (posFactor/total);
+			for(Iterator<Feature> j=example.featureIterator();j.hasNext();){
+				double localF=0,localH=0;
+				Feature ff=j.next();
+				if(y_t*y_t_hat>margin){
+					//		    	lossH.increment(ff,0.0);
+				}else{
+					lossH.increment(ff,1.0);
+					localH++;
+				}
+
+				//weight of the feature predicts the true label correctly
+				//criterion 1			    
+				if(mode==1){
+					if(y_t*(example.getWeight(ff))>0){
+						//		    	lossF.increment(ff,0);
+					}else{
+						lossF.increment(ff,1);
+						localF++;
+					}
+				}
+
+				//criterion 2
+				if(mode==2){
+					double posFactor=numGivenPos.featureScore(ff);
+					double negFactor=numGivenNeg.featureScore(ff);
+					double total=posFactor+negFactor;
+					if(example.getLabel().isPositive()){
+						double coef=1.0-(posFactor/total);
 //				    	if(posFactor < 3) coef = 1.0;
-				    	lossF.increment(ff,coef);
-				    }
-				    else{
-				    	double coef = 1.0- (negFactor/total);			    	
+						lossF.increment(ff,coef);
+					}else{
+						double coef=1.0-(negFactor/total);
 //				    	if(negFactor<3) coef = 1.0;
-				    	lossF.increment(ff,coef);
-				    } 
-			    }    
-			    
-			    //criterion 3
-			    if(mode==3){
-			    	int exampleSize = example2.featureIterator().estimatedSize();
-				    if((example.getLabel().isNegative())&&(example.getWeight(ff)*pos_t.featureScore(ff)*exampleSize > 1.0)){
-				    	lossF.increment(ff,1.0);
-				    	localF++;
-				    }
-				    else if((example.getLabel().isPositive())&&(example.getWeight(ff)*pos_t.featureScore(ff)*exampleSize < 1.0)){
-				    	lossF.increment(ff,1.0);
-				    	localF++;
-				    }		
-			    }
-			    
-			    if(mode==4){
-			    	ArrayList lu = (ArrayList)fmap.get(ff);
-			    	int deci = getHistory(lu);
-			    	if(y_t*deci>=0){			    		
+						lossF.increment(ff,coef);
+					}
+				}
+
+				//criterion 3
+				if(mode==3){
+					int exampleSize=example2.numFeatures();
+					if((example.getLabel().isNegative())&&
+							(example.getWeight(ff)*pos_t.featureScore(ff)*exampleSize>1.0)){
+						lossF.increment(ff,1.0);
+						localF++;
+					}else if((example.getLabel().isPositive())&&
+							(example.getWeight(ff)*pos_t.featureScore(ff)*exampleSize<1.0)){
+						lossF.increment(ff,1.0);
+						localF++;
+					}
+				}
+
+				if(mode==4){
+					List<ClassLabel> lu=fmap.get(ff);
+					int deci=getHistory(lu);
+					if(y_t*deci>=0){
 //			    		
-			    	}
-			    	else{
-			    		lossF.increment(ff,1.0);
-			    		localF++;
-			    	}
-			    }
-			    
+					}else{
+						lossF.increment(ff,1.0);
+						localF++;
+					}
+				}
+
 //			  criterion 5
-			    if(mode==5){
-				    lossF.increment(ff,Math.random());				    	 
-			    }
-			    
-			    //update weights
+				if(mode==5){
+					lossF.increment(ff,Math.random());
+				}
+
+				//update weights
 //			    System.out.println(ff.toString()+" "+lossF.featureScore(ff)+ " "+lossH.featureScore(ff));
 //			    double deltaLoss = localF-(beta2*localH);
-			    double deltaLoss = lossF.featureScore(ff)-(beta2*lossH.featureScore(ff));		    
-			    double factor = Math.pow(beta2,deltaLoss);
-			    
-			    if((factor>1.0)&&(factor<W_MAX)){
-			    	if(pos_t.featureScore(ff)<W_MAX) pos_t.multiply(ff,factor);
-			    }
-			    else if((factor<1.0)&&(factor > W_MIN)){
-			    	if(pos_t.featureScore(ff)>W_MIN) pos_t.multiply(ff,factor);
-			    }
+				double deltaLoss=lossF.featureScore(ff)-(beta2*lossH.featureScore(ff));
+				double factor=Math.pow(beta2,deltaLoss);
+
+				if((factor>1.0)&&(factor<W_MAX)){
+					if(pos_t.featureScore(ff)<W_MAX)
+						pos_t.multiply(ff,factor);
+				}else if((factor<1.0)&&(factor>W_MIN)){
+					if(pos_t.featureScore(ff)>W_MIN)
+						pos_t.multiply(ff,factor);
+				}
 			}//end of feature iterator
 		}//end of if(regret)		
 	}//end of addExample() method
-	
+
 	public void updateVotedHyperplane(int count){
 		vpos_t.increment(pos_t,count);
-		votedCount = 0;
+		votedCount=0;
 	}
 
+	public Classifier getClassifier(){
 
-	public Classifier getClassifier() {	
-		
 		if(voted){
 			updateVotedHyperplane(votedCount);//first, update it			
-			Hyperplane zpos = new Hyperplane();
-			zpos.increment(vpos_t, 1/(double)excount);
+			Hyperplane zpos=new Hyperplane();
+			zpos.increment(vpos_t,1/(double)excount);
 			return new MyClassifier(zpos,theta);
+		}else{
+			return new MyClassifier(pos_t,theta);
 		}
-		else{			
-			return new MyClassifier(pos_t, theta);			
-		}
-	}
-	
-	//returns positive number if majority of feature history was positive, and negative otherwise
-	public int getHistory(ArrayList ll){
-		int tmp = 0;
-		for(int i=1; i<ll.size(); i++){
-			if(((ClassLabel)ll.get(i)).isPositive()) tmp++;
-			else tmp--;
-		}
-		return (tmp==0)? +1:tmp;
 	}
 
-	public String toString() {
+	//returns positive number if majority of feature history was positive, and negative otherwise
+	public int getHistory(List<ClassLabel> ll){
+		int tmp=0;
+		for(int i=1;i<ll.size();i++){
+			if(((ClassLabel)ll.get(i)).isPositive())
+				tmp++;
+			else
+				tmp--;
+		}
+		return (tmp==0)?+1:tmp;
+	}
+
+	public String toString(){
 		return "RegretWinnow: voted="+voted+", regret="+mode;
 	}
-	
-	 public class MyClassifier implements Classifier, Serializable,Visible
-	 {
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_SERIAL_VERSION = 1;
-		
-		private Hyperplane lpos_h, lneg_h;
-		private ExampleSchema schema;
+
+	public class MyClassifier implements Classifier,Serializable,Visible{
+
+		static private final long serialVersionUID=20080130L;
+
+//		private final int CURRENT_SERIAL_VERSION=1;
+
+		private Hyperplane lpos_h;
+		//private Hyperplane lneg_h;
+
+		//private ExampleSchema schema;
+
 		private double mytheta;//theta parameter from Winnow
-		
-		public MyClassifier(Hyperplane pos_h, double mytheta) 
-		{	
-		    this.lpos_h = pos_h;
-		    this.mytheta=mytheta;
+
+		public MyClassifier(Hyperplane pos_h,double mytheta){
+			this.lpos_h=pos_h;
+			this.mytheta=mytheta;
 		}
+
 		//implements winnow decision rule
-		public ClassLabel classification(Instance instance1) 
-		{
+		public ClassLabel classification(Instance instance1){
 			//winnow decision rule
-			Example a1 = new Example(instance1,new ClassLabel("POS"));//dummy label
-			Example aa = filterFeat(a1);
-			Example example1 = Winnow.normalizeWeights(aa,true);
-			Instance instance = example1.asInstance();			
-			double dec = lpos_h.score(instance)- mytheta;
-			return dec>=0 ? ClassLabel.positiveLabel(dec) : ClassLabel.negativeLabel(dec); 
+			Example a1=new Example(instance1,new ClassLabel("POS"));//dummy label
+			Example aa=filterFeat(a1);
+			Example example1=Winnow.normalizeWeights(aa,true);
+			Instance instance=example1.asInstance();
+			double dec=lpos_h.score(instance)-mytheta;
+			return dec>=0?ClassLabel.positiveLabel(dec):ClassLabel.negativeLabel(dec);
 		}
-		
+
 //		only consider features in the hyperplane - disregard others
 		public Example filterFeat(Example ex){
-			MutableInstance ins= new MutableInstance();
-			for(Feature.Looper i=ex.asInstance().featureIterator(); i.hasNext();){
-				Feature f = i.nextFeature();			
+			MutableInstance ins=new MutableInstance();
+			for(Iterator<Feature> i=ex.asInstance().featureIterator();i.hasNext();){
+				Feature f=i.next();
 				if((lpos_h.hasFeature(f))){
 					ins.addNumeric(f,ex.getWeight(f));
 				}
-			}			
+			}
 			return new Example(ins,ex.getLabel());
 		}
-		
+
 		public String toString(){
 			return "POS = "+lpos_h.toString();
 		}
-		
-		public String explain(Instance instance) 
-		{
+
+		public String explain(Instance instance){
 			return "BalancedWinnow: Not implemented yet";
 		}
-		
-		public Explanation getExplanation(Instance instance) {
-		    Explanation.Node top = new Explanation.Node("BalancedWinnow Explanation");
-		    Explanation ex = new Explanation(top);		    
-		    return ex;
+
+		public Explanation getExplanation(Instance instance){
+			Explanation.Node top=new Explanation.Node("BalancedWinnow Explanation");
+			Explanation ex=new Explanation(top);
+			return ex;
 		}
 
-		public Viewer toGUI()
-		{
-		    Viewer v = new TransformedViewer(new SmartVanillaViewer()) {
-			    public Object transform(Object o) {
-				MyClassifier mycl = (MyClassifier)o;
-				return (Classifier)mycl.lpos_h;//bug!
-			    }
+		public Viewer toGUI(){
+			Viewer v=new TransformedViewer(new SmartVanillaViewer()){
+				static final long serialVersionUID=20080130L;
+				public Object transform(Object o){
+					MyClassifier mycl=(MyClassifier)o;
+					return (Classifier)mycl.lpos_h;//bug!
+				}
 			};
-		    v.setContent(this);
-		    return v;
+			v.setContent(this);
+			return v;
 		}
-	 }
+	}
 }
-
-

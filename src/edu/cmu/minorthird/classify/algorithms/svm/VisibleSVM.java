@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -168,10 +169,10 @@ public class VisibleSVM implements Visible,Serializable{
 	 */
 	private void addInfoToHyperplane(int exampleIndex,int hyperplaneIndex){
 
-		for(Feature.Looper flidx=m_examples[exampleIndex].featureIterator();flidx
+		for(Iterator<Feature> flidx=m_examples[exampleIndex].featureIterator();flidx
 				.hasNext();){
 
-			Feature ftemp=flidx.nextFeature();
+			Feature ftemp=flidx.next();
 
 			double featureWeightTemp=m_examples[exampleIndex].getWeight(ftemp);
 
@@ -326,10 +327,10 @@ public class VisibleSVM implements Visible,Serializable{
 		for(int index=0;index<numOfSupportVectors;++index){
 
 			// loop through each features in current looped example
-			for(Feature.Looper flidx=m_examples[index].featureIterator();flidx
+			for(Iterator<Feature> flidx=m_examples[index].featureIterator();flidx
 					.hasNext();){
 
-				Feature ftemp=flidx.nextFeature();
+				Feature ftemp=flidx.next();
 
 				double featureWeightTemp=m_examples[index].getWeight(ftemp);//get weight of feature
 

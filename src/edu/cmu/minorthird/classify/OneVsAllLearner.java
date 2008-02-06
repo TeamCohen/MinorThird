@@ -136,13 +136,13 @@ public class OneVsAllLearner implements ClassifierLearner{
 		}
 	}
 
-	public void setInstancePool(Instance.Looper looper){
+	public void setInstancePool(Iterator<Instance> iterator){
 		List<Instance> list=new ArrayList<Instance>();
-		while(looper.hasNext()){
-			list.add(looper.next());
+		while(iterator.hasNext()){
+			list.add(iterator.next());
 		}
 		for(int i=0;i<innerLearner.size();i++){
-			innerLearner.get(i).setInstancePool(new Instance.Looper(list));
+			innerLearner.get(i).setInstancePool(list.iterator());
 		}
 	}
 

@@ -19,59 +19,56 @@ import java.util.TreeMap;
 //
 // easily extends to k-class case
 //
+public class QueryByCommittee implements ClassifierLearner{
 
-public class QueryByCommittee implements ClassifierLearner
-{
-	static private Logger log = Logger.getLogger(QueryByCommittee.class);
+	static private Logger log=Logger.getLogger(QueryByCommittee.class);
 
 	private ClassifierLearner innerLearner;
+
 	/** Min number of labels to passively accept before starting to actively query */
-	private int minLabelsBeforeQuerying = 5;
-	
+	private int minLabelsBeforeQuerying=5;
 
 	private CommitteeLearner committeeLearner;
+
 	private ExampleSchema schema;
 
 	// need better data structure that supports easy removal,
 	// perhaps a treemap with random indices.
-	private TreeMap unlabeled;
+	private TreeMap<Double,Instance> unlabeled;
+
 	private RandomAccessDataset labeled;
 
-	public QueryByCommittee()
-	{
-		this(new DecisionTreeLearner(), 5);
+	public QueryByCommittee(){
+		this(new DecisionTreeLearner(),5);
 	}
 
-	public QueryByCommittee(BatchClassifierLearner learner,int committeeSize) 
-	{
-		this.committeeLearner = new CommitteeLearner(learner,committeeSize);
-		this.innerLearner = learner;
+	public QueryByCommittee(BatchClassifierLearner learner,int committeeSize){
+		this.committeeLearner=new CommitteeLearner(learner,committeeSize);
+		this.innerLearner=learner;
 		reset();
 	}
 
-    public ClassifierLearner copy() {
-	ClassifierLearner learner = null;
-	try{
-	    learner = (ClassifierLearner)this.clone();
-	    learner.reset();
-	} catch (Exception e) {
-	    e.printStackTrace();
+	public ClassifierLearner copy(){
+		ClassifierLearner learner=null;
+		try{
+			learner=(ClassifierLearner)this.clone();
+			learner.reset();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return learner;
 	}
-	return learner;
-    }
 
-	final public void reset()
-	{
-		unlabeled = new TreeMap();
-		labeled = new RandomAccessDataset();
+	final public void reset(){
+		unlabeled=new TreeMap<Double,Instance>();
+		labeled=new RandomAccessDataset();
 		innerLearner.reset();
 	}
 
-	final public void setSchema(ExampleSchema schema)
-	{
-		this.schema = schema;
+	final public void setSchema(ExampleSchema schema){
+		this.schema=schema;
 	}
-	
+
 	final public ExampleSchema getSchema(){
 		return schema;
 	}
@@ -80,74 +77,70 @@ public class QueryByCommittee implements ClassifierLearner
 	// active learning code
 	//
 
-	final public void setInstancePool(Instance.Looper i) 
-	{  
+	final public void setInstancePool(Iterator<Instance> i){
 		unlabeled.clear();
-		Random r = new Random(0);
-		while (i.hasNext()) {
-			unlabeled.put(new Double(r.nextDouble()), i.nextInstance());
+		Random r=new Random(0);
+		while(i.hasNext()){
+			unlabeled.put(r.nextDouble(),i.next());
 		}
 		log.info(unlabeled.size()+" unlabeled examples available");
 	}
 
-	final public boolean hasNextQuery() 
-	{ 
+	final public boolean hasNextQuery(){
 		return unlabeled.size()>0;
 	}
 
-	final public Instance nextQuery() 
-	{ 
-		Object key = null;
-		if (labeled.size()<minLabelsBeforeQuerying) {
+	final public Instance nextQuery(){
+		Object key=null;
+		if(labeled.size()<minLabelsBeforeQuerying){
 			log.info("will pick next unlabeled example");
-			key = unlabeled.firstKey();
-		} else {
+			key=unlabeled.firstKey();
+		}else{
 			log.info("will use committee to pick an unlabeled example");
-			Classifier[] committee = committeeLearner.batchTrainCommittee(labeled);
-			key = keyOfBestUnlabeledInstance( committee );
+			Classifier[] committee=committeeLearner.batchTrainCommittee(labeled);
+			key=keyOfBestUnlabeledInstance(committee);
 		}
-		Instance query = (Instance)unlabeled.get(key);
+		Instance query=(Instance)unlabeled.get(key);
 		unlabeled.remove(key);
 		return query;
 	}
 
-	private Object keyOfBestUnlabeledInstance( Classifier[] committee )
-	{
-			// find the unlabeled example with the highest level of disagreement
-			double worstAgreement = 2.0;
-			Object queryKey = null;
-			for (Iterator i=unlabeled.keySet().iterator(); i.hasNext(); ) {
-				Object key = i.next();
-				Instance instance = (Instance)unlabeled.get(key);
-				TObjectDoubleHashMap counts = new TObjectDoubleHashMap();
-				double biggestCount=0;
-				for (int j=0; j<committee.length; j++) {
-					String best = committee[j].classification(instance).bestClassName();
-					double c = counts.get(best) + 1;
-					counts.put(best, c);
-					if (c>biggestCount) biggestCount = c;
-				}
-				double agreement = biggestCount/committee.length;
-				log.info("instance: "+instance+" committee: "+counts+" agreement: "+agreement);
-				if (agreement<worstAgreement) {
-					worstAgreement = agreement;
-					queryKey = key;
-					log.debug(" ==> best");
-				}
+	private Object keyOfBestUnlabeledInstance(Classifier[] committee){
+		// find the unlabeled example with the highest level of disagreement
+		double worstAgreement=2.0;
+		Object queryKey=null;
+		for(Iterator<Double> i=unlabeled.keySet().iterator();i.hasNext();){
+			Object key=i.next();
+			Instance instance=(Instance)unlabeled.get(key);
+			TObjectDoubleHashMap counts=new TObjectDoubleHashMap();
+			double biggestCount=0;
+			for(int j=0;j<committee.length;j++){
+				String best=committee[j].classification(instance).bestClassName();
+				double c=counts.get(best)+1;
+				counts.put(best,c);
+				if(c>biggestCount)
+					biggestCount=c;
 			}
-			log.info("queryInstance is: "+unlabeled.get(queryKey));
-			return queryKey;
+			double agreement=biggestCount/committee.length;
+			log.info("instance: "+instance+" committee: "+counts+" agreement: "+
+					agreement);
+			if(agreement<worstAgreement){
+				worstAgreement=agreement;
+				queryKey=key;
+				log.debug(" ==> best");
+			}
+		}
+		log.info("queryInstance is: "+unlabeled.get(queryKey));
+		return queryKey;
 	}
 
-	public void addExample(Example example)
-	{
+	public void addExample(Example example){
 		log.info("adding example: "+example);
 		labeled.add(example);
 		innerLearner.addExample(example);
 	}
 
-	final public void completeTraining() 
-	{ 
+	final public void completeTraining(){
 		innerLearner.completeTraining();
 	}
 
@@ -155,8 +148,7 @@ public class QueryByCommittee implements ClassifierLearner
 	// get trained classifier
 	//
 
-	public Classifier getClassifier() 
-	{
+	public Classifier getClassifier(){
 		return innerLearner.getClassifier();
-	}	
+	}
 }

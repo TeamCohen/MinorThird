@@ -3,10 +3,6 @@
 package edu.cmu.minorthird.classify;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-
-import edu.cmu.minorthird.util.AbstractLooper;
 
 /**
  * A name for a feature.  Features are hierarchical, so names are
@@ -121,11 +117,11 @@ public class Feature implements Comparable<Feature>,Serializable{
 		return id;
 	}
 
-	static public class Looper extends AbstractLooper<Feature>{
-		public Looper(Iterator<Feature> i){super(i);}
-		public Looper(Collection<Feature> c){super(c);}
-		public Feature nextFeature(){return next();}
-	}
+//	static public class Looper extends AbstractLooper<Feature>{
+//		public Looper(Iterator<Feature> i){super(i);}
+//		public Looper(Collection<Feature> c){super(c);}
+//		public Feature nextFeature(){return next();}
+//	}
 
 //	/**
 //	* Creates Features.

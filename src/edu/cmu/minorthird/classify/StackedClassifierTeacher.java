@@ -9,36 +9,38 @@ import java.util.*;
  * @author Zhenzhen Kou
  *
  */
-public abstract class StackedClassifierTeacher extends ClassifierTeacher
-{
+public abstract class StackedClassifierTeacher extends ClassifierTeacher{
 
 	/** Train a StackedGraphicalLearner and return the learned Classifier, using
 	 * some unspecified source of information to get labels.  
 	 */
 
-	final public Classifier trainStacked(StackedBatchClassifierLearner learner) 
-	{
+	final public Classifier trainStacked(StackedBatchClassifierLearner learner){
+		
 		// initialize the learner for a new problem
 		learner.reset();
 
 		// tell learner the schema of examples
-		learner.setSchema( schema() );
-		learner.RelDataset.setAggregators(this.getAggregators());
-		learner.RelDataset.setLinksMap(this.getLinksMap());
+		learner.setSchema(schema());
+		
+		// I am commenting out the two lines below because they don't do anything - frank
+		// learner.RelDataset.setAggregators(this.getAggregators());
+		// learner.RelDataset.setLinksMap(this.getLinksMap());
+		
 		// provide unlabeled examples to the learner, for unsupervised
 		// training, semi-supervised training, or active learner
-		learner.setInstancePool( instancePool() );
+		learner.setInstancePool(instancePool());
 
 		// passive learning from already-available labeled data
-		for (Example.Looper i=examplePool(); i.hasNext(); ) {
-			learner.addExample( i.nextExample() );
+		for(Iterator<Example> i=examplePool();i.hasNext();){
+			learner.addExample(i.next());
 		}
 		// active learning 
-		while (learner.hasNextQuery() && hasAnswers()) {
-			Instance query = learner.nextQuery();
-			Example answeredQuery = labelInstance(query);
-			if (answeredQuery!=null) {
-				learner.addExample( answeredQuery );
+		while(learner.hasNextQuery()&&hasAnswers()){
+			Instance query=learner.nextQuery();
+			Example answeredQuery=labelInstance(query);
+			if(answeredQuery!=null){
+				learner.addExample(answeredQuery);
 			}
 		}
 		// signal that there's no more data available
@@ -47,14 +49,13 @@ public abstract class StackedClassifierTeacher extends ClassifierTeacher
 		// final result
 		return learner.getClassifier();
 	}
-	
 
 	/** The linkMaps for stacked graphical learning
 	 */
-	abstract protected HashMap getLinksMap();
+	abstract protected Map<String,Map<String,Set<String>>> getLinksMap();
 
 	/** The Aggregators for stacked graphical learning
 	 */
-	abstract protected HashMap getAggregators();
+	abstract protected Map<String,Set<String>> getAggregators();
 
 }

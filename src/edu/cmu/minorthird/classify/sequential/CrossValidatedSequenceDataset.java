@@ -1,15 +1,20 @@
 package edu.cmu.minorthird.classify.sequential;
 
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.log4j.Logger;
+
 import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.classify.experiments.Evaluation;
 import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.gui.*;
-import org.apache.log4j.Logger;
-
-import java.util.Set;
-import java.util.TreeSet;
+import edu.cmu.minorthird.util.gui.ParallelViewer;
+import edu.cmu.minorthird.util.gui.TransformedViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /** 
  * View result of some sort of train/test experiment
@@ -64,8 +69,8 @@ public class CrossValidatedSequenceDataset implements Visible
 	private void showSubpops(String msg,SequenceDataset d)
 	{
 		Set ids = new TreeSet();
-		for (Example.Looper i=d.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
+		for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
+			Example e = i.next();
 			ids.add(e.getSubpopulationId());
 		}
 		log.debug(msg+ids.toString());

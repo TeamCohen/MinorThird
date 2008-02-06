@@ -1,8 +1,8 @@
 package edu.cmu.minorthird.classify.semisupervised;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
 
-import java.util.Collections;
+import edu.cmu.minorthird.classify.Instance;
 
 
 /**
@@ -28,7 +28,7 @@ public class DatasetSemiSupervisedClassifierTeacher implements SemiSupervisedCla
       return (SemiSupervisedClassifier)batchLearner.batchTrain(dataset);
    }
 
-   public Instance.Looper instancePool()
+   public Iterator<Instance> instancePool()
    {
       //System.out.println("in instancePool()");
       // (Edoardo Airoldi)  this itearator is empty whenever there are no

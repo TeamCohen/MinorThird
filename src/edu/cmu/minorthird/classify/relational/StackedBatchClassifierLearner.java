@@ -1,6 +1,12 @@
 package edu.cmu.minorthird.classify.relational;
 
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.SGMExample;
 /**
  * Abstract ClassifierLearner which instantiates the teacher-learner protocol
  * so as to implement a stacked batch learner.
@@ -38,7 +44,7 @@ public abstract class StackedBatchClassifierLearner implements ClassifierLearner
 		RelDataset = new RealRelationalDataset(); 
 		classifier = null; 
 	}
-	final public void setInstancePool(Instance.Looper i) { ; }
+	final public void setInstancePool(Iterator<Instance> i) { ; }
 	final public boolean hasNextQuery() { return false; }
 	final public Instance nextQuery() { return null; }
 	final public void addExample(Example answeredQuery) { RelDataset.addSGM((SGMExample)answeredQuery); classifier=null; }

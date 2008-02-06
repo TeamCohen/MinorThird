@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.classify;
 
+import java.util.Iterator;
+
 
 
 /**
@@ -26,8 +28,8 @@ public abstract class ClassifierTeacher
 		learner.setInstancePool( instancePool() );
 
 		// passive learning from already-available labeled data
-		for (Example.Looper i=examplePool(); i.hasNext(); ) {
-			learner.addExample( i.nextExample() );
+		for (Iterator<Example> i=examplePool(); i.hasNext(); ) {
+			learner.addExample( i.next() );
 		}
 
 		// active learning 
@@ -57,13 +59,13 @@ public abstract class ClassifierTeacher
 	/** Labeled instances that will be sent to the learner
 	 * via a call to addExample().
 	 */
-	abstract protected Example.Looper examplePool();
+	abstract protected Iterator<Example> examplePool();
 
 	/** Unlabeled instances, which will be provided to the learner via
 	 * setInstancePool().  These can be used for semi-supervised
 	 * learner, or to form queries for active learning.
 . */
-	abstract protected Instance.Looper instancePool();
+	abstract protected Iterator<Instance> instancePool();
 
 	/** Label an Instance chosen by the learner.  Return null if the
 	 * query can't be answered, otherwise return a labeled version of

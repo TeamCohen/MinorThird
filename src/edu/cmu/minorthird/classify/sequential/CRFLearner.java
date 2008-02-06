@@ -186,7 +186,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	};
 
 	class  MTFeatureTypes extends iitb.Model.FeatureTypes {
-		Feature.Looper featureLooper;
+		Iterator<Feature> featureLooper;
 		Feature feature;
 		int numStates;
 		Instance example;
@@ -200,7 +200,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 			if (stateId < numStates)
 				return;
 			if (featureLooper.hasNext()) {
-				feature = featureLooper.nextFeature();
+				feature = featureLooper.next();
 				stateId = 0;
 			} else {
 				feature = null;
@@ -210,7 +210,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		boolean startScan() {
 			stateId = -1;
 			if (featureLooper.hasNext()) {
-				feature = featureLooper.nextFeature();
+				feature = featureLooper.next();
 				advance();
 			} else {
 				feature = null;

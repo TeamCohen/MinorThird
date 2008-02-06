@@ -28,71 +28,82 @@ import java.io.*;
  *  = sum_f log [Pr(f|+) - Pr(f|-)] + log Pr(+) - log Pr(-i)
  */
 
-public class NaiveBayes extends OnlineBinaryClassifierLearner implements Serializable
-{
-    private static Logger log = Logger.getLogger(NaiveBayes.class);
+public class NaiveBayes extends OnlineBinaryClassifierLearner implements
+		Serializable{
+	
+	static final long serialVersionUID=20080130L;
 
-    private Hyperplane numGivenPos, numGivenNeg;
-    private Set featureSet;
-    private double numPos, numNeg;
+	private static Logger log=Logger.getLogger(NaiveBayes.class);
 
-    public NaiveBayes()	{ 
-	super();
-	reset();	
-    }
+	private Hyperplane numGivenPos,numGivenNeg;
 
-    public void reset() 
-    {
-	log.info("resetting NaiveBayes");
-	numGivenPos = new Hyperplane();
-	numGivenNeg = new Hyperplane();
-	featureSet = new HashSet();
-	numPos=0;
-	numNeg=0;
-    }
+	private Set<Feature> featureSet;
 
-    public void addExample(Example example) 
-    {
-	boolean isPos = example.getLabel().isPositive();
-	if (isPos)numPos += example.getWeight();
-	else numNeg += example.getWeight();
-	for (Feature.Looper i=example.featureIterator(); i.hasNext(); ) {
-	    Feature f = i.nextFeature();
-	    if (isPos) numGivenPos.increment(f, 1);
-	    else numGivenNeg.increment(f, 1);
-	    featureSet.add( f );
+	private double numPos,numNeg;
+
+	public NaiveBayes(){
+		super();
+		reset();
 	}
-    }
 
-    public Classifier getClassifier() 
-    {
-	Hyperplane c = new Hyperplane();
-	for (Iterator i=featureSet.iterator(); i.hasNext(); ) {
-	    Feature f = (Feature)i.next();
-	    double featurePrior = getFeaturePrior();
-	    double m = getFeaturePriorPseudoCount();
-	    double pweight = estimatedLogProb( numGivenPos.featureScore(f), numPos, featurePrior, m );
-	    double nweight = estimatedLogProb( numGivenNeg.featureScore(f), numNeg, featurePrior, m );
-	    c.increment( f, pweight - nweight );
+	public void reset(){
+		log.info("resetting NaiveBayes");
+		numGivenPos=new Hyperplane();
+		numGivenNeg=new Hyperplane();
+		featureSet=new HashSet<Feature>();
+		numPos=0;
+		numNeg=0;
 	}
-	c.incrementBias( +estimatedLogProb(numPos, numPos+numNeg, 0.5, 1.0 ) );
-	c.incrementBias( -estimatedLogProb(numNeg, numPos+numNeg, 0.5, 1.0 ) );
-	// note these weights are multiplied by feature values when classifying,
-	// which gives the multinomial Naive Bayes implementation.
-	return c;
-    }
 
-    private double estimatedLogProb(double k, double n, double prior, double pseudoCounts) {
-	return Math.log( (k+prior*pseudoCounts) / (n+pseudoCounts) );
-    }
+	public void addExample(Example example){
+		boolean isPos=example.getLabel().isPositive();
+		if(isPos)
+			numPos+=example.getWeight();
+		else
+			numNeg+=example.getWeight();
+		for(Iterator<Feature> i=example.featureIterator();i.hasNext();){
+			Feature f=i.next();
+			if(isPos)
+				numGivenPos.increment(f,1);
+			else
+				numGivenNeg.increment(f,1);
+			featureSet.add(f);
+		}
+	}
 
-    private double getFeaturePrior() {
-	return 1.0 / featureSet.size();
-    }
+	public Classifier getClassifier(){
+		Hyperplane c=new Hyperplane();
+		for(Iterator<Feature> i=featureSet.iterator();i.hasNext();){
+			Feature f=i.next();
+			double featurePrior=getFeaturePrior();
+			double m=getFeaturePriorPseudoCount();
+			double pweight=
+					estimatedLogProb(numGivenPos.featureScore(f),numPos,featurePrior,m);
+			double nweight=
+					estimatedLogProb(numGivenNeg.featureScore(f),numNeg,featurePrior,m);
+			c.increment(f,pweight-nweight);
+		}
+		c.incrementBias(+estimatedLogProb(numPos,numPos+numNeg,0.5,1.0));
+		c.incrementBias(-estimatedLogProb(numNeg,numPos+numNeg,0.5,1.0));
+		// note these weights are multiplied by feature values when classifying,
+		// which gives the multinomial Naive Bayes implementation.
+		return c;
+	}
 
-    private double getFeaturePriorPseudoCount() {
-	return 1.0;
-    }
+	private double estimatedLogProb(double k,double n,double prior,
+			double pseudoCounts){
+		return Math.log((k+prior*pseudoCounts)/(n+pseudoCounts));
+	}
 
-    public String toString() { return "[NaiveBayes]"; }
+	private double getFeaturePrior(){
+		return 1.0/featureSet.size();
+	}
+
+	private double getFeaturePriorPseudoCount(){
+		return 1.0;
+	}
+
+	public String toString(){
+		return "[NaiveBayes]";
+	}
 }

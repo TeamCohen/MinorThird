@@ -2,15 +2,23 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
-import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
-import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner;
-import edu.cmu.minorthird.util.gui.*;
+import java.awt.BorderLayout;
+import java.util.Iterator;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner;
+import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
+import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  * Stacked generalization.  This implementation is based on Wolpert,
@@ -28,12 +36,12 @@ public class StackedLearner extends BatchClassifierLearner
 	private ExampleSchema schema;
 	private BatchClassifierLearner[] innerLearners;
 	private BatchClassifierLearner finalLearner;
-	private Splitter splitter;
+	private Splitter<Example> splitter;
 
 	/** Use stacked learning to calibrate the predictions of the inner learner
 	 * using logistic regression.
 	 */
-	public StackedLearner(BatchClassifierLearner innerLearner,Splitter splitter)
+	public StackedLearner(BatchClassifierLearner innerLearner,Splitter<Example> splitter)
 	{
 		this(
 				new BatchClassifierLearner[]{innerLearner},	 
@@ -48,7 +56,7 @@ public class StackedLearner extends BatchClassifierLearner
 		this(
 				new BatchClassifierLearner[]{innerLearner},	 
 				new MaxEntLearner(),
-				new CrossValSplitter(3));
+				new CrossValSplitter<Example>(3));
 	}
 	/** Use stacked learning to calibrate the predictions of AdaBoost
 	 * using logistic regression, using 3-CV to split.
@@ -58,22 +66,22 @@ public class StackedLearner extends BatchClassifierLearner
 		this(
 				new BatchClassifierLearner[]{new AdaBoost()},	 
 				new MaxEntLearner(),
-				new CrossValSplitter(3));
+				new CrossValSplitter<Example>(3));
 	}
 	/** Create a stacked learner.
 	 */
 	public StackedLearner(
 			BatchClassifierLearner[] innerLearners,
 			BatchClassifierLearner finalLearner,
-			Splitter splitter)
+			Splitter<Example> splitter)
 	{
 		this.innerLearners = innerLearners;
 		this.finalLearner = finalLearner;
 		this.splitter = splitter;
 	}
 
-	public Splitter getSplitter() { return splitter; }
-	public void setSplitter(Splitter splitter) {  this.splitter=splitter; }
+	public Splitter<Example> getSplitter() { return splitter; }
+	public void setSplitter(Splitter<Example> splitter) {  this.splitter=splitter; }
 	public void setInnerLearner(BatchClassifierLearner learner) 
 	{ 
 		this.innerLearners = new BatchClassifierLearner[]{learner};
@@ -117,8 +125,8 @@ public class StackedLearner extends BatchClassifierLearner
 			}
 			Dataset testData = split.getTest(k);
 			log.info("transforming test examples of fold "+(k+1)+"/"+split.getNumPartitions());
-			for (Example.Looper j=testData.iterator(); j.hasNext(); ) {
-				Example e = j.nextExample();
+			for (Iterator<Example> j=testData.iterator(); j.hasNext(); ) {
+				Example e = j.next();
 				stackedData.add(new Example(transformInstance(schema,e,innerClassifiers), e.getLabel()));
 			}
 		}

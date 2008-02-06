@@ -74,8 +74,8 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
       //System.out.println( "class="+classNames.get(0)+" counts="+featureGivenClassParameters.get(0) );
       //System.out.println( "class="+classNames.get(1)+" counts="+featureGivenClassParameters.get(1) );
       double total = 0.0;
-      for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
-         Feature f = j.nextFeature();
+      for (Iterator<Feature> j=instance.featureIterator(); j.hasNext(); ) {
+         Feature f = j.next();
          total += instance.getWeight(f);
       }
 
@@ -84,8 +84,8 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
       {
          score[i] = 0.0;
          //System.out.println("instance="+instance);
-         for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
-            Feature f = j.nextFeature();
+         for (Iterator<Feature> j=instance.featureIterator(); j.hasNext(); ) {
+            Feature f = j.next();
             double featureCounts = instance.getWeight(f);
             double featureProb = ((WeightedSet)featureGivenClassParameters.get(i)).getWeight(f);
             //System.out.println("feature="+f+" counts="+featureCounts+" prob="+featureProb+" class="+classProb);
@@ -118,8 +118,8 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
    public String explain(Instance instance)
    {
       StringBuffer buf = new StringBuffer("");
-      for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
-         Feature f = j.nextFeature();
+      for (Iterator<Feature> j=instance.featureIterator(); j.hasNext(); ) {
+         Feature f = j.next();
          if (buf.length()>0) buf.append("\n + ");
          else buf.append("   ");
          //buf.append( f+"<"+instance.getWeight(f)+"*"+featureScore(f)+">");
@@ -132,8 +132,8 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
     public Explanation getExplanation(Instance instance) {
 	Explanation.Node top = new Explanation.Node("MultinomialClassifier Explanation");
 	Explanation.Node features = new Explanation.Node("Features");
-	for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
-	    Feature f = j.nextFeature();
+	for (Iterator<Feature> j=instance.featureIterator(); j.hasNext(); ) {
+	    Feature f = j.next();
 	    Explanation.Node featureEx = new Explanation.Node( f+"<"+instance.getWeight(f));
 	    features.add(featureEx);
 	}
@@ -181,8 +181,8 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
       Instance instance = example.asInstance();
       double loglik = 0.0;
       //System.out.println("instance="+instance);
-      for (Feature.Looper j=instance.featureIterator(); j.hasNext(); ) {
-         Feature f = j.nextFeature();
+      for (Iterator<Feature> j=instance.featureIterator(); j.hasNext(); ) {
+         Feature f = j.next();
          double featureCounts = instance.getWeight(f);
          double featureProb = ((WeightedSet)featureGivenClassParameters.get(idx)).getWeight(f);
          double classProb = ((Double)classParameters.get(idx)).doubleValue();
@@ -282,7 +282,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
       }
    }
 
-   public Feature.Looper featureIterator()
+   public Iterator<Feature> featureIterator()
    {
       // 1. create a new WeightedSet with all features
       TObjectDoubleHashMap map = new TObjectDoubleHashMap();
@@ -303,7 +303,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
          public Object next() { ti.advance(); return ti.key(); }
          public void remove() { ti.remove(); }
       };
-      return new Feature.Looper(i);
+      return i;
    }
 
    public Object[] keys()
@@ -374,8 +374,8 @@ public class MultinomialClassifier implements SemiSupervisedClassifier, Classifi
          Object[] keys = h.keys();
          Object[][] tableData = new Object[keys.length][(h.classNames.size()+1)];
          int k=0;
-         for (Feature.Looper i=h.featureIterator(); i.hasNext(); ) {
-            Feature f = i.nextFeature();
+         for (Iterator<Feature> i=h.featureIterator(); i.hasNext(); ) {
+            Feature f = i.next();
             tableData[k][0] = f;
             for (int l=0; l<h.classNames.size(); l++)
             {

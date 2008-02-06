@@ -117,9 +117,9 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
     }
 
 	/** Iterate over all examples, extended so as to contain history information. */
-	public Example.Looper iterator()
+	public Iterator<Example> iterator()
 	{
-		return new Example.Looper(new MyIterator());
+		return new MyIterator();
 	}
 
 	/** Return the number of examples. */
@@ -136,7 +136,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 
 	/** Return an iterator over all sequences. 
 	 * Each item returned by this will be of type Example[]. */
-	public Iterator sequenceIterator()
+	public Iterator<Example[]> sequenceIterator()
 	{
 		return sequenceList.iterator();
 	}
@@ -281,8 +281,8 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 			SequenceDataset d = (SequenceDataset)o;
 			final Example[] arr = new Example[d.size()];
 			int k=0;
-			for (Example.Looper i=d.iterator(); i.hasNext(); ) {
-				arr[k++] = i.nextExample();
+			for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
+				arr[k++] = i.next();
 			}
 			JList jList = new JList(arr);
 			jList.setCellRenderer( new ListCellRenderer() {

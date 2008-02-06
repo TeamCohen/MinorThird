@@ -2,13 +2,23 @@
 
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.DatasetClassifierTeacher;
+import edu.cmu.minorthird.classify.DatasetLoader;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.SampleDatasets;
+import edu.cmu.minorthird.classify.Splitter;
+import edu.cmu.minorthird.util.BasicCommandLineProcessor;
+import edu.cmu.minorthird.util.CommandLineProcessor;
+import edu.cmu.minorthird.util.IOUtil;
+import edu.cmu.minorthird.util.StringUtil;
+import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 /** Simple experiment on a classifier.
  *
@@ -18,7 +28,7 @@ import java.io.Serializable;
 public class Expt implements CommandLineProcessor.Configurable
 {
    private Dataset trainData=null, testData=null;
-   private Splitter splitter=null;
+   private Splitter<Example> splitter=null;
    private ClassifierLearner learner=null;
    private String splitterArg=null,trainArg=null,testArg=null,learnerArg=null;
 
@@ -35,7 +45,7 @@ public class Expt implements CommandLineProcessor.Configurable
       public void test(String s) {
          try {
             testData = toDataset(s);
-            splitter = new FixedTestSetSplitter(testData.iterator());
+            splitter = new FixedTestSetSplitter<Example>(testData.iterator());
             testArg = s;
          } catch (IOException ex) {
             throw new IllegalArgumentException("Error loading "+s+": "+ex);
@@ -67,7 +77,7 @@ public class Expt implements CommandLineProcessor.Configurable
       this.testData = testData;
       this.splitter = null;
    }
-   public Expt(ClassifierLearner learner,Dataset trainData,Splitter splitter)
+   public Expt(ClassifierLearner learner,Dataset trainData,Splitter<Example> splitter)
    {
       this.learner = learner;
       this.trainData = trainData;
@@ -90,7 +100,7 @@ public class Expt implements CommandLineProcessor.Configurable
          } else if (opt.startsWith("-te")) {
             if (splitter!=null) throw new IllegalArgumentException("only one of splitter, testData allowed");
             testData = toDataset(testArg = args[pos++]);
-            splitter = new FixedTestSetSplitter(testData.iterator());
+            splitter = new FixedTestSetSplitter<Example>(testData.iterator());
          } else if (opt.startsWith("-spl")) {
             if (splitter!=null) throw new IllegalArgumentException("only one of splitter, testData allowed");
             splitter = toSplitter(splitterArg = args[pos++]);
@@ -103,7 +113,7 @@ public class Expt implements CommandLineProcessor.Configurable
       if (trainData==null || learner==null)
          throw new IllegalArgumentException("learner and trainData must be specified");
       if (testData==null && splitter==null)
-         splitter = new FixedTestSetSplitter(trainData.iterator());
+         splitter = new FixedTestSetSplitter<Example>(trainData.iterator());
    }
 
    public Evaluation evaluation()
@@ -133,22 +143,22 @@ public class Expt implements CommandLineProcessor.Configurable
 
    /** Decode splitter names.
     */
-   static public Splitter toSplitter(String splitterName)
+   static public Splitter<Example> toSplitter(String splitterName)
    {
       if (splitterName.charAt(0)=='k') {
          int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
-         return new CrossValSplitter(folds);
+         return new CrossValSplitter<Example>(folds);
       }
       if (splitterName.charAt(0)=='r') {
          double pct = StringUtil.atoi(splitterName.substring(1,splitterName.length())) / 100.0;
-         return new RandomSplitter(pct);
+         return new RandomSplitter<Example>(pct);
       }
       if (splitterName.charAt(0)=='s') {
          int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
          return new StratifiedCrossValSplitter(folds);
       }
       if (splitterName.startsWith("l")) {
-         return new LeaveOneOutSplitter();
+         return new LeaveOneOutSplitter<Example>();
       }
       throw new IllegalArgumentException("illegal splitterName '"+splitterName+"'");
    }
@@ -231,11 +241,11 @@ public class Expt implements CommandLineProcessor.Configurable
                String what = args[pos++];
                if (what.startsWith("eval")) {
                   Evaluation v = expt.evaluation();
-                  ViewerFrame f = new ViewerFrame("Evaluation", v.toGUI());
+                  new ViewerFrame("Evaluation", v.toGUI());
                } else if (what.startsWith("all")) {
                   boolean saveTrain = "all+".equals(what);
                   CrossValidatedDataset cdv = expt.crossValidatedDataset(saveTrain);
-                  ViewerFrame f = new ViewerFrame("CrossValidatedDataset", cdv.toGUI());
+                  new ViewerFrame("CrossValidatedDataset", cdv.toGUI());
                } else {
                   throw new IllegalArgumentException("can't show '"+what+"'");
                }

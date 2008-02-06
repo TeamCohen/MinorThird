@@ -2,15 +2,21 @@
 
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.CVSplitterTest;
-import edu.cmu.minorthird.text.learn.SampleFE;
-import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
+import java.util.Iterator;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.text.learn.CVSplitterTest;
+import edu.cmu.minorthird.text.learn.SampleFE;
+import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 
 /**
  *
@@ -59,8 +65,8 @@ public class SubPopIdTest extends TestCase
 	}
 	public void checkSubPopIds(Dataset d)
 	{
-		for (Example.Looper i=d.iterator(); i.hasNext(); ) {
-			Example e = i.nextExample();
+		for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
+			Example e = i.next();
 			Span span = (Span)e.getSource();
 			// make sure bi is in 'bar', and fi is in 'food'
 			assertEquals( span.getDocumentId().substring(0,1),  e.getSubpopulationId().substring(0,1) );

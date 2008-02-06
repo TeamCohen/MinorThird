@@ -1,11 +1,11 @@
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.Splitter;
-import edu.cmu.minorthird.classify.algorithms.random.RandomElement;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+
+import edu.cmu.minorthird.classify.Splitter;
 
 /** Split into one train, one test partition.
  * Ignores subpopulation information.
@@ -13,41 +13,48 @@ import java.util.List;
  * @author William Cohen
  */
 
-public class SimpleRandomSplitter implements Splitter
-{
-	private RandomElement random;
+public class SimpleRandomSplitter<T> implements Splitter<T>{
+
+	private Random random;
+
 	private double trainFraction;
 
-	private List trainList=null, testList=null;
+	private List<T> trainList=null,testList=null;
 
-	public SimpleRandomSplitter(RandomElement random, double trainFraction) {
-		this.random = random; this.trainFraction = trainFraction;
-	}
-	public SimpleRandomSplitter(double trainFraction) {
-		this(new RandomElement(), trainFraction);
-	}
-	public SimpleRandomSplitter() {
-		this(new RandomElement(), 0.7);
+	public SimpleRandomSplitter(Random random,double trainFraction){
+		this.random=random;
+		this.trainFraction=trainFraction;
 	}
 
-	public void split(Iterator i) {
-		trainList = new ArrayList();
-		testList = new ArrayList();
-		while (i.hasNext()) {
-			Object o = i.next();
-            System.out.println(i.getClass().getName());
-			if (random.raw() <= trainFraction) trainList.add(o);
-			else testList.add(o);
+	public SimpleRandomSplitter(double trainFraction){
+		this(new Random(),trainFraction);
+	}
+
+	public SimpleRandomSplitter(){
+		this(0.7);
+	}
+
+	public void split(Iterator<T> i){
+		trainList=new ArrayList<T>();
+		testList=new ArrayList<T>();
+		while(i.hasNext()){
+			T t=i.next();
+			if(random.nextDouble()<=trainFraction)
+				trainList.add(t);
+			else
+				testList.add(t);
 		}
 	}
 
-	public int getNumPartitions() { return 1; }
+	public int getNumPartitions(){
+		return 1;
+	}
 
-	public Iterator getTrain(int k) { 
+	public Iterator<T> getTrain(int k){
 		return trainList.iterator();
 	}
 
-	public Iterator getTest(int k) {
+	public Iterator<T> getTest(int k){
 		return testList.iterator();
 	}
 }

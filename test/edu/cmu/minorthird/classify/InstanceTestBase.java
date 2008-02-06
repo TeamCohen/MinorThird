@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.classify;
 
+import java.util.Iterator;
+
 import junit.framework.TestCase;
 
 /**
@@ -20,9 +22,9 @@ public abstract class InstanceTestBase extends TestCase
     assertEquals(1d, instance.getWeight(hello), 0.01);
     assertEquals(1d, instance.getWeight(world), 0.01);
 
-    Feature.Looper it = instance.binaryFeatureIterator();
-    assertEquals(new Feature("token eq croutons"), it.nextFeature());
-    assertEquals(hello, it.nextFeature());
+    Iterator<Feature> it = instance.binaryFeatureIterator();
+    assertEquals(new Feature("token eq croutons"), it.next());
+    assertEquals(hello, it.next());
   }
 
   public void testNumericFeatures()
@@ -39,11 +41,11 @@ public abstract class InstanceTestBase extends TestCase
     testBinaryFeatures();
     testNumericFeatures();
 
-    Feature.Looper it = instance.featureIterator();
-    assertEquals(new Feature("token eq croutons"), it.nextFeature());
-    assertEquals(new Feature("token eq zzfencepost"), it.nextFeature());
-    assertEquals(new Feature("token eq hello"), it.nextFeature());
-    assertEquals(new Feature("token eq max"), it.nextFeature());
+    Iterator<Feature> it = instance.featureIterator();
+    assertEquals(new Feature("token eq croutons"), it.next());
+    assertEquals(new Feature("token eq zzfencepost"), it.next());
+    assertEquals(new Feature("token eq hello"), it.next());
+    assertEquals(new Feature("token eq max"), it.next());
   }
 
 }

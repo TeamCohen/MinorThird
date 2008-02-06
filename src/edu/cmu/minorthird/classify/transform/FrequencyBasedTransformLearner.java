@@ -49,14 +49,14 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
 
   public InstanceTransform batchTrain(Dataset dataset)
   {
-    final Set activeFeatureSet = new HashSet();
+    final Set<Feature> activeFeatureSet = new HashSet<Feature>();
 
     // figure out what features are high-frequency
     DatasetIndex index = new DatasetIndex(dataset);
     if ( frequencyModel.equals("document") )
     {
-      for (Feature.Looper i = index.featureIterator(); i.hasNext(); ) {
-        Feature f = i.nextFeature();
+      for (Iterator<Feature> i = index.featureIterator(); i.hasNext(); ) {
+        Feature f = i.next();
         if (index.size(f) >= minimumFrequency) {
           activeFeatureSet.add(f);
         }
@@ -64,8 +64,8 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
     }
     else if ( frequencyModel.equals("word") )
     {
-      for (Feature.Looper i = index.featureIterator(); i.hasNext(); ) {
-        Feature f = i.nextFeature();
+      for (Iterator<Feature> i = index.featureIterator(); i.hasNext(); ) {
+        Feature f = i.next();
         double totalCounts=0.0;
         for (int j=0; j<index.size(f); j++) {
           totalCounts += index.getExample(f,j).getWeight(f);

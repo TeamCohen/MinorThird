@@ -2,15 +2,17 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.StringTokenizer;
+
+import org.apache.log4j.Logger;
+
 import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedDataset;
+import edu.cmu.minorthird.classify.sequential.SequenceDataset;
 import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
-import org.apache.log4j.Logger;
-
-import java.util.Random;
-import java.util.StringTokenizer;
 
 /** Some sample inputs for learners.
  *
@@ -456,8 +458,8 @@ public class SampleDatasets{
 	static private void traceClassifier(String datasetName,Classifier c,Dataset d){
 		log.info("");
 		log.info("Performance on dataset "+datasetName+":");
-		for(Example.Looper i=d.iterator();i.hasNext();){
-			Example e=i.nextExample();
+		for(Iterator<Example> i=d.iterator();i.hasNext();){
+			Example e=i.next();
 			if(c instanceof BinaryClassifier){
 				double actual=e.getLabel().numericLabel();
 				double predicted=c.classification(e).posWeight();

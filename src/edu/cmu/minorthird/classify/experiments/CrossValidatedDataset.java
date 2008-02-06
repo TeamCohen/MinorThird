@@ -20,12 +20,12 @@ public class CrossValidatedDataset implements Visible
 	private ClassifiedDataset[] trainCds;
 	private Evaluation v;
 
-	public CrossValidatedDataset(ClassifierLearner learner,Dataset d,Splitter splitter)
+	public CrossValidatedDataset(ClassifierLearner learner,Dataset d,Splitter<Example> splitter)
 	{
 		this(learner,d,splitter,false);
 	}
 
-	public CrossValidatedDataset(ClassifierLearner learner,Dataset d,Splitter splitter,boolean saveTrainPartitions)
+	public CrossValidatedDataset(ClassifierLearner learner,Dataset d,Splitter<Example> splitter,boolean saveTrainPartitions)
 	{
 		Dataset.Split s = d.split(splitter);
 		cds = new ClassifiedDataset[s.getNumPartitions()];
@@ -71,8 +71,10 @@ public class CrossValidatedDataset implements Visible
 			main.addSubView(
 				"Test Partition "+(i+1), 
 				new TransformedViewer(cds[0].toGUI()) {
+					static final long serialVersionUID=20080130L;
 					public Object transform(Object o) {
-						CrossValidatedDataset cvd = (CrossValidatedDataset)o;
+					//what is this for? - frank
+						//CrossValidatedDataset cvd = (CrossValidatedDataset)o;
 						return cds[k];
 					}});
 		}
@@ -82,8 +84,10 @@ public class CrossValidatedDataset implements Visible
 				main.addSubView(
 					"Train Partition "+(i+1), 
 					new TransformedViewer(cds[0].toGUI()) {
+						static final long serialVersionUID=20080130L;
 						public Object transform(Object o) {
-							CrossValidatedDataset cvd = (CrossValidatedDataset)o;
+							//what is this for? - frank
+							//CrossValidatedDataset cvd = (CrossValidatedDataset)o;
 							return trainCds[k];
 						}});
 			}
@@ -91,6 +95,7 @@ public class CrossValidatedDataset implements Visible
 		main.addSubView(
 			"Overall Evaluation", 
 			new TransformedViewer(v.toGUI()) {
+				static final long serialVersionUID=20080130L;
 				public Object transform(Object o) {
 					CrossValidatedDataset cvd = (CrossValidatedDataset)o;												
 					return cvd.v;
@@ -107,8 +112,8 @@ public class CrossValidatedDataset implements Visible
 		Dataset train = SampleDatasets.sampleData("toy",false);
 		ClassifierLearner learner = new DecisionTreeLearner();
 		//ClassifierLearner learner = new NaiveBayes();
-		CrossValidatedDataset cd = new CrossValidatedDataset(learner,train,new CrossValSplitter(3),true);
-		ViewerFrame f = new ViewerFrame("CrossValidatedDataset", cd.toGUI());
+		CrossValidatedDataset cd = new CrossValidatedDataset(learner,train,new CrossValSplitter<Example>(3),true);
+		new ViewerFrame("CrossValidatedDataset", cd.toGUI());
 	}
 	
 }

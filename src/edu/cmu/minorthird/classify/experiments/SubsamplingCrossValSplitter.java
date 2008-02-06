@@ -1,11 +1,9 @@
 package edu.cmu.minorthird.classify.experiments;
 
-import edu.cmu.minorthird.classify.Splitter;
-import edu.cmu.minorthird.classify.algorithms.random.RandomElement;
-
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Random;
+
+import edu.cmu.minorthird.classify.Splitter;
 
 /** 
  * Variant of cross-validation in which not all training data is used.
@@ -17,57 +15,79 @@ import java.util.List;
  * @author William Cohen
  */
 
-public class SubsamplingCrossValSplitter implements Splitter
-{
-	private RandomElement random;
-	private int folds;
-	private double subsampleFraction;
-	private Iterator[] trainIt, testIt;
-    private CrossValSplitter cvs;
-    private RandomSplitter rs;
+public class SubsamplingCrossValSplitter<T> implements Splitter<T>{
 
-	public SubsamplingCrossValSplitter(RandomElement random, int folds, double subsampleFraction)
-	{
-		this.random = random; 
-		this.folds = folds; 
+	private Random random;
+
+	private int folds;
+
+	private double subsampleFraction;
+
+	private Iterator<T>[] trainIt,testIt;
+
+	private CrossValSplitter<T> cvs;
+
+	private RandomSplitter<T> rs;
+
+	public SubsamplingCrossValSplitter(Random random,int folds,
+			double subsampleFraction){
+		this.random=random;
+		this.folds=folds;
 		this.subsampleFraction=subsampleFraction;
 	}
-	public SubsamplingCrossValSplitter(int folds, double subsampleFraction) 
-	{ 
-		this(new RandomElement(), folds, subsampleFraction); 
-	}
-	public SubsamplingCrossValSplitter() 
-	{	
-		this(new RandomElement(), 5, 0.5);	
+
+	public SubsamplingCrossValSplitter(int folds,double subsampleFraction){
+		this(new Random(),folds,subsampleFraction);
 	}
 
-	public int getNumberOfFolds() { return folds; }
-	public void setNumberOfFolds(int k) { this.folds=k; }
+	public SubsamplingCrossValSplitter(){
+		this(5,0.5);
+	}
 
-	public double getSubsampleFraction() { return subsampleFraction; }
-	public void setSubsampleFraction(double d) { this.subsampleFraction=d; }
+	public int getNumberOfFolds(){
+		return folds;
+	}
 
-	public void split(Iterator i) {
-		cvs = new CrossValSplitter(random,folds);
-		rs = new RandomSplitter(random,subsampleFraction);
-		cvs.split( i );
-		testIt = new Iterator[folds];
-		trainIt = new Iterator[folds];		
-		for (int k=0; k<folds; k++) {
-			testIt[k] = cvs.getTest(k);
-            rs.split( cvs.getTrain(k) );
-			trainIt[k] = rs.getTrain(0);
+	public void setNumberOfFolds(int k){
+		this.folds=k;
+	}
+
+	public double getSubsampleFraction(){
+		return subsampleFraction;
+	}
+
+	public void setSubsampleFraction(double d){
+		this.subsampleFraction=d;
+	}
+
+	public void split(Iterator<T> i){
+		cvs=new CrossValSplitter<T>(random,folds);
+		rs=new RandomSplitter<T>(random,subsampleFraction);
+		cvs.split(i);
+		testIt=new Iterator[folds];
+		trainIt=new Iterator[folds];
+		for(int k=0;k<folds;k++){
+			testIt[k]=cvs.getTest(k);
+			rs.split(cvs.getTrain(k));
+			trainIt[k]=rs.getTrain(0);
 		}
 	}
 
-	public int getNumPartitions() { return folds; }
+	public int getNumPartitions(){
+		return folds;
+	}
 
-	public Iterator getTrain(int k) { return trainIt[k]; }
+	public Iterator<T> getTrain(int k){
+		return trainIt[k];
+	}
 
 	//public Iterator getTest(int k) { return testIt[k]; }
-    public Iterator getTest(int k) { return cvs.getTest(k); }
+	public Iterator<T> getTest(int k){
+		return cvs.getTest(k);
+	}
 
-	public String toString() { return "[SubCV "+folds+";"+subsampleFraction+"]"; }
+	public String toString(){
+		return "[SubCV "+folds+";"+subsampleFraction+"]";
+	}
 
 }
-

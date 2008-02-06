@@ -1,22 +1,15 @@
 package edu.cmu.minorthird.classify.algorithms.linear;
 
+import java.io.Serializable;
+import java.util.Iterator;
+
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.Example;
-import edu.cmu.minorthird.classify.ExampleSchema;
-import edu.cmu.minorthird.classify.Explanation;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
 import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
-import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner.MyClassifier;
-import edu.cmu.minorthird.classify.sequential.BeamSearcher;
-import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
-import edu.cmu.minorthird.util.gui.TransformedViewer;
-import edu.cmu.minorthird.util.gui.Viewer;
-import edu.cmu.minorthird.util.gui.Visible;
-
-import java.io.*;
 
 /**
  * Created on Sep 27, 2005
@@ -34,10 +27,11 @@ import java.io.*;
 
 public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 		Serializable {
+	static final long serialVersionUID=20080130L;
 	private Hyperplane w_t;//positive and negative hyperplanes
 	private Hyperplane vpos_t;//voted hyperplane
 	private int excount;//number of examples presented to the learner so far
-	private int numActiveFeatures;//number of active features in first example
+//	private int numActiveFeatures;//number of active features in first example
 	private double margin = 0.0;
 	private boolean aggressive = false;
 	private boolean voted;
@@ -68,8 +62,8 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 		excount++;
 		
 //		adding new features to hyperplane
-		for (Feature.Looper j=example.featureIterator(); j.hasNext(); ) {
-		    Feature f = j.nextFeature();
+		for (Iterator<Feature> j=example.featureIterator(); j.hasNext(); ) {
+		    Feature f = j.next();
 		    if(!w_t.hasFeature(f)){
 		    	w_t.increment(f,1.0);
 		    }
@@ -110,8 +104,8 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 
 	public double getNormSquared(Instance ins) {
 		double tmp = 0.0;
-		for (Feature.Looper j = ins.featureIterator(); j.hasNext();) {
-			Feature f = j.nextFeature();
+		for (Iterator<Feature> j = ins.featureIterator(); j.hasNext();) {
+			Feature f = j.next();
 			double val = ins.getWeight(f);
 			tmp += val * val;
 		}
@@ -120,8 +114,8 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 	
 	public double getHyperplaneNormSquared(Hyperplane hyp) {
 		double tmp = 0.0;
-		for (Feature.Looper j = hyp.featureIterator(); j.hasNext();) {
-			Feature f = j.nextFeature();
+		for (Iterator<Feature> j = hyp.featureIterator(); j.hasNext();) {
+			Feature f = j.next();
 			double val = hyp.featureScore(f);
 			tmp += val * val;
 		}

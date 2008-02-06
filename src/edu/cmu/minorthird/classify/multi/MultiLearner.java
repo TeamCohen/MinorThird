@@ -1,140 +1,149 @@
 package edu.cmu.minorthird.classify.multi;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import java.util.*;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.ClassifierLearnerFactory;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner;
 
 /**
  * ClassifierLearner for learning multiple dimensions
- *
+ * 
  * @author Cameron Williams
  */
 
-public class MultiLearner implements ClassifierLearner
-{
+public class MultiLearner implements ClassifierLearner{
+
 	protected ClassifierLearnerFactory learnerFactory;
+
 	protected ClassifierLearner learner;
+
 	protected String learnerName;
-	protected ArrayList innerLearner = null;
-	protected MultiExampleSchema multiSchema; 
 
-	public static class IllegalArgumentException extends Exception {
-		public IllegalArgumentException(String s) { super(s); }
+	protected List<ClassifierLearner> innerLearner;
+
+	protected MultiExampleSchema multiSchema;
+
+	public MultiLearner(ClassifierLearner learner){
+		this.learner=learner;
+		this.learnerName=learner.toString();
 	}
-
-	public MultiLearner()
-	{
+	
+	public MultiLearner(){
 		this(new MaxEntLearner());
 	}
 
-	public MultiLearner(ClassifierLearner learner){
-		this.learner = learner;
-		this.learnerName = learner.toString();
-
-	}
-	public ClassifierLearner copy() {
-		MultiLearner learner = null;
-		try {
-			learner = (MultiLearner)this.clone();
-			for (int i=0; i<innerLearner.size(); i++) {
-				ClassifierLearner inner = (ClassifierLearner)(innerLearner.get(i));
+	public ClassifierLearner copy(){
+		MultiLearner learner=null;
+		try{
+			learner=(MultiLearner)this.clone();
+			for(int i=0;i<innerLearner.size();i++){
+				ClassifierLearner inner=innerLearner.get(i);
 				learner.innerLearner.add(inner.copy());
 			}
-		} catch(Exception e) {
+		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return (ClassifierLearner)learner;
 	}
 
 	public void setSchema(ExampleSchema schema){
-		System.out.println("Must use setMultSchema(MultiExampleSchema schema)");
+		System.err.println("Must use setMultiSchema(MultiExampleSchema schema)");
 	}
 
 	public ExampleSchema getSchema(){
 		return null;
 	}
 
-	public void setMultiSchema(MultiExampleSchema schema)
-	{
-		this.multiSchema = schema;
-		innerLearner = new ArrayList();
-		ExampleSchema[] schemas = multiSchema.getSchemas();
-		for(int i=0; i<schemas.length; i++) {
-			innerLearner.add(learner.copy());	   
-			((ClassifierLearner)(innerLearner.get(i))).setSchema(schemas[i]);
+	// Strange. Looks like all it does is copying the same learner during setting schema. - frank
+	public void setMultiSchema(MultiExampleSchema schema){
+		this.multiSchema=schema;
+		innerLearner=new ArrayList<ClassifierLearner>();
+		ExampleSchema[] schemas=multiSchema.getSchemas();
+		for(int i=0;i<schemas.length;i++){
+			innerLearner.add(learner.copy());
+			innerLearner.get(i).setSchema(schemas[i]);
 		}
 	}
-	public void reset()
-	{
-		if (innerLearner!=null) {
-			for (int i=0; i<innerLearner.size(); i++) {
+	
+	public MultiExampleSchema getMultiSchema(){
+		return multiSchema;
+	}
+
+	public void reset(){
+		if(innerLearner!=null){
+			for(int i=0;i<innerLearner.size();i++){
 				((ClassifierLearner)(innerLearner.get(i))).reset();
 			}
 		}
 	}
-	public void setInstancePool(Instance.Looper looper) 
-	{
-		ArrayList list = new ArrayList();
-		while (looper.hasNext()) list.add(looper.next());
-		for (int i=0; i<innerLearner.size(); i++) {
-			((ClassifierLearner)(innerLearner.get(i))).setInstancePool( new Instance.Looper(list) );
+
+	public void setInstancePool(Iterator<Instance> it){
+		List<Instance> list=new ArrayList<Instance>();
+		while(it.hasNext())
+			list.add(it.next());
+		for(int i=0;i<innerLearner.size();i++){
+			innerLearner.get(i).setInstancePool(list.iterator());
 		}
 	}
-	public boolean hasNextQuery()
-	{
-		for (int i=0; i<innerLearner.size(); i++) {
-			if (((ClassifierLearner)(innerLearner.get(i))).hasNextQuery()) return true;
+
+	public boolean hasNextQuery(){
+		for(int i=0;i<innerLearner.size();i++){
+			if(innerLearner.get(i).hasNextQuery()){
+				return true;
+			}
 		}
 		return false;
 	}
 
-	public Instance nextQuery()
-	{
-		for (int i=0; i<innerLearner.size(); i++) {
-			if (((ClassifierLearner)(innerLearner.get(i))).hasNextQuery()) return ((ClassifierLearner)innerLearner.get(i)).nextQuery();
+	public Instance nextQuery(){
+		for(int i=0;i<innerLearner.size();i++){
+			if(innerLearner.get(i).hasNextQuery()){
+				return innerLearner.get(i).nextQuery();
+			}
 		}
 		return null;
 	}
 
-	/** Throws error, you need a multiExample */
-	public void addExample(Example answeredQuery)
-	{
-		/*int classIndex = schema.getClassIndex( answeredQuery.getLabel().bestClassName() );
-	for (int i=0; i<innerLearner.size(); i++) {
-	    ClassLabel label = classIndex==i ? ClassLabel.positiveLabel(1.0) : ClassLabel.negativeLabel(-1.0);
-	    ((ClassifierLearner)(innerLearner.get(i))).addExample( new Example( answeredQuery.asInstance(), label ) );
-	    }*/
-		System.out.println("You must add a multiExample to a multi learner");
+	public void addExample(Example answeredQuery){
+		System.err.println("Must use addMultiExample(MultiExample answeredQuery)");
 	}
 
-	public void addMultiExample(MultiExample answeredQuery) {
-		Example[] examples = answeredQuery.getExamples();
-		for (int i=0; i<innerLearner.size(); i++) {
-			((ClassifierLearner)(innerLearner.get(i))).addExample(examples[i]);
+	public void addMultiExample(MultiExample answeredQuery){
+		Example[] examples=answeredQuery.getExamples();
+		for(int i=0;i<innerLearner.size();i++){
+			innerLearner.get(i).addExample(examples[i]);
 		}
 	}
 
-	public void completeTraining()
-	{
-		for (int i=0; i<innerLearner.size(); i++) {
-			((ClassifierLearner)(innerLearner.get(i))).completeTraining();
+	public void completeTraining(){
+		for(int i=0;i<innerLearner.size();i++){
+			innerLearner.get(i).completeTraining();
 		}
 	}
 
 	/** Returns the classifier for the first dimension */
-	public Classifier getClassifier() {
-		if (innerLearner.get(0) == null) return null;
-		return ((ClassifierLearner)(innerLearner.get(0))).getClassifier();
+	public Classifier getClassifier(){
+		if(innerLearner.get(0)==null){
+			return null;
+		}
+		else{
+			return innerLearner.get(0).getClassifier();
+		}
 	}
 
-	public MultiClassifier getMultiClassifier()
-	{
-		Classifier[] classifiers = new Classifier[ innerLearner.size() ];
-		for (int i=0; i<innerLearner.size(); i++) {
-			classifiers[i] = ((ClassifierLearner)(innerLearner.get(i))).getClassifier();
+	public MultiClassifier getMultiClassifier(){
+		Classifier[] classifiers=new Classifier[innerLearner.size()];
+		for(int i=0;i<innerLearner.size();i++){
+			classifiers[i]=innerLearner.get(i).getClassifier();
 		}
-		return new MultiClassifier( classifiers );
+		return new MultiClassifier(classifiers);
 	}
 
 }
