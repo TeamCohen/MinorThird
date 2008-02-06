@@ -1,16 +1,25 @@
 package edu.cmu.minorthird.ui;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.experiments.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.learn.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
+import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-import java.util.*;
-import java.io.*;
 
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.experiments.CrossValidatedDataset;
+import edu.cmu.minorthird.classify.experiments.Evaluation;
+import edu.cmu.minorthird.classify.experiments.FixedTestSetSplitter;
+import edu.cmu.minorthird.classify.experiments.Tester;
+import edu.cmu.minorthird.ui.CommandLineUtil.ClassificationSignalParams;
+import edu.cmu.minorthird.ui.CommandLineUtil.SaveParams;
+import edu.cmu.minorthird.ui.CommandLineUtil.SplitterParams;
+import edu.cmu.minorthird.ui.CommandLineUtil.TrainClassifierParams;
+import edu.cmu.minorthird.util.CommandLineProcessor;
+import edu.cmu.minorthird.util.IOUtil;
+import edu.cmu.minorthird.util.JointCommandLineProcessor;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 // to do:
 //  show labels should be a better viewer
@@ -18,93 +27,115 @@ import java.io.*;
 
 /**
  * Do a train/test experiment on a text classifier.
- *
+ * 
  * @author William Cohen
  */
 
-public class TrainTestClassifier extends UIMain
-{
-  private static Logger log = Logger.getLogger(TrainTestClassifier.class);
+public class TrainTestClassifier extends UIMain{
+
+	protected static Logger log=Logger.getLogger(TrainTestClassifier.class);
 
 	// private data needed to train a classifier
 
-	protected CommandLineUtil.SaveParams save = new CommandLineUtil.SaveParams();
-	protected CommandLineUtil.ClassificationSignalParams signal = new CommandLineUtil.ClassificationSignalParams(base);
-	protected CommandLineUtil.TrainClassifierParams train = new CommandLineUtil.TrainClassifierParams();
-	protected CommandLineUtil.SplitterParams trainTest = new CommandLineUtil.SplitterParams();
-	protected Object result = null;
+	protected SaveParams save=new SaveParams();
+	protected ClassificationSignalParams signal=new ClassificationSignalParams(base);
+	protected TrainClassifierParams train=new TrainClassifierParams();
+	protected SplitterParams trainTest=new SplitterParams();
+	protected Object result=null;
 
 	// for GUI
-	public CommandLineUtil.SaveParams getSaveParameters() { return save; }
-	public void setSaveParameters(CommandLineUtil.SaveParams base) { this.save=save; }
-	public CommandLineUtil.ClassificationSignalParams getSignalParameters() { return signal; }
-	public void setSignalParameters(CommandLineUtil.ClassificationSignalParams base) { this.signal=signal; }
-	public CommandLineUtil.TrainClassifierParams getTrainingParameters() { return train; }
-	public void setTrainingParameters(CommandLineUtil.TrainClassifierParams train) { this.train=train; }
-	public CommandLineUtil.SplitterParams getSplitterParameters() { return trainTest; }
-	public void setSplitterParameters(CommandLineUtil.SplitterParams trainTest) { this.trainTest=trainTest; }
-
-	public CommandLineProcessor getCLP()
-	{
-		return new JointCommandLineProcessor(
-			new CommandLineProcessor[]{gui,base,save,signal,train,trainTest});
+	public SaveParams getSaveParameters(){
+		return save;
 	}
 
-    public String getTrainTestClassifierHelp() {
-	return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainTestClassifier%20Tutorial.htm\">TrainTestClassifier Tutorial</A></html>";
-    }
+	public void setSaveParameters(SaveParams save){
+		this.save=save;
+	}
 
-	//
-	// do the experiment
-	// 
+	public ClassificationSignalParams getSignalParameters(){
+		return signal;
+	}
 
-	public void doMain()
-	{
+	public void setSignalParameters(ClassificationSignalParams signal){
+		this.signal=signal;
+	}
+
+	public TrainClassifierParams getTrainingParameters(){
+		return train;
+	}
+
+	public void setTrainingParameters(TrainClassifierParams train){
+		this.train=train;
+	}
+
+	public SplitterParams getSplitterParameters(){
+		return trainTest;
+	}
+
+	public void setSplitterParameters(CommandLineUtil.SplitterParams trainTest){
+		this.trainTest=trainTest;
+	}
+
+	public CommandLineProcessor getCLP(){
+		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
+				save,signal,train,trainTest});
+	}
+
+	public String getTrainTestClassifierHelp(){
+		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainTestClassifier%20Tutorial.htm\">TrainTestClassifier Tutorial</A></html>";
+	}
+
+	public void doMain(){
 		// check that inputs are valid
-		if (train.learner==null) 
+		if(train.learner==null)
 			throw new IllegalArgumentException("-learner must be specified");
-		if (signal.spanProp==null && signal.spanType==null) 
-			throw new IllegalArgumentException("one of -spanProp or -spanType must be specified");
-		if (signal.spanProp!=null && signal.spanType!=null) 
-			throw new IllegalArgumentException("only one of -spanProp or -spanType can be specified");
+		if(signal.spanProp==null&&signal.spanType==null)
+			throw new IllegalArgumentException(
+					"one of -spanProp or -spanType must be specified");
+		if(signal.spanProp!=null&&signal.spanType!=null)
+			throw new IllegalArgumentException(
+					"only one of -spanProp or -spanType can be specified");
 
 		// construct the dataset
-		Dataset d = 
-			CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
+		Dataset d=
+				CommandLineUtil.toDataset(base.labels,train.fe,signal.spanProp,
+						signal.spanType,signal.candidateType);
 
 		// show the data if necessary
-		if (train.showData) new ViewerFrame("Dataset", d.toGUI());
+		if(train.showData)
+			new ViewerFrame("Dataset",d.toGUI());
 
 		// construct the splitter, if necessary
-		if (trainTest.labels!=null) {
-		    MonotonicTextLabels spanPropLabels = trainTest.labels;
-		    if(signal.spanPropString != null) CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
-			Dataset testData = 
-				CommandLineUtil.toDataset(trainTest.labels,train.fe,signal.spanProp,signal.spanType,signal.candidateType);
-			trainTest.splitter = new FixedTestSetSplitter(testData.iterator());
+		if(trainTest.labels!=null){
+			if(signal.spanPropString!=null)
+				CommandLineUtil.createSpanProp(signal.spanPropString,trainTest.labels);
+			Dataset testData=
+					CommandLineUtil.toDataset(trainTest.labels,train.fe,signal.spanProp,
+							signal.spanType,signal.candidateType);
+			trainTest.splitter=new FixedTestSetSplitter<Example>(testData.iterator());
 		}
 
 		// do the experiment
-		CrossValidatedDataset cvd = null;
-		Evaluation evaluation = null;
-		if (trainTest.showTestDetails) {
-			cvd = new CrossValidatedDataset(train.learner,d,trainTest.splitter);
-			evaluation = cvd.getEvaluation();
-			result = cvd;
-		} else {
-			cvd = null;
-			evaluation = Tester.evaluate(train.learner,d,trainTest.splitter);
-			result = evaluation;
+		CrossValidatedDataset cvd=null;
+		Evaluation evaluation=null;
+		if(trainTest.showTestDetails){
+			cvd=new CrossValidatedDataset(train.learner,d,trainTest.splitter);
+			evaluation=cvd.getEvaluation();
+			result=cvd;
+		}else{
+			cvd=null;
+			evaluation=Tester.evaluate(train.learner,d,trainTest.splitter);
+			result=evaluation;
 		}
 
-		if (base.showResult) {
-			new ViewerFrame("Result", new SmartVanillaViewer(result));
+		if(base.showResult){
+			new ViewerFrame("Result",new SmartVanillaViewer(result));
 		}
 
-		if (save.saveAs!=null) {
-			try {
+		if(save.saveAs!=null){
+			try{
 				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
-			} catch (IOException e) {
+			}catch(IOException e){
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
 		}
@@ -112,10 +143,11 @@ public class TrainTestClassifier extends UIMain
 		evaluation.summarize();
 	}
 
-	public Object getMainResult() { return result; }
+	public Object getMainResult(){
+		return result;
+	}
 
-	public static void main(String args[])
-	{
+	public static void main(String args[]){
 		new TrainTestClassifier().callMain(args);
 	}
 }
