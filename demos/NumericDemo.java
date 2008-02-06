@@ -11,13 +11,6 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Example of how to load numeric data in the SVM format
- * A NaiveBayes learner is used to classify the data then tested against a test file.
- * The results are displayed with the typical GUI.
- *
- * There is a sample set of data under demo/sampleData
- * named Numeric-train.dat, and Numeric-test.dat
- *
  *
  * @author ksteppe
  */
