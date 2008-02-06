@@ -48,7 +48,7 @@ public class SimpleClassifierUI{
 			Evaluation eval=Tester.evaluate(learner,data,new CrossValSplitter<Example>(cvFolds));
 
 			// view results
-			new ViewerFrame("numeric demo",eval.toGUI());
+			new ViewerFrame("Evaluation Results for "+dataFile.getName(),eval.toGUI());
 
 			// save evaluation results
 			if(saveFile!=null){
