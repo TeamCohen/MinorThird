@@ -77,10 +77,10 @@ public abstract class BatchRankingLearner extends BatchBinaryClassifierLearner{
 	}
 
 	/** Sort a List of Instances by score according to the classifier. */
-	static public void sortByScore(final BinaryClassifier c,List<Instance> data){
-		Collections.sort(data,new Comparator<Instance>(){
-			public int compare(Instance instA,Instance instB){
-				double diff=c.score(instB)-c.score(instA);
+	static public void sortByScore(final BinaryClassifier c,List<Example> data){
+		Collections.sort(data,new Comparator<Example>(){
+			public int compare(Example instA,Example instB){
+				double diff=c.score((Instance)instB)-c.score((Instance)instA);
 				int cmp=diff>0?+1:(diff<0?-1:0);
 				if(cmp!=0)
 					return cmp;
