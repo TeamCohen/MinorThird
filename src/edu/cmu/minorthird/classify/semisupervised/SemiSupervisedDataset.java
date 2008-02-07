@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,11 +41,11 @@ import edu.cmu.minorthird.util.gui.ZoomedViewer;
 public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 		Visible,Saveable{
 
-	protected ArrayList examples=new ArrayList();
+	protected List<Example> examples=new ArrayList<Example>();
 
-	protected ArrayList unlabeledExamples=new ArrayList();
+	protected List<Instance> unlabeledExamples=new ArrayList<Instance>();
 
-	protected Set classNameSet=new TreeSet();
+	protected Set<String> classNameSet=new TreeSet<String>();
 
 	protected FeatureFactory factory=new FeatureFactory();
 
@@ -186,6 +187,8 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	}
 
 	public static class SimpleDatasetViewer extends ComponentViewer{
+		
+		static final long serialVersionUID=20080207L;
 
 		public boolean canReceive(Object o){
 			return o instanceof Dataset;
@@ -216,7 +219,7 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	// splitter
 	//
 
-	public Split split(final Splitter splitter){
+	public Split split(final Splitter<Example> splitter){
 		splitter.split(examples.iterator());
 		return new Split(){
 
@@ -234,10 +237,10 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 		};
 	}
 
-	private Dataset invertIteration(Iterator i){
+	private Dataset invertIteration(Iterator<Example> i){
 		BasicDataset copy=new BasicDataset();
 		while(i.hasNext())
-			copy.add((Example)i.next());
+			copy.add(i.next());
 		return copy;
 	}
 
@@ -249,7 +252,7 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	static public void main(String[] args){
 		try{
 			BasicDataset data=(BasicDataset)SampleDatasets.sampleData("toy",false);
-			ViewerFrame f=new ViewerFrame("Toy Dataset",data.toGUI());
+			new ViewerFrame("Toy Dataset",data.toGUI());
 			System.out.println(data.getSchema());
 		}catch(Exception e){
 			e.printStackTrace();

@@ -1,11 +1,18 @@
 package edu.cmu.minorthird.classify.semisupervised;
 
-import edu.cmu.minorthird.classify.*;
-
-import org.apache.log4j.Logger;
-
-import java.io.File;
 import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.BasicFeatureIndex;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.SampleDatasets;
 
 /**
  * Implementation of the methods described in:

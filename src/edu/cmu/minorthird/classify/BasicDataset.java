@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -36,8 +37,8 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	static final long serialVersionUID=20080118L;
 
 	protected FeatureFactory featureFactory;
-	protected ArrayList<Example> examples;
-	protected ArrayList<Instance> unlabeledExamples;
+	protected List<Example> examples;
+	protected List<Instance> unlabeledExamples;
 	protected Set<String> classNameSet;
 
 	public BasicDataset(FeatureFactory featureFactory){

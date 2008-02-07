@@ -71,9 +71,24 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 	public static void setAggregators(Map<String,Set<String>> aggregators){
 		RealRelationalDataset.aggregators=aggregators;
 	}
+	
+	public Iterator<SGMExample> iteratorSGM(){
+		final Iterator<Example> inner=examples.iterator();
+		return new Iterator<SGMExample>(){
+			public boolean hasNext(){
+				return inner.hasNext();
+			}
+			public SGMExample next(){
+				return (SGMExample)inner.next();
+			}
+			public void remove(){
+				inner.remove();
+			}
+		};
+	}
 
-	public Split split(final Splitter splitter){
-		splitter.split(examples.iterator());
+	public Split splitSGM(final Splitter<SGMExample> splitter){
+		splitter.split(iteratorSGM());
 		return new Split(){
 
 			public int getNumPartitions(){
@@ -90,10 +105,10 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 		};
 	}
 
-	private RealRelationalDataset invertIteration(Iterator<Example> i){
+	private RealRelationalDataset invertIteration(Iterator<SGMExample> i){
 		RealRelationalDataset copy=new RealRelationalDataset();
 		while(i.hasNext()){
-			copy.addSGM((SGMExample)i.next());
+			copy.addSGM(i.next());
 		}
 		return copy;
 	}

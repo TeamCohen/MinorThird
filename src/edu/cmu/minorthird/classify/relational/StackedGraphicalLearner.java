@@ -3,7 +3,6 @@
 package edu.cmu.minorthird.classify.relational;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -165,7 +164,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 	public RealRelationalDataset stackDataset(RealRelationalDataset dataset){
 		RealRelationalDataset result=new RealRelationalDataset();
 
-		Dataset.Split s=dataset.split(params.splitter);
+		Dataset.Split s=dataset.splitSGM(params.splitter);
 		schema=dataset.getSchema();
 		ProgressCounter pc=
 				new ProgressCounter("labeling for stacking","fold",s.getNumPartitions());
