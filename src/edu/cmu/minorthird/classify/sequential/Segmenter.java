@@ -1,7 +1,5 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.ClassLabel;
-import edu.cmu.minorthird.classify.Instance;
 
 /**
  * @author William Cohen

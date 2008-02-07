@@ -2,15 +2,22 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.MathUtil;
-import edu.cmu.minorthird.util.StringUtil;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
-import java.io.Serializable;
-import java.util.*;
-import javax.swing.JTree;
-import javax.swing.tree.*;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.util.MathUtil;
+import edu.cmu.minorthird.util.StringUtil;
 
 
 /** 
@@ -21,8 +28,7 @@ import javax.swing.tree.*;
 
 public class BeamSearcher implements SequenceConstants, Serializable
 {
-    static private final long serialVersionUID = 1;
-    private final int CURRENT_SERIAL_VERSION = 1;
+    static private final long serialVersionUID = 20080207L;
 
     static private boolean OLD_VERSION = false;
 
@@ -222,16 +228,16 @@ public class BeamSearcher implements SequenceConstants, Serializable
     /** The search space. */
     private class Beam 
     {
-        private ArrayList list = new ArrayList();
+        private List<BeamEntry> list = new ArrayList<BeamEntry>();
         // maps last historySize labels -> 
-        private HashMap keyMap = new HashMap();
+        private Map<BeamKey,BeamEntry> keyMap = new HashMap<BeamKey,BeamEntry>();
 		
-        public BeamEntry get(int i)	{	return (BeamEntry)list.get(i); }
+        public BeamEntry get(int i)	{	return list.get(i); }
 
         public void add(BeamEntry entry)
         {
             BeamKey key = new BeamKey(entry); 
-            BeamEntry existingEntry = (BeamEntry) keyMap.get( key );
+            BeamEntry existingEntry =  keyMap.get( key );
             if (existingEntry==null || existingEntry.score<entry.score) {
                 if (existingEntry!=null) list.remove( existingEntry );
                 list.add( entry );
@@ -245,7 +251,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
     }
 
     /** A single entry in the beam */
-    private class BeamEntry implements Comparable
+    private class BeamEntry implements Comparable<BeamEntry>
     {
         /* Labels assigned so far. */
         public String[] labels = new String[0];
@@ -255,9 +261,9 @@ public class BeamSearcher implements SequenceConstants, Serializable
         public double score = 0.0;
 
         /** Implement Comparable */
-        public int compareTo(Object other) 
+        public int compareTo(BeamEntry other) 
         {
-            return MathUtil.sign(((BeamEntry)other).score - score);
+            return MathUtil.sign(other.score - score);
         }
 
         /** Convert i-th label stored to a class label */

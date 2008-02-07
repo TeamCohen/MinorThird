@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -30,9 +31,9 @@ public class SegmentDataset implements Dataset{
 
 	int maxWindowSize=-1;
 
-	private ArrayList groupList=new ArrayList();
+	private List<CandidateSegmentGroup> groupList=new ArrayList<CandidateSegmentGroup>();
 
-	private Set classNameSet=new HashSet();
+	private Set<String> classNameSet=new HashSet<String>();
 
 	private int totalSize=0;
 
@@ -124,9 +125,9 @@ public class SegmentDataset implements Dataset{
 
 	/** Iterate over all examples */
 	public Iterator<Example> iterator(){
-		ArrayList result=new ArrayList();
-		for(Iterator i=groupList.iterator();i.hasNext();){
-			CandidateSegmentGroup g=(CandidateSegmentGroup)i.next();
+		List<Example> result=new ArrayList<Example>();
+		for(Iterator<CandidateSegmentGroup> i=groupList.iterator();i.hasNext();){
+			CandidateSegmentGroup g=i.next();
 			for(int j=0;j<g.getSequenceLength();j++){
 				for(int k=1;k<=g.getMaxWindowSize();k++){
 					Example e=g.getSubsequenceExample(j,j+k);
@@ -138,35 +139,14 @@ public class SegmentDataset implements Dataset{
 		return result.iterator();
 	}
 
-	public SegmentDataset.Looper candidateSegmentGroupIterator(){
-		return new Looper();
-	}
-
-	public class Looper implements Iterator{
-
-		private Iterator i=groupList.iterator();
-
-		public void remove(){
-			throw new UnsupportedOperationException("can't remove!");
-		}
-
-		public boolean hasNext(){
-			return i.hasNext();
-		}
-
-		public Object next(){
-			return i.next();
-		}
-
-		public CandidateSegmentGroup nextCandidateSegmentGroup(){
-			return (CandidateSegmentGroup)next();
-		}
+	public Iterator<CandidateSegmentGroup> candidateSegmentGroupIterator(){
+		return groupList.iterator();
 	}
 
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		buf.append("size = "+size()+"\n");
-		for(Iterator i=groupList.iterator();i.hasNext();){
+		for(Iterator<CandidateSegmentGroup> i=groupList.iterator();i.hasNext();){
 			buf.append(i.next()+"\n");
 		}
 		return buf.toString();
@@ -185,8 +165,8 @@ public class SegmentDataset implements Dataset{
 	/** Make a shallow copy of the dataset. */
 	public Dataset shallowCopy(){
 		SegmentDataset copy=new SegmentDataset();
-		for(Iterator i=groupList.iterator();i.hasNext();){
-			copy.addCandidateSegmentGroup((CandidateSegmentGroup)i.next());
+		for(Iterator<CandidateSegmentGroup> i=groupList.iterator();i.hasNext();){
+			copy.addCandidateSegmentGroup(i.next());
 		}
 		return copy;
 	}
@@ -194,8 +174,12 @@ public class SegmentDataset implements Dataset{
 	//
 	// split
 	//
-
-	public Split split(final Splitter splitter){
+	
+	public Split split(final Splitter<Example> splitter){
+		throw new UnsupportedOperationException();
+	}
+	
+	public Split splitCandidateSegmentGroup(final Splitter<CandidateSegmentGroup> splitter){
 		splitter.split(groupList.iterator());
 		return new Split(){
 
@@ -213,11 +197,11 @@ public class SegmentDataset implements Dataset{
 		};
 	}
 
-	protected Dataset invertIteration(Iterator i){
+	protected Dataset invertIteration(Iterator<CandidateSegmentGroup> i){
 		SegmentDataset copy=new SegmentDataset();
 		while(i.hasNext()){
-			Object o=i.next();
-			copy.addCandidateSegmentGroup((CandidateSegmentGroup)o);
+			CandidateSegmentGroup o=i.next();
+			copy.addCandidateSegmentGroup(o);
 		}
 		return copy;
 	}

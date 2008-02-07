@@ -1,16 +1,11 @@
 /* Copyright 2004, Carnegie Mellon, All Rights Reserved */
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.io.*;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
 
 /** 
  * Adjust the precision-recall of a CMM that is based on an array of hyperplanes,

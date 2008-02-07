@@ -1,9 +1,6 @@
 package edu.cmu.minorthird.classify.sequential;
 
 
-import java.text.*;
-import java.util.*;
-import java.lang.*;
 
 // Compute posterior probabilities using Forward and Backward
 

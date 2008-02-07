@@ -1,9 +1,5 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.log4j.Logger;
 
 import edu.cmu.minorthird.classify.Dataset;
@@ -32,15 +28,15 @@ public class CrossValidatedSequenceDataset implements Visible
 	private Evaluation v;
 
 	public CrossValidatedSequenceDataset(
-		SequenceClassifierLearner learner,SequenceDataset d,Splitter splitter)
+			SequenceClassifierLearner learner,SequenceDataset d,Splitter<Example[]> splitter)
 	{
 		this(learner,d,splitter,false);
 	}
 
 	public CrossValidatedSequenceDataset(
-		SequenceClassifierLearner learner,SequenceDataset d,Splitter splitter,boolean saveTrainPartitions)
+			SequenceClassifierLearner learner,SequenceDataset d,Splitter<Example[]> splitter,boolean saveTrainPartitions)
 	{
-		Dataset.Split s = d.split(splitter);
+		Dataset.Split s = d.splitSequence(splitter);
 		cds = new ClassifiedSequenceDataset[s.getNumPartitions()];
 		trainCds = saveTrainPartitions ? new ClassifiedSequenceDataset[s.getNumPartitions()] : null;
 		v = new Evaluation(d.getSchema());
@@ -49,7 +45,7 @@ public class CrossValidatedSequenceDataset implements Visible
 			SequenceDataset trainData = (SequenceDataset)s.getTrain(k);
 			SequenceDataset testData = (SequenceDataset)s.getTest(k);
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
-							 +" and test on "+testData.size());
+					+" and test on "+testData.size());
 			//showSubpops("subpops for test fold "+k+": ", testData);
 			SequenceClassifier c = new DatasetSequenceClassifierTeacher(trainData).train(learner);
 			cds[k] = new ClassifiedSequenceDataset(c, testData);
@@ -66,15 +62,15 @@ public class CrossValidatedSequenceDataset implements Visible
 		return v;
 	}
 
-	private void showSubpops(String msg,SequenceDataset d)
-	{
-		Set ids = new TreeSet();
-		for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
-			Example e = i.next();
-			ids.add(e.getSubpopulationId());
-		}
-		log.debug(msg+ids.toString());
-	}
+//	private void showSubpops(String msg,SequenceDataset d)
+//	{
+//		Set ids = new TreeSet();
+//		for (Iterator<Example> i=d.iterator(); i.hasNext(); ) {
+//			Example e = i.next();
+//			ids.add(e.getSubpopulationId());
+//		}
+//		log.debug(msg+ids.toString());
+//	}
 
 	public Viewer toGUI()
 	{
@@ -82,33 +78,36 @@ public class CrossValidatedSequenceDataset implements Visible
 		for (int i=0; i<cds.length; i++) {
 			final int k = i;
 			main.addSubView(
-				"Test Partition "+(i+1), 
-				new TransformedViewer(cds[0].toGUI()) {
-					public Object transform(Object o) {
-						CrossValidatedSequenceDataset cvd = (CrossValidatedSequenceDataset)o;
-						return cds[k];
-					}});
+					"Test Partition "+(i+1), 
+					new TransformedViewer(cds[0].toGUI()) {
+						static final long serialVersionUID=20080207L;
+						public Object transform(Object o) {
+//							CrossValidatedSequenceDataset cvd = (CrossValidatedSequenceDataset)o;
+							return cds[k];
+						}});
 		}
 		if (trainCds!=null) {
 			for (int i=0; i<trainCds.length; i++) {
 				final int k = i;
 				main.addSubView(
-					"Train Partition "+(i+1), 
-					new TransformedViewer(cds[0].toGUI()) {
-						public Object transform(Object o) {
-							CrossValidatedSequenceDataset cvd = (CrossValidatedSequenceDataset)o;
-							return trainCds[k];
-						}});
+						"Train Partition "+(i+1), 
+						new TransformedViewer(cds[0].toGUI()) {
+							static final long serialVersionUID=20080207L;
+							public Object transform(Object o) {
+//								CrossValidatedSequenceDataset cvd = (CrossValidatedSequenceDataset)o;
+								return trainCds[k];
+							}});
 			}
 		}
 		main.addSubView(
-			"Overall Evaluation", 
-			new TransformedViewer(v.toGUI()) {
-				public Object transform(Object o) {
-					CrossValidatedSequenceDataset cvd = (CrossValidatedSequenceDataset)o;												
-					return cvd.v;
-				}
-			});
+				"Overall Evaluation", 
+				new TransformedViewer(v.toGUI()) {
+					static final long serialVersionUID=20080207L;
+					public Object transform(Object o) {
+						CrossValidatedSequenceDataset cvd = (CrossValidatedSequenceDataset)o;												
+						return cvd.v;
+					}
+				});
 		main.setContent(this);
 		return main;
 	}
@@ -116,5 +115,5 @@ public class CrossValidatedSequenceDataset implements Visible
 	public static void main(String[] args)
 	{
 	}
-	
+
 }

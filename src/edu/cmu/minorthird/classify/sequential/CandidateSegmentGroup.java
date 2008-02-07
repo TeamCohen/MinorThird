@@ -53,7 +53,7 @@ public interface CandidateSegmentGroup extends HasSubpopulationId
 
   /** Return the set of strings associated with ClassLabels on any of the stored segments.
    */
-	public Set classNameSet();
+	public Set<String> classNameSet();
 
   /** Return the subpopulationId for the original sequence.
    */

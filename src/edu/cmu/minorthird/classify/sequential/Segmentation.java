@@ -1,7 +1,9 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import java.util.*;
-import edu.cmu.minorthird.classify.*;
+import java.util.Iterator;
+import java.util.TreeSet;
+
+import edu.cmu.minorthird.classify.ExampleSchema;
 
 /**
  * @author William Cohen
@@ -9,13 +11,13 @@ import edu.cmu.minorthird.classify.*;
 
 public class Segmentation
 {
-	private TreeSet segments = new TreeSet();
+	private TreeSet<Segment> segments = new TreeSet<Segment>();
 	private ExampleSchema schema;
 
 	public Segmentation(ExampleSchema schema) { this.schema = schema; }
 	public void add(Segment seg) { segments.add(seg); }
 	public boolean contains(Segment seg) { return segments.contains(seg); }
-	public Iterator iterator() { return segments.iterator(); }
+	public Iterator<Segment> iterator() { return segments.iterator(); }
 	public int size() { return segments.size(); }
 	public String className(Segment seg)
 	{
@@ -24,12 +26,11 @@ public class Segmentation
 	}
 	public String toString() { return "[Segmentation: "+segments+"]"; }
 
-	static public class Segment implements Comparable
+	static public class Segment implements Comparable<Segment>
 	{
 		public final int lo,hi,y;
 		public Segment(int lo,int hi,int y) { this.lo=lo; this.hi=hi; this.y=y; }
-		public int compareTo(Object o) {
-			Segment b = (Segment)o;
+		public int compareTo(Segment b) {
 			int cmp = lo - b.lo;
 			if (cmp!=0) return cmp;
 			cmp = hi - b.hi;

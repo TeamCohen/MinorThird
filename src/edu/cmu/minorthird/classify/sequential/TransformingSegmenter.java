@@ -1,19 +1,23 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.transform.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
+import java.io.Serializable;
 
-import javax.swing.*;
-import java.awt.BorderLayout;
-import javax.swing.border.*;
-import java.io.*;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+
+import edu.cmu.minorthird.classify.transform.InstanceTransform;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /*package*/ class TransformingSegmenter implements Segmenter,Serializable,Visible
 {
-  static private final long serialVersionUID = 1;
-  private final int CURRENT_VERSION_NUMBER = 1;
+  static private final long serialVersionUID = 20080207L;
   private InstanceTransform instanceTransform;
   private Segmenter segmenter;
   public TransformingSegmenter(InstanceTransform instanceTransform,Segmenter segmenter)
@@ -32,6 +36,7 @@ import java.io.*;
   public Viewer toGUI()
   {
     Viewer v = new ComponentViewer() {
+    	static final long serialVersionUID=20080207L;
         public JComponent componentFor(Object o) {
           TransformingSegmenter ts = (TransformingSegmenter)o;
           JPanel mainPanel = new JPanel();

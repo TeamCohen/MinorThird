@@ -10,19 +10,9 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
+import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.io.Serializable;
-import java.util.Iterator;
-import org.apache.log4j.*;
-
-import java.text.*;
-import java.util.*;
+import edu.cmu.minorthird.classify.ExampleSchema;
 
 
 public class HMMLearner implements BatchSequenceClassifierLearner,SequenceConstants{
@@ -43,10 +33,14 @@ public class HMMLearner implements BatchSequenceClassifierLearner,SequenceConsta
 
 
 
-  public HMMLearner() {
+  public HMMLearner(int historySize) {
     this.historySize = historySize;
     this.history = new String[historySize];
-  }	
+  }
+  
+  public HMMLearner(){
+  	this(0);
+  }
 
 
 	protected static Logger log = Logger.getLogger(CollinsPerceptronLearner.class);

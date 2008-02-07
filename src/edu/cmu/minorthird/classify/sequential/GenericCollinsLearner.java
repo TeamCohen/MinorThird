@@ -93,9 +93,9 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) 
+			for (Iterator<Example[]> i=dataset.sequenceIterator(); i.hasNext(); ) 
 			{
-				Example[] sequence = (Example[])i.next();
+				Example[] sequence = i.next();
 				Classifier c = new SequenceUtils.MultiClassClassifier(schema,innerLearner);
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
 				if (DEBUG) log.debug("classifier: "+c);

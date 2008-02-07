@@ -1,11 +1,11 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-
-import java.io.Serializable;
 import java.util.Iterator;
-import java.util.*;
-import java.awt.*;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.Instance;
 
 
 /**
@@ -18,6 +18,8 @@ import java.awt.*;
 
 public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearner,SequenceConstants,Segmenter
 {
+	static final long serialVersionUID=20080207L;
+	
   static int negativeClass = 0;
   int maxMemory;
 
@@ -94,7 +96,7 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
   };
 
   class CRFSegmentDataIter implements iitb.CRF.DataIter {
-    SegmentDataset.Looper iter;
+    Iterator<CandidateSegmentGroup> iter;
     SegmentDataset dataset;
     SegmentDataSequence segData;
     CRFSegmentDataIter(SegmentDataset ds) {
@@ -108,12 +110,13 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
 	    return iter.hasNext();
     }
     public iitb.CRF.DataSequence next() {
-	    segData.init(iter.nextCandidateSegmentGroup());
+	    segData.init(iter.next());
 	    return segData;
     }
   };
 
   class  NestedMTFeatureTypes extends MTFeatureTypes {
+  	static final long serialVersionUID=20080207L;
     NestedMTFeatureTypes(iitb.Model.NestedFeatureGenImpl gen) {
 	    super(gen);
     }
@@ -126,6 +129,7 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
   };
 
   public class SemiMTFeatureGenImpl extends iitb.Model.NestedFeatureGenImpl {
+  	static final long serialVersionUID=20080207L;
     public SemiMTFeatureGenImpl(int numLabels, String[] labelNames, java.util.Properties options) throws Exception {
 	    super(numLabels,options,false);
 	    Feature features[] = new Feature[labelNames.length];

@@ -1,15 +1,27 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.classify.algorithms.svm.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.classify.experiments.*;
-import edu.cmu.minorthird.classify.transform.*;
+import java.util.Iterator;
 
-import java.util.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.Splitter;
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
+import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
+import edu.cmu.minorthird.classify.transform.AugmentedInstance;
+import edu.cmu.minorthird.util.MathUtil;
+import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.gui.ParallelViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.TransformedViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  * @author William Cohen
@@ -25,7 +37,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 	public static class StackingParams {
 		public int historySize=5, futureSize=5, stackingDepth=1;
 		public boolean useLogistic=true,useTargetPrediction=true,useConfidence=true;
-		public Splitter splitter=new CrossValSplitter(5);
+		public Splitter<Example[]> splitter=new CrossValSplitter<Example[]>(5);
 		int crossValSplits=5;
 
 		/** Number of instances before the current target for which the
@@ -57,7 +69,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 		/* Number of cross-validation splits to use in making predictions */
 		public int getCrossValSplits() { return crossValSplits; }
 		public void setCrossValSplits(int newCrossValSplits) { 
-			this.splitter = new CrossValSplitter(newCrossValSplits);
+			this.splitter = new CrossValSplitter<Example[]>(newCrossValSplits);
 			crossValSplits = newCrossValSplits;
 		}
 	}
@@ -135,11 +147,11 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 	 */
 	public SequenceDataset stackDataset(SequenceDataset dataset)
 	{
-		String[] history = new String[params.historySize];
+//		String[] history = new String[params.historySize];
 		SequenceDataset result = new SequenceDataset();
 				
-		Dataset.Split s = dataset.split(params.splitter);
-		ExampleSchema schema = dataset.getSchema();
+		Dataset.Split s = dataset.splitSequence(params.splitter);
+//		ExampleSchema schema = dataset.getSchema();
 		ProgressCounter pc = new ProgressCounter("labeling for stacking","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			SequenceDataset trainData = (SequenceDataset)s.getTrain(k);
@@ -147,8 +159,8 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 			log.info("splitting with "+params.splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
 			SequenceClassifier c = new DatasetSequenceClassifierTeacher(trainData).train(baseLearner);
-			for (Iterator i=testData.sequenceIterator(); i.hasNext(); ) {
-				Example[] seq = (Example[])i.next();
+			for (Iterator<Example[]> i=testData.sequenceIterator(); i.hasNext(); ) {
+				Example[] seq = i.next();
 				ClassLabel[] labels = c.classification(seq);
 				Example[] stackSeq = new Example[seq.length];
 				for (int j=0; j<seq.length; j++) {
@@ -201,7 +213,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 	private class StackedSequenceClassifier implements SequenceClassifier,Visible
 	{
 		private SequenceClassifier[] m; 
-		private ExampleSchema schema;
+//		private ExampleSchema schema;
 		private StackingParams params;
 
 		public StackedSequenceClassifier(SequenceClassifier[] m, StackingParams params) 
@@ -212,7 +224,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 
 		public ClassLabel[] classification(Instance[] sequence)
 		{
-			String[] history = new String[params.historySize];
+//			String[] history = new String[params.historySize];
 			ClassLabel[] labels = m[0].classification(sequence);
 			Instance[] augmentedSequence = new Instance[sequence.length];
 			for (int d=1; d<m.length; d++) {
@@ -243,6 +255,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 				v.addSubView( 
 					"Level "+k+" classifier",
 					new TransformedViewer( new SmartVanillaViewer(m[k]) ) {
+						static final long serialVersionUID=20080207L;
 						public Object transform(Object o) {
 							StackedSequenceClassifier s = (StackedSequenceClassifier)o;
 							return s.m[k];

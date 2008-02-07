@@ -1,8 +1,5 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import java.text.*;
-import java.util.*;
-import java.lang.*;
 
 public class HMMAlgo {
   HMM hmm;                      // the hidden Markov model

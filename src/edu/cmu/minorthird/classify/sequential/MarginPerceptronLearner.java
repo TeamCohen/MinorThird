@@ -1,17 +1,14 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.io.Serializable;
 import java.util.Iterator;
-import org.apache.log4j.*;
-
 import java.util.Vector;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 /**
  * Sequential learner based on the perceptron algorithm that takes the
@@ -49,7 +46,7 @@ public class MarginPerceptronLearner extends CollinsPerceptronLearner
 		ProgressCounter pc =
 	    new ProgressCounter("training sequence perceptron","sequence",getNumberOfEpochs()*dataset.numberOfSequences());
 		
-		Vector viterbiS = new Vector();
+		Vector<ClassLabel[]> viterbiS = new Vector<ClassLabel[]>();
 		for (int epoch=0; epoch<getNumberOfEpochs(); epoch++) 
 		{
 			// statistics for curious researchers
@@ -57,9 +54,9 @@ public class MarginPerceptronLearner extends CollinsPerceptronLearner
 			int transitionErrors = 0;
 			int transitions = 0;
 			
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) 
+			for (Iterator<Example[]> i=dataset.sequenceIterator(); i.hasNext(); ) 
 			{
-				Example[] sequence = (Example[])i.next();
+				Example[] sequence = i.next();
 				BeamSearcher beam = new BeamSearcher(c,getHistorySize(),schema);
 				beam.doSearch(sequence);			
 				

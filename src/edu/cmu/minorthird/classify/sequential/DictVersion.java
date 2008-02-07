@@ -1,18 +1,18 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.transform.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import javax.swing.*;
-import java.awt.BorderLayout;
-import javax.swing.border.*;
-import java.io.*;
+import com.wcohen.ss.DistanceLearnerFactory;
+import com.wcohen.ss.api.StringDistance;
+import com.wcohen.ss.api.StringDistanceLearner;
+import com.wcohen.ss.lookup.SoftDictionary;
 
-import com.wcohen.ss.api.*;
-import com.wcohen.ss.*;
-import com.wcohen.ss.lookup.*;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.transform.DictionaryTransform;
+import edu.cmu.minorthird.classify.transform.InstanceTransform;
+import edu.cmu.minorthird.classify.transform.LeaveOneOutDictTransformLearner;
 
 
 /**

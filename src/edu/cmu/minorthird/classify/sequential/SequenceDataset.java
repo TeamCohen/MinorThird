@@ -2,14 +2,37 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
+import java.awt.Component;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.DatasetLoader;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.FeatureFactory;
+import edu.cmu.minorthird.classify.GUI;
+import edu.cmu.minorthird.classify.SampleDatasets;
+import edu.cmu.minorthird.classify.Splitter;
+import edu.cmu.minorthird.util.Saveable;
+import edu.cmu.minorthird.util.StringUtil;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.ViewerFrame;
+import edu.cmu.minorthird.util.gui.Visible;
+import edu.cmu.minorthird.util.gui.ZoomedViewer;
 
 /**
  * A dataset of sequences of examples.
@@ -19,11 +42,11 @@ import java.util.*;
 
 public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveable
 {
-	protected ArrayList sequenceList = new ArrayList(); 
+	protected List<Example[]> sequenceList = new ArrayList<Example[]>(); 
 	protected int totalSize = 0;
 	private int historyLength = 1;
 	private String[] history = new String[historyLength];
-	protected Set classNameSet = new HashSet();
+	protected Set<String> classNameSet = new HashSet<String>();
 	protected FeatureFactory factory = new FeatureFactory();
 
 	public FeatureFactory getFeatureFactory(){
@@ -159,8 +182,8 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	{
 		SequenceDataset copy = new SequenceDataset();
 		copy.setHistorySize( getHistorySize() );
-		for (Iterator i=sequenceList.iterator(); i.hasNext(); ) {
-			copy.addSequence( (Example[]) i.next() );
+		for (Iterator<Example[]> i=sequenceList.iterator(); i.hasNext(); ) {
+			copy.addSequence(  i.next() );
 		}
 		return copy;
 	}
@@ -169,7 +192,11 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	// split
 	//
 
-	public Split split(final Splitter splitter)
+	public Split split(final Splitter<Example> splitter){
+		throw new UnsupportedOperationException("Use splitSequence instead.");
+	}
+	
+	public Split splitSequence(final Splitter<Example[]> splitter)
 	{
 		splitter.split(sequenceList.iterator());
 		return new Split() {
@@ -178,13 +205,13 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 				public Dataset getTest(int k) { return invertIteration(splitter.getTest(k)); }
 			};
 	}
-	protected Dataset invertIteration(Iterator i) 
+	protected Dataset invertIteration(Iterator<Example[]> i) 
 	{
 		SequenceDataset copy = new SequenceDataset();
 		copy.setHistorySize( getHistorySize() );
 		while (i.hasNext()) {
-			Object o = i.next();
-			copy.addSequence((Example[])o);
+			Example[] o = i.next();
+			copy.addSequence(o);
 		}
 		return copy;
 	}
@@ -193,15 +220,15 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	// iterate over examples, having added extra history fields to them
 	//
 
-	private class MyIterator implements Iterator
+	private class MyIterator implements Iterator<Example>
 	{
-		private Iterator i;
+		private Iterator<Example[]> i;
 		private Example[] buf;
 		private int j;
 		public MyIterator()
 		{
 			i = sequenceList.iterator();
-			if (i.hasNext()) buf = (Example[])i.next();
+			if (i.hasNext()) buf = i.next();
 			else buf = new Example[]{};
 			j = 0;
 		}
@@ -209,10 +236,10 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 		{
 			return (j<buf.length || i.hasNext());
 		}
-		public Object next()
+		public Example next()
 		{
 			if (j>=buf.length) {
-				buf = (Example[])i.next();
+				buf = i.next();
 				j = 0;
 			}
 			// build history
@@ -235,8 +262,8 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer("[SeqData:\n");
-		for (Iterator i=sequenceList.iterator(); i.hasNext(); ) {
-			Example[] seq = (Example[]) i.next();
+		for (Iterator<Example[]> i=sequenceList.iterator(); i.hasNext(); ) {
+			Example[] seq = i.next();
 			for (int j=0; j<seq.length; j++) {
 				buf.append(" "+seq[j]);
 			}
@@ -277,6 +304,8 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 
 	private static class MyDataViewer extends ComponentViewer
 	{
+		static final long serialVersionUID=20080207L;
+		
 		public JComponent componentFor(Object o) {
 			SequenceDataset d = (SequenceDataset)o;
 			final Example[] arr = new Example[d.size()];
@@ -298,7 +327,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,Saveab
 	{
 		SequenceDataset d = SampleDatasets.makeToySequenceData();
 		System.out.println(d.toString());
-		ViewerFrame f = new ViewerFrame("Sequence data",d.toGUI());
+		new ViewerFrame("Sequence data",d.toGUI());
 		if (args.length>0) 
 			DatasetLoader.saveSequence(d,new File(args[0]));
 	}

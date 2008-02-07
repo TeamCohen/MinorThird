@@ -164,7 +164,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	};
 
 	class CRFDataIter implements iitb.CRF.DataIter {
-		Iterator iter;
+		Iterator<Example[]> iter;
 		SequenceDataset dataset;
 		TrainDataSequenceC sequence;
 		int dataSize;
@@ -180,12 +180,13 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 			return iter.hasNext();
 		}
 		public iitb.CRF.DataSequence next() {
-			sequence.init((Example[])iter.next());
+			sequence.init(iter.next());
 			return sequence;
 		}
 	};
 
 	class  MTFeatureTypes extends iitb.Model.FeatureTypes {
+		static final long serialVersionUID=20080207L;
 		Iterator<Feature> featureLooper;
 		Feature feature;
 		int numStates;
@@ -237,6 +238,9 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 
 	public class MTFeatureGenImpl extends iitb.Model.FeatureGenImpl 
 	{
+		
+		static final long serialVersionUID=20080207L;
+		
 		public MTFeatureGenImpl(String modelSpecs, int numLabels, String[] labelNames) throws Exception 
 		{
 			super(modelSpecs,numLabels,false);
@@ -348,8 +352,9 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	public Viewer toGUI()
 	{
 		Viewer v = new ComponentViewer() {
+			static final long serialVersionUID=20080207L;
 			public JComponent componentFor(Object o) {
-				CRFLearner cmm = (CRFLearner)o;
+//				CRFLearner cmm = (CRFLearner)o;
 				JPanel mainPanel = new JPanel();
 				mainPanel.setLayout(new BorderLayout());
 				mainPanel.add(

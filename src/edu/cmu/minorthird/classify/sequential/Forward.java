@@ -1,9 +1,6 @@
 package edu.cmu.minorthird.classify.sequential;
 
 
-import java.text.*;
-import java.util.*;
-import java.lang.*;
 
 // The `Forward algorithm': find the probability of an observed sequence x
 

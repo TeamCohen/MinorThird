@@ -1,8 +1,6 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import java.text.*;
-import java.util.*;
-import java.lang.*;
+import java.util.ArrayList;
 
 
 
@@ -55,7 +53,7 @@ public class Viterbi extends HMMAlgo {
   }
 
   public String[] getPath() {
-		ArrayList p = new ArrayList(); 
+		ArrayList<StringBuffer> p = new ArrayList<StringBuffer>(); 
 		
     Traceback2 tb = B0;
     int i = tb.i, j = tb.j;

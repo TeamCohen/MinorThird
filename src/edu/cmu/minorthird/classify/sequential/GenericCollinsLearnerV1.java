@@ -1,15 +1,27 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
-import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
-import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.gui.*;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.io.Serializable;
 import java.util.Iterator;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+
+import edu.cmu.minorthird.classify.BinaryClassifier;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.OnlineBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
+import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  * Generic version of Collin's voted perceptron learner.
@@ -89,9 +101,9 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) {
+			for (Iterator<Example[]> i=dataset.sequenceIterator(); i.hasNext(); ) {
 
-				Example[] sequence = (Example[])i.next();
+				Example[] sequence = i.next();
 				Classifier c = new MultiClassClassifier(schema,innerLearner);
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
 
@@ -194,6 +206,7 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 		public Viewer toGUI()
 		{
 			Viewer gui = new ComponentViewer() {
+				static final long serialVersionUID=20080207L;
 					public JComponent componentFor(Object o) {
 						MultiClassClassifier c = (MultiClassClassifier)o;
 						JPanel main = new JPanel();

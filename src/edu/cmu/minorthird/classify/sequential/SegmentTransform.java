@@ -1,14 +1,10 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.transform.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
+import java.util.Iterator;
 
-import javax.swing.*;
-import java.awt.BorderLayout;
-import javax.swing.border.*;
-import java.io.*;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.transform.InstanceTransform;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 /*package*/ class SegmentTransform
 {
@@ -21,8 +17,8 @@ import java.io.*;
     ProgressCounter pc = 
       new ProgressCounter("adding dictionary distances","segment group",dataset.getNumberOfSegmentGroups());
     SegmentDataset transformed = new SegmentDataset();
-    for (SegmentDataset.Looper i = dataset.candidateSegmentGroupIterator(); i.hasNext(); ) {
-      transformed.addCandidateSegmentGroup( transform(i.nextCandidateSegmentGroup()) );
+    for (Iterator<CandidateSegmentGroup> i = dataset.candidateSegmentGroupIterator(); i.hasNext(); ) {
+      transformed.addCandidateSegmentGroup( transform(i.next()) );
       pc.progress();
     }
     pc.finished();

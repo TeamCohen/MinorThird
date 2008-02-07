@@ -1,23 +1,31 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
-import org.apache.log4j.*;
 
-import java.text.*;
-import java.util.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 
 //// so here when you call the 		MultiClassHMMClassifier, it's like return MultiClassHMMClassifier( dataset)	
 	public class MultiClassHMMClassifier implements SequenceClassifier,SequenceConstants,Visible,Serializable
 	{
+		
+		static final long serialVersionUID=20080207L;
+		
 		private ExampleSchema schema;
 		public HMM hmmModel;
 		private int numStates; 
@@ -25,10 +33,10 @@ import java.util.*;
 		String[] state;
     double[][] aprob;
     double[][] eprob;
-		ArrayList training_seq;
-		private Hashtable dict_tok;
-		private Hashtable dict_tok2idx;
-		private Hashtable dict_idx2tok;
+		ArrayList<String[]> training_seq;
+		private Hashtable<String,String> dict_tok;
+//		private Hashtable<String,String> dict_tok2idx;
+//		private Hashtable<String,String> dict_idx2tok;
 						
 		/* HMM needs the dataset, to build the Hashtables and init all the matrix*/
 		public MultiClassHMMClassifier(SequenceDataset dataset) 
@@ -46,17 +54,17 @@ import java.util.*;
 				state[i] = schema.getClassName(i);
 			}
 
-			this.dict_tok = new Hashtable();
-			training_seq = new ArrayList();
+			this.dict_tok = new Hashtable<String,String>();
+			training_seq = new ArrayList<String[]>();
 			
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) {
-				Example[] sequence = (Example[])i.next();
+			for (Iterator<Example[]> i=dataset.sequenceIterator(); i.hasNext(); ) {
+				Example[] sequence = i.next();
 				String[] tok = new String[sequence.length];			
-				int labels[] = new int[sequence.length];
+//				int labels[] = new int[sequence.length];
 				int size;
 				String token;
 				for (int j=0; j<sequence.length; j++) {
-						ClassLabel label = sequence[j].getLabel();
+//						ClassLabel label = sequence[j].getLabel();
 						size = sequence[j].numericFeatureIterator().next().size();
 						token = sequence[j].numericFeatureIterator().next().getPart(size-1);
 						tok[j] = token;
@@ -84,14 +92,11 @@ import java.util.*;
 
 /*baum welch for hmm*/
 		public void  baumwelch( final double threshold) {
-			ArrayList training_data = new ArrayList( this.training_seq.size());
+			ArrayList<String[]> training_data = new ArrayList<String[]>( this.training_seq.size());
 			for( int i=0; i<training_seq.size();i++){
-				training_data.add( hmmModel.convert_Ob_seq( (String [])training_seq.get(i) ) );
+				training_data.add( hmmModel.convert_Ob_seq( training_seq.get(i) ) );
 			}
-			
-			
-			
-			hmmModel = hmmModel.baumwelch( training_data, this.state, this.dict_tok, threshold);    
+			hmmModel = HMM.baumwelch( training_data, this.state, this.dict_tok, threshold);    
 			return;                          	
     }
 
@@ -155,6 +160,7 @@ this function is also required to be re-written*/
 		public Viewer toGUI()
 		{
 			Viewer gui = new ComponentViewer() {
+				static final long serialVersionUID=20080207L;
 					public JComponent componentFor(Object o) {
 						MultiClassHMMClassifier c = (MultiClassHMMClassifier)o;
 						JPanel main = new JPanel();

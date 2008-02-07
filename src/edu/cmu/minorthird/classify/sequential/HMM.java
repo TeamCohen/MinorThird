@@ -13,9 +13,10 @@
 // i     = 1,...,L           indexes x, the observed string, x_0 not a symbol
 // k,ell = 0,...,hmm.nstate-1  indexes hmm.state(k)   a_0 is the start state
 package edu.cmu.minorthird.classify.sequential;
-import java.text.*;
-import java.util.*;
-import java.lang.*;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 // Some algorithms for Hidden Markov Models (Chapter 3): Viterbi,
 // Forward, Backward, Baum-Welch.  We compute with log probabilities.
@@ -29,9 +30,9 @@ public class HMM {
 
   // Emission names and emission probabilities
   int nesym;            // number of emission symbols
-  Hashtable esym = new Hashtable();         // the emission symbols e1,...,eL (characters)
-  Hashtable esym_tok2idx;
-  Hashtable esym_idx2tok;
+  Hashtable<String,String> esym = new Hashtable<String,String>();         // the emission symbols e1,...,eL (characters)
+  Hashtable<String,String> esym_tok2idx;
+  Hashtable<String,String> esym_idx2tok;
 
   double[][] emat;	// emision matrix
   double[][] loge;      // loge[k][ei] = log(P(emit ei in state k))
@@ -43,7 +44,7 @@ public class HMM {
   // emat  = matrix of emission probabilities
 
   public HMM(String[] state, double[][] amat, 
-             Hashtable esym, double[][] emat) {
+             Hashtable<String,String> esym, double[][] emat) {
     if (state.length != amat.length)
       throw new IllegalArgumentException("HMM: state and amat disagree");
     if (amat.length != emat.length)
@@ -77,19 +78,19 @@ public class HMM {
     }
     
     this.esym = esym;
-    esym_tok2idx = new Hashtable();
-    esym_idx2tok = new Hashtable();
+    esym_tok2idx = new Hashtable<String,String>();
+    esym_idx2tok = new Hashtable<String,String>();
     int idx=0;
-		  for ( Enumeration e_keys = esym.keys(); e_keys.hasMoreElements();){
-		    	String key = (String)e_keys.nextElement();
+		  for ( Enumeration<String> e_keys = esym.keys(); e_keys.hasMoreElements();){
+		    	String key = e_keys.nextElement();
 					esym_tok2idx.put(key, String.valueOf(idx) );
 					esym_idx2tok.put(String.valueOf(idx),key );
 					idx ++;
      }				   
 
-		  for ( Enumeration e_keys = esym_tok2idx.keys(); e_keys.hasMoreElements();){
-		    	String key = (String)e_keys.nextElement();
-					String val = (String)esym_tok2idx.get(key );
+		  for ( Enumeration<String> e_keys = esym_tok2idx.keys(); e_keys.hasMoreElements();){
+		    	String key = e_keys.nextElement();
+					String val = esym_tok2idx.get(key );
 					System.out.println("in esym_tok2idx: "+key+"<--->"+val);
      }				        
      
@@ -145,7 +146,7 @@ public class HMM {
     }*/
 
   private static DecimalFormat fmt = new DecimalFormat("0.000000 ");
-  private static String hdrpad     =                    "        ";
+//  private static String hdrpad     =                    "        ";
 
   public static String fmtlog(double x) {
     if (x == Double.NEGATIVE_INFINITY)
@@ -162,8 +163,8 @@ public class HMM {
   // state is the set of HMM state names
   // esym  is the set of emissible symbols
 
-  public static HMM baumwelch(ArrayList xs, String[] state, 
-                              Hashtable esym, final double threshold) {
+  public static HMM baumwelch(ArrayList<String[]> xs, String[] state, 
+                              Hashtable<String,String> esym, final double threshold) {
     int nstate = state.length;
     int nseqs  = xs.size();
     int nesym  = esym.size();
@@ -195,7 +196,7 @@ public class HMM {
       double[][] A = new double[nstate][nstate];
       double[][] E = new double[nstate][nesym];
       for (int s=0; s<nseqs; s++) {
-        String[] x = (String[])xs.get(s);
+        String[] x = xs.get(s);
         Forward fwd  = fwds[s];
         Backward bwd = bwds[s];
         int L = x.length;
@@ -238,7 +239,7 @@ public class HMM {
     return hmm;
   }
 
-  private static double fwdbwd(HMM hmm, ArrayList xs, Forward[] fwds, 
+  private static double fwdbwd(HMM hmm, ArrayList<String[]> xs, Forward[] fwds, 
                                Backward[] bwds, double[] logP) {
     double loglikelihood = 0;
     for (int s=0; s<xs.size(); s++) {
@@ -257,12 +258,12 @@ public class HMM {
       return Math.exp(x);
   }
 
-  private static double[] uniformdiscrete(int n) {
-    double[] ps = new double[n];
-    for (int i=0; i<n; i++) 
-      ps[i] = 1.0/n;
-    return ps;
-  }    
+//  private static double[] uniformdiscrete(int n) {
+//    double[] ps = new double[n];
+//    for (int i=0; i<n; i++) 
+//      ps[i] = 1.0/n;
+//    return ps;
+//  }    
 
   private static double[] randomdiscrete(int n) {
     double[] ps = new double[n];

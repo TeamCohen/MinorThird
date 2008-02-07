@@ -47,9 +47,9 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 	public int getNumberOfEpochs() { return numberOfEpochs; }
 	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
 	public int getHistorySize() { return historySize; }
-        public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
-        // Help Button
-        public String getHistorySizeHelp() { return "Number of tokens to look back on. <br>The predicted labels for the history are used as features to help classify the current token." ;}
+	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
+	// Help Button
+	public String getHistorySizeHelp() { return "Number of tokens to look back on. <br>The predicted labels for the history are used as features to help classify the current token." ;}
 
 	public void setSchema(ExampleSchema schema)	{	;	}
 
@@ -70,9 +70,9 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (Iterator i=dataset.sequenceIterator(); i.hasNext(); ) 
+			for (Iterator<Example[]> i=dataset.sequenceIterator(); i.hasNext(); ) 
 			{
-				Example[] sequence = (Example[])i.next();
+				Example[] sequence = i.next();
 				ClassLabel[] viterbi = new BeamSearcher(c,historySize,schema).bestLabelSequence(sequence);
 
 				if (DEBUG) log.debug("classifier: "+c);
@@ -125,7 +125,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			} // sequence i
 
 			System.out.println("Epoch "+epoch+": sequenceErr="+sequenceErrors
-												 +" transitionErrors="+transitionErrors+"/"+transitions);
+					+" transitionErrors="+transitionErrors+"/"+transitions);
 
 			if (transitionErrors==0) break;
 
@@ -154,15 +154,15 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 
 		public void setVoteMode(boolean flag) { voteMode=flag; }
 
-    public Hyperplane[] getHyperplanes() { return voteMode? s_t : w_t ; }
-    public ExampleSchema getSchema() { return schema; }
+		public Hyperplane[] getHyperplanes() { return voteMode? s_t : w_t ; }
+		public ExampleSchema getSchema() { return schema; }
 
 		public void update(String className, Instance instance, double delta)
 		{
 			int index = schema.getClassIndex(className);
 			w_t[index].increment( instance, delta ); 
 		}
-		
+
 		public void completeUpdate()
 		{
 			for (int i=0; i<numClasses; i++) {
@@ -191,36 +191,37 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			}
 			return buf.toString();
 		}
-	    public Explanation getExplanation(Instance instance) {
-		Hyperplane[] h = voteMode ? s_t : w_t ;
-		Explanation.Node top = new Explanation.Node("CollinsPerceptron Explanation");
-		for (int i=0; i<numClasses; i++) {			
-		    Explanation.Node hyp = new Explanation.Node("Hyperplane for class "+schema.getClassName(i)+":\n");
-		    Explanation.Node explanation = h[i].getExplanation(instance).getTopNode();
-		    hyp.add(explanation);
-		    top.add(hyp);
+		public Explanation getExplanation(Instance instance) {
+			Hyperplane[] h = voteMode ? s_t : w_t ;
+			Explanation.Node top = new Explanation.Node("CollinsPerceptron Explanation");
+			for (int i=0; i<numClasses; i++) {			
+				Explanation.Node hyp = new Explanation.Node("Hyperplane for class "+schema.getClassName(i)+":\n");
+				Explanation.Node explanation = h[i].getExplanation(instance).getTopNode();
+				hyp.add(explanation);
+				top.add(hyp);
+			}
+			Explanation ex = new Explanation(top);
+			return ex;
 		}
-		Explanation ex = new Explanation(top);
-		return ex;
-	    }
 
 		public Viewer toGUI()
 		{
 			Viewer gui = new ComponentViewer() {
-					public JComponent componentFor(Object o) {
-						MultiClassVPClassifier c = (MultiClassVPClassifier)o;
-						JPanel main = new JPanel();
-						for (int i=0; i<numClasses; i++) {
-							JPanel classPanel = new JPanel();
-							classPanel.setBorder(new TitledBorder("Class "+c.schema.getClassName(i)));
-							Viewer subviewer = voteMode ? s_t[i].toGUI() : w_t[i].toGUI();
-							subviewer.setSuperView( this );
-							classPanel.add( subviewer );
-							main.add(classPanel);
-						}
-						return new JScrollPane(main);
+				static final long serialVersionUID=20080207L;
+				public JComponent componentFor(Object o) {
+					MultiClassVPClassifier c = (MultiClassVPClassifier)o;
+					JPanel main = new JPanel();
+					for (int i=0; i<numClasses; i++) {
+						JPanel classPanel = new JPanel();
+						classPanel.setBorder(new TitledBorder("Class "+c.schema.getClassName(i)));
+						Viewer subviewer = voteMode ? s_t[i].toGUI() : w_t[i].toGUI();
+						subviewer.setSuperView( this );
+						classPanel.add( subviewer );
+						main.add(classPanel);
 					}
-				};
+					return new JScrollPane(main);
+				}
+			};
 			gui.setContent(this);
 			return gui;
 		}

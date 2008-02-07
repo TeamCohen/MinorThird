@@ -2,12 +2,22 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
-import java.util.*;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.OnlineClassifierLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.Hyperplane;
+import edu.cmu.minorthird.classify.algorithms.linear.MarginPerceptron;
+import edu.cmu.minorthird.classify.sequential.Segmentation.Segment;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 /**
  *
@@ -87,12 +97,12 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (SegmentDataset.Looper i=dataset.candidateSegmentGroupIterator(); i.hasNext(); ) 
+			for (Iterator<CandidateSegmentGroup> i=dataset.candidateSegmentGroupIterator(); i.hasNext(); ) 
 			{
 				Classifier c = new SequenceUtils.MultiClassClassifier(schema,innerLearner);
 				if (DEBUG) log.debug("classifier is: "+c);
 
-				CandidateSegmentGroup g = i.nextCandidateSegmentGroup();
+				CandidateSegmentGroup g = i.next();
 				Segmentation viterbi = 
 					new SegmentCollinsPerceptronLearner.ViterbiSearcher(c,schema,maxSegmentSize).bestSegments(g);
 				if (DEBUG) log.debug("viterbi "+maxSegmentSize+"\n"+viterbi);
@@ -160,12 +170,12 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 	{
 		int errors = 0;
 		// first, work out the name of the previous class for each segment
-		Map map = previousClassMap(segments,schema);
-		Map otherMap = previousClassMap(otherSegments,schema);
+		Map<Segment,String> map = previousClassMap(segments,schema);
+		Map<Segment,String> otherMap = previousClassMap(otherSegments,schema);
 		String[] history = new String[1];
-		for (Iterator j=segments.iterator(); j.hasNext(); ) {
-			Segmentation.Segment seg = (Segmentation.Segment)j.next();
-			String previousClass = (String) map.get(seg);
+		for (Iterator<Segment> j=segments.iterator(); j.hasNext(); ) {
+			Segmentation.Segment seg = j.next();
+			String previousClass = map.get(seg);
 			if (seg.lo>=0 && (!otherSegments.contains(seg) || !otherMap.get(seg).equals(previousClass))) {
 				errors++;
 				history[0] = previousClass;
@@ -181,13 +191,13 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 	 * This should let you look up segments which are logically
 	 * equivalent, as well as ones which are pointer-equivalent (==)
 	 */
-	private Map previousClassMap(Segmentation segments,ExampleSchema schema)
+	private Map<Segment,String> previousClassMap(Segmentation segments,ExampleSchema schema)
 	{
 		// use a treemap so that logically equivalent segments be mapped to same previousClass
-		Map map = new TreeMap(); 
+		Map<Segment,String> map = new TreeMap<Segment,String>(); 
 		Segmentation.Segment previousSeg = null;
-		for (Iterator j=segments.iterator(); j.hasNext(); ) {
-			Segmentation.Segment seg = (Segmentation.Segment)j.next();
+		for (Iterator<Segment> j=segments.iterator(); j.hasNext(); ) {
+			Segmentation.Segment seg = j.next();
 			String previousClassName = previousSeg==null ? NULL_CLASS_NAME : schema.getClassName(previousSeg.y);
 			map.put( seg, previousClassName);
 			previousSeg = seg;
@@ -215,8 +225,8 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 				}
 			}
 			if (!addedASegmentStartingAtPos) {
-				Instance inst = g.getSubsequenceInstance(pos,pos+1);
-				ClassLabel label = g.getSubsequenceLabel(pos,pos+1);
+//				Instance inst = g.getSubsequenceInstance(pos,pos+1);
+//				ClassLabel label = g.getSubsequenceLabel(pos,pos+1);
 				result.add( new Segmentation.Segment(pos,pos+1,schema.getClassIndex(ExampleSchema.NEG_CLASS_NAME)) );
 				pos += 1;
 			}

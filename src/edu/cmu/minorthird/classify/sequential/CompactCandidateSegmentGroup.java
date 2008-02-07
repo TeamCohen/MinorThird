@@ -21,9 +21,11 @@ import gnu.trove.*;
 public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 		Serializable{
 
+	static final long serialVersionUID=20080207L;
+	
 	private int maxWindowSize,sequenceLength,totalSize;
 
-	private Set classNameSet;
+	private Set<String> classNameSet;
 
 	private String subPopId;
 
@@ -73,8 +75,8 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 	 * or otherInstance.  Equivalently, the features in the sum of
 	 * {unitInstance[start],...,unitInstance[end-1],otherInstance}
 	 */
-	private Set binaryFeatureSet(int start,int end,Instance otherInstance){
-		Set s=new HashSet();
+	private Set<Feature> binaryFeatureSet(int start,int end,Instance otherInstance){
+		Set<Feature> s=new HashSet<Feature>();
 		for(int i=start;i<end;i++){
 			addAll(s,unitInstance[i].binaryFeatureIterator());
 		}
@@ -84,8 +86,8 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 	}
 
 	/** Analogous to binaryFeatureSet */
-	private Set numericFeatureSet(int start,int end,Instance otherInstance){
-		Set s=new HashSet();
+	private Set<Feature> numericFeatureSet(int start,int end,Instance otherInstance){
+		Set<Feature> s=new HashSet<Feature>();
 		for(int i=start;i<end;i++){
 			addAll(s,unitInstance[i].numericFeatureIterator());
 		}
@@ -95,14 +97,14 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 	}
 
 	/** Analogous to binaryFeatureSet */
-	private Set featureSet(int start,int end,Instance otherInstance){
-		Set s=new HashSet();
+	private Set<Feature> featureSet(int start,int end,Instance otherInstance){
+		Set<Feature> s=new HashSet<Feature>();
 		s.addAll(binaryFeatureSet(start,end,otherInstance));
 		s.addAll(numericFeatureSet(start,end,otherInstance));
 		return s;
 	}
 
-	private void addAll(Set s,Iterator i){
+	private void addAll(Set<Feature> s,Iterator<Feature> i){
 		while(i.hasNext())
 			s.add(i.next());
 	}
@@ -122,13 +124,15 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 
 	private class Delta implements Serializable{
 
+		static final long serialVersionUID=20080207L;
+		
 		public TObjectDoubleHashMap deltaWeight=new TObjectDoubleHashMap();
 
 		public THashSet zeroWeights=new THashSet();
 
 		public Delta(FeatureFactory factory,int start,int end,
 				Instance segmentInstance){
-			for(Iterator i=featureSet(start,end,segmentInstance).iterator();i
+			for(Iterator<Feature> i=featureSet(start,end,segmentInstance).iterator();i
 					.hasNext();){
 				Feature f=(Feature)i.next();
 				// replace the feature with its canonical version, so
@@ -158,6 +162,8 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 
 	private class DeltaInstance extends AbstractInstance implements Serializable{
 
+		static final long serialVersionUID=20080207L;
+		
 		private int start,end;
 
 		private Delta diff;
@@ -274,7 +280,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 		return totalSize;
 	}
 
-	public Set classNameSet(){
+	public Set<String> classNameSet(){
 		return classNameSet;
 	}
 

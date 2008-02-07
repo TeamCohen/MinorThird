@@ -2,16 +2,26 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.StringUtil;
+import java.awt.BorderLayout;
+import java.io.Serializable;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.io.Serializable;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /** 
  * A conditional markov model classifier.
@@ -21,13 +31,14 @@ import java.io.Serializable;
 
 public class CMM implements ConfidenceReportingSequenceClassifier,SequenceConstants,Visible,Serializable
 {
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 20080207L;
 
-    static private Logger log = Logger.getLogger(CMM.class);
+    static Logger log = Logger.getLogger(CMM.class);
+    
     static private final boolean DEBUG = false;
     private BeamSearcher searcher;
     private int historySize; 
-    private String[] possibleClassLabels;
+//    private String[] possibleClassLabels;
     private Classifier classifier;
     private int beamSize = 10;
 
@@ -36,7 +47,7 @@ public class CMM implements ConfidenceReportingSequenceClassifier,SequenceConsta
         this.searcher = new BeamSearcher(classifier,historySize,schema);
         this.classifier = classifier;
         this.historySize = historySize;
-        this.possibleClassLabels = schema.validClassNames();
+//        this.possibleClassLabels = schema.validClassNames();
     }		
 
     public Classifier getClassifier() { return classifier; }
@@ -94,6 +105,7 @@ public class CMM implements ConfidenceReportingSequenceClassifier,SequenceConsta
     public Viewer toGUI()
     {
         Viewer v = new ComponentViewer() {
+        	static final long serialVersionUID=20080207L;
                 public JComponent componentFor(Object o) {
                     CMM cmm = (CMM)o;
                     JPanel mainPanel = new JPanel();

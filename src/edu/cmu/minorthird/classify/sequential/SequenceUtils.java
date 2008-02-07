@@ -2,26 +2,22 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import java.io.*;
+import java.io.Serializable;
 
-/**
- * Utilities for sequential learning.
- *
- * @author William Cohen
- */
+import javax.swing.JComponent;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import java.io.*;
-import java.util.*;
-import org.apache.log4j.*;
+import edu.cmu.minorthird.classify.BinaryClassifier;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.OneVsAllClassifier;
+import edu.cmu.minorthird.classify.OnlineClassifierLearner;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.VanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 public class SequenceUtils
 {
@@ -43,8 +39,7 @@ public class SequenceUtils
   /** Wraps the OneVsAllClassifier, and provides a more convenient constructor. */ 
   public static class MultiClassClassifier extends OneVsAllClassifier implements Serializable
   {
-  	static private final long serialVersionUID = 1;
-    private int CURRENT_VERSION = 1;
+  	static private final long serialVersionUID = 20080207L;
     
     public MultiClassClassifier(ExampleSchema schema,ClassifierLearner[] learners)
     {
@@ -65,6 +60,7 @@ public class SequenceUtils
     }
     static private class MyBinaryClassifier extends BinaryClassifier implements Visible
     {
+    	static final long serialVersionUID=20080207L;
       private Classifier c;
       public MyBinaryClassifier(Classifier c) { this.c = c; }
       public double score(Instance instance) { return c.classification(instance).posWeight(); };
@@ -76,6 +72,7 @@ public class SequenceUtils
 	}
       public Viewer toGUI() { 
         Viewer v = new ComponentViewer() {
+        	static final long serialVersionUID=20080207L;
             public JComponent componentFor(Object o) {
               MyBinaryClassifier b = (MyBinaryClassifier)o;
               return (b.c instanceof Visible)?((Visible)b.c).toGUI():new VanillaViewer(c);				

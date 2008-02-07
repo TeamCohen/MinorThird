@@ -20,6 +20,7 @@ import javax.swing.border.TitledBorder;
 import org.apache.log4j.Logger;
 
 import edu.cmu.minorthird.classify.ClassifyCommandLineUtil.MultiTrainTestParams;
+import edu.cmu.minorthird.classify.ClassifyCommandLineUtil.SeqTrainTestParams;
 import edu.cmu.minorthird.classify.algorithms.knn.KnnLearner;
 import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
@@ -192,7 +193,7 @@ public class UI{
 						new CrossValidatedSequenceDataset(
 								trainTestParams.seqLnr.seqLearner,
 								(SequenceDataset)trainTestParams.getTrainData(),
-								trainTestParams.splitter);
+								((SeqTrainTestParams)trainTestParams).splitter);
 				trainTestParams.resultToShow=cvd;
 				trainTestParams.resultToSave=cvd.getEvaluation();
 				((Evaluation)trainTestParams.resultToSave).summarize();

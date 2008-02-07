@@ -1,14 +1,8 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.transform.*;
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.util.*;
-
-import javax.swing.*;
-import java.awt.BorderLayout;
-import javax.swing.border.*;
-import java.io.*;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.transform.InstanceTransform;
+import edu.cmu.minorthird.classify.transform.LeaveOneOutDictTransformLearner;
 
 /**
  *

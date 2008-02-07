@@ -2,17 +2,32 @@
 
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.util.*;
-import edu.cmu.minorthird.util.gui.*;
+import java.awt.BorderLayout;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import org.apache.log4j.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
+
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.ExampleSchema;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.MutableInstance;
+import edu.cmu.minorthird.classify.sequential.Segmentation.Segment;
+import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /**
  *
@@ -67,9 +82,9 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 			int transitionErrors = 0;
 			int transitions = 0;
 
-			for (SegmentDataset.Looper i=dataset.candidateSegmentGroupIterator(); i.hasNext(); ) 
+			for (Iterator<CandidateSegmentGroup> i=dataset.candidateSegmentGroupIterator(); i.hasNext(); ) 
 			{
-				CandidateSegmentGroup g = i.nextCandidateSegmentGroup();
+				CandidateSegmentGroup g = i.next();
 				if (DEBUG) log.debug("classifier is: "+c);
 				Segmentation viterbi = new ViterbiSearcher(c,schema,maxSegmentSize).bestSegments(g);
 				if (DEBUG) log.debug("viterbi:\n"+viterbi);
@@ -77,7 +92,7 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 				if (DEBUG) log.debug("correct segments:\n"+correct);
 
 				boolean errorOnThisSequence = false;
-				Segmentation.Segment previousViterbiSeg = null;
+//				Segmentation.Segment previousViterbiSeg = null;
 				int fp = compareSegmentsAndRevise(c, schema, viterbi, correct, -1.0, g);
 				if (fp>0) errorOnThisSequence = true;
 				int fn = compareSegmentsAndRevise(c, schema, correct, viterbi, +1.0, g);
@@ -117,12 +132,12 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 	{
 		int errors = 0;
 		// first, work out the name of the previous class for each segment
-		Map map = previousClassMap(segments,schema);
-		Map otherMap = previousClassMap(otherSegments,schema);
+		Map<Segment,String> map = previousClassMap(segments,schema);
+		Map<Segment,String> otherMap = previousClassMap(otherSegments,schema);
 		String[] history = new String[1];
-		for (Iterator j=segments.iterator(); j.hasNext(); ) {
-			Segmentation.Segment seg = (Segmentation.Segment)j.next();
-			String previousClass = (String) map.get(seg);
+		for (Iterator<Segment> j=segments.iterator(); j.hasNext(); ) {
+			Segmentation.Segment seg = j.next();
+			String previousClass =  map.get(seg);
 			if (seg.lo>=0 && (!otherSegments.contains(seg) || !otherMap.get(seg).equals(previousClass))) {
 				errors++;
 				history[0] = previousClass;
@@ -138,13 +153,13 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 	 * This should let you look up segments which are logically
 	 * equivalent, as well as ones which are pointer-equivalent (==)
 	 */
-	private Map previousClassMap(Segmentation segments,ExampleSchema schema)
+	private Map<Segment,String> previousClassMap(Segmentation segments,ExampleSchema schema)
 	{
 		// use a treemap so that logically equivalent segments be mapped to same previousClass
-		Map map = new TreeMap(); 
+		Map<Segment,String> map = new TreeMap<Segment,String>(); 
 		Segmentation.Segment previousSeg = null;
-		for (Iterator j=segments.iterator(); j.hasNext(); ) {
-			Segmentation.Segment seg = (Segmentation.Segment)j.next();
+		for (Iterator<Segment> j=segments.iterator(); j.hasNext(); ) {
+			Segmentation.Segment seg = j.next();
 			String previousClassName = previousSeg==null ? NULL_CLASS_NAME : schema.getClassName(previousSeg.y);
 			map.put( seg, previousClassName);
 			previousSeg = seg;
@@ -172,8 +187,8 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 				}
 			}
 			if (!addedASegmentStartingAtPos) {
-				Instance inst = g.getSubsequenceInstance(pos,pos+1);
-				ClassLabel label = g.getSubsequenceLabel(pos,pos+1);
+//				Instance inst = g.getSubsequenceInstance(pos,pos+1);
+//				ClassLabel label = g.getSubsequenceLabel(pos,pos+1);
 				result.add( new Segmentation.Segment(pos,pos+1,schema.getClassIndex(ExampleSchema.NEG_CLASS_NAME)) );
 				pos += 1;
 			}
@@ -290,8 +305,7 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 
 	public static class ViterbiSegmenter implements Segmenter,Visible,Serializable
 	{
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_VERSION_NUMBER = 1;
+		static private final long serialVersionUID = 20080207L;
 
 		private Classifier c;
 		private ExampleSchema schema;
@@ -314,6 +328,7 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 		public Viewer toGUI()
 		{
 			Viewer v = new ComponentViewer() {
+				static final long serialVersionUID=20080207L;
 					public JComponent componentFor(Object o) {
 						ViterbiSegmenter vs = (ViterbiSegmenter)o;
 						JPanel mainPanel = new JPanel();
