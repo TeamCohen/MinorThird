@@ -43,11 +43,11 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	private Map<Feature,Double> muPosExamples;
 
-	private Map<Feature,Double> deltaPosExamples;
-
-	private Map<Feature,Double> muNegExamples;
-
-	private Map<Feature,Double> deltaNegExamples;
+//	private Map<Feature,Double> deltaPosExamples;
+//
+//	private Map<Feature,Double> muNegExamples;
+//
+//	private Map<Feature,Double> deltaNegExamples;
 
 	private Map<Feature,String> featurePdf; // model for f: can be "Poisson" or "Negative-Binomial"
 
@@ -539,9 +539,9 @@ public class D2TransformLearner implements InstanceTransformLearner{
 	private void InitReset(){
 		this.T1values=new TreeMap<Feature,Double>();
 		this.muPosExamples=new TreeMap<Feature,Double>();
-		this.muNegExamples=new TreeMap<Feature,Double>();
-		this.deltaPosExamples=new TreeMap<Feature,Double>();
-		this.deltaNegExamples=new TreeMap<Feature,Double>();
+//		this.muNegExamples=new TreeMap<Feature,Double>();
+//		this.deltaPosExamples=new TreeMap<Feature,Double>();
+//		this.deltaNegExamples=new TreeMap<Feature,Double>();
 		this.featurePdf=new TreeMap<Feature,String>();
 
 		this.classParameters=new ArrayList<Double>();
@@ -645,9 +645,9 @@ public class D2TransformLearner implements InstanceTransformLearner{
 		// Sample from PDF of Feature f
 		if(s.equals("Poisson")){
 			Estimate esti=
-					(Estimate)((HashMap)featureGivenClassParameters.get(ci)).get(f);
+					((Map<Feature,Estimate>)featureGivenClassParameters.get(ci)).get(f);
 			Estimate estj=
-					(Estimate)((HashMap)featureGivenClassParameters.get(cj)).get(f);
+					((Map<Feature,Estimate>)featureGivenClassParameters.get(cj)).get(f);
 			SortedMap<String,Double> pmi=esti.getPms();
 			SortedMap<String,Double> pmj=estj.getPms();
 			double lambdai=((Double)pmi.get("lambda")).doubleValue();
@@ -662,15 +662,15 @@ public class D2TransformLearner implements InstanceTransformLearner{
 			}
 		}else if(s.equals("Negative-Binomial")){
 			Estimate esti=
-					(Estimate)((HashMap)featureGivenClassParameters.get(ci)).get(f);
+					((Map<Feature,Estimate>)featureGivenClassParameters.get(ci)).get(f);
 			Estimate estj=
-					(Estimate)((HashMap)featureGivenClassParameters.get(cj)).get(f);
+					((Map<Feature,Estimate>)featureGivenClassParameters.get(cj)).get(f);
 			SortedMap<String,Double> pmi=esti.getPms();
 			SortedMap<String,Double> pmj=estj.getPms();
-			TreeMap npi=
+			TreeMap<String,Number> npi=
 					mudelta2np(((Double)pmi.get("mu")).doubleValue(),((Double)pmi
 							.get("delta")).doubleValue(),1.0);
-			TreeMap npj=
+			TreeMap<String,Number> npj=
 					mudelta2np(((Double)pmj.get("mu")).doubleValue(),((Double)pmj
 							.get("delta")).doubleValue(),1.0);
 			NegativeBinomial Xi=
@@ -733,9 +733,9 @@ public class D2TransformLearner implements InstanceTransformLearner{
 		return p;
 	}
 
-	public TreeMap mudelta2np(double mu,double delta,double omega){
+	public TreeMap<String,Number> mudelta2np(double mu,double delta,double omega){
 		//System.out.println("mu="+mu +", delta="+delta);
-		TreeMap np=new TreeMap();
+		TreeMap<String,Number> np=new TreeMap<String,Number>();
 		// from mu,delta to n
 		int n=(int)Math.ceil(new Double(mu/delta).doubleValue());
 		np.put("n",new Integer(n));
