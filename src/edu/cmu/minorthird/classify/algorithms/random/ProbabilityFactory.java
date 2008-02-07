@@ -19,7 +19,7 @@ public class ProbabilityFactory
         {
             try {
                 rwShadow = Class.forName("eairoldi.random.BasicRWrapper");
-                this.rw = (RWrapper) ((Class)rwShadow).newInstance(); // Note: initialized once at the first call!
+                rw = (RWrapper) ((Class<?>)rwShadow).newInstance(); // Note: initialized once at the first call!
                 FLAG += 1;
             } catch (Exception x) {
                 System.out.println("error: R in Minorthird is not properly installed!");

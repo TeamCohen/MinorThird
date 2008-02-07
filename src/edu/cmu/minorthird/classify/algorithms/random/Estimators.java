@@ -37,7 +37,7 @@ public class Estimators
       //System.out.println("len="+wgt.length);
 
       // package results
-      TreeMap pn = new TreeMap();
+      TreeMap<String,Double> pn = new TreeMap<String,Double>();
       pn.put( "p",new Double(p) );
       pn.put( "N",new Double(N) );
       //System.out.println("p="+p+" N="+N);
@@ -85,7 +85,7 @@ public class Estimators
       if (new Double(d).isNaN()) { d=0.0; }
 
       // package results
-      TreeMap mudelta = new TreeMap();
+      TreeMap<String,Double> mudelta = new TreeMap<String,Double>();
       mudelta.put( "mu",new Double(m) );
       mudelta.put( "delta",new Double(d) );
       //System.out.println("m="+m+" d="+d);
@@ -141,7 +141,7 @@ public class Estimators
       if (d==0.0) { d=1e-7; }
 
       // package results
-      TreeMap mudelta = new TreeMap();
+      TreeMap<String,Double> mudelta = new TreeMap<String,Double>();
       mudelta.put( "mu",new Double(m) );
       mudelta.put( "delta",new Double(d) );
       //System.out.println("m="+m+" d="+d);
@@ -153,7 +153,7 @@ public class Estimators
       //double lambda = (classPrior+observedCounts)/(numberOfClasses+totalCounts);
       double lambda = (classPrior/numberOfClasses+observedCounts)/(classPrior+totalCounts);
       // package results
-      TreeMap tm = new TreeMap();
+      TreeMap<String,Double> tm = new TreeMap<String,Double>();
       tm.put( "lambda",new Double(lambda) );
       return new Estimate("Poisson","lambda",tm);
    }
@@ -174,7 +174,7 @@ public class Estimators
       lambda=(sumX+prior*1.0/scale)/(sumWgt+1.0/scale);
 
       // package results
-      TreeMap tm = new TreeMap();
+      TreeMap<String,Double> tm = new TreeMap<String,Double>();
       tm.put( "lambda",new Double(lambda) );
       return new Estimate("Poisson","weighted-lambda",tm);
    }
@@ -184,7 +184,7 @@ public class Estimators
       //double mean = (classPrior+observedCounts)/(numberOfClasses+totalCounts); //
       double mean = (classPrior/numberOfClasses+observedCounts)/(1.0+totalCounts);
       // package results
-      TreeMap tm = new TreeMap();
+      TreeMap<String,Double> tm = new TreeMap<String,Double>();
       tm.put( "mean",new Double(mean) );
       return new Estimate("Naive-Bayes","mean",tm);
    }
@@ -205,7 +205,7 @@ public class Estimators
       mean=(sumX+prior*1.0/scale)/(sumWgt+1.0/scale);
 
       // package results
-      TreeMap tm = new TreeMap();
+      TreeMap<String,Double> tm = new TreeMap<String,Double>();
       tm.put( "mean",new Double(mean) );
       return new Estimate("Naive-Bayes","weighted-mean",tm);
    }
@@ -220,7 +220,7 @@ public class Estimators
        (Estimate[] lambdaEstimateVec, double[] vlow, double[] vup, double xr, double xp, double wr, double wp, double[] vbeta, double tauSD, double sigmaSD, int numIterations)
    {
       // initialize a Probability Factory
-      ProbabilityFactory pr = new ProbabilityFactory();
+ //     ProbabilityFactory pr = new ProbabilityFactory();
 
       // initialize variables fo MCMC
       int K = lambdaEstimateVec.length;
@@ -232,7 +232,7 @@ public class Estimators
       // compute starting guesses from Lambda estimates
       String parameterization = lambdaEstimateVec[0].getParameterization();
       Estimate[] tauSigmaEstimate = ReparametrizeLambdas2TauSig(lambdaEstimateVec);
-      StringBuffer buf;
+//      StringBuffer buf;
       //buf = new StringBuffer("initial values ::");
       for (int i=0; i<(K-1); i++)
       {
@@ -294,8 +294,8 @@ public class Estimators
       double[] tauPost = new double[ K-1 ];
       double sigmaPost = 0;
 
-      double perc = 0.95;  // controls % of iterations to return
-      int tail = (int) Math.floor(numIterations*(1-perc)); // return [,tail:iter]
+      //double perc = 0.95;  // controls % of iterations to return
+      //int tail = (int) Math.floor(numIterations*(1-perc)); // return [,tail:iter]
 
       for (int i=0; i<(K-1); i++)
       {
@@ -326,7 +326,7 @@ public class Estimators
       Estimate[] tauSigma = new Estimate[ K-1];
       for (int i=0; i<(K-1); i++)
       {
-         TreeMap tm = new TreeMap();
+         TreeMap<String,Double> tm = new TreeMap<String,Double>();
          tm.put( "tau",new Double(tauPost[i]) );
          tm.put( "sigma",new Double(sigmaPost) );
          tauSigma[i] = new Estimate("Dirichlet-Poisson MCMC","tau/sigma",tm);
@@ -358,7 +358,7 @@ public class Estimators
       Estimate[] tauSigma = new Estimate[ K ];
       for (int i=0; i<K; i++)
       {
-         TreeMap tm = new TreeMap();
+         TreeMap<String,Double> tm = new TreeMap<String,Double>();
          tm.put( "tau",new Double(tau[i]) );
          tm.put( "sigma",new Double(sigma) );
          tauSigma[i] = new Estimate("Dirichlet-Poisson MCMC","tau/sigma",tm);
@@ -391,7 +391,7 @@ public class Estimators
       Estimate[] lambdaEstimateVec = new Estimate[ K+1 ];
       for (int i=0; i<(K+1); i++)
       {
-         TreeMap tm = new TreeMap();
+         TreeMap<String,Double> tm = new TreeMap<String,Double>();
          tm.put( "lambda",new Double(lambda[i]) );
          lambdaEstimateVec[i] = new Estimate("Dirichlet-Poisson MCMC",parameterization,tm);
       }
@@ -436,7 +436,7 @@ public class Estimators
    public static double Sum(double[] wgt)
    {
       double s=0;
-      double N = (double)wgt.length;
+      //double N = (double)wgt.length;
       for (int i=0; i<wgt.length; i++)
       {
          s += wgt[i];

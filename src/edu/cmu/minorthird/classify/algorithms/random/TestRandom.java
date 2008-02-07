@@ -51,11 +51,11 @@ public class TestRandom {
 
         // Test Gamma
         Gamma G = new Gamma(1.0,1.0);
-        double[] vec = new double[N_int];
+        //double[] vec = new double[N_int];
 
         for (int k=0; k < N_int; k++) {
             double g = G.nextDouble();
-            //System.out.println(g);
+            System.out.println(g);
         }
 
         // Test Negative-Binomial
@@ -63,7 +63,7 @@ public class TestRandom {
 
         for (int k=0; k < N_int; k++) {
             int nb = NB.nextInt();
-            //System.out.println(nb);
+            System.out.println(nb);
         }
 
         //System.out.println( X.toString() );

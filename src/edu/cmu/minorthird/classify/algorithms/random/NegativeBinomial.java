@@ -74,7 +74,7 @@ public class NegativeBinomial {
          ******************************************************************/
 
         double x = p /(1.0 - p);
-        double p1 = p;
+        //double p1 = p;
         double y = x * this.gamma.nextDouble(n,1.0);
         return this.poisson.nextInt(y);
     }
