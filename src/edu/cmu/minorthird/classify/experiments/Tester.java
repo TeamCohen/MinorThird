@@ -52,7 +52,7 @@ public class Tester
 	static public Evaluation evaluate(StackedBatchClassifierLearner learner,RealRelationalDataset d,Splitter<Example> splitter, String stacked)
 	{
 		Evaluation v = new Evaluation(d.getSchema()); 
-		CoreRelationalDataset.Split s = d.split(splitter);
+		RealRelationalDataset.Split s = d.split(splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			RealRelationalDataset trainData = (RealRelationalDataset)s.getTrain(k);

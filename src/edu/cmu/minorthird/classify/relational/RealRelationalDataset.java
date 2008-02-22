@@ -86,9 +86,9 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 			}
 		};
 	}
-
-	public Split splitSGM(final Splitter<SGMExample> splitter){
-		splitter.split(iteratorSGM());
+	
+	public Split split(final Splitter<Example> splitter){
+		splitter.split(iterator());
 		return new Split(){
 
 			public int getNumPartitions(){
@@ -104,8 +104,34 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 			}
 		};
 	}
+	
+	private RealRelationalDataset invertIteration(Iterator<Example> i){
+		RealRelationalDataset copy=new RealRelationalDataset();
+		while(i.hasNext()){
+			copy.add(i.next());
+		}
+		return copy;
+	}
 
-	private RealRelationalDataset invertIteration(Iterator<SGMExample> i){
+	public Split splitSGM(final Splitter<SGMExample> splitter){
+		splitter.split(iteratorSGM());
+		return new Split(){
+
+			public int getNumPartitions(){
+				return splitter.getNumPartitions();
+			}
+
+			public Dataset getTrain(int k){
+				return invertIterationSGM(splitter.getTrain(k));
+			}
+
+			public Dataset getTest(int k){
+				return invertIterationSGM(splitter.getTest(k));
+			}
+		};
+	}
+
+	private RealRelationalDataset invertIterationSGM(Iterator<SGMExample> i){
 		RealRelationalDataset copy=new RealRelationalDataset();
 		while(i.hasNext()){
 			copy.addSGM(i.next());
