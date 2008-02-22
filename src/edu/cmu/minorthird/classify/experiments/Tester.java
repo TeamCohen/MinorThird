@@ -20,6 +20,7 @@ import edu.cmu.minorthird.classify.multi.MultiDataset;
 import edu.cmu.minorthird.classify.multi.MultiDatasetClassifierTeacher;
 import edu.cmu.minorthird.classify.multi.MultiEvaluation;
 import edu.cmu.minorthird.classify.multi.MultiExample;
+import edu.cmu.minorthird.classify.relational.CoreRelationalDataset;
 import edu.cmu.minorthird.classify.relational.RealRelationalDataset;
 import edu.cmu.minorthird.classify.relational.StackedBatchClassifierLearner;
 import edu.cmu.minorthird.classify.relational.StackedGraphicalLearner;
@@ -51,7 +52,7 @@ public class Tester
 	static public Evaluation evaluate(StackedBatchClassifierLearner learner,RealRelationalDataset d,Splitter<Example> splitter, String stacked)
 	{
 		Evaluation v = new Evaluation(d.getSchema()); 
-		Dataset.Split s = d.split(splitter);
+		CoreRelationalDataset.Split s = d.split(splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			RealRelationalDataset trainData = (RealRelationalDataset)s.getTrain(k);

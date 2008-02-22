@@ -15,6 +15,7 @@ import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.SGMExample;
 import edu.cmu.minorthird.classify.SGMFeatureFactory;
 import edu.cmu.minorthird.classify.SampleDatasets;
+import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.util.Saveable;
 import edu.cmu.minorthird.util.gui.Visible;
 
@@ -102,6 +103,31 @@ public class CoreRelationalDataset extends BasicDataset implements Visible,
 
 	public static void setLinksMap(Map<String,Map<String,Set<String>>> linksMap){
 		CoreRelationalDataset.linksMap=linksMap;
+	}
+	
+	public Split split(final Splitter<Example> splitter){
+		splitter.split(examples.iterator());
+		return new Split(){
+
+			public int getNumPartitions(){
+				return splitter.getNumPartitions();
+			}
+
+			public Dataset getTrain(int k){
+				return invertIteration(splitter.getTrain(k));
+			}
+
+			public Dataset getTest(int k){
+				return invertIteration(splitter.getTest(k));
+			}
+		};
+	}
+	
+	private CoreRelationalDataset invertIteration(Iterator<Example> i){
+		CoreRelationalDataset copy=new CoreRelationalDataset();
+		while(i.hasNext())
+			copy.add(i.next());
+		return copy;
 	}
 
 	// test routine
