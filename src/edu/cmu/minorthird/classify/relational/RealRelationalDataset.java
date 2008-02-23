@@ -78,8 +78,8 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 			public boolean hasNext(){
 				return inner.hasNext();
 			}
-			public SGMExample next(){
-				return (SGMExample)inner.next();
+			public Example next(){
+				return inner.next();
 			}
 			public void remove(){
 				inner.remove();
