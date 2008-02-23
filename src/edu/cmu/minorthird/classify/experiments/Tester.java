@@ -20,7 +20,6 @@ import edu.cmu.minorthird.classify.multi.MultiDataset;
 import edu.cmu.minorthird.classify.multi.MultiDatasetClassifierTeacher;
 import edu.cmu.minorthird.classify.multi.MultiEvaluation;
 import edu.cmu.minorthird.classify.multi.MultiExample;
-import edu.cmu.minorthird.classify.relational.CoreRelationalDataset;
 import edu.cmu.minorthird.classify.relational.RealRelationalDataset;
 import edu.cmu.minorthird.classify.relational.StackedBatchClassifierLearner;
 import edu.cmu.minorthird.classify.relational.StackedGraphicalLearner;

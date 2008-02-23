@@ -14,7 +14,6 @@ import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.DatasetLoader;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.SGMExample;
-import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.util.Saveable;
 import edu.cmu.minorthird.util.gui.Visible;
 
@@ -87,57 +86,57 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 		};
 	}
 	
-	public Split split(final Splitter<Example> splitter){
-		splitter.split(iterator());
-		return new Split(){
+//	public Split split(final Splitter<Example> splitter){
+//		splitter.split(iterator());
+//		return new Split(){
+//
+//			public int getNumPartitions(){
+//				return splitter.getNumPartitions();
+//			}
+//
+//			public Dataset getTrain(int k){
+//				return invertIteration(splitter.getTrain(k));
+//			}
+//
+//			public Dataset getTest(int k){
+//				return invertIteration(splitter.getTest(k));
+//			}
+//		};
+//	}
+//	
+//	private RealRelationalDataset invertIteration(Iterator<Example> i){
+//		RealRelationalDataset copy=new RealRelationalDataset();
+//		while(i.hasNext()){
+//			copy.add(i.next());
+//		}
+//		return copy;
+//	}
 
-			public int getNumPartitions(){
-				return splitter.getNumPartitions();
-			}
-
-			public Dataset getTrain(int k){
-				return invertIteration(splitter.getTrain(k));
-			}
-
-			public Dataset getTest(int k){
-				return invertIteration(splitter.getTest(k));
-			}
-		};
-	}
-	
-	private RealRelationalDataset invertIteration(Iterator<Example> i){
-		RealRelationalDataset copy=new RealRelationalDataset();
-		while(i.hasNext()){
-			copy.add(i.next());
-		}
-		return copy;
-	}
-
-	public Split splitSGM(final Splitter<SGMExample> splitter){
-		splitter.split(iteratorSGM());
-		return new Split(){
-
-			public int getNumPartitions(){
-				return splitter.getNumPartitions();
-			}
-
-			public Dataset getTrain(int k){
-				return invertIterationSGM(splitter.getTrain(k));
-			}
-
-			public Dataset getTest(int k){
-				return invertIterationSGM(splitter.getTest(k));
-			}
-		};
-	}
-
-	private RealRelationalDataset invertIterationSGM(Iterator<SGMExample> i){
-		RealRelationalDataset copy=new RealRelationalDataset();
-		while(i.hasNext()){
-			copy.addSGM(i.next());
-		}
-		return copy;
-	}
+//	public Split splitSGM(final Splitter<SGMExample> splitter){
+//		splitter.split(iteratorSGM());
+//		return new Split(){
+//
+//			public int getNumPartitions(){
+//				return splitter.getNumPartitions();
+//			}
+//
+//			public Dataset getTrain(int k){
+//				return invertIterationSGM(splitter.getTrain(k));
+//			}
+//
+//			public Dataset getTest(int k){
+//				return invertIterationSGM(splitter.getTest(k));
+//			}
+//		};
+//	}
+//
+//	private RealRelationalDataset invertIterationSGM(Iterator<SGMExample> i){
+//		RealRelationalDataset copy=new RealRelationalDataset();
+//		while(i.hasNext()){
+//			copy.addSGM(i.next());
+//		}
+//		return copy;
+//	}
 
 	// test routine
 

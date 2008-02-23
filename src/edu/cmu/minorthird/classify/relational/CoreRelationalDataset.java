@@ -15,7 +15,6 @@ import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.SGMExample;
 import edu.cmu.minorthird.classify.SGMFeatureFactory;
 import edu.cmu.minorthird.classify.SampleDatasets;
-import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.util.Saveable;
 import edu.cmu.minorthird.util.gui.Visible;
 
