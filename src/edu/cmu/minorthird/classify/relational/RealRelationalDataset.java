@@ -72,9 +72,9 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 		RealRelationalDataset.aggregators=aggregators;
 	}
 	
-	public Iterator<SGMExample> iteratorSGM(){
+	public Iterator<Example> iterator(){
 		final Iterator<Example> inner=examples.iterator();
-		return new Iterator<SGMExample>(){
+		return new Iterator<Example>(){
 			public boolean hasNext(){
 				return inner.hasNext();
 			}
