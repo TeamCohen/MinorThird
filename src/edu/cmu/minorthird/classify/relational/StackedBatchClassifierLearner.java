@@ -47,7 +47,9 @@ public abstract class StackedBatchClassifierLearner implements ClassifierLearner
 	final public void setInstancePool(Iterator<Instance> i) { ; }
 	final public boolean hasNextQuery() { return false; }
 	final public Instance nextQuery() { return null; }
-	final public void addExample(Example answeredQuery) { RelDataset.addSGM((SGMExample)answeredQuery); classifier=null; }
+	final public void addExample(Example answeredQuery) {
+		System.out.println(answeredQuery.getClass().getCanonicalName());
+		RelDataset.addSGM((SGMExample)answeredQuery); classifier=null; }
 	final public void completeTraining() { classifier = batchTrain(RelDataset); }
 
 	final public Classifier getClassifier() {

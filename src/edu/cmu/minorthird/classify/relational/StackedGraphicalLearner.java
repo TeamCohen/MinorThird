@@ -55,7 +55,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		public boolean useLogistic=true,useTargetPrediction=true,
 				useConfidence=true;
 
-		public Splitter<SGMExample> splitter=new CrossValSplitter<SGMExample>(5);
+		public Splitter<Example> splitter=new CrossValSplitter<Example>(5);
 
 		int crossValSplits=5;
 
@@ -101,7 +101,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		}
 
 		public void setCrossValSplits(int newCrossValSplits){
-			this.splitter=new CrossValSplitter<SGMExample>(newCrossValSplits);
+			this.splitter=new CrossValSplitter<Example>(newCrossValSplits);
 			crossValSplits=newCrossValSplits;
 		}
 	}
@@ -164,7 +164,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 	public RealRelationalDataset stackDataset(RealRelationalDataset dataset){
 		RealRelationalDataset result=new RealRelationalDataset();
 
-		Dataset.Split s=dataset.splitSGM(params.splitter);
+		Dataset.Split s=dataset.split(params.splitter);
 		schema=dataset.getSchema();
 		ProgressCounter pc=
 				new ProgressCounter("labeling for stacking","fold",s.getNumPartitions());
