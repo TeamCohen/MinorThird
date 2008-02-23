@@ -44,6 +44,7 @@ public abstract class StackedBatchClassifierLearner implements
 	}
 
 	final public void addExample(Example answeredQuery){
+		System.out.println("adding "+answeredQuery.getClass().getCanonicalName());
 		dataset.addSGM((SGMExample)answeredQuery);
 		classifier=null;
 	}

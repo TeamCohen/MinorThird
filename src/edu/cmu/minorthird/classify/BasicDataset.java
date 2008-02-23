@@ -118,6 +118,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	}
 
 	public Iterator<Example> iterator(){
+		System.out.println("called!");
 		return examples.iterator();
 	}
 
