@@ -1,14 +1,14 @@
 
-import edu.cmu.minorthird.classify.Dataset;
-import edu.cmu.minorthird.classify.DatasetLoader;
-import edu.cmu.minorthird.classify.ClassifierLearner;
-import edu.cmu.minorthird.classify.experiments.Tester;
-import edu.cmu.minorthird.classify.experiments.Evaluation;
-import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
-
 import java.io.File;
 import java.io.IOException;
+
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.DatasetLoader;
+import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
+import edu.cmu.minorthird.classify.experiments.Evaluation;
+import edu.cmu.minorthird.classify.experiments.Tester;
+import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 /**
  *
@@ -46,7 +46,7 @@ public class NumericDemo
       //The constructor of ViewerFrame displays the frame
       //Classes which implement Visible have a toGUI() method which produces a Viewer component.
       //The ViewerFrame - obviously - displays the Viewer component
-      ViewerFrame frame = new ViewerFrame("numeric demo", eval.toGUI());
+      new ViewerFrame("numeric demo", eval.toGUI());
 
 			eval.save(new File("demo.eval.gz"));
     }

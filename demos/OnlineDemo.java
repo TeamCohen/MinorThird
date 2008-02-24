@@ -1,9 +1,17 @@
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
 
-import java.util.*;
-import java.io.*;
-import edu.cmu.minorthird.util.StringUtil; // for atof()
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Feature;
+import edu.cmu.minorthird.classify.MutableInstance;
+import edu.cmu.minorthird.classify.OnlineClassifierLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
+import edu.cmu.minorthird.util.StringUtil;
 
 /**
  * Sample code for using an online learners.

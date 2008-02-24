@@ -108,7 +108,7 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 	private RealRelationalDataset invertIteration(Iterator<Example> i){
 		RealRelationalDataset copy=new RealRelationalDataset();
 		while(i.hasNext()){
-			copy.add(i.next());
+			copy.addSGM((SGMExample)i.next());
 		}
 		return copy;
 	}

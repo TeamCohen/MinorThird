@@ -50,6 +50,7 @@ public class Tester
 	/** Do some sort of hold-out experiment, as determined by the splitter */
 	static public Evaluation evaluate(StackedBatchClassifierLearner learner,RealRelationalDataset d,Splitter<Example> splitter, String stacked)
 	{
+		
 		Evaluation v = new Evaluation(d.getSchema()); 
 		RealRelationalDataset.Split s = d.split(splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
@@ -59,7 +60,7 @@ public class Tester
 			
 			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
 							 +" and test on "+testData.size());
-
+			
 			Classifier c = new StackedDatasetClassifierTeacher(trainData).trainStacked(learner);
 			if (DEBUG) log.debug("classifier for fold "+(k+1)+"/"+s.getNumPartitions()+" is:\n" + c);
 			v.extend4SGM( (StackedGraphicalLearner.StackedGraphicalClassifier)c, testData, k );

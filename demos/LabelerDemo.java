@@ -1,10 +1,13 @@
 
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.gui.*;
-import edu.cmu.minorthird.text.mixup.*;
+import java.io.File;
 
-import java.util.*;
-import java.io.*;
+import edu.cmu.minorthird.text.BasicTextLabels;
+import edu.cmu.minorthird.text.MutableTextLabels;
+import edu.cmu.minorthird.text.TextBase;
+import edu.cmu.minorthird.text.TextBaseLoader;
+import edu.cmu.minorthird.text.TextLabelsLoader;
+import edu.cmu.minorthird.text.gui.TextBaseEditor;
+import edu.cmu.minorthird.text.mixup.MixupProgram;
 
 /**
  * Example of how to label data with the text package.
