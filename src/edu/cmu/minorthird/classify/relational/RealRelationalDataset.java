@@ -72,20 +72,20 @@ public class RealRelationalDataset extends CoreRelationalDataset implements
 		RealRelationalDataset.aggregators=aggregators;
 	}
 	
-	public Iterator<Example> iterator(){
-		final Iterator<Example> inner=examples.iterator();
-		return new Iterator<Example>(){
-			public boolean hasNext(){
-				return inner.hasNext();
-			}
-			public Example next(){
-				return inner.next();
-			}
-			public void remove(){
-				inner.remove();
-			}
-		};
-	}
+//	public Iterator<Example> iterator(){
+//		final Iterator<Example> inner=examples.iterator();
+//		return new Iterator<Example>(){
+//			public boolean hasNext(){
+//				return inner.hasNext();
+//			}
+//			public Example next(){
+//				return inner.next();
+//			}
+//			public void remove(){
+//				inner.remove();
+//			}
+//		};
+//	}
 	
 	public Split split(final Splitter<Example> splitter){
 		splitter.split(iterator());

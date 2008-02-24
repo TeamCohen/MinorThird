@@ -60,7 +60,6 @@ public class StackedDatasetClassifierTeacher extends StackedClassifierTeacher{
 			return Collections.EMPTY_SET.iterator();
 		}
 		else{
-			System.out.println("CRAPPER");
 			return dataset.iterator();
 		}
 	}
