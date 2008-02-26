@@ -2,6 +2,7 @@ package edu.cmu.minorthird.classify;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -89,7 +90,7 @@ public class MutableInstanceTest extends InstanceTestBase
   public void testInstanceComparison()
   {
     super.testMixedFeatures();
-    MutableInstance old = mutInstance;
+//    MutableInstance old = mutInstance;
 
     setUp();
     addNewFeatures();

@@ -2,17 +2,33 @@
 
 package edu.cmu.minorthird.classify;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.log4j.Logger;
 
-import java.util.*;
-
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.classify.algorithms.trees.*;
-import edu.cmu.minorthird.classify.algorithms.knn.*;
-import edu.cmu.minorthird.classify.algorithms.svm.*;
-import edu.cmu.minorthird.classify.experiments.*;
+import edu.cmu.minorthird.classify.algorithms.knn.KnnLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.BalancedWinnow;
+import edu.cmu.minorthird.classify.algorithms.linear.KernelVotedPerceptron;
+import edu.cmu.minorthird.classify.algorithms.linear.MaxEntLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
+import edu.cmu.minorthird.classify.algorithms.linear.PoissonLearner;
+import edu.cmu.minorthird.classify.algorithms.linear.VitorBalancedWinnow;
+import edu.cmu.minorthird.classify.algorithms.linear.VotedPerceptron;
+import edu.cmu.minorthird.classify.algorithms.linear.Winnow;
+import edu.cmu.minorthird.classify.algorithms.svm.SVMLearner;
+import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
+import edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner;
+import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
+import edu.cmu.minorthird.classify.experiments.SubsamplingCrossValSplitter;
+import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.classify.semisupervised.SemiSupervisedNaiveBayesLearner;
 
 /**

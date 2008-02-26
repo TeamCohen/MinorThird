@@ -1,24 +1,22 @@
 package edu.cmu.minorthird.classify.sequential;
 
-import edu.cmu.minorthird.classify.experiments.Evaluation;
-
-
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-import edu.cmu.minorthird.classify.sequential.CRFLearner;
-import edu.cmu.minorthird.classify.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 
-import java.io.*;
-import java.util.StringTokenizer;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.AbstractClassificationChecks;
+import edu.cmu.minorthird.classify.SampleDatasets;
+import edu.cmu.minorthird.classify.experiments.Evaluation;
 
 /**
  *

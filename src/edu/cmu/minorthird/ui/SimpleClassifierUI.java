@@ -22,7 +22,7 @@ public class SimpleClassifierUI{
 
 	public static void main(String[] args){
 
-		if(args.length<3||args.length>4){
+		if(args.length<4||args.length>5){
 			usage();
 			return;
 		}
@@ -33,9 +33,10 @@ public class SimpleClassifierUI{
 			File dataFile=new File(args[0]);
 			String learnerName=args[1];
 			int cvFolds=Integer.parseInt(args[2]);
+			boolean gui=Boolean.parseBoolean(args[3]);
 			String saveFile=null;
-			if(args.length==4){
-				saveFile=args[3];
+			if(args.length==5){
+				saveFile=args[4];
 			}
 
 			// load dataset
@@ -48,7 +49,12 @@ public class SimpleClassifierUI{
 			Evaluation eval=Tester.evaluate(learner,data,new CrossValSplitter<Example>(cvFolds));
 
 			// view results
-			new ViewerFrame("Evaluation Results for "+dataFile.getName(),eval.toGUI());
+			if(gui){
+				new ViewerFrame("Evaluation Results for "+dataFile.getName(),eval.toGUI());
+			}
+			else{
+				System.out.println(eval);
+			}
 
 			// save evaluation results
 			if(saveFile!=null){
@@ -63,6 +69,7 @@ public class SimpleClassifierUI{
 
 	private static void usage(){
 		System.out.println("Usage:");
-		System.out.println(" SimpleClassifierUI TRAIN_FILE CLASSIFIER CV_FOLDS [EVAL_SAVE_FILE]");
+		System.out.println(" SimpleClassifierUI TRAIN_FILE CLASSIFIER CV_FOLDS GUI_OP [EVAL_SAVE_FILE]");
+		System.out.println(" GUI_OP=[true|false]");
 	}
 }

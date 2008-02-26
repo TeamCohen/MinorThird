@@ -64,7 +64,7 @@ public class SampleDatasetsClassificationTest extends AbstractClassificationChec
                                            10.117528032481275,
                                            1d, 1d, 1d, 1d};
 
-    super.checkClassify(this.DEFAULT_LEARNER, train, test, expectedStats);
+    super.checkClassify(DEFAULT_LEARNER, train, test, expectedStats);
   }
 
   /**
