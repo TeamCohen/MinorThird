@@ -25,17 +25,21 @@ public class NumericDemo_SGM{
 	public static void main(String[] args){
 		
 		// usage check
-		if(args.length<3){
+		if(args.length<3||args.length>4){
 			usage();
 			return;
 		}
 
 		try{
 			
-			//aquire the files
+			// acquire the files
 			String datafl=args[0];
 			String linkfl=args[1];
 			String relTempfl=args[2];
+			int stackingDepth=1;
+			if(args.length==4){
+				stackingDepth=Integer.parseInt(args[3]);
+			}
 			RealRelationalDataset data=new RealRelationalDataset();
 			DatasetLoader.loadRelFile(new File(datafl),data);
 			DatasetLoader.loadLinkFile(new File(linkfl),data);
@@ -44,7 +48,7 @@ public class NumericDemo_SGM{
 			Splitter<Example> splitter=new RandomSplitter<Example>();
 
 			//Construct a  learner
-			StackedBatchClassifierLearner learner=new StackedGraphicalLearner();
+			StackedBatchClassifierLearner learner=new StackedGraphicalLearner(stackingDepth);
 
 			//Test and evaluate the learner:
 			Evaluation eval=Tester.evaluate(learner,data,splitter,"stacked");
@@ -61,6 +65,7 @@ public class NumericDemo_SGM{
 	}
 
 	private static void usage(){
+		System.out.println("usage: NumericDemo_SGM [data file] [link file] [relational template] [stacking depth]");
 		System.out.println("usage: NumericDemo_SGM [data file] [link file] [relational template]");
 		System.out.println("both files must be in standard SVM format");
 	}

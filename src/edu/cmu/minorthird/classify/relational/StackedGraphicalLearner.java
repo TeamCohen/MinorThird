@@ -126,6 +126,11 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		this.baseLearner=baseLearner;
 		params.setStackingDepth(depth);
 	}
+	
+	public StackedGraphicalLearner(int depth){
+		this();
+		params.setStackingDepth(depth);
+	}
 
 	final public void setSchema(ExampleSchema schema){
 		this.schema=schema;
