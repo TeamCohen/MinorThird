@@ -53,7 +53,6 @@ public class SimpleClassifierUI{
 				new ViewerFrame("Evaluation Results for "+dataFile.getName(),eval.toGUI());
 			}
 			else{
-				System.out.println(eval);
 				System.out.println("Error Rate: "+eval.errorRate());
 			}
 
