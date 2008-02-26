@@ -54,6 +54,7 @@ public class SimpleClassifierUI{
 			}
 			else{
 				System.out.println(eval);
+				System.out.println("Error Rate: "+eval.errorRate());
 			}
 
 			// save evaluation results
