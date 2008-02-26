@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import edu.cmu.minorthird.classify.BatchClassifierLearner;
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
-import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.DatasetClassifierTeacher;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.ExampleSchema;
@@ -169,7 +168,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 	public RealRelationalDataset stackDataset(RealRelationalDataset dataset){
 		RealRelationalDataset result=new RealRelationalDataset();
 
-		Dataset.Split s=dataset.split(params.splitter);
+		RealRelationalDataset.Split s=dataset.split(params.splitter);
 		schema=dataset.getSchema();
 		ProgressCounter pc=
 				new ProgressCounter("labeling for stacking","fold",s.getNumPartitions());
