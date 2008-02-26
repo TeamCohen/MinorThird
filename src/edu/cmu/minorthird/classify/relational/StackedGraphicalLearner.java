@@ -151,7 +151,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 			m[d]=new DatasetClassifierTeacher(stackedDataset).train(baseLearner);
 			if(d+1<=params.stackingDepth){
 				stackedDataset=stackDataset(stackedDataset);
-				new ViewerFrame("Dataset "+(d+1),new SmartVanillaViewer(stackedDataset));
+				//new ViewerFrame("Dataset "+(d+1),new SmartVanillaViewer(stackedDataset));
 			}
 			pc.progress();
 		}
@@ -169,9 +169,9 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		RealRelationalDataset result=new RealRelationalDataset();
 
 		RealRelationalDataset.Split s=dataset.split(params.splitter);
+		System.out.println("Stack Splitter: "+params.splitter);
 		schema=dataset.getSchema();
-		ProgressCounter pc=
-				new ProgressCounter("labeling for stacking","fold",s.getNumPartitions());
+		ProgressCounter pc=new ProgressCounter("stack-labeling","fold",s.getNumPartitions());
 
 		Map<String,ClassLabel> rlt=new HashMap<String,ClassLabel>();
 

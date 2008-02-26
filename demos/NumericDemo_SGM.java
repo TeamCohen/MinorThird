@@ -4,8 +4,8 @@ import java.io.IOException;
 import edu.cmu.minorthird.classify.DatasetLoader;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.Splitter;
+import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.classify.experiments.Evaluation;
-import edu.cmu.minorthird.classify.experiments.RandomSplitter;
 import edu.cmu.minorthird.classify.experiments.Tester;
 import edu.cmu.minorthird.classify.relational.RealRelationalDataset;
 import edu.cmu.minorthird.classify.relational.StackedBatchClassifierLearner;
@@ -45,7 +45,7 @@ public class NumericDemo_SGM{
 			DatasetLoader.loadLinkFile(new File(linkfl),data);
 			DatasetLoader.loadRelTempFile(new File(relTempfl),data);
 
-			Splitter<Example> splitter=new RandomSplitter<Example>();
+			Splitter<Example> splitter=new CrossValSplitter<Example>(5);
 
 			//Construct a  learner
 			StackedBatchClassifierLearner learner=new StackedGraphicalLearner(stackingDepth);
