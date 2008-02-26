@@ -53,7 +53,7 @@ public class Tester
 		
 		Evaluation v = new Evaluation(d.getSchema()); 
 		RealRelationalDataset.Split s = d.split(splitter);
-		System.out.println("Test Splitter: "+splitter);
+		//System.out.println("Test Splitter: "+splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			RealRelationalDataset trainData = (RealRelationalDataset)s.getTrain(k);

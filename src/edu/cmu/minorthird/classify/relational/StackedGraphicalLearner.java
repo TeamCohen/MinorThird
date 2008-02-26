@@ -27,7 +27,6 @@ import edu.cmu.minorthird.util.gui.ParallelViewer;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
 import edu.cmu.minorthird.util.gui.TransformedViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
 
 /**
@@ -169,7 +168,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		RealRelationalDataset result=new RealRelationalDataset();
 
 		RealRelationalDataset.Split s=dataset.split(params.splitter);
-		System.out.println("Stack Splitter: "+params.splitter);
+		//System.out.println("Stack Splitter: "+params.splitter);
 		schema=dataset.getSchema();
 		ProgressCounter pc=new ProgressCounter("stack-labeling","fold",s.getNumPartitions());
 
