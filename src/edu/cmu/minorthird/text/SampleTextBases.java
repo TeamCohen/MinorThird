@@ -57,10 +57,10 @@ public class SampleTextBases {
 
 	static public void showLabels(TextLabels labels) {
 		System.out.println("labels has "+labels.getTypes().size()+" types");
-		for (Iterator i = labels.getTypes().iterator(); i.hasNext(); ) {
-			String type = (String)i.next();
-			for (Span.Looper j = labels.instanceIterator(type); j.hasNext(); ) {
-				System.out.println(type+": "+j.nextSpan());
+		for (Iterator<String> i = labels.getTypes().iterator(); i.hasNext(); ) {
+			String type = i.next();
+			for (Iterator<Span> j = labels.instanceIterator(type); j.hasNext(); ) {
+				System.out.println(type+": "+j.next());
 			}
 		}
 	}

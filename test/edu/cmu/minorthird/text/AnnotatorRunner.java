@@ -1,13 +1,9 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.gui.*;
-//uncomment, add to classpath, and compile apps/email package
-//if you want to use these annotators 
-//import email.SigFileAnnotator;
-//import email.ReplyToAnnotator;
-import org.apache.log4j.Logger; 
 import java.io.File;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 
 /** 
  * This class...
@@ -44,9 +40,9 @@ public class AnnotatorRunner
        annotator.annotate(labels);
 
       // to see the results
-      for (Span.Looper i = labels.instanceIterator(tag); i.hasNext();)
+      for (Iterator<Span> i = labels.instanceIterator(tag); i.hasNext();)
       {
-        Span span = i.nextSpan();
+        Span span = i.next();
         System.out.println(span.toString().replace('\n', ' '));
       }
       

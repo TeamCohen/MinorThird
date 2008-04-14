@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text;
 
+import java.util.Iterator;
+
 
 
 /** Maintains assertions about 'types' and 'properties' of Spans.
@@ -20,7 +22,7 @@ public interface MutableTextLabels extends MonotonicTextLabels
 	 * type contained by the given span, other than those described by
 	 * the given span looper.
 	 */
-	public void defineTypeInside(String type,Span s,Span.Looper i);
+	public void defineTypeInside(String type,Span s,Iterator<Span> i);
 
 	/** Initialize the textbase which is annotated by this TextLabels.
 	 * This produces an error if the current textbase has already been set. 

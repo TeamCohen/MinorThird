@@ -10,8 +10,7 @@ import java.io.Serializable;
 
 public class Details implements Serializable
 {
-    static private final long serialVersionUID = 1;
-    private final int CURRENT_VERSION_NUMBER = 1;
+    static private final long serialVersionUID = 20080303L;
 
     /** Default 'details' record for facts. */
     static final public Details DEFAULT = new Details();

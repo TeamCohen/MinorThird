@@ -2,6 +2,8 @@
 
 package edu.cmu.minorthird.text;
 
+import java.util.Iterator;
+
 /** Maintains information about what's in a set of documents.
  * Specifically, this contains a set of character sequences (TextToken's)
  * from some sort of set of containing documents - typically found by
@@ -23,7 +25,7 @@ public interface TextBase {
     public Document getDocument(String docID);
 
     /** Returns an iterator over the documents in this TextBase. */
-    public Span.Looper documentSpanIterator();
+    public Iterator<Span> documentSpanIterator();
     
     /** Looks up the document Span for the given documentId.  Returns the Span or 
         null if a document with documentId was not found in this TextBase. */

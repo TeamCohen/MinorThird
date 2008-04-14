@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text;
 
+import java.util.Iterator;
+
 /**
  *
  *
@@ -31,6 +33,6 @@ public abstract class MutableTextBase extends AbstractTextBase {
     //
     public abstract int size();
     public abstract Document getDocument(String docID);
-    public abstract Span.Looper documentSpanIterator();
+    public abstract Iterator<Span> documentSpanIterator();
     public abstract Span documentSpan(String documentId);
 }

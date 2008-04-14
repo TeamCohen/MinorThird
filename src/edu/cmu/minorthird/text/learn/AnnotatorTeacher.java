@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text.learn;
 
+import java.util.Iterator;
+
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.text.learn.AnnotatorLearner;
 import edu.cmu.minorthird.util.ProgressCounter;
@@ -21,7 +23,7 @@ public abstract class   AnnotatorTeacher
 		learner.setDocumentPool( documentPool() );
 
 		ProgressCounter pc =
-			new ProgressCounter("presenting examples to AnnotatorLearner", "document", documentPool().estimatedSize() );
+			new ProgressCounter("presenting examples to AnnotatorLearner", "document");
 		// active or passive learning from labeled data
 		while (learner.hasNextQuery() && hasAnswers()) {
 			Span query = learner.nextQuery();
@@ -43,7 +45,7 @@ public abstract class   AnnotatorTeacher
 	abstract public TextLabels availableLabels();
 
 	/** Unlabeled instances. */
-	abstract public Span.Looper documentPool();
+	abstract public Iterator<Span> documentPool();
 
 	/** Label an Span queried by the learner.  Return null if the query
 	 * can't be answered, otherwise return an AnnotationExample. 

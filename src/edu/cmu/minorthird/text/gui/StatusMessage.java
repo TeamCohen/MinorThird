@@ -1,21 +1,22 @@
 package edu.cmu.minorthird.text.gui;
 
-import javax.swing.*;
+import javax.swing.JLabel;
 
-/** A simple display tool for status messages.
- *
+/**
+ * A simple display tool for status messages.
+ * 
  * @author William Cohen
  */
 
-public class StatusMessage extends JLabel
-{
-    public StatusMessage()
-    {
-        super("");
-    }
+public class StatusMessage extends JLabel{
 
-    public void display(String msg)
-    {
-        setText(msg);
-    }
+	static final long serialVersionUID=200803014L;
+	
+	public StatusMessage(){
+		super("");
+	}
+
+	public void display(String msg){
+		setText(msg);
+	}
 }

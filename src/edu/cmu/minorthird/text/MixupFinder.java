@@ -1,10 +1,10 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.mixup.Mixup;
-
+import java.io.Serializable;
 import java.util.Collections;
-import java.io.*;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.text.mixup.Mixup;
 
 /**
  * Finds spans using a mixup expression evaluated in a fixed labeling.
@@ -12,29 +12,32 @@ import java.io.*;
  * @author William Cohen
  */
 
-public class MixupFinder implements SpanFinder, Serializable
-{
-    static private final long serialVersionUID = 1;
-    private final int CURRENT_VERSION_NUMBER = 1;
+public class MixupFinder implements SpanFinder,Serializable{
 
-	private static final TextLabels EMPTY_LABELS = new EmptyLabels();
+	static private final long serialVersionUID=20080303L;
+
+//	private static final TextLabels EMPTY_LABELS = new EmptyLabels();
 
 	private Mixup mixup;
-	public MixupFinder(Mixup mixup)
-	{ this.mixup = mixup; }
 
-	public Span.Looper findSpans(TextLabels labels,Span.Looper documentSpanLooper)
-	{ return mixup.extract( labels, documentSpanLooper ); }
-
-	public Span.Looper findSpans(TextLabels labels,Span documentSpan)
-	{
-		Span.Looper singletonLooper = new BasicSpanLooper( Collections.singleton(documentSpan).iterator() );
-		return findSpans( labels, singletonLooper );
+	public MixupFinder(Mixup mixup){
+		this.mixup=mixup;
 	}
 
-	public Details getDetails(Span s)
-	{ return new Details(1.0, mixup); }
+	public Iterator<Span> findSpans(TextLabels labels,Iterator<Span> documentSpanLooper){
+		return mixup.extract(labels,documentSpanLooper);
+	}
 
-	public String explainFindSpans(TextLabels labels,Span documentSpan)
-	{ return "Spans found using mixup expression: "+mixup; }
+	public Iterator<Span> findSpans(TextLabels labels,Span documentSpan){
+		Iterator<Span> singletonLooper=Collections.singleton(documentSpan).iterator();
+		return findSpans(labels,singletonLooper);
+	}
+
+	public Details getDetails(Span s){
+		return new Details(1.0,mixup);
+	}
+
+	public String explainFindSpans(TextLabels labels,Span documentSpan){
+		return "Spans found using mixup expression: "+mixup;
+	}
 }

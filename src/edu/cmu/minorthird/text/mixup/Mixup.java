@@ -1,14 +1,26 @@
 package edu.cmu.minorthird.text.mixup;
 
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.util.ProgressCounter;
-import org.apache.log4j.Logger;
-
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.io.*;
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.text.BasicTextBase;
+import edu.cmu.minorthird.text.BasicTextLabels;
+import edu.cmu.minorthird.text.BoneheadStemmer;
+import edu.cmu.minorthird.text.MonotonicTextLabels;
+import edu.cmu.minorthird.text.Span;
+import edu.cmu.minorthird.text.TextLabels;
+import edu.cmu.minorthird.text.Token;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 /** A simple pattern-matching and information extraction language.
 
@@ -66,9 +78,7 @@ import java.io.*;
 
 public class Mixup implements Serializable{
 
-	static private final long serialVersionUID=1;
-
-	private final int CURRENT_VERSION_NUMBER=1;
+	static private final long serialVersionUID=20080303L;
 
 	/** Without constraints, the maximum number of times a mixup
 	 * expression can extract something from a document of length N is
@@ -100,9 +110,9 @@ public class Mixup implements Serializable{
 	//Pattern.compile("\\s*(\\w+|'([^']|\\\\')*'|\\&\\&|\\|\\||\\.\\.\\.|\\W)\\s*");
 
 	// legal functions
-	private static Set legalFunctions;
+	private static Set<String> legalFunctions;
 	static{
-		legalFunctions=new HashSet();
+		legalFunctions=new HashSet<String>();
 		String[] tmp=new String[]{"re","eq","eqi","a","ai","any","prop","propDict"};
 		for(int i=0;i<tmp.length;i++)
 			legalFunctions.add(tmp[i]);
@@ -133,7 +143,7 @@ public class Mixup implements Serializable{
 
 	/** Extract subspans from each generated span using the mixup expression.
 	 */
-	public Span.Looper extract(TextLabels labels,Span.Looper spanLooper){
+	public Iterator<Span> extract(TextLabels labels,Iterator<Span> spanLooper){
 		return expr.match(labels,spanLooper);
 	}
 
@@ -149,7 +159,7 @@ public class Mixup implements Serializable{
 		public String nextToken;
 		private int cursor;
 		public int nextCursor=0;
-		private boolean inComment=false;
+//		private boolean inComment=false;
 
 		public MixupTokenizer(String input){
 			this.input=input;
@@ -173,7 +183,7 @@ public class Mixup implements Serializable{
 		}
 
 		// advance to next token, and check that it's what's expected
-		public String advance(Set set) throws Mixup.ParseException{
+		public String advance(Set<String> set) throws Mixup.ParseException{
 
 			if(!matcher.find()){
 				token=null;
@@ -202,9 +212,9 @@ public class Mixup implements Serializable{
 		}
 
 		/** convert a set to a string listing the elements */
-		private String setContents(Set set){
+		private String setContents(Set<String> set){
 			StringBuffer buf=new StringBuffer("");
-			for(Iterator i=set.iterator();i.hasNext();){
+			for(Iterator<String> i=set.iterator();i.hasNext();){
 				if(buf.length()>0)
 					buf.append(" ");
 				buf.append("'"+i.next().toString()+"'");
@@ -229,7 +239,7 @@ public class Mixup implements Serializable{
 		}
 
 		private Expr parseExpr() throws ParseException{
-			Expr expr1=null;
+//			Expr expr1=null;
 			Expr expr2=null;
 			String op=null;
 			BasicExpr basic=parseBasicExpr();
@@ -242,7 +252,7 @@ public class Mixup implements Serializable{
 		}
 
 		private BasicExpr parseBasicExpr() throws ParseException{
-			List list=new ArrayList();
+			List<RepeatedPrim> list=new ArrayList<RepeatedPrim>();
 			int left=-1,right=-1;
 			if("(".equals(tok.token)){
 				tok.advance();
@@ -329,8 +339,8 @@ public class Mixup implements Serializable{
 				tok.advance();
 			}
 			prim.funcString=tok.token;
-			int funcLength=tok.token.length();
-			char firstLetter=tok.token.charAt(0);
+//			int funcLength=tok.token.length();
+//			char firstLetter=tok.token.charAt(0);
 			if("a".equals(tok.token))
 				prim.function=A;
 			else if("eq".equals(tok.token))
@@ -440,7 +450,7 @@ public class Mixup implements Serializable{
 
 	/** Signals an error in parsing a mixup document. */
 	public static class ParseException extends Exception{
-
+		static final long serialVersionUID=20080303L;
 		public ParseException(String s){
 			super(s);
 		}
@@ -451,9 +461,7 @@ public class Mixup implements Serializable{
 	//
 	private static class Prim implements Serializable{
 
-		static private final long serialVersionUID=1;
-
-		private final int CURRENT_VERSION_NUMBER=1;
+		static private final long serialVersionUID=20080303L;
 
 		public boolean negated=false;
 
@@ -466,10 +474,6 @@ public class Mixup implements Serializable{
 		public String property="",value="";
 
 		private Pattern pattern=null;
-
-		public Prim(){
-			;
-		}
 
 		/** See if the predicate for this pattern succeeds for this TextToken.  */
 		public boolean matchesPrim(TextLabels labels,Token token){
@@ -494,9 +498,9 @@ public class Mixup implements Serializable{
 						return lc;
 					}
 
-					public int getIndex(){
-						return 0;
-					}
+//					public int getIndex(){
+//						return 0;
+//					}
 				};
 				return labels.inDict(lcToken,argument);
 			}else if(function==RE){ //re
@@ -521,9 +525,9 @@ public class Mixup implements Serializable{
 						return propVal;
 					}
 
-					public int getIndex(){
-						return 0;
-					}
+//					public int getIndex(){
+//						return 0;
+//					}
 				};
 				//System.out.println("testing "+propValToken+" for membership in dict "+value);
 				return labels.inDict(propValToken,value);
@@ -574,15 +578,13 @@ public class Mixup implements Serializable{
 	// encodes a pattern matching a series of Token's
 	private static class RepeatedPrim implements Serializable{
 
-		static private final long serialVersionUID=1;
-
-		private final int CURRENT_VERSION_NUMBER=1;
+		static private final long serialVersionUID=20080303L;
 
 		public boolean leftMost=false;
 
 		public boolean rightMost=false;
 
-		public List primList=new ArrayList();
+		public List<Prim> primList=new ArrayList<Prim>();
 
 		public boolean[] whereIMatch;
 
@@ -598,7 +600,7 @@ public class Mixup implements Serializable{
 		public void expandShortcuts(){
 			// expand the 'const' abbreviation to eq('const')
 			if(primList.size()==1){
-				Prim prim=(Prim)primList.get(0);
+				Prim prim=primList.get(0);
 				if(ELIPSE==prim.function){
 					prim.function=ANY;
 					prim.funcString="any";
@@ -610,8 +612,8 @@ public class Mixup implements Serializable{
 		}
 
 		public boolean checkFunction(){
-			for(Iterator i=primList.iterator();i.hasNext();){
-				Prim prim=(Prim)i.next();
+			for(Iterator<Prim> i=primList.iterator();i.hasNext();){
+				Prim prim=i.next();
 				if("...".equals(prim.funcString)&&primList.size()!=1)
 					return false;
 				if(!prim.checkFunction())
@@ -702,8 +704,8 @@ public class Mixup implements Serializable{
 		}
 
 		private boolean matchesPrimList(TextLabels labels,Token token){
-			for(Iterator i=primList.iterator();i.hasNext();){
-				Prim prim=(Prim)i.next();
+			for(Iterator<Prim> i=primList.iterator();i.hasNext();){
+				Prim prim=i.next();
 				if(!prim.matchesPrim(labels,token))
 					return false;
 			}
@@ -716,9 +718,7 @@ public class Mixup implements Serializable{
 	//
 	private static class BasicExpr implements Serializable{
 
-		static private final long serialVersionUID=1;
-
-		private final int CURRENT_VERSION_NUMBER=1;
+		static private final long serialVersionUID=20080303L;
 
 		public final Expr expr;
 
@@ -757,26 +757,26 @@ public class Mixup implements Serializable{
 			}
 		}
 
-		public Span.Looper match(TextLabels labels,Span.Looper spanLooper){
+		public Iterator<Span> match(TextLabels labels,Iterator<Span> spanLooper){
 			if(expr!=null){
 				return expr.match(labels,spanLooper);
 			}else{
 				ProgressCounter pc=
-						new ProgressCounter("mixup","span",spanLooper.estimatedSize());
-				Set accum=new TreeSet();
+						new ProgressCounter("mixup","span");
+				Set<Span> accum=new TreeSet<Span>();
 				while(spanLooper.hasNext()){
 					pc.progress();
-					Span span=spanLooper.nextSpan();
+					Span span=spanLooper.next();
 					// match(labels,accum,span,new int[repPrim.length],new int[repPrim.length],1,0,0);
 					fastMatch(labels,span,accum);
 				}
 				pc.finished();
-				return new BasicSpanLooper(accum.iterator());
+				return accum.iterator();
 			}
 		}
 
 		// most time taken here
-		private void fastMatch(TextLabels labels,Span span,Set accum){
+		private void fastMatch(TextLabels labels,Span span,Set<Span> accum){
 			//      log.debug("span size: " + span.size() + " - " + span.asString());
 			// there are at most span.length^2 matches of every repeated primitive
 			log.debug("matching span id/size="+span.getDocumentId()+"/"+span.size());
@@ -839,14 +839,14 @@ public class Mixup implements Serializable{
 					int numMatches=0;
 					if(rp.type!=null){
 						// look up matches from the labels for a spantype repPrim, eg @foo
-						for(Span.Looper el=
+						for(Iterator<Span> el=
 								labels.instanceIterator(rp.type,span.getDocumentId());el
 								.hasNext();){
 							if(numMatches>=maxRepeatedPrimMatches){
 								overflowWarning(numMatches,maxRepeatedPrimMatches,span,i);
 								return;
 							}
-							Span s=el.nextSpan();
+							Span s=el.next();
 							if(span.contains(s)){
 								if(numMatches>=maxRepeatedPrimMatches){
 									overflowWarning(numMatches,maxRepeatedPrimMatches,span,i);
@@ -906,7 +906,7 @@ public class Mixup implements Serializable{
 		}
 
 		private void fastMatch(TextLabels labels, // passed along to subroutines
-				Set accum, // accumulate matches
+				Set<Span> accum, // accumulate matches
 				Span span, // span being matched
 				int[] lows, // lows[i] is lo index of match to repPrim[i] 
 				int[] highs, // highs[i] is high index of match to repPrim[i] 
@@ -982,41 +982,41 @@ public class Mixup implements Serializable{
 		// 
 		// obsolete slower match routine, kept around as a reference implementation for debugging
 		// 
-		private void match(TextLabels env,Set accum,Span span,int[] lows,
-				int[] highs,int tab,int spanCursor,int patternCursor){
-			if(patternCursor==repPrim.length){
-				if(spanCursor==span.size()){
-					// a complete, successful match
-					if(DEBUG)
-						showMatch(tab,"complete",span,lows,highs,patternCursor);
-					int lo=lows[leftBracket];
-					int hi=highs[rightBracket-1];
-					accum.add(span.subSpan(lo,hi-lo));
-				}else{
-					// a deadend
-					if(DEBUG)
-						showMatch(tab,"failed",span,lows,highs,patternCursor);
-				}
-			}else{
-				// continue a partial match
-				RepeatedPrim nextPattern=repPrim[patternCursor];
-				int maxLen=span.size()-spanCursor;
-				if(nextPattern.maxCount>=0&&nextPattern.maxCount<maxLen)
-					maxLen=nextPattern.maxCount;
-				for(int len=nextPattern.minCount;len<=maxLen;len++){
-					// 84% time taken in matchesSubspan
-					boolean lenOk=nextPattern.matchesSubspan(env,span,spanCursor,len);
-					if(lenOk){
-						lows[patternCursor]=spanCursor;
-						highs[patternCursor]=spanCursor+len;
-						if(DEBUG)
-							showMatch(tab,"partial",span,lows,highs,patternCursor+1);
-						match(env,accum,span,lows,highs,tab+1,spanCursor+len,
-								patternCursor+1);
-					}
-				}
-			}
-		}
+//		private void match(TextLabels env,Set accum,Span span,int[] lows,
+//				int[] highs,int tab,int spanCursor,int patternCursor){
+//			if(patternCursor==repPrim.length){
+//				if(spanCursor==span.size()){
+//					// a complete, successful match
+//					if(DEBUG)
+//						showMatch(tab,"complete",span,lows,highs,patternCursor);
+//					int lo=lows[leftBracket];
+//					int hi=highs[rightBracket-1];
+//					accum.add(span.subSpan(lo,hi-lo));
+//				}else{
+//					// a deadend
+//					if(DEBUG)
+//						showMatch(tab,"failed",span,lows,highs,patternCursor);
+//				}
+//			}else{
+//				// continue a partial match
+//				RepeatedPrim nextPattern=repPrim[patternCursor];
+//				int maxLen=span.size()-spanCursor;
+//				if(nextPattern.maxCount>=0&&nextPattern.maxCount<maxLen)
+//					maxLen=nextPattern.maxCount;
+//				for(int len=nextPattern.minCount;len<=maxLen;len++){
+//					// 84% time taken in matchesSubspan
+//					boolean lenOk=nextPattern.matchesSubspan(env,span,spanCursor,len);
+//					if(lenOk){
+//						lows[patternCursor]=spanCursor;
+//						highs[patternCursor]=spanCursor+len;
+//						if(DEBUG)
+//							showMatch(tab,"partial",span,lows,highs,patternCursor+1);
+//						match(env,accum,span,lows,highs,tab+1,spanCursor+len,
+//								patternCursor+1);
+//					}
+//				}
+//			}
+//		}
 
 		// for debugging
 		private void showMatch(int tab,String msg,Span span,int[] lows,int[] highs,
@@ -1044,9 +1044,7 @@ public class Mixup implements Serializable{
 	//
 	private static class Expr implements Serializable{
 
-		static private final long serialVersionUID=1;
-
-		private final int CURRENT_VERSION_NUMBER=1;
+		static private final long serialVersionUID=20080303L;
 
 		private BasicExpr expr1;
 
@@ -1060,27 +1058,27 @@ public class Mixup implements Serializable{
 			this.op=op;
 		}
 
-		public Span.Looper match(TextLabels labels,Span.Looper spanLooper){
+		public Iterator<Span> match(TextLabels labels,Iterator<Span> spanIt){
 			if(expr2==null){
-				return expr1.match(labels,spanLooper);
+				return expr1.match(labels,spanIt);
 			}else if("&&".equals(op)){
-				return expr2.match(labels,expr1.match(labels,spanLooper));
+				return expr2.match(labels,expr1.match(labels,spanIt));
 			}else{
 				if(!"||".equals(op))
 					throw new IllegalStateException("illegal operator '"+op+"'");
 				// copy the input looper
-				Set save=new TreeSet();
-				while(spanLooper.hasNext())
-					save.add(spanLooper.next());
+				SortedSet<Span> save=new TreeSet<Span>();
+				while(spanIt.hasNext())
+					save.add(spanIt.next());
 				// union the outputs of expr1 and expr2
-				Span.Looper a=expr1.match(labels,new BasicSpanLooper(save.iterator()));
-				Span.Looper b=expr2.match(labels,new BasicSpanLooper(save.iterator()));
-				Set union=new TreeSet();
+				Iterator<Span> a=expr1.match(labels,save.iterator());
+				Iterator<Span> b=expr2.match(labels,save.iterator());
+				SortedSet<Span> union=new TreeSet<Span>();
 				while(a.hasNext())
 					union.add(a.next());
 				while(b.hasNext())
 					union.add(b.next());
-				return new BasicSpanLooper(union.iterator());
+				return union.iterator();
 			}
 		}
 
@@ -1109,7 +1107,7 @@ public class Mixup implements Serializable{
 			//System.out.println("labels="+labels);
 			//labels.addWord("the", "det");
 			//labels.addWord("thi", "det");
-			for(Span.Looper i=mixup.extract(labels,b.documentSpanIterator());i
+			for(Iterator<Span> i=mixup.extract(labels,b.documentSpanIterator());i
 					.hasNext();){
 				System.out.println(i.next());
 			}

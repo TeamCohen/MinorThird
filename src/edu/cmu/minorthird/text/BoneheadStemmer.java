@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text;
 
+import java.util.Iterator;
+
 
 
 /** A very simple stemming algorithm.
@@ -15,8 +17,8 @@ public class BoneheadStemmer
 
 	public void stem(TextBase base,MonotonicTextLabels labels)
 	{
-		for (Span.Looper i = base.documentSpanIterator(); i.hasNext(); ) {
-			Span span = i.nextSpan();
+		for (Iterator<Span> i = base.documentSpanIterator(); i.hasNext(); ) {
+			Span span = i.next();
 			for (int j=0; j<span.size(); j++) {
 				Token token = span.getToken(j);
 				labels.setProperty(token,STEM_PROP,stem(token.getValue()));

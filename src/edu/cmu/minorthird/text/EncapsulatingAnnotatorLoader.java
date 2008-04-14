@@ -2,10 +2,17 @@
 
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.mixup.*;
-import org.apache.log4j.*;
-import java.util.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 /**
  * AnnotatorLoader which contains locally a list of Annotator
@@ -15,16 +22,15 @@ import java.io.*;
 
 public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Serializable
 {
-    static private final long serialVersionUID = 1;
-    private final int CURRENT_VERSION_NUMBER = 1;
+    static private final long serialVersionUID = 20080303L;
 
     // special serialization code
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
     {
         System.out.println("reading EncapsulatingAnnotatorLoader");
         in.defaultReadObject();
-        for (Iterator i=fileNameToContentsMap.keySet().iterator(); i.hasNext(); ) {
-            String fileName = (String)i.next();
+        for (Iterator<String> i=fileNameToContentsMap.keySet().iterator(); i.hasNext(); ) {
+            String fileName = i.next();
             if (fileName.endsWith(".class")) {
                 String className = fileName.substring(0, fileName.length()-".class".length());
                 try {
@@ -42,7 +48,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 
 	static private Logger log = Logger.getLogger(EncapsulatingAnnotatorLoader.class);
 
-	private Map fileNameToContentsMap;
+	private Map<String,byte[]> fileNameToContentsMap;
 	private ClassLoader myClassLoader;
 
 
@@ -73,7 +79,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 	 */
 	public EncapsulatingAnnotatorLoader(boolean asFiles,String path)
 	{
-		fileNameToContentsMap = new HashMap();
+		fileNameToContentsMap = new HashMap<String,byte[]>();
 		String[] fileName = path.split(File.pathSeparator); 
 		for (int i=0; i<fileName.length; i++) {
 			try {
@@ -106,7 +112,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 	}
 
 	/** Find the named resource class - usually an annotator. */
-	public Class findClassResource(String className)
+	public Class<?> findClassResource(String className)
 	{
 		try {
 			return myClassLoader.loadClass(className);
@@ -117,10 +123,9 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 
 	public class EncapsulatingClassLoader extends ClassLoader implements Serializable
 	{
-		static private final long serialVersionUID = 1;
-		private final int CURRENT_VERSION_NUMBER = 1;
+		static private final long serialVersionUID = 20080303L;
 
-		public Class findClass(String className) throws ClassNotFoundException
+		public Class<?> findClass(String className) throws ClassNotFoundException
 		{
 			log.info("looking for class "+className+" with encapsulated loader");
 			byte[] contents = (byte[])fileNameToContentsMap.get(className+".class");

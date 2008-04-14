@@ -130,10 +130,10 @@ public class Tester
 	}    
 
 	/** Do some sort of hold-out experiment, as determined by the splitter */
-	static public Evaluation evaluate(SequenceClassifierLearner learner,SequenceDataset d,Splitter<Example> splitter)
+	static public Evaluation evaluate(SequenceClassifierLearner learner,SequenceDataset d,Splitter<Example[]> splitter)
 	{
-		Evaluation v = new Evaluation(d.getSchema()); 
-		Dataset.Split s = d.split(splitter);
+		Evaluation v = new Evaluation(d.getSchema());
+		Dataset.Split s = d.splitSequence(splitter);
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			SequenceDataset trainData = (SequenceDataset)s.getTrain(k);
@@ -182,7 +182,7 @@ public class Tester
 	static public Evaluation 
 	evaluate(SequenceClassifierLearner learner,SequenceDataset trainData,SequenceDataset testData)
 	{
-		Splitter<Example> trainTestSplitter = new FixedTestSetSplitter<Example>(testData.iterator());
+		Splitter<Example[]> trainTestSplitter = new FixedTestSetSplitter<Example[]>(testData.sequenceIterator());
 		return evaluate(learner,trainData,trainTestSplitter);
 	}
 

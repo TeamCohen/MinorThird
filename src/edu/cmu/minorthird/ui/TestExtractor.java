@@ -10,7 +10,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
-import edu.cmu.minorthird.text.BasicSpanLooper;
 import edu.cmu.minorthird.text.MonotonicTextLabels;
 import edu.cmu.minorthird.text.Span;
 import edu.cmu.minorthird.text.SpanDifference;
@@ -179,9 +178,9 @@ public class TestExtractor extends UIMain{
 		}else{
 			// will need one span difference for each possible property value
 			Set<String> propValues=new HashSet<String>();
-			for(Span.Looper i=labels.getSpansWithProperty(signal.spanProp);i
+			for(Iterator<Span> i=labels.getSpansWithProperty(signal.spanProp);i
 					.hasNext();){
-				Span s=i.nextSpan();
+				Span s=i.next();
 				propValues.add(labels.getProperty(s,signal.spanProp));
 			}
 			SpanDifference[] sd=new SpanDifference[propValues.size()];
@@ -200,16 +199,16 @@ public class TestExtractor extends UIMain{
 		}
 	}
 
-	private Span.Looper propertyIterator(TextLabels labels,String prop,
+	private Iterator<Span> propertyIterator(TextLabels labels,String prop,
 			String value){
 		List<Span> accum=new ArrayList<Span>();
-		for(Span.Looper i=labels.getSpansWithProperty(prop);i.hasNext();){
-			Span s=i.nextSpan();
+		for(Iterator<Span> i=labels.getSpansWithProperty(prop);i.hasNext();){
+			Span s=i.next();
 			if(value==null||value.equals(labels.getProperty(s,prop))){
 				accum.add(s);
 			}
 		}
-		return new BasicSpanLooper(accum);
+		return accum.iterator();
 	}
 
 	public Object getMainResult(){

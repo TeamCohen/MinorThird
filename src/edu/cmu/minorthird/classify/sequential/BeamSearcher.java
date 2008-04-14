@@ -51,6 +51,7 @@ public class BeamSearcher implements SequenceConstants, Serializable
         this.classifier = classifier;
         this.historySize = historySize;
         this.possibleClassLabels = schema.validClassNames();
+ //       System.out.println(Arrays.toString(possibleClassLabels));
         if (possibleClassLabels.length<2) 
             throw new IllegalArgumentException("possibleClassLabels.length="+possibleClassLabels.length+" <2 ???");
     }

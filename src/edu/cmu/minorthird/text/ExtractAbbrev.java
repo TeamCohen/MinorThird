@@ -1,9 +1,16 @@
 package edu.cmu.minorthird.text;
 
-import java.util.*;
-import java.io.*;
-import java.text.*;
-import org.apache.log4j.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.apache.log4j.Logger;
 
 /**
  * The ExtractAbbrev class implements a simple algorithm for
@@ -37,7 +44,7 @@ public class ExtractAbbrev extends AbstractAnnotator
   /** This property links an expansion to its acronym */
   public static final String SHORT_FORM_PROP = "acronym";
 
-  private HashMap mTestDefinitions = new HashMap();
+  private Map<String,Vector<String>> mTestDefinitions = new HashMap<String,Vector<String>>();
   private int truePositives = 0, falsePositives = 0, falseNegatives = 0, trueNegatives = 0;
   private static final char DELIMITER = '\t';
   private boolean testMode = false;
@@ -45,22 +52,22 @@ public class ExtractAbbrev extends AbstractAnnotator
   //
   // added by wcohen - implements the AbstractAnnotator interface
   //
-  private List accum = new ArrayList();   // accumulator, used by Schwartz's code
+  private List<StringSpan> accum = new ArrayList<StringSpan>();   // accumulator, used by Schwartz's code
   private boolean annotationMode = false; // flag, used by Schwartz's code
 	protected void doAnnotate(MonotonicTextLabels labels)
   {
     annotationMode = true;
     int k=0;
-    for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+    for (Iterator<Span> i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
       accum.clear(); 
-      Span doc = i.nextSpan();
+      Span doc = i.next();
       String s = doc.getDocumentContents();
       // call Schwartz's code to fill up accum with short,long pairs
       extractAbbrPairsFromString(s);
       // build annotations based on the contents of the accumulator
-      for (Iterator j=accum.iterator(); j.hasNext(); ) {
-        StringSpan shortForm = (StringSpan)j.next();
-        StringSpan longForm = (StringSpan)j.next();
+      for (Iterator<StringSpan> j=accum.iterator(); j.hasNext(); ) {
+        StringSpan shortForm = j.next();
+        StringSpan longForm = j.next();
         Span shortSpan = doc.charIndexSubSpan(shortForm.lo, shortForm.hi);
         log.debug("shortSpan["+shortForm.lo+".."+shortForm.hi+"] of doc: near '"+
                   doc.getDocumentContents().substring(shortForm.lo,shortForm.hi)+"'");
@@ -103,8 +110,8 @@ public class ExtractAbbrev extends AbstractAnnotator
 
   private void loadTrueDefinitions(String inFile) {
     String abbrString, defnString, str = "";
-    Vector entry;
-    HashMap definitions = mTestDefinitions;
+    Vector<String> entry;
+    Map<String,Vector<String>> definitions = mTestDefinitions;
 
     try {
 	    BufferedReader fin = new BufferedReader(new FileReader (inFile));
@@ -112,9 +119,9 @@ public class ExtractAbbrev extends AbstractAnnotator
         int j = str.indexOf(DELIMITER);
         abbrString = str.substring(0,j).trim();
         defnString = str.substring(j,str.length()).trim();		
-        entry = (Vector)definitions.get(abbrString);
+        entry = definitions.get(abbrString);
         if (entry == null)
-          entry = new Vector();
+          entry = new Vector<String>();
         entry.add(defnString);
 		    definitions.put(abbrString, entry);
 	    }
@@ -125,10 +132,10 @@ public class ExtractAbbrev extends AbstractAnnotator
   }
     
   private boolean isTrueDefinition(String shortForm, String longForm) {
-    Vector entry;
-    Iterator itr;
+    Vector<String> entry;
+    Iterator<String> itr;
 
-    entry = (Vector)mTestDefinitions.get(shortForm);
+    entry = mTestDefinitions.get(shortForm);
     if (entry == null)
 	    return false;
     itr = entry.iterator();
@@ -349,7 +356,7 @@ public class ExtractAbbrev extends AbstractAnnotator
   }
 
   public static void main(String[] args) {
-    String shortForm, longForm, defnString, str;
+//    String shortForm, longForm, defnString, str;
     ExtractAbbrev extractAbbrev = new ExtractAbbrev();
     String filename =  null;
     String testList = null;

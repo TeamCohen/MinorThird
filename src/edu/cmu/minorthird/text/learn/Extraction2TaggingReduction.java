@@ -24,7 +24,7 @@ public abstract class Extraction2TaggingReduction
 	
 	/** Get all the tag values that were used.
 	 */
-	abstract public Set getNonDefaultTagValues();
+	abstract public Set<String> getNonDefaultTagValues();
 
 	/** Return the TextLabels holding the tags which encode the
 	 * extraction task.
@@ -52,8 +52,8 @@ public abstract class Extraction2TaggingReduction
 			}
 		} else {
 			// use the closed world information
-			for (Span.Looper i=taggedLabels.closureIterator(spanType,doc.getDocumentId()); i.hasNext(); ) {
-				Span span = i.nextSpan();
+			for (Iterator<Span> i=taggedLabels.closureIterator(spanType,doc.getDocumentId()); i.hasNext(); ) {
+				Span span = i.next();
 				for (int j=0; j<span.size(); j++) {
 					taggedLabels.setProperty( span.getToken(j), getTokenProp(), ExampleSchema.NEG_CLASS_NAME );
 				}

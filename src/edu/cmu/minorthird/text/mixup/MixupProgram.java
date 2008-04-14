@@ -2,159 +2,174 @@
 
 package edu.cmu.minorthird.text.mixup;
 
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.util.*;
-import org.apache.log4j.Logger;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import edu.cmu.minorthird.util.gui.*;
+import edu.cmu.minorthird.text.EncapsulatingAnnotatorLoader;
+import edu.cmu.minorthird.text.FancyLoader;
+import edu.cmu.minorthird.text.MonotonicTextLabels;
+import edu.cmu.minorthird.text.Span;
+import edu.cmu.minorthird.text.TextBase;
+import edu.cmu.minorthird.text.TextLabelsLoader;
+import edu.cmu.minorthird.util.ProgressCounter;
 
 /** Modify a textlabeling using a series of mixup expressions.
 
-<pre>
-BNF:
-STATEMENT -> declareSpanType TYPE
-STATEMENT -> provide ID
-STATEMENT -> require ID [,FILE]
-STATEMENT -> annotateWith FILE
-STATEMENT -> defDict [+case] NAME = ID, ... , ID
-STATEMENT -> defTokenProp PROP:VALUE = GEN
-STATEMENT -> defSpanProp PROP:VALUE = GEN
-STATEMENT -> defSpanType TYPE2 = GEN
-STATEMENT -> defLevel NAME = LEVELDEF
-STATEMENT -> onLevel NAME
-STATEMENT -> offLevel NAME
-STATEMENT -> importFromLevel NAME TYPE = TYPE
+ <pre>
+ BNF:
+ STATEMENT -> declareSpanType TYPE
+ STATEMENT -> provide ID
+ STATEMENT -> require ID [,FILE]
+ STATEMENT -> annotateWith FILE
+ STATEMENT -> defDict [+case] NAME = ID, ... , ID
+ STATEMENT -> defTokenProp PROP:VALUE = GEN
+ STATEMENT -> defSpanProp PROP:VALUE = GEN
+ STATEMENT -> defSpanType TYPE2 = GEN
+ STATEMENT -> defLevel NAME = LEVELDEF
+ STATEMENT -> onLevel NAME
+ STATEMENT -> offLevel NAME
+ STATEMENT -> importFromLevel NAME TYPE = TYPE
 
-LEVELDEF -> filter TYPE
-LEVELDEF -> pseudotoken TYPE
-LEVELDEF -> split TOKEN
-LEVELDEF -> re 'REGEX'
+ LEVELDEF -> filter TYPE
+ LEVELDEF -> pseudotoken TYPE
+ LEVELDEF -> split TOKEN
+ LEVELDEF -> re 'REGEX'
 
-GEN -> [TYPE]: MIXUP-EXPR
-GEN -> [TYPE]- MIXUP-EXPR
-GEN -> [TYPE]~ re 'REGEX',NUMBER
-GEN -> [TYPE]~ trie phrase1, phrase2, ... ;
+ GEN -> [TYPE]: MIXUP-EXPR
+ GEN -> [TYPE]- MIXUP-EXPR
+ GEN -> [TYPE]~ re 'REGEX',NUMBER
+ GEN -> [TYPE]~ trie phrase1, phrase2, ... ;
 
-statements are semicolon-separated
-// and comments look like this (C++ style)
+ statements are semicolon-separated
+ // and comments look like this (C++ style)
 
-SEMANTICS:
-execute each command in order, saving spans/tokens as types, and asserting properties
-'=:' can be replaced with '=TYPE:', in which case the expr will be applied to
-each span of the given type, rather than all top-level spans
+ SEMANTICS:
+ execute each command in order, saving spans/tokens as types, and asserting properties
+ '=:' can be replaced with '=TYPE:', in which case the expr will be applied to
+ each span of the given type, rather than all top-level spans
 
-defDict FOO = bar,baz,bat stores a lowercase version of each word the dictionary
-defDict +case FOO = blah,Bar,baZ stores each word the dictionary, preserving case
+ defDict FOO = bar,baz,bat stores a lowercase version of each word the dictionary
+ defDict +case FOO = blah,Bar,baZ stores each word the dictionary, preserving case
 
-in dictionaries and tries, a double-quoted word "foo.txt" means to
-find foo.txt on the classpath and store all lines from the file as
-words (after trimming them).
+ in dictionaries and tries, a double-quoted word "foo.txt" means to
+ find foo.txt on the classpath and store all lines from the file as
+ words (after trimming them).
 
-TYPE: MIXUP-EXPR finds all spans inside a span of type TYPE that match the expression
-TYPE- MIXUP-EXPR finds all spans inside a span of type TYPE that do not contain anything matching MIXUP-EXPR
+ TYPE: MIXUP-EXPR finds all spans inside a span of type TYPE that match the expression
+ TYPE- MIXUP-EXPR finds all spans inside a span of type TYPE that do not contain anything matching MIXUP-EXPR
 
-</pre> <p> Mixup is matching language for modifying TextLabels.  It
-can label spans with a given TYPE (the new label for that token span)
-and assign properties to spans (much like labels, but 'invisible').
-There is more documentation for Mixup programs in the <a
-href="package-summary.html">package-level documents for Mixup.</a>
-<p>
-Briefly, a Mixup program will look something like this:
-<pre>
-require "req1"; //requires that "abc" type spans have already been labeled.  If not, the default annoator
-                //for "abc" will be used.
-		require "req2", "req2.mixup"; 
-                //file 'def.mixup' will be run to provide "def" labels if they are not already there
-                //if  "def" labels were already generated by a different annotator, they will be used and
-                //and 'def.mixup' won't be called.
-		provide "xyz"; //this program will annotate the text with "xyz" labels
-		defDict titleWord = mr, ms, mrs, dr; 
-		//defines a dictionary (with scope of this program execution called 'titleWord'
-		//containing the values "mr", "ms", "mrs", "dr" 
-		defDict myDictionary = "dictionary.txt"; 
-		//defines a dictionary called 'myDictionary' with values taken from the file "dictionary.txt"
-		defTokenProp title:true =: ... [ai(titleWord)] ... ; //finds all spans matching a work in the dictionary titleWord
-		//those spans are given the property "Name" with value "true" (a string, not boolean)
-		//if the span previously had "Name" property with a different value, that is replaced
-		// the "..." before and after indicate that it doesn't matter what comes before or after the token
-		//to be labeled.  if I said "=: [ai(titleWord)];" the document would need to be JUST a titleword.
-		defTokenProp titlePunc:1 =: ... title:true [','] ... || ... title:true ['.'] ... ;
-		//spans "." or "," preceeded by a title are given the property titlePunc with value "1"
-		//note that the entire '... title:true [','] ...' is an expression; or operators ("||") must be
-		//<em> between</em> expressions, not within them
-		defSpanType fullTitle =: ...[title:true titlePunc:1?R] ...;
-		//label a span as "fullTitle" if there is a title span optionally followed b a titlePunc span
-		//but not more than one (from the R)
-		defSpanType the =: ... [eqi('the')] ...; 
-		//labels occurances of "the" ignoring case (eq = equals, adding i ignores case)
-		defTokenProp aProp:t =: ...[<title:true, req1>] ...; 
-		/tokens which have the title=true property AND are labeled as req1
-		//are given the property aProp=t
-		defTokenProp address:x =: ... [@fullTitle any] !a(myDictionary) ...; 
-		//label spans of one 'fullTitle' (the @ is needed
-		//before types) and the following token, whatever it is, 
-		// which are followed by something other than a myDictionary word
-		defTokenProp capProp:on =req2: ... [re('^[A-Z]$')] ...; 
-		//on spans of type req2, match tokens fitting the given regular expression
-		defSpanType listSet =: ... [address+R] ...; 
-		//label as header spans of 1 or more address tokens, going all the way to 
-		//right most possible token - example: blah address1 address2 address3 blah 
-		// - will return three spans: "address3", "address2 address3", and "address1 address2 address3"
-		defSpanType adList =: ... [L address+ R] ...; //as above but only returns the longest span
-		defSpanType header =: [L address* R] ...; 
-		//label longest span of 0 or more address tokens at the beginning of the document
-		defSpanType shortList =: ... [address{2,3}] ...; //label spans of 2 or 3 address tokens
-		defSpanType xyz =header: ...[capProp] ...; //providing the promised xyz labeling
-		//creates a new level where each document is a span with spanType
-		defLevel newLevel = filter spanType;
-		//creates a new level where tokens of spanType are combined into a single token
-		defLevel newLevel = pseudotoken spanType;
-		//creates a new level where the textBase is retokenized by splitting a a certain token
-		defLevel newLevel = split '.';
-		//create a new level where the textBase is retokenized using a regular expression
-		defLevel newLevel = re '([^\n]+)';
-		//switches current textBase and Labels to Level
-		onLevel levelName;
-		//returns to root (or original) level - levelName is the name of the child level which you are switching off
-		offLevel childLevelName;
-		//Imports spans of Type in the child level to spans of newType in the parent level
-		importFromLevel childLevelName newType = type;
-		</pre>
+ </pre> <p> Mixup is matching language for modifying TextLabels.  It
+ can label spans with a given TYPE (the new label for that token span)
+ and assign properties to spans (much like labels, but 'invisible').
+ There is more documentation for Mixup programs in the <a
+ href="package-summary.html">package-level documents for Mixup.</a>
+ <p>
+ Briefly, a Mixup program will look something like this:
+ <pre>
+ require "req1"; //requires that "abc" type spans have already been labeled.  If not, the default annoator
+ //for "abc" will be used.
+ require "req2", "req2.mixup"; 
+ //file 'def.mixup' will be run to provide "def" labels if they are not already there
+ //if  "def" labels were already generated by a different annotator, they will be used and
+ //and 'def.mixup' won't be called.
+ provide "xyz"; //this program will annotate the text with "xyz" labels
+ defDict titleWord = mr, ms, mrs, dr; 
+ //defines a dictionary (with scope of this program execution called 'titleWord'
+ //containing the values "mr", "ms", "mrs", "dr" 
+ defDict myDictionary = "dictionary.txt"; 
+ //defines a dictionary called 'myDictionary' with values taken from the file "dictionary.txt"
+ defTokenProp title:true =: ... [ai(titleWord)] ... ; //finds all spans matching a work in the dictionary titleWord
+ //those spans are given the property "Name" with value "true" (a string, not boolean)
+ //if the span previously had "Name" property with a different value, that is replaced
+ // the "..." before and after indicate that it doesn't matter what comes before or after the token
+ //to be labeled.  if I said "=: [ai(titleWord)];" the document would need to be JUST a titleword.
+ defTokenProp titlePunc:1 =: ... title:true [','] ... || ... title:true ['.'] ... ;
+ //spans "." or "," preceeded by a title are given the property titlePunc with value "1"
+ //note that the entire '... title:true [','] ...' is an expression; or operators ("||") must be
+ //<em> between</em> expressions, not within them
+ defSpanType fullTitle =: ...[title:true titlePunc:1?R] ...;
+ //label a span as "fullTitle" if there is a title span optionally followed b a titlePunc span
+ //but not more than one (from the R)
+ defSpanType the =: ... [eqi('the')] ...; 
+ //labels occurances of "the" ignoring case (eq = equals, adding i ignores case)
+ defTokenProp aProp:t =: ...[<title:true, req1>] ...; 
+ /tokens which have the title=true property AND are labeled as req1
+ //are given the property aProp=t
+ defTokenProp address:x =: ... [@fullTitle any] !a(myDictionary) ...; 
+ //label spans of one 'fullTitle' (the @ is needed
+ //before types) and the following token, whatever it is, 
+ // which are followed by something other than a myDictionary word
+ defTokenProp capProp:on =req2: ... [re('^[A-Z]$')] ...; 
+ //on spans of type req2, match tokens fitting the given regular expression
+ defSpanType listSet =: ... [address+R] ...; 
+ //label as header spans of 1 or more address tokens, going all the way to 
+ //right most possible token - example: blah address1 address2 address3 blah 
+ // - will return three spans: "address3", "address2 address3", and "address1 address2 address3"
+ defSpanType adList =: ... [L address+ R] ...; //as above but only returns the longest span
+ defSpanType header =: [L address* R] ...; 
+ //label longest span of 0 or more address tokens at the beginning of the document
+ defSpanType shortList =: ... [address{2,3}] ...; //label spans of 2 or 3 address tokens
+ defSpanType xyz =header: ...[capProp] ...; //providing the promised xyz labeling
+ //creates a new level where each document is a span with spanType
+ defLevel newLevel = filter spanType;
+ //creates a new level where tokens of spanType are combined into a single token
+ defLevel newLevel = pseudotoken spanType;
+ //creates a new level where the textBase is retokenized by splitting a a certain token
+ defLevel newLevel = split '.';
+ //create a new level where the textBase is retokenized using a regular expression
+ defLevel newLevel = re '([^\n]+)';
+ //switches current textBase and Labels to Level
+ onLevel levelName;
+ //returns to root (or original) level - levelName is the name of the child level which you are switching off
+ offLevel childLevelName;
+ //Imports spans of Type in the child level to spans of newType in the parent level
+ importFromLevel childLevelName newType = type;
+ </pre>
  *
  * @author William Cohen
  */
 
-public class MixupProgram implements Serializable
-{
-	static private final long serialVersionUID = 1;
-	private final int CURRENT_VERSION_NUMBER = 1;
+public class MixupProgram implements Serializable{
 
-	private static Logger log = Logger.getLogger(MixupProgram.class);
+	static private final long serialVersionUID=20080303L;
 
-	private ArrayList statementList = new ArrayList();
+//	private static Logger log=Logger.getLogger(MixupProgram.class);
+
+	private List<Statement> statementList=new ArrayList<Statement>();
+
 	// maps dictionary names to the sets they correspond to 
-	private HashMap dictionaryMap = new HashMap();
+//	private Map<String,Set<String>> dictionaryMap=new HashMap<String,Set<String>>();
 
-	private static TextBase textBase = null;
-	private static MonotonicTextLabels labels = null;
-	private static HashMap textBases = new HashMap(); //List of TextBases with different tokenizations
-	private static HashMap textLabels = new HashMap(); //List of TextLabels with for textBases with different tokenizations
+//	private static TextBase textBase=null;
 
-	public static Set legalKeywords = new HashSet(); 
-	static { 
-		legalKeywords.add("defTokenProp"); 
-		legalKeywords.add("defSpanProp"); 
-		legalKeywords.add("defSpanType"); 
-		legalKeywords.add("defDict"); 
-		legalKeywords.add("declareSpanType"); 
-		legalKeywords.add("provide"); 
-		legalKeywords.add("require"); 
-		legalKeywords.add("annotateWith"); 
+//	private static MonotonicTextLabels labels=null;
+
+//	private static HashMap textBases=new HashMap(); //List of TextBases with different tokenizations
+
+//	private static HashMap textLabels=new HashMap(); //List of TextLabels with for textBases with different tokenizations
+
+	public static Set<String> legalKeywords=new HashSet<String>();
+	static{
+		legalKeywords.add("defTokenProp");
+		legalKeywords.add("defSpanProp");
+		legalKeywords.add("defSpanType");
+		legalKeywords.add("defDict");
+		legalKeywords.add("declareSpanType");
+		legalKeywords.add("provide");
+		legalKeywords.add("require");
+		legalKeywords.add("annotateWith");
 		legalKeywords.add("defLevel");
 		legalKeywords.add("onLevel");
 		legalKeywords.add("offLevel");
@@ -163,58 +178,66 @@ public class MixupProgram implements Serializable
 		legalKeywords.add("\n");
 	}
 
-	public MixupProgram() {;}
+	public MixupProgram(){
+		;
+	}
 
 	/** Create a MixupProgram from an array of statements */
-	public MixupProgram(String[] statements) throws Mixup.ParseException {
-		String program = "";
-		for (int i=0; i<statements.length; i++) {
-			program = program + statements[i] + ";\n";
+	public MixupProgram(String[] statements) throws Mixup.ParseException{
+		String program="";
+		for(int i=0;i<statements.length;i++){
+			program=program+statements[i]+";\n";
 		}
 		startProgram(program);
 	}
 
 	/** Create a MixupProgram from single string with a bunch of semicolon-separated statements. */
-	public MixupProgram(String program) throws Mixup.ParseException {
-		String[] lines  = program.split("\n");
-		StringBuffer buf = new StringBuffer();
+	public MixupProgram(String program) throws Mixup.ParseException{
+		String[] lines=program.split("\n");
+		StringBuffer buf=new StringBuffer();
 		String line;
-		for(int i=0; i<lines.length; i++) {
-			int startComment = lines[i].indexOf("//");
-			if (startComment>=0) line = lines[i].substring(0,startComment); else line = lines[i];
+		for(int i=0;i<lines.length;i++){
+			int startComment=lines[i].indexOf("//");
+			if(startComment>=0)
+				line=lines[i].substring(0,startComment);
+			else
+				line=lines[i];
 			buf.append(line);
 			buf.append("\n");
 		}
-		program = buf.toString();
+		program=buf.toString();
 		startProgram(program);
 	}
 
 	/** Create a MixupProgram from the contents of a file. */
-	public MixupProgram(File file) throws Mixup.ParseException, FileNotFoundException, IOException {
+	public MixupProgram(File file) throws Mixup.ParseException,
+			FileNotFoundException,IOException{
 		//LineNumberReader in = new LineNumberReader(new FileReader(file));
-		LineNumberReader in = file.exists() ? mixupReader(file) : mixupReader(file.getName());
-		StringBuffer buf = new StringBuffer();
+		LineNumberReader in=
+				file.exists()?mixupReader(file):mixupReader(file.getName());
+		StringBuffer buf=new StringBuffer();
 		String line;
-		while ((line = in.readLine())!=null) {
-			int startComment = line.indexOf("//");
-			if (startComment>=0) line = line.substring(0,startComment);
+		while((line=in.readLine())!=null){
+			int startComment=line.indexOf("//");
+			if(startComment>=0)
+				line=line.substring(0,startComment);
 			buf.append(line);
 			buf.append("\n");
 		}
 		in.close();
-		String program = buf.toString();
+		String program=buf.toString();
 		startProgram(program);
 	}
 
-	private void startProgram(String program)throws Mixup.ParseException {
-		program.trim();	
-		Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(program);
-		String keyword = tok.advance(legalKeywords);
-		while(keyword!=null) {
+	private void startProgram(String program) throws Mixup.ParseException{
+		program.trim();
+		Mixup.MixupTokenizer tok=new Mixup.MixupTokenizer(program);
+		String keyword=tok.advance(legalKeywords);
+		while(keyword!=null){
 			if(!keyword.startsWith("\n"))
 				addStatement(tok,keyword);
-			keyword = tok.advance(legalKeywords);
-			if(keyword == null) {
+			keyword=tok.advance(legalKeywords);
+			if(keyword==null){
 				break;
 			}
 		}
@@ -224,8 +247,8 @@ public class MixupProgram implements Serializable
 	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
 	 */
 	// Deprecated on 2/20/2007
-	public MonotonicTextLabels eval(MonotonicTextLabels labels, TextBase tb) {
-		MixupInterpreter interpreter = new MixupInterpreter(this);
+	public MonotonicTextLabels eval(MonotonicTextLabels labels,TextBase tb){
+		MixupInterpreter interpreter=new MixupInterpreter(this);
 		interpreter.eval(labels);
 		return interpreter.getCurrentLabels();
 	}
@@ -234,57 +257,64 @@ public class MixupProgram implements Serializable
 	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
 	 */
 	// Deprecated on 2/20/2007
-	public void eval(MonotonicTextLabels labels) {
-		MixupInterpreter interpreter = new MixupInterpreter(this);
-		ProgressCounter pc = new ProgressCounter("mixup program","statement",statementList.size());
+	public void eval(MonotonicTextLabels labels){
+		MixupInterpreter interpreter=new MixupInterpreter(this);
+		ProgressCounter pc=
+				new ProgressCounter("mixup program","statement",statementList.size());
 		interpreter.eval(labels);
 		pc.finished();
 	}
 
 	/** Add a single statement to the current mixup program. */
-	public void addStatement(Mixup.MixupTokenizer tok, String keyword) throws Mixup.ParseException {
-		statementList.add(new Statement(tok, keyword));
+	public void addStatement(Mixup.MixupTokenizer tok,String keyword)
+			throws Mixup.ParseException{
+		statementList.add(new Statement(tok,keyword));
 	}
 
 	/** Add a single statement to the current mixup program. */
-	public void addStatement(String statement) throws Mixup.ParseException {
-		Mixup.MixupTokenizer tok = new Mixup.MixupTokenizer(statement);
-		String keyword = tok.advance(legalKeywords);
-		addStatement(tok, keyword);	
+	public void addStatement(String statement) throws Mixup.ParseException{
+		Mixup.MixupTokenizer tok=new Mixup.MixupTokenizer(statement);
+		String keyword=tok.advance(legalKeywords);
+		addStatement(tok,keyword);
 	}
 
-	public Statement[] getStatements() {
+	public Statement[] getStatements(){
 		return (Statement[])statementList.toArray(new Statement[0]);
 	}
 
 	/** List the program **/
-	public String toString() {
-		StringBuffer buf = new StringBuffer("");
-		for (int i=0; i<statementList.size(); i++) {
+	public String toString(){
+		StringBuffer buf=new StringBuffer("");
+		for(int i=0;i<statementList.size();i++){
 			buf.append(statementList.get(i).toString()+";\n");
 		}
 		return buf.toString();
 	}
 
 	/** Convert a string to an input stream, then a LineNumberReader. */
-	static private LineNumberReader mixupReader(String fileName) throws IOException, FileNotFoundException
-	{
-		File file = new File(fileName);
-		if (file.exists())
+	static private LineNumberReader mixupReader(String fileName)
+			throws IOException,FileNotFoundException{
+		File file=new File(fileName);
+		if(file.exists())
 			return mixupReader(file);
-		else {
+		else{
 			InputStream s;
-			s = EncapsulatingAnnotatorLoader.EncapsulatingClassLoader.getSystemResourceAsStream(fileName);
-			if (s==null) s = ClassLoader.getSystemResourceAsStream(fileName);
-			if (s==null) throw new IllegalArgumentException("No file named '"+fileName+"' found on classpath");
+			s=
+					EncapsulatingAnnotatorLoader.EncapsulatingClassLoader
+							.getSystemResourceAsStream(fileName);
+			if(s==null)
+				s=ClassLoader.getSystemResourceAsStream(fileName);
+			if(s==null)
+				throw new IllegalArgumentException("No file named '"+fileName+
+						"' found on classpath");
 			return new LineNumberReader(new BufferedReader(new InputStreamReader(s)));
 		}
 	}
-	static private LineNumberReader mixupReader(File file) throws IOException, FileNotFoundException
-	{
+
+	static private LineNumberReader mixupReader(File file) throws IOException,
+			FileNotFoundException{
 		return new LineNumberReader(new BufferedReader(new FileReader(file)));
 	}
-
 
 	/**
 	 * usage: programFile textFile/directory [outfile]
@@ -292,30 +322,29 @@ public class MixupProgram implements Serializable
 	 * if an outfile is specified it outputs the types as operators to that file
 	 */
 	public static void main(String[] args){
-		try {
-			MixupProgram program = new MixupProgram(new File(args[0]));
-			System.out.println("program:\n" + program.toString());
-			if (args.length>1) {
-				MonotonicTextLabels labels = (MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
+		try{
+			MixupProgram program=new MixupProgram(new File(args[0]));
+			System.out.println("program:\n"+program.toString());
+			if(args.length>1){
+				MonotonicTextLabels labels=
+						(MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
 
 				program.eval(labels);
 
-				if (args.length > 2)
-				{
-					File outFile = new File(args[2]);
-					new TextLabelsLoader().saveTypesAsOps(labels, outFile);
-				}
-				else
-					for (Iterator i=labels.getTypes().iterator(); i.hasNext(); ) {
-						String type = (String)i.next();
+				if(args.length>2){
+					File outFile=new File(args[2]);
+					new TextLabelsLoader().saveTypesAsOps(labels,outFile);
+				}else
+					for(Iterator<String> i=labels.getTypes().iterator();i.hasNext();){
+						String type=i.next();
 						System.out.println("Type "+type+":");
-						for (Span.Looper j=labels.instanceIterator(type); j.hasNext(); ) {
-							Span span = j.nextSpan();
-							System.out.println( "\t'"+span.asString()+"'" );
+						for(Iterator<Span> j=labels.instanceIterator(type);j.hasNext();){
+							Span span=j.next();
+							System.out.println("\t'"+span.asString()+"'");
 						}
 					}
 			}
-		} catch (Exception e) {
+		}catch(Exception e){
 			System.out.println("usage: programFile textFile/directory [outfile]");
 			e.printStackTrace();
 		}

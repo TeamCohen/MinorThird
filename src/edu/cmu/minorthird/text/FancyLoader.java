@@ -1,15 +1,22 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.gui.*;
-import edu.cmu.minorthird.text.learn.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.text.mixup.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
+import org.apache.log4j.Logger;
 
-import org.apache.log4j.*;
+import edu.cmu.minorthird.text.gui.TextBaseViewer;
+import edu.cmu.minorthird.text.learn.SampleClassificationProblem;
+import edu.cmu.minorthird.text.learn.SampleExtractionProblem;
+import edu.cmu.minorthird.text.mixup.Mixup;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
+import edu.cmu.minorthird.text.mixup.MixupProgram;
 
 /**
  * Configurable method of loading data objects.
@@ -95,7 +102,7 @@ public class FancyLoader
 	 */
 	public static Object[] getPossibleTextLabelKeys()
 	{
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		for (int i=1; i<=3; i++) {
 			result.add( "sample"+i+".train");
 			result.add( "sample"+i+".test" );

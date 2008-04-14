@@ -1,14 +1,12 @@
 package edu.cmu.minorthird.text;
 
-import java.util.Iterator;
 
 /** A series of of adjacent Token's from the same document.
  *
  * @author William Cohen
  */
 
-public interface Span extends Comparable
-{
+public interface Span extends Comparable<Span>{
 
     /** Number of TextToken's in the span. */
     public int size();
@@ -84,9 +82,10 @@ public interface Span extends Comparable
 
     public int getCharOffset();
 
-    /** An iterator over Spans. */
-    public interface Looper extends Iterator {
-	public int estimatedSize();
-	public Span nextSpan();
-    }
+//    /** An iterator over Spans. */
+//    public interface Looper extends Iterator {
+//	public int estimatedSize();
+//	public Span nextSpan();
+//    }
+    
 }

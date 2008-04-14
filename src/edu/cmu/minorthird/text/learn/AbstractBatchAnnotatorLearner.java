@@ -1,20 +1,17 @@
 package edu.cmu.minorthird.text.learn;
 
-import edu.cmu.minorthird.util.gui.*;
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.sequential.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.ui.*;
-import edu.cmu.minorthird.text.learn.AnnotatorLearner;
-import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
-import edu.cmu.minorthird.text.mixup.Mixup;
-import edu.cmu.minorthird.util.ProgressCounter;
+import java.util.Iterator;
+
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import java.awt.BorderLayout;
-import javax.swing.border.*;
-import java.io.Serializable;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.sequential.SequenceDataset;
+import edu.cmu.minorthird.text.Annotator;
+import edu.cmu.minorthird.text.Span;
+import edu.cmu.minorthird.text.TextLabels;
+import edu.cmu.minorthird.text.Token;
+import edu.cmu.minorthird.ui.Recommended;
 
 /**
  * Learn an annotation model using a sequence dataset and some sort of
@@ -26,7 +23,6 @@ import java.io.Serializable;
 public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 {
 	private static Logger log = Logger.getLogger(AbstractBatchAnnotatorLearner.class);
-	private static final boolean DEBUG = false;
 
 	protected SpanFeatureExtractor fe;
 	protected String annotationType = "_prediction";
@@ -66,16 +62,16 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
   //
 
 	// temporary storage
-	private Span.Looper documentLooper;
+	private Iterator<Span> documentLooper;
 
 	/** Accept the pool of unlabeled documents. */
-	public void setDocumentPool(Span.Looper documentLooper) { this.documentLooper = documentLooper; }
+	public void setDocumentPool(Iterator<Span> documentLooper) { this.documentLooper = documentLooper; }
 
 	/** Ask for labels on every document. */
 	public boolean hasNextQuery() {	return documentLooper.hasNext();}
 
 	/** Return the next unlabeled document. */
-	public Span nextQuery() {	return documentLooper.nextSpan();	}
+	public Span nextQuery() {	return documentLooper.next();	}
 
 	/** Accept the answer to the last query. */
 	public void setAnswer(AnnotationExample answeredQuery)

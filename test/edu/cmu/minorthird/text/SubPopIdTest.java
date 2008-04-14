@@ -48,15 +48,15 @@ public class SubPopIdTest extends TestCase
 		SpanFeatureExtractor fe = SampleFE.BAG_OF_WORDS;
 
 		Dataset data1 = new BasicDataset();
-		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-			Span s = i.nextSpan();
+		for (Iterator<Span> i=base.documentSpanIterator(); i.hasNext(); ) {
+			Span s = i.next();
 			data1.add( new Example( fe.extractInstance(new EmptyLabels(), s), ClassLabel.binaryLabel(+1 ) ));
 		}
 		
 		TextLabels labels = new BasicTextLabels(base);
 		Dataset data2 = new BasicDataset();
-		for (Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-			Span s = i.nextSpan();
+		for (Iterator<Span> i=base.documentSpanIterator(); i.hasNext(); ) {
+			Span s = i.next();
 			data2.add( new Example( fe.extractInstance(labels,s), ClassLabel.binaryLabel(+1) ) );
 		}
 

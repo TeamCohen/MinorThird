@@ -82,7 +82,7 @@ public class Dependencies
       {
         //run the java code
 //        String className = file.substring(0, file.lastIndexOf('.'));
-        Class clazz = Dependencies.class.getClassLoader().loadClass(file);
+        Class<?> clazz = Dependencies.class.getClassLoader().loadClass(file);
         Annotator annotator = (Annotator)clazz.newInstance();
         annotator.annotate(labels);
       }

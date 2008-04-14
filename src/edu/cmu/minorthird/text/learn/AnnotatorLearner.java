@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text.learn;
 
+import java.util.Iterator;
+
 import edu.cmu.minorthird.text.Span;
 import edu.cmu.minorthird.text.Annotator;
 
@@ -15,7 +17,7 @@ public abstract class AnnotatorLearner
 	abstract public void reset();
 
 	/** Accept a pool of documents. */
-	abstract public void setDocumentPool(Span.Looper documents);
+	abstract public void setDocumentPool(Iterator<Span> documents);
 	
 	/** Returns true if the learner has more queries to answer. */
 	abstract public boolean hasNextQuery(); 

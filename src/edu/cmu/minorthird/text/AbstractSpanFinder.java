@@ -1,9 +1,6 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.BasicSpanLooper;
-import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextLabels;
-
+import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
@@ -12,22 +9,20 @@ import java.util.TreeSet;
  * @author William Cohen
  */
 
-public abstract class AbstractSpanFinder implements SpanFinder
-{
-	/** Find subspans of each span produced by the documentSpanLooper. */
-	final public Span.Looper findSpans(TextLabels labels, Span.Looper documentSpanLooper) {
-		TreeSet set = new TreeSet();
-		while (documentSpanLooper.hasNext()) {
-			for (Span.Looper i = findSpans(labels, documentSpanLooper.nextSpan()); i.hasNext(); ) {
-				set.add( i.nextSpan() );
-			}
+public abstract class AbstractSpanFinder implements SpanFinder{
+
+	/** Find subspans of each span produced by the documentSpanIterator. */
+	final public Iterator<Span> findSpans(TextLabels labels,Iterator<Span> documentSpanIterator){
+		TreeSet<Span> set=new TreeSet<Span>();
+		while(documentSpanIterator.hasNext()){
+			for(Iterator<Span> i=findSpans(labels,documentSpanIterator);i.hasNext();set.add(i.next()));
 		}
-		return new BasicSpanLooper( set.iterator() );
+		return set.iterator();
 	}
 
 	/** Find subspans of the given document span. */
-	abstract public Span.Looper findSpans(TextLabels labels, Span documentSpan);
+	abstract public Iterator<Span> findSpans(TextLabels labels,Span documentSpan);
 
 	/** Explain how spans were found. */
-	abstract public String explainFindSpans(TextLabels labels, Span documentSpan);
+	abstract public String explainFindSpans(TextLabels labels,Span documentSpan);
 }

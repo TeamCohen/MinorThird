@@ -215,7 +215,7 @@ public class TrainTest{
 				Evaluation e=
 						Tester.evaluate(trainTestParams.seqLnr.seqLearner,
 								(SequenceDataset)trainTestParams.getTrainData(),
-								trainTestParams.splitter);
+								trainTestParams.sequenceSplitter);
 				trainTestParams.resultToShow=trainTestParams.resultToSave=e;
 				((Evaluation)trainTestParams.resultToSave).summarize();
 			}else if(trainTestParams.showTestDetails&&

@@ -5,6 +5,7 @@ package edu.cmu.minorthird.text.mixup;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -69,37 +70,37 @@ public class MixupProgramTest extends TestSuite{
 
 		protected void checkTime(TextLabels labels){
 			// should be one time, "10:45 a.m."
-			Span.Looper i=labels.instanceIterator("extracted_time");
+			Iterator<Span> i=labels.instanceIterator("extracted_time");
 			assertTrue(i.hasNext());
-			assertEquals("10:45 a.m.",i.nextSpan().asString());
+			assertEquals("10:45 a.m.",i.next().asString());
 			assertTrue(!i.hasNext());
 		}
 
 		protected void checkRoom(TextLabels labels){
 			// should be one time, "1112"
-			Span.Looper i=labels.instanceIterator("extracted_room");
+			Iterator<Span> i=labels.instanceIterator("extracted_room");
 			assertTrue(i.hasNext());
-			assertEquals("1112",i.nextSpan().asString());
+			assertEquals("1112",i.next().asString());
 			assertTrue(!i.hasNext());
 		}
 
 		protected void checkDate(TextLabels labels){
 			//should contain two dates, "Tuesday", "Feb. 21" and one time, "10:45 a.m."
-			Span.Looper i=labels.instanceIterator("extracted_date");
+			Iterator<Span> i=labels.instanceIterator("extracted_date");
 			assertTrue(i.hasNext());
-			assertEquals("Tuesday",i.nextSpan().asString());
+			assertEquals("Tuesday",i.next().asString());
 			assertTrue(i.hasNext());
-			assertEquals("Feb. 21",i.nextSpan().asString());
+			assertEquals("Feb. 21",i.next().asString());
 			assertTrue(!i.hasNext());
 		}
 
 		protected void checkName(TextLabels labels){
 			//should contain two names, Doherty Hall and Warren Baker
-			Span.Looper i=labels.instanceIterator("extracted_name");
+			Iterator<Span> i=labels.instanceIterator("extracted_name");
 			assertTrue(i.hasNext());
-			assertEquals("Doherty\nHall",i.nextSpan().asString());
+			assertEquals("Doherty\nHall",i.next().asString());
 			assertTrue(i.hasNext());
-			assertEquals("Warren Baker",i.nextSpan().asString());
+			assertEquals("Warren Baker",i.next().asString());
 			assertTrue(!i.hasNext());
 		}
 	}
@@ -288,15 +289,15 @@ public class MixupProgramTest extends TestSuite{
 			MonotonicTextLabels annotatedLabels=interp.getCurrentLabels();
 
 			//should contain two dates, "Tuesday", "Feb. 21" both should be made up of a single token 
-			Span.Looper i=annotatedLabels.instanceIterator("extracted_date");
+			Iterator<Span> i=annotatedLabels.instanceIterator("extracted_date");
 			// WARNING: There doesn't seem to be a way to get a list of tokens or spans that have a token property set.
 			//Span.Looper i = annotatedLabels.getSpansWithProperty("Pseudotoken");
 			assertTrue(i.hasNext());
-			Span s=i.nextSpan();
+			Span s=i.next();
 			assertEquals("Tuesday",s.asString());
 			assertEquals(1,s.size());
 			assertTrue(i.hasNext());
-			s=i.nextSpan();
+			s=i.next();
 			assertEquals("Feb. 21",s.asString());
 			assertEquals(1,s.size());
 			assertTrue(!i.hasNext());
@@ -340,9 +341,9 @@ public class MixupProgramTest extends TestSuite{
 			// There should now be two documents, one for each instance of extracted_date
 			i=annotatedLabels.getTextBase().documentSpanIterator();
 			assertTrue(i.hasNext());
-			assertEquals("Tuesday",i.nextSpan().asString());
+			assertEquals("Tuesday",i.next().asString());
 			assertTrue(i.hasNext());
-			assertEquals("Feb. 21",i.nextSpan().asString());
+			assertEquals("Feb. 21",i.next().asString());
 			assertTrue(!i.hasNext());
 		}
 	}

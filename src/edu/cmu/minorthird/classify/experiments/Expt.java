@@ -143,24 +143,28 @@ public class Expt implements CommandLineProcessor.Configurable
 
    /** Decode splitter names.
     */
-   static public Splitter<Example> toSplitter(String splitterName)
+   static public <T> Splitter<T> toSplitter(String splitterName,Class<T> clazz)
    {
       if (splitterName.charAt(0)=='k') {
          int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
-         return new CrossValSplitter<Example>(folds);
+         return new CrossValSplitter<T>(folds);
       }
       if (splitterName.charAt(0)=='r') {
          double pct = StringUtil.atoi(splitterName.substring(1,splitterName.length())) / 100.0;
-         return new RandomSplitter<Example>(pct);
+         return new RandomSplitter<T>(pct);
       }
-      if (splitterName.charAt(0)=='s') {
-         int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
-         return new StratifiedCrossValSplitter(folds);
-      }
+//      if (splitterName.charAt(0)=='s') {
+//         int folds = StringUtil.atoi(splitterName.substring(1,splitterName.length()));
+//         return new StratifiedCrossValSplitter(folds);
+//      }
       if (splitterName.startsWith("l")) {
-         return new LeaveOneOutSplitter<Example>();
+         return new LeaveOneOutSplitter<T>();
       }
       throw new IllegalArgumentException("illegal splitterName '"+splitterName+"'");
+   }
+   
+   public static Splitter<Example> toSplitter(String splitterName){
+  	 return toSplitter(splitterName,Example.class);
    }
 
 

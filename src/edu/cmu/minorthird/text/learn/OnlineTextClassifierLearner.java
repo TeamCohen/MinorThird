@@ -1,17 +1,7 @@
 package edu.cmu.minorthird.text.learn;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.ui.*;
-import edu.cmu.minorthird.util.*;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.io.*;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.text.TextLabels;
 
 /** Interface for OnlineLearner.  Allows you to add to a learner by specifying a string rather than a Span.
  *  Can return a TextClassifier, which scores a String rather than a span.

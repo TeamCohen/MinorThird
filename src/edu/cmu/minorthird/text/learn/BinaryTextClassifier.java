@@ -1,18 +1,13 @@
 package edu.cmu.minorthird.text.learn;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.*;
-import edu.cmu.minorthird.classify.semisupervised.*;
-import edu.cmu.minorthird.text.*;
-import edu.cmu.minorthird.ui.*;
-import edu.cmu.minorthird.util.*;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.io.*;
+import edu.cmu.minorthird.classify.BinaryClassifier;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.classify.OnlineClassifierLearner;
+import edu.cmu.minorthird.text.BasicTextBase;
+import edu.cmu.minorthird.text.EmptyLabels;
+import edu.cmu.minorthird.text.Span;
+import edu.cmu.minorthird.text.TextLabels;
 
 /** Class the returns the score of a string rather than an instance
  *

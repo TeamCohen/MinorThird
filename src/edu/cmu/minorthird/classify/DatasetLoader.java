@@ -252,8 +252,9 @@ public class DatasetLoader{
 			else
 				list.add(parseLine(line,file,in));
 		}
-		if(list.size()>0)
+		if(list.size()>0){
 			clearBuffer(list,dataset);
+		}
 		log.info("loaded "+dataset.size()+" examples from "+file.getName());
 		in.close();
 		return dataset;

@@ -1,6 +1,7 @@
 package edu.cmu.minorthird.text;
 
 import java.io.File;
+import java.util.Iterator;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -246,8 +247,8 @@ public class TextBaseLoaderTest extends TestCase
 	// returns the number of times the given type appears in the doc
 	private int getNumLabels(TextLabels labels, String type) {
 		int i = 0;
-		for (Span.Looper l = labels.instanceIterator(type); l.hasNext(); ) {
-			log.debug(l.nextSpan().asString());
+		for (Iterator<Span> l = labels.instanceIterator(type); l.hasNext(); ) {
+			log.debug(l.next().asString());
 			i++;
 		}
 
@@ -258,8 +259,8 @@ public class TextBaseLoaderTest extends TestCase
 	// value and that it appears (with that value) the specified number of times
 	private void checkType(TextLabels labels, String type, String doc, String value, int num) {
 		int i = 0;
-		for (Span.Looper l = labels.instanceIterator(type, doc); l.hasNext(); i++) {
-			Span s = l.nextSpan();
+		for (Iterator<Span> l = labels.instanceIterator(type, doc); l.hasNext(); i++) {
+			Span s = l.next();
 			assertEquals(value, s.asString());
 		}
 		assertEquals(num, i);

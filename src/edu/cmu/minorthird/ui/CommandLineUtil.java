@@ -106,8 +106,8 @@ public class CommandLineUtil
 
 		SequenceDataset seqData = new SequenceDataset();
 		seqData.setHistorySize(historySize);
-		for (Span.Looper j=labels.getTextBase().documentSpanIterator(); j.hasNext(); ) {
-			Span document = j.nextSpan();
+		for (Iterator<Span> j=labels.getTextBase().documentSpanIterator(); j.hasNext(); ) {
+			Span document = j.next();
 			Example[] sequence = new Example[document.size()];
 			for (int i=0; i<document.size(); i++) {
 				Token tok = document.getToken(i);
@@ -137,18 +137,18 @@ public class CommandLineUtil
 		NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
 		safeLabels.shadowProperty(spanProp);
 
-		Span.Looper candidateLooper =  textLabels.getTextBase().documentSpanIterator();
+		Iterator<Span> candidateLooper =  textLabels.getTextBase().documentSpanIterator();
 
 		if(spanType.equals("combined")) {
 			Dataset seqDataset = new BasicDataset();
 			int counter = 0;
-			for (Span.Looper i=candidateLooper; i.hasNext(); ) {
+			for (Iterator<Span> i=candidateLooper; i.hasNext(); ) {
 
-				Span s = i.nextSpan();
+				Span s = i.next();
 				System.out.println("Span1 Document ID: " + s.getDocumentId() + "  Counter: " + counter);
-				Set types = textLabels.getTypes();
-				for(Iterator typeIterator=types.iterator(); typeIterator.hasNext(); ) {
-					String type = (String)typeIterator.next();
+				Set<String> types = textLabels.getTypes();
+				for(Iterator<String> typeIterator=types.iterator(); typeIterator.hasNext(); ) {
+					String type = typeIterator.next();
 					int classLabel1 = textLabels.hasType(s,type) ? +1 : -1;
 					if(classLabel1>0)
 						seqDataset.add( new Example(fe.extractInstance(safeLabels,s), ClassLabel.multiLabel(type, classLabel1)));
@@ -167,12 +167,12 @@ public class CommandLineUtil
 	toDataset(TextLabels textLabels, SpanFeatureExtractor fe,String spanProp,String spanType,String candidateType)
 	{
 		// use this to print out a summary
-		Map countByClass = new HashMap();
+		Map<String,Integer> countByClass = new HashMap<String,Integer>();
 
 		NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
 		safeLabels.shadowProperty(spanProp);
 
-		Span.Looper candidateLooper = 
+		Iterator<Span> candidateLooper = 
 			candidateType!=null ? 
 					textLabels.instanceIterator(candidateType) : textLabels.getTextBase().documentSpanIterator();
 
@@ -180,8 +180,8 @@ public class CommandLineUtil
 
 					if (spanType!=null) {
 						Dataset dataset = new BasicDataset();
-						for (Span.Looper i=candidateLooper; i.hasNext(); ) {
-							Span s = i.nextSpan();
+						for (Iterator<Span> i=candidateLooper; i.hasNext(); ) {
+							Span s = i.next();
 							int classLabel = textLabels.hasType(s,spanType) ? +1 : -1;
 							String className = classLabel<0 ? ExampleSchema.NEG_CLASS_NAME : ExampleSchema.POS_CLASS_NAME;
 							dataset.add( new Example( fe.extractInstance(safeLabels,s), ClassLabel.binaryLabel(classLabel)) );
@@ -195,8 +195,8 @@ public class CommandLineUtil
 					// k-class dataset
 					if (spanProp!=null) {
 						Dataset dataset = new BasicDataset();
-						for (Span.Looper i=candidateLooper; i.hasNext(); ) {
-							Span s = i.nextSpan();
+						for (Iterator<Span> i=candidateLooper; i.hasNext(); ) {
+							Span s = i.next();
 							String className = textLabels.getProperty(s,spanProp);
 							if (className==null) {
 								dataset.add( new Example( fe.extractInstance(safeLabels,s), new ClassLabel("NEG")) );
@@ -220,7 +220,7 @@ public class CommandLineUtil
 	toMultiDataset(MonotonicTextLabels textLabels, SpanFeatureExtractor fe,String[] multiSpanProp)
 	{	
 		// use this to print out a summary
-		Map countByClass = new HashMap();
+		Map<String,Integer> countByClass = new HashMap<String,Integer>();
 
 		NestedTextLabels safeLabels = new NestedTextLabels(textLabels);
 
@@ -228,8 +228,8 @@ public class CommandLineUtil
 		if (multiSpanProp!=null) {
 			MultiDataset dataset = new MultiDataset();
 
-			for (Span.Looper i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
-				Span s = i.nextSpan();
+			for (Iterator<Span> i=textLabels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+				Span s = i.next();
 				String[] classNames = new String[multiSpanProp.length];
 				ClassLabel[] classLabels = new ClassLabel[multiSpanProp.length];
 
@@ -260,7 +260,7 @@ public class CommandLineUtil
 	/** Create a new object from a fragment of bean shell code,
 	 * and make sure it's the correct type.
 	 */
-	public static Object newObjectFromBSH(String s,Class expectedType)
+	public static Object newObjectFromBSH(String s,Class<?> expectedType)
 	{
 		try {
 			bsh.Interpreter interp = new bsh.Interpreter();
@@ -845,8 +845,8 @@ public class CommandLineUtil
 		String[] types = spanTypes.substring(catIndex+1,spanTypes.length()).split(",");
 
 		for(int i=0; i<types.length; i++) {
-			for(Span.Looper sl = labels.instanceIterator(types[i]); sl.hasNext();){
-				Span s = sl.nextSpan();
+			for(Iterator<Span> sl = labels.instanceIterator(types[i]); sl.hasNext();){
+				Span s = sl.next();
 				//labels.setProperty(s,property,types[i]);
 				createSpanPropMixup += "defSpanProp " + property + ":" +types[i] + "=: ... [@" + types[i] + "] ...;\n";
 			}
@@ -1223,9 +1223,9 @@ public class CommandLineUtil
 				TextBase base = labels.getTextBase();
 				TextLabelsLoader x = new TextLabelsLoader();
 
-				for (Span.Looper i = base.documentSpanIterator(); i.hasNext();)
+				for (Iterator<Span> i = base.documentSpanIterator(); i.hasNext();)
 				{
-					String doc = i.nextSpan().getDocumentId();
+					String doc = i.next().getDocumentId();
 					String str = x.createXMLmarkup(doc ,labels);
 					System.out.println(str);
 				} 

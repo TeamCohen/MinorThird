@@ -1,16 +1,17 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.util.IOUtil;
-import edu.cmu.minorthird.text.CharAnnotation;
-import montylingua.JMontyLingua;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import montylingua.JMontyLingua;
+
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.util.IOUtil;
 
 /**
  * Adds part of speech tags to a TextLabels. 
@@ -62,7 +63,7 @@ public class POSTagger extends StringAnnotator{
     log.debug("\n" + in);
 
     //list of annotations
-    List list = new ArrayList();
+    List<CharAnnotation> list = new ArrayList<CharAnnotation>();
 
     int curLocation = 0;
     while (tokeTagged.hasMoreTokens())

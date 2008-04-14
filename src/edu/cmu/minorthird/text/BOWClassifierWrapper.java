@@ -2,17 +2,27 @@
 package edu.cmu.minorthird.text;
 
 
-import edu.cmu.minorthird.classify.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Iterator;
+
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.BinaryBatchVersion;
+import edu.cmu.minorthird.classify.BinaryClassifier;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.DatasetClassifierTeacher;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
 import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
-import edu.cmu.minorthird.text.BasicTextBase;
-import edu.cmu.minorthird.text.BasicTextLabels;
-import edu.cmu.minorthird.text.MutableTextLabels;
-import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.text.learn.SampleFE;
+import edu.cmu.minorthird.text.learn.SpanFeatureExtractor;
 import edu.cmu.minorthird.util.IOUtil;
-
-import java.io.*;
 
 /** Use a bag-of-words classifier to classify strings.
  *
@@ -73,8 +83,8 @@ public class BOWClassifierWrapper
 	{
 		System.out.println("loading data and labels");
 		edu.cmu.minorthird.text.TextBase base = new BasicTextBase();
-		edu.cmu.minorthird.text.TextBaseLoader loader = new edu.cmu.minorthird.text.TextBaseLoader();
-		File file = new File("examples/webmasterDataLines.txt");
+//		edu.cmu.minorthird.text.TextBaseLoader loader = new edu.cmu.minorthird.text.TextBaseLoader();
+//		File file = new File("examples/webmasterDataLines.txt");
 		//loader.setFirstWordIsDocumentId(true);
 		//loader.loadLines(base,file);
 		MutableTextLabels labels = new BasicTextLabels( base );
@@ -83,8 +93,8 @@ public class BOWClassifierWrapper
 		System.out.println("learning a test concept");
 		SpanFeatureExtractor fe = SampleFE.BAG_OF_WORDS;
 		Dataset data = new BasicDataset();
-		for (edu.cmu.minorthird.text.Span.Looper i=base.documentSpanIterator(); i.hasNext(); ) {
-			edu.cmu.minorthird.text.Span s = i.nextSpan();
+		for (Iterator<Span> i=base.documentSpanIterator(); i.hasNext(); ) {
+			edu.cmu.minorthird.text.Span s = i.next();
 			double label = labels.hasType(s,"delete") ? +1 : -1;
 			TextLabels textLabels = new EmptyLabels();
 			data.add( new Example( fe.extractInstance(textLabels,s), ClassLabel.binaryLabel(label) ) );

@@ -709,7 +709,9 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 
 		public ClassifyCommandLineUtil.BaseParams base;
 
-		public Splitter<Example> splitter=new RandomSplitter<Example>(.7);
+		public Splitter<Example> splitter=new RandomSplitter<Example>(0.7);
+		
+		public Splitter<Example[]> sequenceSplitter=new RandomSplitter<Example[]>(0.7);
 
 		public static TrainTestParams type=new SimpleTrainTestParams();
 

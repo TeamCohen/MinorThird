@@ -1,12 +1,10 @@
 package edu.cmu.minorthird.text;
 
-import edu.cmu.minorthird.text.*;
-
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Annotate substrings that are legal URLs.
@@ -23,8 +21,8 @@ public class URLAnnotator extends AbstractAnnotator
 
     protected void doAnnotate(MonotonicTextLabels labels)
     {
-        for (Span.Looper i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
-            Span docSpan = i.nextSpan();
+        for (Iterator<Span> i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
+            Span docSpan = i.next();
             String docString = docSpan.getDocumentContents();
             Matcher m = URL_CANDIDATE.matcher(docString);
             while (m.find()) {

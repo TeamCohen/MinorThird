@@ -3,8 +3,9 @@ package edu.cmu.minorthird.text;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.log4j.Logger;
+
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  *

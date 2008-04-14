@@ -28,7 +28,7 @@ public class ZoomingTextLabelsViewer extends ZoomedViewer
 			new ControlledViewer(new TextLabelsViewer(labels), new MarkupControls(labels));
 		Viewer zoomedIn = new VanillaViewer("[Empty TextBase]"); 
 		if (labels.getTextBase().size()>0)  
-			zoomedIn = new SpanViewer(labels,labels.getTextBase().documentSpanIterator().nextSpan());
+			zoomedIn = new SpanViewer(labels,labels.getTextBase().documentSpanIterator().next());
 		this.setSubViews(zoomedOut,zoomedIn);
 	}
 

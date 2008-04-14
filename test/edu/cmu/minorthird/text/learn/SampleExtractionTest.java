@@ -115,7 +115,7 @@ public class SampleExtractionTest extends TestCase
 		System.out.println(sd);
 		Looper l=sd.differenceIterator();
 		while(l.hasNext()){
-			System.out.println(">>"+l.nextSpan());
+			System.out.println(">>"+l.next());
 			//System.out.println(">>>"+l.next());
 		}
 		System.out.println(tokPrec+" "+sd.tokenPrecision()+" "+epsilon);

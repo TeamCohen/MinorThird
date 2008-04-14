@@ -7,11 +7,11 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-/** Maintains information about what's in a set of documents.
- * Specifically, this contains a set of character sequences (TextToken's)
- * from some sort of set of containing documents - typically found by
- * tokenization.
- *
+/**
+ * Maintains information about what's in a set of documents. Specifically, this
+ * contains a set of character sequences (TextToken's) from some sort of set of
+ * containing documents - typically found by tokenization.
+ * 
  * @author William Cohen
  * @author Cameron Williams
  * @author Quinten Mercer
@@ -28,14 +28,18 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	private SortedMap<String,Document> documentMap=new TreeMap<String,Document>();
 
 	// map documentId to name of 'group' of documents it belongs to
-	private SortedMap<String,String> documentGroupMap=new TreeMap<String,String>();
+	private SortedMap<String,String> documentGroupMap=
+			new TreeMap<String,String>();
 
 	/** Default constructor creates a new TextBase with the default Tokenizer. */
 	public BasicTextBase(){
 		super(new RegexTokenizer());
 	}
 
-	/** Constructor that specifies a custom Tokenizer to be used with this TextBase. */
+	/**
+	 * Constructor that specifies a custom Tokenizer to be used with this
+	 * TextBase.
+	 */
 	public BasicTextBase(Tokenizer t){
 		super(t);
 	}
@@ -43,29 +47,36 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	//
 	// Implementations of MutableTextBase abstract methods
 	//
-	/** Adds a document to this TextBase with documentId as its identifier and with text specified by documentString. */
+	/**
+	 * Adds a document to this TextBase with documentId as its identifier and with
+	 * text specified by documentString.
+	 */
 	public void loadDocument(String documentId,String documentString){
-		//create the document and add the tokens to that document
+		// create the document and add the tokens to that document
 		Document document=new Document(documentId,documentString);
 		TextToken[] tokenArray=getTokenizer().splitIntoTokens(document);
 		document.setTokens(tokenArray);
 		documentMap.put(documentId,document);
 	}
 
-	/** Adds a document to this TextBase with documentId as its identifier and with text specified by 
-	 *  documentString.  Also, this method sets the offset parameter in the new Document to the 
-	 *  specified charOffset.
+	/**
+	 * Adds a document to this TextBase with documentId as its identifier and with
+	 * text specified by documentString. Also, this method sets the offset
+	 * parameter in the new Document to the specified charOffset.
 	 */
 	public void loadDocument(String documentId,String documentString,
 			int charOffset){
-		//create the document and add the tokens to that document
+		// create the document and add the tokens to that document
 		Document document=new Document(documentId,documentString,charOffset);
 		TextToken[] tokenArray=getTokenizer().splitIntoTokens(document);
 		document.setTokens(tokenArray);
 		documentMap.put(documentId,document);
 	}
 
-	/** Sets the document group id for the specified documentId to the specified document group id. */
+	/**
+	 * Sets the document group id for the specified documentId to the specified
+	 * document group id.
+	 */
 	public void setDocumentGroupId(String documentId,String documentGroupId){
 		documentGroupMap.put(documentId,documentGroupId);
 	}
@@ -75,15 +86,18 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 		return documentMap.size();
 	}
 
-	/** Returns the Document instance that corresponds to the specified documentId or null if no document
-	 *  exists with the specified documentId.
+	/**
+	 * Returns the Document instance that corresponds to the specified documentId
+	 * or null if no document exists with the specified documentId.
 	 */
 	public Document getDocument(String documentId){
 		return (Document)documentMap.get(documentId);
 	}
 
-	/** Returns a Span instance that encloses all of the tokens in the document specified by documentId.  Note that this
-	 *  Span instance will NOT include any white space that comes before the first token or after the last token.
+	/**
+	 * Returns a Span instance that encloses all of the tokens in the document
+	 * specified by documentId. Note that this Span instance will NOT include any
+	 * white space that comes before the first token or after the last token.
 	 */
 	public Span documentSpan(String documentId){
 		TextToken[] textTokens=getTokenArray(documentId);
@@ -94,19 +108,18 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 					(String)documentGroupMap.get(documentId));
 	}
 
-	/** Returns a Span.Looper instance that includes a document span for every document in this TextBase. */
-	public Span.Looper documentSpanIterator(){
-		return new MyDocumentSpanLooper();
+	/**
+	 * Returns a Span.Looper instance that includes a document span for every
+	 * document in this TextBase.
+	 */
+	public Iterator<Span> documentSpanIterator(){
+		return new MyDocumentSpanIterator();
 	}
 
 	/** Helper class that is used to iterate through document spans. */
-	private class MyDocumentSpanLooper implements Span.Looper{
+	private class MyDocumentSpanIterator implements Iterator<Span>{
 
 		private Iterator<String> k=documentMap.keySet().iterator();
-
-		public MyDocumentSpanLooper(){
-			;
-		}
 
 		public void remove(){
 			throw new UnsupportedOperationException(
@@ -117,16 +130,10 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 			return k.hasNext();
 		}
 
-		public Span nextSpan(){
-			return (Span)next();
-		}
-
-		public Object next(){
-			String documentId=(String)k.next();
+		public Span next(){
+			String documentId=k.next();
 			TextToken[] textTokens=getTokenArray(documentId);
-			Span s=
-					new BasicSpan(documentId,textTokens,0,textTokens.length,
-							(String)documentGroupMap.get(documentId));
+			Span s=new BasicSpan(documentId,textTokens,0,textTokens.length,documentGroupMap.get(documentId));
 			s.setCharOffset(getOffset(documentId));
 			return s;
 		}
@@ -144,7 +151,10 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 			return -1;
 	}
 
-	/** Helper method used internally to make getting at the token array for a specific document id easier. */
+	/**
+	 * Helper method used internally to make getting at the token array for a
+	 * specific document id easier.
+	 */
 	private TextToken[] getTokenArray(String documentId){
 		Document document=(Document)documentMap.get(documentId);
 		if(document!=null)
@@ -153,7 +163,8 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	}
 
 	//
-	// basic test routine that loads each argument as a document, then iterates through them printing them out.
+	// basic test routine that loads each argument as a document, then iterates
+	// through them printing them out.
 	//    
 	static public void main(String[] args){
 		BasicTextBase b=new BasicTextBase();

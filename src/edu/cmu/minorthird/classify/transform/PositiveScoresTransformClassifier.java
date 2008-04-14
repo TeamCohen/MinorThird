@@ -165,8 +165,8 @@ public class PositiveScoresTransformClassifier implements Classifier,
 					LineProcessingUtil.readBsh(new File("C:/m3test/total/data/"),
 							new File("C:/m3test/total/env/all"+mytag+".env"));
 			TextBase tb=labels.getTextBase();
-			for(Span.Looper it=tb.documentSpanIterator();it.hasNext();){
-				Span docspan=(Span)it.next();
+			for(Iterator<Span> it=tb.documentSpanIterator();it.hasNext();){
+				Span docspan=it.next();
 				//String docid=docspan.getDocumentId();
 				MutableInstance ins=(MutableInstance)fe.extractInstance(labels,docspan);
 				ClassLabel mylabel=new ClassLabel();

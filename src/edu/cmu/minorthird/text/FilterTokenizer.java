@@ -2,8 +2,10 @@
 
 package edu.cmu.minorthird.text;
 
-import org.apache.log4j.Logger;
+import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.apache.log4j.Logger;
 
 /**
  * This implementation of the Tokenizer interface is used for filtering a text base based on
@@ -39,7 +41,7 @@ public class FilterTokenizer extends CompoundTokenizer
         Span matchingParentSpan = textBaseManager.getMatchingSpan(levelName, document.getId(), 0, document.getText().length(), parentLevelName);
 
         if (matchingParentSpan != null) {
-            TreeSet tokens = new TreeSet();
+            SortedSet<TextToken> tokens = new TreeSet<TextToken>();
             int currOffset = 0;
             for (int i=0;i<matchingParentSpan.size();i++) {
                 // Get the next token in the matching parent span

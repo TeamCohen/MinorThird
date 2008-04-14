@@ -1,6 +1,8 @@
 
 package edu.cmu.minorthird.text;
 
+import java.util.Iterator;
+
 
 public abstract class AbstractTextBase implements TextBase {
 
@@ -18,6 +20,6 @@ public abstract class AbstractTextBase implements TextBase {
     //
     abstract public int size();
     abstract public Document getDocument(String docID);
-    abstract public Span.Looper documentSpanIterator();
+    abstract public Iterator<Span> documentSpanIterator();
     abstract public Span documentSpan(String documentId);    
 }

@@ -1,5 +1,7 @@
 package edu.cmu.minorthird.text.learn;
 
+import java.util.Iterator;
+
 import edu.cmu.minorthird.text.*;
 import edu.cmu.minorthird.classify.*;
 /**
@@ -89,8 +91,8 @@ public class AnnotationExample
 		MonotonicTextLabels result = new NestedTextLabels(labels);
 		String documentId = document.getDocumentId();
 		labelTokens(result,result.closureIterator(inputSpanType,documentId),prop,NOT_START_OR_END);
-		for (Span.Looper i=result.instanceIterator(inputSpanType,documentId); i.hasNext(); ) {
-			Span s = i.nextSpan();
+		for (Iterator<Span> i=result.instanceIterator(inputSpanType,documentId); i.hasNext(); ) {
+			Span s = i.next();
 			if (s.size()>0) {
 				result.setProperty( s.getToken(0), prop, START );
 				result.setProperty( s.getToken(s.size()-1), prop, END );
@@ -99,10 +101,10 @@ public class AnnotationExample
 		return result;
 	}
 
-	private void labelTokens(MonotonicTextLabels labels,Span.Looper i,String prop,String value)
+	private void labelTokens(MonotonicTextLabels labels,Iterator<Span> i,String prop,String value)
 	{
 		while (i.hasNext()) {
-			Span s = i.nextSpan();
+			Span s = i.next();
 			for (int j=0; j<s.size(); j++) {
 				labels.setProperty( s.getToken(j), prop, value);
 			}

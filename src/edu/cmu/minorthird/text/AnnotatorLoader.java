@@ -41,7 +41,7 @@ public abstract class AnnotatorLoader{
 	abstract public InputStream findFileResource(String fileName);
 
 	/** Find the named resource class - usually an annotator. */
-	abstract public Class findClassResource(String className);
+	abstract public Class<?> findClassResource(String className);
 
 	/** Find an annotator for the given annotationType, from the listed
 	 * source.  If the source is non-null, it attempted to be located via
@@ -168,7 +168,7 @@ public abstract class AnnotatorLoader{
 	final private Annotator findNativeAnnotatorFromString(String className){
 		log.debug("looking for native annotator "+className);
 		try{
-			Class c=findClassResource(className);
+			Class<?> c=findClassResource(className);
 			Object o=c.newInstance();
 			if(o instanceof Annotator)
 				return (Annotator)o;
