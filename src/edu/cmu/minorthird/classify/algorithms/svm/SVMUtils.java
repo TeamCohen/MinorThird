@@ -98,7 +98,6 @@ public class SVMUtils{
 	 * through the examples and features - features are resorted numericly
 	 *
 	 * @param dataset - must contain features with integer names
-	 * @param schema - the class label schema
 	 * @return a fully loaded svm_problem object
 	 */
 	public static svm_problem convertToSVMProblem(Dataset dataset){

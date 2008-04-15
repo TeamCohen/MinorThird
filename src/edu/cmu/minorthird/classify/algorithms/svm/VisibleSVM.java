@@ -68,9 +68,8 @@ public class VisibleSVM implements Visible,Serializable{
 	/**
 	 * Constructor for the svm_model returned from SVMClassifier LIBSVM training.
 	 * 
-	 * @param model     svm_model returned from LIBSVM training
-	 * @param idFactory FeatureIdFactory which has Feature's id and corresponding information
-	 *                  before converted into svm_node in svm_problem for LIBSVM training
+	 * @param model svm_model returned from LIBSVM training
+	 * @param factory FeatureFactory which has Feature's id and corresponding information before converted into svm_node in svm_problem for LIBSVM training
 	 * 
 	 */
 	public VisibleSVM(svm_model model,FeatureFactory factory){
@@ -81,10 +80,9 @@ public class VisibleSVM implements Visible,Serializable{
 	 * Constructor for the svm_model returned from MultiClassSVMClassifier 
 	 * LIBSVM training.
 	 * 
-	 * @param model     svm_model returned from LIBSVM training
-	 * @param idFactory FeatureIdFactory which has Feature's id and corresponding information
-	 *                  before converted into svm_node in svm_problem for LIBSVM training
-	 * @param schema    ExampleSchema which has class label information
+	 * @param model svm_model returned from LIBSVM training
+	 * @param factory FeatureFactory which has Feature's id and corresponding information before converted into svm_node in svm_problem for LIBSVM training
+	 * @param schema ExampleSchema which has class label information
 	 *
 	 */
 	public VisibleSVM(svm_model model,FeatureFactory factory,ExampleSchema schema){

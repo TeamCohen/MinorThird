@@ -145,7 +145,7 @@ public class MinorTagger extends StringAnnotator{
 	/**
 	 * Tag text with part-of-speech (plain text only)
 	 * @param text
-	 * @return
+	 * @return the POS tag as a String
 	 */
 	public static String POSTag(String text){
 		StringBuffer xmlTagged=new StringBuffer();

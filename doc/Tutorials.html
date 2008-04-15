@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>MinorThird Tutorials</title>
+</head>
+
+<body>
+
+<h2>Tutorials</h2>
+
+<p>
+<b>MinorThird</b> is a collection of Java classes for storing text, annotating text, and learning to extract entities and categorize text. It consists of four main packages:
+</p>
+
+<ol>
+ <li><b>Classify</b> - contains the machine learning algorithms for extraction and classification as well as data structures for storing non-text data, classifiers, and evaluations of experiments. The classify package can stand on its own, so should not call any of the other packages.</li>
+ <li><b>Text</b> - this package contains the classes necessary to process text data such as emails. The text package also contains Mixup (which stands for My Information eXtraction and Understanding Program), which is a matching language for modifying TextLabels.</li>
+ <li><b>UI</b> - as the name implies, this package provides a user interface for running learning experiments on text data.</li>
+ <li><b>Util</b> - provides utilities such as the command line processor and gui framework.</li>
+</ol>
+
+<p>To download and run MinorThird, take a look at the <a href="GettingStarted.html">Getting Started</a> tutorial.</p>
+
+<p>As stated above, the classify package is where the learning is performed and can be used on its own to perform experiments on non-text data (i.e. a classification label (such as POS or NEG) and a list of features (such as symptoms)). How to use the classify package is documented in <a href="tutorials/Classify%20Package%20Tutorial.htm">Classify Package Tutorial</a>.</p>
+
+<p>The ui package contains several classes for viewing, editing, and running experiments on text data. To learn how to put data in a format that minorthird can recognize, look at the <a href="tutorials/Labeling%20and%20Loading%20Data%20Tutorial.htm">Labeling and Loading Data Tutorial</a>.</p>
+
+<p>Before getting started looking at different classes, here is some minorthird terminology that is helpful to know:</p>
+
+<ul>
+ <li><b>Document</b> - a single example or file. For example: if a directory of emails is loaded into minorthird, each email is a separate document.</li>
+ <li><b>TextToken</b> - a particular substring of a particular document.</li>
+ <li><b>Span</b> - a series of adjacent tokens from the same document.</li>
+ <li><b>SpanType</b> - a string label that is associated with a span - binary.</li>
+ <li><b>SpanProp</b> - a string label that is associated with a span - multi-class</li>
+ <li><b>TextBase</b> - a collection of documents.</li>
+ <li><b>TextLabels</b> - assertions about <i>types</i> and <i>properties</i> of certain spans in a TextBase. In other words, the structure that stores the labels of each document in the TextBase.</li>
+ <li><b>Classifier</b> - a structure that holds what minorthird has learned from the training documents. This structure holds all the tokens from a TextBase and how strongly they are associated with the learned spanType.</li>
+
+<p>Here is a breakdown of the ui classes and their functionality (click on each class name to view the tutorial for that class):</p>
+
+<p><a href="tutorials/View%20Labels%20Tutorial.htm">ViewLabels</a> - viewing tool for a collection of documents and their labels which are loaded into minorthird</p>
+
+<p><a href="tutorials/Mixup%20Tutorial.htm">RunMixup and DebugMixup</a> - runs a mixup program on documents loaded into minorthird. Running mixup with a mixup program annotates a set of documents based on the rules defined in the program. Therefore, RunMixup will create new labels for the documents you loaded. DebugMixup will run a mixup program and pops up a TextBaseEditor so that Mixup results may be hand corrected.</p>
+
+<p>Extraction - extracts PORTIONS of a document. For example: names, places, noun phrases.</p>
+
+<ul>
+ <li><a href="tutorials/TrainExtractor%20Tutorial.htm">TrainExtractor</a> - tells minorthird to learn a certain spanType (such as name) based on a set of labeled documents you give it. This class will output a classifier which can be tested other labeled documents or used to annotate unlabeled documents.</li>
+ <li><a href="tutorials/TestExtractor%20Tutorial.htm">TestExtractor</a> - requires a set of labeled text documents and a classifier. Allows you to test the performance of a classifier on a set of test text documents. Reminder: the test documents MUST be hand labeled in order for you to get the results of how accurate your classifier is. This tool will NOT output the predicted labels of the classifier, it will output the statistics of how the classifier performed. If you would like the classifier's predicted labels, run ApplyAnnotator.</li>
+ <li><a href="tutorials/TrainTestExtractor%20Tutorial.htm">TrainTestExtractor</a> - requires that you input either a set of labeled documents that will be split or a set of labeled train documents as well as a set of labeled test documents. This tool will tell minorthird to create a classifier for a certain spanType and test it on documents either imputed by the user or created by the splitter.</li>
+</ul>
+
+<p>Classification - classifies ENTIRE documents. For example: classify an emails as real or spam.</p>
+
+<ul>
+ <li><a href="tutorials/TrainClassifier%20Tutorial.htm">TrainClassifier</a> - tells minorthird to learn a spanType (such as spam) and create a classifier for this spanType based on a set of labeled documents that you input. The classifier can be used to test other labeled documents or output predicted labels for unlabeled documents.</li>
+ <li><a href="tutorials/TestClassifier%20Tutorial.htm">TestClassifier</a> - requires a set of labeled text documents and a classifier. Allows you to test the performance of a classifier on a set of test text documents. Reminder: the test documents MUST be hand labeled in order for you to get the results of how accurate your classifier is. This tool will NOT output the predicted labels of the classifier. If you would like the classifier’s predicted labels, run ApplyAnnotator.</li>
+ <li><a href="tutorials/TrainTestClassifier%20Tutorial.htm">TrainTestClassifier</a> - requires that you input either a set of labeled documents that will be split or a set of labeled train documents as well as a set of labeled test documents. This tool will tell minorthird to create a classifier for a certain spanType and test it on documents either imputed by the user or created by the splitter.</li>
+</ul>
+
+<p>MultiClassification - works the same way as Classifier except it can learn, test, and annotate multiple dimensions per document. For example: it can learn and classify both color and shape. Note: this is different than learning one dimension with several options (ex: learning whether something is square, rectangular, circular, etc.). In this case, you are only learning one label rather than several!</p>
+
+<ul>
+ <li>TrainMultiClassifier</li>
+ <li>TestMultiClassifier</li>
+ <li>TrainTestMultiClassifier</li>
+</ul>
+
+<p><a href="tutorials/Online%20Learning%20Tutorial.htm">OnlineLearner</a> - the OnlineTextClassifierLearner allows you to add Documents to a learner by passing in a document string rather than a document span. The OnlineTextClassifierLearner also returns a TextClassifier</span> with a call to getTextClassifier() which returns the score of a document string rather than a document span.</p>
+
+<p><a href="tutorials/ApplyAnnotator%20Tutorial.htm">ApplyAnnotator</a> - apply a saved classifier to a set of documents to output a set of predicted labels. You can use this to either label unlabeled data or compare the predicted labels to actual labels.</p>
+
+<p><a href="tutorials/EditLabels%20Tutorial.htm">EditLabels</a> - tool for adding and/or removing labels from the collection of documents you loaded into minorthird and save a new labels document. Useful for debugging the results of ApplyAnnotator.</p>
+
+<p>Viewing and comparing evaluations of Extraction and Classification experiments is explained in the EvaluationGroup Tutorial.</p>
+
+</body>
+
+</html>

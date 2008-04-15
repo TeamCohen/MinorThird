@@ -35,7 +35,7 @@ public class SVMLearner extends BatchClassifierLearner{
 	/**
 	 * Construct learner using given params
 	 *
-	 * @param params svm_parameter
+	 * @param parameters parameters to the SVM
 	 */
 	public SVMLearner(svm_parameter parameters){
 		this.parameters=parameters;
