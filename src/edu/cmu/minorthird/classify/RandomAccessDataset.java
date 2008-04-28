@@ -10,20 +10,12 @@ package edu.cmu.minorthird.classify;
  * @author William Cohen
  */
 
-public class RandomAccessDataset extends BasicDataset
-{
+public class RandomAccessDataset extends BasicDataset{
 	
 	static final long serialVersionUID=20071015;
-	
-	public RandomAccessDataset()  {super();}
 
-	public Example getExample(int i)
-	{
-		return (Example)examples.get(i);
+	public Example getExample(int i){
+		return examples.get(i);
 	}
 
-	public String toString() 
-	{
-		return super.toString();
-	}
 }

@@ -73,8 +73,8 @@
 	<!-- Build distribution jar file -->
 	<target name="dist" description="generate the distribution" depends="open-jars">
 		<mkdir dir="${distDir}"/>
-		<!-- Put everything in ${classDir} into the minorThird-${DSTAMP}.jar file -->
-		<jar jarfile="${distDir}/minorThird-${DSTAMP}.jar" basedir="${classDir}">
+		<!-- Put everything in ${classDir} into the m3rd_${DSTAMP}.jar file -->
+		<jar jarfile="${distDir}/m3rd_${DSTAMP}.jar" basedir="${classDir}">
 			<manifest>
 				<attribute name="Main-Class" value="edu.cmu.minorthird.Minorthird"/>
 			</manifest>
@@ -94,7 +94,7 @@
 				<include name="org/*"/>
 			</fileset>
 		</jar>
-		<copy file="${distDir}/minorThird-${DSTAMP}.jar" toFile="${distDir}/minorThird.jar"/>
+		<copy file="${distDir}/m3rd_${DSTAMP}.jar" toFile="${distDir}/minorthird.jar"/>
 	</target>
 
 	<target name="jar" depends="dist" description="alias for 'dist'"/>
