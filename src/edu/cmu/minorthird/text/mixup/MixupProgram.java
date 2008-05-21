@@ -234,12 +234,10 @@ public class MixupProgram implements Serializable{
 		Mixup.MixupTokenizer tok=new Mixup.MixupTokenizer(program);
 		String keyword=tok.advance(legalKeywords);
 		while(keyword!=null){
-			if(!keyword.startsWith("\n"))
+			if(!keyword.startsWith("\n")){
 				addStatement(tok,keyword);
-			keyword=tok.advance(legalKeywords);
-			if(keyword==null){
-				break;
 			}
+			keyword=tok.advance(legalKeywords);
 		}
 	}
 
@@ -269,6 +267,7 @@ public class MixupProgram implements Serializable{
 	public void addStatement(Mixup.MixupTokenizer tok,String keyword)
 			throws Mixup.ParseException{
 		statementList.add(new Statement(tok,keyword));
+		//System.out.println("Added Statement: "+statementList.get(statementList.size()-1));
 	}
 
 	/** Add a single statement to the current mixup program. */

@@ -122,7 +122,8 @@ public class Statement implements Serializable{
 			if(annotationType.charAt(0)=='\''){
 				annotationType=annotationType.substring(1,annotationType.length()-1);
 			}
-//			String marker=tok.advance(null); //Collections.singleton(","));
+			// added to parse ";" -frank
+			tok.advance(null);
 			return;
 		}
 		if(keyword.equals("annotateWith")){

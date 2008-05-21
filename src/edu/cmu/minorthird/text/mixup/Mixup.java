@@ -159,12 +159,10 @@ public class Mixup implements Serializable{
 		public String nextToken;
 		private int cursor;
 		public int nextCursor=0;
-//		private boolean inComment=false;
 
 		public MixupTokenizer(String input){
 			this.input=input;
 			this.matcher=tokenizerPattern.matcher(input);
-			//firstAdvance();
 		}
 
 		public boolean advance(){
