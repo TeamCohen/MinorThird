@@ -276,9 +276,9 @@ normal'><span style='font-size:16.0pt'><o:p>&nbsp;</o:p></span></b></p>
 <p class=MsoNormal><b style='mso-bidi-font-weight:normal'>1. Labeling Data<o:p></o:p></b></p>
 
 <p class=MsoNormal>UI programs load a collection of text documents as
-data.<span style='mso-spacerun:yes'>  </span>Documents may be a collection of
+data.<span style='mso-spacerun:yes'>ï¿½ </span>Documents may be a collection of
 files in a directory or one document per line in a single file.<span
-style='mso-spacerun:yes'>  </span>The collection of documents is stored in a <a
+style='mso-spacerun:yes'>ï¿½ </span>The collection of documents is stored in a <a
 href="../../javadoc/edu/cmu/minorthird/text/TextBase.html"
 title="interface in edu.cmu.minorthird.text"><span class=SpellE><code><span
 style='font-size:10.0pt'>TextBase</span></code></span></a>. Annotations about
@@ -301,7 +301,7 @@ annotations produced by a learned program.</p>
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal><span class=SpellE>TextLabels</span> can be loaded in two
-ways.<span style='mso-spacerun:yes'>  </span>1) A labels file 2) Embedded XML
+ways.<span style='mso-spacerun:yes'>ï¿½ </span>1) A labels file 2) Embedded XML
 tags</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
@@ -327,25 +327,25 @@ the span, and the last word is the label.</p>
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal>Labels files are not meant to be created by hand.<span
-style='mso-spacerun:yes'>  </span>There are a few <span class=SpellE><span
+style='mso-spacerun:yes'>ï¿½ </span>There are a few <span class=SpellE><span
 class=GramE>gui</span></span> tools in minorthird that allow users to
 graphically see documents, add and/or edit labels, and save their work in a
-labels file.<span style='mso-spacerun:yes'>  </span></p>
+labels file.<span style='mso-spacerun:yes'>ï¿½ </span></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal>To label whole documents, such as when labeling emails spam
 or real, try using the <span class=SpellE>TextBaseLabeler</span>:</p>
 
-<p class=MsoNormal><span class=GramE>java</span> –Xmx500M <span class=SpellE>edu.cmu.minorthird.text.gui.TextBaseLabeler</span>
+<p class=MsoNormal><span class=GramE>java</span> ï¿½Xmx500M <span class=SpellE>edu.cmu.minorthird.text.gui.TextBaseLabeler</span>
 DATA_DIRECTORY <span class=SpellE>DATA.labels</span></p>
 
 <p class=MsoNormal><span class=GramE>where</span> DATA_DIRECTORY is where your
 documents are stored and <span class=SpellE>DATA.labels</span> is where you
-would like to save you labels.<span style='mso-spacerun:yes'>  </span>If you
+would like to save you labels.<span style='mso-spacerun:yes'>ï¿½ </span>If you
 would like minorthird to automatically load your hand-edited labels the name of
 the labels file should be the same as the directory.<span
-style='mso-spacerun:yes'>  </span>For example if you have a directory named <span
+style='mso-spacerun:yes'>ï¿½ </span>For example if you have a directory named <span
 class=SpellE>foo</span>, you will want to name you labels file <span
 class=SpellE>foo.labels</span>.</p>
 
@@ -382,10 +382,10 @@ src="Labeling%20and%20Loading%20Data%20Tutorial_files/image002.jpg" v:shapes="_x
 
 <p class=MsoNormal>To select a document, click on it in the top panel and the
 text from that document will appear in the bottom panel.<span
-style='mso-spacerun:yes'>  </span>To label the currently selected document,
+style='mso-spacerun:yes'>ï¿½ </span>To label the currently selected document,
 pick a label from the pull down menu (if the label you would like is on that
 menu) or type in a new label next to <span class=GramE>New</span> class.<span
-style='mso-spacerun:yes'>  </span>Once you have picked your label, simply press
+style='mso-spacerun:yes'>ï¿½ </span>Once you have picked your label, simply press
 the Accept class button and go to the next document you would like to label.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
@@ -393,7 +393,7 @@ the Accept class button and go to the next document you would like to label.</p>
 <p class=MsoNormal>If you look at the documentation index, you will see that
 there are two other classes for editing <span class=SpellE>TextBases</span>
 called <span class=SpellE>DebugMixup</span> and <span class=SpellE>EditLabels</span>.<span
-style='mso-spacerun:yes'>  </span>These classes are useful when you have some
+style='mso-spacerun:yes'>ï¿½ </span>These classes are useful when you have some
 results and are interested in hand-correcting, but will not help you label
 unlabeled documents.</p>
 
@@ -414,17 +414,17 @@ Steelers headed by coach &lt;name&gt;Bill <span class=SpellE>Cowher</span>&lt;/n
 to play the Browns.</p>
 
 <p class=MsoNormal>In this type of document a labeled span lies between the
-&lt; &gt; and &lt;/ &gt; markers.<span style='mso-spacerun:yes'>  </span>The
+&lt; &gt; and &lt;/ &gt; markers.<span style='mso-spacerun:yes'>ï¿½ </span>The
 label is the word between the marks.</p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
 <p class=MsoNormal>To get a better feel for what is happening in Minorthird,
 you can look at the <span class=SpellE>javadocs</span>.<span
-style='mso-spacerun:yes'>  </span>To construct the <span class=SpellE>javadocs</span>
-type: % ant <span class=SpellE>javadoc</span>.<span style='mso-spacerun:yes'> 
+style='mso-spacerun:yes'>ï¿½ </span>To construct the <span class=SpellE>javadocs</span>
+type: % ant <span class=SpellE>javadoc</span>.<span style='mso-spacerun:yes'>ï¿½
 </span>Also <span class=GramE>an older version of the docs are</span> on
-William’s website or on <a href="http://minorthird.sourceforge.net/javadoc">http://minorthird.sourceforge.net/javadoc</a></p>
+Williamï¿½s website or on <a href="http://minorthird.sourceforge.net/javadoc">http://minorthird.sourceforge.net/javadoc</a></p>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
 
@@ -440,7 +440,7 @@ William’s website or on <a href="http://minorthird.sourceforge.net/javadoc">http
      (saving, viewing, etc)</li>
  <li class=MsoNormal style='mso-list:l3 level1 lfo3;tab-stops:list .5in'><span
      class=GramE>the</span> metaphor is that the toolkit is a programming
-     language for annotations.<span style='mso-spacerun:yes'>  </span></li>
+     language for annotations.<span style='mso-spacerun:yes'>ï¿½ </span></li>
  <ul style='margin-top:0in' type=circle>
   <li class=MsoNormal style='mso-list:l3 level2 lfo3;tab-stops:list 1.0in'>As a
       programming language, need subroutines and libraries, which are invoked <span
@@ -457,13 +457,13 @@ William’s website or on <a href="http://minorthird.sourceforge.net/javadoc">http
 Labeled Data<o:p></o:p></b></p>
 
 <p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
-style='mso-tab-count:1'>            </span></b>A)<span
-style='mso-spacerun:yes'>  </span>Simple Loading – specify the location of all
+style='mso-tab-count:1'>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ </span></b>A)<span
+style='mso-spacerun:yes'>ï¿½ </span>Simple Loading ï¿½ specify the location of all
 data in the <span class=SpellE><span class=GramE>gui</span></span> or by typing
-–labels PATH/DATA_DIRECTORY on the command line</p>
+ï¿½labels PATH/DATA_DIRECTORY on the command line</p>
 
-<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
-style='mso-spacerun:yes'>      </span>Note: if you name a .labels file the same
+<p class=MsoNormal><span style='mso-tab-count:1'>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ </span><span
+style='mso-spacerun:yes'>ï¿½ï¿½ï¿½ï¿½ï¿½ </span>Note: if you name a .labels file the same
 as your <span class=GramE>directory,</span> it will automatically load as will
 XML tags</p>
 
@@ -471,13 +471,13 @@ XML tags</p>
 tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>B)<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>More
 advanced users (who would have a lot of data) may want to use a repository
-structure.<span style='mso-spacerun:yes'>  </span>To do this you must create a <span
+structure.<span style='mso-spacerun:yes'>ï¿½ </span>To do this you must create a <span
 class=SpellE>data.properties</span> file in the <span class=SpellE>config</span>
 directory which points to a directory called repository.<span
-style='mso-spacerun:yes'>  </span>The repository directory must then contain
-three folders: data, labels, and loaders.<span style='mso-spacerun:yes'> 
-</span>For more information on how to set up a repository contact <span
-class=SpellE>Cammie</span> Williams: <a href="mailto:cammie@cmu.edu">cammie@cmu.edu</a></p>
+style='mso-spacerun:yes'>ï¿½ </span>The repository directory must then contain
+three folders: data, labels, and loaders.<span style='mso-spacerun:yes'>ï¿½
+</span>For more information on how to set up a repository contact the current maintainer
+of MinorThird listed on the front page.
 
 <p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
 
