@@ -6,6 +6,7 @@ import java.io.Serializable;
 import org.apache.log4j.Logger;
 
 import edu.cmu.minorthird.classify.experiments.FixedTestSetSplitter;
+import edu.cmu.minorthird.text.Span;
 import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
 import edu.cmu.minorthird.text.learn.experiments.TextLabelsExperiment;
 import edu.cmu.minorthird.util.CommandLineProcessor;
@@ -77,7 +78,7 @@ public class TrainTestExtractor extends UIMain
 			if(signal.spanPropString!=null){
 				CommandLineUtil.createSpanProp(signal.spanPropString, trainTest.labels);
 			}
-			trainTest.splitter = new FixedTestSetSplitter( trainTest.labels.getTextBase().documentSpanIterator() );
+			trainTest.splitter = new FixedTestSetSplitter<Span>( trainTest.labels.getTextBase().documentSpanIterator() );
 			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
 		TextLabelsExperiment 

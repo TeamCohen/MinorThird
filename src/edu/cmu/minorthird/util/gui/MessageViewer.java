@@ -1,8 +1,10 @@
 package edu.cmu.minorthird.util.gui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.List;
+
+import javax.swing.JTextField;
 
 /**
  * Wraps a viewer and adds a status message at the bottom.  Status
@@ -12,72 +14,75 @@ import java.util.ArrayList;
  * @author William cohen
  */
 
-public class MessageViewer extends Viewer
-{
+public class MessageViewer extends Viewer{
+	
+	static final long serialVersionUID=20080517L;
+
 	private Viewer subViewer;
+
 	private JTextField statusField;
 
-	public MessageViewer()
-	{
+	public MessageViewer(){
 		super();
 	}
-	public MessageViewer(Object obj)
-	{
+
+	public MessageViewer(Object obj){
 		super(obj);
 	}
 
-	public MessageViewer(Viewer subViewer)
-	{
+	public MessageViewer(Viewer subViewer){
 		super();
 		setSubView(subViewer);
 	}
 
-	public void setSubView(Viewer subViewer)
-	{
-		this.subViewer = subViewer;
+	public void setSubView(Viewer subViewer){
+		this.subViewer=subViewer;
 		subViewer.setSuperView(this);
 		removeAll();
-		add( subViewer, fillerGBC() );
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = gbc.weighty = 0;
-		gbc.gridx = 0; gbc.gridy = 1;
-		statusField = new JTextField("");
-		add( statusField, gbc );
+		add(subViewer,fillerGBC());
+		GridBagConstraints gbc=new GridBagConstraints();
+		gbc.fill=GridBagConstraints.HORIZONTAL;
+		gbc.weightx=gbc.weighty=0;
+		gbc.gridx=0;
+		gbc.gridy=1;
+		statusField=new JTextField("");
+		add(statusField,gbc);
 	}
 
 	//
 	// delegate operations to subViewer
 	//
 
-	final public void receiveContent(Object obj)
-	{
+	final public void receiveContent(Object obj){
 		subViewer.setContent(obj);
 	}
-	public void clearContent()
-	{
+
+	public void clearContent(){
 		subViewer.clearContent();
 	}
-	final public boolean canReceive(Object obj)
-	{
+
+	final public boolean canReceive(Object obj){
 		return subViewer.canReceive(obj);
 	}
-	final protected boolean canHandle(int signal,Object argument,ArrayList senders)
-	{
+
+	final protected boolean canHandle(int signal,Object argument,
+			List<Viewer> senders){
 		// grab TEXT_MESSAGE signals
-		if (signal==TEXT_MESSAGE) return true;
-		else return subViewer.canHandle(signal,argument,senders);		
+		if(signal==TEXT_MESSAGE)
+			return true;
+		else
+			return subViewer.canHandle(signal,argument,senders);
 	}
-	final protected void handle(int signal,Object argument,ArrayList senders)
-	{
-		if (signal==TEXT_MESSAGE) {
+
+	final protected void handle(int signal,Object argument,List<Viewer> senders){
+		if(signal==TEXT_MESSAGE){
 			statusField.setText(argument.toString());
-		} else {
+		}else{
 			subViewer.handle(signal,argument,senders);
 		}
 	}
-	final protected void initialize()
-	{
+
+	final protected void initialize(){
 		setLayout(new GridBagLayout());
 	}
 }

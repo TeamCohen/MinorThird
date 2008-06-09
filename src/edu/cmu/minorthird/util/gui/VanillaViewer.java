@@ -8,25 +8,23 @@ import javax.swing.*;
  * @author William cohen
  */
 
-public class VanillaViewer extends ComponentViewer
-{
-	public VanillaViewer(Object o)
-	{
+public class VanillaViewer extends ComponentViewer{
+	
+	static final long serialVersionUID=20080517L;
+
+	public VanillaViewer(Object o){
 		super(o);
 	}
-	public VanillaViewer()
-	{
+
+	public VanillaViewer(){
 		super();
 	}
 
-
-	public JComponent componentFor(Object o) 
-	{
+	public JComponent componentFor(Object o){
 		return new JScrollPane(new JTextArea(o.toString()));
 	}
 
-	public boolean canReceive(Object obj)
-	{
+	public boolean canReceive(Object obj){
 		return true;
 	}
 }

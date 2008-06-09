@@ -50,7 +50,7 @@ public class StringEncoder
 			} else {
 				int hex1 = Character.digit(s.charAt(k+1),16);
 				int hex2 = Character.digit(s.charAt(k+2),16);
-				int code = hex1*16+hex2;
+//				int code = hex1*16+hex2;
 				buf.append((char)(hex1*16+hex2));
 				k+=3;
 			}

@@ -17,16 +17,16 @@ import edu.cmu.minorthird.util.gui.ComponentViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.Visible;
 
-/** 
+/**
  * A decision tree.
- *
+ * 
  * @author William Cohen
  */
 
-/*package*/abstract class DecisionTree extends BinaryClassifier implements
+/* package */abstract class DecisionTree extends BinaryClassifier implements
 		Serializable,Visible{
 
-	static final long serialVersionUID=20080128L;
+	static final long serialVersionUID=20080609L;
 
 	/** Print routine */
 	public String toString(){
@@ -41,19 +41,20 @@ import edu.cmu.minorthird.util.gui.Visible;
 		if(this instanceof InternalNode){
 			InternalNode in=(InternalNode)this;
 			buf.append(in.test+">="+in.threshold+":\n");
-			//in.getTrueBranch().toString(buf,tab+1);
-			//in.getFalseBranch().toString(buf,tab+1);
+			// in.getTrueBranch().toString(buf,tab+1);
+			// in.getFalseBranch().toString(buf,tab+1);
 		}else{
 			Leaf leaf=(Leaf)this;
 			buf.append(leaf.getScore()+"\n");
 		}
 	}
 
-	/** An internal node of a  decision tree.
+	/**
+	 * An internal node of a decision tree.
 	 */
 	public static class InternalNode extends DecisionTree implements Visible{
 
-		static final long serialVersionUID=20080128L;
+		static final long serialVersionUID=20080609L;
 
 		private Feature test;
 
@@ -126,11 +127,12 @@ import edu.cmu.minorthird.util.gui.Visible;
 		}
 	}
 
-	/** A decision tree leaf.
+	/**
+	 * A decision tree leaf.
 	 */
 	public static class Leaf extends DecisionTree implements Visible{
 
-		static final long serialVersionUID=20080128L;
+		static final long serialVersionUID=20080609L;
 
 		private double myScore;
 
@@ -164,9 +166,9 @@ import edu.cmu.minorthird.util.gui.Visible;
 	}
 
 	public static class TreeViewer extends ComponentViewer{
-		
-		static final long serialVersionUID=20080128L;
 
+		static final long serialVersionUID=20080609L;
+		
 		public JComponent componentFor(Object o){
 			DecisionTree dtree=(DecisionTree)o;
 			DefaultMutableTreeNode top=createNodes(dtree);

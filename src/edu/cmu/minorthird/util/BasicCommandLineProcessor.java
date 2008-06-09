@@ -35,7 +35,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	public final void processArguments(String[] args){
 		System.out.println("*** Minorthird: "+Version.getVersion()+" ***");
 		processedArgs=args;
-		int k=consumeArguments(args,0);
+		//int k=consumeArguments(args,0);
 		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
 	}
 	
@@ -125,11 +125,11 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	 */
 	public void usage(){
 		Method[] genericMethods=Object.class.getMethods();
-		Set stopList=new HashSet();
+		Set<String> stopList=new HashSet<String>();
 		stopList.add("usage");
 		stopList.add("help");
 		for(int i=0;i<genericMethods.length;i++){
-			Class[] params=genericMethods[i].getParameterTypes();
+			Class<?>[] params=genericMethods[i].getParameterTypes();
 			if(params.length==0||params.length==1&&params[0].equals(String.class)){
 				stopList.add(genericMethods[i].getName());
 			}
@@ -137,7 +137,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 		log.info("usage for "+getClass());
 		Method[] methods=getClass().getMethods();
 		for(int i=0;i<methods.length;i++){
-			Class[] params=methods[i].getParameterTypes();
+			Class<?>[] params=methods[i].getParameterTypes();
 			if(!(stopList.contains(methods[i].getName())||
 					methods[i].getName().startsWith("get")||methods[i].getName()
 					.startsWith("set"))){
@@ -161,8 +161,8 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	 * For instance, if the command line includes -foo bar,
 	 * then "foo" will appear on the propertyList. 
 	 */
-	protected List propertyList(){
-		List result=new ArrayList();
+	protected List<String> propertyList(){
+		List<String> result=new ArrayList<String>();
 		argValues.clear();
 		int k=0;
 		while(k<processedArgs.length){
@@ -211,8 +211,8 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 		if(!format.equals(CONFIG_FORMAT_NAME))
 			throw new IllegalArgumentException("illegal format "+format);
 		PrintStream s=new PrintStream(new FileOutputStream(file));
-		for(Iterator i=propertyList().iterator();i.hasNext();){
-			String prop=(String)i.next();
+		for(Iterator<String> i=propertyList().iterator();i.hasNext();){
+			String prop=i.next();
 			s.println(prop+"="+propertyValue(prop));
 		}
 		s.close();
@@ -225,57 +225,57 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 				"Can't restore a command line processor");
 	}
 
-	/**
-	 * Test and/or example code.
-	 * For sample output, invoke this with arguments -scoff you -laff -family -mom gerbil  -taunt
-	 */
-	static public void main(String[] args){
-		CommandLineProcessor p=new BasicCommandLineProcessor(){
-
-			String mother="hamster";
-
-			String father="elderberries";
-
-			String laffter="bwa ha ha ha ha ha!";
-
-			public void laff(){
-				System.out.println("bwa ha ha ha ha ha!");
-			}
-
-			public void scoff(String atWhat){
-				System.out.println("I scoff derisively at "+atWhat+"!");
-			}
-
-			// test that usage doesn't show getters/setters
-			public String getLaff(){
-				return laffter;
-			}
-
-			public void setLaff(String s){
-				laffter=s;
-			}
-
-			public CommandLineProcessor family(){
-				return new BasicCommandLineProcessor(){
-
-					public void mom(String s){
-						mother=s;
-					}
-
-					public void dad(String s){
-						father=s;
-					}
-				};
-			}
-
-			public void taunt(){
-				System.out.println("Your mother was a "+mother+
-						" and your father smelled of "+father+"!!!");
-			}
-			//public void usage() { System.out.println("usage: [-laff] [-scoff foo]"); }
-		};
-		p.processArguments(args);
-	}
+//	/**
+//	 * Test and/or example code.
+//	 * For sample output, invoke this with arguments -scoff you -laff -family -mom gerbil  -taunt
+//	 */
+//	static public void main(String[] args){
+//		CommandLineProcessor p=new BasicCommandLineProcessor(){
+//
+//			String mother="hamster";
+//
+//			String father="elderberries";
+//
+//			String laffter="bwa ha ha ha ha ha!";
+//
+//			public void laff(){
+//				System.out.println("bwa ha ha ha ha ha!");
+//			}
+//
+//			public void scoff(String atWhat){
+//				System.out.println("I scoff derisively at "+atWhat+"!");
+//			}
+//
+//			// test that usage doesn't show getters/setters
+//			public String getLaff(){
+//				return laffter;
+//			}
+//
+//			public void setLaff(String s){
+//				laffter=s;
+//			}
+//
+//			public CommandLineProcessor family(){
+//				return new BasicCommandLineProcessor(){
+//
+//					public void mom(String s){
+//						mother=s;
+//					}
+//
+//					public void dad(String s){
+//						father=s;
+//					}
+//				};
+//			}
+//
+//			public void taunt(){
+//				System.out.println("Your mother was a "+mother+
+//						" and your father smelled of "+father+"!!!");
+//			}
+//			//public void usage() { System.out.println("usage: [-laff] [-scoff foo]"); }
+//		};
+//		p.processArguments(args);
+//	}
 
 	protected CommandLineProcessor tryToGetCLP(Object o){
 		if(o instanceof CommandLineProcessor.Configurable){
@@ -287,7 +287,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 
 	static private String[] loadOptionsInPropertiesFormat(File file)
 			throws IOException{
-		List accum=new ArrayList();
+		List<String> accum=new ArrayList<String>();
 		LineNumberReader in=new LineNumberReader(new FileReader(file));
 		String line;
 		while((line=in.readLine())!=null){

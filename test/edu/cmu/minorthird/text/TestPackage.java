@@ -5,6 +5,7 @@ package edu.cmu.minorthird.text;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
@@ -44,7 +45,8 @@ public class TestPackage extends TestSuite{
 		}
 
 		public void doTest(){
-			TextBaseLoader baseLoader=new TextBaseLoader();
+			// what is this first line for? - frank
+			new TextBaseLoader();
 			BasicTextBase b=new BasicTextBase();
 			b.loadDocument("letters","a b c d\ne f g h\ni j k l\nm n o p\nr s t u");
 			Tokenizer tok=new SplitTokenizer("\n");
@@ -178,8 +180,8 @@ public class TestPackage extends TestSuite{
 		}
 
 		public void doTest(){
-			TreeSet guess=new TreeSet();
-			TreeSet truth=new TreeSet();
+			SortedSet<Span> guess=new TreeSet<Span>();
+			SortedSet<Span> truth=new TreeSet<Span>();
 			BasicTextBase b=new BasicTextBase();
 			TextLabels e=new BasicTextLabels(b);
 			b.loadDocument("a-d","a b c d");
@@ -286,8 +288,8 @@ public class TestPackage extends TestSuite{
 
 		private void checkLookup(String documentId,TrieExpects[] expects){
 			Span span=b.documentSpan(documentId);
-			ArrayList spanList=new ArrayList();
-			ArrayList idList=new ArrayList();
+			List<Span> spanList=new ArrayList<Span>();
+			List<List<String>> idList=new ArrayList<List<String>>();
 			if(DEBUG)
 				System.out.println("lookup in "+span);
 			int k=0;
@@ -304,7 +306,7 @@ public class TestPackage extends TestSuite{
 				Span s=(Span)spanList.get(i);
 				assertEquals(expects[i].start,s.documentSpanStartIndex());
 				assertEquals(expects[i].length,s.size());
-				List ids=(List)idList.get(i);
+				List<String> ids=idList.get(i);
 				assertEquals(expects[i].ids.length,ids.size());
 				for(int j=0;j<expects[i].ids.length;j++){
 					assertTrue(ids.contains(expects[i].ids[j]));
@@ -411,7 +413,7 @@ public class TestPackage extends TestSuite{
 			//
 			MutableTextLabels numLabels=new BasicTextLabels(b);
 			String[] nums=new String[]{"one","two","three","four","five"};
-			TreeSet numSet=new TreeSet();
+			SortedSet<String> numSet=new TreeSet<String>();
 			for(int i=0;i<nums.length;i++)
 				numSet.add(nums[i]);
 			numLabels.defineDictionary("num",numSet);
@@ -462,7 +464,7 @@ public class TestPackage extends TestSuite{
 		}
 
 		private void checkLooper(String[] expected,Iterator<Span> looper){
-			ArrayList list=new ArrayList();
+			List<Span> list=new ArrayList<Span>();
 			while(looper.hasNext()){
 				Span s=looper.next();
 				if(DEBUG)

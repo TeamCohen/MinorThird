@@ -2,18 +2,34 @@
 
 package edu.cmu.minorthird.classify.algorithms.trees;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.util.ProgressCounter;
-import edu.cmu.minorthird.util.StringUtil;
-import edu.cmu.minorthird.util.gui.*;
-import org.apache.log4j.Logger;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import org.apache.log4j.Logger;
+
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.BatchBinaryClassifierLearner;
+import edu.cmu.minorthird.classify.BatchClassifierLearner;
+import edu.cmu.minorthird.classify.BinaryClassifier;
+import edu.cmu.minorthird.classify.Classifier;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.classify.Explanation;
+import edu.cmu.minorthird.classify.Instance;
+import edu.cmu.minorthird.util.ProgressCounter;
+import edu.cmu.minorthird.util.StringUtil;
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.VanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 /** 
  * Generalized version of AdaBoost, as described in Robert E. Schapire
@@ -84,8 +100,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			weightedData.add(new Example(e.asInstance(),e.getLabel()));
 		}
 
-		List<BinaryClassifier> classifiers=
-				new ArrayList<BinaryClassifier>(maxRounds);
+		List<Classifier> classifiers=new ArrayList<Classifier>(maxRounds);
 
 		ProgressCounter pc=new ProgressCounter("boosting","round",maxRounds);
 
@@ -136,18 +151,18 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 	private static class BoostedClassifier extends BinaryClassifier implements
 			Serializable,Visible{
 		
-		static final long serialVersionUID=20080128L;
+		static final long serialVersionUID=20080609L;
 
-		private List<BinaryClassifier> classifiers;
+		private List<Classifier> classifiers;
 
-		public BoostedClassifier(List<BinaryClassifier> classifiers){
+		public BoostedClassifier(List<Classifier> classifiers){
 			this.classifiers=classifiers;
 		}
 
 		public double score(Instance instance){
 			double totalScore=0;
-			for(Iterator<BinaryClassifier> i=classifiers.iterator();i.hasNext();){
-				BinaryClassifier c=i.next();
+			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
+				BinaryClassifier c=(BinaryClassifier)i.next();
 				totalScore+=c.score(instance);
 			}
 			return totalScore;
@@ -156,8 +171,8 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 		public String explain(Instance instance){
 			StringBuffer buf=new StringBuffer("");
 			double totalScore=0;
-			for(Iterator<BinaryClassifier> i=classifiers.iterator();i.hasNext();){
-				BinaryClassifier c=i.next();
+			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
+				BinaryClassifier c=(BinaryClassifier)i.next();
 				totalScore+=c.score(instance);
 				buf.append("score of "+c+": "+c.score(instance)+"\n");
 				buf.append(StringUtil.indent(1,c.explain(instance))+"\n");
@@ -170,8 +185,8 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			Explanation.Node top=new Explanation.Node("AdaBoost Explanation");
 
 			double totalScore=0;
-			for(Iterator<BinaryClassifier> i=classifiers.iterator();i.hasNext();){
-				BinaryClassifier c=i.next();
+			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
+				BinaryClassifier c=(BinaryClassifier)i.next();
 				totalScore+=c.score(instance);
 				Explanation.Node score=new Explanation.Node("score of "+c);
 				Explanation.Node scoreEx=new Explanation.Node(c.score(instance)+" ");
@@ -188,8 +203,8 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 
 		public String toString(){
 			StringBuffer buf=new StringBuffer("[boosted classifier:\n");
-			for(Iterator<BinaryClassifier> i=classifiers.iterator();i.hasNext();){
-				BinaryClassifier c=i.next();
+			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
+				BinaryClassifier c=(BinaryClassifier)i.next();
 				buf.append(c.toString()+"\n");
 			}
 			buf.append("]");
@@ -204,15 +219,15 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 	}
 
 	private static class BoostedClassifierViewer extends ComponentViewer{
-		
-		static final long serialVersionUID=20080128L;
 
+		static final long serialVersionUID=20080609L;
+		
 		public JComponent componentFor(Object o){
 			BoostedClassifier bc=(BoostedClassifier)o;
 			JPanel panel=new JPanel();
 			panel.setLayout(new GridBagLayout());
 			int ypos=0;
-			for(Iterator<BinaryClassifier> i=bc.classifiers.iterator();i.hasNext();){
+			for(Iterator<Classifier> i=bc.classifiers.iterator();i.hasNext();){
 				Classifier c=i.next();
 				GridBagConstraints gbc=new GridBagConstraints();
 				gbc.fill=GridBagConstraints.HORIZONTAL;

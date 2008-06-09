@@ -13,23 +13,19 @@ import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.Example;
 import edu.cmu.minorthird.classify.Feature;
 
-/**
+/** 
  * Implement a random decision tree to be used in the random forest learner.
- * Implements two tree splitters. Default one splits on random features. BestOfN
- * splits on the b best of N randomly chosen features.
- * 
+ * Implements two tree splitters. Default one splits on random features. BestOfN splits on the b
+ * best of N randomly chosen features.
+ *
  * @author Alexander Friedman
  */
 
 // TODO: ADD a few more tree splitting routines.
-// Try: Linear combination of m random features
-
+//  Try: Linear combination of m random features
 public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 
 	private static Logger log=Logger.getLogger(RandomTreeLearner.class);
-
-// private static final boolean DEBUG =
-// log.getEffectiveLevel().isGreaterOrEqual( Level.DEBUG );
 
 	// The builder that we will use to construct the tree
 	private TreeSplitter splitter;
@@ -39,22 +35,20 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 
 		// Yep, lets avoid that whole type system thing entirely
 		// return [feature x threshold(double)] ||
-		// [feature x threshold(double) x trueset(dataset) x falseset(dataset)]
+		//        [feature x threshold(double) x trueset(dataset) x falseset(dataset)]
 		// if your splitter is doing something clever/expensive/etc
 		public Object[] getSplit(List<Example> dataset,int depth,
 				Vector<Feature> unusedFeatures);
 	}
 
-	// Selects one random feature from the unused features, then selects a random
-	// split point
+	// Selects one random feature from the unused features, then selects a random split point
 	// between the min and max values
 	public static class RandomTreeSplitter implements TreeSplitter{
 
 		public Object[] getSplit(List<Example> dataset,int depth,
 				Vector<Feature> unusedFeatures){
 
-			// Now choose a random feature from the unused features (and consider it
-			// the best feature)
+			// Now choose a random feature from the unused features (and consider it the best feature)
 			int featureIndex=(int)Math.floor(Math.random()*unusedFeatures.size());
 			// This is silly - we should be using Generics
 			Feature bestFeature=unusedFeatures.get(featureIndex);
@@ -88,20 +82,18 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 				Vector<Feature> unusedFeatures){
 
 			Feature bestFeature=null;
-			double bestEntropy=0;
+			double bestEntropy=Double.MIN_VALUE;
 			double bestThreshold=0;
 			List<Example> bestTrueData=null;
 			List<Example> bestFalseData=null;
 			for(int i=0;i<featureCount&&i<unusedFeatures.size();i++){
-				// Now choose a random feature from the unused features (and consider it
-				// the best feature)
+				// Now choose a random feature from the unused features (and consider it the best feature)
 				int featureIndex=(int)Math.floor(Math.random()*unusedFeatures.size());
 				Feature f=unusedFeatures.get(featureIndex);
 				List<Example> trueData=new LinkedList<Example>();
 				List<Example> falseData=new LinkedList<Example>();
 
-				// FIXME: copied from code above. should make a function to pick
-				// thresholds.
+				// FIXME: copied from code above. should make a function to pick thresholds.
 				double minValue=Double.MAX_VALUE;
 				double maxValue=Double.MIN_VALUE;
 				for(Example example:dataset){
@@ -124,6 +116,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 				double i_gain=
 						entropy(trueData.size(),falseData.size(),trueData.size(),falseData
 								.size());
+				// **FIXME** think about this entropy thing!
 				if(i_gain>bestEntropy){
 					bestEntropy=i_gain;
 					bestTrueData=trueData;
@@ -174,7 +167,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 		log.debug("build (sub)tree with posWeight: "+posWeight+" negWeight: "+
 				negWeight);
 
-		// Random Forests will use voting to determine the outcome,
+		// Random Forests will use voting to determine the outcome, 
 		// so we will use +/- 1 for the weights, or 0 if unknown
 		if((negWeight==0)||(posWeight==0)||unusedFeatures.size()==0){
 			int weight=0;
@@ -199,8 +192,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 		List<Example> falseData=null;
 
 		if(result.length==4){ // The splitter did the splitting, just use the result
-			trueData=(List<Example>)result[2]; // Sorry Java, you need a better type
-																					// system
+			trueData=(List<Example>)result[2]; // Sorry Java, you need a better type system
 			falseData=(List<Example>)result[3];
 		}else{
 			trueData=new LinkedList<Example>();
@@ -221,8 +213,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 		Vector<Feature> newUnusedFeatures=new Vector<Feature>(unusedFeatures);
 		newUnusedFeatures.removeElement(bestFeature);
 
-		// If this feature didn't split anything, recur, and don't build a useless
-		// node
+		// If this feature didn't split anything, recur, and don't build a useless node
 		if(falseData.size()==0||trueData.size()==0){
 			log.debug("didn't split data with this feature");
 			return batchTrain(dataset,depth,newUnusedFeatures);
@@ -240,22 +231,21 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 	// FIXME -- these are copied directly from DecisionTreeLearner
 	// I would like to call these as utility functions, but they are private :~(
 
-// private static double schapireSingerValue(double pos,double neg,double
-// totalPos,double totalNeg)
-// {
-// double totalWeight = totalPos+totalNeg;
-// // wpj = S&S's W_+^j, wnj = W_-^j, for j=0,1
-// // block j=1 is condition true (pos,neg weights)
-// // block j=0 is condition false (totalPos-pos,totalNeg-neg weights)
-// // W_+ is positive class (pos,totalPos-pos), W_- is negative
-// double wp1 = pos/totalWeight;
-// double wp0 = (totalPos-pos)/totalWeight;
-// double wn1 = neg/totalWeight;
-// double wn0 = (totalNeg-neg)/totalWeight;
-// log.debug("pos, neg, total = "+pos+", "+neg+", "+totalWeight);
-// log.debug("wp1,wp0,wn1,wn0 = "+wp1+","+wp0+","+wn1+","+wn0);
-// return 2 * ( Math.sqrt(wp1*wn1) + Math.sqrt(wp0*wn0) );
-// }
+//	private static double schapireSingerValue(double pos,double neg,
+//			double totalPos,double totalNeg){
+//		double totalWeight=totalPos+totalNeg;
+//		// wpj = S&S's W_+^j, wnj = W_-^j, for j=0,1
+//		// block j=1 is condition true (pos,neg weights)
+//		// block j=0 is condition false (totalPos-pos,totalNeg-neg weights)
+//		// W_+ is positive class (pos,totalPos-pos), W_- is negative
+//		double wp1=pos/totalWeight;
+//		double wp0=(totalPos-pos)/totalWeight;
+//		double wn1=neg/totalWeight;
+//		double wn0=(totalNeg-neg)/totalWeight;
+//		log.debug("pos, neg, total = "+pos+", "+neg+", "+totalWeight);
+//		log.debug("wp1,wp0,wn1,wn0 = "+wp1+","+wp0+","+wn1+","+wn0);
+//		return 2*(Math.sqrt(wp1*wn1)+Math.sqrt(wp0*wn0));
+//	}
 
 	private static double entropy(double pos,double neg,double totalPos,
 			double totalNeg){
@@ -268,7 +258,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 		double w00=(tot-neg)/tot+epsilon;
 		log.debug("pos, neg, total = "+pos+", "+neg+", "+tot);
 		log.debug("w11,w10,w01,w00 = "+w11+","+w10+","+w01+","+w00);
-		// return 2 * ( Math.sqrt((wp1)*(wp0)) + Math.sqrt((wn1)*(wn0)) );
+		//return 2 * ( Math.sqrt((wp1)*(wp0)) + Math.sqrt((wn1)*(wn0)) );
 		return -w11*Math.log(w11)-w10*Math.log(w10)-w01*Math.log(w01)-w00*
 				Math.log(w00);
 	}

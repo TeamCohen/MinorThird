@@ -45,7 +45,9 @@ public class TestPackage extends TestSuite{
 	}
 
 	public static TestSuite suite(){
+		
 		TestSuite suite=new TestSuite();
+		
 		// these are error rates that the learners empirically obtain
 		// if we don't get these, something has changed---which doesn't
 		// necessarily mean there's a bug...
@@ -122,7 +124,7 @@ public class TestPackage extends TestSuite{
 		public void doTest(){
 			log.debug("[XValTest sites: "+numSites+" pages/site: "+numPagesPerSite+
 					"]");
-			List list=new ArrayList();
+			List<Instance> list=new ArrayList<Instance>();
 			for(int site=1;site<=numSites;site++){
 				String subpop="www.site"+site+".com";
 				for(int page=1;page<=numPagesPerSite;page++){
@@ -133,28 +135,28 @@ public class TestPackage extends TestSuite{
 				}
 			}
 			int totalSize=list.size();
-			Splitter splitter=null;
+			Splitter<Instance> splitter=null;
 			if(subsample)
-				splitter=new SubsamplingCrossValSplitter(3,0.2);
+				splitter=new SubsamplingCrossValSplitter<Instance>(3,0.2);
 			else
-				splitter=new CrossValSplitter(3);
+				splitter=new CrossValSplitter<Instance>(3);
 			splitter.split(list.iterator());
 			assertEquals(3,splitter.getNumPartitions());
-			Set[] train=new Set[3];
-			Set[] test=new Set[3];
+			Set<Instance>[] train=new Set[3];
+			Set<Instance>[] test=new Set[3];
 			int totalTest=0;
 			for(int i=0;i<3;i++){
 				log.debug("partition "+(i+1)+":");
 				train[i]=asSet(splitter.getTrain(i));
 				test[i]=asSet(splitter.getTest(i));
-				for(Iterator j=test[i].iterator();j.hasNext();){
-					Object inst=j.next();
+				for(Iterator<Instance> j=test[i].iterator();j.hasNext();){
+					Instance inst=j.next();
 					log.debug("  test:  "+inst);
 					assertTrue(!train[i].contains(inst));
 				}
 				log.debug("  -----\n  "+test[i].size()+" total");
-				for(Iterator j=train[i].iterator();j.hasNext();){
-					Object inst=j.next();
+				for(Iterator<Instance> j=train[i].iterator();j.hasNext();){
+					Instance inst=j.next();
 					log.debug("  train:  "+inst);
 					assertTrue(!test[i].contains(inst));
 				}
@@ -169,8 +171,8 @@ public class TestPackage extends TestSuite{
 			assertEquals(totalSize,totalTest);
 		}
 
-		private Set asSet(Iterator i){
-			Set set=new HashSet();
+		private Set<Instance> asSet(Iterator<Instance> i){
+			Set<Instance> set=new HashSet<Instance>();
 			while(i.hasNext())
 				set.add(i.next());
 			return set;

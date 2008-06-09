@@ -3,8 +3,8 @@
 package edu.cmu.minorthird.classify.experiments;
 
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,9 +42,10 @@ import edu.cmu.minorthird.util.gui.ViewerControls;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 import edu.cmu.minorthird.util.gui.Visible;
 
-/** Pairs a dataset and a classifier, for easy inspection
- * of the actions of a classifier.
- *
+/**
+ * Pairs a dataset and a classifier, for easy inspection of the actions of a
+ * classifier.
+ * 
  * @author William Cohen
  */
 
@@ -88,7 +89,8 @@ public class ClassifiedDataset implements Visible{
 		return v;
 	}
 
-	/** A toolbar to govern how data is filtered.
+	/**
+	 * A toolbar to govern how data is filtered.
 	 */
 	private static class DataControls extends ViewerControls{
 
@@ -123,7 +125,9 @@ public class ClassifiedDataset implements Visible{
 		}
 	}
 
-	/** A toolbar-controlled viewer for data/classifications in a classified dataset
+	/**
+	 * A toolbar-controlled viewer for data/classifications in a classified
+	 * dataset
 	 */
 	static private class ControlledDataViewer extends ComponentViewer implements
 			Controllable{
@@ -139,7 +143,7 @@ public class ClassifiedDataset implements Visible{
 
 		private boolean targetCorrectness=false;
 
-		//* If true, only show example which contain the target feature 
+		// * If true, only show example which contain the target feature
 		private boolean filterOnFeature=false;
 
 		private Feature targetFeature=null;
@@ -268,7 +272,8 @@ public class ClassifiedDataset implements Visible{
 
 	}
 
-	/** Viewer for a classified dataset
+	/**
+	 * Viewer for a classified dataset
 	 */
 	static private class MyViewer extends ComponentViewer{
 
@@ -324,14 +329,14 @@ public class ClassifiedDataset implements Visible{
 			return main;
 		}
 
-		protected boolean canHandle(int signal,Object argument,ArrayList senders){ 
-		//protected boolean canHandle(int signal,Object argument){
+		protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
+			// protected boolean canHandle(int signal,Object argument){
 			return (signal==OBJECT_SELECTED)&&(argument instanceof Example)||
 					(signal==OBJECT_SELECTED)&&(argument instanceof Feature);
 		}
 
-		protected void handle(int signal,Object argument,ArrayList senders){
-		//protected void handle(int signal,Object argument){
+		protected void handle(int signal,Object argument,List<Viewer> senders){
+			// protected void handle(int signal,Object argument){
 			if(argument instanceof Example){
 				Example example=(Example)argument;
 				instanceViewer.setContent(example);
@@ -369,10 +374,11 @@ public class ClassifiedDataset implements Visible{
 
 	public static void main(String[] args){
 		Dataset train=SampleDatasets.sampleData("toy",false);
-		//ClassifierLearner learner = new DecisionTreeLearner();
+		// ClassifierLearner learner = new DecisionTreeLearner();
 		ClassifierLearner learner=new NaiveBayes();
-		//ClassifierLearner learner = new AdaBoost(new BatchVersion(new NaiveBayes()),4);
-		//ClassifierLearner learner = new AdaBoost(new DecisionTreeLearner(), 3);
+		// ClassifierLearner learner = new AdaBoost(new BatchVersion(new
+		// NaiveBayes()),4);
+		// ClassifierLearner learner = new AdaBoost(new DecisionTreeLearner(), 3);
 		Classifier cl=new DatasetClassifierTeacher(train).train(learner);
 		Dataset test=SampleDatasets.sampleData("toy",true);
 		ClassifiedDataset cd=new ClassifiedDataset(cl,test);

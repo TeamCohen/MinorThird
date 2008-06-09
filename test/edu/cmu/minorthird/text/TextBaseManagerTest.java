@@ -237,7 +237,7 @@ public class TextBaseManagerTest extends TestCase
         // create a new tokenizer
         RegexTokenizer newTokenizer = new RegexTokenizer("([^\\s]+)");
         // call retokenize with this new stuff.
-        MutableTextBase retokenizedTextBase = tbman.retokenize(newTokenizer, "root", "retok");
+        tbman.retokenize(newTokenizer, "root", "retok");
         // call filter with this new stuff.
         TextBase filteredTextBase = tbman.filter("retok", labels, "filtered", "predicate");
 

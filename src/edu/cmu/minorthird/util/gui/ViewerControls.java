@@ -2,9 +2,12 @@
 
 package edu.cmu.minorthird.util.gui;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 /**
  * Controls for a ControlledViewer.
@@ -25,66 +28,70 @@ import java.awt.event.ActionListener;
  * @author William cohen
  */
 
-abstract public class ViewerControls extends JPanel implements ActionListener
-{
-    public static final int BOTTOM=1,RIGHT=2,TOP=3,LEFT=4;
+abstract public class ViewerControls extends JPanel implements ActionListener{
 
-    private Viewer viewer = null;
+	public static final int BOTTOM=1,RIGHT=2,TOP=3,LEFT=4;
 
-    public ViewerControls()	
-    {	
-	super(); 
-	initialize(); 
-    }
+	private Viewer viewer=null;
 
-    /** Declare the viewer controlled by this ViewerControls object. */
-    public void setControlledViewer(Viewer viewer) 
-    { 
-	if (!(viewer instanceof Controllable)) throw new IllegalArgumentException("viewer must be controllable");
-	this.viewer = viewer; 
-    }
+	public ViewerControls(){
+		super();
+		initialize();
+	}
 
-    /** Return the viewer that is controlled by this object. */
-    public Controllable getControlledViewer() { return (Controllable)viewer; }
+	/** Declare the viewer controlled by this ViewerControls object. */
+	public void setControlledViewer(Viewer viewer){
+		if(!(viewer instanceof Controllable))
+			throw new IllegalArgumentException("viewer must be controllable");
+		this.viewer=viewer;
+	}
 
-    /** Add an update button. */
-    public void addApplyButton() 
-    { 
-	add(makeApplyButton());
-    }
+	/** Return the viewer that is controlled by this object. */
+	public Controllable getControlledViewer(){
+		return (Controllable)viewer;
+	}
 
-    /** Create an 'apply' button. */
-    public JButton makeApplyButton() 
-    { 
-	return new JButton(new AbstractAction("Apply") {
-		public void actionPerformed(ActionEvent e) { 
-		    ((Controllable)viewer).applyControls(ViewerControls.this);
-		}				
-	    });
-    }
+	/** Add an update button. */
+	public void addApplyButton(){
+		add(makeApplyButton());
+	}
 
-    // implement ActionListener
-    public void actionPerformed(ActionEvent e) 
-    { 
-	((Controllable)viewer).applyControls(this);
-    }
+	/** Create an 'apply' button. */
+	public JButton makeApplyButton(){
+		return new JButton(new AbstractAction("Apply"){
 
-    /** Override this with one of the other values to help
-     * ControlledViewer decide where to place the controls. 
-     */
-    public int preferredLocation() { return BOTTOM; }
+			static final long serialVersionUID=20080517L;
 
-    /** Override this with one of the other values to help
-     * ControlledViewer decide whether to allow the
-     * ViewerControls to be resizable
-     */
-    public boolean prefersToBeResized() { return false; }
+			public void actionPerformed(ActionEvent e){
+				((Controllable)viewer).applyControls(ViewerControls.this);
+			}
+		});
+	}
 
+	// implement ActionListener
+	public void actionPerformed(ActionEvent e){
+		((Controllable)viewer).applyControls(this);
+	}
 
-    //
-    // abstract actions
-    //
+	/** Override this with one of the other values to help
+	 * ControlledViewer decide where to place the controls. 
+	 */
+	public int preferredLocation(){
+		return BOTTOM;
+	}
 
-    /** Set up any buttons, etc for this set of ViewerControls. */ 
-    abstract protected void initialize();
+	/** Override this with one of the other values to help
+	 * ControlledViewer decide whether to allow the
+	 * ViewerControls to be resizable
+	 */
+	public boolean prefersToBeResized(){
+		return false;
+	}
+
+	//
+	// abstract actions
+	//
+
+	/** Set up any buttons, etc for this set of ViewerControls. */
+	abstract protected void initialize();
 }

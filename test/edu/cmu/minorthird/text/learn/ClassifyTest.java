@@ -1,18 +1,25 @@
 package edu.cmu.minorthird.text.learn;
 
-import edu.cmu.minorthird.classify.*;
-import edu.cmu.minorthird.classify.algorithms.linear.NaiveBayes;
-import edu.cmu.minorthird.text.*;
-import org.apache.log4j.Level;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.log4j.Level;
+
+import edu.cmu.minorthird.classify.AbstractClassificationChecks;
+import edu.cmu.minorthird.classify.BasicDataset;
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.ClassifierLearner;
+import edu.cmu.minorthird.classify.Dataset;
+import edu.cmu.minorthird.classify.Example;
+import edu.cmu.minorthird.text.BasicTextLabels;
+import edu.cmu.minorthird.text.Span;
+import edu.cmu.minorthird.text.TextBase;
+import edu.cmu.minorthird.text.TextLabels;
+import edu.cmu.minorthird.text.TextLabelsLoader;
+
 /**
- * This class...
- * 
  * @author ksteppe
  */
 public abstract class ClassifyTest extends AbstractClassificationChecks{

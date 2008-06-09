@@ -1,8 +1,8 @@
 package edu.cmu.minorthird.util;
 
-import org.apache.log4j.*;
-import java.beans.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+
+import org.apache.log4j.Logger;
 
 /**
  * Utilities for reflection.
@@ -28,7 +28,7 @@ public class RefUtils
    * the name of a class (for instance
    * "text.learn.SequentialLearner").
    */
-	static private Object toObject(String s,Class c)
+	static private Object toObject(String s,Class<?> c)
 	{
 		if ((c==Boolean.class  || c==boolean.class) && s.equalsIgnoreCase("true")) return new Boolean(true);
 		else if ((c==Boolean.class || c==boolean.class) && s.equalsIgnoreCase("false")) return new Boolean(false);
@@ -107,7 +107,7 @@ public class RefUtils
 				}
 				if (m==null) log.warn("No setter defined for '"+path[path.length-1]+"'");
 				else {
-					Class[] expectedClasses = m.getParameterTypes();
+					Class<?>[] expectedClasses = m.getParameterTypes();
 					Object rhs = toObject(sides[RHS], expectedClasses[0]);
 					m.invoke(objToChange, new Object[]{rhs});
 				}

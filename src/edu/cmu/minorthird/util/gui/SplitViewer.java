@@ -2,10 +2,9 @@
 
 package edu.cmu.minorthird.util.gui;
 
-import org.apache.log4j.Logger;
+import java.awt.GridBagLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JSplitPane;
 
 /**
  * Two viewers, arranged side-by-side or top-and-bottom. 
@@ -13,51 +12,46 @@ import java.awt.*;
  * @author William cohen
  */
 
-abstract public class SplitViewer extends Viewer
-{
-	static private Logger log = Logger.getLogger(SplitViewer.class);
+abstract public class SplitViewer extends Viewer{
 
 	protected JSplitPane splitPane;
-	protected Viewer viewer1=null, viewer2=null;
 
-	public SplitViewer()
-	{
+	protected Viewer viewer1=null,viewer2=null;
+
+	public SplitViewer(){
 		super();
 	}
-	public SplitViewer(Viewer viewer1,Viewer viewer2)
-	{
+
+	public SplitViewer(Viewer viewer1,Viewer viewer2){
 		super();
 		setSubViews(viewer1,viewer2);
 	}
 
-	public void setVertical()
-	{
+	public void setVertical(){
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 	}
-	public void setHorizontal()
-	{
+
+	public void setHorizontal(){
 		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 	}
 
 	/** Called at creation time. */
-	protected void initialize() 
-	{
+	protected void initialize(){
 		setLayout(new GridBagLayout());
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		splitPane=new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setResizeWeight(0.50);
-		add( splitPane, fillerGBC() );
+		add(splitPane,fillerGBC());
 	}
-	
-	public void setSubViews(Viewer viewer1,Viewer viewer2)
-	{
-		this.viewer2 = viewer2;
-		this.viewer1 = viewer1;
-		if (splitPane.getOrientation()==JSplitPane.VERTICAL_SPLIT) {
+
+	public void setSubViews(Viewer viewer1,Viewer viewer2){
+		this.viewer2=viewer2;
+		this.viewer1=viewer1;
+		if(splitPane.getOrientation()==JSplitPane.VERTICAL_SPLIT){
 			splitPane.setTopComponent(viewer1);
 			splitPane.setBottomComponent(viewer2);
 			viewer1.setSuperView(this,"top");
 			viewer2.setSuperView(this,"bottom");
-		} else {
+		}else{
 			splitPane.setLeftComponent(viewer1);
 			splitPane.setRightComponent(viewer2);
 			viewer1.setSuperView(this,"left");
@@ -65,9 +59,8 @@ abstract public class SplitViewer extends Viewer
 		}
 	}
 
-	public void clearContent()
-	{
-		if (viewer1!=null && viewer2!=null) {
+	public void clearContent(){
+		if(viewer1!=null&&viewer2!=null){
 			viewer1.clearContent();
 			viewer2.clearContent();
 		}

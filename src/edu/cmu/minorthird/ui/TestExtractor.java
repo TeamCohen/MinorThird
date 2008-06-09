@@ -123,7 +123,7 @@ public class TestExtractor extends UIMain{
 			doSplit=false;
 		if(doSplit){
 			log.info("Creating test partition...");
-			CrossValSplitter splitter=new CrossValSplitter(num_partitions);
+			CrossValSplitter<Span> splitter=new CrossValSplitter<Span>(num_partitions);
 			splitter.split(annFullLabels.getTextBase().documentSpanIterator());
 
 			subLabels=new MonotonicTextLabels[splitter.getNumPartitions()];
