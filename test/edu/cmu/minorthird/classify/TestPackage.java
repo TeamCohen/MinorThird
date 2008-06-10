@@ -45,39 +45,31 @@ public class TestPackage extends TestSuite{
 	}
 
 	public static TestSuite suite(){
-		
+
 		TestSuite suite=new TestSuite();
-		
+
 		// these are error rates that the learners empirically obtain
 		// if we don't get these, something has changed---which doesn't
 		// necessarily mean there's a bug...
 
-		suite.addTest(new LearnerTest("bayesUnlabeled",
-				new SemiSupervisedNaiveBayesLearner(),0.0,0.0));
+		suite.addTest(new LearnerTest("bayesUnlabeled",new SemiSupervisedNaiveBayesLearner(),0.0,0.0));
 		suite.addTest(new LearnerTest("bayesExtreme",new PoissonLearner(),0.0,0.0));
 		suite.addTest(new LearnerTest("bayesExtreme",new NaiveBayes(),0.5,0.5));
 		suite.addTest(new LearnerTest("toy",new NaiveBayes(),1.0/7.0,1.0/7.0));
-		suite
-				.addTest(new LearnerTest("bayes",new PoissonLearner(),1.0/7.0,1.0/7.0));
-		suite.addTest(new LearnerTest("toy",new BinaryBatchVersion(
-				new VotedPerceptron()),0.0,1.0/7.0));
-		suite.addTest(new LearnerTest("toy",new BinaryBatchVersion(
-				new KernelVotedPerceptron(),5),0.0,0.0));
+		suite.addTest(new LearnerTest("bayes",new PoissonLearner(),1.0/7.0,1.0/7.0));
+		suite.addTest(new LearnerTest("toy",new BinaryBatchVersion(new VotedPerceptron()),0.0,1.0/7.0));
+		suite.addTest(new LearnerTest("toy",new BinaryBatchVersion(new KernelVotedPerceptron(),5),0.0,0.25));
 		suite.addTest(new LearnerTest("toy",new VotedPerceptron(),1.0/7.0,1.0/7.0));
 		suite.addTest(new LearnerTest("toy",new KernelVotedPerceptron(),0.0,0.0));
 		suite.addTest(new LearnerTest("toy",new Winnow(),0.0,0.0));
 		suite.addTest(new LearnerTest("toy",new BalancedWinnow(),1.0/7.0,0.0));
 		suite.addTest(new LearnerTest("toy",new VitorBalancedWinnow(),0.0,0.0));
-		suite.addTest(new LearnerTest("toy",new DecisionTreeLearner(5,2),1.0/7.0,
-				1.0/7.0));
+		suite.addTest(new LearnerTest("toy",new DecisionTreeLearner(5,2),1.0/7.0,1.0/7.0));
 		suite.addTest(new LearnerTest("toy",new KnnLearner(10),0.0,0.10));
 		suite.addTest(new LearnerTest("toy3",new KnnLearner(10),0.20,0.10));
-		suite.addTest(new LearnerTest("toy",new AdaBoost(new DecisionTreeLearner(5,
-				2),10),1.0/7.0,1.0/7.0));
-		suite
-				.addTest(new LearnerTest("num",new DecisionTreeLearner(5,2),0.05,0.10));
-		suite.addTest(new LearnerTest("sparseNum",new DecisionTreeLearner(5,2),0.0,
-				0.10));
+		suite.addTest(new LearnerTest("toy",new AdaBoost(new DecisionTreeLearner(5,2),10),1.0/7.0,1.0/7.0));
+		suite.addTest(new LearnerTest("num",new DecisionTreeLearner(5,2),0.05,0.10));
+		suite.addTest(new LearnerTest("sparseNum",new DecisionTreeLearner(5,2),0.0,0.10));
 		suite.addTest(new LogisticRegressionTest());
 		suite.addTest(new LearnerTest("toy",new SVMLearner(),0.0,0.0));
 		suite.addTest(new LearnerTest("toy3",new SVMLearner(),0.0,0.1));

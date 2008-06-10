@@ -130,20 +130,20 @@ public abstract class ClassifyTest extends AbstractClassificationChecks{
 // log.info("baseSpan for " + documentId + " is " + baseSpan);
 		log.info("span from "+baseSpan.getDocumentId()+" of size "+baseSpan.size());
 
-		Set typeSet=labels.getTypes();
+		Set<String> typeSet=labels.getTypes();
 		log.info(typeSet.toString());
 
 		Span checkSpan=null;
-		for(Iterator iterator=typeSet.iterator();iterator.hasNext();){
-			String typeName=(String)iterator.next();
+		for(Iterator<String> iterator=typeSet.iterator();iterator.hasNext();){
+			String typeName=iterator.next();
 
 // log.info("**************** TYPES: " + typeName + " ********************");
 			// now get all the stuff with that type
 			for(Iterator<Span> it=base.documentSpanIterator();it.hasNext();){
 				String id=it.next().getDocumentId();
-				Set spanSet=((TestTextLabels)labels).getTypeSet(typeName,id);
-				for(Iterator spanIt=spanSet.iterator();spanIt.hasNext();){
-					Span span=(Span)spanIt.next();
+				Set<Span> spanSet=((TestTextLabels)labels).getTypeSet(typeName,id);
+				for(Iterator<Span> spanIt=spanSet.iterator();spanIt.hasNext();){
+					Span span=spanIt.next();
 					if(id.equals(documentId)){
 						log.info("    Document ID: "+id);
 						log.info("        span: "+span.getTextToken(0).asString()+":"+

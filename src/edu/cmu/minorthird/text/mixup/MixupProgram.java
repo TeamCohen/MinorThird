@@ -21,9 +21,7 @@ import edu.cmu.minorthird.text.EncapsulatingAnnotatorLoader;
 import edu.cmu.minorthird.text.FancyLoader;
 import edu.cmu.minorthird.text.MonotonicTextLabels;
 import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextBase;
 import edu.cmu.minorthird.text.TextLabelsLoader;
-import edu.cmu.minorthird.util.ProgressCounter;
 
 /** Modify a textlabeling using a series of mixup expressions.
 
@@ -241,27 +239,27 @@ public class MixupProgram implements Serializable{
 		}
 	}
 
-	/**
-	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
-	 */
-	// Deprecated on 2/20/2007
-	public MonotonicTextLabels eval(MonotonicTextLabels labels,TextBase tb){
-		MixupInterpreter interpreter=new MixupInterpreter(this);
-		interpreter.eval(labels);
-		return interpreter.getCurrentLabels();
-	}
-
-	/**
-	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
-	 */
-	// Deprecated on 2/20/2007
-	public void eval(MonotonicTextLabels labels){
-		MixupInterpreter interpreter=new MixupInterpreter(this);
-		ProgressCounter pc=
-				new ProgressCounter("mixup program","statement",statementList.size());
-		interpreter.eval(labels);
-		pc.finished();
-	}
+//	/**
+//	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
+//	 */
+//	// Deprecated on 2/20/2007
+//	public MonotonicTextLabels eval(MonotonicTextLabels labels,TextBase tb){
+//		MixupInterpreter interpreter=new MixupInterpreter(this);
+//		interpreter.eval(labels);
+//		return interpreter.getCurrentLabels();
+//	}
+//
+//	/**
+//	 * @deprecated  Use MixupInterpreter to evaluate mixup programs
+//	 */
+//	// Deprecated on 2/20/2007
+//	public void eval(MonotonicTextLabels labels){
+//		MixupInterpreter interpreter=new MixupInterpreter(this);
+//		ProgressCounter pc=
+//				new ProgressCounter("mixup program","statement",statementList.size());
+//		interpreter.eval(labels);
+//		pc.finished();
+//	}
 
 	/** Add a single statement to the current mixup program. */
 	public void addStatement(Mixup.MixupTokenizer tok,String keyword)
@@ -328,7 +326,8 @@ public class MixupProgram implements Serializable{
 				MonotonicTextLabels labels=
 						(MonotonicTextLabels)FancyLoader.loadTextLabels(args[1]);
 
-				program.eval(labels);
+				MixupInterpreter interpreter=new MixupInterpreter(program);
+				interpreter.eval(labels);
 
 				if(args.length>2){
 					File outFile=new File(args[2]);

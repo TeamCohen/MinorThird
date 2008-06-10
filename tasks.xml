@@ -127,7 +127,7 @@
 					<exclude name="**/LongTestPackage.class"/>
 					<!-- inner classes excluded -->
 					<exclude name="**/*$*.class"/>
-					<!-- a base class, not to be run, unfortunately named -->
+					<!-- a base class, not to be run, bad name -->
 					<exclude name="edu/cmu/minorthird/text/learn/ClassifyTest.class"/>
 					<!-- requires test data -->
 					<exclude name="**/IOUtilTest.class"/>

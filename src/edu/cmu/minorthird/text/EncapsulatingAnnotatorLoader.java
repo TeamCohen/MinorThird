@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -20,38 +22,40 @@ import org.apache.log4j.Logger;
  * files.
  */
 
-public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Serializable
-{
-    static private final long serialVersionUID = 20080303L;
+public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements
+Serializable{
 
-    // special serialization code
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
-    {
-        System.out.println("reading EncapsulatingAnnotatorLoader");
-        in.defaultReadObject();
-        for (Iterator<String> i=fileNameToContentsMap.keySet().iterator(); i.hasNext(); ) {
-            String fileName = i.next();
-            if (fileName.endsWith(".class")) {
-                String className = fileName.substring(0, fileName.length()-".class".length());
-                try {
-                    System.out.println("loading class "+className);
-                    myClassLoader.loadClass(className);
-                    //ClassLoader.getSystemClassLoader().loadClass(className);
-                } catch (ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                    log.warn("error recovering class: "+ex);
-                }
-            }
-        }
-    }
+	static private final long serialVersionUID=20080303L;
 
+	// special serialization code
+	private void readObject(java.io.ObjectInputStream in) throws IOException,
+	ClassNotFoundException{
+		System.out.println("reading EncapsulatingAnnotatorLoader");
+		in.defaultReadObject();
+		for(Iterator<String> i=fileNameToContentsMap.keySet().iterator();i
+		.hasNext();){
+			String fileName=i.next();
+			if(fileName.endsWith(".class")){
+				String className=
+					fileName.substring(0,fileName.length()-".class".length());
+				try{
+					System.out.println("loading class "+className);
+					myClassLoader.loadClass(className);
+					//ClassLoader.getSystemClassLoader().loadClass(className);
+				}catch(ClassNotFoundException ex){
+					ex.printStackTrace();
+					log.warn("error recovering class: "+ex);
+				}
+			}
+		}
+	}
 
-	static private Logger log = Logger.getLogger(EncapsulatingAnnotatorLoader.class);
+	static private Logger log=
+		Logger.getLogger(EncapsulatingAnnotatorLoader.class);
 
 	private Map<String,byte[]> fileNameToContentsMap;
+
 	private ClassLoader myClassLoader;
-
-
 
 	/**
 	 * @param path Filenames, separated by the current value of
@@ -63,8 +67,7 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 	 * EncapsulatingAnnotatorLoader will load these files in preference
 	 * to anything on the current classpath.
 	 */
-	public EncapsulatingAnnotatorLoader(String path)
-	{
+	public EncapsulatingAnnotatorLoader(String path){
 		this(true,path);
 	}
 
@@ -77,66 +80,85 @@ public class EncapsulatingAnnotatorLoader extends AnnotatorLoader implements Ser
 	 * could be written.
 	 *
 	 */
-	public EncapsulatingAnnotatorLoader(boolean asFiles,String path)
-	{
-		fileNameToContentsMap = new HashMap<String,byte[]>();
-		String[] fileName = path.split(File.pathSeparator); 
-		for (int i=0; i<fileName.length; i++) {
-			try {
-				File file = new File(fileName[i]);
-				InputStream s = 
-					asFiles ? new FileInputStream(file) 
-					: EncapsulatingAnnotatorLoader.class.getClassLoader().getResourceAsStream(fileName[i]);
-				byte[] contents = new byte[s.available()];
-				s.read(contents);
-				fileNameToContentsMap.put( file.getName(), contents );
-			} catch (IOException e) {
-				throw new IllegalArgumentException("can't open file '"+fileName[i]+"': "+e);
+	public EncapsulatingAnnotatorLoader(boolean asFiles,String path){
+		fileNameToContentsMap=new HashMap<String,byte[]>();
+		String[] fileName=path.split(File.pathSeparator);
+
+		for(int i=0;i<fileName.length;i++){
+			try{
+				File file=new File(fileName[i]);
+				InputStream s=
+					asFiles?new FileInputStream(file)
+				:EncapsulatingAnnotatorLoader.class.getClassLoader()
+				.getResourceAsStream(fileName[i]);
+					byte[] contents=new byte[s.available()];
+					s.read(contents);
+					fileNameToContentsMap.put(file.getName(),contents);
+			}catch(IOException e){
+				throw new IllegalArgumentException("can't open file '"+fileName[i]+
+						"': "+e);
 			}
 		}
-		myClassLoader = new EncapsulatingClassLoader();
+		myClassLoader=new EncapsulatingClassLoader();
 	}
 
 	/** Find the named resource file - usually a dictionary or trie for mixup. */
-	public InputStream findFileResource(String fileName)
-	{
+	public InputStream findFileResource(String fileName){
 		log.info("looking for file resource "+fileName+" with encapsulated loader");
-		byte[] contents = (byte[])fileNameToContentsMap.get(fileName);
-		if (contents!=null) {
-			log.info("encapsulated resource found containing "+contents.length+" bytes");
+		byte[] contents=(byte[])fileNameToContentsMap.get(fileName);
+		if(contents!=null){
+			log.info("encapsulated resource found containing "+contents.length+
+			" bytes");
 			return new ByteArrayInputStream(contents);
-		} else {
+		}else{
 			log.info("calling default class loader to find resource");
-			return EncapsulatingAnnotatorLoader.class.getClassLoader().getResourceAsStream(fileName);
+			return EncapsulatingAnnotatorLoader.class.getClassLoader()
+			.getResourceAsStream(fileName);
 		}
 	}
 
 	/** Find the named resource class - usually an annotator. */
-	public Class<?> findClassResource(String className)
-	{
-		try {
-			return myClassLoader.loadClass(className);
-		} catch (ClassNotFoundException e) {
+	public Class<?> findClassResource(String className){
+		try{
+			Class<?> clazz=myClassLoader.loadClass(className);
+			return clazz;
+		}catch(ClassNotFoundException e){
 			return null;
 		}
 	}
 
-	public class EncapsulatingClassLoader extends ClassLoader implements Serializable
-	{
-		static private final long serialVersionUID = 20080303L;
+	public class EncapsulatingClassLoader extends ClassLoader implements
+	Serializable{
 
-		public Class<?> findClass(String className) throws ClassNotFoundException
-		{
+		static private final long serialVersionUID=20080303L;
+
+		public Class<?> findClass(String className) throws ClassNotFoundException{
 			log.info("looking for class "+className+" with encapsulated loader");
-			byte[] contents = (byte[])fileNameToContentsMap.get(className+".class");
-			if (contents!=null) {
-			    log.info("encapsulated class definition found containing "+contents.length+" bytes");
-			    return defineClass(className,contents,0,contents.length);
-			} else {
-			    log.info("calling default class loader to find class");
-			    //for some reason the EncapsulatingAnnotatorLoader doesn't seem to work; just use Class.forName
-			    return Class.forName(className);
-			    //return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className+".class");
+			byte[] contents=(byte[])fileNameToContentsMap.get(className+".class");
+			if(contents!=null){
+				log.info("encapsulated class definition found containing "+
+						contents.length+" bytes");
+				try{
+					return defineClass(className,contents,0,contents.length);
+				}catch(NoClassDefFoundError e){
+					// try again, interpreting the wrong name error message and just name it accordingly
+					Pattern msgPat=Pattern.compile("\\(wrong name\\: (.+?)\\)");
+					String message=e.getMessage();
+					Matcher m=msgPat.matcher(message);
+					if(m.find()){
+						String realClassName=m.group(1).replaceAll("[\\/]+",".");
+						Class<?> clazz=Class.forName(realClassName);
+						return clazz;
+					}
+					else{
+						return null;
+					}
+				}
+			}else{
+				log.info("calling default class loader to find class");
+				//for some reason the EncapsulatingAnnotatorLoader doesn't seem to work; just use Class.forName
+				return Class.forName(className);
+				//return EncapsulatingAnnotatorLoader.class.getClassLoader().loadClass(className+".class");
 			}
 		}
 

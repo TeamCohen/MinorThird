@@ -7,6 +7,7 @@ import edu.cmu.minorthird.text.TextBase;
 import edu.cmu.minorthird.text.TextBaseLoader;
 import edu.cmu.minorthird.text.TextLabelsLoader;
 import edu.cmu.minorthird.text.gui.TextBaseEditor;
+import edu.cmu.minorthird.text.mixup.MixupInterpreter;
 import edu.cmu.minorthird.text.mixup.MixupProgram;
 
 /**
@@ -44,7 +45,10 @@ public class LabelerDemo
 			//getFileMarkup().  If you don't have XML markup, use
 			//"baseLoader.loadDir(base,dataDir)" instead.
 //			baseLoader.loadTaggedFiles(base,dataDir);
-			TextBase base = TextBaseLoader.loadDirOfTaggedFiles(dataDir).getTextBase();
+			
+			TextBaseLoader loader=new TextBaseLoader(TextBaseLoader.DOC_PER_FILE,true);
+			loader.load(dataDir);
+			TextBase base=loader.getLabels().getTextBase();
 
 			// load previous markup, if it exists
 			TextLabelsLoader labelLoader = new TextLabelsLoader(); 
@@ -57,7 +61,8 @@ public class LabelerDemo
 			if (mixupFile!=null) {
 				try {
 					MixupProgram p = new MixupProgram(mixupFile);
-					p.eval(labels,base);
+					MixupInterpreter interpreter=new MixupInterpreter(p);
+					interpreter.eval(labels);
 				} catch (Exception e) {
 					System.out.println(
 						"couldn't mixup load file - are you sure "+mixupFile.getName()+" is on your classpath?");

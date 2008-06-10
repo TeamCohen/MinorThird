@@ -14,7 +14,6 @@ import edu.cmu.minorthird.text.SpanDifference;
 import edu.cmu.minorthird.text.TextBase;
 import edu.cmu.minorthird.text.TextLabels;
 import edu.cmu.minorthird.text.SpanDifference.Looper;
-import edu.cmu.minorthird.text.gui.TextBaseViewer;
 import edu.cmu.minorthird.ui.Recommended;
 
 /**
@@ -87,9 +86,9 @@ public class SampleExtractionTest extends TestCase
 	{
 		SpanFeatureExtractor fe = new Recommended.TokenFE();
 		doExtractionTest( new SequenceAnnotatorLearner( new CMMLearner(new VotedPerceptron(), 3), fe),
-				new double[]{0.93,0.75,0.1,1.0,0.6,0.1});
+				new double[]{0.93,0.75,0.25,1.0,0.6,0.25});
 		doExtractionTest( new SequenceAnnotatorLearner( new CMMLearner(new SVMLearner(), 3),  fe),
-				new double[]{0.93,1.0,0.1,1.0,1.0,0.1} );
+				new double[]{0.93,1.0,0.25,1.0,1.0,0.25} );
 	}
 
 	// double array is <precision,recall,tolerance> for train & test

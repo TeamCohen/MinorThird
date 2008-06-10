@@ -315,45 +315,45 @@ public class TextBaseLoader{
 	// api-------------------------------
 	// WARNING: These are all deprecated. How long have they been this way, should
 	// we delete them?
-	/**
-	 * One document per file in a directory, labels are embedded in the data as
-	 * xml tags NB: Don't use this if the data isn't labbed - it will remove
-	 * things that look like <just a note> which could cause problems.
-	 * 
-	 * Returns the TextLabels object, the textbase is embedded
-	 * 
-	 * @deprecated
-	 */
-	public static MutableTextLabels loadDirOfTaggedFiles(File dir)
-			throws ParseException,IOException{
-		TextBaseLoader loader=new TextBaseLoader(DOC_PER_FILE,true);
-		loader.load(dir);
-
-		return loader.getLabels();
-	}
-
-	/** @deprecated */
-	public void loadTaggedFiles(TextBase base,File dir) throws IOException,
-			FileNotFoundException{
-		try{
-			TextBaseLoader loader=new TextBaseLoader(DOC_PER_FILE,true);
-			loader.load(dir);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	/** @deprecated */
-	public static TextBase loadDocPerLine(File file,boolean hasGroupID)
-			throws ParseException,IOException{
-		try{
-			TextBaseLoader loader=new TextBaseLoader(DOC_PER_LINE);
-			return loader.load(file);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	/**
+//	 * One document per file in a directory, labels are embedded in the data as
+//	 * xml tags NB: Don't use this if the data isn't labbed - it will remove
+//	 * things that look like <just a note> which could cause problems.
+//	 * 
+//	 * Returns the TextLabels object, the textbase is embedded
+//	 * 
+//	 * @deprecated
+//	 */
+//	public static MutableTextLabels loadDirOfTaggedFiles(File dir)
+//			throws ParseException,IOException{
+//		TextBaseLoader loader=new TextBaseLoader(DOC_PER_FILE,true);
+//		loader.load(dir);
+//
+//		return loader.getLabels();
+//	}
+//
+//	/** @deprecated */
+//	public void loadTaggedFiles(TextBase base,File dir) throws IOException,
+//			FileNotFoundException{
+//		try{
+//			TextBaseLoader loader=new TextBaseLoader(DOC_PER_FILE,true);
+//			loader.load(dir);
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
+//	}
+//
+//	/** @deprecated */
+//	public static TextBase loadDocPerLine(File file,boolean hasGroupID)
+//			throws ParseException,IOException{
+//		try{
+//			TextBaseLoader loader=new TextBaseLoader(DOC_PER_LINE);
+//			return loader.load(file);
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
 	// --------------------- Public methods
 	// ---------------------------------------------------
