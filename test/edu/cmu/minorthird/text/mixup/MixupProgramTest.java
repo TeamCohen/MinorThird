@@ -98,7 +98,7 @@ public class MixupProgramTest extends TestSuite{
 			//should contain two names, Doherty Hall and Warren Baker
 			Iterator<Span> i=labels.instanceIterator("extracted_name");
 			assertTrue(i.hasNext());
-			assertEquals("Doherty\nHall",i.next().asString());
+			assertEquals("Doherty"+System.getProperty("line.separator")+"Hall",i.next().asString());
 			assertTrue(i.hasNext());
 			assertEquals("Warren Baker",i.next().asString());
 			assertTrue(!i.hasNext());
