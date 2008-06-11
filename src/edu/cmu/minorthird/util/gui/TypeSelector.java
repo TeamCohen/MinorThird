@@ -240,12 +240,12 @@ public class TypeSelector extends ComponentViewer{
 //		}
 //	}
 
-	/**
-	 * remove a class from the list of valid sub classes.
-	 * exiting UI components are NOT updated (so make changes first or update
-	 * the component seperately)
-	 * @param subClass
-	 */
+//	/**
+//	 * remove a class from the list of valid sub classes.
+//	 * exiting UI components are NOT updated (so make changes first or update
+//	 * the component seperately)
+//	 * @param subClass
+//	 */
 //	private void removeClass(Class subClass){
 //		validSubclasses.remove(shortenedClassName(subClass));
 //		instanceMap.remove(shortenedClassName(subClass));
