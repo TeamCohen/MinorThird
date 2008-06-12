@@ -147,7 +147,7 @@
 	</target>
 	
 	<!-- Make all the release files for a sourceforge release-->
-	<target name="release-all" depends="clean,release,release-classify,release-jar,release-doc"/>
+	<target name="release-all" depends="clean,release-doc,release,release-jar,release-classify"/>
 
 	<!-- Run (not build) JUnit tests -->
 	<target name="test" depends="build,build-test" description="run the tests, NOT halting on failure">
