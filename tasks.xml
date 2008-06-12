@@ -118,7 +118,6 @@
 				<include name="montylingua/*"/>
 			</fileset>
 		</jar>
-		<copy file="${distDir}/m3rd_${DSTAMP}.jar" toFile="${distDir}/minorthird.jar"/>
 	</target>
 	
 	<!-- Make a classify-only release jar-->
