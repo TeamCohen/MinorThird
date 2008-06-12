@@ -139,7 +139,7 @@
 	</target>
 	
 	<!-- Make a documentation release zip-->
-	<target name="release-doc" depends="javadoc">
+	<target name="release-doc" depends="init,javadoc">
 		<mkdir dir="${distDir}"/>
 		<zip destfile="${distDir}/m3rd-doc_${DSTAMP}.zip">
 			<fileset dir="./doc" excludes="**/CVS"/>
