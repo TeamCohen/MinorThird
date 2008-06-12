@@ -92,6 +92,7 @@
 				<include name="*.xml"/>
 				<include name="*.txt"/>
 				<exclude name="**/CVS"/>
+				<exclude name="doc/javadoc/**"/>
 			</fileset>
 		</zip>
 	</target>
