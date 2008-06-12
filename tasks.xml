@@ -99,13 +99,12 @@
 	<!-- Make a full release jar-->
 	<target name="release-jar" depends="open-jars">
 		<mkdir dir="${distDir}"/>
-		<!-- Put everything in ${classDir} into the m3rd_${DSTAMP}.jar file -->
 		<jar jarfile="${distDir}/m3rd_${DSTAMP}.jar" basedir="${classDir}">
 			<manifest>
 				<attribute name="Main-Class" value="edu.cmu.minorthird.Minorthird"/>
 			</manifest>
 			<fileset dir="${classDir}">
-				<include name="edu/cmu/minorthird/**.class"/>
+				<include name="edu/cmu/minorthird/**/*.class"/>
 			</fileset>
 			<fileset dir="${tmpDir}" includes="**/*"/>
 			<fileset dir="${configDir}">
@@ -123,13 +122,11 @@
 	<!-- Make a classify-only release jar-->
 	<target name="release-classify" depends="open-jars">
 		<mkdir dir="${distDir}"/>
-		<!-- Put everything in ${classDir} into the m3rd_${DSTAMP}.jar file -->
 		<jar jarfile="${distDir}/m3rd-classify_${DSTAMP}.jar" basedir="${classDir}">
 			<fileset dir="${classDir}">
-				<include name="edu/cmu/minorthird/classify/**.class"/>
-				<include name="edu/cmu/minorthird/ui/**.class"/>
-				<include name="edu/cmu/minorthird/util/**.class"/>
-				<include name="edu/cmu/minorthird/util/gui/**.class"/>
+				<include name="edu/cmu/minorthird/classify/**/*.class"/>
+				<include name="edu/cmu/minorthird/ui/**/*.class"/>
+				<include name="edu/cmu/minorthird/util/**/*.class"/>
 			</fileset>
 			<fileset dir="${tmpDir}" includes="**/*"/>
 			<fileset dir="${configDir}">
@@ -137,12 +134,7 @@
 				<include name="*.config"/>
 				<include name="selectableTypes.txt"/>
 			</fileset>
-			<fileset dir="${libDir}">
-				<include name="**/*.mixup"/>
-				<include name="montylingua/*"/>
-			</fileset>
 		</jar>
-		<copy file="${distDir}/m3rd_${DSTAMP}.jar" toFile="${distDir}/minorthird.jar"/>
 	</target>
 	
 	<!-- Make a documentation release zip-->
@@ -154,7 +146,7 @@
 	</target>
 	
 	<!-- Make all the release files for a sourceforge release-->
-	<target name="release-all" depends="clean,release,release-jar,release-classify,release-doc"/>
+	<target name="release-all" depends="clean,release,release-classify,release-jar,release-doc"/>
 
 	<!-- Run (not build) JUnit tests -->
 	<target name="test" depends="build,build-test" description="run the tests, NOT halting on failure">
