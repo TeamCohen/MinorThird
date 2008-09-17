@@ -37,18 +37,40 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 	private ExampleSchema schema;
 	private FeatureFactory featureFactory;
 
+	//this is a hack for displaying explanations
+	private VisibleSVM vSVM=null;
+
 	public SVMClassifier(svm_model model,ExampleSchema schema,FeatureFactory featureFactory){
 		this.model=model;
 		this.schema=schema;
 		this.featureFactory=featureFactory;
 	}
 
-	public String explain(Instance instance){
-		return "None";
+	public String explain(Instance instance){		
+		if(vSVM==null){
+			vSVM=new VisibleSVM(model,featureFactory);
+		}
+		int numHyperplanes=schema.getNumberOfClasses()-1;
+		StringBuilder b=new StringBuilder();
+		for(int i=0;i<numHyperplanes;i++){
+			b.append("Hyperplane "+i+":");
+			b.append(vSVM.getHyperplane(i).explain(instance));
+		}
+		return b.toString();
 	}
 
 	public Explanation getExplanation(Instance instance){
-		return new Explanation(explain(instance));
+		if(vSVM==null){
+			vSVM=new VisibleSVM(model,featureFactory);
+		}
+		int numHyperplanes=schema.getNumberOfClasses()-1;
+		Explanation.Node top=new Explanation.Node("Hyperplanes");
+		for(int i=0;i<numHyperplanes;i++){
+			Explanation ex=vSVM.getHyperplane(i).getExplanation(instance);
+			ex.getTopNode().setUserObject("Hyperplane "+i);
+			top.add(ex.getTopNode());
+		}
+		return new Explanation(top);
 	}
 
 	public svm_model getSVMModel(){

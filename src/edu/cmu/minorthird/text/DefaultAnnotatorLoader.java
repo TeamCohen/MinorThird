@@ -22,7 +22,6 @@ public class DefaultAnnotatorLoader extends AnnotatorLoader{
 		InputStream is=null;
 		is=DefaultAnnotatorLoader.class.getClassLoader().getResourceAsStream(fileName);
 		if(is==null){
-			log.debug("here");
 			ClassLoader.getSystemResourceAsStream(fileName);
 		}
 		return is;
