@@ -30,26 +30,26 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 	protected Extraction2TaggingReduction reduction;
 
 	public AbstractBatchAnnotatorLearner() {
-            this(new Recommended.TokenFE(),new InsideOutsideReduction());
+		this(new Recommended.TokenFE(),new InsideOutsideReduction());
 	}
 	public AbstractBatchAnnotatorLearner(SpanFeatureExtractor fe,Extraction2TaggingReduction reduction) {
-            this.reduction = reduction;
-            this.fe = fe;
-            seqData = new SequenceDataset();
+		this.reduction = reduction;
+		this.fe = fe;
+		seqData = new SequenceDataset();
 	}
 
-    public void reset() { 
-        seqData = new SequenceDataset(); 
-    }
+	public void reset() { 
+		seqData = new SequenceDataset(); 
+	}
 
 
-  /** Scheme for reducing extraction to a token-classification problem */
+	/** Scheme for reducing extraction to a token-classification problem */
 	public Extraction2TaggingReduction getTaggingReduction() { return reduction; }
 	public void setTaggingReduction(Extraction2TaggingReduction reduction) { this.reduction = reduction; }
 
-    public String getTaggingReductionHelp() { return "Scheme for reducing extraction to a token-classification problem"; }
+	public String getTaggingReductionHelp() { return "Scheme for reducing extraction to a token-classification problem"; }
 
-  /** Feature extractor used for tokens */
+	/** Feature extractor used for tokens */
 	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
 	public void setSpanFeatureExtractor(SpanFeatureExtractor fe) {this.fe = fe;	}
 
@@ -57,9 +57,9 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 	public void setAnnotationType(String s) { annotationType=s; }
 	public String getAnnotationType() { return annotationType; }
 
-  //
-  // buffer data
-  //
+	//
+	// buffer data
+	//
 
 	// temporary storage
 	private Iterator<Span> documentLooper;
@@ -81,17 +81,17 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 		Span document = answeredQuery.getDocumentSpan();
 		Example[] sequence = new Example[document.size()];
 		for (int i=0; i<document.size(); i++) {
-		    Token tok = document.getToken(i);
-		    String value = answerLabels.getProperty(tok,reduction.getTokenProp());
-		    if (value!=null) {
-			ClassLabel classLabel = new ClassLabel(value);
-			Span tokenSpan = document.subSpan(i,1);
-			Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
-			sequence[i] = example;
-		    } else {
-			log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
-			return;
-		    }
+			Token tok = document.getToken(i);
+			String value = answerLabels.getProperty(tok,reduction.getTokenProp());
+			if (value!=null) {
+				ClassLabel classLabel = new ClassLabel(value);
+				Span tokenSpan = document.subSpan(i,1);
+				Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
+				sequence[i] = example;
+			} else {
+				log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
+				return;
+			}
 		}
 		seqData.addSequence( sequence );
 	}

@@ -65,82 +65,71 @@ public abstract class AnnotatorLoader{
 	 * </ol>
 	 */
 	final public Annotator findAnnotator(String annotationType,String source){
-		Annotator ann=null;
-		String redirect;
-		log.debug("finding annotator for \""+annotationType+"\" source="+source);
 
-		// First we check based on the provided source
+		log.debug("Trying to load annotator with annotation type \""+annotationType+"\" from source \""+source+"\"");
 		if(source!=null){
-			// We treat mixup programs special. They must end in ".mixup"
+			// see if the source is a mixup file
 			if(source.endsWith(".mixup")){
-				log.debug("non-null mixup");
+				log.debug("Trying to load annotator from mixup file: "+source);
+				// first use findFileResource method
 				InputStream is=findFileResource(source);
-				if(is!=null){
-					log.debug("loading input stream from found file resource "+source);
-					return findMixupAnnotatorFromStream(source,is);
-				}else{
-					log.debug("loading input stream directly from file "+source);
+				// if that fails, try to load the file directly
+				if(is==null){
 					try{
 						is=new FileInputStream(source);
 					}catch(Exception e){
 						e.printStackTrace();
 					}
+				}
+				if(is==null){
+					log.warn("Cannot load annotator from source: "+source);
+					return null;
+				}
+				else{
 					return findMixupAnnotatorFromStream(source,is);
 				}
 			}
-			// If the source is not a mixup, then it is either part of an encapsulated
-			// annotator
-			// or is a class that needs to be loaded natively by java.
+			// if source isn't mixup, then it's either part of an encapsulated annotator or is a class that needs to be loaded natively by java
 			else{
-				log.debug("non-null non-mixup");
-
-				// First check to see if the saved annotator is being served as a object
-				// from a
-				// stream such as if the annotator is encapsulated inside another
-				// annotator.
-				ann=findSavedAnnotatorFromStream(source,findFileResource(source));
+				log.debug("Trying to load annotator from non-mixup source: "+source);
+				// first check to see if the saved annotator is being served as a object from a stream such as if the annotator is encapsulated inside another annotator
+				log.debug("Trying to load annotator from a file stream: "+source);
+				Annotator ann=findSavedAnnotatorFromStream(source,findFileResource(source));
 				if(ann==null){
-					// Otherwise find the native annotator for the provided source.
-					// ann = findNativeAnnotatorFromString(source);
+					// otherwise find the native annotator from class name
+					log.debug("Trying to load annotator from class name: "+source);
 					ann=findNativeAnnotatorFromString(source);
 				}
-				return ann;
+				if(ann==null){
+					log.warn("Cannot load annotator from source: "+source);
+					return null;
+				}
+				else{
+					return ann;
+				}
 			}
 		}
-		// If the source does not lead us to the annotator check the annotation type
+		// if the source does not lead us to the annotator check the annotation type
 		else{
-			log.debug("source is null, checking annotation type...");
+			log.debug("Source not provided, trying to load from annotation type");
 			// Check to see if the annotation type specifies a redirection
-			redirect=redirectionProps.getProperty(annotationType);
+			String redirect=redirectionProps.getProperty(annotationType);
 			if(redirect!=null){
-				log.debug("redirected to "+redirect);
+				log.debug("Redirected to "+redirect);
 				return findAnnotator(annotationType,redirect);
 			}
-
-			// Check to see if annotation type is actually a mixup file.
-			if(annotationType.endsWith(".mixup")){
-				InputStream is=null;
-				try{
-					is=new FileInputStream(annotationType);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-				log.debug("loading input stream from found file resource "+source);
-				return findMixupAnnotatorFromStream(annotationType,is);
+			else{
+				log.debug("No redirection, assuming the annotation type is source and trying again");
+				return findAnnotator(null,annotationType);
 			}
-
-			// If all else fails attempt to load the annotation type as a class
-			log.debug("trying as class "+annotationType);
-			return findNativeAnnotatorFromString(annotationType);
 		}
-
 	}
 
 	// This method attempts to locate an annotator named as provided using the
 	// supplied input stream
 	final private Annotator findSavedAnnotatorFromStream(String annotatorName,
 			InputStream s){
-		log.info("finding saved Annotator "+annotatorName+" in stream "+s);
+		log.debug("Trying to find saved Annotator "+annotatorName+" from stream "+s);
 		if(s!=null){
 			try{
 				byte[] buf=new byte[s.available()];
@@ -149,15 +138,17 @@ public abstract class AnnotatorLoader{
 				ObjectInputStream objInput=new ObjectInputStream(input);
 				return (Annotator)objInput.readObject();
 			}catch(IOException e){
-				log.warn("error loading "+annotatorName+": "+e);
+				e.printStackTrace();
 				return null;
 			}catch(ClassNotFoundException e){
-				log.warn("annotator "+annotatorName+" not found: "+e);
+				e.printStackTrace();
 				return null;
 			}
 		}
-		log.warn("Couldn't find annotator "+annotatorName+" using "+this);
-		return null;
+		else{
+			log.warn("Cannot find saved Annotator because InputStream is null");
+			return null;
+		}
 	}
 
 	final private Annotator findMixupAnnotatorFromStream(String fileName,
@@ -182,7 +173,7 @@ public abstract class AnnotatorLoader{
 	}
 
 	final private Annotator findNativeAnnotatorFromString(String className){
-		log.debug("looking for native annotator "+className);
+		log.debug("Looking for native annotator class "+className);
 		try{
 			Class<?> c=findClassResource(className);
 			Object o=c.newInstance();
@@ -190,7 +181,7 @@ public abstract class AnnotatorLoader{
 				return (Annotator)o;
 			else
 				log.warn(c+", found from "+className+" via "+this+
-						", is not an instance of Annotator");
+				", is not an instance of Annotator");
 		}catch(Exception e){
 			log.warn(this+" can't find class named "+className+": "+e);
 		}

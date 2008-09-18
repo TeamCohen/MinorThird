@@ -6,6 +6,8 @@ import java.util.Iterator;
 /**
  * An abstract annotator that is based on marking up substrings within
  * a string, using the CharAnnotation class.
+ * 
+ * This is a bad class, can only define types and not properties
  *
  * @author ksteppe
  */
@@ -29,6 +31,10 @@ public abstract class StringAnnotator extends AbstractAnnotator{
 					int lo=ann.getOffset();
 					Span newSpan=span.charIndexSubSpan(lo,lo+ann.getLength());
 					labels.addToType(newSpan,ann.getType());
+					labels.setProperty(newSpan,ann.getType(),"1");
+					for(int j=0;j<newSpan.size();j++){
+						labels.setProperty(newSpan.getToken(j),ann.getType(),"1");
+					}
 				}
 			}
 		}

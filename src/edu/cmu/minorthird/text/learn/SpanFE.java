@@ -178,12 +178,12 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 	// extraction
 	//
 
-	/** @deprecated Use extractInstance(TextLabels labels,Span s) */
-	final public Instance extractInstance(Span span){
-		instance=new MutableInstance(span,span.getDocumentGroupId());
-		extractFeatures(span);
-		return instance;
-	}
+//	/** @deprecated Use extractInstance(TextLabels labels,Span s) */
+//	final public Instance extractInstance(Span span){
+//		instance=new MutableInstance(span,span.getDocumentGroupId());
+//		extractFeatures(span);
+//		return instance;
+//	}
 
 	/** Extract an Instance from a span */
 	final public Instance extractInstance(TextLabels labels,Span span){
@@ -660,8 +660,9 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 			for(Iterator<Token> i=set.iterator();i.hasNext();){
 				Token token=i.next();
 				String value=fe.textLabels.getProperty(token,property);
-				if(value!=null)
+				if(value!=null){
 					stringBag.add(value);
+				}
 			}
 			return new StringBagResult(extend(property),fe,stringBag);
 		}

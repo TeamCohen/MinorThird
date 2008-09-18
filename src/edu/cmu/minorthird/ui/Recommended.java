@@ -3,8 +3,6 @@ package edu.cmu.minorthird.ui;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import edu.cmu.minorthird.classify.BatchVersion;
 import edu.cmu.minorthird.classify.algorithms.trees.AdaBoost;
 import edu.cmu.minorthird.classify.sequential.CMMLearner;
@@ -38,8 +36,6 @@ import edu.cmu.minorthird.util.StringUtil;
  */
 
 public class Recommended{
-
-	private static Logger log=Logger.getLogger(Recommended.class);
 
 	//
 	// classifier learners
@@ -511,7 +507,8 @@ public class Recommended{
 
 		protected String[] tokenPropertyFeatures=null;
 
-		/** tokenProperties depends on the requiredAnnotation, so override
+		/** 
+		 * tokenProperties depends on the requiredAnnotation, so override
 		 * default setRequiredAnnotation() method to reset the
 		 * tokenPropertyFeatures to null when this changes.
 		 */
@@ -521,9 +518,11 @@ public class Recommended{
 			tokenPropertyFeatures=null;
 		}
 
-		/** Specify the token properties from the TextLabels environment
+		/** 
+		 * Specify the token properties from the TextLabels environment
 		 * that will be used as features. A value of '*' or null means to
-		 * use all defined token properties. */
+		 * use all defined token properties.
+		 */
 		public void setTokenPropertyFeatures(String commaSeparatedTokenPropertyList){
 			if("*".equals(commaSeparatedTokenPropertyList))
 				tokenPropertyFeatures=null;
@@ -545,7 +544,7 @@ public class Recommended{
 
 		protected void setMyTokenPropertyList(TextLabels labels){
 			if(tokenPropertyFeatures==null){
-				log.info("tokenPropertyFeatures: "+labels.getTokenProperties());
+				System.out.println("tokenPropertyFeatures: "+labels.getTokenProperties());
 				setTokenPropertyFeatures(labels.getTokenProperties());
 			}
 		}
