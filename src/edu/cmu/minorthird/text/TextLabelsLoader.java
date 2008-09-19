@@ -13,13 +13,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -472,88 +469,88 @@ public class TextLabelsLoader{
 		}
 	}
 
-	/**
-	 * @deprecated use createXMLMarkup(String documentId,TextLabels labels)
-	 * 
-	 * Save extracted data in an XML format. Convert to string
-	 * &lt;root>..&lt;type>...&lt;/type>..&lt;/root> nested things
-	 * &lt;a>A&lt;b>B&lt;/b>C&lt;/a> are stored as nested things &lt;a>A&lt;set
-	 * v=a,b>B&lt;/set>C&lt;/a> where single sets are simplified so mismatches
-	 * like [A (B C] D)E are stored as &lt;a>a&lt;set v=a,b>B
-	 * C&lt;/set>&lt;/a>&lt;b>D&lt;/b>E
-	 */
-	public String markupDocumentSpan(String documentId,TextLabels labels){
-		SortedMap<Span,Set<String[]>> boundaries=new TreeMap<Span,Set<String[]>>();
-		for(Iterator<String> i=labels.getTypes().iterator();i.hasNext();){
-			String type=i.next();
-			for(Iterator<Span> j=labels.instanceIterator(type,documentId);j.hasNext();){
-				Span s=j.next();
-				setBoundary(boundaries,"begin",type,s.getLeftBoundary());
-				setBoundary(boundaries,"end",type,s.getRightBoundary());
-			}
-		}
-		// now walk thru boundaries and find out which set as
-		// associated with each segment - want map from boundaries to
-		// type sets
-		String source=labels.getTextBase().documentSpan(documentId).asString();
-		StringBuffer buf=new StringBuffer("");
-		buf.append("<root>");
-		int currentPos=0;
-		Set<String> currentTypes=new TreeSet<String>();
-		String lastMarkup=null;
-		for(Iterator<Span> i=boundaries.keySet().iterator();i.hasNext();){
-			Span b=i.next();
-			// work out what types are in effect here
-			Set<String[]> ops=boundaries.get(b);
-			for(Iterator<String[]> j=ops.iterator();j.hasNext();){
-				String[] op=j.next();
-				if("begin".equals(op[0]))
-					currentTypes.add(op[1]);
-				else
-					currentTypes.remove(op[1]);
-			}
-			// output next section of document
-			int pos;
-			if(b.documentSpanStartIndex()<b.documentSpan().size())
-				pos=
-						b.documentSpan().subSpan(b.documentSpanStartIndex(),1)
-								.getTextToken(0).getLo();
-			else
-				pos=b.documentSpan().getTextToken(b.documentSpan().size()-1).getHi();
-
-			buf.append(source.substring(currentPos,pos));
-			// close off last markup
-			if(lastMarkup!=null)
-				buf.append("</"+lastMarkup+">");
-			// work out next markup symbol
-			String markup=null;
-			String value=null;
-			if(currentTypes.size()==1){
-				markup=currentTypes.iterator().next();
-			}else if(currentTypes.size()>1){
-				markup="overlap";
-				StringBuffer vBuf=new StringBuffer("");
-				for(Iterator<String> j=currentTypes.iterator();j.hasNext();){
-					if(vBuf.length()>0)
-						vBuf.append(",");
-					vBuf.append(j.next());
-				}
-				value=vBuf.toString();
-			}
-			if(markup!=null&&value!=null){
-				buf.append("<"+markup+" value=\""+value+"\">");
-			}else if(markup!=null){
-				buf.append("<"+markup+">");
-			}
-			// update position, lastMarkup
-			currentPos=pos;
-			lastMarkup=markup;
-		} // each boundary
-		// close it all off
-		buf.append(source.substring(currentPos,source.length()));
-		buf.append("</root>");
-		return buf.toString();
-	}
+//	/**
+//	 * @deprecated use createXMLMarkup(String documentId,TextLabels labels)
+//	 * 
+//	 * Save extracted data in an XML format. Convert to string
+//	 * &lt;root>..&lt;type>...&lt;/type>..&lt;/root> nested things
+//	 * &lt;a>A&lt;b>B&lt;/b>C&lt;/a> are stored as nested things &lt;a>A&lt;set
+//	 * v=a,b>B&lt;/set>C&lt;/a> where single sets are simplified so mismatches
+//	 * like [A (B C] D)E are stored as &lt;a>a&lt;set v=a,b>B
+//	 * C&lt;/set>&lt;/a>&lt;b>D&lt;/b>E
+//	 */
+//	public String markupDocumentSpan(String documentId,TextLabels labels){
+//		SortedMap<Span,Set<String[]>> boundaries=new TreeMap<Span,Set<String[]>>();
+//		for(Iterator<String> i=labels.getTypes().iterator();i.hasNext();){
+//			String type=i.next();
+//			for(Iterator<Span> j=labels.instanceIterator(type,documentId);j.hasNext();){
+//				Span s=j.next();
+//				setBoundary(boundaries,"begin",type,s.getLeftBoundary());
+//				setBoundary(boundaries,"end",type,s.getRightBoundary());
+//			}
+//		}
+//		// now walk thru boundaries and find out which set as
+//		// associated with each segment - want map from boundaries to
+//		// type sets
+//		String source=labels.getTextBase().documentSpan(documentId).asString();
+//		StringBuffer buf=new StringBuffer("");
+//		buf.append("<root>");
+//		int currentPos=0;
+//		Set<String> currentTypes=new TreeSet<String>();
+//		String lastMarkup=null;
+//		for(Iterator<Span> i=boundaries.keySet().iterator();i.hasNext();){
+//			Span b=i.next();
+//			// work out what types are in effect here
+//			Set<String[]> ops=boundaries.get(b);
+//			for(Iterator<String[]> j=ops.iterator();j.hasNext();){
+//				String[] op=j.next();
+//				if("begin".equals(op[0]))
+//					currentTypes.add(op[1]);
+//				else
+//					currentTypes.remove(op[1]);
+//			}
+//			// output next section of document
+//			int pos;
+//			if(b.documentSpanStartIndex()<b.documentSpan().size())
+//				pos=
+//						b.documentSpan().subSpan(b.documentSpanStartIndex(),1)
+//								.getTextToken(0).getLo();
+//			else
+//				pos=b.documentSpan().getTextToken(b.documentSpan().size()-1).getHi();
+//
+//			buf.append(source.substring(currentPos,pos));
+//			// close off last markup
+//			if(lastMarkup!=null)
+//				buf.append("</"+lastMarkup+">");
+//			// work out next markup symbol
+//			String markup=null;
+//			String value=null;
+//			if(currentTypes.size()==1){
+//				markup=currentTypes.iterator().next();
+//			}else if(currentTypes.size()>1){
+//				markup="overlap";
+//				StringBuffer vBuf=new StringBuffer("");
+//				for(Iterator<String> j=currentTypes.iterator();j.hasNext();){
+//					if(vBuf.length()>0)
+//						vBuf.append(",");
+//					vBuf.append(j.next());
+//				}
+//				value=vBuf.toString();
+//			}
+//			if(markup!=null&&value!=null){
+//				buf.append("<"+markup+" value=\""+value+"\">");
+//			}else if(markup!=null){
+//				buf.append("<"+markup+">");
+//			}
+//			// update position, lastMarkup
+//			currentPos=pos;
+//			lastMarkup=markup;
+//		} // each boundary
+//		// close it all off
+//		buf.append(source.substring(currentPos,source.length()));
+//		buf.append("</root>");
+//		return buf.toString();
+//	}
 
 	/**
 	 * Save extracted data in an XML format. Convert to string
@@ -699,14 +696,14 @@ public class TextLabelsLoader{
 		}
 	}
 
-	// Helper method used to maintain a set of tag boundaries
-	private void setBoundary(SortedMap<Span,Set<String[]>> boundaries,
-			String beginOrEnd,String type,Span s){
-		Set<String[]> ops=boundaries.get(s);
-		if(ops==null)
-			boundaries.put(s,(ops=new HashSet<String[]>()));
-		ops.add(new String[]{beginOrEnd,type});
-	}
+//	// Helper method used to maintain a set of tag boundaries
+//	private void setBoundary(SortedMap<Span,Set<String[]>> boundaries,
+//			String beginOrEnd,String type,Span s){
+//		Set<String[]> ops=boundaries.get(s);
+//		if(ops==null)
+//			boundaries.put(s,(ops=new HashSet<String[]>()));
+//		ops.add(new String[]{beginOrEnd,type});
+//	}
 
 	/** Save extracted data in an XML format */
 	public String saveTypesAsXML(TextLabels labels){

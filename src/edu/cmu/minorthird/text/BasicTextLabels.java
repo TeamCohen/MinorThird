@@ -143,20 +143,23 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		require(annotationType,fileToLoad,loader);
 	}
 
-	public void require(String annotationType,String fileToLoad,
-			AnnotatorLoader theLoader){
+	public void require(String annotationType,String fileToLoad,AnnotatorLoader theLoader){
 		doRequire(this,annotationType,fileToLoad,theLoader);
 	}
 
-	static public void doRequire(MonotonicTextLabels labels,
-			String annotationType,String fileToLoad,AnnotatorLoader theLoader){
+	static public void doRequire(MonotonicTextLabels labels,String annotationType,String fileToLoad,AnnotatorLoader theLoader){
+		// only annotate if not already done
 		if(annotationType!=null&&!labels.isAnnotatedBy(annotationType)){
-			if(theLoader==null)
-				theLoader=labels.getAnnotatorLoader(); // use current loader as default
+			if(theLoader==null){
+				 // use current loader as default
+				theLoader=labels.getAnnotatorLoader();
+			}
+			log.info("Trying load \""+annotationType+"\" from "+fileToLoad+" using "+theLoader);
 			Annotator annotator=theLoader.findAnnotator(annotationType,fileToLoad);
-			if(annotator==null)
-				throw new IllegalArgumentException("can't find annotator "+
-						annotationType+" (file: "+fileToLoad+")");
+			log.info("Loaded "+annotator);
+			if(annotator==null){
+				throw new IllegalArgumentException("Cannot find annotator "+annotationType+" (file: "+fileToLoad+")");
+			}
 
 			// annotate using theLoader for any recursively-required annotations,
 			AnnotatorLoader savedLoader=labels.getAnnotatorLoader();
@@ -165,9 +168,9 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 			labels.setAnnotatorLoader(savedLoader); // restore original loader
 
 			// check that the annotationType is provided
-			if(!labels.isAnnotatedBy(annotationType))
-				throw new IllegalStateException("didn't provide annotation type: "+
-						annotationType);
+			if(!labels.isAnnotatedBy(annotationType)){
+				throw new IllegalStateException(annotator+" did not provide annotation type: "+annotationType);
+			}
 		}
 	}
 

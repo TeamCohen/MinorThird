@@ -22,13 +22,13 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 		super();
 	}
 
-	/** 
-	 * @deprecated use CascadingBinaryLearner(BatchClassifierLearner learner)
-	 * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
-	 */
-	public CascadingBinaryLearner(ClassifierLearnerFactory learnerFactory){
-		super(learnerFactory);
-	}
+//	/** 
+//	 * @deprecated use CascadingBinaryLearner(BatchClassifierLearner learner)
+//	 * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
+//	 */
+//	public CascadingBinaryLearner(ClassifierLearnerFactory learnerFactory){
+//		super(learnerFactory);
+//	}
 
 	public CascadingBinaryLearner(String l){
 		super(l);

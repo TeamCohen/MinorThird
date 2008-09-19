@@ -17,13 +17,13 @@ public class MostFrequentFirstLearner extends OneVsAllLearner{
 		super();
 	}
 
-	/**
-	 * @deprecated use MostFrequentFirstLearner(BatchClassifierLearner learner)
-	 * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
-	 */
-	public MostFrequentFirstLearner(ClassifierLearnerFactory learnerFactory){
-		super(learnerFactory);
-	}
+//	/**
+//	 * @deprecated use MostFrequentFirstLearner(BatchClassifierLearner learner)
+//	 * @param learnerFactory a ClassifierLearnerFactory which should produce a BinaryClassifier with each call.
+//	 */
+//	public MostFrequentFirstLearner(ClassifierLearnerFactory learnerFactory){
+//		super(learnerFactory);
+//	}
 
 	public MostFrequentFirstLearner(String l){
 		super(l);

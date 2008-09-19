@@ -98,7 +98,7 @@ public class MixupProgramTest extends TestSuite{
 			//should contain two names, Doherty Hall and Warren Baker
 			Iterator<Span> i=labels.instanceIterator("extracted_name");
 			assertTrue(i.hasNext());
-			assertEquals("Doherty"+System.getProperty("line.separator")+"Hall",i.next().asString());
+			assertEquals("Doherty Hall",i.next().asString().replaceAll("\\s"," "));
 			assertTrue(i.hasNext());
 			assertEquals("Warren Baker",i.next().asString());
 			assertTrue(!i.hasNext());
@@ -223,7 +223,8 @@ public class MixupProgramTest extends TestSuite{
 		}
 	}
 
-	/** tests mixup zall that requires xdate (which requires xtime) and
+	/** 
+	 * Tests mixup zall that requires xdate (which requires xtime) and
 	 * a java class RoomNumber which provides rooms.  the compiled class
 	 * file for RoomNumber should be kept in the testcases directory.
 	 */

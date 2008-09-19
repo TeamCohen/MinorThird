@@ -23,7 +23,7 @@ public abstract class AnnotatorLoader{
 
 	private static Logger log=Logger.getLogger(AnnotatorLoader.class);
 
-	private static Properties redirectionProps=new Properties();
+	protected static Properties redirectionProps=new Properties();
 
 	static{
 		InputStream s=ClassLoader.getSystemResourceAsStream("annotators.config");

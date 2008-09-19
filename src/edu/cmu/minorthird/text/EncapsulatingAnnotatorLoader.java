@@ -30,7 +30,7 @@ Serializable{
 	// special serialization code
 	private void readObject(java.io.ObjectInputStream in) throws IOException,
 	ClassNotFoundException{
-		System.out.println("reading EncapsulatingAnnotatorLoader");
+		System.out.println("Reading EncapsulatingAnnotatorLoader");
 		in.defaultReadObject();
 		for(Iterator<String> i=fileNameToContentsMap.keySet().iterator();i
 		.hasNext();){
@@ -87,16 +87,22 @@ Serializable{
 		for(int i=0;i<fileName.length;i++){
 			try{
 				File file=new File(fileName[i]);
-				InputStream s=
-					asFiles?new FileInputStream(file)
-				:EncapsulatingAnnotatorLoader.class.getClassLoader()
-				.getResourceAsStream(fileName[i]);
-					byte[] contents=new byte[s.available()];
-					s.read(contents);
-					fileNameToContentsMap.put(file.getName(),contents);
+				InputStream s=null;
+				if(asFiles){
+					s=new FileInputStream(file);
+				}
+				else{
+					s=EncapsulatingAnnotatorLoader.class.getClassLoader().getResourceAsStream(fileName[i]);
+				}
+				byte[] contents=new byte[s.available()];
+				s.read(contents);
+				fileNameToContentsMap.put(file.getName(),contents);
+				if(file.getName().endsWith(".mixup")){
+					redirectionProps.put(file.getName().substring(0,file.getName().length()-6),file.getName());
+					//fileNameToContentsMap.put(file.getName().substring(0,file.getName().length()-6),contents);
+				}
 			}catch(IOException e){
-				throw new IllegalArgumentException("can't open file '"+fileName[i]+
-						"': "+e);
+				throw new IllegalArgumentException("can't open file '"+fileName[i]+"': "+e);
 			}
 		}
 		myClassLoader=new EncapsulatingClassLoader();
@@ -104,16 +110,14 @@ Serializable{
 
 	/** Find the named resource file - usually a dictionary or trie for mixup. */
 	public InputStream findFileResource(String fileName){
-		log.info("looking for file resource "+fileName+" with encapsulated loader");
+		log.info("Looking for file resource: "+fileName);
 		byte[] contents=(byte[])fileNameToContentsMap.get(fileName);
 		if(contents!=null){
-			log.info("encapsulated resource found containing "+contents.length+
-			" bytes");
+			log.info("Encapsulated resource found containing "+contents.length+" bytes");
 			return new ByteArrayInputStream(contents);
 		}else{
-			log.info("calling default class loader to find resource");
-			return EncapsulatingAnnotatorLoader.class.getClassLoader()
-			.getResourceAsStream(fileName);
+			log.info("Calling Java class loader to find resource: "+fileName);
+			return this.getClass().getClassLoader().getResourceAsStream(fileName);
 		}
 	}
 
@@ -127,16 +131,15 @@ Serializable{
 		}
 	}
 
-	public class EncapsulatingClassLoader extends ClassLoader implements
-	Serializable{
+	public class EncapsulatingClassLoader extends ClassLoader implements Serializable{
 
 		static private final long serialVersionUID=20080303L;
 
 		public Class<?> findClass(String className) throws ClassNotFoundException{
-			log.info("looking for class "+className+" with encapsulated loader");
+			log.info("Looking for class "+className+" with encapsulated loader");
 			byte[] contents=(byte[])fileNameToContentsMap.get(className+".class");
 			if(contents!=null){
-				log.info("encapsulated class definition found containing "+
+				log.info("Encapsulated class definition found containing "+
 						contents.length+" bytes");
 				try{
 					return defineClass(className,contents,0,contents.length);
