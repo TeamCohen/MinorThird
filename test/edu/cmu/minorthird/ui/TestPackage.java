@@ -78,7 +78,7 @@ public class TestPackage extends TestSuite{
 			"-learner","new NaiveBayes()"}) {
 			public void checkResult(Object result) {
 				Evaluation e = (Evaluation)result;
-				assertEquals( 0.875, e.maxF1(), 0.15 );
+				assertEquals( 0.75, e.maxF1(), 0.25 );
 			}
 		});
 		suite.addTest( new UITest(TrainClassifier.class,
@@ -115,7 +115,7 @@ public class TestPackage extends TestSuite{
 			"-spanType","trueName",
 			"-showTestDetails", "false",
 			"-learner", "new Recommended.VPHMMLearner()",
-			"-splitter","k5"}) {
+			"-splitter","k8"}) {
 			public void checkResult(Object result) {
 				ExtractionEvaluation e = (ExtractionEvaluation)result;
 				//assertEquals( 0.5, e.spanF1(), 0.125 );

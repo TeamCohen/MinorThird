@@ -15,6 +15,8 @@ import java.util.TreeMap;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 
@@ -239,12 +241,10 @@ public abstract class Viewer extends JPanel{
 	 * The transformer is used to re-map the selected value.
 	 */
 	protected void monitorSelections(final JList jlist,final Transform transformer){
-		jlist.addMouseListener(new MouseAdapter(){
-
-			public void mouseClicked(MouseEvent e){
-				int index=jlist.locationToIndex(e.getPoint());
-				sendSignal(OBJECT_SELECTED,transformer.transform(jlist.getModel()
-						.getElementAt(index)));
+		jlist.addListSelectionListener(new ListSelectionListener(){
+			public void valueChanged(ListSelectionEvent e){
+				int index=jlist.getSelectedIndex();
+				sendSignal(OBJECT_SELECTED,transformer.transform(jlist.getModel().getElementAt(index)));
 			}
 		});
 	}
