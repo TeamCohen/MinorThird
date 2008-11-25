@@ -29,6 +29,8 @@ import javax.swing.JPanel;
  */
 
 abstract public class ViewerControls extends JPanel implements ActionListener{
+	
+	static final long serialVersionUID=20081125L;
 
 	public static final int BOTTOM=1,RIGHT=2,TOP=3,LEFT=4;
 

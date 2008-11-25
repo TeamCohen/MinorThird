@@ -30,7 +30,7 @@ public class SampleFE{
 	public static final AnnotatedSpanFE BAG_OF_WORDS=new BagOfWordsFE();
 
 	public static class BagOfWordsFE extends AnnotatedSpanFE implements
-			Serializable{
+	Serializable{
 		static final long serialVersionUID=20080306L;
 		public void extractFeatures(TextLabels labels,Span s){
 			from(s).tokens().emit();
@@ -42,10 +42,10 @@ public class SampleFE{
 	 * case.
 	 */
 	public static final AnnotatedSpanFE BAG_OF_LC_WORDS=
-			new BagOfLowerCaseWordsFE();
+		new BagOfLowerCaseWordsFE();
 
 	public static class BagOfLowerCaseWordsFE extends AnnotatedSpanFE implements
-			Serializable{
+	Serializable{
 		static final long serialVersionUID=20080306L;
 		public void extractFeatures(TextLabels labels,Span s){
 			from(s).tokens().eq().lc().emit();
@@ -70,7 +70,7 @@ public class SampleFE{
 	public static class ExtractionFE extends AnnotatedSpanFE{
 
 		static final long serialVersionUID=20080306L;
-		
+
 		protected int windowSize=5;
 
 		protected boolean useCharType=true;
@@ -147,7 +147,7 @@ public class SampleFE{
 
 		public void setTokenPropertyFeatures(Set<String> propertySet){
 			tokenPropertyFeatures=
-					(String[])propertySet.toArray(new String[propertySet.size()]);
+				(String[])propertySet.toArray(new String[propertySet.size()]);
 		}
 
 		public void extractFeatures(Span s){
@@ -203,6 +203,9 @@ public class SampleFE{
 	 * annotation.
 	 */
 	public static abstract class AnnotatedSpanFE extends SpanFE{
+		
+		static final long serialVersionUID=20081125L;
+		
 	}
 
 	/**

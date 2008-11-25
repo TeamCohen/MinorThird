@@ -13,6 +13,8 @@ import java.util.List;
 
 abstract public class TransformedViewer extends Viewer{
 
+	static final long serialVersionUID=20081125L;
+	
 	private Viewer subViewer;
 
 	public TransformedViewer(){

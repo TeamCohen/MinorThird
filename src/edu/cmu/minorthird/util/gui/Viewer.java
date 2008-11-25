@@ -40,6 +40,8 @@ import org.apache.log4j.Logger;
  */
 
 public abstract class Viewer extends JPanel{
+	
+	static final long serialVersionUID=20081125L;
 
 	static private Logger log=Logger.getLogger(Viewer.class);
 

@@ -13,6 +13,8 @@ import javax.swing.JSplitPane;
  */
 
 abstract public class SplitViewer extends Viewer{
+	
+	static final long serialVersionUID=20081125L;
 
 	protected JSplitPane splitPane;
 

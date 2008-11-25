@@ -34,6 +34,8 @@ import edu.cmu.minorthird.text.TextLabelsLoader;
 
 abstract public class ViewerTracker extends JComponent implements
 		ListSelectionListener{
+	
+	static final long serialVersionUID=20081125L;
 
 	static protected boolean viewEntireDocument=true;
 

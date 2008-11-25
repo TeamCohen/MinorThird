@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
  */
 
 public abstract class ComponentViewer extends Viewer{
+	
+	static final long serialVersionUID=20081125L;
 
 	protected Logger log=Logger.getLogger(this.getClass());
 

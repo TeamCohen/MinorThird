@@ -11,6 +11,9 @@ import javax.swing.*;
 
 abstract public class TransformedVanillaViewer extends ComponentViewer
 {
+	
+	static final long serialVersionUID=20081125L;
+	
 	public TransformedVanillaViewer()
 	{
 		super();
