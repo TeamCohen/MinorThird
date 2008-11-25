@@ -141,6 +141,7 @@ public class BeamSearcher implements SequenceConstants,Serializable{
 			beam=nextBeam;
 		}
 		
+		numInstances=this.instances.length;
 		if(!caching){
 			this.instances=null;
 		}
