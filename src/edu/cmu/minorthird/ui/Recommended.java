@@ -504,6 +504,8 @@ public class Recommended{
 	 */
 	abstract public static class TokenPropUsingFE extends SpanFE implements
 			Serializable{
+		
+		static final long serialVersionUID=20081125L;
 
 		protected String[] tokenPropertyFeatures=null;
 
