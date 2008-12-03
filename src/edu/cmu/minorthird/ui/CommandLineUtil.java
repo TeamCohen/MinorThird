@@ -1416,8 +1416,6 @@ public class CommandLineUtil{
 		}
 
 		String[] types=spanTypes.substring(catIndex+1,spanTypes.length()).split(",");
-
-		System.out.println("blue");
 		
 		for(int i=0;i<types.length;i++){
 			for(Iterator<Span> sl=labels.instanceIterator(types[i]);sl.hasNext();){
@@ -1426,8 +1424,6 @@ public class CommandLineUtil{
 				b.append("defSpanProp ").append(property).append(":").append(types[i]).append("=: ... [@").append(types[i]).append("] ...;\n");
 			}
 		}
-		
-		System.out.println("more");
 		
 		try{
 			MixupProgram prog=new MixupProgram(b.toString());
