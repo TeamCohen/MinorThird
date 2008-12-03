@@ -1,0 +1,23 @@
+defSpanType source1 =title: ... '(' [ ... ] ')' ;
+defSpanType source2 =description: [ !'-'+R ] '-' ... ;
+defSpanType body =description: @source2 '-' [...];
+
+defTokenProp case:mixed =body: [...] ;
+defTokenProp case:upper =body: ... [re('^[A-Z]{2,}$')] ... ;
+defTokenProp case:capital =body: ... [re('^[A-Z][a-z]*$')] ... ;
+defTokenProp case:lower =body: ... [re('^[a-z]+$')]...;
+defTokenProp case:digit =body: ... [re('[0-9]+$')]...;
+defTokenProp case:punct =body: ... [re('[^a-zA-Z0-9]+$')]...;
+
+defSpanType capitalCase =body: ... [case:capital] ...;
+defSpanType expectedCase =body: ... [case:expected] ... ;
+defSpanType mixedCase =body: ... [case:mixed] ... ;
+
+defTokenProp unusual:1 =body: ... [case:upper] ... || ... [case:capital] ... || ... [case:mixed] ... ;
+defTokenProp unusual:0 =body: ... eq('.') [case:capital] ... ;
+defTokenProp unusual:0 =body: [case:capital] ... ;
+defTokenProp unusual:0 =body: ... [re('^[A-Z]$')] '.' ...;
+
+defSpanType extracted_company =body: ... [@NP] ... && ... [L unusual:1+ R]...;
+declareSpanType true_company;
+

@@ -1,0 +1,11 @@
+
+defSpanType source1 =title: ... '(' [ ... ] ')' ;
+
+defSpanType source2 =description: [ ... ] '-' ... ;
+
+defSpanType source2EndMarker =description: ... @source2 [any] ... ;
+ 
+
+
+
+

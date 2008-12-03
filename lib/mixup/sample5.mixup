@@ -1,0 +1,60 @@
+defSpanType source1 =title: ... '(' [ ... ] ')' ;
+defSpanType source2 =description: [ !'-'+R ] '-' ... ;
+defSpanType body =description: @source2 '-' [...];
+
+defTokenProp case:mixed =body: [...] ;
+defTokenProp case:upper =body: ... [re('^[A-Z]{2,}$')] ... ;
+defTokenProp case:capital =body: ... [re('^[A-Z][a-z]*$')] ... ;
+defTokenProp case:lower =body: ... [re('^[a-z]+$')]...;
+defTokenProp case:digit =body: ... [re('[0-9]+$')]...;
+defTokenProp case:punct =body: ... [re('[^a-zA-Z0-9]+$')]...;
+
+defSpanType capitalCase =body: ... [case:capital] ...;
+defSpanType expectedCase =body: ... [case:expected] ... ;
+defSpanType mixedCase =body: ... [case:mixed] ... ;
+
+// unusual case words are upper, capital, or mixed-case
+defTokenProp unusual:1 =body: ... [case:upper] ... || ... [case:capital] ... || ... [case:mixed] ...;
+
+// capitalized words aren't unusual at start of sentence
+defTokenProp unusual:0 =body: ... eq('.') [case:capital] ... ;
+defTokenProp unusual:0 =body: [case:capital] ... ;
+
+// capitalized words aren't unusual as abbreviations
+defTokenProp unusual:0 =body: ... [<case:capital,re('^[A-Z]$')>] eq('.') ... ;
+
+// this might be a ticker symbol...
+defTokenProp unusual:0 =body: ... '(' [ !case:lower{1,4} ] ')' ... ;
+
+// proper names, other stuff that's often capitalized
+defDict properName = 
+	January,February,March,April,May,June,July,August,September,October,November,December,
+	Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday,
+	Web,Internet,UNIX,Windows,Linux,
+	Asia,China,Japan,Europe,UK,India,America,US,
+	Chinese,Japanese,European,British,Indian,American;
+// note - dictionary words are forced into lower case by default
+// so we use ai(dict), not a(dict) here, to force the word into lower-case
+defTokenProp unusual:0 =body: ... [ai(properName)] ... ;  
+
+// include separators like '-', '&', between "unusual"-case words
+defTokenProp unusual:1 =body: ... unusual:1 ['-'] unusual:1 ... ;
+defTokenProp unusual:1 =body: ... unusual:1 ['&'] unusual:1 ... ;
+// can't use semicolon easily here, due to bugs in parser!!!
+defTokenProp unusual:1 =body: ... unusual:1 ['&' 'amp' any] unusual:1 ... ; 
+defTokenProp unusual:1 =body: ... unusual:1 [case:digit] unusual:1 ... ;
+// include capitalized initial word if it looks like a company after it
+defTokenProp unusual:1 =body: [case:capital] unusual:1 ... ;
+
+// company-looking thing inside a NP
+defSpanType extracted_company =body: ... [@NP] ... && ... [L unusual:1+ R]...;
+
+// company-looking thing ending with 'inc', 'corp', etc
+defDict companyEnder = inc,corp,co,plc,ltd,llc,corporation,technologies;
+defSpanType extracted_company =body: ... [L unusual:1+ R]... && [ ... ai(companyEnder)] ;
+
+// company-looking thing before a ticker symbol
+defSpanType extracted_company =body: ... [L unusual:1+ R] '(' !case:lower{1,4} ')' ... ;
+
+declareSpanType true_company;
+

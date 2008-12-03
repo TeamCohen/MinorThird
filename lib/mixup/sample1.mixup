@@ -1,0 +1,10 @@
+
+defSpanType source1 = title: ... '(' [ ... ] ')' ;
+
+defSpanType source2 = description: [ !'-'+R ] '-' ... ;
+
+
+
+
+
+

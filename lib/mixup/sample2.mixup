@@ -1,0 +1,6 @@
+defSpanType source1 =title: ... '(' [ ... ] ')' ;
+defSpanType source2 =description: [ !'-'+R ] '-' ... ;
+defSpanType body =description: @source2 '-' [...];
+
+defTokenProp case:upper =body: ... [re('^[A-Z]{2,}$')] ... ;
+defTokenProp case:capitalized =body: ... [re('^[A-Z][a-z]*$')] ... ;
