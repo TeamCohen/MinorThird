@@ -530,7 +530,7 @@ public class TextLabelsLoader{
 					unsortedLabels.add(new LabelInfo(s,val,start,end));
 				}
 				else{
-					unsortedLabels.add(new LabelInfo(s,prop+"="+val,start,end));
+					unsortedLabels.add(new LabelInfo(s,prop+"."+val,start,end));
 				}
 			}
 		}
