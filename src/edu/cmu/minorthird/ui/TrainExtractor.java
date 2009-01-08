@@ -26,10 +26,10 @@ public class TrainExtractor extends UIMain{
 	private CommandLineUtil.SaveParams save=new CommandLineUtil.SaveParams();
 
 	private CommandLineUtil.ExtractionSignalParams signal=
-			new CommandLineUtil.ExtractionSignalParams(base);
+		new CommandLineUtil.ExtractionSignalParams(base);
 
 	private CommandLineUtil.TrainExtractorParams train=
-			new CommandLineUtil.TrainExtractorParams();
+		new CommandLineUtil.TrainExtractorParams();
 
 	private Annotator ann=null;
 
@@ -74,17 +74,19 @@ public class TrainExtractor extends UIMain{
 
 	public void doMain(){
 		// check that inputs are valid
-		if(train.learner==null)
+		if(train.learner==null){
 			throw new IllegalArgumentException("-learner must be specified");
+		}
 
-		if(train.fe!=null)
+		if(train.fe!=null){
 			train.learner.setSpanFeatureExtractor(train.fe);
+		}
+
 		train.learner.setAnnotationType(train.output);
 
 		// do the training
 		AnnotatorTeacher teacher=
-				new TextLabelsAnnotatorTeacher(base.labels,signal.spanType,
-						signal.spanProp);
+			new TextLabelsAnnotatorTeacher(base.labels,signal.spanType,signal.spanProp);
 		ann=teacher.train(train.learner);
 
 		if(base.showResult){

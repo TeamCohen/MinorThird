@@ -55,8 +55,8 @@ public class TextLabelsLoader{
 	static final public int CLOSE_BY_OPERATION=4;
 
 	public static final String[] CLOSURE_NAMES=
-			{"CLOSE_ALL_TYPES","CLOSE_TYPES_IN_LABELED_DOCS","DONT_CLOSE_TYPES",
-					"CLOSE_BY_OPERATION"};
+	{"CLOSE_ALL_TYPES","CLOSE_TYPES_IN_LABELED_DOCS","DONT_CLOSE_TYPES",
+	"CLOSE_BY_OPERATION"};
 
 	private int closurePolicy=CLOSE_BY_OPERATION;
 
@@ -79,7 +79,7 @@ public class TextLabelsLoader{
 	 * Create a new labeling by importing from a file with importOps.
 	 */
 	public MutableTextLabels loadOps(TextBase base,File file) throws IOException,
-			FileNotFoundException{
+	FileNotFoundException{
 		MutableTextLabels labels=new BasicTextLabels(base);
 		importOps(labels,base,file);
 		return labels;
@@ -112,11 +112,11 @@ public class TextLabelsLoader{
 	 * CLOSE_BY_OPERATION (default) policy.
 	 */
 	public void importOps(MutableTextLabels labels,TextBase base,File file)
-			throws IOException,FileNotFoundException{
+	throws IOException,FileNotFoundException{
 		base=labels.getTextBase();
 		if(base==null)
 			throw new IllegalStateException(
-					"TextBase attached to labels must not be null");
+			"TextBase attached to labels must not be null");
 
 		LineNumberReader in=new LineNumberReader(new FileReader(file));
 		String line=null;
@@ -326,11 +326,11 @@ public class TextLabelsLoader{
 
 	/** Read in a serialized TextLabels. */
 	public MutableTextLabels loadSerialized(File file,TextBase base)
-			throws IOException,FileNotFoundException{
+	throws IOException,FileNotFoundException{
 		try{
 			ObjectInputStream in=
-					new ObjectInputStream(new BufferedInputStream(new FileInputStream(
-							file)));
+				new ObjectInputStream(new BufferedInputStream(new FileInputStream(
+						file)));
 			MutableTextLabels labels=(MutableTextLabels)in.readObject();
 			labels.setTextBase(base);
 			in.close();
@@ -343,10 +343,10 @@ public class TextLabelsLoader{
 
 	/** Serialize a TextLabels. */
 	public void saveSerialized(MutableTextLabels labels,File file)
-			throws IOException{
+	throws IOException{
 		ObjectOutputStream out=
-				new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(
-						file)));
+			new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(
+					file)));
 		out.writeObject(labels);
 		out.flush();
 		out.close();
@@ -356,7 +356,7 @@ public class TextLabelsLoader{
 	public String printTypesAsOps(TextLabels labels){
 		StringBuffer out=new StringBuffer();
 		ProgressCounter pc=
-				new ProgressCounter("saving labels","type",labels.getTypes().size());
+			new ProgressCounter("saving labels","type",labels.getTypes().size());
 		for(Iterator<String> i=labels.getTypes().iterator();i.hasNext();){
 			String type=i.next();
 			ProgressCounter pc2=new ProgressCounter("saving type "+type,"span");
@@ -390,7 +390,7 @@ public class TextLabelsLoader{
 				Span doc=s.documentSpan();
 				if(s.size()!=doc.size()){
 					throw new UnsupportedOperationException(
-							"can't save environment with closureSpans!=docSpans");
+					"can't save environment with closureSpans!=docSpans");
 				}
 				out.append("closeType "+s.getDocumentId()+" "+type+"\n");
 			}
@@ -398,8 +398,8 @@ public class TextLabelsLoader{
 		}
 		pc.finished();
 		ProgressCounter pc3=
-				new ProgressCounter("saving labels","property",labels
-						.getSpanProperties().size());
+			new ProgressCounter("saving labels","property",labels
+					.getSpanProperties().size());
 		for(Iterator<String> i=labels.getSpanProperties().iterator();i.hasNext();){
 			String prop=i.next();
 			for(Iterator<Span> j=labels.getSpansWithProperty(prop);j.hasNext();){
@@ -430,11 +430,30 @@ public class TextLabelsLoader{
 	public void saveTypesAsStrings(TextLabels labels,File file,
 			boolean includeOffset) throws IOException{
 		PrintStream out=new PrintStream(new FileOutputStream(file));
+		// Do types
 		for(Iterator<String> j=labels.getTypes().iterator();j.hasNext();){
 			String type=j.next();
 			for(Iterator<Span> i=labels.instanceIterator(type);i.hasNext();){
 				Span span=i.next();
 				out.print(type);
+				if(includeOffset){
+					out.print(":"+span.getDocumentId()+":"+span.getTextToken(0).getLo()+
+							":"+span.getTextToken(span.size()-1).getHi());
+				}
+				out.println("\t"+span.asString().replace('\n',' '));
+			}
+		}
+		// Do props
+		for(Iterator<String> i=labels.getSpanProperties().iterator();i.hasNext();){
+			String prop=i.next();
+			for(Iterator<Span> j=labels.getSpansWithProperty(prop);j.hasNext();){
+				Span span=j.next();
+				String val=labels.getProperty(span,prop);
+				if(!prop.equals("_prediction")){
+					out.print(prop);
+					out.print("=");
+				}
+				out.print(val);
 				if(includeOffset){
 					out.print(":"+span.getDocumentId()+":"+span.getTextToken(0).getLo()+
 							":"+span.getTextToken(span.size()-1).getHi());
@@ -449,12 +468,15 @@ public class TextLabelsLoader{
 	 * Save documents to specified directory with extracted types embedded as xml.
 	 */
 	public void saveDocsWithEmbeddedTypes(TextLabels labels,File dir)
-			throws IOException{
+	throws IOException{
 		Span currDoc;
 		Iterator<Span> looper=labels.getTextBase().documentSpanIterator();
 		PrintStream out;
 
-		if(!dir.mkdir()){
+		if(dir.exists()){
+			log.warn(dir+" already exists, some files may be overwritten.");
+		}
+		else if(!dir.mkdir()){
 			throw new IOException("Could not create directory named: "+dir);
 		}
 
@@ -462,95 +484,12 @@ public class TextLabelsLoader{
 			// this call returns the entire document with all labels embedded as xml
 			currDoc=looper.next();
 			out=
-					new PrintStream(new FileOutputStream(new File(dir+"/"+
-							currDoc.getDocumentId())));
+				new PrintStream(new FileOutputStream(new File(dir+"/"+
+						currDoc.getDocumentId())));
 			out.println(createXMLmarkup(currDoc.getDocumentId(),labels));
 			out.close();
 		}
 	}
-
-//	/**
-//	 * @deprecated use createXMLMarkup(String documentId,TextLabels labels)
-//	 * 
-//	 * Save extracted data in an XML format. Convert to string
-//	 * &lt;root>..&lt;type>...&lt;/type>..&lt;/root> nested things
-//	 * &lt;a>A&lt;b>B&lt;/b>C&lt;/a> are stored as nested things &lt;a>A&lt;set
-//	 * v=a,b>B&lt;/set>C&lt;/a> where single sets are simplified so mismatches
-//	 * like [A (B C] D)E are stored as &lt;a>a&lt;set v=a,b>B
-//	 * C&lt;/set>&lt;/a>&lt;b>D&lt;/b>E
-//	 */
-//	public String markupDocumentSpan(String documentId,TextLabels labels){
-//		SortedMap<Span,Set<String[]>> boundaries=new TreeMap<Span,Set<String[]>>();
-//		for(Iterator<String> i=labels.getTypes().iterator();i.hasNext();){
-//			String type=i.next();
-//			for(Iterator<Span> j=labels.instanceIterator(type,documentId);j.hasNext();){
-//				Span s=j.next();
-//				setBoundary(boundaries,"begin",type,s.getLeftBoundary());
-//				setBoundary(boundaries,"end",type,s.getRightBoundary());
-//			}
-//		}
-//		// now walk thru boundaries and find out which set as
-//		// associated with each segment - want map from boundaries to
-//		// type sets
-//		String source=labels.getTextBase().documentSpan(documentId).asString();
-//		StringBuffer buf=new StringBuffer("");
-//		buf.append("<root>");
-//		int currentPos=0;
-//		Set<String> currentTypes=new TreeSet<String>();
-//		String lastMarkup=null;
-//		for(Iterator<Span> i=boundaries.keySet().iterator();i.hasNext();){
-//			Span b=i.next();
-//			// work out what types are in effect here
-//			Set<String[]> ops=boundaries.get(b);
-//			for(Iterator<String[]> j=ops.iterator();j.hasNext();){
-//				String[] op=j.next();
-//				if("begin".equals(op[0]))
-//					currentTypes.add(op[1]);
-//				else
-//					currentTypes.remove(op[1]);
-//			}
-//			// output next section of document
-//			int pos;
-//			if(b.documentSpanStartIndex()<b.documentSpan().size())
-//				pos=
-//						b.documentSpan().subSpan(b.documentSpanStartIndex(),1)
-//								.getTextToken(0).getLo();
-//			else
-//				pos=b.documentSpan().getTextToken(b.documentSpan().size()-1).getHi();
-//
-//			buf.append(source.substring(currentPos,pos));
-//			// close off last markup
-//			if(lastMarkup!=null)
-//				buf.append("</"+lastMarkup+">");
-//			// work out next markup symbol
-//			String markup=null;
-//			String value=null;
-//			if(currentTypes.size()==1){
-//				markup=currentTypes.iterator().next();
-//			}else if(currentTypes.size()>1){
-//				markup="overlap";
-//				StringBuffer vBuf=new StringBuffer("");
-//				for(Iterator<String> j=currentTypes.iterator();j.hasNext();){
-//					if(vBuf.length()>0)
-//						vBuf.append(",");
-//					vBuf.append(j.next());
-//				}
-//				value=vBuf.toString();
-//			}
-//			if(markup!=null&&value!=null){
-//				buf.append("<"+markup+" value=\""+value+"\">");
-//			}else if(markup!=null){
-//				buf.append("<"+markup+">");
-//			}
-//			// update position, lastMarkup
-//			currentPos=pos;
-//			lastMarkup=markup;
-//		} // each boundary
-//		// close it all off
-//		buf.append(source.substring(currentPos,source.length()));
-//		buf.append("</root>");
-//		return buf.toString();
-//	}
 
 	/**
 	 * Save extracted data in an XML format. Convert to string
@@ -563,12 +502,14 @@ public class TextLabelsLoader{
 	public String createXMLmarkup(String documentId,TextLabels labels){
 		Span docSpan=labels.getTextBase().documentSpan(documentId);
 		String docString=
-				labels.getTextBase().documentSpan(documentId).getDocumentContents();
+			labels.getTextBase().documentSpan(documentId).getDocumentContents();
 
 		// Put all labels and their info in a list
 		List<LabelInfo> unsortedLabels=new ArrayList<LabelInfo>();
+
+		// Do types
 		for(Iterator<String> i=labels.getTypes().iterator();i.hasNext();){
-			String type=i.next();
+			String type=i.next();			
 			for(Iterator<Span> j=labels.instanceIterator(type,documentId);j.hasNext();){
 				Span s=j.next();
 				int start=s.documentSpanStartIndex();
@@ -577,9 +518,26 @@ public class TextLabelsLoader{
 			}
 		}
 
+		// Do props
+		for(Iterator<String> i=labels.getSpanProperties().iterator();i.hasNext();){
+			String prop=i.next();
+			for(Iterator<Span> j=labels.getSpansWithProperty(prop,documentId);j.hasNext();){
+				Span s=j.next();
+				String val=labels.getProperty(s,prop);
+				int start=s.documentSpanStartIndex();
+				int end=start+s.size()-1;
+				if(prop.equals("_prediction")){
+					unsortedLabels.add(new LabelInfo(s,val,start,end));
+				}
+				else{
+					unsortedLabels.add(new LabelInfo(s,prop+"="+val,start,end));
+				}
+			}
+		}
+
 		// Sort the labels. If two spans are overlapping then throw an exception
 		List<LabelInfo> sortedLabels=
-				new ArrayList<LabelInfo>(unsortedLabels.size());
+			new ArrayList<LabelInfo>(unsortedLabels.size());
 		while(unsortedLabels.size()>0){
 			LabelInfo curLabel=unsortedLabels.remove(0);
 			int position=-1;
@@ -607,7 +565,7 @@ public class TextLabelsLoader{
 			// If the label overlapped with another label, then throw an exception
 			if(overlap)
 				throw new IllegalArgumentException(
-						"Labels contain overalpping spans, cannot save as XML format.");
+				"Labels contain overalpping spans, cannot save as XML format.");
 
 			// Otherwise add the label to the proper position in the sorted list.
 			if(position>-1)
@@ -641,6 +599,7 @@ public class TextLabelsLoader{
 
 		// Create markedup StringBuffer
 		StringBuffer buffer=new StringBuffer();
+
 		buffer.append("<root>");
 		int docPos=0,pos=0;
 		while(sortedTags.size()>0){
@@ -661,6 +620,7 @@ public class TextLabelsLoader{
 		buffer.append(docString.substring(docPos,docString.length()));
 		buffer.append("</root>");
 		return buffer.toString();
+
 	}
 
 	private class TagInfo{
@@ -715,7 +675,7 @@ public class TextLabelsLoader{
 				int lo=s.getTextToken(0).getLo();
 				int hi=s.getTextToken(s.size()-1).getHi();
 				buf.append("  <"+type+" lo="+lo+" hi="+hi+">"+s.asString()+"</"+type+
-						">\n");
+				">\n");
 			}
 		}
 		buf.append("</extractions>\n");

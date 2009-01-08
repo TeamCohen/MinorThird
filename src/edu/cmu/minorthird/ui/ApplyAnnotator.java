@@ -75,17 +75,18 @@ public class ApplyAnnotator extends UIMain{
 	// 
 
 	public void doMain(){
+		
 		// check that inputs are valid
-		if(load.loadFrom==null)
+		if(load.loadFrom==null){
 			throw new IllegalArgumentException("-loadFrom must be specified");
+		}
 
 		// load the classifier
 		Annotator ann=null;
 		try{
 			ann=(Annotator)IOUtil.loadSerialized(load.loadFrom);
 		}catch(IOException ex){
-			throw new IllegalArgumentException("can't load annotator from "+
-					load.loadFrom+": "+ex);
+			throw new IllegalArgumentException("Cannot load annotator "+load.loadFrom);
 		}
 
 		// do the annotation
@@ -103,8 +104,7 @@ public class ApplyAnnotator extends UIMain{
 				}else if("strings".equals(output.format)){
 					new TextLabelsLoader().saveTypesAsStrings(annLabels,save.saveAs,true);
 				}else if("xml".equals(output.format)){
-					new TextLabelsLoader().saveDocsWithEmbeddedTypes(annLabels,
-							save.saveAs);
+					new TextLabelsLoader().saveDocsWithEmbeddedTypes(annLabels,save.saveAs);
 				}else{
 					throw new IllegalArgumentException("illegal output format "+
 							output.format+" allowed values are "+
