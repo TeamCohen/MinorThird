@@ -71,8 +71,7 @@
 	<target name="javadoc" description="build javadoc API documentation">
 		<delete dir="${javadocDir}"/>
 		<mkdir dir="${javadocDir}/edu/cmu/minorthird/"/>
-		<javadoc sourcepath="${srcDir}" destdir="${javadocDir}" 
-   classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
+		<javadoc sourcepath="${srcDir}" destdir="${javadocDir}" classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
 	</target>
 	
 	<!-- Make a full source code release zip (build is included to ensure compilability)-->

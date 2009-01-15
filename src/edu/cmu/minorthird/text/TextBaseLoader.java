@@ -127,32 +127,6 @@ public class TextBaseLoader{
 		this.recurseDirectories=recurseDirectories;
 	}
 
-//	// WARNING: All these constructors have been deprecated for a while now. When
-//	// should we remove?
-//	/** @deprecated */
-//	public TextBaseLoader(int documentStyle,int docID){
-//		this.documentStyle=documentStyle;
-//	}
-//
-//	/** @deprecated */
-//	public TextBaseLoader(int documentStyle,int docID,boolean use_markup){
-//		this.documentStyle=documentStyle;
-//		this.use_markup=use_markup;
-//	}
-//
-//	/** @deprecated */
-//	public TextBaseLoader(int documentStyle,int docID,int groupID,int categoryID){
-//		this.documentStyle=documentStyle;
-//	}
-//
-//	/** @deprecated */
-//	public TextBaseLoader(int documentStyle,int docID,int groupID,int categoryID,
-//			boolean labelsInFile,boolean recurseDirectories){
-//		this.documentStyle=documentStyle;
-//		this.use_markup=labelsInFile;
-//		this.recurseDirectories=recurseDirectories;
-//	}
-
 	// --------------------- Constructors
 	// -----------------------------------------------------
 
