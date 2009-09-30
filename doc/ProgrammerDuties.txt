@@ -1,4 +1,0 @@
-- Update util/Version and doc/VersionLog for each new release
-- Upload zip file and jar to Sourceforge for each new version
-- Create new documentation for added functionality
-- Upload new documentation on sourceforge
