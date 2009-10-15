@@ -74,7 +74,7 @@
 		<javadoc sourcepath="${srcDir}" destdir="${javadocDir}" classpathref="classpath" packagenames="edu.cmu.minorthird.*"/>
 	</target>
 	
-	<!-- Make a full source code release zip (build is included to ensure compilability)-->
+	<!-- Make a full source code release zip (depends on build to ensure compilability)-->
 	<target name="release" depends="build,javadoc">
 		<mkdir dir="${distDir}"/>
 		<zip destfile="${distDir}/minorthird_${DSTAMP}.zip">
@@ -90,7 +90,7 @@
 				<include name="*.properties"/>
 				<include name="*.xml"/>
 				<include name="*.txt"/>
-				<exclude name="**/CVS"/>
+				<exclude name="**/.svn"/>
 				<exclude name="doc/javadoc/**"/>
 			</fileset>
 		</zip>
@@ -99,7 +99,7 @@
 	<!-- Make a full release jar-->
 	<target name="release-jar" depends="open-jars">
 		<mkdir dir="${distDir}"/>
-		<jar jarfile="${distDir}/m3rd_${DSTAMP}.jar" basedir="${classDir}">
+		<jar jarfile="${distDir}/minorthird_${DSTAMP}.jar" basedir="${classDir}">
 			<manifest>
 				<attribute name="Main-Class" value="edu.cmu.minorthird.Minorthird"/>
 			</manifest>
@@ -122,7 +122,7 @@
 	<!-- Make a classify-only release jar-->
 	<target name="release-classify" depends="open-jars">
 		<mkdir dir="${distDir}"/>
-		<jar jarfile="${distDir}/m3rd-classify_${DSTAMP}.jar" basedir="${classDir}">
+		<jar jarfile="${distDir}/minorthird-classify_${DSTAMP}.jar" basedir="${classDir}">
 			<fileset dir="${classDir}">
 				<include name="edu/cmu/minorthird/classify/**/*.class"/>
 				<include name="edu/cmu/minorthird/ui/**/*.class"/>
@@ -140,8 +140,8 @@
 	<!-- Make a documentation release zip-->
 	<target name="release-doc" depends="init,javadoc">
 		<mkdir dir="${distDir}"/>
-		<zip destfile="${distDir}/m3rd-doc_${DSTAMP}.zip">
-			<fileset dir="./doc" excludes="**/CVS"/>
+		<zip destfile="${distDir}/minorthird-doc_${DSTAMP}.zip">
+			<fileset dir="./doc" excludes="**/.svn"/>
 		</zip>
 	</target>
 	
