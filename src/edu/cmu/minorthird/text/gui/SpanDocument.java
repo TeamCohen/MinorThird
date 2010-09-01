@@ -79,7 +79,8 @@ public class SpanDocument extends DefaultStyledDocument{
 				HiliteColors.gray,true);
 	}
 
-	/** Convert a character index in the text being displayed to a char index in the
+	/** 
+	 * Convert a character index in the text being displayed to a char index in the
 	 * actual document which the display is a part of
 	 */
 	public int toLogicalCharIndex(int charIndex){
@@ -87,20 +88,16 @@ public class SpanDocument extends DefaultStyledDocument{
 	}
 
 	/** Highlight a subspan of the current span. */
-	public void highlight(edu.cmu.minorthird.text.Span subspan,
-			AttributeSet attributeSet){
-		if(!subspan.getDocumentId().equals(contextSpan.getDocumentId()))
-			return;
-		if(subspan.size()==0)
-			return;
-		if(subspan.getLeftBoundary().compareTo(leftBoundary)<0)
-			return;
-		if(subspan.getRightBoundary().compareTo(rightBoundary)>0)
-			return;
-		int beginSubspanInDocument=subspan.getTextToken(0).getLo();
-		int subspanLength=
-				subspan.getTextToken(subspan.size()-1).getHi()-beginSubspanInDocument;
-		setCharacterAttributes(beginSubspanInDocument-beginContextSpanInDocument,
-				subspanLength,attributeSet,true);
+	public void highlight(edu.cmu.minorthird.text.Span subspan,	AttributeSet attributeSet){
+		if(
+				subspan.getDocumentId().equals(contextSpan.getDocumentId())&&
+				subspan.size()!=0&&
+				subspan.getLeftBoundary().compareTo(leftBoundary)>=0&&
+				subspan.getRightBoundary().compareTo(rightBoundary)<=0
+				){
+			int beginSubspanInDocument=subspan.getTextToken(0).getLo();
+			int subspanLength=subspan.getTextToken(subspan.size()-1).getHi()-beginSubspanInDocument;
+			setCharacterAttributes(beginSubspanInDocument-beginContextSpanInDocument,subspanLength,attributeSet,true);
+		}
 	}
 }
