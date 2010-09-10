@@ -43,6 +43,13 @@ public class MathUtil{
 
 		private boolean isBinomial=true;
 
+            /** Clear the accumulator **/
+        public void clear() {
+            sum = cov = count = 0;
+            isBinomial = true;
+        }
+
+
 		/** Add a new number to the accumulator. */
 		public void add(double d){
 			sum+=d;
@@ -51,6 +58,16 @@ public class MathUtil{
 			if(d!=0&&d!=1)
 				isBinomial=false;
 		}
+
+        /** Combine two accumulators. Result will be be as if every
+            call b.add(x) had been followed by a call to this.add(x).
+         **/
+        public void addAll(Accumulator b) {
+            sum += b.sum;
+            cov += b.cov;
+            count += b.count;
+            isBinomial = isBinomial && b.isBinomial;
+        }
 
 		/** The mean of accumulated values. */
 		public double mean(){
