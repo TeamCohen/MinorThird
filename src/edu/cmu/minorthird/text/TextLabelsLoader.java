@@ -404,11 +404,13 @@ public class TextLabelsLoader{
 			String prop=i.next();
 			for(Iterator<Span> j=labels.getSpansWithProperty(prop);j.hasNext();){
 				Span s=j.next();
-				String val=labels.getProperty(s,prop);
-				int lo=s.getTextToken(0).getLo();
-				int hi=s.getTextToken(s.size()-1).getHi();
-				out.append("setSpanProp "+s.getDocumentId()+"  "+lo+" "+(hi-lo)+" "+
-						prop+" "+val+"\n");
+				if(s.size()>0){
+					String val=labels.getProperty(s,prop);
+					int lo=s.getTextToken(0).getLo();
+					int hi=s.getTextToken(s.size()-1).getHi();
+					out.append("setSpanProp "+s.getDocumentId()+"  "+lo+" "+(hi-lo)+" "+
+							prop+" "+val+"\n");
+				}
 			}
 			pc3.progress();
 		}
@@ -435,12 +437,14 @@ public class TextLabelsLoader{
 			String type=j.next();
 			for(Iterator<Span> i=labels.instanceIterator(type);i.hasNext();){
 				Span span=i.next();
-				out.print(type);
-				if(includeOffset){
-					out.print(":"+span.getDocumentId()+":"+span.getTextToken(0).getLo()+
-							":"+span.getTextToken(span.size()-1).getHi());
+				if(span.size()>0){
+					out.print(type);
+					if(includeOffset){
+						out.print(":"+span.getDocumentId()+":"+span.getTextToken(0).getLo()+
+								":"+span.getTextToken(span.size()-1).getHi());
+					}
+					out.println("\t"+span.asString().replace('\n',' '));
 				}
-				out.println("\t"+span.asString().replace('\n',' '));
 			}
 		}
 		// Do props
@@ -448,17 +452,19 @@ public class TextLabelsLoader{
 			String prop=i.next();
 			for(Iterator<Span> j=labels.getSpansWithProperty(prop);j.hasNext();){
 				Span span=j.next();
-				String val=labels.getProperty(span,prop);
-				if(!prop.equals("_prediction")){
-					out.print(prop);
-					out.print("=");
+				if(span.size()>0){
+					String val=labels.getProperty(span,prop);
+					if(!prop.equals("_prediction")){
+						out.print(prop);
+						out.print("=");
+					}
+					out.print(val);
+					if(includeOffset){
+						out.print(":"+span.getDocumentId()+":"+span.getTextToken(0).getLo()+
+								":"+span.getTextToken(span.size()-1).getHi());
+					}
+					out.println("\t"+span.asString().replace('\n',' '));
 				}
-				out.print(val);
-				if(includeOffset){
-					out.print(":"+span.getDocumentId()+":"+span.getTextToken(0).getLo()+
-							":"+span.getTextToken(span.size()-1).getHi());
-				}
-				out.println("\t"+span.asString().replace('\n',' '));
 			}
 		}
 		out.close();
