@@ -162,16 +162,22 @@ public class TextBaseEditor extends TrackedTextBaseComponent{
 	 * Entry point that runs a gui to examine labels and change them.
 	 * 
 	 * @param args
-	 *          first argument is labels file and second is save file
+	 *          first argument is data file and second is save file
 	 */
+	
 	public static void main(String[] args){
+		if(args.length!=2){
+			System.out.println("Usage: TextBaseEditorPlusLabeler <data> <labelfile>");
+			return;
+		}
 		try{
 			MutableTextLabels labels=
 					(MutableTextLabels)FancyLoader.loadTextLabels(args[0]);
 			File saveFile=new File(args[1]);
 			TextBaseEditor.edit(labels,saveFile);
 		}catch(Exception e){
-			System.out.println("usage repositoryKey outputFile");
+			e.printStackTrace();
 		}
 	}
+	
 }
