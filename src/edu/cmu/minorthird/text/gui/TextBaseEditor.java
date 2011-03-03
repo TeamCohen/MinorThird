@@ -167,7 +167,7 @@ public class TextBaseEditor extends TrackedTextBaseComponent{
 	
 	public static void main(String[] args){
 		if(args.length!=2){
-			System.out.println("Usage: TextBaseEditorPlusLabeler <data> <labelfile>");
+			System.out.println("Usage: TextBaseEditor <data> <labelfile>");
 			return;
 		}
 		try{
