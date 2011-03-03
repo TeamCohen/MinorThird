@@ -52,13 +52,16 @@ public class TextBaseLabeler extends TrackedTextBaseComponent{
 	}
 
 	public static void main(String[] args){
+		if(args.length!=2){
+			System.out.println("Usage: TextBaseLabeler <data> <labelfile>");
+			return;
+		}
 		try{
 			MutableTextLabels labels=
 					(MutableTextLabels)FancyLoader.loadTextLabels(args[0]);
 			label(labels,new File(args[1]));
 		}catch(Exception e){
 			e.printStackTrace();
-			System.out.println("usage: TextBaseLabeler key labelFile");
 		}
 	}
 

@@ -115,7 +115,6 @@ public class TextBaseEditorPlusLabeler extends TrackedTextBaseComponent{
 			editAndLabel(labels,new File(args[1]));
 		}catch(Exception e){
 			e.printStackTrace();
-			System.out.println("usage: TextBaseLabeler key labelFile");
 		}
 	}
 
