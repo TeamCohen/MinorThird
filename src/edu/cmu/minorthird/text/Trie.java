@@ -141,12 +141,12 @@ public class Trie{
 
 		private List<String> lastIdList;
 
-		private int estSize=-1;
+//		private int estSize=-1;
 
 		public MyResultIterator(Span span,Collection<TrieMatch> c){
 			this.span=span;
 			this.i=c.iterator();
-			estSize=c.size();
+//			estSize=c.size();
 		}
 
 		public boolean hasNext(){
@@ -167,9 +167,9 @@ public class Trie{
 			return span.subSpan(match.start,match.length);
 		}
 
-		public int estimatedSize(){
-			return estSize;
-		}
+//		public int estimatedSize(){
+//			return estSize;
+//		}
 	}
 
 	public static void main(String[] argv){

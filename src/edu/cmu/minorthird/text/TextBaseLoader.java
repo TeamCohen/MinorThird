@@ -587,13 +587,14 @@ public class TextBaseLoader{
 
 		public int lo,hi;
 
-		String type,docID;
+		String type;
+//		String docID;
 
 		public CharSpan(int lo,int hi,String type,String docID){
 			this.lo=lo;
 			this.hi=hi;
 			this.type=type;
-			this.docID=docID;
+//			this.docID=docID;
 		}
 	}
 

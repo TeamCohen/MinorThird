@@ -646,7 +646,7 @@ public class TextLabelsLoader{
 
 	private class LabelInfo{
 
-		public Span span;
+//		public Span span;
 
 		public String type;
 
@@ -655,7 +655,7 @@ public class TextLabelsLoader{
 		public int end;
 
 		public LabelInfo(Span span,String type,int start,int end){
-			this.span=span;
+//			this.span=span;
 			this.type=type;
 			this.start=start;
 			this.end=end;

@@ -599,7 +599,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 
 		private Span nextSpan;
 
-		private int estimatedSize;
+//		private int estimatedSize;
 
 		// private boolean getClosures; // if false, get documents
 
@@ -609,11 +609,11 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 			Map<String,SortedSet<Span>> documentMap=getClosures?closureDocumentSetMap.get(type):typeDocumentSetMap.get(type);
 			if(documentMap==null){
 				nextSpan=null;
-				estimatedSize=0;
+//				estimatedSize=0;
 			}else{
 				// iterator over the documents in the map
 				documentIterator=documentMap.entrySet().iterator();
-				estimatedSize=documentMap.entrySet().size();
+//				estimatedSize=documentMap.entrySet().size();
 				spanIterator=null;
 				advance();
 			}
@@ -622,9 +622,9 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		/**
 		 * @return Number of documents with the given type
 		 */
-		public int estimatedSize(){
-			return estimatedSize;
-		}
+//		public int estimatedSize(){
+//			return estimatedSize;
+//		}
 
 		public boolean hasNext(){
 			return nextSpan!=null;
@@ -640,9 +640,9 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 			return result;
 		}
 
-		public Span nextSpan(){
-			return (Span)next();
-		}
+//		public Span nextSpan(){
+//			return (Span)next();
+//		}
 
 		private void advance(){
 			if(spanIterator!=null&&spanIterator.hasNext()){

@@ -138,9 +138,9 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 			return s;
 		}
 
-		public int estimatedSize(){
-			return documentMap.keySet().size();
-		}
+//		public int estimatedSize(){
+//			return documentMap.keySet().size();
+//		}
 	}
 
 	private int getOffset(String documentId){

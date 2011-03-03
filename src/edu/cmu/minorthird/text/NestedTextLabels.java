@@ -299,7 +299,7 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible{
 
 		Iterator<Span> i,j,currentLooper;
 
-		int estSize=-1;
+//		int estSize=-1;
 
 		public MyUnionIterator(Iterator<Span> i,Iterator<Span> j){
 			this.i=i;
@@ -321,9 +321,9 @@ public class NestedTextLabels implements MonotonicTextLabels,Visible{
 			return currentLooper.next();
 		}
 
-		public int estimatedSize(){
-			return estSize;
-		}
+//		public int estimatedSize(){
+//			return estSize;
+//		}
 	}
 
 	public Viewer toGUI(){

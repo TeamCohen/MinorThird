@@ -188,7 +188,7 @@ public class ExtractAbbrev extends AbstractAnnotator
       this.base=ss.base; this.lo=ss.lo+lo; this.hi=ss.lo+hi; 
       this.mySubstring = this.base.substring(this.lo,this.hi);
     }
-    public int offset() { return lo; }
+    //public int offset() { return lo; }
     public int length() { return hi-lo; }
     public char charAt(int i) { return mySubstring.charAt(i); }
     public int indexOf(char ch) { return mySubstring.indexOf(ch); }

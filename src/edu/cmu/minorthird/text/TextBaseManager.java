@@ -483,42 +483,42 @@ public class TextBaseManager{
 		/**
 		 * Used for debugging purposes.
 		 */
-		public void printMap(){
-			System.out
-					.println("****************************************************");
-			System.out.println("*** Mapper Between Parent: "+parent+" and Child: "+
-					child+" ***");
-			System.out
-					.println("***                                              ***");
-			System.out
-					.println("*** Parent To Child mappings:                    ***");
-
-			Iterator<String> keyIterator=parentToChildMap.keySet().iterator();
-			while(keyIterator.hasNext()){
-				String currKey=keyIterator.next();
-				SortedSet<MapEntry> currDocMapings=parentToChildMap.get(currKey);
-				Iterator<MapEntry> mappingsIterator=currDocMapings.iterator();
-				while(mappingsIterator.hasNext()){
-					System.out.println("*** "+mappingsIterator.next()+" ***");
-				}
-			}
-			System.out
-					.println("***                                              ***");
-			System.out
-					.println("*** Child To Parent mappings:                    ***");
-
-			keyIterator=childToParentMap.keySet().iterator();
-			while(keyIterator.hasNext()){
-				String currKey=keyIterator.next();
-				SortedSet<MapEntry> currDocMapings=childToParentMap.get(currKey);
-				Iterator<MapEntry> mappingsIterator=currDocMapings.iterator();
-				while(mappingsIterator.hasNext()){
-					System.out.println("*** "+mappingsIterator.next()+" ***");
-				}
-			}
-			System.out
-					.println("****************************************************\n\n");
-		}
+//		public void printMap(){
+//			System.out
+//					.println("****************************************************");
+//			System.out.println("*** Mapper Between Parent: "+parent+" and Child: "+
+//					child+" ***");
+//			System.out
+//					.println("***                                              ***");
+//			System.out
+//					.println("*** Parent To Child mappings:                    ***");
+//
+//			Iterator<String> keyIterator=parentToChildMap.keySet().iterator();
+//			while(keyIterator.hasNext()){
+//				String currKey=keyIterator.next();
+//				SortedSet<MapEntry> currDocMapings=parentToChildMap.get(currKey);
+//				Iterator<MapEntry> mappingsIterator=currDocMapings.iterator();
+//				while(mappingsIterator.hasNext()){
+//					System.out.println("*** "+mappingsIterator.next()+" ***");
+//				}
+//			}
+//			System.out
+//					.println("***                                              ***");
+//			System.out
+//					.println("*** Child To Parent mappings:                    ***");
+//
+//			keyIterator=childToParentMap.keySet().iterator();
+//			while(keyIterator.hasNext()){
+//				String currKey=keyIterator.next();
+//				SortedSet<MapEntry> currDocMapings=childToParentMap.get(currKey);
+//				Iterator<MapEntry> mappingsIterator=currDocMapings.iterator();
+//				while(mappingsIterator.hasNext()){
+//					System.out.println("*** "+mappingsIterator.next()+" ***");
+//				}
+//			}
+//			System.out
+//					.println("****************************************************\n\n");
+//		}
 
 		/**
 		 * A mapping of an offset between documents.  This is used by {@link edu.cmu.minorthird.text.TextBaseManager TextBaseManager}
