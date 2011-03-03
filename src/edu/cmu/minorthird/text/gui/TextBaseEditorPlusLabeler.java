@@ -12,6 +12,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
+import edu.cmu.minorthird.text.FancyLoader;
 import edu.cmu.minorthird.text.MutableTextLabels;
 import edu.cmu.minorthird.text.SampleTextBases;
 import edu.cmu.minorthird.text.TextBase;
@@ -104,11 +105,18 @@ public class TextBaseEditorPlusLabeler extends TrackedTextBaseComponent{
 	}
 
 	public static void main(String[] args){
+		if(args.length!=2){
+			System.out.println("Usage: TextBaseEditorPlusLabeler <data> <labelfile>");
+			return;
+		}
 		try{
-			MutableTextLabels guessLabels=SampleTextBases.getTruthLabels();
-			editAndLabel(guessLabels,null);
+			MutableTextLabels labels=
+					(MutableTextLabels)FancyLoader.loadTextLabels(args[0]);
+			editAndLabel(labels,new File(args[1]));
 		}catch(Exception e){
 			e.printStackTrace();
+			System.out.println("usage: TextBaseLabeler key labelFile");
 		}
 	}
+
 }
