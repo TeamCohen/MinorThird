@@ -232,10 +232,6 @@ public class Mixup implements Serializable{
 			this.tok=tok;
 		}
 
-		public Expr parse() throws ParseException{
-			return parseExpr();
-		}
-
 		private Expr parseExpr() throws ParseException{
 //			Expr expr1=null;
 			Expr expr2=null;
