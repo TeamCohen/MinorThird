@@ -55,7 +55,6 @@ import edu.cmu.minorthird.util.IOUtil;
 import edu.cmu.minorthird.util.JointCommandLineProcessor;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.StringUtil;
-import edu.cmu.minorthird.util.Version;
 import edu.cmu.minorthird.util.gui.ComponentViewer;
 import edu.cmu.minorthird.util.gui.Console;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
@@ -354,7 +353,7 @@ public class Test
 					};
 					v.setContent(this);
 					String className = this.getClass().toString().substring("class ".length());
-					new ViewerFrame(className+ ": " + Version.getVersion() ,v);
+					new ViewerFrame(className,v);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

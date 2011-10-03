@@ -81,9 +81,14 @@ public class TrainTestExtractor extends UIMain
 			trainTest.splitter = new FixedTestSetSplitter<Span>( trainTest.labels.getTextBase().documentSpanIterator() );
 			System.out.println("splitter for test size "+trainTest.labels.getTextBase().size()+" is "+trainTest.splitter);
 		}
-		TextLabelsExperiment 
-		expt = new TextLabelsExperiment( base.labels,trainTest.splitter,trainTest.labels,train.learner,
-				signal.spanType,signal.spanProp,train.output );
+		TextLabelsExperiment expt = new TextLabelsExperiment(
+				base.labels,
+				trainTest.splitter,
+				trainTest.labels,
+				train.learner,
+				signal.spanType,
+				signal.spanProp,
+				train.output );
 		expt.doExperiment();
 		ExtractionEvaluation evaluation = expt.getEvaluation();
 

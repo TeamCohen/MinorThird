@@ -25,7 +25,6 @@ public class JointCommandLineProcessor implements CommandLineProcessor{
 	}
 
 	final public void processArguments(String[] args){
-		System.out.println("*** Minorthird: "+Version.getVersion()+" ***");
 		int k=0;
 		while(k<args.length){
 			int delta=consumeArguments(args,k);
@@ -69,7 +68,7 @@ public class JointCommandLineProcessor implements CommandLineProcessor{
 				int k=subprocessor[i].consumeArguments(args,pos);
 				//System.out.println("arg "+pos+" subprocessor "+i+" result "+k);
 				if(k>0){
-					log.info("subprocessor"+i+" consumed "+k+" args at pos="+pos);
+					log.debug("Subprocessor"+i+" consumed "+k+" args at pos="+pos);
 					pos+=k;
 					somethingConsumed=true;
 				}
@@ -85,7 +84,7 @@ public class JointCommandLineProcessor implements CommandLineProcessor{
 
 	final public void usage(){
 		for(int i=0;i<subprocessor.length;i++){
-			log.info("subprocessor"+i+" usage invoked");
+			log.info("Subprocessor"+i+" usage invoked");
 			subprocessor[i].usage();
 		}
 	}

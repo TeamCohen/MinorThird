@@ -49,10 +49,10 @@ public class FancyLoader
 			InputStream in = FancyLoader.class.getClassLoader().getResourceAsStream("data.properties");
 			if (in != null) {
 				props.load(in);
-				log.debug("loaded properties from stream "+in);
+				log.debug("Loaded properties from stream "+in);
 				dataPropertiesFound = true;
 			} else {
-				log.info("no data.properties found on classpath");
+				log.info("No data.properties found on classpath");
 				dataPropertiesFound = false;
 			}
 		} catch (IOException e) {

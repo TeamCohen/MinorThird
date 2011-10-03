@@ -33,7 +33,6 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	private Properties argValues=new Properties();
 
 	public final void processArguments(String[] args){
-		System.out.println("*** Minorthird: "+Version.getVersion()+" ***");
 		processedArgs=args;
 		//int k=consumeArguments(args,0);
 		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
@@ -56,10 +55,10 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 					return pos-startPos;
 				}
 				try{
-					log.info(getClass()+" looking for method '"+arg+"'");
+					log.debug("Looking up method '"+arg+"' in "+getClass());
 					Method m=getClass().getMethod(arg,new Class[]{});
-					log.info(getClass()+" consuming '-"+arg+"'");
-					System.out.println("option: "+arg+"=");
+					log.debug("Consuming '-"+arg+"' in "+getClass());
+					System.out.println("Option: "+arg);
 					Object result=m.invoke(this,new Object[]{});
 					pos+=1;
 					if(result instanceof CommandLineProcessor&&result!=null){
@@ -70,8 +69,8 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 					try{
 						Method ms=getClass().getMethod(arg,new Class[]{String.class});
 						if(pos+1<args.length){
-							log.info(getClass()+" consuming '-"+arg+"' '"+args[pos+1]+"'");
-							System.out.println("option: "+arg+"="+args[pos+1]);
+							log.debug("Consuming '-"+arg+"' '"+args[pos+1]+"' in "+getClass());
+							System.out.println("Option: "+arg+"="+args[pos+1]);
 							Object result=ms.invoke(this,new Object[]{args[pos+1]});
 							pos+=2;
 							if(result instanceof CommandLineProcessor){

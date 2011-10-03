@@ -206,8 +206,7 @@ public class TextLabelsExperiment implements Visible{
 			AnnotatorTeacher teacher=
 					new TextLabelsAnnotatorTeacher(trainLabels,inputType,inputProp);
 
-			log.info("Training annotator: inputType="+inputType+" inputProp="+
-					inputProp);
+			log.info("Training annotator: inputType="+inputType+" inputProp="+inputProp);
 			annotators[i]=teacher.train(learner);
 
 			// log.info("annotators["+i+"]="+annotators[i]);
@@ -220,8 +219,7 @@ public class TextLabelsExperiment implements Visible{
 				// do nothing since testLabels[i] is already set
 			}
 
-			log.info("Labeling test partition, size="+
-					testLabels[i].getTextBase().size());
+			log.info("Labeling test partition, size="+testLabels[i].getTextBase().size());
 			annotators[i].annotate(testLabels[i]);
 
 			log.info("Evaluating test partition...");

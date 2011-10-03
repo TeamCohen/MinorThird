@@ -196,9 +196,9 @@ public class StackedLearner extends BatchClassifierLearner
 			Instance newInstance = transformInstance(schema,instance,innerClassifiers);
 			return finalClassifier.classification(newInstance);
 		}
-		public double score(Instance instance,String classLabelName) {
-			return classification(instance).getWeight(classLabelName);
-		}
+//		public double score(Instance instance,String classLabelName) {
+//			return classification(instance).getWeight(classLabelName);
+//		}
 		public String explain(Instance instance)
 		{
 			StringBuffer buf = new StringBuffer("");

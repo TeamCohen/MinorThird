@@ -19,7 +19,6 @@ import edu.cmu.minorthird.text.FancyLoader;
 import edu.cmu.minorthird.util.CommandLineProcessor;
 import edu.cmu.minorthird.util.ProgressCounter;
 import edu.cmu.minorthird.util.StringUtil;
-import edu.cmu.minorthird.util.Version;
 import edu.cmu.minorthird.util.gui.ComponentViewer;
 import edu.cmu.minorthird.util.gui.Console;
 import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
@@ -236,7 +235,7 @@ Console.Task{
 				v.setContent(this);
 				String className=
 					this.getClass().toString().substring("class ".length());
-				ViewerFrame f=new ViewerFrame(className+":  "+Version.getVersion(),v);
+				ViewerFrame f=new ViewerFrame(className,v);
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			}
 		}catch(Exception e){
