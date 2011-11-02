@@ -102,7 +102,7 @@ Console.Task{
 						else
 							ts=
 								new TypeSelector(SelectableTypes.CLASSES,
-										InLineSelectableTypes.CLASSES,BdvancedParameters.NAMES,
+										InLineSelectableTypes.CLASSES,AdvancedParameters.NAMES,
 										"selectableTypes.txt",o.getClass());
 						ts.setContent(o);
 

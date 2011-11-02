@@ -4,7 +4,7 @@ package edu.cmu.minorthird.ui;
  * Defines the list of classes that can be selected by an instance of UIMain.
  */
 
-public class BdvancedParameters{
+public class AdvancedParameters{
 
 	public static final String[] NAMES=new String[]{
 					// bunches of parameters
