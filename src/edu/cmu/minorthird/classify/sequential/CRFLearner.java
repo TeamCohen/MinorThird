@@ -48,7 +48,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		defaults = new java.util.Properties();
 		defaults.setProperty("modelGraph", "naive");
 		defaults.setProperty("debugLvl", "1");
-		defaults.setProperty("trainer", "ll");
+		//defaults.setProperty("trainer", "ll");
 		options = defaults;
 	}
 	public CRFLearner(String args) {
