@@ -97,7 +97,7 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 				Example example = new Example(fe.extractInstance(answeredQuery.getLabels(),tokenSpan), classLabel);
 				sequence[i] = example;
 			} else {
-				log.warn("ignoring "+document.getDocumentId()+" because token "+i+" not labeled in "+document);
+				log.warn("ignoring "+document.getDocumentId()+" because token "+i+" is not labeled");
 				return;
 			}
 		}
