@@ -86,10 +86,12 @@ public class ConfidenceReportingSequenceAnnotator extends AbstractAnnotator
 		this.sequenceAnnotator=sequenceAnnotator;
 	}
 
+	@Override
 	public String getSpanType(){
 		return sequenceAnnotator.getSpanType();
 	}
 
+	@Override
 	public void doAnnotate(MonotonicTextLabels labels){
 		Iterator<Span> i=labels.getTextBase().documentSpanIterator();
 		ProgressCounter pc=
@@ -168,10 +170,12 @@ public class ConfidenceReportingSequenceAnnotator extends AbstractAnnotator
 		}
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span documentSpan){
 		return sequenceAnnotator.explainAnnotation(labels,documentSpan);
 	}
 
+	@Override
 	public Viewer toGUI(){
 		return new SmartVanillaViewer(sequenceAnnotator);
 	}

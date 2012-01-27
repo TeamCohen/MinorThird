@@ -53,12 +53,14 @@ public class CMM implements ConfidenceReportingSequenceClassifier,SequenceConsta
     public Classifier getClassifier() { return classifier; }
     public int getHistorySize() { return historySize; }
 
-    public ClassLabel[] classification(Instance[] sequence)
+    @Override
+		public ClassLabel[] classification(Instance[] sequence)
     {
         return searcher.bestLabelSequence(sequence);
     }
 
-    public double confidence(Instance[] sequence,ClassLabel[] predictedClasses,ClassLabel[] alternateClasses,int lo,int hi)
+    @Override
+		public double confidence(Instance[] sequence,ClassLabel[] predictedClasses,ClassLabel[] alternateClasses,int lo,int hi)
     {
         if (predictedClasses.length!=alternateClasses.length || predictedClasses.length!=sequence.length)
             throw new IllegalArgumentException("predictedClasses, alternateClasses, sequence should be parallel arrays");
@@ -87,12 +89,14 @@ public class CMM implements ConfidenceReportingSequenceClassifier,SequenceConsta
         return weightOfPrediction-weightOfConstrainedPrediction ;
     }
 
-    public String explain(Instance[] sequence)
+    @Override
+		public String explain(Instance[] sequence)
     {
         return searcher.explain(sequence);
     }
 
-    public Explanation getExplanation(Instance[] sequence) {
+    @Override
+		public Explanation getExplanation(Instance[] sequence) {
 	Explanation.Node top = new Explanation.Node("CMM Explanation");
 	Explanation.Node searcherEx = searcher.getExplanation(sequence).getTopNode();
 	if(searcherEx == null)
@@ -102,11 +106,13 @@ public class CMM implements ConfidenceReportingSequenceClassifier,SequenceConsta
 	return ex;
     }
 
-    public Viewer toGUI()
+    @Override
+		public Viewer toGUI()
     {
         Viewer v = new ComponentViewer() {
         	static final long serialVersionUID=20080207L;
-                public JComponent componentFor(Object o) {
+                @Override
+								public JComponent componentFor(Object o) {
                     CMM cmm = (CMM)o;
                     JPanel mainPanel = new JPanel();
                     mainPanel.setLayout(new BorderLayout());

@@ -341,7 +341,7 @@ public class TextBaseViewer extends JComponent{
 			synchronized(documentList){
 				statusMsg.display("Displaying "+spans.size()+
 						(onlyEditedSpans?" unedited":"")+" spans of type "+displayType);
-				Span[] spanArray=(Span[])spans.toArray(new Span[spans.size()]);
+				Span[] spanArray=spans.toArray(new Span[spans.size()]);
 				if(documentList==null)
 					documentList=new JList();
 				documentList.setVisible(false);
@@ -380,6 +380,7 @@ public class TextBaseViewer extends JComponent{
 			this.documentList=documentList;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			synchronized(documentList){
 				paintDocument(null); // paint everything
@@ -394,6 +395,7 @@ public class TextBaseViewer extends JComponent{
 					fmt.format(sp));
 		}
 
+		@Override
 		public void paintDocument(String documentId){
 			synchronized(documentList){
 				try{
@@ -410,23 +412,28 @@ public class TextBaseViewer extends JComponent{
 		}
 
 		// colors for false pos, false neg, true pos, "maybe" pos
+		@Override
 		public AttributeSet fpColor(){
 			return nullTruthType()?HiliteColors.yellow:HiliteColors.red;
 		}
 
+		@Override
 		public AttributeSet fnColor(){
 			return nullTruthType()?HiliteColors.yellow:HiliteColors.blue;
 		}
 
+		@Override
 		public AttributeSet tpColor(){
 			return nullTruthType()?HiliteColors.yellow:HiliteColors.green;
 		}
 
+		@Override
 		public AttributeSet mpColor(){
 			return HiliteColors.yellow;
 		}
 
 		// figure out what spans to update...
+		@Override
 		public SpanDifference.Looper differenceIterator(String documentId){
 			String guessType=(String)guessBox.getSelectedItem();
 			String truthType=(String)truthBox.getSelectedItem();
@@ -464,7 +471,7 @@ public class TextBaseViewer extends JComponent{
 		}
 
 		private boolean nullTruthType(){
-			return NULL_TRUTH_ENTRY.equals((String)truthBox.getSelectedItem());
+			return NULL_TRUTH_ENTRY.equals(truthBox.getSelectedItem());
 		}
 	}
 
@@ -476,6 +483,7 @@ public class TextBaseViewer extends JComponent{
 			super("Display");
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			synchronized(documentList){
 				String type=(String)displayedTypeBox.getSelectedItem();
@@ -499,6 +507,7 @@ public class TextBaseViewer extends JComponent{
 			this.documentList=documentList;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			synchronized(documentList){
 				SpanRenderer renderer=(SpanRenderer)documentList.getCellRenderer();
@@ -519,6 +528,7 @@ public class TextBaseViewer extends JComponent{
 			this.documentList=documentList;
 			addChangeListener(new ChangeListener(){
 
+				@Override
 				public void stateChanged(ChangeEvent e){
 					synchronized(documentList){
 						ContextWidthSlider slider=(ContextWidthSlider)e.getSource();
@@ -543,6 +553,7 @@ public class TextBaseViewer extends JComponent{
 			super(-1,100,-1);
 			addChangeListener(new ChangeListener(){
 
+				@Override
 				public void stateChanged(ChangeEvent e){
 					synchronized(documentList){
 						DocumentCellHeightSlider slider=
@@ -564,6 +575,7 @@ public class TextBaseViewer extends JComponent{
 			super(-1,760,760);
 			addChangeListener(new ChangeListener(){
 
+				@Override
 				public void stateChanged(ChangeEvent e){
 					synchronized(vList){
 						DocumentCellWidthSlider slider=
@@ -595,6 +607,7 @@ public class TextBaseViewer extends JComponent{
 				this.color=color;
 			}
 
+			@Override
 			public int compareTo(SpanMarkup cspan){
 				return span.compareTo(cspan.span);
 			}
@@ -679,6 +692,7 @@ public class TextBaseViewer extends JComponent{
 		}
 
 		/** Implement the ListCellRenderer interface. */
+		@Override
 		public Component getListCellRendererComponent(JList el,Object v,int index,
 				boolean sel,boolean focus){
 			// handle synchronization errors? there oughta be a better way!

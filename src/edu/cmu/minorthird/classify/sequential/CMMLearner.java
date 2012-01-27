@@ -19,6 +19,7 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 	private ClassifierLearner baseLearner;
 	private int historySize;
 
+	@Override
 	public int getHistorySize() { return historySize; }
 	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
 
@@ -33,8 +34,10 @@ public class CMMLearner implements BatchSequenceClassifierLearner
 		this.historySize = historySize;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema) {;}
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();

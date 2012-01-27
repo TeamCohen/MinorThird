@@ -120,6 +120,7 @@ public class ControlledViewer extends Viewer{
 		return controls;
 	}
 
+	@Override
 	protected void initialize(){
 		setLayout(new GridBagLayout());
 	}
@@ -128,22 +129,27 @@ public class ControlledViewer extends Viewer{
 	// delegate signals & content to sub-viewer
 	//
 
+	@Override
 	public void clearContent(){
 		viewer.clearContent();
 	}
 
+	@Override
 	public boolean canReceive(Object obj){
 		return viewer.canReceive(obj);
 	}
 
+	@Override
 	public void receiveContent(Object obj){
 		viewer.setContent(obj);
 	}
 
+	@Override
 	protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
 		return viewer.canHandle(signal,argument,senders);
 	}
 
+	@Override
 	protected void handle(int signal,Object argument,List<Viewer> senders){
 		viewer.handle(signal,argument,senders);
 	}
@@ -171,6 +177,7 @@ public class ControlledViewer extends Viewer{
 
 		private Object lastObj;
 
+		@Override
 		public Object transform(Object o){
 			lastObj=o;
 			String s=o.toString();
@@ -181,6 +188,7 @@ public class ControlledViewer extends Viewer{
 			return result;
 		}
 
+		@Override
 		public void applyControls(ViewerControls c){
 			System.out.println("controls: "+c);
 			MyControls mc=(MyControls)c;
@@ -202,6 +210,7 @@ public class ControlledViewer extends Viewer{
 
 		public JTextField prefixField;
 
+		@Override
 		public void initialize(){
 			ucBox=new JCheckBox("uc");
 			ucBox.addActionListener(this);
@@ -211,6 +220,7 @@ public class ControlledViewer extends Viewer{
 			addApplyButton();
 		}
 
+		@Override
 		public String toString(){
 			return "[uc: "+ucBox.isSelected()+" prefix: "+prefixField.getText()+"]";
 		}

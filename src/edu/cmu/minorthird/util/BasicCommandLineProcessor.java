@@ -32,16 +32,19 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	// cache values associated with args
 	private Properties argValues=new Properties();
 
+	@Override
 	public final void processArguments(String[] args){
 		processedArgs=args;
 		//int k=consumeArguments(args,0);
 		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
 	}
 	
+	@Override
 	public boolean shouldTerminate(){
 		return false;
 	}
 
+	@Override
 	public final int consumeArguments(String[] args,int startPos){
 		try{
 			int pos=startPos;
@@ -113,6 +116,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 		}
 	}
 
+	@Override
 	public void usage(String errorMessage){
 		System.out.println(errorMessage);
 		usage();
@@ -122,6 +126,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	 * Default will list all commands other than 'usage',
 	 * 'help', 'getX', and 'setX'.
 	 */
+	@Override
 	public void usage(){
 		Method[] genericMethods=Object.class.getMethods();
 		Set<String> stopList=new HashSet<String>();
@@ -198,14 +203,17 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 
 	private static final String CONFIG_FORMAT_EXT=".config";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{CONFIG_FORMAT_NAME};
 	};
 
+	@Override
 	public String getExtensionFor(String format){
 		return CONFIG_FORMAT_EXT;
 	}
 
+	@Override
 	public void saveAs(File file,String format) throws IOException{
 		if(!format.equals(CONFIG_FORMAT_NAME))
 			throw new IllegalArgumentException("illegal format "+format);
@@ -219,6 +227,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 		//props.store(new FileOutputStream(file), "auto-saved configuration file");
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		throw new UnsupportedOperationException(
 				"Can't restore a command line processor");
@@ -303,7 +312,7 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 				}
 			}
 		}
-		return (String[])accum.toArray(new String[accum.size()]);
+		return accum.toArray(new String[accum.size()]);
 	}
 
 	static private void inputError(LineNumberReader in,String line,File file,

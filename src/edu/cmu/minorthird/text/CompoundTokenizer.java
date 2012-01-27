@@ -10,6 +10,8 @@ public abstract class CompoundTokenizer implements Tokenizer
     public Tokenizer getParent() { return parentTokenizer; }
 
     // Abstract methods to be implemented by subclasses
-    public abstract String[] splitIntoTokens(String string);
-    public abstract TextToken[] splitIntoTokens(Document document);
+    @Override
+		public abstract String[] splitIntoTokens(String string);
+    @Override
+		public abstract TextToken[] splitIntoTokens(Document document);
 }

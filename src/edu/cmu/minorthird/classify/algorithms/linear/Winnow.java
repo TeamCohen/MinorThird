@@ -81,6 +81,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		s_t=new Hyperplane();
 		if(voted){
@@ -90,6 +91,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements
 		excount=0;
 	}
 
+	@Override
 	public void addExample(Example example1){
 
 		excount++;//examples counter
@@ -144,6 +146,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements
 		votedCount=0;
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		if(voted){//create the new voted hyperplane
 			updateVotedHyperplane(votedCount);//first, update it
@@ -155,6 +158,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "Winnow, voted="+voted;
 	}
@@ -200,6 +204,7 @@ public class Winnow extends OnlineBinaryClassifierLearner implements
 		}
 
 		//implements winnow decision rule
+		@Override
 		public ClassLabel classification(Instance ins){
 			Example ex=new Example(ins,new ClassLabel("POS"));
 			Example example1=filterFeat(ex);
@@ -222,26 +227,31 @@ public class Winnow extends OnlineBinaryClassifierLearner implements
 			return new Example(ins,ex.getLabel());
 		}
 
+		@Override
 		public String toString(){
 			return cl.toString();
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "Winnow: Not implemented yet";
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("Winnow Explanation");
 			Explanation ex=new Explanation(top);
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TransformedViewer(new SmartVanillaViewer()){
 				static final long serialVersionUID=20080130L;
+				@Override
 				public Object transform(Object o){
 					MyClassifier mycl=(MyClassifier)o;
-					return (Classifier)mycl.cl;
+					return mycl.cl;
 				}
 			};
 			v.setContent(this);

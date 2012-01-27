@@ -51,6 +51,7 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	 * Adds a document to this TextBase with documentId as its identifier and with
 	 * text specified by documentString.
 	 */
+	@Override
 	public void loadDocument(String documentId,String documentString){
 		// create the document and add the tokens to that document
 		Document document=new Document(documentId,documentString);
@@ -64,6 +65,7 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	 * text specified by documentString. Also, this method sets the offset
 	 * parameter in the new Document to the specified charOffset.
 	 */
+	@Override
 	public void loadDocument(String documentId,String documentString,
 			int charOffset){
 		// create the document and add the tokens to that document
@@ -77,11 +79,13 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	 * Sets the document group id for the specified documentId to the specified
 	 * document group id.
 	 */
+	@Override
 	public void setDocumentGroupId(String documentId,String documentGroupId){
 		documentGroupMap.put(documentId,documentGroupId);
 	}
 
 	/** Returns the number of documents currently in this TextBase. */
+	@Override
 	public int size(){
 		return documentMap.size();
 	}
@@ -90,8 +94,9 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	 * Returns the Document instance that corresponds to the specified documentId
 	 * or null if no document exists with the specified documentId.
 	 */
+	@Override
 	public Document getDocument(String documentId){
-		return (Document)documentMap.get(documentId);
+		return documentMap.get(documentId);
 	}
 
 	/**
@@ -99,19 +104,21 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	 * specified by documentId. Note that this Span instance will NOT include any
 	 * white space that comes before the first token or after the last token.
 	 */
+	@Override
 	public Span documentSpan(String documentId){
 		TextToken[] textTokens=getTokenArray(documentId);
 		if(textTokens==null)
 			return null;
 		else
 			return new BasicSpan(documentId,textTokens,0,textTokens.length,
-					(String)documentGroupMap.get(documentId));
+					documentGroupMap.get(documentId));
 	}
 
 	/**
 	 * Returns a Span.Looper instance that includes a document span for every
 	 * document in this TextBase.
 	 */
+	@Override
 	public Iterator<Span> documentSpanIterator(){
 		return new MyDocumentSpanIterator();
 	}
@@ -121,15 +128,18 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 
 		private Iterator<String> k=documentMap.keySet().iterator();
 
+		@Override
 		public void remove(){
 			throw new UnsupportedOperationException(
 					"Cannot remove documents from a TextBase.");
 		}
 
+		@Override
 		public boolean hasNext(){
 			return k.hasNext();
 		}
 
+		@Override
 		public Span next(){
 			String documentId=k.next();
 			TextToken[] textTokens=getTokenArray(documentId);
@@ -144,7 +154,7 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	}
 
 	private int getOffset(String documentId){
-		Document document=(Document)documentMap.get(documentId);
+		Document document=documentMap.get(documentId);
 		if(document!=null)
 			return document.charOffset;
 		else
@@ -156,7 +166,7 @@ public class BasicTextBase extends MutableTextBase implements Serializable{
 	 * specific document id easier.
 	 */
 	private TextToken[] getTokenArray(String documentId){
-		Document document=(Document)documentMap.get(documentId);
+		Document document=documentMap.get(documentId);
 		if(document!=null)
 			return document.getTokens();
 		return null;

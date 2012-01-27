@@ -15,12 +15,15 @@ public abstract class AbstractInstance implements Instance,Visible{
   protected String subpopulationId;
 
   /** Return the underlying object being represented. */
+	@Override
 	public Object getSource() { return source; }
 
   /** Return the subpopulation from which the source was drawn. */
+	@Override
 	public String getSubpopulationId() { return subpopulationId; }
 
   /** Debugging view of an instance. */
+	@Override
 	public String toString(){
 		StringBuilder buf=new StringBuilder("[instance/"+subpopulationId+":");
 		for(Iterator<Feature> i=binaryFeatureIterator();i.hasNext();){
@@ -35,7 +38,8 @@ public abstract class AbstractInstance implements Instance,Visible{
 	}
 
   /** Retrieve Viewer for the instance */
-  public Viewer toGUI(){ 
+  @Override
+	public Viewer toGUI(){ 
 		return new GUI.InstanceViewer(this);
 	}
   

@@ -49,7 +49,8 @@ public class ContingencyTable {
         return tmp2*count;
     }
     
-    public String toString() {
+    @Override
+		public String toString() {
         return "CTable: [ "+a+" , "+b+" , "+c+" , "+d+" ]";
       }
     

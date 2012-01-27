@@ -52,6 +52,7 @@ public class GUI{
 
 			static final long serialVersionUID=20071015;
 
+			@Override
 			public Object transform(Object o){
 				return ((Example)o).getSource();
 			}
@@ -61,6 +62,7 @@ public class GUI{
 
 			static final long serialVersionUID=20071015;
 
+			@Override
 			public Object transform(Object o){
 				return "Subpopulation ID='"+((Example)o).getSubpopulationId()+"'";
 			}
@@ -81,10 +83,12 @@ public class GUI{
 			super(instance);
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return(o instanceof Example);
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			Example e=(Example)o;
 			JPanel p=new JPanel();
@@ -114,10 +118,12 @@ public class GUI{
 			super(instance);
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return(o instanceof Instance);
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			return instanceComponent((Instance)o);
 		}

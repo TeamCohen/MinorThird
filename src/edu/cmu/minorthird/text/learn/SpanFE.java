@@ -141,10 +141,12 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 	//
 
 	/** Specify an annotator to run before feature generation. */
+	@Override
 	public void setRequiredAnnotation(String requiredAnnotation){
 		this.requiredAnnotation=requiredAnnotation;
 	}
 
+	@Override
 	public String getRequiredAnnotation(){
 		return requiredAnnotation==null?"":requiredAnnotation;
 	}
@@ -160,6 +162,7 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 		return requiredAnnotationFileToLoad==null?"":requiredAnnotationFileToLoad;
 	}
 
+	@Override
 	public void setAnnotatorLoader(AnnotatorLoader newLoader){
 		this.annotatorLoader=newLoader;
 	}
@@ -186,6 +189,7 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 //	}
 
 	/** Extract an Instance from a span */
+	@Override
 	final public Instance extractInstance(TextLabels labels,Span span){
 		instance=new MutableInstance(span,span.getDocumentGroupId());
 		textLabels=labels;
@@ -409,10 +413,12 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 			return (SpanResult)doTrace();
 		}
 
+		@Override
 		public void emit(){
 			fe.emit(this);
 		}
 
+		@Override
 		public String toString(){
 			return "[SpanResult: "+s+"]";
 		}
@@ -563,10 +569,12 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 			return (SpanSetResult)doTrace();
 		}
 
+		@Override
 		public void emit(){
 			fe.emit(this);
 		}
 
+		@Override
 		public String toString(){
 			return "[SpanSetResult: "+set+"]";
 		}
@@ -636,10 +644,12 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 			return (TokenSetResult)doTrace();
 		}
 
+		@Override
 		public void emit(){
 			fe.emit(this);
 		}
 
+		@Override
 		public String toString(){
 			return "[TokenSetResult: "+set+"]";
 		}
@@ -713,6 +723,7 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 			this.bag=bag;
 		}
 
+		@Override
 		public void emit(){
 			fe.emit(this);
 		}
@@ -721,6 +732,7 @@ abstract public class SpanFE implements SpanFeatureExtractor,MixupCompatible,
 			return (StringBagResult)doTrace();
 		}
 
+		@Override
 		public String toString(){
 			return "[StringBagResult: "+bag+"]";
 		}

@@ -99,6 +99,7 @@ public class MarkupControls extends ViewerControls{
 	/**
 	 * Lay out the controls
 	 */
+	@Override
 	protected void initialize(){
 		if(types==null)
 			return; // will go back and initialize later
@@ -123,6 +124,7 @@ public class MarkupControls extends ViewerControls{
 		}
 		ActionListener diffListener=new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent e){
 				if(guessBox.getSelectedIndex()==0||truthBox.getSelectedIndex()==0){
 					sd=null;
@@ -223,10 +225,12 @@ public class MarkupControls extends ViewerControls{
 		add(new JScrollPane(subpanel),gbc);
 	}
 
+	@Override
 	public int preferredLocation(){
 		return ViewerControls.RIGHT;
 	}
 
+	@Override
 	public boolean prefersToBeResized(){
 		return true;
 	}
@@ -256,9 +260,10 @@ public class MarkupControls extends ViewerControls{
 	private JButton makeResetButton(){
 		return new JButton(new AbstractAction("-reset controls-"){
 			static final long serialVersionUID=20080306L;
+			@Override
 			public void actionPerformed(ActionEvent e){
 				for(int i=0;i<boxList.size();i++){
-					((JComboBox)boxList.get(i)).setSelectedIndex(0);
+					(boxList.get(i)).setSelectedIndex(0);
 				}
 			}
 		});
@@ -285,6 +290,7 @@ public class MarkupControls extends ViewerControls{
 			this.typeBox=typeBox;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent ev){
 			if(typeBox.getSelectedIndex()>0){
 				type=(String)typeBox.getSelectedItem();
@@ -312,6 +318,7 @@ public class MarkupControls extends ViewerControls{
 			this.propValBox=propValBox;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent ev){
 			if(propValBox.getSelectedIndex()>0){
 				propVal=unpackPropValue((String)propValBox.getSelectedItem());
@@ -395,11 +402,11 @@ public class MarkupControls extends ViewerControls{
 	 * Tell the ControlledViewer what color is associated with a type.
 	 */
 	public SimpleAttributeSet getColor(String type){
-		String s=(String)typeColorCode.get(type);
+		String s=typeColorCode.get(type);
 		if(s==null)
 			return null;
 		else
-			return (SimpleAttributeSet)colorMap.get(s);
+			return colorMap.get(s);
 	}
 
 	/**
@@ -410,11 +417,11 @@ public class MarkupControls extends ViewerControls{
 		Map<String,String> m=propColorCode.get(prop);
 		if(m==null)
 			return null;
-		String s=(String)m.get(value);
+		String s=m.get(value);
 		if(s==null)
 			return null;
 		else
-			return (SimpleAttributeSet)colorMap.get(s);
+			return colorMap.get(s);
 	}
 
 	public Set<String> getColoredProperties(){
@@ -424,7 +431,7 @@ public class MarkupControls extends ViewerControls{
 	public Set<String> getColoredValues(String prop){
 		Map<String,String> m=propColorCode.get(prop);
 		if(m==null)
-			return Collections.EMPTY_SET;
+			return Collections.<String>emptySet();
 		return m.keySet();
 	}
 
@@ -444,6 +451,7 @@ public class MarkupControls extends ViewerControls{
 			super("yow");
 		}
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			System.out.println("applied "+controls);
 		}

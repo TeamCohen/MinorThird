@@ -92,7 +92,8 @@ public class NegativeBinomial {
     /*=
      * Returns a String representation of the receiver.
      */
-    public String toString() {
+    @Override
+		public String toString() {
         return this.getClass().getName()+"("+n+","+p+")";
     }
 }

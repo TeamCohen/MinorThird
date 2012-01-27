@@ -38,6 +38,7 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 		seqData = new SequenceDataset();
 	}
 
+	@Override
 	public void reset() { 
 		seqData = new SequenceDataset(); 
 	}
@@ -50,11 +51,15 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 	public String getTaggingReductionHelp() { return "Scheme for reducing extraction to a token-classification problem"; }
 
 	/** Feature extractor used for tokens */
+	@Override
 	public SpanFeatureExtractor getSpanFeatureExtractor()	{	return fe; }
+	@Override
 	public void setSpanFeatureExtractor(SpanFeatureExtractor fe) {this.fe = fe;	}
 
 	/** The spanType of the annotation produced by the learned annotator. */
+	@Override
 	public void setAnnotationType(String s) { annotationType=s; }
+	@Override
 	public String getAnnotationType() { return annotationType; }
 
 	//
@@ -65,24 +70,27 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 	private Iterator<Span> documentLooper;
 
 	/** Accept the pool of unlabeled documents. */
+	@Override
 	public void setDocumentPool(Iterator<Span> documentLooper) { this.documentLooper = documentLooper; }
 
 	/** Ask for labels on every document. */
+	@Override
 	public boolean hasNextQuery() {	return documentLooper.hasNext();}
 
 	/** Return the next unlabeled document. */
+	@Override
 	public Span nextQuery() {	return documentLooper.next();	}
 
 	/** Accept the answer to the last query. */
-	public void setAnswer(AnnotationExample answeredQuery)
-	{
+	@Override
+	public void setAnswer(AnnotationExample answeredQuery){
 		reduction.reduceExtraction2Tagging(answeredQuery);
-		TextLabels answerLabels = reduction.getTaggedLabels();
-		Span document = answeredQuery.getDocumentSpan();
-		Example[] sequence = new Example[document.size()];
+		TextLabels answerLabels=reduction.getTaggedLabels();
+		Span document=answeredQuery.getDocumentSpan();
+		Example[] sequence=new Example[document.size()];
 		for (int i=0; i<document.size(); i++) {
-			Token tok = document.getToken(i);
-			String value = answerLabels.getProperty(tok,reduction.getTokenProp());
+			Token tok=document.getToken(i);
+			String value=answerLabels.getProperty(tok,reduction.getTokenProp());
 			if (value!=null) {
 				ClassLabel classLabel = new ClassLabel(value);
 				Span tokenSpan = document.subSpan(i,1);
@@ -93,11 +101,12 @@ public abstract class AbstractBatchAnnotatorLearner extends AnnotatorLearner
 				return;
 			}
 		}
-		seqData.addSequence( sequence );
+		seqData.addSequence(sequence);
 	}
 
 	/** Return the learned annotator.
 	 */
+	@Override
 	abstract public Annotator getAnnotator();
 
 	/** Get the constructed sequence data.

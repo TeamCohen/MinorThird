@@ -44,6 +44,7 @@ abstract public class TransformedViewer extends Viewer{
 	// delegate operations to subViewer
 	//
 
+	@Override
 	final public void receiveContent(Object obj){
 		if(subViewer==null){
 			throw new IllegalStateException("no subViewer has bee set for "+this);
@@ -51,22 +52,27 @@ abstract public class TransformedViewer extends Viewer{
 		subViewer.setContent(transform(obj));
 	}
 
+	@Override
 	public void clearContent(){
 		subViewer.clearContent();
 	}
 
+	@Override
 	final public boolean canReceive(Object obj){
 		return subViewer.canReceive(transform(obj));
 	}
 
+	@Override
 	final protected void handle(int signal,Object argument,List<Viewer> senders){
 		subViewer.handle(signal,argument,senders);
 	}
 
+	@Override
 	final protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
 		return subViewer.canHandle(signal,argument,senders);
 	}
 
+	@Override
 	final protected void initialize(){
 		setLayout(new GridBagLayout());
 	}

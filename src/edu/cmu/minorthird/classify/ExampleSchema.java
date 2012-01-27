@@ -86,6 +86,7 @@ public class ExampleSchema implements Serializable{
 		return isValid(e.getLabel());
 	}
 
+	@Override
 	public boolean equals(Object o){
 		if(o instanceof ExampleSchema){
 			ExampleSchema b=(ExampleSchema)o;
@@ -96,6 +97,7 @@ public class ExampleSchema implements Serializable{
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "[ExampleSchema: "+validClassNameSet+"]";
 	}

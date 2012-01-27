@@ -65,10 +65,10 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 	private Map<String,String> req2ProfileMap=new HashMap<String,String>();
 
 	// trainList[k] is training list for fold k
-	private List<T>[] trainList=null;
+	private List<List<T>> trainList=null;
 
 	// testList[k] is test list for fold k
-	private List<T>[] testList=null;
+	private List<List<T>> testList=null;
 
 	public WebmasterSplitter(String constraintFileName,double fraction,int folds){
 		this.folds=folds;
@@ -90,7 +90,7 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 					//System.out.println("userMap: '"+f[0]+"' -> "+f[1]);
 					requestMap.put(f[0],f[2]);
 					profileMap.put(f[0],f[3]);
-					String oldProfForRequest=(String)req2ProfileMap.get(f[2]);
+					String oldProfForRequest=req2ProfileMap.get(f[2]);
 					if(oldProfForRequest!=null&&!oldProfForRequest.equals(f[3])){
 						log.error("request "+f[2]+" associated with two profiles: "+
 								oldProfForRequest+" and "+f[3]);
@@ -111,6 +111,7 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 				in.getLineNumber()+": "+line);
 	}
 
+	@Override
 	public void split(Iterator<T> it){
 		// collect set of users, and also set of requests
 		// maintaining list of all examples with each request
@@ -143,6 +144,7 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 		List<String> requestList=new ArrayList<String>(requests.size());
 		requestList.addAll(requests);
 		Comparator<String> byProfile=new Comparator<String>(){
+			@Override
 			public int compare(String s1,String s2){
 				//System.out.println("comparing "+o1+" and "+o2);
 				String prof1=req2ProfileMap.get(s1);
@@ -152,44 +154,45 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 		};
 		Collections.shuffle(requestList);
 		Collections.sort(requestList,byProfile);
-		Set<String>[] partition=new Set[folds];
+		List<Set<String>> partition=new ArrayList<Set<String>>(folds);
 		for(int k=0;k<folds;k++){
-			partition[k]=new HashSet<String>();
+			partition.add(new HashSet<String>());
 		}
 		for(int i=0;i<requestList.size();i++){
-			partition[i%folds].add(requestList.get(i));
+			partition.get(i%folds).add(requestList.get(i));
 		}
 		if(log.isDebugEnabled()){
 			for(int k=0;k<folds;k++){
 				Set<String> profilesForPartition=new TreeSet<String>();
-				for(Iterator<String> j=partition[k].iterator();j.hasNext();)
+				for(Iterator<String> j=partition.get(k).iterator();j.hasNext();)
 					profilesForPartition.add(req2ProfileMap.get(j.next()));
-				log.debug("partition "+k+": "+partition[k]+" profiles: "+
+				log.debug("partition "+k+": "+partition.get(k)+" profiles: "+
 						profilesForPartition);
 			}
 		}
 
 		// allocate the test and training lists
-		trainList=new List[folds];
-		testList=new List[folds];
+		trainList=new ArrayList<List<T>>(folds);
+		testList=new ArrayList<List<T>>(folds);
 		for(int k=0;k<folds;k++){
-			trainList[k]=new ArrayList<T>();
-			testList[k]=new ArrayList<T>();
+			trainList.add(new ArrayList<T>());
+			testList.add(new ArrayList<T>());
 		}
 
 		// populate them
 		for(Iterator<T> i=inputList.iterator();i.hasNext();){
-			HasSubpopulationId hsi=(HasSubpopulationId)i.next();
+			T item=i.next();
+			HasSubpopulationId hsi=(HasSubpopulationId)item;
 			String subpop=hsi.getSubpopulationId();
-			String userId=(String)userMap.get(subpop);
-			String reqId=(String)requestMap.get(subpop);
+			String userId=userMap.get(subpop);
+			String reqId=requestMap.get(subpop);
 			int k=partitionContaining(partition,reqId);
 			if(testUsers.contains(userId)){
-				testList[k].add((T)hsi);
+				testList.get(k).add(item);
 			}else{
 				for(int j=0;j<folds;j++){
 					if(j!=k)
-						trainList[j].add((T)hsi);
+						trainList.get(j).add(item);
 				}
 			}
 		}
@@ -200,9 +203,9 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 		throw new IllegalArgumentException(msg+" on input "+o);
 	}
 
-	private int partitionContaining(Set<String>[] partition,String req){
-		for(int i=0;i<partition.length;i++){
-			if(partition[i].contains(req))
+	private int partitionContaining(List<Set<String>> partition,String req){
+		for(int i=0;i<partition.size();i++){
+			if(partition.get(i).contains(req))
 				return i;
 		}
 		throw new IllegalStateException("request id "+req+
@@ -212,10 +215,10 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 	// check correctness of split
 	private void verifySplit(){
 		for(int k=0;k<folds;k++){
-			for(int i=0;i<trainList[k].size();i++){
-				Object oi=trainList[k].get(i);
-				for(int j=0;j<testList[k].size();j++){
-					Object oj=testList[k].get(j);
+			for(int i=0;i<trainList.get(k).size();i++){
+				Object oi=trainList.get(k).get(i);
+				for(int j=0;j<testList.get(k).size();j++){
+					Object oj=testList.get(k).get(j);
 					if(similarTo(oi,oj))
 						throw new IllegalStateException("bad split for train/test "+oi+"/"+
 								oj);
@@ -225,9 +228,9 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 		for(int k1=0;k1<folds;k1++){
 			for(int k2=0;k2<folds;k2++){
 				if(k2!=k1){
-					for(int j1=0;j1<testList[k1].size();j1++){
-						for(int j2=0;j2<testList[k2].size();j2++){
-							if(testList[k1].get(j1)==testList[k2].get(j2)){
+					for(int j1=0;j1<testList.get(k1).size();j1++){
+						for(int j2=0;j2<testList.get(k2).size();j2++){
+							if(testList.get(k1).get(j1)==testList.get(k2).get(j2)){
 								throw new IllegalStateException(
 										"overlapping test cases for lists "+k1+" and "+k2);
 							}
@@ -248,18 +251,22 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 		return false;
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return folds;
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
-		return trainList[k].iterator();
+		return trainList.get(k).iterator();
 	}
 
+	@Override
 	public Iterator<T> getTest(int k){
-		return testList[k].iterator();
+		return testList.get(k).iterator();
 	}
 
+	@Override
 	public String toString(){
 		return "[WebmasterSplitter "+folds+"]";
 	}
@@ -281,10 +288,12 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 					final String subpop=f[0];
 					list.add(new HasSubpopulationId(){
 
+						@Override
 						public String toString(){
 							return "[Ex "+subpop+"]";
 						}
 
+						@Override
 						public String getSubpopulationId(){
 							return subpop;
 						}
@@ -298,8 +307,8 @@ public class WebmasterSplitter<T> implements Splitter<T>{
 				totTestSize+=splitter.asList(splitter.getTest(k)).size();
 				totTrainSize+=splitter.asList(splitter.getTrain(k)).size();
 				System.out.println("fold "+k+":");
-				System.out.println("test: "+splitter.testList[k]);
-				System.out.println("train: "+splitter.trainList[k]);
+				System.out.println("test: "+splitter.testList.get(k));
+				System.out.println("train: "+splitter.trainList.get(k));
 			}
 			System.out.println("data.size = "+list.size());
 			System.out.println("total test size="+totTestSize);

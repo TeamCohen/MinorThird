@@ -21,18 +21,22 @@ public class FixedTestSetSplitter<T> implements Splitter<T>{
 		testList=iteratorToList(testIterator);
 	}
 
+	@Override
 	public void split(Iterator<T> i){
 		trainList=iteratorToList(i);
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return 1;
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
 		return trainList.iterator();
 	}
 
+	@Override
 	public Iterator<T> getTest(int k){
 		return testList.iterator();
 	}

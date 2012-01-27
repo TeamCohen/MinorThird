@@ -64,13 +64,16 @@ public class SequenceAnnotatorExpt{
 		BatchSequenceClassifierLearner dummyLearner=
 				new BatchSequenceClassifierLearner(){
 
+					@Override
 					public void setSchema(ExampleSchema schema){
 					}
 
+					@Override
 					public SequenceClassifier batchTrain(SequenceDataset dataset){
 						return null;
 					}
 
+					@Override
 					public int getHistorySize(){
 						return size;
 					}
@@ -78,6 +81,7 @@ public class SequenceAnnotatorExpt{
 		SequenceAnnotatorLearner dummy=
 				new SequenceAnnotatorLearner(dummyLearner,fe){
 
+					@Override
 					public Annotator getAnnotator(){
 						return null;
 					}

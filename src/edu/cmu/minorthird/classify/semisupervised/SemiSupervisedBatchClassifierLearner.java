@@ -30,28 +30,36 @@ public abstract class SemiSupervisedBatchClassifierLearner implements Classifier
     */
    protected Classifier classifier = null;
 
-   final public void reset() {
+   @Override
+	final public void reset() {
       dataset = new SemiSupervisedDataset();
       classifier = null;
    }
-   final public boolean hasNextQuery() { return false; }
-   final public Instance nextQuery() { return null; }
-   final public void addExample(Example answeredQuery) { ((Dataset)dataset).add(answeredQuery); classifier=null; }
-   final public void completeTraining() { classifier = batchTrain(dataset); }
+   @Override
+	final public boolean hasNextQuery() { return false; }
+   @Override
+	final public Instance nextQuery() { return null; }
+   @Override
+	final public void addExample(Example answeredQuery) { ((Dataset)dataset).add(answeredQuery); classifier=null; }
+   @Override
+	final public void completeTraining() { classifier = batchTrain(dataset); }
 
-   final public Classifier getClassifier() {
+   @Override
+	final public Classifier getClassifier() {
       if (classifier==null) classifier = batchTrain(dataset);
       return classifier;
    }
 
 
    /** Enables control on number of classes allowed to be passed to the learner */
-   abstract public void setSchema(ExampleSchema schema);
+   @Override
+	abstract public void setSchema(ExampleSchema schema);
 
    /** subclasses should use this method to get the unlabeled examples available for
     * semi-supervised learning.
     */
-   abstract public void setInstancePool(Iterator<Instance> i);
+   @Override
+	abstract public void setInstancePool(Iterator<Instance> i);
 
    /** subclasses should use this method to implement a batch supervised learning algorithm.
     */

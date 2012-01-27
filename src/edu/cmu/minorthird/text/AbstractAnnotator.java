@@ -14,12 +14,15 @@ public abstract class AbstractAnnotator implements Annotator{
 
 	/** The implementation for this method should explain how annotation
 	 * would be added to some part of the text base. */
+	@Override
 	abstract public String explainAnnotation(TextLabels labels,Span documentSpan);
 
+	@Override
 	final public void annotate(MonotonicTextLabels labels){
 		doAnnotate(labels);
 	}
 
+	@Override
 	final public TextLabels annotatedCopy(TextLabels labels){
 		MonotonicTextLabels copy=new NestedTextLabels(labels);
 		annotate(copy);

@@ -64,6 +64,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner{
 		this.minSplitCount=c;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		epsilon=0.5/dataset.size();
 		Classifier c=batchTrain(dataset,0);
@@ -224,6 +225,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner{
 			// return entropy(pos,neg,totalPosWeight,totalNegWeight);
 		}
 
+		@Override
 		public String toString(){
 			return "[pos:"+pos+" neg:"+neg+"]";
 		}
@@ -303,7 +305,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner{
 				}
 				lastKey=key;
 				// update counts
-				BinaryFeatureStats bfs=(BinaryFeatureStats)map.get(key);
+				BinaryFeatureStats bfs=map.get(key);
 				posGT-=bfs.pos;
 				negGT-=bfs.neg;
 			}
@@ -315,6 +317,7 @@ public class DecisionTreeLearner extends BatchBinaryClassifierLearner{
 			return bestThreshold;
 		}
 
+		@Override
 		public String toString(){
 			return "[pos: "+posNonZero+" neg: "+negNonZero+" map: "+map+"]";
 		}

@@ -30,7 +30,8 @@ public class BinaryTextClassifier implements TextClassifier
     }
     
     /** Returns the weight for a String being in the positive class */
-    public double score(String text) 
+    @Override
+		public double score(String text) 
     {
 	BasicTextBase tb = new BasicTextBase();
 	docNum++;

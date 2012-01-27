@@ -13,12 +13,14 @@ package edu.cmu.minorthird.classify;
 
 public abstract class BatchBinaryClassifierLearner extends BatchClassifierLearner implements BinaryClassifierLearner{
 	
+	@Override
 	final public void setSchema(ExampleSchema schema){
 		if(!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)){
 			throw new IllegalStateException("Can only learn binary example data.");
 		}
 	}
 	
+	@Override
 	final public ExampleSchema getSchema(){
 		return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
 	}
@@ -29,6 +31,7 @@ public abstract class BatchBinaryClassifierLearner extends BatchClassifierLearne
 	}
 
 	/** Get the last-trained a binary classifier. */
+	@Override
 	final public BinaryClassifier getBinaryClassifier(){
 		return (BinaryClassifier)getClassifier();
 	}

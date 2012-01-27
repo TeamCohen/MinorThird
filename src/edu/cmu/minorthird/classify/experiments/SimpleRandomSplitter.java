@@ -34,6 +34,7 @@ public class SimpleRandomSplitter<T> implements Splitter<T>{
 		this(0.7);
 	}
 
+	@Override
 	public void split(Iterator<T> i){
 		trainList=new ArrayList<T>();
 		testList=new ArrayList<T>();
@@ -46,14 +47,17 @@ public class SimpleRandomSplitter<T> implements Splitter<T>{
 		}
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return 1;
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
 		return trainList.iterator();
 	}
 
+	@Override
 	public Iterator<T> getTest(int k){
 		return testList.iterator();
 	}

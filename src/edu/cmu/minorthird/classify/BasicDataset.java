@@ -52,8 +52,9 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 		this(new FeatureFactory());
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
-		ExampleSchema schema=new ExampleSchema((String[])classNameSet.toArray(new String[classNameSet.size()]));
+		ExampleSchema schema=new ExampleSchema(classNameSet.toArray(new String[classNameSet.size()]));
 		if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)){
 			return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
 		}else{
@@ -80,6 +81,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 		return (unlabeledExamples.size()>0)?true:false;
 	}
 
+	@Override
 	public FeatureFactory getFeatureFactory(){
 		return featureFactory;
 	}
@@ -96,6 +98,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	 *
 	 * @param example The Example that you want to add to the dataset.
 	 */
+	@Override
 	public void add(Example example){
 		this.add(example,true);
 	}
@@ -109,6 +112,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	 * @param example The example to add to the dataset
 	 * @param compress Boolean specifying whether or not to compress the example.
 	 */
+	@Override
 	public void add(Example example,boolean compress){
 		if(compress)
 			examples.add(featureFactory.compress(example));
@@ -117,22 +121,27 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 		classNameSet.addAll(example.getLabel().possibleLabels());
 	}
 
+	@Override
 	public Iterator<Example> iterator(){
 		return examples.iterator();
 	}
 
+	@Override
 	public int size(){
 		return examples.size();
 	}
 
+	@Override
 	public void shuffle(Random r){
 		Collections.shuffle(examples,r);
 	}
 
+	@Override
 	public void shuffle(){
 		shuffle(new Random());
 	}
 
+	@Override
 	public Dataset shallowCopy(){
 		Dataset copy=new BasicDataset();
 		for(Iterator<Example> i=iterator();i.hasNext();){
@@ -145,14 +154,17 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 
 	static private final String FORMAT_NAME="Minorthird Dataset";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{FORMAT_NAME};
 	}
 
+	@Override
 	public String getExtensionFor(String s){
 		return ".data";
 	}
 
+	@Override
 	public void saveAs(File file,String format)throws IOException{
 		if(!format.equals(FORMAT_NAME)){
 			throw new IllegalArgumentException("illegal format: "+format);
@@ -162,6 +174,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 		}
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		try{
 			return DatasetLoader.loadFile(file);
@@ -171,6 +184,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	}
 
 	/** A string view of the dataset */
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		for(Iterator<Example> i=this.iterator();i.hasNext();){
@@ -182,6 +196,7 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	}
 
 	/** A GUI view of the dataset. */
+	@Override
 	public Viewer toGUI(){
 		Viewer dbGui=new SimpleDatasetViewer();
 		dbGui.setContent(this);
@@ -193,10 +208,12 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 
 		static final long serialVersionUID=20071015;
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Dataset;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			final Dataset d=(Dataset)o;
 			final Example[] tmp=new Example[d.size()];
@@ -207,10 +224,11 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 			final JList jList=new JList(tmp);
 			jList.setCellRenderer(new ListCellRenderer(){
 
+				@Override
 				public Component getListCellRendererComponent(JList el,Object v,
 						int index,boolean sel,boolean focus){
 					return GUI
-					.conciseExampleRendererComponent((Example)tmp[index],60,sel);
+					.conciseExampleRendererComponent(tmp[index],60,sel);
 				}
 			});
 			monitorSelections(jList);
@@ -222,18 +240,22 @@ public class BasicDataset implements Dataset,Serializable,Visible,Saveable{
 	// splitter
 	//
 
+	@Override
 	public Split split(final Splitter<Example> splitter){
 		splitter.split(examples.iterator());
 		return new Split(){
 
+			@Override
 			public int getNumPartitions(){
 				return splitter.getNumPartitions();
 			}
 
+			@Override
 			public Dataset getTrain(int k){
 				return invertIteration(splitter.getTrain(k));
 			}
 
+			@Override
 			public Dataset getTest(int k){
 				return invertIteration(splitter.getTest(k));
 			}

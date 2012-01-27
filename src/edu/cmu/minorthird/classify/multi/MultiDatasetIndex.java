@@ -75,12 +75,12 @@ public class MultiDatasetIndex implements Serializable{
 
 	/** Get i-th example containing feature f. */
 	public MultiExample getMultiExample(Feature f,int i){
-		return (MultiExample)featureIndex(f).get(i);
+		return featureIndex(f).get(i);
 	}
 
 	/** Get i-th example with given class label. */
 	public MultiExample getMultiExample(String label,int i){
-		return (MultiExample)classIndex(label).get(i);
+		return classIndex(label).get(i);
 	}
 
 	/** Get all examples with a feature in common with the given instance. */
@@ -130,6 +130,7 @@ public class MultiDatasetIndex implements Serializable{
 		return result;
 	}
 
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("[index");
 		for(Iterator<Feature> i=featureIterator();i.hasNext();){

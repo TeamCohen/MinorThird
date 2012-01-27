@@ -34,20 +34,24 @@ public class InfoGainInstanceTransform implements InstanceTransform{
 	}
 
 	/** Not used */
+	@Override
 	public Instance transform(Instance instance){
 		System.out.println("Warning: cannot transform instance with Info-Gain!");
 		return instance;
 	}
 
 	/** Not used */
+	@Override
 	public Example transform(Example example){
 		System.out.println("Warning: cannot transform example with Info-Gain!");
 		return example;
 	}
 
 	/** Transform a dataset according to Info-Gain criterion */
+	@Override
 	public Dataset transform(Dataset dataset){
 		final Comparator<Pair> VAL_COMPARATOR=new Comparator<Pair>(){
+			@Override
 			public int compare(Pair ig1,Pair ig2){
 				if(ig1.value<ig2.value)
 					return 1;
@@ -64,7 +68,7 @@ public class InfoGainInstanceTransform implements InstanceTransform{
 		Set<Feature> availableFeatures=new HashSet<Feature>();
 		for(int j=0;j<maxIndex;j++){
 			//System.out.println( ((Pair)igValues.get(j)).feature+" "+((Pair)igValues.get(j)).value ); // DEBUG
-			availableFeatures.add(((Pair)igValues.get(j)).feature);
+			availableFeatures.add((igValues.get(j)).feature);
 		}
 		// create masked dataset
 		BasicDataset maskeDataset=new BasicDataset();
@@ -89,6 +93,7 @@ public class InfoGainInstanceTransform implements InstanceTransform{
 			this.feature=f;
 		}
 
+		@Override
 		public String toString(){
 			return "[ "+this.value+","+this.feature+" ]"; //this.key + " ]";
 		}
@@ -112,8 +117,8 @@ public class InfoGainInstanceTransform implements InstanceTransform{
 		int maxIndex=Math.min(igValues.size(),top);
 		StringBuffer sb=new StringBuffer();
 		for(int j=0;j<maxIndex;j++){
-			Feature f=((Pair)igValues.get(j)).feature;
-			double val=((Pair)igValues.get(j)).value;
+			Feature f=(igValues.get(j)).feature;
+			double val=(igValues.get(j)).value;
 			sb.append(f.toString()+" , "+val+"\n");
 		}
 

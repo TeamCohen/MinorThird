@@ -29,14 +29,15 @@ public class ManyVsRestLearner extends OneVsAllLearner{
     	super(learnerName);
     }
     
-    public ClassifierLearner copy() {
+    @Override
+		public ClassifierLearner copy() {
 	    ManyVsRestLearner learner = null;
 		try {
 		    learner =(ManyVsRestLearner)(this.clone());
 		    if(innerLearner!= null) {
 				learner.innerLearner.clear();
 				for (int i=0; i<innerLearner.size(); i++) {
-				    ClassifierLearner inner = (ClassifierLearner)(innerLearner.get(i));
+				    ClassifierLearner inner = (innerLearner.get(i));
 				    learner.innerLearner.add(inner.copy());
 				}
 		    }
@@ -44,16 +45,17 @@ public class ManyVsRestLearner extends OneVsAllLearner{
 		    System.out.println("Can't CLONE ManyVsRestLearner!!");
 		    e.printStackTrace();
 		}
-		return (ClassifierLearner)learner;
+		return learner;
     }
 
-    public void addExample(Example answeredQuery)
+    @Override
+		public void addExample(Example answeredQuery)
     {    	
     	Set<String> possibleLabels = answeredQuery.getLabel().possibleLabels();    	
     	for (int i=0; i<innerLearner.size(); i++) {
     		boolean positive = possibleLabels.contains(schema.getClassName(i));
     		ClassLabel label = positive ? ClassLabel.positiveLabel(1.0) : ClassLabel.negativeLabel(-1.0);
-    		((ClassifierLearner)(innerLearner.get(i))).addExample( new Example( answeredQuery.asInstance(), label ) );
+    		((innerLearner.get(i))).addExample( new Example( answeredQuery.asInstance(), label ) );
     	}
     }
 }

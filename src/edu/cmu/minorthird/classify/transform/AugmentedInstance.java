@@ -36,14 +36,17 @@ public class AugmentedInstance implements Instance{
 	//
 	// delegate to wrapped instance
 	//
+	@Override
 	final public Object getSource(){
 		return instance.getSource();
 	}
 
+	@Override
 	final public String getSubpopulationId(){
 		return instance.getSubpopulationId();
 	}
 
+	@Override
 	final public Iterator<Feature> binaryFeatureIterator(){
 		return instance.binaryFeatureIterator();
 	}
@@ -52,20 +55,24 @@ public class AugmentedInstance implements Instance{
 	// extend the numeric feature set
 	//
 
+	@Override
 	final public Iterator<Feature> numericFeatureIterator(){
 		return new UnionIterator<Feature>(new MyIterator(),instance
 				.numericFeatureIterator());
 	}
 
+	@Override
 	final public Iterator<Feature> featureIterator(){
 		return new UnionIterator<Feature>(new MyIterator(),instance
 				.featureIterator());
 	}
 	
+	@Override
 	final public int numFeatures(){
 		return newFeatures.length+instance.numFeatures();
 	}
 
+	@Override
 	final public double getWeight(Feature f){
 		for(int i=0;i<newFeatures.length;i++){
 			if(newFeatures[i].equals(f)){
@@ -75,11 +82,13 @@ public class AugmentedInstance implements Instance{
 		return instance.getWeight(f);
 	}
 
+	@Override
 	public String toString(){
 		return "[AugmentedInstance: "+instance+StringUtil.toString(newFeatures)+
 				StringUtil.toString(newValues)+"]";
 	}
 
+	@Override
 	final public Viewer toGUI(){
 		return new GUI.InstanceViewer(this);
 	}
@@ -88,14 +97,17 @@ public class AugmentedInstance implements Instance{
 
 		private int i=0;
 
+		@Override
 		public void remove(){
 			throw new UnsupportedOperationException("can't remove");
 		}
 
+		@Override
 		public boolean hasNext(){
 			return i<newFeatures.length;
 		}
 
+		@Override
 		public Feature next(){
 			return newFeatures[i++];
 		}

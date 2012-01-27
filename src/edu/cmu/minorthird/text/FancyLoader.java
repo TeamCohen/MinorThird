@@ -231,7 +231,9 @@ public class FancyLoader
 			if (labelFile.exists()) {
 				log.info("Loading annotations from "+labelFile);
 				new TextLabelsLoader().importOps((MutableTextLabels)labels,base,labelFile);
-			}
+				// frank: trying to fix this bug "ignoring 001.txt because token 0 not labeled in Span..."
+				new TextLabelsLoader().closeLabels((MutableTextLabels)labels,TextLabelsLoader.CLOSE_ALL_TYPES);
+			}			
 
 			File mixupFile = new File(script + ".mixup");
 			if (mixupFile.exists()) {

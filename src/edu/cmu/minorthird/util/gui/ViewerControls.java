@@ -64,6 +64,7 @@ abstract public class ViewerControls extends JPanel implements ActionListener{
 
 			static final long serialVersionUID=20080517L;
 
+			@Override
 			public void actionPerformed(ActionEvent e){
 				((Controllable)viewer).applyControls(ViewerControls.this);
 			}
@@ -71,6 +72,7 @@ abstract public class ViewerControls extends JPanel implements ActionListener{
 	}
 
 	// implement ActionListener
+	@Override
 	public void actionPerformed(ActionEvent e){
 		((Controllable)viewer).applyControls(this);
 	}

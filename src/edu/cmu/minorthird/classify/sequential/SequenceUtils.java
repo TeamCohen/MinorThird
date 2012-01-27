@@ -63,17 +63,22 @@ public class SequenceUtils
     	static final long serialVersionUID=20080207L;
       private Classifier c;
       public MyBinaryClassifier(Classifier c) { this.c = c; }
-      public double score(Instance instance) { return c.classification(instance).posWeight(); };
-      public String explain(Instance instance) { return c.explain(instance); }
+      @Override
+			public double score(Instance instance) { return c.classification(instance).posWeight(); };
+      @Override
+			public String explain(Instance instance) { return c.explain(instance); }
+	@Override
 	public Explanation getExplanation(Instance instance) {
 	    Explanation.Node top = c.getExplanation(instance).getTopNode();
 	    Explanation ex = new Explanation(top);
 	    return ex;
 	}
-      public Viewer toGUI() { 
+      @Override
+			public Viewer toGUI() { 
         Viewer v = new ComponentViewer() {
         	static final long serialVersionUID=20080207L;
-            public JComponent componentFor(Object o) {
+            @Override
+						public JComponent componentFor(Object o) {
               MyBinaryClassifier b = (MyBinaryClassifier)o;
               return (b.c instanceof Visible)?((Visible)b.c).toGUI():new VanillaViewer(c);				
             }
@@ -81,7 +86,8 @@ public class SequenceUtils
         v.setContent(this);
         return v;
       }
-      public String toString() { return "[MyBC "+c+"]"; }
+      @Override
+			public String toString() { return "[MyBC "+c+"]"; }
     };
   }
 }

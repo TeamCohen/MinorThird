@@ -78,6 +78,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable{
 		return labels;
 	}
 
+	@Override
 	public void applyControls(ViewerControls viewerControls){
 		MarkupControls controls=(MarkupControls)viewerControls;
 		if(viewers!=null){
@@ -89,7 +90,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable{
 				for(SpanDifference.Looper i=sd.differenceIterator();i.hasNext();){
 					Span s=i.next();
 					SpanViewer.TextViewer sv=
-							(SpanViewer.TextViewer)viewerForId.get(s.getDocumentId());
+							viewerForId.get(s.getDocumentId());
 					if(sv==null)
 						throw new IllegalStateException("can't highlight span "+s);
 					sv.highlight(s,colorByStatus[i.getStatus()]);
@@ -99,6 +100,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable{
 		}
 	}
 
+	@Override
 	public JComponent componentFor(Object o){
 		final TextLabels labels=(TextLabels)o;
 		int n=labels.getTextBase().size();
@@ -117,6 +119,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable{
 		jlist=new JList(spans);
 		jlist.setCellRenderer(new ListCellRenderer(){
 
+			@Override
 			public Component getListCellRendererComponent(JList el,Object v,
 					int index,boolean sel,boolean focus){
 				Color borderColor=sel?Color.blue:Color.black;
@@ -136,6 +139,7 @@ public class TextLabelsViewer extends ComponentViewer implements Controllable{
 				" types ]"));
 		subpanel.add(new JButton(new AbstractAction("Save as... "){
 			static final long serialVersionUID=20080314L;
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				try{
 					new TextLabelsLoader().saveTypesAsOps(labels,new File(fileField

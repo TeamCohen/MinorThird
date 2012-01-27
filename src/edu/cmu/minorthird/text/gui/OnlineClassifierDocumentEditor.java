@@ -267,6 +267,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 		ioTypeLabel.setText("Edit: "+importType+"/"+exportType);
 	}
 
+	@Override
 	protected void loadSpanHook(){
 		if(readOnly&&!DUMMY_ID.equals(documentSpan.getDocumentId())){
 			importDocumentListMarkup(documentSpan.getDocumentId());
@@ -295,6 +296,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			JComboBox cb=(JComboBox)event.getSource();
 			String type=(String)cb.getSelectedItem();
@@ -317,6 +319,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			AddDocuments();
 			tbViewer.highlightAction.paintDocument(null);
@@ -331,6 +334,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			new ViewerFrame("Classifier",new SmartVanillaViewer(textLearner
 					.getClassifier()));
@@ -361,6 +365,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			JFileChooser chooser=new JFileChooser();
 			int returnVal=chooser.showSaveDialog(ocdEditor);
@@ -390,6 +395,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			textLearner.reset();
 			statusMsg.display("Learner Reset - previous examples forgotten");
@@ -403,6 +409,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			textLearner.completeTraining();
 			statusMsg.display("Training Completed - no more examples will be added");
@@ -428,6 +435,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 		}
 	}
 
+	@Override
 	protected void loadSpan(Span span){
 		super.loadSpan(span);
 		documentMessage(documentList.getMinSelectionIndex());
@@ -443,6 +451,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 			this.delta=delta;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			int nextCursor;
 			synchronized(documentList){
@@ -519,7 +528,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 	 */
 	public boolean checkIfAdded(int docID){
 		for(int i=0;i<editedSpans.size();i++){
-			EditedSpan eSpan=(EditedSpan)editedSpans.get(i);
+			EditedSpan eSpan=editedSpans.get(i);
 			if(eSpan.id==docID&&eSpan.added){
 				return true;
 			}
@@ -530,7 +539,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 	/** Returns the label of the document if it has been labeled */
 	public String checkLabel(int docID){
 		for(int i=0;i<editedSpans.size();i++){
-			EditedSpan eSpan=(EditedSpan)editedSpans.get(i);
+			EditedSpan eSpan=editedSpans.get(i);
 			if(eSpan.id==docID){
 				return eSpan.label;
 			}
@@ -547,7 +556,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 		// If Span is alread added to the classifier, return false
 		// Otherwise change label
 		for(int i=0;i<editedSpans.size();i++){
-			EditedSpan eSpan=(EditedSpan)editedSpans.get(i);
+			EditedSpan eSpan=editedSpans.get(i);
 			if(eSpan.id==docID){
 				if(eSpan.added)
 					return false;
@@ -570,7 +579,7 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 	public void AddDocuments(){
 		// Add all edited spans to editLabels
 		for(int i=0;i<editedSpans.size();i++){
-			EditedSpan eSpan=((EditedSpan)editedSpans.get(i));
+			EditedSpan eSpan=(editedSpans.get(i));
 			if(!eSpan.added&&eSpan.s!=null){
 				editLabels.addToType(eSpan.s,eSpan.label);
 				textLearner.addDocument(eSpan.label,eSpan.s.asString());
@@ -578,11 +587,11 @@ public class OnlineClassifierDocumentEditor extends ViewerTracker{
 		}
 		// Mark all edited Spans as added
 		for(int j=0;j<editedSpans.size();j++){
-			EditedSpan eSpan=((EditedSpan)editedSpans.get(j));
+			EditedSpan eSpan=(editedSpans.get(j));
 			eSpan.add();
 		}
 		ann=textLearner.getAnnotator();
-		viewLabels=textLearner.annotatedCopy((TextLabels)editLabels);
+		viewLabels=textLearner.annotatedCopy(editLabels);
 		tbViewer.updateTextLabels(viewLabels);
 	}
 

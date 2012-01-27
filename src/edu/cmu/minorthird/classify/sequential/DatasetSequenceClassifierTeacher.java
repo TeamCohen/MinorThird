@@ -18,6 +18,7 @@ public class DatasetSequenceClassifierTeacher implements SequenceClassifierTeach
 
 	/** Currently, only support batch learners.
 	 */
+	@Override
 	public SequenceClassifier train(SequenceClassifierLearner learner)
 	{
 		BatchSequenceClassifierLearner batchLearner = (BatchSequenceClassifierLearner)learner;

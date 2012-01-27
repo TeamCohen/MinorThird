@@ -30,6 +30,7 @@ public class RankingPerceptron extends BatchRankingLearner
 		this.numEpochs=numEpochs;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset data) 
 	{
 		Hyperplane h = new Hyperplane();
@@ -49,7 +50,7 @@ public class RankingPerceptron extends BatchRankingLearner
 		}
 		pc.finished();
 		// turn sum hyperplane into an average
-		s.multiply( 1.0/((double)numUpdates) );
+		s.multiply( 1.0/(numUpdates) );
 		//new ViewerFrame("hyperplane", s.toGUI());
 		return s;
 	}
@@ -62,22 +63,22 @@ public class RankingPerceptron extends BatchRankingLearner
 //		int highestNegativeIndex = ranking.size();
 		Example highestNegativeExample = null;
 		for (int i=0; i<ranking.size(); i++) {	
-	    Example exi = (Example)ranking.get(i);
+	    Example exi = ranking.get(i);
 			if (exi.getLabel().isNegative()) {
 //				highestNegativeIndex = i;
-				highestNegativeExample = (Example)ranking.get(i);		
+				highestNegativeExample = ranking.get(i);		
 				break;
 			}
 		}
 		// look for positive example, update
 		for (int i=0; i<ranking.size(); i++) {	
-	    Example exi = (Example)ranking.get(i);
+	    Example exi = ranking.get(i);
 			if (exi.getLabel().isPositive()) {			
 				if (highestNegativeExample!=null && (h.score(exi) < h.score(highestNegativeExample)+MARGIN)) {
 				//if (i>highestNegativeIndex) {
 					// the positive example is ranked below the
 					// highestNegativeExample, which is incorrect
-					Example pos = (Example)ranking.get(i);
+					Example pos = ranking.get(i);
 					h.increment( highestNegativeExample, -1.0);
 					h.increment( pos, +1.0 );
 				}

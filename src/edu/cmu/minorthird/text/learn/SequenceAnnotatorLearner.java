@@ -102,6 +102,7 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner{
 	/**
 	 * Return the learned annotator.
 	 */
+	@Override
 	public Annotator getAnnotator(){
 		ExampleSchema schema=seqData.getSchema();
 		if(schema.getNumberOfClasses()<=1){
@@ -131,13 +132,16 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner{
 			final int historySize,Extraction2TaggingReduction reduction){
 		BatchSequenceClassifierLearner dummy1=new BatchSequenceClassifierLearner(){
 
+			@Override
 			public void setSchema(ExampleSchema schema){
 			}
 
+			@Override
 			public SequenceClassifier batchTrain(SequenceDataset dataset){
 				return null;
 			}
 
+			@Override
 			public int getHistorySize(){
 				return historySize;
 			}
@@ -145,6 +149,7 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner{
 		SequenceAnnotatorLearner dummy2=
 				new SequenceAnnotatorLearner(dummy1,fe,reduction){
 
+					@Override
 					public Annotator getAnnotator(){
 						return null;
 					}
@@ -184,6 +189,7 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner{
 			this.annotationType=annotationType;
 		}
 
+		@Override
 		public String getSpanType(){
 			return annotationType;
 		}
@@ -200,6 +206,7 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner{
 			return seqClassifier;
 		}
 
+		@Override
 		protected void doAnnotate(MonotonicTextLabels labels){
 			Iterator<Span> i=labels.getTextBase().documentSpanIterator();
 			ProgressCounter pc=
@@ -222,17 +229,21 @@ public class SequenceAnnotatorLearner extends AbstractBatchAnnotatorLearner{
 			reduction.extractFromTags(annotationType,labels);
 		}
 
+		@Override
 		public String explainAnnotation(TextLabels labels,Span documentSpan){
 			return "not implemented";
 		}
 
+		@Override
 		public String toString(){
 			return "[SequenceAnnotator "+annotationType+":\n"+seqClassifier+"]";
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new ComponentViewer(){
 				static final long serialVersionUID=20080306L;
+				@Override
 				public JComponent componentFor(Object o){
 					SequenceAnnotator sa=(SequenceAnnotator)o;
 					JPanel mainPanel=new JPanel();

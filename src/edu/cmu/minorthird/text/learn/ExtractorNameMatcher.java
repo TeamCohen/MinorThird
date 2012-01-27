@@ -109,6 +109,7 @@ public class ExtractorNameMatcher{
 			spanType=s;
 		}
 
+		@Override
 		public void usage(){
 			for(int i=0;i<USAGE.length;i++)
 				System.out.println(USAGE[i]);
@@ -156,6 +157,7 @@ public class ExtractorNameMatcher{
 		nameDict=new ArrayList<String>(allNames);
 		Collections.sort(nameDict,new Comparator<String>(){
 
+			@Override
 			public int compare(String o1,String o2){
 				return new Integer(o2.length()).compareTo(new Integer(o1.length()));
 			}
@@ -386,6 +388,7 @@ public class ExtractorNameMatcher{
 		}
 		List<String> al=new ArrayList<String>(set);
 		Collections.sort(al,new Comparator<String>(){
+			@Override
 			public int compare(String o1,String o2){
 				return new Integer(o2.length()).compareTo(o1.length());
 			}

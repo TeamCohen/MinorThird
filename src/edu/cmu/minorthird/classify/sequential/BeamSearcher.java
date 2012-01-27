@@ -327,6 +327,7 @@ public class BeamSearcher implements SequenceConstants,Serializable{
 		public double score=0.0;
 
 		/** Implement Comparable */
+		@Override
 		public int compareTo(BeamEntry other){
 			return MathUtil.sign(other.score-score);
 		}
@@ -360,6 +361,7 @@ public class BeamSearcher implements SequenceConstants,Serializable{
 			InstanceFromSequence.fillHistory(history,labels,labels.length);
 		}
 
+		@Override
 		public String toString(){
 			return "[entry: "+labels+";"+scores+"; score:"+score+"]";
 		}
@@ -378,6 +380,7 @@ public class BeamSearcher implements SequenceConstants,Serializable{
 			entry.fillHistory(keyHistory);
 		}
 
+		@Override
 		public int hashCode(){
 			int h=73643674;
 			for(int i=0;i<keyHistory.length;i++){
@@ -389,6 +392,7 @@ public class BeamSearcher implements SequenceConstants,Serializable{
 			return h;
 		}
 
+		@Override
 		public boolean equals(Object o){
 			if(!(o instanceof BeamKey))
 				return false;
@@ -402,6 +406,7 @@ public class BeamSearcher implements SequenceConstants,Serializable{
 			return true;
 		}
 
+		@Override
 		public String toString(){
 			String path="[Key ";
 			for(int i=0;i<keyHistory.length;i++){

@@ -71,10 +71,13 @@ public class MaxEntLearner extends BatchClassifierLearner
 		return logSpace;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema) { crfLearner.setSchema(schema); }
 	
+	@Override
 	public ExampleSchema getSchema(){return crfLearner.getSchema();}
 	
+	@Override
 	public Classifier batchTrain(Dataset dataset)
 	{
 		SequenceDataset seqData = new SequenceDataset();
@@ -100,12 +103,14 @@ public class MaxEntLearner extends BatchClassifierLearner
 	    this.schema=schema;
 	    this.scaleScores=scaleScores; 
 		}
+		@Override
 		public ClassLabel classification(Instance instance) 
 		{
 	    // classify transformed instance
 	    ClassLabel label = c.classification( BeamSearcher.getBeamInstance(instance,1) );
 	    return scaleScores?transformScores(label):label;
 		}
+		@Override
 		public String explain(Instance instance) 
 		{
 	    Instance augmentedInstance = BeamSearcher.getBeamInstance(instance,1);
@@ -120,6 +125,7 @@ public class MaxEntLearner extends BatchClassifierLearner
 	    }
 		}
 	
+		@Override
 		public Explanation getExplanation(Instance instance) {
 	    Explanation.Node top = new Explanation.Node("MaxEntClassifier Explanation");
 	    Instance augmentedInstance = BeamSearcher.getBeamInstance(instance,1);
@@ -193,10 +199,12 @@ public class MaxEntLearner extends BatchClassifierLearner
 
 		public Classifier getRawClassifier() { return c; }
 
+		@Override
 		public Viewer toGUI()
 		{
 	    Viewer v = new TransformedViewer(new SmartVanillaViewer()) {
 	    	static final long serialVersionUID=20080128L;
+					@Override
 					public Object transform(Object o) {
 						MyClassifier mycl = (MyClassifier)o;
 						return mycl.c;

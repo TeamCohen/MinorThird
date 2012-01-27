@@ -37,6 +37,7 @@ public class OrderBasedTransformLearner implements InstanceTransformLearner{
 
 	/** Accept an ExampleSchema - constraints on what the
 	 * Examples will be. */
+	@Override
 	public void setSchema(ExampleSchema schema){
 		if(!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)){
 			throw new IllegalStateException("can only learn binary example data");
@@ -44,6 +45,7 @@ public class OrderBasedTransformLearner implements InstanceTransformLearner{
 	}
 
 	/** Examine data, build an instance transformer */
+	@Override
 	public InstanceTransform batchTrain(Dataset dataset){
 		OrderBasedInstanceTransform filter=new OrderBasedInstanceTransform();
 

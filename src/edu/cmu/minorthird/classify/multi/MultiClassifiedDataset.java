@@ -4,8 +4,6 @@ package edu.cmu.minorthird.classify.multi;
 
 import java.awt.Component;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -15,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -63,6 +62,7 @@ public class MultiClassifiedDataset implements Visible{
 		return dataset;
 	}
 
+	@Override
 	public Viewer toGUI(){
 		Viewer v=new MessageViewer(new MyViewer());
 		v.setContent(this);
@@ -79,8 +79,11 @@ public class MultiClassifiedDataset implements Visible{
 
 		public Feature targetFeature;
 
-		public JRadioButton correctButton,incorrectButton,allButton;
+		public JRadioButton correctButton;
+		//public JRadioButton incorrectButton;
+		public JRadioButton allButton;
 
+		@Override
 		public void initialize(){
 			// indicates if we should filter on some feature
 			filterOnFeatureBox=new JCheckBox();
@@ -90,7 +93,7 @@ public class MultiClassifiedDataset implements Visible{
 
 			ButtonGroup group=new ButtonGroup();
 			correctButton=addButton("correct",false,group);
-			incorrectButton=addButton("incorrect",false,group);
+			//incorrectButton=addButton("incorrect",false,group);
 			allButton=addButton("all",true,group);
 
 			addApplyButton();
@@ -125,6 +128,7 @@ public class MultiClassifiedDataset implements Visible{
 
 		private Feature targetFeature=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			DataControls dc=(DataControls)controls;
 			if(dc.allButton.isSelected())
@@ -141,12 +145,14 @@ public class MultiClassifiedDataset implements Visible{
 			revalidate();
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			cd=(MultiClassifiedDataset)o;
 			JTable jtable=
 					new JTable(new MyTableModel(filteredMultiClassifiedDataset()));
 			jtable.setDefaultRenderer(MultiExample.class,new TableCellRenderer(){
 
+				@Override
 				public Component getTableCellRendererComponent(JTable table,
 						Object value,boolean isSelected,boolean hasFocus,int row,int column){
 					return GUI.conciseMultiExampleRendererComponent((MultiExample)value,
@@ -156,7 +162,7 @@ public class MultiClassifiedDataset implements Visible{
 			monitorSelections(jtable,1);
 			JScrollPane scrollpane=new JScrollPane(jtable);
 			scrollpane
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			return scrollpane;
 		}
 
@@ -199,14 +205,17 @@ public class MultiClassifiedDataset implements Visible{
 				this.cd=cd;
 			}
 
+			@Override
 			public int getRowCount(){
 				return cd.dataset.size();
 			}
 
+			@Override
 			public int getColumnCount(){
 				return 2;
 			} // predicted, actual, instance
 
+			@Override
 			public Object getValueAt(int row,int col){
 				if(col==0)
 					return cd.classifier.multiLabelClassification(cd.dataset
@@ -217,6 +226,7 @@ public class MultiClassifiedDataset implements Visible{
 					throw new IllegalArgumentException("illegal col "+col);
 			}
 
+			@Override
 			public String getColumnName(int col){
 				if(col==0)
 					return "Prediction";
@@ -239,10 +249,12 @@ public class MultiClassifiedDataset implements Visible{
 			setContent(ex);
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Explanation;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			ex=(Explanation)o;
 			JScrollPane p=new JScrollPane(ex.getExplanation());
@@ -263,6 +275,7 @@ public class MultiClassifiedDataset implements Visible{
 
 		private MultiClassifiedDataset cd;
 
+		@Override
 		public JComponent componentFor(Object o){
 			cd=(MultiClassifiedDataset)o;
 			JSplitPane left=new JSplitPane();
@@ -307,6 +320,7 @@ public class MultiClassifiedDataset implements Visible{
 			return main;
 		}
 
+		/*
 		protected boolean canHandle(int signal,Object argument){
 			return (signal==OBJECT_SELECTED)&&(argument instanceof MultiExample)||
 					(signal==OBJECT_SELECTED)&&(argument instanceof Feature);
@@ -325,7 +339,9 @@ public class MultiClassifiedDataset implements Visible{
 				sendSignal(TEXT_MESSAGE,featureSummary((Feature)argument,cd.index));
 			}
 		}
+		*/
 
+		/*
 		private String featureSummary(Feature f,MultiDatasetIndex index){
 			StringBuffer buf=new StringBuffer(f.toString());
 			buf.append(" appears in ");
@@ -348,6 +364,7 @@ public class MultiClassifiedDataset implements Visible{
 			}
 			return buf.toString();
 		}
+		*/
 	}
 
 	public static void main(String[] args){

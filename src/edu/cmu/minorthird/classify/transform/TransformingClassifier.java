@@ -30,16 +30,19 @@ public class TransformingClassifier implements Classifier,Visible,Serializable{
 		this.transformer=transformer;
 	}
 
+	@Override
 	public ClassLabel classification(Instance instance){
 		return classifier.classification(transformer.transform(instance));
 	}
 
+	@Override
 	public String explain(Instance instance){
 		Instance transformedInstance=transformer.transform(instance);
 		return "Transformed instance: "+transformedInstance+"\n"+
 				classifier.explain(transformedInstance)+"\n";
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=
 				new Explanation.Node("TransformingClassifier Explanation");
@@ -51,9 +54,11 @@ public class TransformingClassifier implements Classifier,Visible,Serializable{
 		return ex;
 	}
 
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=new ComponentViewer(){
 			static final long serialVersionUID=20080201L;
+			@Override
 			public JComponent componentFor(Object o){
 				TransformingClassifier tc=(TransformingClassifier)o;
 				JPanel panel=new JPanel();

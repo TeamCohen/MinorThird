@@ -65,6 +65,7 @@ public class GUI{
 		main.addSubView("Features",new MultiExampleViewer());
 		main.addSubView("Source",new TransformedViewer(new SmartVanillaViewer()){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public Object transform(Object o){
 				return ((MultiExample)o).getSource();
 			}
@@ -72,6 +73,7 @@ public class GUI{
 		main.addSubView("Subpopulation",new TransformedViewer(
 				new SmartVanillaViewer()){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public Object transform(Object o){
 				return "Subpopulation ID='"+((MultiExample)o).getSubpopulationId()+"'";
 			}
@@ -92,10 +94,12 @@ public class GUI{
 			super(instance);
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return(o instanceof MultiExample);
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			MultiExample e=(MultiExample)o;
 			JPanel p=new JPanel();
@@ -125,10 +129,12 @@ public class GUI{
 			super(instance);
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return(o instanceof Instance);
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			return instanceComponent((Instance)o);
 		}

@@ -29,6 +29,7 @@ public class PredictedClassTransform extends AbstractInstanceTransform
 	}
 
 	/*  Adds the predicted multiClassLabel as features to the instance */
+	@Override
 	public Instance transform(Instance instance){
 		MultiClassLabel predicted=
 				multiClassifier.multiLabelClassification(instance);

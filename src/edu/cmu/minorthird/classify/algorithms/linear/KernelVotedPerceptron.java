@@ -98,6 +98,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 		this.gamma=gamma;
 	}
 
+	@Override
 	public void reset(){
 		v_k=new Hyperplane();
 		listVK=new ArrayList<Hyperplane>();
@@ -130,6 +131,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 	}
 
 	//update rule for training: Figure 1 in Freund & Schapire paper
+	@Override
 	public void addExample(Example example){
 		double y_t=example.getLabel().numericLabel();
 		if(Kernel(v_k,example.asInstance())*y_t<=0){//prediction error occurred
@@ -152,6 +154,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 
 	//TESTING ------------------------------------------------------------
 
+	@Override
 	public Classifier getClassifier(){
 		return new MyClassifier(listVK,listCK);
 	}
@@ -171,6 +174,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 		}
 
 		//implements decision rule
+		@Override
 		public ClassLabel classification(Instance ins){
 			double dec=0;
 			if(mode.equalsIgnoreCase("voted")){
@@ -194,8 +198,8 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 				FIRSTVEC=listVK.size()-MAX;
 			}
 			for(int i=FIRSTVEC;i<listVK.size();i++){
-				Hyperplane v_k=(Hyperplane)listVK.get(i);//v_k
-				int countt=((Integer)counts.get(i)).intValue();//c_k counts	
+				Hyperplane v_k=listVK.get(i);//v_k
+				int countt=(counts.get(i)).intValue();//c_k counts	
 				double kernelScore=Kernel(v_k,(ins));
 				double sign=(kernelScore>0)?+1:-1;//voting
 				score+=countt*(sign);
@@ -212,8 +216,8 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 				FIRSTVEC=listVK.size()-MAX;
 			}
 			for(int i=FIRSTVEC;i<listVK.size();i++){
-				Hyperplane hp=(Hyperplane)listVK.get(i);
-				int countt=((Integer)counts.get(i)).intValue();
+				Hyperplane hp=listVK.get(i);
+				int countt=(counts.get(i)).intValue();
 				score+=countt*Kernel(hp,ins);
 //					System.out.println(score);
 			}
@@ -221,10 +225,12 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 			return score;
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "KernelVotedPerceptron: Not implemented yet";
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=
 					new Explanation.Node("Kernel Perceptron Explanation (not valid!)");
@@ -232,15 +238,17 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TransformedViewer(new SmartVanillaViewer()){
 				static final long serialVersionUID=20080128L;
+				@Override
 				public Object transform(Object o){
 					MyClassifier mycl=(MyClassifier)o;
 
 					//dummy hyperplane: return last perceptron
-					Hyperplane hh=(Hyperplane)mycl.listVK.get(listVK.size()-1);
-					return (Classifier)hh;
+					Hyperplane hh=mycl.listVK.get(listVK.size()-1);
+					return hh;
 				}
 			};
 			v.setContent(this);
@@ -248,6 +256,7 @@ public class KernelVotedPerceptron extends OnlineBinaryClassifierLearner
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "Kernel Voted Perceptron";
 	}

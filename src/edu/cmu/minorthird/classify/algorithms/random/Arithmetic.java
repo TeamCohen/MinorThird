@@ -445,7 +445,7 @@ public class Arithmetic extends Constants {
          final double C5 =  7.93650793650793651e-04;
          final double C7 = -5.95238095238095238e-04;
 
-         r  = 1.0 / (double) k;
+         r  = 1.0 / k;
          rr = r * r;
          return (k + 0.5)*Math.log(k) - k + C0 + r*(C1 + rr*(C3 + rr*(C5 + rr*C7)));
       }
@@ -486,7 +486,7 @@ public class Arithmetic extends Constants {
       double r, rr;
 
       if (k > 30) {
-         r = 1.0 / (double) k;
+         r = 1.0 / k;
          rr = r * r;
          return r*(C1 + rr*(C3 + rr*(C5 + rr*C7)));
       }

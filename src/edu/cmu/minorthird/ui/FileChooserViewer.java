@@ -56,6 +56,7 @@ public class FileChooserViewer extends ComponentViewer implements
 		componentFor(null);
 	}
 
+	@Override
 	public JComponent componentFor(Object o){
 		removeAll();
 		log.debug("build panel");
@@ -73,6 +74,7 @@ public class FileChooserViewer extends ComponentViewer implements
 		button.addActionListener(l);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e){
 		if(selectedFile!=null)
 			chooser.setSelectedFile(selectedFile);
@@ -86,10 +88,12 @@ public class FileChooserViewer extends ComponentViewer implements
 	}
 
 	// default: recieve anything that can be converted to a component
+	@Override
 	public boolean canReceive(Object obj){
 		return false;
 	}
 
+	@Override
 	public void receiveContent(Object content){
 		return;
 	}

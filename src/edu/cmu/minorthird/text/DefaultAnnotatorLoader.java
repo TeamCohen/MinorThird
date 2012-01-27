@@ -19,6 +19,7 @@ public class DefaultAnnotatorLoader extends AnnotatorLoader{
 	/** 
 	 * Find the named resource file - usually a dictionary or trie for mixup. 
 	 */
+	@Override
 	public InputStream findFileResource(String fileName){
 		log.debug("Trying to find file resource: "+fileName);
 		InputStream is=null;
@@ -32,6 +33,7 @@ public class DefaultAnnotatorLoader extends AnnotatorLoader{
 	/**
 	 * Find the named resource class - usually an annotator.
 	 */
+	@Override
 	public Class<?> findClassResource(String className){
 		Class<?> clazz=null;
 		log.debug("Trying to find class with exact name: "+className);

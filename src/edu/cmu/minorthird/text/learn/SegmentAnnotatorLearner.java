@@ -73,6 +73,7 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		dataset=new SegmentDataset();
 		dataset.setDataCompression(compressDataset);
@@ -134,10 +135,12 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 		return "Set the SemiMarkowLearner to be used";
 	}
 
+	@Override
 	public SpanFeatureExtractor getSpanFeatureExtractor(){
 		return fe;
 	}
 
+	@Override
 	public void setSpanFeatureExtractor(SpanFeatureExtractor fe){
 		this.fe=fe;
 	}
@@ -146,10 +149,12 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 	 * Specify the type of annotation produced by this annotator - that is, the
 	 * type associated with spans produced by it.
 	 */
+	@Override
 	public void setAnnotationType(String s){
 		annotationType=s;
 	}
 
+	@Override
 	public String getAnnotationType(){
 		return annotationType;
 	}
@@ -158,21 +163,25 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 	private Iterator<Span> documentLooper;
 
 	/** Accept the pool of unlabeled documents. */
+	@Override
 	public void setDocumentPool(Iterator<Span> documentLooper){
 		this.documentLooper=documentLooper;
 	}
 
 	/** Ask for labels on every document. */
+	@Override
 	public boolean hasNextQuery(){
 		return documentLooper.hasNext();
 	}
 
 	/** Return the next unlabeled document. */
+	@Override
 	public Span nextQuery(){
 		return documentLooper.next();
 	}
 
 	/** Accept the answer to the last query. */
+	@Override
 	public void setAnswer(AnnotationExample answeredQuery){
 		// add examples to the SegmentDataset
 		Span document=answeredQuery.getDocumentSpan();
@@ -194,6 +203,7 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 	/**
 	 * Return the learned annotator.
 	 */
+	@Override
 	public Annotator getAnnotator(){
 		learner.setSchema(ExampleSchema.BINARY_EXAMPLE_SCHEMA);
 		if(displayDatasetBeforeLearning)
@@ -229,10 +239,12 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 			this.annotationType=annotationType;
 		}
 
+		@Override
 		public String getSpanType(){
 			return annotationType;
 		}
 
+		@Override
 		protected void doAnnotate(MonotonicTextLabels labels){
 			Iterator<Span> i=labels.getTextBase().documentSpanIterator();
 			ProgressCounter pc=
@@ -270,17 +282,21 @@ public class SegmentAnnotatorLearner extends AnnotatorLearner{
 			pc.finished();
 		}
 
+		@Override
 		public String explainAnnotation(TextLabels labels,Span documentSpan){
 			return "not implemented";
 		}
 
+		@Override
 		public String toString(){
 			return "[SegmentAnnotator "+annotationType+":\n"+segmenter+"]";
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new ComponentViewer(){
 				static final long serialVersionUID=20080306L;
+				@Override
 				public JComponent componentFor(Object o){
 					SegmentAnnotator sa=(SegmentAnnotator)o;
 					JPanel mainPanel=new JPanel();

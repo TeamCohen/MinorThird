@@ -12,6 +12,7 @@ import java.util.TreeSet;
 public abstract class AbstractSpanFinder implements SpanFinder{
 
 	/** Find subspans of each span produced by the documentSpanIterator. */
+	@Override
 	final public Iterator<Span> findSpans(TextLabels labels,Iterator<Span> documentSpanIterator){
 		TreeSet<Span> set=new TreeSet<Span>();
 		while(documentSpanIterator.hasNext()){
@@ -21,8 +22,10 @@ public abstract class AbstractSpanFinder implements SpanFinder{
 	}
 
 	/** Find subspans of the given document span. */
+	@Override
 	abstract public Iterator<Span> findSpans(TextLabels labels,Span documentSpan);
 
 	/** Explain how spans were found. */
+	@Override
 	abstract public String explainFindSpans(TextLabels labels,Span documentSpan);
 }

@@ -61,12 +61,14 @@ public class SpanDocument extends DefaultStyledDocument{
 	}
 
 	/** Overrides default insertString, since insertions are not allowed. */
+	@Override
 	public void insertString(int off,String s,AttributeSet attribs)
 			throws BadLocationException{
 		; // do nothing
 	}
 
 	/** Overrides default insertString, since insertions are not allowed. */
+	@Override
 	public void remove(int off,int len) throws BadLocationException{
 		; // do nothing
 	}

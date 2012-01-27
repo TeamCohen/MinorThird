@@ -67,42 +67,42 @@ public class ExtractionEvaluation implements Visible,Serializable{
 		if(overallTag==null)
 			throw new IllegalStateException("no overall measure stored");
 		else
-			return ((Stats)tagToStatsMap.get(overallTag)).sf1;
+			return (tagToStatsMap.get(overallTag)).sf1;
 	}
 
 	public double spanRecall(){
 		if(overallTag==null)
 			throw new IllegalStateException("no overall measure stored");
 		else
-			return ((Stats)tagToStatsMap.get(overallTag)).sr;
+			return (tagToStatsMap.get(overallTag)).sr;
 	}
 
 	public double spanPrecision(){
 		if(overallTag==null)
 			throw new IllegalStateException("no overall measure stored");
 		else
-			return ((Stats)tagToStatsMap.get(overallTag)).sp;
+			return (tagToStatsMap.get(overallTag)).sp;
 	}
 
 	public double tokenF1(){
 		if(overallTag==null)
 			throw new IllegalStateException("no overall measure stored");
 		else
-			return ((Stats)tagToStatsMap.get(overallTag)).tf1;
+			return (tagToStatsMap.get(overallTag)).tf1;
 	}
 
 	public double tokenRecall(){
 		if(overallTag==null)
 			throw new IllegalStateException("no overall measure stored");
 		else
-			return ((Stats)tagToStatsMap.get(overallTag)).tr;
+			return (tagToStatsMap.get(overallTag)).tr;
 	}
 
 	public double tokenPrecision(){
 		if(overallTag==null)
 			throw new IllegalStateException("no overall measure stored");
 		else
-			return ((Stats)tagToStatsMap.get(overallTag)).tp;
+			return (tagToStatsMap.get(overallTag)).tp;
 	}
 
 	// get stdErr
@@ -189,9 +189,11 @@ public class ExtractionEvaluation implements Visible,Serializable{
 				acc_s.sf1.stdErr());
 	}
 
+	@Override
 	public Viewer toGUI(){
 		Viewer v=new ComponentViewer(){
 			static final long serialVersionUID=20080314L;
+			@Override
 			public JComponent componentFor(Object o){
 				ExtractionEvaluation e=(ExtractionEvaluation)o;
 				Object[][] table=new Object[e.tagToStatsMap.keySet().size()][7];
@@ -199,7 +201,7 @@ public class ExtractionEvaluation implements Visible,Serializable{
 				for(Iterator<String> i=e.tagToStatsMap.keySet().iterator();i.hasNext();){
 					String tag=i.next();
 					table[row][0]=tag;
-					Stats s=(Stats)tagToStatsMap.get(tag);
+					Stats s=tagToStatsMap.get(tag);
 					table[row][1]=new Double(s.tp);
 					table[row][2]=new Double(s.tr);
 					table[row][3]=new Double(s.tf1);

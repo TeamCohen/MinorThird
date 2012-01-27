@@ -48,6 +48,7 @@ public class MutableInstance extends AbstractInstance{
 	}
 
 	/** Get the weight assigned to a feature in this instance. */
+	@Override
 	public double getWeight(Feature feature){
 		if(binarySet.contains(feature)){
 			return 1.0;
@@ -58,20 +59,24 @@ public class MutableInstance extends AbstractInstance{
 	}
 	
 	/** Return an iterator over all binary features */
+	@Override
 	public Iterator<Feature> binaryFeatureIterator(){
 		return binarySet.iterator();
 	}
 
 	/** Return an iterator over all numeric features */
+	@Override
 	public Iterator<Feature> numericFeatureIterator(){
 		return numericSet.iterator();
 	}
 
 	/** Return an iterator over all features */
+	@Override
 	public Iterator<Feature> featureIterator(){
 		return new UnionIterator<Feature>(binaryFeatureIterator(),numericFeatureIterator());
 	}
 	
+	@Override
 	public int numFeatures(){
 		return binarySet.size()+numericSet.size();
 	}

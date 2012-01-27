@@ -85,6 +85,7 @@ public class TestExtractor extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TestExtractor%20Tutorial.htm\">TestExtractor Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,test});
@@ -94,6 +95,7 @@ public class TestExtractor extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(test.loadFrom==null)
@@ -211,6 +213,7 @@ public class TestExtractor extends UIMain{
 		return accum.iterator();
 	}
 
+	@Override
 	public Object getMainResult(){
 		return extractionEval;
 	}

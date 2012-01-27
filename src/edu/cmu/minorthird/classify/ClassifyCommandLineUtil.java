@@ -247,6 +247,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			this.lnr=type.lnr;
 		}
 
+		@Override
 		public void saveAs(String s){
 			saveAs=new File(s);
 			saveAsFilename=s;
@@ -254,16 +255,19 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			type.saveAsFilename=this.saveAsFilename;
 		}
 
+		@Override
 		public void showData(){
 			showData=true;
 			type.showData=this.showData;
 		}
 
+		@Override
 		public void showResult(){
 			showResult=true;
 			type.showResult=this.showResult;
 		}
 
+		@Override
 		public void showTestDetails(){
 			showTestDetails=true;
 			type.showTestDetails=this.showTestDetails;
@@ -278,11 +282,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="simple";
 		}
 
+		@Override
 		public void data(String s){
 			trainData=toDataset(s,false,-1); // creates a simple dataset
 			trainDataFilename=s;
 		}
 
+		@Override
 		public void learner(String s){
 			clsLnr.clsLearner=Expt.toLearner(s);
 			lnr=clsLnr;
@@ -325,10 +331,12 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="multi";
 		}
 
+		@Override
 		public void multi(String dim){
 			multi=new Integer(dim).intValue();
 		}
 
+		@Override
 		public void cross(){
 			if(multi<0)
 				System.out
@@ -336,11 +344,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			crossDim=true;
 		}
 
+		@Override
 		public void data(String s){
 			trainData=toDataset(s,false,multi); // creates a multi dataset
 			trainDataFilename=s;
 		}
 
+		@Override
 		public void learner(String s){
 			clsLnr.clsLearner=Expt.toLearner(s);
 			lnr=clsLnr;
@@ -408,11 +418,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="seq";
 		}
 
+		@Override
 		public void data(String s){
 			trainData=toDataset(s,true,-1); // creates a simple dataset
 			trainDataFilename=s;
 		}
 
+		@Override
 		public void learner(String s){
 			seqLnr.seqLearner=toSeqLearner(s);
 			lnr=seqLnr;
@@ -537,6 +549,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			type.splitter=this.splitter;
 		}
 
+		@Override
 		public void saveAs(String s){
 			saveAs=new File(s);
 			saveAsFilename=s;
@@ -544,16 +557,19 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			type.saveAsFilename=this.saveAsFilename;
 		}
 
+		@Override
 		public void showData(){
 			showData=true;
 			type.showData=this.showData;
 		}
 
+		@Override
 		public void showResult(){
 			showResult=true;
 			type.showResult=this.showResult;
 		}
 
+		@Override
 		public void showTestDetails(){
 			showTestDetails=true;
 			type.showTestDetails=this.showTestDetails;
@@ -596,6 +612,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="simple";
 		}
 
+		@Override
 		public void test(String s){
 			testData=toDataset(s,false,-1); // creates a simple dataset
 			testDataFilename=s;
@@ -621,6 +638,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="multi";
 		}
 
+		@Override
 		public void test(String s){
 			testData=toDataset(s,false,multi); // creates a multi dataset
 			testDataFilename=s;
@@ -629,10 +647,12 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			splitter=new FixedTestSetSplitter<MultiExample>(it);
 		}
 
+		@Override
 		public void multi(String dim){
 			multi=new Integer(dim).intValue();
 		}
 
+		@Override
 		public void cross(){
 			if(multi<0)
 				System.out.println("Warning: Cannot use crossdimensional classification without multiLabels!");
@@ -672,6 +692,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="seq";
 		}
 
+		@Override
 		public void test(String s){
 			// testData=toDataset(s, false, -1); // creates a simple dataset
 			testData=toDataset(s,true,-1); // creates a sequential dataset
@@ -729,6 +750,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			super();
 		}
 
+		@Override
 		public void type(String s){
 			typeString=s;
 			System.out.println("Defining Type: "+s);
@@ -749,6 +771,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			return trainData;
 		}
 
+		@Override
 		public void data(String s){
 			type.data(s);
 			this.trainData=type.trainData;
@@ -769,6 +792,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			type.splitter=this.splitter;
 		}
 
+		@Override
 		public void learner(String s){
 			type.learner(s);
 			this.clsLnr.clsLearner=type.clsLnr.clsLearner;
@@ -777,6 +801,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 		}
 
 		// For multi
+		@Override
 		public void multi(String dim){
 			if(typeString.equalsIgnoreCase("multi")){
 				type.multi(dim);
@@ -786,6 +811,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 						" experiment \n      Must define -type multi to use this option");
 		}
 
+		@Override
 		public void cross(){
 			if(typeString.equalsIgnoreCase("multi")){
 				type.cross();
@@ -795,6 +821,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 						" experiment \n      Must define -type mutlit to use this option");
 		}
 
+		@Override
 		public void saveAs(String s){
 			saveAs=new File(s);
 			saveAsFilename=s;
@@ -802,16 +829,19 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			type.saveAsFilename=this.saveAsFilename;
 		}
 
+		@Override
 		public void showData(){
 			showData=true;
 			type.showData=this.showData;
 		}
 
+		@Override
 		public void showResult(){
 			showResult=true;
 			type.showResult=this.showResult;
 		}
 
+		@Override
 		public void showTestDetails(){
 			showTestDetails=true;
 			type.showTestDetails=this.showTestDetails;
@@ -829,11 +859,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="simple";
 		}
 
+		@Override
 		public void data(String s){
 			trainData=toDataset(s,false,-1); // creates a simple dataset
 			trainDataFilename=s;
 		}
 
+		@Override
 		public void test(String s){
 			testData=toDataset(s,false,-1); // creates a simple dataset
 			testDataFilename=s;
@@ -842,6 +874,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			splitter=new FixedTestSetSplitter<Example>(it);
 		}
 
+		@Override
 		public void learner(String s){
 			clsLnr.clsLearner=Expt.toLearner(s);
 			lnr=clsLnr;
@@ -915,11 +948,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="multi";
 		}
 
+		@Override
 		public void data(String s){
 			trainData=toDataset(s,false,multi); // creates a multi dataset
 			trainDataFilename=s;
 		}
 
+		@Override
 		public void test(String s){
 			testData=toDataset(s,false,multi); // creates a multi dataset
 			testDataFilename=s;
@@ -928,15 +963,18 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			splitter=new FixedTestSetSplitter<MultiExample>(it);
 		}
 
+		@Override
 		public void learner(String s){
 			clsLnr.clsLearner=Expt.toLearner(s);
 			lnr=clsLnr;
 		}
 
+		@Override
 		public void multi(String dim){
 			multi=new Integer(dim).intValue();
 		}
 
+		@Override
 		public void cross(){
 			if(multi<0)
 				System.out
@@ -1032,11 +1070,13 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			typeString="seq";
 		}
 
+		@Override
 		public void data(String s){
 			trainData=toDataset(s,true,-1); // creates a seq dataset
 			trainDataFilename=s;
 		}
 
+		@Override
 		public void test(String s){
 			testData=toDataset(s,true,-1); // creates a seq dataset
 			testDataFilename=s;
@@ -1045,6 +1085,7 @@ public class ClassifyCommandLineUtil extends BasicCommandLineProcessor{
 			splitter=new FixedTestSetSplitter<Example[]>(it);
 		}
 
+		@Override
 		public void learner(String s){
 			seqLnr.seqLearner=toSeqLearner(s);
 			lnr=seqLnr;

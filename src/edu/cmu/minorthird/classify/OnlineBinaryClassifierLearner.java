@@ -10,6 +10,7 @@ package edu.cmu.minorthird.classify;
 
 public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLearner implements BinaryClassifierLearner
 {
+	@Override
 	final public void setSchema(ExampleSchema schema)
 	{
 		if (!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)) {
@@ -17,10 +18,12 @@ public abstract class OnlineBinaryClassifierLearner extends OnlineClassifierLear
 		}
 	}
 	
+	@Override
 	final public ExampleSchema getSchema(){
 		return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
 	}
 	
+	@Override
 	final public BinaryClassifier getBinaryClassifier()
 	{
 		return (BinaryClassifier)getClassifier();

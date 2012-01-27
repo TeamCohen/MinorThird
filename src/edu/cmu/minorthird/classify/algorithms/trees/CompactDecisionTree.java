@@ -41,6 +41,7 @@ public class CompactDecisionTree extends BinaryClassifier implements
 	private double[] score=new double[initialVectorSize];
 
 	/** Print routine */
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		toString(buf,0);
@@ -172,6 +173,7 @@ public class CompactDecisionTree extends BinaryClassifier implements
 		return currentElt-1;
 	}
 
+	@Override
 	public double score(Instance instance){
 		return score(instance,rootNode);
 	}
@@ -186,6 +188,7 @@ public class CompactDecisionTree extends BinaryClassifier implements
 		}
 	}
 
+	@Override
 	public String explain(Instance instance){
 		return "";
 		/*
@@ -196,6 +199,7 @@ public class CompactDecisionTree extends BinaryClassifier implements
 		  }*/
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=new Explanation.Node("DecisionTree Explanation");
 		/*

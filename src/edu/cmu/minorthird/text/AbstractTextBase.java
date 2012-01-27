@@ -13,13 +13,18 @@ public abstract class AbstractTextBase implements TextBase {
     //
     // TextBase interface methods implemented
     //
-    public Tokenizer getTokenizer() { return tokenizer; }
+    @Override
+		public Tokenizer getTokenizer() { return tokenizer; }
 
     //
     // TextBase methods left abstract
     //
-    abstract public int size();
-    abstract public Document getDocument(String docID);
-    abstract public Iterator<Span> documentSpanIterator();
-    abstract public Span documentSpan(String documentId);    
+    @Override
+		abstract public int size();
+    @Override
+		abstract public Document getDocument(String docID);
+    @Override
+		abstract public Iterator<Span> documentSpanIterator();
+    @Override
+		abstract public Span documentSpan(String documentId);    
 }

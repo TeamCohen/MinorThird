@@ -60,6 +60,7 @@ public class Minorthird extends JFrame
 		cPanel.setBorder(new TitledBorder("Non-Text Data"));
 		cPanel.add(new JButton(new AbstractAction("Expt/Train/Test") {
 			static final long serialVersionUID=20071015;
+			@Override
 			public void actionPerformed(ActionEvent ev) {
 				new edu.cmu.minorthird.classify.UI.DataClassificationTask().callMain(defaultArgs);
 			}
@@ -84,6 +85,7 @@ public class Minorthird extends JFrame
 	{
 		panel.add(new JButton(new AbstractAction(tag) {
 			static final long serialVersionUID=20071015;
+			@Override
 			public void actionPerformed(ActionEvent ev) {
 				m.callMain(defaultArgs);
 			}

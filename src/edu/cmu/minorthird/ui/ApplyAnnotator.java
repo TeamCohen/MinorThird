@@ -65,6 +65,7 @@ public class ApplyAnnotator extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/ApplyAnnotator%20Tutorial.htm\">ApplyAnnotator Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,load,output});
@@ -74,6 +75,7 @@ public class ApplyAnnotator extends UIMain{
 	// load and test a classifier
 	// 
 
+	@Override
 	public void doMain(){
 		
 		// check that inputs are valid
@@ -116,6 +118,7 @@ public class ApplyAnnotator extends UIMain{
 		}
 	}
 
+	@Override
 	public Object getMainResult(){
 		return annLabels;
 	}

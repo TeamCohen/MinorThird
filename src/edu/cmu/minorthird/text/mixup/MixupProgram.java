@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import edu.cmu.minorthird.text.EncapsulatingAnnotatorLoader;
 import edu.cmu.minorthird.text.FancyLoader;
 import edu.cmu.minorthird.text.MonotonicTextLabels;
 import edu.cmu.minorthird.text.Span;
@@ -276,10 +275,11 @@ public class MixupProgram implements Serializable{
 	}
 
 	public Statement[] getStatements(){
-		return (Statement[])statementList.toArray(new Statement[0]);
+		return statementList.toArray(new Statement[0]);
 	}
 
 	/** List the program **/
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		for(int i=0;i<statementList.size();i++){
@@ -297,7 +297,7 @@ public class MixupProgram implements Serializable{
 		else{
 			InputStream s;
 			s=
-					EncapsulatingAnnotatorLoader.EncapsulatingClassLoader
+					ClassLoader
 							.getSystemResourceAsStream(fileName);
 			if(s==null)
 				s=ClassLoader.getSystemResourceAsStream(fileName);

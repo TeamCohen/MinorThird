@@ -46,13 +46,16 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 
 	public int getNumberOfEpochs() { return numberOfEpochs; }
 	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
+	@Override
 	public int getHistorySize() { return historySize; }
 	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
 	// Help Button
 	public String getHistorySizeHelp() { return "Number of tokens to look back on. <br>The predicted labels for the history are used as features to help classify the current token." ;}
 
+	@Override
 	public void setSchema(ExampleSchema schema)	{	;	}
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();
@@ -170,6 +173,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			}
 		}
 
+		@Override
 		public ClassLabel classification(Instance instance)
 		{
 			Hyperplane[] h = voteMode ? s_t : w_t ;
@@ -180,6 +184,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			return label; 
 		}
 
+		@Override
 		public String explain(Instance instance)
 		{
 			Hyperplane[] h = voteMode ? s_t : w_t ;
@@ -191,6 +196,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			}
 			return buf.toString();
 		}
+		@Override
 		public Explanation getExplanation(Instance instance) {
 			Hyperplane[] h = voteMode ? s_t : w_t ;
 			Explanation.Node top = new Explanation.Node("CollinsPerceptron Explanation");
@@ -204,10 +210,12 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI()
 		{
 			Viewer gui = new ComponentViewer() {
 				static final long serialVersionUID=20080207L;
+				@Override
 				public JComponent componentFor(Object o) {
 					MultiClassVPClassifier c = (MultiClassVPClassifier)o;
 					JPanel main = new JPanel();
@@ -236,6 +244,7 @@ public class CollinsPerceptronLearner implements BatchSequenceClassifierLearner,
 			}
 		}
 
+		@Override
 		public String toString() 
 		{
 			return "[MultiClassVPClassifier:"+StringUtil.toString(w_t,"\n","\n]","\n - ");

@@ -104,7 +104,7 @@ public class UnigramModel{
 
 	public int getFrequency(String s){
 		String s1=s.toLowerCase();
-		Double f=(Double)freq.get(s1);
+		Double f=freq.get(s1);
 		if(f==null)
 			return 0;
 		else

@@ -21,10 +21,12 @@ public class SmartVanillaViewer extends ComponentViewer{
 		super();
 	}
 
+	@Override
 	public boolean canReceive(Object obj){
 		return true;
 	}
 
+	@Override
 	public JComponent componentFor(Object o){
 		if(o==null){
 			return new JLabel("[null pointer]");

@@ -38,6 +38,7 @@ public class MinimalMarkupControls extends MarkupControls{
 	/**
 	 * Lay out the controls - override the super class
 	 */
+	@Override
 	protected void initialize(){
 		if(types==null)
 			return; // will go back and initialize later
@@ -50,6 +51,7 @@ public class MinimalMarkupControls extends MarkupControls{
 		add(typeBox);
 		typeBox.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				MinimalMarkupControls.this.getControlledViewer().applyControls(
 						MinimalMarkupControls.this);
@@ -58,10 +60,12 @@ public class MinimalMarkupControls extends MarkupControls{
 		addApplyButton();
 	}
 
+	@Override
 	public int preferredLocation(){
 		return ViewerControls.BOTTOM;
 	}
 
+	@Override
 	public boolean prefersToBeResized(){
 		return true;
 	}
@@ -73,6 +77,7 @@ public class MinimalMarkupControls extends MarkupControls{
 	/**
 	 * Tell the ControlledViewer what color is associated with a type.
 	 */
+	@Override
 	public SimpleAttributeSet getColor(String type){
 		String selectedType=(String)typeBox.getSelectedItem();
 		if(selectedType.equals(type))
@@ -85,21 +90,25 @@ public class MinimalMarkupControls extends MarkupControls{
 	 * Tell the ControlledViewer what color is associated with a property/value
 	 * pair
 	 */
+	@Override
 	public SimpleAttributeSet getColor(String prop,String value){
 		return null;
 	}
 
+	@Override
 	public Set<String> getColoredProperties(){
-		return Collections.EMPTY_SET;
+		return Collections.<String>emptySet();
 	}
 
+	@Override
 	public Set<String> getColoredValues(String prop){
-		return Collections.EMPTY_SET;
+		return Collections.<String>emptySet();
 	}
 
 	/**
 	 * Export a span difference to the controlled Span Viewer.
 	 */
+	@Override
 	public SpanDifference getSpanDifference(){
 		return null;
 	}

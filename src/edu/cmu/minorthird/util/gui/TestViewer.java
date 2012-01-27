@@ -18,10 +18,12 @@ public class TestViewer{
 
 			static final long serialVersionUID=20080517L;
 
+			@Override
 			public boolean canReceive(Object o){
 				return o instanceof String;
 			}
 
+			@Override
 			public JComponent componentFor(Object o){
 				String s=(String)o;
 				System.out.println("converting "+s+" to lower case!");
@@ -32,10 +34,12 @@ public class TestViewer{
 
 			static final long serialVersionUID=20080517L;
 
+			@Override
 			public boolean canReceive(Object o){
 				return o instanceof String;
 			}
 
+			@Override
 			public JComponent componentFor(Object o){
 				String s=(String)o;
 				System.out.println("converting "+s+" to upper case!");
@@ -57,13 +61,15 @@ public class TestViewer{
 		m.put("Tomikoyo",new String[]{"Takashi","Laura","Makoto","TBA"});
 		Viewer indexViewer=new IndexedViewer(){
 			static final long serialVersionUID=20080517L;
+			@Override
 			public Object[] indexFor(Object o){
 				sendSignal(TEXT_MESSAGE,"displaying the "+o+" family");
-				return (Object[])m.get(o);
+				return m.get(o);
 			}
 		};
 		Viewer lnameListViewer=new ComponentViewer(){
 			static final long serialVersionUID=20080517L;
+			@Override
 			public JComponent componentFor(Object o){
 				Object[] array=(Object[])o;
 				JList jlist=new JList(array);

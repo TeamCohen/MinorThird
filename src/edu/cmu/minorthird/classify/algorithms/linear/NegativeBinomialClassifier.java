@@ -56,6 +56,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 	}
 
 	/** Inner product of PoissonClassifier and instance weights. */
+	@Override
 	public double score(Instance instance){
 		double totCnt=0.0;
 		for(Iterator<Feature> i=instance.featureIterator();i.hasNext();){
@@ -72,6 +73,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 	}
 
 	/** Justify inner product of Negative-Binomial Classifier and instance weights. */
+	@Override
 	public String explain(Instance instance){
 		double totCnt=0.0;
 		for(Iterator<Feature> i=instance.featureIterator();i.hasNext();){
@@ -93,10 +95,10 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 			try{
 				x=instance.getWeight(f);
 				SortedMap<String,Double> mdn=pmsFeatureGivenNeg.get(f);
-				mNeg=((Double)mdn.get("mu")).doubleValue();
+				mNeg=(mdn.get("mu")).doubleValue();
 				//dNeg=((Double)mdn.get("delta")).doubleValue();
 				SortedMap<String,Double> mdp=pmsFeatureGivenPos.get(f);
-				mPos=((Double)mdp.get("mu")).doubleValue();
+				mPos=(mdp.get("mu")).doubleValue();
 				//dPos=((Double)mdp.get("delta")).doubleValue();
 
 				if(buf.length()>0)
@@ -113,6 +115,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation ex=new Explanation(explain(instance));
 		return ex;
@@ -145,11 +148,11 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 		double mNeg,dNeg,mPos,dPos,logOdds;
 		try{
 			SortedMap<String,Double> mdn=pmsFeatureGivenNeg.get(f);
-			mNeg=((Double)mdn.get("mu")).doubleValue();
-			dNeg=((Double)mdn.get("delta")).doubleValue();
+			mNeg=(mdn.get("mu")).doubleValue();
+			dNeg=(mdn.get("delta")).doubleValue();
 			SortedMap<String,Double> mdp=pmsFeatureGivenPos.get(f);
-			mPos=((Double)mdp.get("mu")).doubleValue();
-			dPos=((Double)mdp.get("delta")).doubleValue();
+			mPos=(mdp.get("mu")).doubleValue();
+			dPos=(mdp.get("delta")).doubleValue();
 
 			// compute log-odds
 			if(dPos==0.0||dNeg==0.0){
@@ -202,6 +205,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 	// GUI related Methods
 	//
 
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=new ControlledViewer(new MyViewer(),new NegBinControls());
 		gui.setContent(this);
@@ -218,6 +222,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 		private JRadioButton nameButton;
 		//private JRadioButton noneButton;
 
+		@Override
 		public void initialize(){
 			add(new JLabel("Sort by"));
 			ButtonGroup group=new ButtonGroup();
@@ -244,16 +249,19 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 
 		private NegativeBinomialClassifier h=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			this.controls=(NegBinControls)controls;
 			setContent(h,true);
 			revalidate();
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Hyperplane;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			h=(NegativeBinomialClassifier)o;
 			//
@@ -275,6 +283,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 			if(controls!=null){
 				Arrays.sort(tableData,new Comparator<Object[]>(){
 
+					@Override
 					public int compare(Object[] ra,Object[] rb){
 						if(controls.nameButton.isSelected())
 							return ra[0].toString().compareTo(rb[0].toString());
@@ -296,6 +305,7 @@ public class NegativeBinomialClassifier extends BinaryClassifier implements
 		}
 	}
 
+	@Override
 	public String toString(){
 		String a=pmsFeatureGivenNeg.toString();
 		String b=pmsFeatureGivenPos.toString();

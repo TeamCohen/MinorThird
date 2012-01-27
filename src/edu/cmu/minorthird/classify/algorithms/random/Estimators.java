@@ -236,10 +236,10 @@ public class Estimators
       //buf = new StringBuffer("initial values ::");
       for (int i=0; i<(K-1); i++)
       {
-         tau[i][0] = ((Double) tauSigmaEstimate[i].getPms().get("tau") ).doubleValue();
+         tau[i][0] = (tauSigmaEstimate[i].getPms().get("tau") ).doubleValue();
          //buf.append(" tau["+i+"] = "+tau[i][0]+",");
       }
-      sig[0] = ((Double) tauSigmaEstimate[0].getPms().get("sigma") ).doubleValue();
+      sig[0] = (tauSigmaEstimate[0].getPms().get("sigma") ).doubleValue();
       //buf.append(" sigma = "+sig[0]);
       //System.out.println(buf);
 
@@ -344,7 +344,7 @@ public class Estimators
 
       for (int i=0; i<K; i++)
       {
-         lambda[i] = ((Double) lambdaEstimateVec[i].getPms().get("lambda") ).doubleValue();
+         lambda[i] = (lambdaEstimateVec[i].getPms().get("lambda") ).doubleValue();
          lambdaSum += lambda[i];
       }
 
@@ -376,10 +376,10 @@ public class Estimators
 
       for (int i=0; i<K; i++)
       {
-         tau[i] = ((Double) tauSigEstimateVec[i].getPms().get("tau") ).doubleValue();
+         tau[i] = (tauSigEstimateVec[i].getPms().get("tau") ).doubleValue();
          tauSum =+ tau[i];
       }
-      sigma = ((Double) tauSigEstimateVec[0].getPms().get("sigma") ).doubleValue();
+      sigma = (tauSigEstimateVec[0].getPms().get("sigma") ).doubleValue();
 
       for (int i=0; i<K; i++)
       {
@@ -407,7 +407,7 @@ public class Estimators
    public static double estimateMean(double[] wgt)
    {
       double m=0;
-      double N = (double)wgt.length;
+      double N = wgt.length;
       for (int i=0; i<wgt.length; i++)
       {
          m += wgt[i];
@@ -420,7 +420,7 @@ public class Estimators
    {
       double m=0;
       double m2=0;
-      double N = (double)wgt.length;
+      double N = wgt.length;
       for (int i=0; i<wgt.length; i++)
       {
          m += wgt[i];

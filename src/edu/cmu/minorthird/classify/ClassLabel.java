@@ -154,6 +154,7 @@ public class ClassLabel implements Serializable
 		wset.add( label, weight );
 	}
 
+	@Override
 	public String toString() 
   {
 		return "[Class: "+bestLabel+" "+bestWeight+"]";

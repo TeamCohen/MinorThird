@@ -30,6 +30,7 @@ public class MultiExample extends Example{
 	}
 
 	/** Returns the first label */
+	@Override
 	public ClassLabel getLabel(){
 		return label.getLabels()[0];
 	}
@@ -50,6 +51,7 @@ public class MultiExample extends Example{
 	}
 
 	/** Create a viewer */
+	@Override
 	public Viewer toGUI(){
 		return new GUI.MultiExampleViewer(this);
 	}

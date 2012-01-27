@@ -67,6 +67,7 @@ public class ClassifierAnnotator extends AbstractAnnotator implements
 		return candidateType;
 	}
 
+	@Override
 	public void doAnnotate(MonotonicTextLabels labels){
 		Iterator<Span> candidateLooper=
 				candidateType!=null?labels.instanceIterator(candidateType):labels
@@ -85,6 +86,7 @@ public class ClassifierAnnotator extends AbstractAnnotator implements
 		}
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span documentSpan){
 		return c.explain(fe.extractInstance(labels,documentSpan));
 	}

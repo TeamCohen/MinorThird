@@ -38,7 +38,8 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
    }
 
    /** The schema's not used here... */
-   public void setSchema(ExampleSchema schema) {;}
+   @Override
+	public void setSchema(ExampleSchema schema) {;}
 
    /** A class that we use to sort a TreeMap by values */
    private class IGPair implements Comparable<IGPair> {
@@ -48,17 +49,20 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
          this.value = v;
          this.feature = f;
       }
-      public int compareTo(IGPair ig2) {
+      @Override
+			public int compareTo(IGPair ig2) {
          if (value<ig2.value) return 1;
          else if (value>ig2.value) return -1;
          else return feature.compareTo( ig2.feature );
       }
-      public String toString() {
+      @Override
+			public String toString() {
          return "[ " + this.value + "," + this.feature + " ]"; //this.key + " ]";
       }
    }
 
-   public InstanceTransform batchTrain(Dataset dataset)
+   @Override
+	public InstanceTransform batchTrain(Dataset dataset)
    {
       this.schema = dataset.getSchema();
       int N = schema.getNumberOfClasses();
@@ -75,7 +79,7 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
          double totalCnt = 0.0;
          for (int c=0; c<N; c++)
          {
-            classCnt[c] = (double)index.size(schema.getClassName(c));
+            classCnt[c] = index.size(schema.getClassName(c));
             totalCnt += classCnt[c];
          }
          double totalEntropy = Entropy(classCnt,totalCnt);
@@ -90,7 +94,7 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
 
             for (int c=0; c<N; c++)
             {
-               featureCntWithF[c] = (double)index.size(f,schema.getClassName(c));
+               featureCntWithF[c] = index.size(f,schema.getClassName(c));
                featureCntWithoutF[c] = classCnt[c] - featureCntWithF[c];
                totalCntWithF += featureCntWithF[c];
                totalCntWithoutF += featureCntWithoutF[c];
@@ -145,15 +149,17 @@ public class InfoGainTransformLearner2 implements InstanceTransformLearner
       Collections.sort( igValues );
       final Set<Feature> activeFeatureSet = new HashSet<Feature>();
       for (int i=0; i<numFeatures; i++) {
-         activeFeatureSet.add( ((IGPair)igValues.get(i)).feature );
+         activeFeatureSet.add( (igValues.get(i)).feature );
       }
 
       // build an InstanceTransform that removes low-frequency features
       return new AbstractInstanceTransform() {
-         public Instance transform(Instance instance) {
+         @Override
+				public Instance transform(Instance instance) {
             return new MaskedInstance(instance, activeFeatureSet);
          }
-         public String toString() {
+         @Override
+				public String toString() {
             return "[InstanceTransform: model = "+frequencyModel+", top "+numFeatures+" by InfoGain]";
          }
       };

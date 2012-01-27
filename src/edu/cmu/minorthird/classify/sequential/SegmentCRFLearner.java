@@ -46,7 +46,8 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
         segLengths = new int[length()];
 	    }
     }
-    public int length() {return segs.getSequenceLength();}
+    @Override
+		public int length() {return segs.getSequenceLength();}
     void init(CandidateSegmentGroup tokens) {
 	    segs = tokens;
 	    alloc();
@@ -67,13 +68,16 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
         }
 	    }
     }
-    public int y(int i) {
+    @Override
+		public int y(int i) {
 	    return labels[i];
     }
-    public Object x(int i) {
+    @Override
+		public Object x(int i) {
 	    return null;
     }
-    public void set_y(int i, int label) {
+    @Override
+		public void set_y(int i, int label) {
 	    labels[i] = label;
     }
     Segmentation getSegments() {	
@@ -83,10 +87,12 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
 	    }
 	    return segs;
     }
-    public int getSegmentEnd(int segmentStart) {
+    @Override
+		public int getSegmentEnd(int segmentStart) {
 	    return segLengths[segmentStart]+segmentStart-1;
     }
-    public void setSegment(int segmentStart, int segmentEnd, int y){
+    @Override
+		public void setSegment(int segmentStart, int segmentEnd, int y){
 	    for (int pos = segmentStart; pos <= segmentEnd; pos++) {
         labels[pos] = y;
         segLengths[pos] = -1;
@@ -103,13 +109,16 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
 	    dataset = ds;
 	    segData = new SegmentDataSequence();
     }
-    public void startScan() {
+    @Override
+		public void startScan() {
 	    iter =dataset.candidateSegmentGroupIterator(); 
     }
-    public boolean hasNext() {
+    @Override
+		public boolean hasNext() {
 	    return iter.hasNext();
     }
-    public iitb.CRF.DataSequence next() {
+    @Override
+		public iitb.CRF.DataSequence next() {
 	    segData.init(iter.next());
 	    return segData;
     }
@@ -120,7 +129,8 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
     NestedMTFeatureTypes(iitb.Model.NestedFeatureGenImpl gen) {
 	    super(gen);
     }
-    public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
+    @Override
+		public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
 	    SegmentDataSequence segData = (SegmentDataSequence)data;
 	    example = segData.segs.getSubsequenceInstance(prevPos+1,pos+1);
 	    featureLooper = example.featureIterator();
@@ -147,11 +157,12 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
     options.setProperty("MaxMemory",""+maxMemory);
     negativeClass = schema.getClassIndex(ExampleSchema.NEG_CLASS_NAME);
     featureGen = new SemiMTFeatureGenImpl(schema.getNumberOfClasses(),schema.validClassNames(),options);
-    nestedCrfModel = new iitb.CRF.NestedCRF(featureGen.numStates(),(iitb.CRF.FeatureGeneratorNested)featureGen,options);
+    nestedCrfModel = new iitb.CRF.NestedCRF(featureGen.numStates(),featureGen,options);
     crfModel = nestedCrfModel;
     return new CRFSegmentDataIter(dataset);
   }
-  public Segmenter batchTrain(SegmentDataset dataset) {
+  @Override
+	public Segmenter batchTrain(SegmentDataset dataset) {
     try {
 	    schema = dataset.getSchema();
 	    doTrain(allocModel(dataset));
@@ -162,14 +173,16 @@ public class SegmentCRFLearner extends CRFLearner implements BatchSegmenterLearn
     }
   }
   /** Return a predicted type for each element of the sequence. */
-  public Segmentation segmentation(CandidateSegmentGroup g) {
+  @Override
+	public Segmentation segmentation(CandidateSegmentGroup g) {
     SegmentDataSequence seq = new SegmentDataSequence(g);
     nestedCrfModel.apply(seq);
     //	featureGen.mapStatesToLabels(seq);
     return seq.getSegments();
   }
   /** Return some string that 'explains' the classification */
-  public String explain(CandidateSegmentGroup g) {
+  @Override
+	public String explain(CandidateSegmentGroup g) {
     return "not supported";
   }
 

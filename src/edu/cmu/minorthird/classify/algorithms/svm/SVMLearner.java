@@ -74,10 +74,12 @@ public class SVMLearner extends BatchClassifierLearner{
 		return p;
 	}
 	
+	@Override
 	public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 	}
 	
+	@Override
 	public ExampleSchema getSchema(){
 		return schema;
 	}
@@ -90,6 +92,7 @@ public class SVMLearner extends BatchClassifierLearner{
 	 * @param dataset Dataset representing all usable training data
 	 * @return a SVMClassifier object which wraps the libsvm prediction code
 	 */
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 			// train the svm on the dataset
 			svm_problem problem=SVMUtils.convertToSVMProblem(dataset);

@@ -97,6 +97,7 @@ public class OneVsAllLearner implements ClassifierLearner{
 		return learner;
 	}
 
+	@Override
 	public ClassifierLearner copy(){
 		OneVsAllLearner learner=null;
 		try{
@@ -115,6 +116,7 @@ public class OneVsAllLearner implements ClassifierLearner{
 		return learner;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 		innerLearner=new ArrayList<ClassifierLearner>();
@@ -124,10 +126,12 @@ public class OneVsAllLearner implements ClassifierLearner{
 		}
 	}
 	
+	@Override
 	public ExampleSchema getSchema(){
 		return schema;
 	}
 
+	@Override
 	public void reset(){
 		if(innerLearner!=null){
 			for(int i=0;i<innerLearner.size();i++){
@@ -136,6 +140,7 @@ public class OneVsAllLearner implements ClassifierLearner{
 		}
 	}
 
+	@Override
 	public void setInstancePool(Iterator<Instance> iterator){
 		List<Instance> list=new ArrayList<Instance>();
 		while(iterator.hasNext()){
@@ -146,6 +151,7 @@ public class OneVsAllLearner implements ClassifierLearner{
 		}
 	}
 
+	@Override
 	public boolean hasNextQuery(){
 		for(int i=0;i<innerLearner.size();i++){
 			if(innerLearner.get(i).hasNextQuery()){
@@ -155,6 +161,7 @@ public class OneVsAllLearner implements ClassifierLearner{
 		return false;
 	}
 
+	@Override
 	public Instance nextQuery(){
 		for(int i=0;i<innerLearner.size();i++){
 			if(innerLearner.get(i).hasNextQuery())
@@ -163,6 +170,7 @@ public class OneVsAllLearner implements ClassifierLearner{
 		return null;
 	}
 
+	@Override
 	public void addExample(Example answeredQuery){
 		int classIndex=schema.getClassIndex(answeredQuery.getLabel().bestClassName());
 		for(int i=0;i<innerLearner.size();i++){
@@ -171,12 +179,14 @@ public class OneVsAllLearner implements ClassifierLearner{
 		}
 	}
 
+	@Override
 	public void completeTraining(){
 		for(int i=0;i<innerLearner.size();i++){
 			innerLearner.get(i).completeTraining();
 		}
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		Classifier[] classifiers=new Classifier[innerLearner.size()];
 		for(int i=0;i<innerLearner.size();i++){

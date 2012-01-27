@@ -57,9 +57,10 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 
 	/** Return the evaluation associated with this name. */
 	public Evaluation getEvaluation(String name){
-		return (Evaluation)members.get(name);
+		return members.get(name);
 	}
 
+	@Override
 	public String toString(){
 		return members.toString();
 	}
@@ -77,6 +78,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 
 		public JTable jtable;
 
+		@Override
 		public JComponent componentFor(Object o){
 			group=(EvaluationGroup)o;
 			columnHeads=new String[group.members.keySet().size()+1];
@@ -98,7 +100,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 			table=new Object[statNumber][columnHeads.length];
 			k=1;
 			for(Iterator<String> i=group.members.keySet().iterator();i.hasNext();){
-				Evaluation v=(Evaluation)group.members.get(i.next());
+				Evaluation v=group.members.get(i.next());
 				String[] statNames=v.summaryStatisticNames();
 				double[] ss=v.summaryStatistics();
 				for(int j=0;j<ss.length;j++){
@@ -111,6 +113,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 
 			final Transform keyTransform=new Transform(){
 
+				@Override
 				public Object transform(Object key){
 					return group.members.get(key);
 				}
@@ -122,6 +125,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 
 	};
 
+	@Override
 	public Viewer toGUI(){
 		if(members.keySet().size()==0)
 			return new VanillaViewer("empty EvaluationGroup");
@@ -134,6 +138,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 		// for zooming in to a particular experiment
 		Viewer indexViewer=new IndexedViewer(){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public Object[] indexFor(Object o){
 				EvaluationGroup group=(EvaluationGroup)o;
 				return group.members.keySet().toArray();
@@ -141,6 +146,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 		};
 		TransformedViewer evaluationKeyViewer=new TransformedViewer(){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public Object transform(Object o){
 				return members.get(o);
 			}
@@ -152,6 +158,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 		// precision recall
 		Viewer prViewer=new ComponentViewer(){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public JComponent componentFor(Object o){
 				EvaluationGroup group=(EvaluationGroup)o;
 				LineCharter lc=new LineCharter();
@@ -170,6 +177,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 		};
 		Viewer avgPRViewer=new ComponentViewer(){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public JComponent componentFor(Object o){
 				EvaluationGroup group=(EvaluationGroup)o;
 				LineCharter lc=new LineCharter();
@@ -203,14 +211,17 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 	//
 	private static final String FORMAT_NAME="Evaluation Group";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{FORMAT_NAME};
 	}
 
+	@Override
 	public String getExtensionFor(String s){
 		return ".xls";
 	}
 
+	@Override
 	public void saveAs(File file,String format) throws IOException{
 		if(!format.equals(FORMAT_NAME))
 			throw new IllegalArgumentException("illegal format "+format);
@@ -245,6 +256,7 @@ public class EvaluationGroup implements Visible,Serializable,Saveable{
 		}
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		throw new UnsupportedOperationException(
 				"Cannot load EvaluationGroup object");

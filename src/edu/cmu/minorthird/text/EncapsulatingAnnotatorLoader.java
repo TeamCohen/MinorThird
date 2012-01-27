@@ -109,9 +109,10 @@ Serializable{
 	}
 
 	/** Find the named resource file - usually a dictionary or trie for mixup. */
+	@Override
 	public InputStream findFileResource(String fileName){
 		log.info("Looking for file resource: "+fileName);
-		byte[] contents=(byte[])fileNameToContentsMap.get(fileName);
+		byte[] contents=fileNameToContentsMap.get(fileName);
 		if(contents!=null){
 			log.info("Encapsulated resource found containing "+contents.length+" bytes");
 			return new ByteArrayInputStream(contents);
@@ -122,6 +123,7 @@ Serializable{
 	}
 
 	/** Find the named resource class - usually an annotator. */
+	@Override
 	public Class<?> findClassResource(String className){
 		try{
 			Class<?> clazz=myClassLoader.loadClass(className);
@@ -135,9 +137,10 @@ Serializable{
 
 		static private final long serialVersionUID=20080303L;
 
+		@Override
 		public Class<?> findClass(String className) throws ClassNotFoundException{
 			log.info("Looking for class "+className+" with encapsulated loader");
-			byte[] contents=(byte[])fileNameToContentsMap.get(className+".class");
+			byte[] contents=fileNameToContentsMap.get(className+".class");
 			if(contents!=null){
 				log.info("Encapsulated class definition found containing "+
 						contents.length+" bytes");

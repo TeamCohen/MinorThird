@@ -60,6 +60,7 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 		this.history = new String[historySize];
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema)	{	;	}
 
 	//
@@ -71,12 +72,14 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 	public void setInnerLearner(OnlineBinaryClassifierLearner newInnerLearner) {
 		this.innerLearnerPrototype = newInnerLearner;
 	}
+	@Override
 	public int getHistorySize() { return historySize; }
 	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
 	public int getNumberOfEpochs() { return numberOfEpochs; }
 	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
 	
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();
@@ -172,6 +175,7 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 				innerClassifier[i] = innerLearner[i].getBinaryClassifier();
 			}
 		}
+		@Override
 		public ClassLabel classification(Instance instance)
 		{
 			ClassLabel label = new ClassLabel();
@@ -180,6 +184,7 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 			}
 			return label; 
 		}
+		@Override
 		public String explain(Instance instance)
 		{
 			StringBuffer buf = new StringBuffer("");
@@ -190,7 +195,8 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 			}
 			return buf.toString();
 		}
-	    public Explanation getExplanation(Instance instance) {
+	    @Override
+			public Explanation getExplanation(Instance instance) {
 		Explanation.Node top = new Explanation.Node("GenericCollins Explanation");
 
 		for (int i=0; i<numClasses; i++) {			
@@ -203,10 +209,12 @@ public class GenericCollinsLearnerV1 implements BatchSequenceClassifierLearner,S
 		return ex;
 	    }
 
+		@Override
 		public Viewer toGUI()
 		{
 			Viewer gui = new ComponentViewer() {
 				static final long serialVersionUID=20080207L;
+					@Override
 					public JComponent componentFor(Object o) {
 						MultiClassClassifier c = (MultiClassClassifier)o;
 						JPanel main = new JPanel();

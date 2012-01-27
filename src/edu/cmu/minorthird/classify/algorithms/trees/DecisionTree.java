@@ -29,6 +29,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 	static final long serialVersionUID=20080609L;
 
 	/** Print routine */
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		toString(buf,0);
@@ -74,6 +75,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 			this.ifFalse=ifFalse;
 		}
 
+		@Override
 		public String explain(Instance instance){
 			if(instance.getWeight(test)>=threshold){
 				return test+"="+instance.getWeight(test)+">="+threshold+"\n"+
@@ -84,6 +86,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 			}
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("DecisionTree Explanation");
 			if(instance.getWeight(test)>=threshold){
@@ -105,6 +108,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 			return ex;
 		}
 
+		@Override
 		public double score(Instance instance){
 			if(instance.getWeight(test)>=threshold)
 				return ifTrue.score(instance);
@@ -120,6 +124,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 			return ifFalse;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TreeViewer();
 			v.setContent(this);
@@ -140,16 +145,19 @@ import edu.cmu.minorthird.util.gui.Visible;
 			this.myScore=myScore;
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "leaf: "+myScore;
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("leaf: "+myScore);
 			Explanation ex=new Explanation(top);
 			return ex;
 		}
 
+		@Override
 		public double score(Instance instance){
 			return myScore;
 		}
@@ -158,6 +166,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 			return myScore;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TreeViewer();
 			v.receiveContent(this);
@@ -169,12 +178,14 @@ import edu.cmu.minorthird.util.gui.Visible;
 
 		static final long serialVersionUID=20080609L;
 		
+		@Override
 		public JComponent componentFor(Object o){
 			DecisionTree dtree=(DecisionTree)o;
 			DefaultMutableTreeNode top=createNodes(dtree);
 			final JTree jtree=new JTree(top);
 			jtree.addTreeSelectionListener(new TreeSelectionListener(){
 
+				@Override
 				public void valueChanged(TreeSelectionEvent e){
 					DefaultMutableTreeNode node=
 							(DefaultMutableTreeNode)jtree.getLastSelectedPathComponent();

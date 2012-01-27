@@ -50,6 +50,7 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 		reset();
 	}
 
+	@Override
 	public void reset() {
 		w_t = new Hyperplane();
 		if (voted) {
@@ -57,6 +58,7 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 		}
 	}
 
+	@Override
 	public void addExample(Example example) {
 
 		excount++;
@@ -122,6 +124,7 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 		return tmp;
 	}
 
+	@Override
 	public Classifier getClassifier() {
 		Hyperplane z = new Hyperplane();
 		if (voted)
@@ -131,6 +134,7 @@ public class ROMMALearner extends OnlineBinaryClassifierLearner implements
 		return z;
 	}
 
+	@Override
 	public String toString() {
 		return "ROMMA Algorithm";
 	}

@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -255,6 +256,7 @@ public class TypeSelector extends ComponentViewer{
 //		inLine=b;
 //	}
 
+	@Override
 	public JComponent componentFor(final Object o){
 		if(inLine)
 			return InLineComponent(o);
@@ -281,6 +283,7 @@ public class TypeSelector extends ComponentViewer{
 		classBox.setSelectedItem(currentName);
 		classBox.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				sendSignal(OBJECT_SELECTED,instanceMap.get(classBox.getSelectedItem()));
 			}
@@ -291,6 +294,7 @@ public class TypeSelector extends ComponentViewer{
 			// print button, for debugging
 			panel.add(new JButton(new AbstractAction("Print"){
 				static final long serialVersionUID=20080517L;
+				@Override
 				public void actionPerformed(ActionEvent e){
 					System.out.println("current selection: "+
 							instanceMap.get(classBox.getSelectedItem()));
@@ -300,6 +304,7 @@ public class TypeSelector extends ComponentViewer{
 		// edit button - pops up an editor for the currently selected type 
 		panel.add(new JButton(new AbstractAction("Edit"){
 			static final long serialVersionUID=20080517L;
+			@Override
 			public void actionPerformed(ActionEvent e){
 				log.debug("pressed edit");
 				PropertyEditor editor=new PropertyEditor(true,false);
@@ -327,6 +332,7 @@ public class TypeSelector extends ComponentViewer{
 					final Object value=reader.invoke(o,new Object[]{});
 					panel.add(new JButton(new AbstractAction("?"){
 						static final long serialVersionUID=20080517L;
+						@Override
 						public void actionPerformed(ActionEvent e){
 							log.debug("pressed help");
 							HelpViewer editor=new HelpViewer();
@@ -370,6 +376,7 @@ public class TypeSelector extends ComponentViewer{
 		classBox.setSelectedItem(currentName);
 		classBox.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				sendSignal(OBJECT_SELECTED,instanceMap.get(classBox.getSelectedItem()));
 			}
@@ -381,6 +388,7 @@ public class TypeSelector extends ComponentViewer{
 			// print button, for debugging
 			panel.add(new JButton(new AbstractAction("Print"){
 				static final long serialVersionUID=20080517L;
+				@Override
 				public void actionPerformed(ActionEvent e){
 					System.out.println("current selection: "+
 							instanceMap.get(classBox.getSelectedItem()));
@@ -426,6 +434,7 @@ public class TypeSelector extends ComponentViewer{
 
 	public class HelpViewer extends ComponentViewer implements HyperlinkListener{
 		static final long serialVersionUID=20080517L;
+		@Override
 		public JComponent componentFor(final Object o){
 			try{
 				JPanel helpPanel=new JPanel();
@@ -442,6 +451,7 @@ public class TypeSelector extends ComponentViewer{
 			}
 		}
 
+		@Override
 		public void hyperlinkUpdate(HyperlinkEvent he){
 			if(he.getEventType()==HyperlinkEvent.EventType.ACTIVATED){
 
@@ -518,6 +528,7 @@ public class TypeSelector extends ComponentViewer{
 			}
 		}
 
+		@Override
 		public JComponent componentFor(final Object o){
 			//      if (o instanceof Configurable) //custom property editor
 			//        return ((Configurable)(o)).guiConfigure();
@@ -591,6 +602,7 @@ public class TypeSelector extends ComponentViewer{
 									theBox.setSelectedItem(value);
 									theBox.addActionListener(new ActionListener(){
 
+										@Override
 										public void actionPerformed(ActionEvent ev){
 											try{
 												if(theBox.getSelectedIndex()>0){
@@ -612,6 +624,7 @@ public class TypeSelector extends ComponentViewer{
 									textField.setText(value==null?"":value.toString());
 									textField.addActionListener(new ActionListener(){
 
+										@Override
 										public void actionPerformed(ActionEvent ev){
 											try{
 												log.debug("change to "+textField.getText());
@@ -634,6 +647,7 @@ public class TypeSelector extends ComponentViewer{
 										JButton browseButton=
 												new JButton(new AbstractAction("Browse"){
 													static final long serialVersionUID=20080517L;
+													@Override
 													public void actionPerformed(ActionEvent ev){
 														int returnVal=chooser.showOpenDialog(null);
 														if(returnVal==JFileChooser.APPROVE_OPTION){
@@ -666,6 +680,7 @@ public class TypeSelector extends ComponentViewer{
 												.intValue(),-1,100,1));
 								spinner.addChangeListener(new ChangeListener(){
 
+									@Override
 									public void stateChanged(ChangeEvent e){
 										try{
 											log.debug("change to "+spinner.getValue());
@@ -683,6 +698,7 @@ public class TypeSelector extends ComponentViewer{
 												.doubleValue(),0,100,0.05));
 								spinner.addChangeListener(new ChangeListener(){
 
+									@Override
 									public void stateChanged(ChangeEvent e){
 										try{
 											log.debug("change to "+spinner.getValue());
@@ -699,6 +715,7 @@ public class TypeSelector extends ComponentViewer{
 								textField.setText(value.toString());
 								textField.addActionListener(new ActionListener(){
 
+									@Override
 									public void actionPerformed(ActionEvent e){
 										try{
 											log.debug("change to "+textField.getText());
@@ -718,6 +735,7 @@ public class TypeSelector extends ComponentViewer{
 								final JCheckBox checkbox=new JCheckBox();
 								checkbox.addActionListener(new ActionListener(){
 
+									@Override
 									public void actionPerformed(ActionEvent ev){
 										try{
 											log.debug("change to "+checkbox.isSelected());
@@ -749,6 +767,7 @@ public class TypeSelector extends ComponentViewer{
 								selection.setSelected(selected);
 								selector.classBox.addActionListener(new ActionListener(){
 
+									@Override
 									public void actionPerformed(ActionEvent e){
 										try{
 											Object selected=
@@ -784,6 +803,7 @@ public class TypeSelector extends ComponentViewer{
 						final Object value=reader2.invoke(o,new Object[]{});
 						panel.add(new JButton(new AbstractAction("?"){
 							static final long serialVersionUID=20080517L;
+							@Override
 							public void actionPerformed(ActionEvent e){
 								log.debug("pressed help");
 								HelpViewer editor=new HelpViewer();
@@ -819,6 +839,7 @@ public class TypeSelector extends ComponentViewer{
 					JButton advancedOptions=new JButton("advanced options");
 					advancedOptions.addActionListener(new ActionListener(){
 
+						@Override
 						public void actionPerformed(ActionEvent e){
 							final TypeSelector selector=
 									new TypeSelector(validSubclasses,inLineClasses,
@@ -827,6 +848,7 @@ public class TypeSelector extends ComponentViewer{
 							//selector.name = name==null ? pname : name+"."+pname;
 							selector.classBox.addActionListener(new ActionListener(){
 
+								@Override
 								public void actionPerformed(ActionEvent e){
 									//try {
 //									Object selected=
@@ -862,7 +884,7 @@ public class TypeSelector extends ComponentViewer{
 
 			JScrollPane scroller=new JScrollPane(wholePanel);
 			scroller
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			return scroller;
 			//wholePanel.setBorder(new EmptyBorder(0,0,0,0));
 			//return wholePanel;
@@ -964,6 +986,7 @@ public class TypeSelector extends ComponentViewer{
 			this.inner=inner;
 		}
 
+		@Override
 		public String toString(){
 			return "[SampleOuter "+getName()+": flag,x,y,inner="+getFlag()+","+
 					getX()+","+getY()+","+getInner()+"]";
@@ -982,6 +1005,7 @@ public class TypeSelector extends ComponentViewer{
 			this.z=z;
 		}
 
+		@Override
 		public String toString(){
 			return "[SampleInner "+getName()+": x,z,inner="+getX()+","+getZ()+"]";
 		}

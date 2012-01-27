@@ -32,12 +32,14 @@ public class FilterTokenizer extends CompoundTokenizer
     }
 
     /** Tokenize a string */
-    public String[] splitIntoTokens(String string) {
+    @Override
+		public String[] splitIntoTokens(String string) {
         return parentTokenizer.splitIntoTokens(string);
     }
 
     /** Tokenize a document. */
-    public TextToken[] splitIntoTokens(Document document) {
+    @Override
+		public TextToken[] splitIntoTokens(Document document) {
         Span matchingParentSpan = textBaseManager.getMatchingSpan(levelName, document.getId(), 0, document.getText().length(), parentLevelName);
 
         if (matchingParentSpan != null) {
@@ -51,7 +53,7 @@ public class FilterTokenizer extends CompoundTokenizer
                 // Copy this token over to array of tokens for the new document.
                 tokens.add(new TextToken(document, currOffset, currParentToken.getLength()));
             }
-            return (TextToken[])tokens.toArray(new TextToken[0]);
+            return tokens.toArray(new TextToken[0]);
         }
         else {
             log.warn("Matching span could not be found for document span for doc: " + document);

@@ -67,15 +67,18 @@ public class OnlineVersion extends OnlineClassifierLearner
 	public int getMinBatchTrainingSize() { return minBatchTrainingSize; }
 	public void setMinBatchTrainingSize(int m) { minBatchTrainingSize=m; }
 
+	@Override
 	final public void setSchema(ExampleSchema schema)	{	
 		innerLearner.setSchema(schema);	
 		bootstrapLearner.setSchema(schema); 
 	}
 	
+	@Override
 	final public ExampleSchema getSchema(){
 		return innerLearner.getSchema();
 	}
 
+	@Override
 	final public void reset()
 	{
 		storedClassifier = null;
@@ -85,6 +88,7 @@ public class OnlineVersion extends OnlineClassifierLearner
 		bootstrapLearner.reset();
 	}
 
+	@Override
 	final public void addExample(Example example)
 	{
 		dataset.add(example);
@@ -93,6 +97,7 @@ public class OnlineVersion extends OnlineClassifierLearner
 		}
 	}
 
+	@Override
 	final public void completeTraining()
 	{
 		new ViewerFrame("compete data",dataset.toGUI());
@@ -104,6 +109,7 @@ public class OnlineVersion extends OnlineClassifierLearner
 		}
 	}
 
+	@Override
 	final public Classifier getClassifier()
 	{
 		if (dataset.size() < minBatchTrainingSize) {

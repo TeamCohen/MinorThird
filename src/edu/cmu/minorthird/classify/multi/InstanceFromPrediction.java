@@ -44,14 +44,17 @@ public class InstanceFromPrediction implements Instance{
 	//
 	// delegate to wrapped instance
 	//
+	@Override
 	final public Object getSource(){
 		return instance.getSource();
 	}
 
+	@Override
 	final public String getSubpopulationId(){
 		return instance.getSubpopulationId();
 	}
 
+	@Override
 	final public Iterator<Feature> numericFeatureIterator(){
 		return instance.numericFeatureIterator();
 	}
@@ -60,18 +63,22 @@ public class InstanceFromPrediction implements Instance{
 	// extend the binary feature set
 	//
 
+	@Override
 	final public Iterator<Feature> binaryFeatureIterator(){
 		return new UnionIterator<Feature>(history.iterator(),instance.binaryFeatureIterator());
 	}
 
+	@Override
 	final public Iterator<Feature> featureIterator(){
 		return new UnionIterator<Feature>(history.iterator(),instance.featureIterator());
 	}
 	
+	@Override
 	final public int numFeatures(){
 		return history.size()+instance.numFeatures();
 	}
 
+	@Override
 	final public double getWeight(Feature f){
 		if(history.contains(f))
 			return 1.0;
@@ -79,12 +86,14 @@ public class InstanceFromPrediction implements Instance{
 			return instance.getWeight(f);
 	}
 
+	@Override
 	public String toString(){
 		return "[instFromPrediction "+history+" "+instance+"]";
 	}
 
+	@Override
 	final public Viewer toGUI(){
-		return new GUI.InstanceViewer((Instance)this);
+		return new GUI.InstanceViewer(this);
 	}
 
 }

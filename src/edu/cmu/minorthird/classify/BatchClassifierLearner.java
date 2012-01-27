@@ -23,7 +23,8 @@ public abstract class BatchClassifierLearner implements ClassifierLearner
 	protected Classifier classifier = null;
 
 
-    public ClassifierLearner copy() {
+    @Override
+		public ClassifierLearner copy() {
 	BatchClassifierLearner bcl = null;//(ClassifierLearner)(new Object());
 	try {
 	    bcl =(BatchClassifierLearner)(this.clone());
@@ -34,19 +35,26 @@ public abstract class BatchClassifierLearner implements ClassifierLearner
 	    System.out.println("Can't CLONE!!");
 	    e.printStackTrace();
 	}
-	return (ClassifierLearner)bcl;
+	return bcl;
     }
 
+	@Override
 	final public void reset() { 
 		dataset = new BasicDataset(); 
 		classifier = null; 
 	}
+	@Override
 	final public void setInstancePool(Iterator<Instance> i) { ; }
+	@Override
 	final public boolean hasNextQuery() { return false; }
+	@Override
 	final public Instance nextQuery() { return null; }
+	@Override
 	final public void addExample(Example answeredQuery) { dataset.add(answeredQuery); classifier=null; }
+	@Override
 	final public void completeTraining() { classifier = batchTrain(dataset); }
 
+	@Override
 	final public Classifier getClassifier() {
 		if (classifier==null) classifier = batchTrain(dataset);
 		return classifier;

@@ -51,6 +51,7 @@ public class PoissonLearner extends BatchBinaryClassifierLearner{
 		reset();
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset data){
 		// temp-filter
 		//int featureToKeep = 1000;  String model = "document"; // or "word"

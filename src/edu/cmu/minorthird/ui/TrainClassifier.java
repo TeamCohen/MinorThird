@@ -62,6 +62,7 @@ public class TrainClassifier extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainClassifier%20Tutorial.htm\">TrainClassifier Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,train});
@@ -71,6 +72,7 @@ public class TrainClassifier extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(train.learner==null)
@@ -116,13 +118,14 @@ public class TrainClassifier extends UIMain{
 
 		if(save.saveAs!=null){
 			try{
-				IOUtil.saveSerialized((Serializable)ann,save.saveAs);
+				IOUtil.saveSerialized(ann,save.saveAs);
 			}catch(IOException e){
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
 		}
 	}
 
+	@Override
 	public Object getMainResult(){
 		return classifier;
 	}

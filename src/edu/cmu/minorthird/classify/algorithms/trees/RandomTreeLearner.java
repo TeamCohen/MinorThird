@@ -45,6 +45,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 	// between the min and max values
 	public static class RandomTreeSplitter implements TreeSplitter{
 
+		@Override
 		public Object[] getSplit(List<Example> dataset,int depth,
 				Vector<Feature> unusedFeatures){
 
@@ -78,6 +79,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 
 		int featureCount=1;
 
+		@Override
 		public Object[] getSplit(List<Example> dataset,int depth,
 				Vector<Feature> unusedFeatures){
 
@@ -145,6 +147,7 @@ public class RandomTreeLearner extends BatchBinaryClassifierLearner{
 		return c;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		List<Example> newData=new LinkedList<Example>();
 		for(Iterator<Example> it=dataset.iterator();it.hasNext();){

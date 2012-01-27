@@ -31,8 +31,12 @@ public abstract class MutableTextBase extends AbstractTextBase {
     //
     // TextBase interface methods
     //
-    public abstract int size();
-    public abstract Document getDocument(String docID);
-    public abstract Iterator<Span> documentSpanIterator();
-    public abstract Span documentSpan(String documentId);
+    @Override
+		public abstract int size();
+    @Override
+		public abstract Document getDocument(String docID);
+    @Override
+		public abstract Iterator<Span> documentSpanIterator();
+    @Override
+		public abstract Span documentSpan(String documentId);
 }

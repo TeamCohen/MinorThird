@@ -238,6 +238,7 @@ public class TextLabelsExperiment implements Visible{
 		return extractionEval;
 	}
 
+	@Override
 	public Viewer toGUI(){
 		ParallelViewer v=new ParallelViewer();
 		for(int i=0;i<annotators.length;i++){
@@ -247,6 +248,7 @@ public class TextLabelsExperiment implements Visible{
 
 				static final long serialVersionUID=20080306L;
 
+				@Override
 				public Object transform(Object o){
 					return annotators[index];
 				}
@@ -256,6 +258,7 @@ public class TextLabelsExperiment implements Visible{
 
 				static final long serialVersionUID=20080306L;
 
+				@Override
 				public Object transform(Object o){
 					return testLabels[index];
 				}
@@ -266,6 +269,7 @@ public class TextLabelsExperiment implements Visible{
 
 					static final long serialVersionUID=20080306L;
 
+					@Override
 					public Object transform(Object o){
 						return fullTestLabels;
 					}
@@ -274,6 +278,7 @@ public class TextLabelsExperiment implements Visible{
 
 			static final long serialVersionUID=20080306L;
 
+			@Override
 			public Object transform(Object o){
 				return extractionEval;
 			}

@@ -45,6 +45,7 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 	public SegmentCollinsPerceptronLearner(int epochs, boolean updatedViterbi) { this(epochs); this.updatedViterbi=updatedViterbi;}
 	public SegmentCollinsPerceptronLearner() { this.numberOfEpochs = 5; }
 
+	@Override
 	public void setSchema(ExampleSchema schema)	{	;	}
 
 	//
@@ -58,6 +59,7 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 	// training scheme
 	//
 
+	@Override
 	public Segmenter batchTrain(SegmentDataset dataset)
 	{
 		int maxSegmentSize = dataset.getMaxWindowSize();
@@ -317,18 +319,22 @@ public class SegmentCollinsPerceptronLearner implements BatchSegmenterLearner,Se
 			this.schema = schema;
 			this.maxSegSize = maxSegSize;
 		}
+		@Override
 		public Segmentation segmentation(CandidateSegmentGroup g) 
 		{
 			return new ViterbiSearcher(c,schema,maxSegSize).bestSegments(g);
 		}
+		@Override
 		public String explain(CandidateSegmentGroup g)
 		{
 			return "not implemented yet";
 		}
+		@Override
 		public Viewer toGUI()
 		{
 			Viewer v = new ComponentViewer() {
 				static final long serialVersionUID=20080207L;
+					@Override
 					public JComponent componentFor(Object o) {
 						ViterbiSegmenter vs = (ViterbiSegmenter)o;
 						JPanel mainPanel = new JPanel();

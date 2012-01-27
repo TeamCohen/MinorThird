@@ -768,6 +768,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			this.values=values;
 		}
 
+		@Override
 		public String toString(){
 			StringBuffer buf=new StringBuffer("");
 			for(int i=0;i<values.length;i++){
@@ -999,6 +1000,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	//
 
 	/** Detailed view. */
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		for(int i=0;i<entryList.size();i++){
@@ -1011,6 +1013,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 		static final long serialVersionUID=20080130L;
 		
+		@Override
 		public JComponent componentFor(Object o){
 			final Evaluation e=(Evaluation)o;
 			final JPanel panel=new JPanel();
@@ -1021,6 +1024,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			final JButton addButton=
 					new JButton(new AbstractAction("Insert Property"){
 						static final long serialVersionUID=20080130L;
+						@Override
 						public void actionPerformed(ActionEvent event){
 							e.setProperty(propField.getText(),valField.getText());
 							tableScroller.getViewport().setView(makePropertyTable(e));
@@ -1060,6 +1064,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	public class SummaryViewer extends ComponentViewer{
 		static final long serialVersionUID=20080130L;
+		@Override
 		public JComponent componentFor(Object o){
 			Evaluation e=(Evaluation)o;
 			double[] ss=e.summaryStatistics();
@@ -1078,6 +1083,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	static public class ElevenPointPrecisionViewer extends ComponentViewer{
 		static final long serialVersionUID=20080130L;
+		@Override
 		public JComponent componentFor(Object o){
 			Evaluation e=(Evaluation)o;
 			double[] p=e.elevenPointPrecision();
@@ -1093,6 +1099,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	static public class ROCViewer extends ComponentViewer{
 		static final long serialVersionUID=20080130L;
+		@Override
 		public JComponent componentFor(Object o){
 			Evaluation e=(Evaluation)o;
 
@@ -1121,6 +1128,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	static public class ConfusionMatrixViewer extends ComponentViewer{
 		static final long serialVersionUID=20080130L;
+		@Override
 		public JComponent componentFor(Object o){
 			Evaluation e=(Evaluation)o;
 			JPanel panel=new JPanel();
@@ -1171,6 +1179,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		}
 	}
 
+	@Override
 	public Viewer toGUI(){
 		ParallelViewer main=new ParallelViewer();
 
@@ -1202,7 +1211,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 		public ClassLabel predicted,actual;
 
-		public int h;
+		//public int h;
 
 		public double w=1.0;
 
@@ -1212,9 +1221,10 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			actual=a;
 			index=k;
 			partitionID=id;
-			h=instance.hashCode();
+			//h=instance.hashCode();
 		}
 
+		@Override
 		public String toString(){
 			//double w=predicted.bestWeight();
 			return predicted+"\t"+actual+"\t"+instance;
@@ -1228,18 +1238,22 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	final static public String EVAL_EXT=".eval";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{EVAL_FORMAT_NAME};
 	}
 
+	@Override
 	public String getExtensionFor(String format){
 		return EVAL_EXT;
 	}
 
+	@Override
 	public void saveAs(File file,String formatName) throws IOException{
 		save(file);
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		return load(file);
 	}
@@ -1367,6 +1381,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	private void byBinaryScore(){
 		Collections.sort(entryList,new Comparator<Entry>(){
 
+			@Override
 			public int compare(Entry a,Entry b){
 				return MathUtil.sign(b.predicted.posWeight()-a.predicted.posWeight());
 			}
@@ -1376,6 +1391,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	private void byOriginalPosition(){
 		Collections.sort(entryList,new Comparator<Entry>(){
 
+			@Override
 			public int compare(Entry a,Entry b){
 				return a.index-b.index;
 			}
@@ -1387,6 +1403,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 		static final long serialVersionUID=20080130L;
 		
+		@Override
 		public Component getTableCellRendererComponent(JTable table,Object value,
 				boolean isSelected,boolean hasFocus,int row,int column){
 			JLabel label=

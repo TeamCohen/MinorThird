@@ -43,6 +43,7 @@ public class EncapsulatedAnnotator extends AbstractAnnotator implements Serializ
 		System.out.println("will export these types: " + (exportedTypes==null ? "all" : StringUtil.toString(exportedTypes)) );;
 	}
 
+	@Override
 	protected void doAnnotate(MonotonicTextLabels labels)
 	{ 
 
@@ -66,6 +67,7 @@ public class EncapsulatedAnnotator extends AbstractAnnotator implements Serializ
 		}
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels, Span documentSpan) { return "annotated with '"+requiredAnnotation+"'"; }
 
 	/** Create a serialized annotator that 'requires' a particular

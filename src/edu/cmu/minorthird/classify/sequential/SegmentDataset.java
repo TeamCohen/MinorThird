@@ -49,6 +49,7 @@ public class SegmentDataset implements Dataset{
 		compressGroups=flag;
 	}
 
+	@Override
 	public FeatureFactory getFeatureFactory(){
 		return factory;
 	}
@@ -57,6 +58,7 @@ public class SegmentDataset implements Dataset{
 		return maxWindowSize;
 	}
 
+	@Override
 	public int size(){
 		return totalSize;
 	}
@@ -81,9 +83,10 @@ public class SegmentDataset implements Dataset{
 		totalSize+=group.size();
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		ExampleSchema schema=
-				new ExampleSchema((String[])classNameSet
+				new ExampleSchema(classNameSet
 						.toArray(new String[classNameSet.size()]));
 		if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA))
 			return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
@@ -99,6 +102,7 @@ public class SegmentDataset implements Dataset{
 	 *
 	 * @param example The Example that you want to add to the dataset.
 	 */
+	@Override
 	public void add(Example example){
 		add(example,false);
 	}
@@ -112,6 +116,7 @@ public class SegmentDataset implements Dataset{
 	 * @param example The example to add to the dataset
 	 * @param compress Boolean specifying whether or not to compress the example.
 	 */
+	@Override
 	public void add(Example example,boolean compress){
 		MutableCandidateSegmentGroup g=new MutableCandidateSegmentGroup(1,1);
 
@@ -124,6 +129,7 @@ public class SegmentDataset implements Dataset{
 	}
 
 	/** Iterate over all examples */
+	@Override
 	public Iterator<Example> iterator(){
 		List<Example> result=new ArrayList<Example>();
 		for(Iterator<CandidateSegmentGroup> i=groupList.iterator();i.hasNext();){
@@ -143,6 +149,7 @@ public class SegmentDataset implements Dataset{
 		return groupList.iterator();
 	}
 
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		buf.append("size = "+size()+"\n");
@@ -153,16 +160,19 @@ public class SegmentDataset implements Dataset{
 	}
 
 	/** Randomly re-order the examples. */
+	@Override
 	public void shuffle(Random r){
 		Collections.shuffle(groupList,r);
 	}
 
 	/** Randomly re-order the examples. */
+	@Override
 	public void shuffle(){
 		Collections.shuffle(groupList,new Random(0));
 	}
 
 	/** Make a shallow copy of the dataset. */
+	@Override
 	public Dataset shallowCopy(){
 		SegmentDataset copy=new SegmentDataset();
 		for(Iterator<CandidateSegmentGroup> i=groupList.iterator();i.hasNext();){
@@ -175,6 +185,7 @@ public class SegmentDataset implements Dataset{
 	// split
 	//
 	
+	@Override
 	public Split split(final Splitter<Example> splitter){
 		throw new UnsupportedOperationException();
 	}
@@ -183,14 +194,17 @@ public class SegmentDataset implements Dataset{
 		splitter.split(groupList.iterator());
 		return new Split(){
 
+			@Override
 			public int getNumPartitions(){
 				return splitter.getNumPartitions();
 			}
 
+			@Override
 			public Dataset getTrain(int k){
 				return invertIteration(splitter.getTrain(k));
 			}
 
+			@Override
 			public Dataset getTest(int k){
 				return invertIteration(splitter.getTest(k));
 			}
@@ -207,6 +221,7 @@ public class SegmentDataset implements Dataset{
 	}
 
 	/** A GUI view of the dataset. */
+	@Override
 	public Viewer toGUI(){
 		//return new VanillaViewer(this);
 		Viewer dbGui=new BasicDataset.SimpleDatasetViewer();

@@ -46,14 +46,17 @@ public class BasicSpan implements Span,Serializable,Visible{
 		this.documentGroupId=documentGroupId==null?documentId:documentGroupId;
 	}
 
+	@Override
 	public String getDocumentId(){
 		return documentId;
 	}
 
+	@Override
 	public String getDocumentGroupId(){
 		return documentGroupId;
 	}
 
+	@Override
 	public String getDocumentContents(){
 		if(textTokens.length==0)
 			return "";
@@ -62,11 +65,13 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	/** Returns the number of tokens in the span. */
+	@Override
 	public int size(){
 		return spanLen;
 	}
 
 	/** Retrieves the ith TextToken in the span */
+	@Override
 	public TextToken getTextToken(int i){
 		if(i<0||i>=spanLen)
 			throw new IllegalArgumentException("out of range: "+i);
@@ -74,6 +79,7 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	/** Retrieves the ith TextToken in the span */
+	@Override
 	public Token getToken(int i){
 		//return getTextToken(i);
 		if(i<0||i>=spanLen)
@@ -82,6 +88,7 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	/** Create a new BasicSpan, covering the indicated TextToken's. */
+	@Override
 	public Span subSpan(int start,int len){
 		if(start<0||start+len>spanLen)
 			throw new IllegalArgumentException("out of range: "+start+","+len);
@@ -98,16 +105,19 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	/** A larger span containing this span. */
+	@Override
 	public Span documentSpan(){
 		return new BasicSpan(documentId,textTokens,0,textTokens.length,
 				documentGroupId);
 	}
 
 	/** The index of this span in the home span. */
+	@Override
 	public int documentSpanStartIndex(){
 		return loTextTokenIndex;
 	}
 
+	@Override
 	public boolean contains(Span other){
 		if(!other.getDocumentId().equals(getDocumentId()))
 			return false;
@@ -118,6 +128,7 @@ public class BasicSpan implements Span,Serializable,Visible{
 		return(myStart<=otherStart&&myEnd>=otherStart&&myStart<=otherEnd&&myEnd>=otherEnd);
 	}
 
+	@Override
 	public boolean overlaps(Span other){
 		if(!other.getDocumentId().equals(getDocumentId()))
 			return false;
@@ -132,6 +143,7 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	/** Find the string contained in a Span. */
+	@Override
 	public String asString(){
 		if(size()<=0)
 			return "";
@@ -145,18 +157,21 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	/** A length-zero span for the left boundary */
+	@Override
 	public Span getLeftBoundary(){
 		return new BasicSpan(documentId,textTokens,loTextTokenIndex,0,
 				documentGroupId);
 	}
 
 	/** A length-zero span for the left boundary */
+	@Override
 	public Span getRightBoundary(){
 		return new BasicSpan(documentId,textTokens,loTextTokenIndex+spanLen,0,
 				documentGroupId);
 	}
 
 	// Implement comparable
+	@Override
 	public int compareTo(Span other){
 		int cmp1=getDocumentId().compareTo(other.getDocumentId());
 		if(cmp1!=0)
@@ -171,14 +186,17 @@ public class BasicSpan implements Span,Serializable,Visible{
 	}
 
 	// for safe hashing
+	@Override
 	public int hashCode(){
 		return documentId.hashCode()^loTextTokenIndex^spanLen;
 	}
 
+	@Override
 	public boolean equals(Object o){
 		return o instanceof BasicSpan&&compareTo((Span)o)==0;
 	}
 
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		buf.append("Span '"+asString()+"'");
@@ -188,18 +206,22 @@ public class BasicSpan implements Span,Serializable,Visible{
 		return buf.toString();
 	}
 
+	@Override
 	public Span charIndexSubSpan(int lo,int hi){
 		return charIndexSubSpan(lo,hi,false);
 	}
 
+	@Override
 	public Span charIndexProperSubSpan(int lo,int hi){
 		return charIndexSubSpan(lo,hi,true);
 	}
 
+	@Override
 	public void setCharOffset(int charOffset){
 		this.charOffset=charOffset;
 	}
 
+	@Override
 	public int getCharOffset(){
 		return charOffset;
 	}
@@ -282,16 +304,19 @@ public class BasicSpan implements Span,Serializable,Visible{
 		return subSpan(loCharIndex,firstTextToken,lastTextToken-firstTextToken+1);
 	}
 
+	@Override
 	public int getLoTextToken(){
 		return loTextTokenIndex;
 	}
 
 	/** Returns how many characters are before the span in the document */
+	@Override
 	public int getLoChar(){
 		return textTokens[loTextTokenIndex].getLo();
 	}
 
 	/** Returns how many characters there are up to and including the span */
+	@Override
 	public int getHiChar(){
 		return textTokens[loTextTokenIndex+size()-1].getHi();
 	}
@@ -300,6 +325,7 @@ public class BasicSpan implements Span,Serializable,Visible{
 		return(i>=j?i-j:j-i);
 	}
 
+	@Override
 	public Viewer toGUI(){
 		return new SpanViewer.ControlledTextViewer(this);
 		//return new SpanViewer.TextViewer(this);

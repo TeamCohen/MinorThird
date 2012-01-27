@@ -28,30 +28,37 @@ public abstract class StackedBatchClassifierLearner implements
 	
 	protected Classifier classifier=null;
 
+	@Override
 	final public void reset(){
 		dataset=new RealRelationalDataset();
 		classifier=null;
 	}
 
+	@Override
 	final public void setInstancePool(Iterator<Instance> i){}
 
+	@Override
 	final public boolean hasNextQuery(){
 		return false;
 	}
 
+	@Override
 	final public Instance nextQuery(){
 		return null;
 	}
 
+	@Override
 	final public void addExample(Example answeredQuery){
 		dataset.addSGM((SGMExample)answeredQuery);
 		classifier=null;
 	}
 
+	@Override
 	final public void completeTraining(){
 		classifier=batchTrain(dataset);
 	}
 
+	@Override
 	final public Classifier getClassifier(){
 		if(classifier==null){
 			classifier=batchTrain(dataset);
@@ -59,6 +66,7 @@ public abstract class StackedBatchClassifierLearner implements
 		return classifier;
 	}
 	
+	@Override
 	public ClassifierLearner copy(){
 		StackedBatchClassifierLearner bcl;
 		try{
@@ -70,7 +78,7 @@ public abstract class StackedBatchClassifierLearner implements
 			e.printStackTrace();
 			bcl=null;
 		}
-		return (ClassifierLearner)bcl;
+		return bcl;
 	}
 
 	/** subclasses  should use this method to implement a batch supervised learning algorithm. 

@@ -24,12 +24,14 @@ public class Segmentation
 		String name = schema.getClassName(seg.y);
 		return ExampleSchema.NEG_CLASS_NAME.equals(name) ? null : name;
 	}
+	@Override
 	public String toString() { return "[Segmentation: "+segments+"]"; }
 
 	static public class Segment implements Comparable<Segment>
 	{
 		public final int lo,hi,y;
 		public Segment(int lo,int hi,int y) { this.lo=lo; this.hi=hi; this.y=y; }
+		@Override
 		public int compareTo(Segment b) {
 			int cmp = lo - b.lo;
 			if (cmp!=0) return cmp;
@@ -37,6 +39,7 @@ public class Segmentation
 			if (cmp!=0) return cmp;
 			return y - b.y;
 		}
+		@Override
 		public String toString() { return "[Segment "+lo+".."+hi+";"+y+"]"; }
 	}
 }

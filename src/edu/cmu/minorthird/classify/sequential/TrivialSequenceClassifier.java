@@ -26,6 +26,7 @@ public class TrivialSequenceClassifier implements SequenceClassifier,SequenceCon
 		this.historySize=historySize;
 	}
 
+	@Override
 	public ClassLabel[] classification(Instance[] sequence)
 	{
 		String[] history = new String[historySize];
@@ -40,6 +41,7 @@ public class TrivialSequenceClassifier implements SequenceClassifier,SequenceCon
 		return result;
 	}
 
+	@Override
 	public String explain(Instance[] sequence)
 	{
 		StringBuffer buf = new StringBuffer();
@@ -51,7 +53,8 @@ public class TrivialSequenceClassifier implements SequenceClassifier,SequenceCon
 		return buf.toString();
 	}
 
-    public Explanation getExplanation(Instance[] sequence) 
+    @Override
+		public Explanation getExplanation(Instance[] sequence) 
     {
 	Explanation.Node top = new Explanation.Node("TrivialSequenceClassifier Explanation");
 	for (int i=0; i<sequence.length; i++) {

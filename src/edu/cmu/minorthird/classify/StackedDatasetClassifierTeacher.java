@@ -11,6 +11,7 @@ import java.util.Set;
 
 import edu.cmu.minorthird.classify.experiments.Expt;
 import edu.cmu.minorthird.classify.experiments.Tester;
+import edu.cmu.minorthird.classify.relational.CoreRelationalDataset;
 import edu.cmu.minorthird.classify.relational.RealRelationalDataset;
 import edu.cmu.minorthird.util.IOUtil;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
@@ -43,37 +44,43 @@ public class StackedDatasetClassifierTeacher extends StackedClassifierTeacher{
 		this.activeLearning=activeLearning;
 	}
 
+	@Override
 	public ExampleSchema schema(){
 		return dataset.getSchema();
 	}
 
+	@Override
 	public Map<String,Map<String,Set<String>>> getLinksMap(){
-		return RealRelationalDataset.getLinksMap();
+		return CoreRelationalDataset.getLinksMap();
 	}
 
+	@Override
 	public Map<String,Set<String>> getAggregators(){
 		return RealRelationalDataset.getAggregators();
 	}
 
+	@Override
 	public Iterator<Example> examplePool(){
 		if(activeLearning){
-			return Collections.EMPTY_SET.iterator();
+			return Collections.<Example>emptySet().iterator();
 		}
 		else{
 			return dataset.iterator();
 		}
 	}
 
+	@Override
 	public Iterator<Instance> instancePool(){
 		if(activeLearning){
 			return Util.toInstanceIterator(dataset.iterator());
 		}else if(dataset instanceof BasicDataset){
 			return ((BasicDataset)dataset).iteratorOverUnlabeled();
 		}else{
-			return Collections.EMPTY_SET.iterator();
+			return Collections.<Instance>emptySet().iterator();
 		}
 	}
 
+	@Override
 	public Example labelInstance(Instance query){
 		// the label was hidden by just hiding the type
 		if(query instanceof Example){
@@ -84,6 +91,7 @@ public class StackedDatasetClassifierTeacher extends StackedClassifierTeacher{
 		}
 	}
 
+	@Override
 	public boolean hasAnswers(){
 		return activeLearning;
 	}

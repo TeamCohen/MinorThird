@@ -46,6 +46,7 @@ public class FastRandomTreeLearner extends RandomTreeLearner{
 		return this;
 	}
 
+	@Override
 	public Classifier batchTrain(List<Example> dataset,Vector<Feature> allFeatures){
 
 		// COPIED FROM DecisionTreeLearner
@@ -58,6 +59,7 @@ public class FastRandomTreeLearner extends RandomTreeLearner{
 		return c;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		List<Example> newData=new LinkedList<Example>();
 		for(Iterator<Example> it=dataset.iterator();it.hasNext();){
@@ -241,12 +243,15 @@ public class FastRandomTreeLearner extends RandomTreeLearner{
 				neg+=example.getWeight();
 		}
 
+		/*
 		// value of splitting on this feature
 		public double value(double totalPosWeight,double totalNegWeight){
 			return schapireSingerValue(pos,neg,totalPosWeight,totalNegWeight);
 			//return entropy(pos,neg,totalPosWeight,totalNegWeight);
 		}
+		*/
 
+		@Override
 		public String toString(){
 			return "[pos:"+pos+" neg:"+neg+"]";
 		}
@@ -322,7 +327,7 @@ public class FastRandomTreeLearner extends RandomTreeLearner{
 				}
 				lastKey=key;
 				// update counts
-				BinaryFeatureStats bfs=(BinaryFeatureStats)map.get(key);
+				BinaryFeatureStats bfs=map.get(key);
 				posGT-=bfs.pos;
 				negGT-=bfs.neg;
 			}
@@ -334,6 +339,7 @@ public class FastRandomTreeLearner extends RandomTreeLearner{
 			return bestThreshold;
 		}
 
+		@Override
 		public String toString(){
 			return "[pos: "+posNonZero+" neg: "+negNonZero+" map: "+map+"]";
 		}

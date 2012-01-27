@@ -82,11 +82,13 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	 * Returns the TextBase associated with this labels set or NULL if it has not
 	 * been set.
 	 */
+	@Override
 	public TextBase getTextBase(){
 		return textBase;
 	}
 
 	/** Returns whether this labels set knows about the specified dictionary */
+	@Override
 	public boolean hasDictionary(String dictionary){
 		return textTokenDictMap.containsKey(dictionary);
 	}
@@ -97,6 +99,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	 * @throws java.lang.IllegalStateException
 	 *           If the TextBase has already been set.
 	 */
+	@Override
 	public void setTextBase(TextBase textBase){
 		if(this.textBase!=null)
 			throw new IllegalStateException("textBase already set");
@@ -117,6 +120,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	 * Returns whether or not this labels set has been annotated to include the
 	 * specified type.
 	 */
+	@Override
 	public boolean isAnnotatedBy(String s){
 		return annotatedBySet.contains(s);
 	}
@@ -125,24 +129,29 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	 * Adds the specified type to the list of annotation types that this labels
 	 * set has been annotated to contain.
 	 */
+	@Override
 	public void setAnnotatedBy(String s){
 		annotatedBySet.add(s);
 	}
 
 	/** Sets the loader used to locate annotators. */
+	@Override
 	public void setAnnotatorLoader(AnnotatorLoader newLoader){
 		this.loader=newLoader;
 	}
 
 	/** Returns the current loader used to locate annotators. */
+	@Override
 	public AnnotatorLoader getAnnotatorLoader(){
 		return loader;
 	}
 
+	@Override
 	public void require(String annotationType,String fileToLoad){
 		require(annotationType,fileToLoad,loader);
 	}
 
+	@Override
 	public void require(String annotationType,String fileToLoad,AnnotatorLoader theLoader){
 		doRequire(this,annotationType,fileToLoad,theLoader);
 	}
@@ -174,6 +183,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		}
 	}
 
+	@Override
 	public void annotateWith(String annotationType,String fileToLoad){
 		annotateWith(this,annotationType,fileToLoad);
 	}
@@ -190,6 +200,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	//
 
 	/** Returns true if the value of the Token is in the named dictionary. */
+	@Override
 	public boolean inDict(Token token,String dictName){
 		if(token.getValue()==null)
 			throw new IllegalArgumentException("null token.value?");
@@ -200,6 +211,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	}
 
 	/** Associate a dictionary with this labeling. */
+	@Override
 	public void defineDictionary(String dictName,Set<String> dictionary){
 		textTokenDictMap.put(dictName,dictionary);
 		if(log.isDebugEnabled())
@@ -207,6 +219,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	}
 
 	/** Associate a dictionary from this file */
+	@Override
 	public void defineDictionary(String dictName,List<String> fileNames,
 			boolean ignoreCase){
 		Set<String> wordSet=new HashSet<String>();
@@ -217,7 +230,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		Tokenizer tok=this.getTextBase().getTokenizer();
 		String[] currentEntryTokens;
 		for(int i=0;i<fileNames.size();i++){
-			String fileName=(String)fileNames.get(i);
+			String fileName=fileNames.get(i);
 			InputStream stream=theLoader.findFileResource(fileName);
 			try{
 				LineNumberReader bReader=
@@ -251,11 +264,13 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	}
 
 	/** Return a trie if defined */
+	@Override
 	public Trie getTrie(){
 		return trie;
 	}
 
 	/** Define a trie */
+	@Override
 	public void defineTrie(List<String> phraseList){
 		trie=new Trie();
 		// We should use the same tokenizer that the text base associated with this
@@ -263,7 +278,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		// RegexTokenizer tokenizer = new RegexTokenizer();
 		Tokenizer tokenizer=this.getTextBase().getTokenizer();
 		for(int i=0;i<phraseList.size();i++){
-			String[] toks=tokenizer.splitIntoTokens((String)phraseList.get(i));
+			String[] toks=tokenizer.splitIntoTokens(phraseList.get(i));
 			if(toks.length<=2||!"\"".equals(toks[0])||
 					!"\"".equals(toks[toks.length-1])){
 				trie.addWords("phrase#"+i,toks);
@@ -300,16 +315,19 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	//
 
 	/** Get the property value associated with this Token. */
+	@Override
 	public String getProperty(Token token,String prop){
 		return getPropMap(token).get(prop);
 	}
 
 	/** Get a set of all properties. */
+	@Override
 	public Set<String> getTokenProperties(){
 		return textTokenPropertySet;
 	}
 
 	/** Assert that Token textToken has the given value of the given property */
+	@Override
 	public void setProperty(Token textToken,String prop,String value){
 		getPropMap(textToken).put(prop,value);
 		textTokenPropertySet.add(prop);
@@ -319,6 +337,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	 * Assert that Token textToken has the given value of the given property, and
 	 * associate that with some detailed information
 	 */
+	@Override
 	public void setProperty(Token textToken,String prop,String value,
 			Details details){
 		setProperty(textToken,prop,value);
@@ -341,16 +360,19 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	//
 
 	/** Get the property value associated with this Span. */
+	@Override
 	public String getProperty(Span span,String prop){
 		return getPropMap(span).get(prop);
 	}
 
 	/** Get a set of all properties. */
+	@Override
 	public Set<String> getSpanProperties(){
 		return spanPropertySet;
 	}
 
 	/** Find all spans that have a non-null value for this property. */
+	@Override
 	public Iterator<Span> getSpansWithProperty(String prop){
 		SortedSet<Span> accum=new TreeSet<Span>();
 		for(Iterator<Span> i=spanPropertyMap.keySet().iterator();i.hasNext();){
@@ -363,6 +385,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	}
 
 	/** Find all spans that have a non-null value for this property. */
+	@Override
 	public Iterator<Span> getSpansWithProperty(String prop,String id){
 		SortedSet<Span> set=spansWithSomePropertyByDocId.get(id);
 		if(set==null)
@@ -380,6 +403,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	}
 
 	/** Assert that Span span has the given value of the given property */
+	@Override
 	public void setProperty(Span span,String prop,String value){
 		getPropMap(span).put(prop,value);
 		spanPropertySet.add(prop);
@@ -390,6 +414,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		set.add(span);
 	}
 
+	@Override
 	public void setProperty(Span span,String prop,String value,Details details){
 		setProperty(span,prop,value);
 		if(details!=null){
@@ -409,16 +434,19 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	//
 	// maintain assertions about types of Spans
 	//
+	@Override
 	public boolean hasType(Span span,String type){
 		return getTypeSet(type,span.getDocumentId()).contains(span);
 	}
 
+	@Override
 	public void addToType(Span span,String type){
 		if(type==null)
 			throw new IllegalArgumentException("null type added");
 		lookupTypeSet(type,span.getDocumentId()).add(span);
 	}
 
+	@Override
 	public void addToType(Span span,String type,Details details){
 		addToType(span,type);
 		if(details!=null){
@@ -426,14 +454,17 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		}
 	}
 
+	@Override
 	public Set<String> getTypes(){
 		return typeDocumentSetMap.keySet();
 	}
 
+	@Override
 	public boolean isType(String type){
 		return typeDocumentSetMap.get(type)!=null;
 	}
 
+	@Override
 	public void declareType(String type){
 		// System.out.println("BasicTextLabels: declareType: "+type);
 		if(type==null)
@@ -442,10 +473,12 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 			typeDocumentSetMap.put(type,new TreeMap<String,SortedSet<Span>>());
 	}
 
+	@Override
 	public Iterator<Span> instanceIterator(String type){
 		return new MyNestedSpanLooper(type,false);
 	}
 
+	@Override
 	public Iterator<Span> instanceIterator(String type,String documentId){
 		if(documentId!=null)
 			return getTypeSet(type,documentId).iterator();
@@ -453,6 +486,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 			return instanceIterator(type);
 	}
 
+	@Override
 	public void defineTypeInside(String type,Span s,Iterator<Span> i){
 		if(type==null||s.getDocumentId()==null)
 			throw new IllegalArgumentException("null type defined");
@@ -471,6 +505,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		closeTypeInside(type,s);
 	}
 
+	@Override
 	public Details getDetails(Span span,String type){
 		SpanTypeKey key=new SpanTypeKey(span,type);
 		Details details=detailMap.get(key);
@@ -500,6 +535,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 
 	// get the set of spans with a given type in the given document w/o changing
 	// it
+	@Override
 	public Set<Span> getTypeSet(String type,String documentId){
 		if(type==null||documentId==null)
 			throw new IllegalArgumentException("null type?");
@@ -523,6 +559,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 			this.str=s;
 		}
 
+		@Override
 		public int compareTo(ObjectStringKey<T> b){
 			String bn=b.obj.getClass().toString();
 			int tmp=obj.getClass().toString().compareTo(bn);
@@ -560,17 +597,22 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	// maintain assertions about where the closed world assumption holds
 	//
 
+	@Override
 	public Iterator<Span> closureIterator(String type){
 		return new MyNestedSpanLooper(type,true);
 	}
 
+	@Override
 	public Iterator<Span> closureIterator(String type,String documentId){
-		if(documentId!=null)
+		if(documentId!=null){
 			return getClosureSet(type,documentId).iterator();
-		else
+		}
+		else{
 			return closureIterator(type);
+		}
 	}
 
+	@Override
 	public void closeTypeInside(String type,Span s){
 		getClosureSet(type,s.getDocumentId()).add(s);
 	}
@@ -582,6 +624,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		SortedMap<String,SortedSet<Span>> documentsWithClosure=closureDocumentSetMap.get(type);
 		if(documentsWithClosure==null){
 			closureDocumentSetMap.put(type,documentsWithClosure=new TreeMap<String,SortedSet<Span>>());
+			//closureDocumentSetMap.put(type,documentsWithClosure=typeDocumentSetMap.get(type));
 		}
 		SortedSet<Span> set=documentsWithClosure.get(documentId);
 		if(set==null){
@@ -626,14 +669,17 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 //			return estimatedSize;
 //		}
 
+		@Override
 		public boolean hasNext(){
 			return nextSpan!=null;
 		}
 
+		@Override
 		public void remove(){
 			throw new UnsupportedOperationException("can't remove");
 		}
 
+		@Override
 		public Span next(){
 			Span result=nextSpan;
 			advance();
@@ -647,7 +693,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		private void advance(){
 			if(spanIterator!=null&&spanIterator.hasNext()){
 				// get next span in the current document
-				nextSpan=(Span)spanIterator.next();
+				nextSpan=spanIterator.next();
 			}else if(documentIterator.hasNext()){
 				// move to the next document
 				Map.Entry<String,SortedSet<Span>> entry=documentIterator.next();
@@ -660,11 +706,13 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "[BasicTextLabels "+typeDocumentSetMap+"]";
 	}
 
 	/** Dump of all strings that have textTokenuence with the given property */
+	@Override
 	public String showTokenProp(TextBase base,String prop){
 		StringBuffer buf=new StringBuffer();
 		for(Iterator<Span> i=base.documentSpanIterator();i.hasNext();){
@@ -684,6 +732,7 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 		return buf.toString();
 	}
 
+	@Override
 	public Viewer toGUI(){
 		return new ZoomingTextLabelsViewer(this);
 	}
@@ -693,20 +742,24 @@ public class BasicTextLabels implements MutableTextLabels,Serializable,Visible,
 	//
 	static private final String FORMAT_NAME="Minorthird TextLabels";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{FORMAT_NAME};
 	}
 
+	@Override
 	public String getExtensionFor(String s){
 		return ".labels";
 	}
 
+	@Override
 	public void saveAs(File file,String format) throws IOException{
 		if(!format.equals(FORMAT_NAME))
 			throw new IllegalArgumentException("illegal format "+format);
 		new TextLabelsLoader().saveTypesAsOps(this,file);
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		throw new UnsupportedOperationException("Cannot load TextLabels object");
 	}

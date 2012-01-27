@@ -79,6 +79,7 @@ public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator
 	}
 
 	/** Provide document string with a label and add to the learner */
+	@Override
 	public void addDocument(String label,String text){
 		BasicTextBase tb=new BasicTextBase();
 		docNum++;
@@ -99,30 +100,36 @@ public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator
 	}
 
 	/** Returns the TextClassifier */
+	@Override
 	public TextClassifier getTextClassifier(){
 		TextClassifier tc=new BinaryTextClassifier(learner,fe);
 		return tc;
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		return learner.getClassifier();
 	}
 
 	/** Tells the learner that no more examples are coming */
+	@Override
 	public void completeTraining(){
 		learner.completeTraining();
 	}
 
 	/** Erases all previous data from the learner */
+	@Override
 	public void reset(){
 		learner.reset();
 	}
 
+	@Override
 	public String[] getTypes(){
 		String[] types={spanType,"NOT"+spanType};
 		return types;
 	}
 
+	@Override
 	public void doAnnotate(MonotonicTextLabels labels){
 		Iterator<Span> candidateLooper=labels.getTextBase().documentSpanIterator();
 
@@ -136,11 +143,13 @@ public class OnlineBinaryTextClassifierLearner extends AbstractAnnotator
 		}
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span documentSpan){
 		Classifier c=learner.getClassifier();
 		return c.explain(fe.extractInstance(labels,documentSpan));
 	}
 
+	@Override
 	public ClassifierAnnotator getAnnotator(){
 		ClassifierAnnotator ann=
 				new ClassifierAnnotator(fe,getClassifier(),outputType,null,null);

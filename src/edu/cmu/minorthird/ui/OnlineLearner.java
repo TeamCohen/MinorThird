@@ -69,6 +69,7 @@ public class OnlineLearner extends UIMain{
 		test=p;
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				labeledData,signal,train,test});
@@ -78,6 +79,7 @@ public class OnlineLearner extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(train.learner==null)
@@ -99,7 +101,7 @@ public class OnlineLearner extends UIMain{
 				OnlineBinaryTextClassifierLearner obtcl=
 						(OnlineBinaryTextClassifierLearner)IOUtil
 								.loadSerialized(test.loadFrom);
-				textLearner=(OnlineTextClassifierLearner)obtcl;
+				textLearner=obtcl;
 			}catch(IOException ex){
 				throw new IllegalArgumentException("can't load annotator from "+
 						test.loadFrom+": "+ex);
@@ -114,6 +116,7 @@ public class OnlineLearner extends UIMain{
 //						base.repositoryKey,textLearner);
 	}
 
+	@Override
 	public Object getMainResult(){
 		return textLearner.getClassifier();
 	}

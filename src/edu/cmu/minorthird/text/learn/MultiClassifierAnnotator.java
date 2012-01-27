@@ -50,6 +50,7 @@ public class MultiClassifierAnnotator extends AbstractAnnotator implements
 		return multiSpanProp;
 	}
 
+	@Override
 	public void doAnnotate(MonotonicTextLabels labels){
 		Iterator<Span> candidateLooper=labels.getTextBase().documentSpanIterator();
 
@@ -64,6 +65,7 @@ public class MultiClassifierAnnotator extends AbstractAnnotator implements
 		}
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span documentSpan){
 		return mc.explain(fe.extractInstance(labels,documentSpan));
 	}

@@ -49,11 +49,13 @@ public class MultiClassifier implements Classifier,Visible,Serializable{
 	}
 
 	/** Give you the class label for the first dimension */
+	@Override
 	public ClassLabel classification(Instance instance){
 		ClassLabel classLabel=classifiers[0].classification(instance);
 		return classLabel;
 	}
 
+	@Override
 	public String explain(Instance instance){
 		StringBuffer buf=new StringBuffer("");
 		for(int i=0;i<classifiers.length;i++){
@@ -64,6 +66,7 @@ public class MultiClassifier implements Classifier,Visible,Serializable{
 		return buf.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=new Explanation.Node("MultiClassifier Explanation");
 
@@ -84,6 +87,7 @@ public class MultiClassifier implements Classifier,Visible,Serializable{
 		return classifiers;
 	}
 
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("[MultiClassifier:\n");
 		for(int i=0;i<classifiers.length;i++){
@@ -93,11 +97,13 @@ public class MultiClassifier implements Classifier,Visible,Serializable{
 		return buf.toString();
 	}
 
+	@Override
 	public Viewer toGUI(){
 		final Viewer v=new ComponentViewer(){
 			
 			static final long serialVersionUID=20080130L;
 
+			@Override
 			public JComponent componentFor(Object o){
 				MultiClassifier c=(MultiClassifier)o;
 				JPanel panel=new JPanel();

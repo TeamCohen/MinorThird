@@ -48,7 +48,7 @@ public class TextBaseManager{
 
 	/** Returns the textbase identified by name. */
 	public TextBase getTextBase(String name){
-		TextBaseEntry entry=(TextBaseEntry)textBases.get(name);
+		TextBaseEntry entry=textBases.get(name);
 		return entry.getTextBase();
 	}
 
@@ -68,7 +68,7 @@ public class TextBaseManager{
 
 		// Get the entry of the parent
 		if(parentName!=null)
-			parentEntry=(TextBaseEntry)textBases.get(parentName);
+			parentEntry=textBases.get(parentName);
 
 		// Add the new text base and it's mapper to the store of text bases and mappers        
 		if(parentEntry!=null){ // There's a parent so create a child level
@@ -97,7 +97,7 @@ public class TextBaseManager{
 	 */
 	public Span getMatchingSpan(String srcName,String srcDocId,int srcOffset,
 			int length,String dstName){
-		TextBaseEntry srcEntry=(TextBaseEntry)textBases.get(srcName);
+		TextBaseEntry srcEntry=textBases.get(srcName);
 		if(srcEntry==null)
 			throw new IllegalArgumentException("There is no text base named: "+
 					srcName+" in this manager.");
@@ -112,7 +112,7 @@ public class TextBaseManager{
 
 		// If the document is unavailable then get the mapper that maps between the source and dest text bases.
 		TextBaseMapper mapper=
-				(TextBaseMapper)textBaseMappers.get(srcEntry.getName());
+				textBaseMappers.get(srcEntry.getName());
 		if(mapper==null)
 			return null;
 		// Get the mapping for the char index sequence in the source document to its parent.
@@ -145,8 +145,8 @@ public class TextBaseManager{
 	 * destination text base is located.
 	 */
 	public Span getMatchingSpan(Span span,String srcName,String dstName){
-		TextBaseEntry srcEntry=(TextBaseEntry)textBases.get(srcName);
-		TextBaseEntry dstEntry=(TextBaseEntry)textBases.get(dstName);
+		TextBaseEntry srcEntry=textBases.get(srcName);
+		TextBaseEntry dstEntry=textBases.get(dstName);
 		if(srcEntry==null)
 			throw new IllegalArgumentException("There is no text base named: "+
 					srcName+" in this manager.");
@@ -162,8 +162,8 @@ public class TextBaseManager{
 		List<TextBaseMapper> dstMapperList=new ArrayList<TextBaseMapper>();
 
 		// Generate a path of mappers that links from the src text base to the dst text base
-		TextBaseEntry currSrcEntry=(TextBaseEntry)textBases.get(srcName);
-		TextBaseEntry currDstEntry=(TextBaseEntry)textBases.get(dstName);
+		TextBaseEntry currSrcEntry=textBases.get(srcName);
+		TextBaseEntry currDstEntry=textBases.get(dstName);
 		while(currSrcEntry.getLevel()!=currDstEntry.getLevel()){
 			if(currSrcEntry.getLevel()>currDstEntry.getLevel()){
 				srcMapperList.add(textBaseMappers.get(currSrcEntry.getName()));
@@ -211,7 +211,7 @@ public class TextBaseManager{
 	public MutableTextBase retokenize(Tokenizer newTokenizer,
 			String parentLevelName,String newLevelName){
 
-		TextBaseEntry parentEntry=(TextBaseEntry)textBases.get(parentLevelName);
+		TextBaseEntry parentEntry=textBases.get(parentLevelName);
 		if(parentEntry==null)
 			throw new IllegalArgumentException("There is no text base named: "+
 					parentLevelName+" in this manager.");
@@ -541,6 +541,7 @@ public class TextBaseManager{
 				dstOffset=dos;
 			}
 
+			@Override
 			public int compareTo(MapEntry o){
 				int res=srcDocId.compareTo(o.srcDocId);
 				if(res==0)
@@ -549,6 +550,7 @@ public class TextBaseManager{
 
 			}
 
+			@Override
 			public String toString(){
 				return srcDocId+":"+srcOffset+" -> "+dstDocId+":"+dstOffset;
 			}

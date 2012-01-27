@@ -38,6 +38,7 @@ abstract public class SplitViewer extends Viewer{
 	}
 
 	/** Called at creation time. */
+	@Override
 	protected void initialize(){
 		setLayout(new GridBagLayout());
 		splitPane=new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -61,6 +62,7 @@ abstract public class SplitViewer extends Viewer{
 		}
 	}
 
+	@Override
 	public void clearContent(){
 		if(viewer1!=null&&viewer2!=null){
 			viewer1.clearContent();

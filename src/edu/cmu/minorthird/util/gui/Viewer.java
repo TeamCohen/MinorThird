@@ -128,7 +128,7 @@ public abstract class Viewer extends JPanel{
 	public Object getVisibleContent(){
 		if(namedSubViews.size()==1&&namedSubViews.get(ONLY_SUBVIEWER)!=null){
 			Object result=
-					((Viewer)namedSubViews.get(ONLY_SUBVIEWER)).getVisibleContent();
+					(namedSubViews.get(ONLY_SUBVIEWER)).getVisibleContent();
 			return result;
 		}else{
 			return content;
@@ -139,7 +139,7 @@ public abstract class Viewer extends JPanel{
 		if(!(content instanceof Serializable)&&
 				namedSubViews.get(ONLY_SUBVIEWER)!=null){
 			Object result=
-					((Viewer)namedSubViews.get(ONLY_SUBVIEWER)).getSerializableContent();
+					(namedSubViews.get(ONLY_SUBVIEWER)).getSerializableContent();
 			return result;
 		}else
 			return content;
@@ -208,7 +208,7 @@ public abstract class Viewer extends JPanel{
 
 	/** Provide a set of subview names */
 	public Set<String> getSubViewNames(){
-		Viewer onlySubviewer=(Viewer)namedSubViews.get(ONLY_SUBVIEWER);
+		Viewer onlySubviewer=namedSubViews.get(ONLY_SUBVIEWER);
 		if(onlySubviewer!=null)
 			return onlySubviewer.getSubViewNames();
 		else
@@ -217,11 +217,11 @@ public abstract class Viewer extends JPanel{
 
 	/** Retrieve a subview by name. */
 	public Viewer getNamedSubView(String name){
-		Viewer onlySubviewer=(Viewer)namedSubViews.get(ONLY_SUBVIEWER);
+		Viewer onlySubviewer=namedSubViews.get(ONLY_SUBVIEWER);
 		if(onlySubviewer!=null)
 			return onlySubviewer.getNamedSubView(name);
 		else
-			return (Viewer)namedSubViews.get(name);
+			return namedSubViews.get(name);
 	}
 
 	//
@@ -244,6 +244,7 @@ public abstract class Viewer extends JPanel{
 	 */
 	protected void monitorSelections(final JList jlist,final Transform transformer){
 		jlist.addListSelectionListener(new ListSelectionListener(){
+			@Override
 			public void valueChanged(ListSelectionEvent e){
 				int index=jlist.getSelectedIndex();
 				sendSignal(OBJECT_SELECTED,transformer.transform(jlist.getModel().getElementAt(index)));
@@ -266,6 +267,7 @@ public abstract class Viewer extends JPanel{
 			final Transform transformer){
 		jtable.addMouseListener(new MouseAdapter(){
 
+			@Override
 			public void mouseClicked(MouseEvent e){
 				int rowIndex=jtable.rowAtPoint(e.getPoint());
 				sendSignal(OBJECT_SELECTED,transformer.transform(jtable.getModel()
@@ -288,6 +290,7 @@ public abstract class Viewer extends JPanel{
 
 	final private Transform IDENTITY_TRANSFORM=new Transform(){
 
+		@Override
 		public Object transform(Object o){
 			return o;
 		}

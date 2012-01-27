@@ -40,6 +40,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 		learnerFactory=new ClassifierLearnerFactory(learnerName);
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 		innerLearner=new ArrayList<ClassifierLearner>();
@@ -83,7 +84,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 			for(int j=0;j<unsortedLearners.size();j++){
 				try{
 					//BatchClassifierLearner learner = ((BatchClassifierLearner)unsortedLearners.get(j));
-					Evaluation evaluation=(Evaluation)eval.get(j);
+					Evaluation evaluation=eval.get(j);
 					double kappa=evaluation.kappa();
 					if(kappa>=maxKappa){
 						maxKappa=kappa;
@@ -105,6 +106,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 
 	}
 
+	@Override
 	public void addExample(Example answeredQuery){
 		int classIndex=schema.getClassIndex(answeredQuery.getLabel().bestClassName());
 		for(int i=0;i<innerLearner.size();i++){
@@ -115,6 +117,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 		}
 	}
 
+	@Override
 	public void completeTraining(){
 		for(int i=0;i<innerLearner.size();i++){
 			innerLearner.get(i).completeTraining();
@@ -123,6 +126,7 @@ public class CascadingBinaryLearner extends OneVsAllLearner{
 		sortLearners();
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		Classifier[] classifiers=new Classifier[innerLearner.size()];
 		for(int i=0;i<innerLearner.size();i++){

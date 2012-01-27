@@ -134,7 +134,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 				Instance segmentInstance){
 			for(Iterator<Feature> i=featureSet(start,end,segmentInstance).iterator();i
 					.hasNext();){
-				Feature f=(Feature)i.next();
+				Feature f=i.next();
 				// replace the feature with its canonical version, so
 				// that variant versions are not stored in the
 				// deltaWeight, zeroWeights hash tables
@@ -186,6 +186,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 			this.subpopulationId=initSubPopId;
 		}
 
+		@Override
 		public double getWeight(Feature f){
 			if(diff.zeroWeights.contains(f))
 				return 0;
@@ -193,20 +194,24 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 				return getSumWeight(start,end,f)+diff.deltaWeight.get(f);
 		}
 
+		@Override
 		public Iterator<Feature> binaryFeatureIterator(){
 			return adjust(binaryFeatureSet(start,end,null),diff.zeroWeights,null);
 		}
 
+		@Override
 		public Iterator<Feature> numericFeatureIterator(){
 			return adjust(numericFeatureSet(start,end,null),diff.zeroWeights,
 					diff.deltaWeight);
 		}
 
+		@Override
 		public Iterator<Feature> featureIterator(){
 			return adjust(featureSet(start,end,null),diff.zeroWeights,
 					diff.deltaWeight);
 		}
 		
+		@Override
 		public int numFeatures(){
 			System.err.println("numFeatures not implemented!");
 			return -1;
@@ -216,6 +221,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 				TObjectDoubleHashMap include){
 			// like set.removeAll(exclude) but faster
 			exclude.forEach(new TObjectProcedure(){
+				@Override
 				public boolean execute(Object o){
 					set.remove(o);
 					return true; // indicates it's ok to invoke this procedure again
@@ -224,6 +230,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 			if(include!=null){
 				// like set.addAll( include ) but faster
 				include.forEachKey(new TObjectProcedure(){
+					@Override
 					public boolean execute(Object key){
 						set.add((Feature)key);
 						return true; // indicates it's ok to invoke this procedure again
@@ -238,6 +245,7 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 	// implement the rest of the interface...
 	//
 
+	@Override
 	public Example getSubsequenceExample(int start,int end){
 		if(end-start==1)
 			return new Example(unitInstance[start],label[start][0]);
@@ -249,12 +257,14 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 
 	/** Return the class label associated with getSubsequenceExample(start,end).
 	 */
+	@Override
 	public ClassLabel getSubsequenceLabel(int start,int end){
 		return label[start][end-start-1];
 	}
 
 	/** Return the instance corresponding to the segment from positions start...end.
 	 */
+	@Override
 	public Instance getSubsequenceInstance(int start,int end){
 		if(end-start==1)
 			return new Example(unitInstance[start],label[start][0]);
@@ -264,22 +274,27 @@ public class CompactCandidateSegmentGroup implements CandidateSegmentGroup,
 			return null;
 	}
 
+	@Override
 	public int getSequenceLength(){
 		return sequenceLength;
 	}
 
+	@Override
 	public int getMaxWindowSize(){
 		return maxWindowSize;
 	}
 
+	@Override
 	public String getSubpopulationId(){
 		return subPopId;
 	}
 
+	@Override
 	public int size(){
 		return totalSize;
 	}
 
+	@Override
 	public Set<String> classNameSet(){
 		return classNameSet;
 	}

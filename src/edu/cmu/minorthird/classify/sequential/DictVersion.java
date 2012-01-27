@@ -67,8 +67,10 @@ public class DictVersion implements BatchSegmenterLearner
     }
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema) {;}
 
+	@Override
 	public Segmenter batchTrain(SegmentDataset dataset)
 	{
     // in this case, we don't need to learn a transform, we can just construct it...

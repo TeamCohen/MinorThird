@@ -27,14 +27,17 @@ public class AbstractLooper<T> implements Iterator<T>{
 		estSize=c.size();
 	}
 	
+	@Override
 	public void remove(){
 		i.remove();
 	}
 	
+	@Override
 	public boolean hasNext(){
 		return i.hasNext();
 	}
 	
+	@Override
 	public T next(){
 		return i.next();
 	}

@@ -97,6 +97,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 	 * 3. Creates and returns a new TweakedClassifier, with the original
 	 *    (inner) classifier and the threshold that was found.
 	 */
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 
 		// make sure the dataset given is indeed binary
@@ -365,6 +366,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 	// sort the tweakingTable, after it was filled, by descending score
 	private void sortByScore(){
 		Collections.sort(tweakingTable,new Comparator<Row>(){
+			@Override
 			public int compare(Row a,Row b){
 				return MathUtil.sign(b.orig_predicted.posWeight()-a.orig_predicted.posWeight());
 			}
@@ -394,7 +396,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 	}
 
 	private Row getRow(int i){
-		return (Row)tweakingTable.get(i);
+		return tweakingTable.get(i);
 	}
 
 	private String[] getClasses(){
@@ -475,6 +477,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 			tweak_predicted=tweak_p;
 		}
 
+		@Override
 		public String toString(){
 			return orig_predicted+"\t"+actual+"\t"+instance;
 		}
@@ -508,6 +511,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 			m_threshold=threshold;
 		}
 
+		@Override
 		public double score(Instance instance){
 			return m_classifier.score(instance)-m_threshold;
 		}
@@ -519,9 +523,11 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 		 * that was found
 		 * Code was copied from file CMM.java and adjusted 
 		 */
+		@Override
 		public Viewer toGUI(){
 			final Viewer v=new ComponentViewer(){
 				static final long serialVersionUID=20080128L;
+				@Override
 				public JComponent componentFor(Object o){
 					TweakedClassifier c=(TweakedClassifier)o;
 					JPanel mainPanel=new JPanel();
@@ -544,6 +550,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 		/* (non-Javadoc)
 		 * @see edu.cmu.minorthird.classify.Classifier#explain(edu.cmu.minorthird.classify.Instance)
 		 */
+		@Override
 		public String explain(Instance instance){
 			StringBuffer buf=new StringBuffer("");
 			buf.append("Explanation of original untweaked classifier:\n");
@@ -552,6 +559,7 @@ public class TweakedLearner extends BatchBinaryClassifierLearner{
 			return buf.toString();
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("TweakedLearner Explanation");
 			Explanation.Node orig=

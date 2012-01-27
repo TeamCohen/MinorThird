@@ -33,6 +33,7 @@ public class ChiSquareInstanceTransform extends AbstractInstanceTransform{
 	}
 
 	/** Transform an instance according to Info-Gain criterion */
+	@Override
 	public Instance transform(Instance ins){
 		// collect features to keep
 		if(!isSorted){
@@ -41,7 +42,7 @@ public class ChiSquareInstanceTransform extends AbstractInstanceTransform{
 			int maxIndex=Math.min(featValues.size(),TOP_FEATURES);
 //			availableFeatures = new HashSet();
 			for(int j=0;j<maxIndex;j++){
-				availableFeatures.add(((Pair)featValues.get(j)).feature);
+				availableFeatures.add((featValues.get(j)).feature);
 			}
 		}
 		return new MaskedInstance(ins,availableFeatures);
@@ -59,12 +60,14 @@ public class ChiSquareInstanceTransform extends AbstractInstanceTransform{
 			this.feature=f;
 		}
 
+		@Override
 		public String toString(){
 			return "[ "+this.value+","+this.feature+" ]"; //this.key + " ]";
 		}
 	}
 
 	final Comparator<Pair> VAL_COMPARATOR=new Comparator<Pair>(){
+		@Override
 		public int compare(Pair ig1,Pair ig2){
 			if(ig1.value<ig2.value)
 				return 1;

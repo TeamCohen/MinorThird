@@ -40,7 +40,8 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
 
   /** Accept an ExampleSchema - constraints on what the
    * Examples will be. */
-  public void setSchema(ExampleSchema schema)
+  @Override
+	public void setSchema(ExampleSchema schema)
   {
     if (!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema))
     {
@@ -49,15 +50,16 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
   }
 
   /** Examine data, build an instance transformer */
-  public InstanceTransform batchTrain(Dataset dataset)
+  @Override
+	public InstanceTransform batchTrain(Dataset dataset)
   {
     InfoGainInstanceTransform filter = new InfoGainInstanceTransform();
     BasicFeatureIndex index = new BasicFeatureIndex(dataset);
 
     if (frequencyModel.equals("document"))
     {
-      double dCntPos = (double)index.size("POS");
-      double dCntNeg = (double)dataset.size() -dCntPos;
+      double dCntPos = index.size("POS");
+      double dCntNeg = dataset.size() -dCntPos;
       double totalEntropy = Entropy( dCntPos/(dCntPos+dCntNeg),dCntNeg/(dCntPos+dCntNeg) );
 
       for (Iterator<Feature> i=index.featureIterator(); i.hasNext(); )
@@ -66,9 +68,9 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
 
         double dCntWithF[] = new double[2];    // [0] neg, [1] pos
         double dCntWithoutF[] = new double[2]; // [0] neg, [1] pos
-        dCntWithF[0] = (double)index.size(f,"NEG");
-				dCntWithF[0] = (double)index.size(f,ExampleSchema.NEG_CLASS_NAME);
-        dCntWithF[1] = (double)index.size(f) -dCntWithF[0];
+        dCntWithF[0] = index.size(f,"NEG");
+				dCntWithF[0] = index.size(f,ExampleSchema.NEG_CLASS_NAME);
+        dCntWithF[1] = index.size(f) -dCntWithF[0];
         dCntWithoutF[0] = dCntNeg -dCntWithF[0];
         dCntWithoutF[1] = dCntPos -dCntWithF[1];
 
@@ -77,7 +79,7 @@ public class InfoGainTransformLearner implements InstanceTransformLearner
         double entropyWithoutF =
             Entropy( dCntWithoutF[1]/(dCntWithoutF[0]+dCntWithoutF[1]),dCntWithoutF[0]/(dCntWithoutF[0]+dCntWithoutF[1]) );
 
-        double wf = (dCntWithF[0]+dCntWithF[1]) / (double)dataset.size();
+        double wf = (dCntWithF[0]+dCntWithF[1]) / dataset.size();
         double infoGain = totalEntropy -wf*entropyWithF -(1.0-wf)*entropyWithoutF;
         filter.addFeatureIG( infoGain,f );
       }

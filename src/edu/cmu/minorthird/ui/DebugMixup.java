@@ -45,6 +45,7 @@ public class DebugMixup extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/Mixup%20Tutorial.htm\">Mixup Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				edit,mixup});
@@ -54,6 +55,7 @@ public class DebugMixup extends UIMain{
 	// run the mixup program
 	// 
 
+	@Override
 	public void doMain(){
 		if(mixup.fileName==null)
 			throw new IllegalArgumentException("need to specify -mixup");
@@ -78,6 +80,7 @@ public class DebugMixup extends UIMain{
 		}
 	}
 
+	@Override
 	public Object getMainResult(){
 		return debuggerOutputLabels;
 	}

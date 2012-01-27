@@ -49,6 +49,7 @@ public class PassiveAggressiveLearner extends OnlineBinaryClassifierLearner impl
 		reset();		
 	}
 
+	@Override
 	public void reset() {
 		pos_t = new Hyperplane();
 		if(voted){
@@ -56,6 +57,7 @@ public class PassiveAggressiveLearner extends OnlineBinaryClassifierLearner impl
 		}		
 	}
 
+	@Override
 	public void addExample(Example example) {
 		
 		excount++;
@@ -86,6 +88,7 @@ public class PassiveAggressiveLearner extends OnlineBinaryClassifierLearner impl
 		return tmp;
 	}
 
+	@Override
 	public Classifier getClassifier() {	
 		Hyperplane z = new Hyperplane();
 		if(voted) z.increment(vpos_t);
@@ -93,6 +96,7 @@ public class PassiveAggressiveLearner extends OnlineBinaryClassifierLearner impl
 		return z;
 	}
 	
+	@Override
 	public String toString() {
 		return "PassiveAggressive Algorithm";
 	}

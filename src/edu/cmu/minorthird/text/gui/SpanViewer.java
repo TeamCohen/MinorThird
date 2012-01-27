@@ -63,10 +63,12 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 		return span;
 	}
 
+	@Override
 	public void applyControls(ViewerControls controls){
 		textViewer.applyControls(controls);
 	}
 
+	@Override
 	public boolean canReceive(Object obj){
 		return obj instanceof Span;
 	}
@@ -94,6 +96,7 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 
 			public Span span;
 
+			@Override
 			public JComponent componentFor(Object o){
 				this.span=(Span)o;
 				int contextWidth=
@@ -103,6 +106,7 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 				return new JScrollPane(textPane);
 			}
 
+			@Override
 			public void applyControls(ViewerControls controls){
 				this.controls=(TextControls)controls;
 				setContent(span,true);
@@ -116,6 +120,7 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 			
 			public JSlider contextSlider;
 
+			@Override
 			public void initialize(){
 				contextSlider=new JSlider(0,100,DEFAULT_CONTEXT);
 				add(new JLabel("Context:"));
@@ -170,6 +175,7 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 				doc.highlight(span,color);
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			span=(Span)o;
 			doc=new SpanDocument(span,context);
@@ -178,6 +184,7 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 			return new JScrollPane(textPane);
 		}
 
+		@Override
 		public void applyControls(ViewerControls viewerControls){
 			MarkupControls controls=(MarkupControls)viewerControls;
 			doc.resetHighlights();
@@ -226,11 +233,12 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 			return span;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			// bug in here somewhere...
 			Span s=(Span)o;
 			Set<String> propSet=labels.getTokenProperties();
-			String[] props=(String[])propSet.toArray(new String[propSet.size()]);
+			String[] props=propSet.toArray(new String[propSet.size()]);
 			Object[][] table=new Object[s.size()][props.length+1];
 			for(int i=0;i<s.size();i++){
 				table[i][0]=s.getToken(i).getValue(); // bug here
@@ -271,6 +279,7 @@ public class SpanViewer extends ParallelViewer implements Controllable{
 			return span;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			Span s=(Span)o;
 			Object[][] table=new Object[1][2];

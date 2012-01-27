@@ -117,6 +117,7 @@ public class Test
 					testParams = ClassifyCommandLineUtil.TestParams.type;
 				else testParams = new ClassifyCommandLineUtil.SimpleTestParams();
 			}
+			@Override
 			public void usage() {
 				System.out.println("presentation parameters:");
 				System.out.println(" -gui                     use graphic interface to set parameters");
@@ -125,6 +126,7 @@ public class Test
 		}
 		public String getDatasetFilename() { return testParams.testDataFilename; }
 
+		@Override
 		public CommandLineProcessor getCLP() {
 			JointCommandLineProcessor jlpTest = new JointCommandLineProcessor(new CommandLineProcessor[]
 			                                                                                           { new GUIParams(),testParams});
@@ -133,6 +135,7 @@ public class Test
 
 
 		/** Returns whether base.labels exits */
+		@Override
 		public boolean getLabels(){
 			return (getDatasetFilename() != null);
 		}
@@ -151,6 +154,7 @@ public class Test
 		}
 
 		// main action
+		@Override
 		public void doMain()
 		{
 			if (testParams.testData==null) {
@@ -220,6 +224,7 @@ public class Test
 				}
 			}
 		}
+		@Override
 		public Object getMainResult()
 		{
 			return resultToShow;
@@ -252,6 +257,7 @@ public class Test
 					final Viewer v = new ComponentViewer() {
 
 						static final long serialVersionUID=20071015;
+						@Override
 						public JComponent componentFor(Object o)
 						{
 							Viewer ts = new TypeSelector(SELECTABLE_TYPES, "selectableTypes.txt", DataClassificationTask.class);
@@ -277,6 +283,7 @@ public class Test
 							// a button to show the results
 							final JButton viewButton = new JButton(new AbstractAction("View results") {
 								static final long serialVersionUID=20071015;
+								@Override
 								public void actionPerformed(ActionEvent event) {
 									Viewer rv = new SmartVanillaViewer();
 									rv.setContent( getMainResult() );
@@ -294,6 +301,7 @@ public class Test
 							// a button to start this thread
 							JButton goButton = new JButton(new AbstractAction("Start task") {
 								static final long serialVersionUID=20071015;
+								@Override
 								public void actionPerformed(ActionEvent event) {
 									console.start();
 								}
@@ -301,6 +309,7 @@ public class Test
 							// and a button to show the current labels
 							JButton showLabelsButton = new JButton(new AbstractAction("Show train data") {
 								static final long serialVersionUID=20071015;
+								@Override
 								public void actionPerformed(ActionEvent ev) {
 									new ViewerFrame("Labeled TextBase", new SmartVanillaViewer(testParams.testData));
 								}
@@ -308,6 +317,7 @@ public class Test
 							// and a button to clear the errorArea
 							JButton clearButton = new JButton(new AbstractAction("Clear window") {
 								static final long serialVersionUID=20071015;
+								@Override
 								public void actionPerformed(ActionEvent ev) {
 									console.clear();
 								}
@@ -315,6 +325,7 @@ public class Test
 							// and a button for help
 							JButton helpParamsButton = new JButton(new AbstractAction("Parameters") {
 								static final long serialVersionUID=20071015;
+								@Override
 								public void actionPerformed(ActionEvent ev) {
 									PrintStream oldSystemOut = System.out;
 									ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();

@@ -31,6 +31,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner{
 
 	/** Accept an ExampleSchema - constraints on what the
 	 * Examples will be. */
+	@Override
 	public void setSchema(ExampleSchema schema){
 		if(!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)){
 			throw new IllegalStateException("can only learn binary example data");
@@ -38,6 +39,7 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner{
 	}
 
 	/** Examine data, build an instance transformer */
+	@Override
 	public InstanceTransform batchTrain(Dataset dataset){
 		T1InstanceTransform T1Filter=new T1InstanceTransform();
 		BasicFeatureIndex index=new BasicFeatureIndex(dataset);
@@ -93,12 +95,12 @@ public class T1InstanceTransformLearner implements InstanceTransformLearner{
 				SortedMap<String,Double> mudeltaPos=MethodOfMomentsNegBin(xPos,omegaPos,featurePrior);
 				SortedMap<String,Double> mudeltaNeg=MethodOfMomentsNegBin(xNeg,omegaNeg,featurePrior);
 				// update T1 Filter
-				T1Filter.setPosMu(f,((Double)mudeltaPos.get("mu")).doubleValue());
-				T1Filter.setPosDelta(f,((Double)mudeltaPos.get("delta")).doubleValue());
-				T1Filter.setNegMu(f,((Double)mudeltaNeg.get("mu")).doubleValue());
-				T1Filter.setNegDelta(f,((Double)mudeltaNeg.get("delta")).doubleValue());
-				if(((Double)mudeltaPos.get("delta")).doubleValue()==0.0||
-						((Double)mudeltaNeg.get("delta")).doubleValue()==0.0){
+				T1Filter.setPosMu(f,(mudeltaPos.get("mu")).doubleValue());
+				T1Filter.setPosDelta(f,(mudeltaPos.get("delta")).doubleValue());
+				T1Filter.setNegMu(f,(mudeltaNeg.get("mu")).doubleValue());
+				T1Filter.setNegDelta(f,(mudeltaNeg.get("delta")).doubleValue());
+				if((mudeltaPos.get("delta")).doubleValue()==0.0||
+						(mudeltaNeg.get("delta")).doubleValue()==0.0){
 					T1Filter.setFeaturePdf(f,"Poisson");
 				}else{
 					T1Filter.setFeaturePdf(f,"Negative-Binomial");

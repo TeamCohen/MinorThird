@@ -34,6 +34,7 @@ public class Expt implements CommandLineProcessor.Configurable
 
    private class MyCLP extends BasicCommandLineProcessor
    {
+  	 /*
       public void train(String s) {
          try {
             trainData = toDataset(s);
@@ -59,7 +60,9 @@ public class Expt implements CommandLineProcessor.Configurable
          learner = toLearner(s);
          learnerArg = s;
       }
-      public void usage() {
+      */
+      @Override
+			public void usage() {
          System.out.println("classify.Expt parameters:");
          System.out.println(" -train FILE              training data is in FILE");
          System.out.println(" [-test FILE]             test data is in FILE");
@@ -68,7 +71,8 @@ public class Expt implements CommandLineProcessor.Configurable
          System.out.println();
       }
    }
-   public CommandLineProcessor getCLP() { return new MyCLP(); }
+   @Override
+	public CommandLineProcessor getCLP() { return new MyCLP(); }
 
    public Expt(ClassifierLearner learner,Dataset trainData,Dataset testData)
    {
@@ -134,7 +138,8 @@ public class Expt implements CommandLineProcessor.Configurable
       return new DatasetClassifierTeacher(trainData).train(learner);
    }
 
-   public String toString()
+   @Override
+	public String toString()
    {
       return
           "[Expt:\n  learner:"+learner+"\n  splitter:"+splitter+"\n  train:\n"+trainData+"  test:\n"+testData+"Expt]";

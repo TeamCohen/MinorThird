@@ -25,19 +25,23 @@ import edu.cmu.minorthird.util.gui.Visible;
     this.instanceTransform = instanceTransform;
     this.segmenter = segmenter;
   }
-  public Segmentation segmentation(CandidateSegmentGroup group)
+  @Override
+	public Segmentation segmentation(CandidateSegmentGroup group)
   {
     return segmenter.segmentation( new SegmentTransform(instanceTransform).transform(group) );
   }
-  public String explain(CandidateSegmentGroup group)
+  @Override
+	public String explain(CandidateSegmentGroup group)
   {
     return "not implemented";
   }
-  public Viewer toGUI()
+  @Override
+	public Viewer toGUI()
   {
     Viewer v = new ComponentViewer() {
     	static final long serialVersionUID=20080207L;
-        public JComponent componentFor(Object o) {
+        @Override
+				public JComponent componentFor(Object o) {
           TransformingSegmenter ts = (TransformingSegmenter)o;
           JPanel mainPanel = new JPanel();
           mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.Y_AXIS));

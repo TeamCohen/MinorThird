@@ -48,6 +48,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 	}
 
 	/** Inner product of PoissonClassifier and instance weights. */
+	@Override
 	public double score(Instance instance){
 		double score=0.0;
 		double scoreLog=0.0;
@@ -66,6 +67,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 	}
 
 	/** Justify inner product of PoissonClassifier and instance weights. */
+	@Override
 	public String explain(Instance instance){
 		StringBuffer buf=new StringBuffer("");
 		double total=0.0;
@@ -88,6 +90,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=new Explanation.Node("PoisionClassifier Explanation");
 
@@ -177,6 +180,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 		return loglinear.featureScore(feature);
 	}
 
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=new ControlledViewer(new MyViewer(),new PoissonControls());
 		gui.setContent(this);
@@ -193,6 +197,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 		private JRadioButton nameButton;
 		//private JRadioButton noneButton;
 
+		@Override
 		public void initialize(){
 			add(new JLabel("Sort by"));
 			ButtonGroup group=new ButtonGroup();
@@ -219,16 +224,19 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 
 		private PoissonClassifier h=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			this.controls=(PoissonControls)controls;
 			setContent(h,true);
 			revalidate();
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Hyperplane;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			h=(PoissonClassifier)o;
 			//
@@ -247,6 +255,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 			if(controls!=null){
 				Arrays.sort(tableData,new Comparator<Object[]>(){
 
+					@Override
 					public int compare(Object[] ra,Object[] rb){
 						if(controls.nameButton.isSelected())
 							return ra[0].toString().compareTo(rb[0].toString());
@@ -267,6 +276,7 @@ class PoissonClassifier extends BinaryClassifier implements Visible,
 		}
 	}
 
+	@Override
 	public String toString(){
 		String a=linear.toString();
 		String b=loglinear.toString();

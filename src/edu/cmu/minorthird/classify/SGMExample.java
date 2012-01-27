@@ -36,6 +36,7 @@ public class SGMExample extends Example implements Instance,Visible,Serializable
 		return exampleId.equals(id);
 	}
 
+	@Override
 	public String toString(){
 		return "[ ID: "+getExampleID()+" example: "+getLabel()+" "+asInstance().toString()+"]";
 	}

@@ -45,6 +45,7 @@ public class TransformingMultiClassifier extends MultiClassifier implements
 		return transformer;
 	}
 
+	@Override
 	public Classifier[] getClassifiers(){
 		TransformingClassifier[] tc=
 				new TransformingClassifier[multiClassifier.getNumDim()];
@@ -55,14 +56,17 @@ public class TransformingMultiClassifier extends MultiClassifier implements
 		return tc;
 	}
 
+	@Override
 	public MultiClassLabel multiLabelClassification(Instance instance){
 		return super.multiLabelClassification(transformer.transform(instance));
 	}
 
+	@Override
 	public ClassLabel classification(Instance instance){
 		return super.classification(transformer.transform(instance));
 	}
 
+	@Override
 	public String explain(Instance instance){
 		StringBuffer buf=new StringBuffer("");
 		for(int i=0;i<classifiers.length;i++){
@@ -73,6 +77,7 @@ public class TransformingMultiClassifier extends MultiClassifier implements
 		return buf.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=new Explanation.Node("MultiClassifier Explanation");
 		Classifier[] classifiers=getClassifiers();
@@ -90,9 +95,11 @@ public class TransformingMultiClassifier extends MultiClassifier implements
 		return ex;
 	}
 
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=new ComponentViewer(){
 			static final long serialVersionUID=20080201L;
+			@Override
 			public JComponent componentFor(Object o){
 				TransformingMultiClassifier tc=(TransformingMultiClassifier)o;
 				JPanel panel=new JPanel();

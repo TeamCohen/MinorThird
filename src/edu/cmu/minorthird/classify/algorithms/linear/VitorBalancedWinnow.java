@@ -89,6 +89,7 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		pos_t=new Hyperplane();
 		neg_t=new Hyperplane();
@@ -100,6 +101,7 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		}
 	}
 
+	@Override
 	public void addExample(Example example2){
 		excount++; //example counter
 		Example example=Winnow.normalizeWeights(example2,true);
@@ -162,6 +164,7 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		votedCount=0;
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		if(voted){
 			updateVotedHyperplane(votedCount);//first, update it			
@@ -175,6 +178,7 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "VitorBalancedWinnow: voted="+voted;
 	}
@@ -196,6 +200,7 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 		}
 
 		//implements the balanced winnow decision rule for a new incoming instance
+		@Override
 		public ClassLabel classification(Instance instance1){
 			Example a1=new Example(instance1,new ClassLabel("POS"));//dummy label POS
 			Example aa=filterFeat(a1); //remove features not in hyperplane lpos_h
@@ -219,14 +224,17 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 			return new Example(ins,ex.getLabel());
 		}
 
+		@Override
 		public String toString(){
 			return "POS = "+lpos_h.toString()+" NEG = "+lneg_h.toString();
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "VitorBalancedWinnow: Not implemented yet";
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=
 					new Explanation.Node("VitorBalancedWinnow Explanation");
@@ -234,14 +242,16 @@ public class VitorBalancedWinnow extends OnlineBinaryClassifierLearner
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TransformedViewer(new SmartVanillaViewer()){
 				
 				static final long serialVersionUID=20071130L;
 
+				@Override
 				public Object transform(Object o){
 					MyClassifier mycl=(MyClassifier)o;
-					return (Classifier)mycl.lpos_h;//bug!
+					return mycl.lpos_h;//bug!
 				}
 			};
 			v.setContent(this);

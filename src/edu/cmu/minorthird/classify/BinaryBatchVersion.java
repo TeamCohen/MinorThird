@@ -19,6 +19,7 @@ public class BinaryBatchVersion extends BatchVersion implements BinaryClassifier
 		super(innerLearner);
 	}
 
+	@Override
 	final public BinaryClassifier getBinaryClassifier()
 	{
 		return (BinaryClassifier)getClassifier();

@@ -110,7 +110,7 @@ public class MixupInterpreter{
 
 	/** Returns the TextLabels associated with the given level name or null if the level doesn't exist */
 	public MonotonicTextLabels getLabelsForLevel(String level){
-		return (MonotonicTextLabels)levelsToLabelsMap.get(level);
+		return levelsToLabelsMap.get(level);
 	}
 
 	/** Returns the name of the current level or null if no TextLabels have been added or created because 
@@ -118,7 +118,7 @@ public class MixupInterpreter{
 	public String getCurrentLevel(){
 		if(levelStack.empty())
 			return null;
-		return (String)levelStack.peek();
+		return levelStack.peek();
 	}
 
 	/** Returns the TextLabels associated with the current level */
@@ -139,7 +139,7 @@ public class MixupInterpreter{
 	public void offLevel(String levelName){
 		if(levelStack.size()==1)
 			throw new IllegalArgumentException("Already at the top level.");
-		else if(!((String)levelStack.peek()).equals(levelName))
+		else if(!(levelStack.peek()).equals(levelName))
 			throw new IllegalArgumentException("Not on level named '"+levelName+"'");
 		else{
 			levelStack.pop();
@@ -169,7 +169,7 @@ public class MixupInterpreter{
 		BasicTextLabels newLabels=null;
 		String currentLevel=this.getCurrentLevel();
 		MonotonicTextLabels parentLabels=
-				(MonotonicTextLabels)levelsToLabelsMap.get(currentLevel);
+				levelsToLabelsMap.get(currentLevel);
 
 		// Create a textBase where spans of a certain type are combined into a sigle token 
 		if("pseudotoken".equals(levelType)){

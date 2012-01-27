@@ -36,6 +36,7 @@ public class Link{
 		return type;
 	}
 
+	@Override
 	public String toString(){
 		return "[Link: "+from+" "+to+" "+type+"]";
 	}

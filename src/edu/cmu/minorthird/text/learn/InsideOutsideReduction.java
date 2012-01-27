@@ -34,17 +34,16 @@ public class InsideOutsideReduction extends Extraction2TaggingReduction
 	// all tag values that were used
 	private Set<String> tagset=new HashSet<String>();
 
+	@Override
 	public void reduceExtraction2Tagging(AnnotationExample example){
 		reduceDocument(example.getDocumentSpan(),example.getLabels(),example
 				.getInputType(),example.getInputProp());
 	}
 
-	private void reduceDocument(Span doc,TextLabels labels,String spanType,
-			String spanProp){
+	private void reduceDocument(Span doc,TextLabels labels,String spanType,String spanProp){
 		taggedLabels=new NestedTextLabels(labels);
 		assignDefaultLabels(doc,taggedLabels,spanType,spanProp);
-		// label the tokens inside a span to be extracted as POS, if there's just
-		// one
+		// label the tokens inside a span to be extracted as POS if there's just one
 		// type to extract, or with the property value, otherwise.
 		String id=doc.getDocumentId();
 		Iterator<Span> i=
@@ -62,14 +61,17 @@ public class InsideOutsideReduction extends Extraction2TaggingReduction
 		}
 	}
 
+	@Override
 	public String getTokenProp(){
 		return tokenProp;
 	}
 
+	@Override
 	public Set<String> getNonDefaultTagValues(){
 		return tagset;
 	}
 
+	@Override
 	public TextLabels getTaggedLabels(){
 		return taggedLabels;
 	}
@@ -78,6 +80,7 @@ public class InsideOutsideReduction extends Extraction2TaggingReduction
 	 * Return a TextLabels in which tagged tokens are used to solve the extraction
 	 * problem.
 	 */
+	@Override
 	public void extractFromTags(String output,MonotonicTextLabels taggedLabels){
 		try{
 			MixupProgram p=new MixupProgram();

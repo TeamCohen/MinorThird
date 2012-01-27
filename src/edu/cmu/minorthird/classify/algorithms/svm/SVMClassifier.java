@@ -46,6 +46,7 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 		this.featureFactory=featureFactory;
 	}
 
+	@Override
 	public String explain(Instance instance){		
 		if(vSVM==null){
 			vSVM=new VisibleSVM(model,featureFactory);
@@ -59,6 +60,7 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 		return b.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		if(vSVM==null){
 			vSVM=new VisibleSVM(model,featureFactory);
@@ -85,6 +87,7 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 		return featureFactory;
 	}
 
+	@Override
 	public ClassLabel classification(Instance instance){
 
 		// make sure to compress the instance first, otherwise things go to crap
@@ -172,6 +175,7 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 	 * GUI stuff
 	 */
 
+	@Override
 	public Viewer toGUI(){
 		SVMViewer svmViewer=new SVMViewer();
 		svmViewer.setContent(this);
@@ -182,10 +186,12 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 
 		static final long serialVersionUID=20071130L;
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof SVMClassifier;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			final SVMClassifier svmClassifier=(SVMClassifier)o;
 			// transform to visible SVM

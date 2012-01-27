@@ -77,6 +77,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		options.remove("trainer");
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 	}
@@ -85,6 +86,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		return schema;
 	}
 
+	@Override
 	public int getHistorySize() {return histsize;}
 
 	public void setMaxIters (int newMaxIters) {
@@ -125,15 +127,19 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 				}
 			}
 		}
+		@Override
 		public int length() {
 			return sequence.length;
 		}
+		@Override
 		public int y(int i) {
 			return labels[i];
 		}
+		@Override
 		public Object x(int i) {
 			return sequence[i];
 		}
+		@Override
 		public void set_y(int i, int label) {
 			labels[i] = label;
 		}
@@ -173,12 +179,15 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 			dataSize = ds.size();
 			sequence = new TrainDataSequenceC();
 		}
+		@Override
 		public void startScan() {
 			iter=dataset.sequenceIterator();
 		}
+		@Override
 		public boolean hasNext() {
 			return iter.hasNext();
 		}
+		@Override
 		public iitb.CRF.DataSequence next() {
 			sequence.init(iter.next());
 			return sequence;
@@ -219,14 +228,17 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 			}
 			return true;
 		}
+		@Override
 		public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
 			example = (Instance)data.x(pos);
 			featureLooper = example.featureIterator();
 			return startScan();
 		}
+		@Override
 		public boolean hasNext() {
 			return ((stateId  < numStates) && (feature != null));
 		}
+		@Override
 		public  void next(iitb.Model.FeatureImpl f) {
 			f.yend = stateId;
 			f.ystart = -1;
@@ -283,6 +295,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		return new CRFDataIter(dataset);
 	}
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		try {
@@ -325,6 +338,7 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	}
 
 	/** Return a predicted type for each element of the sequence. */
+	@Override
 	public ClassLabel[] classification(Instance[] sequence) {
 		TestDataSequenceC seq = new TestDataSequenceC(sequence);
 		crfModel.apply(seq);
@@ -333,11 +347,13 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 	}
 
 	/** Return some string that 'explains' the classification */
+	@Override
 	public String explain(Instance[] sequence) {
 		if (cmmClassifier==null) cmmClassifier = toMinorthirdClassifier();
 		return cmmClassifier.explain(sequence);
 	}
 
+	@Override
 	public Explanation getExplanation(Instance[] sequence) {
 		if (cmmClassifier==null) cmmClassifier = toMinorthirdClassifier();
 		Explanation.Node top = new Explanation.Node("CRF Explanation");
@@ -349,10 +365,12 @@ implements BatchSequenceClassifierLearner,SequenceConstants,SequenceClassifier,V
 		return ex;
 	}
 
+	@Override
 	public Viewer toGUI()
 	{
 		Viewer v = new ComponentViewer() {
 			static final long serialVersionUID=20080207L;
+			@Override
 			public JComponent componentFor(Object o) {
 //				CRFLearner cmm = (CRFLearner)o;
 				JPanel mainPanel = new JPanel();

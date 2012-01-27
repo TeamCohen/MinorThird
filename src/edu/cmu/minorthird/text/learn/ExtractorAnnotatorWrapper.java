@@ -61,7 +61,7 @@ public class ExtractorAnnotatorWrapper{
 			Span s=i.next();
 			accum.add(s.asString());
 		}
-		return (String[])accum.toArray(new String[accum.size()]);
+		return accum.toArray(new String[accum.size()]);
 	}
 
 	/** An interactive test routine to see if this thing works.

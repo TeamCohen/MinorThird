@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -43,6 +44,7 @@ public class ParallelViewer extends Viewer{
 	}
 
 	/** Called at creation time. */
+	@Override
 	protected void initialize(){
 		setLayout(new GridBagLayout());
 		parallelPane=new JTabbedPane();
@@ -50,6 +52,7 @@ public class ParallelViewer extends Viewer{
 		add(parallelPane,fillerGBC());
 		parallelPane.addChangeListener(new ChangeListener(){
 
+			@Override
 			public void stateChanged(ChangeEvent ev){
 				// update the content of the currently selected view
 				receiveContent(ParallelViewer.this.getContent());
@@ -59,7 +62,7 @@ public class ParallelViewer extends Viewer{
 
 	/** Change default look of tabbed pane to put tabs on the left */
 	public void putTabsOnLeft(){
-		parallelPane.setTabPlacement(JTabbedPane.LEFT);
+		parallelPane.setTabPlacement(SwingConstants.LEFT);
 		parallelPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 	}
 
@@ -70,9 +73,10 @@ public class ParallelViewer extends Viewer{
 		parallelPane.add(title,view);
 	}
 
+	@Override
 	public void receiveContent(Object content){
 		// just send content to the currently selected subview
-		Viewer subView=(Viewer)subViewList.get(parallelPane.getSelectedIndex());
+		Viewer subView=subViewList.get(parallelPane.getSelectedIndex());
 		subView.setContent(content);
 	}
 
@@ -80,33 +84,38 @@ public class ParallelViewer extends Viewer{
 	 * override the default definition, to make sure the subView returned is
 	 * current.
 	 */
+	@Override
 	public Viewer getNamedSubView(String name){
 		Viewer subviewer=super.getNamedSubView(name);
 		subviewer.setContent(getContent());
 		return subviewer;
 	}
 
+	@Override
 	public boolean canReceive(Object content){
 		for(Iterator<Viewer> i=subViewList.iterator();i.hasNext();){
-			Viewer subView=(Viewer)i.next();
+			Viewer subView=i.next();
 			if(!subView.canReceive(content))
 				return false;
 		}
 		return true;
 	}
 
+	@Override
 	public void clearContent(){
 		for(Iterator<Viewer> i=subViewList.iterator();i.hasNext();){
-			Viewer subView=(Viewer)i.next();
+			Viewer subView=i.next();
 			subView.clearContent();
 		}
 	}
 
+	@Override
 	protected void handle(int signal,Object argument,List<Viewer> senders){
 		throw new IllegalStateException("signal:"+signal+" argument:"+argument+
 				" at:"+this);
 	}
 
+	@Override
 	protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
 		return false;
 	}

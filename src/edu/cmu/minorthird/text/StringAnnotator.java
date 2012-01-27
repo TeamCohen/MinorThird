@@ -16,6 +16,7 @@ public abstract class StringAnnotator extends AbstractAnnotator{
 
 	protected String providedAnnotation=null;
 
+	@Override
 	protected void doAnnotate(MonotonicTextLabels labels){
 		//add the annotations into labels
 		TextBase textBase=labels.getTextBase();

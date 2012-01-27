@@ -58,7 +58,7 @@ public class ExtractorTweaker{
 		if(annotator instanceof SequenceAnnotatorLearner.SequenceAnnotator){
 			SequenceAnnotatorLearner.SequenceAnnotator sa=
 					(SequenceAnnotatorLearner.SequenceAnnotator)annotator;
-			SequenceClassifier sc=(SequenceClassifier)sa.getSequenceClassifier();
+			SequenceClassifier sc=sa.getSequenceClassifier();
 			if((sc instanceof CMM)){
 				CMM cmm=(CMM)sc;
 				return new SequenceAnnotatorLearner.SequenceAnnotator(cmmTweaker.tweak(
@@ -129,6 +129,7 @@ public class ExtractorTweaker{
 			beta=StringUtil.atof(s);
 		}
 
+		@Override
 		public void usage(){
 			for(int i=0;i<USAGE.length;i++)
 				System.out.println(USAGE[i]);
@@ -225,6 +226,7 @@ public class ExtractorTweaker{
 			this.beta=beta;
 		}
 
+		@Override
 		public double function(double d){
 			ExtractorAnnotator tweakedAnn=tweak(ann,d);
 			TextLabels annLabels=tweakedAnn.annotatedCopy(textLabels);

@@ -138,6 +138,7 @@ public class TrainTest{
 					trainTestParams=new ClassifyCommandLineUtil.SimpleTrainTestParams();
 			}
 
+			@Override
 			public void usage(){
 				System.out.println("presentation parameters:");
 				System.out
@@ -150,6 +151,7 @@ public class TrainTest{
 			return trainTestParams.trainDataFilename;
 		}
 
+		@Override
 		public CommandLineProcessor getCLP(){
 			JointCommandLineProcessor jlpTrainTest=
 					new JointCommandLineProcessor(new CommandLineProcessor[]{
@@ -158,6 +160,7 @@ public class TrainTest{
 		}
 
 		/** Returns whether base.labels exits */
+		@Override
 		public boolean getLabels(){
 			return(getDatasetFilename()!=null);
 		}
@@ -181,6 +184,7 @@ public class TrainTest{
 		}
 
 		// main action
+		@Override
 		public void doMain(){
 			//Work in more tests
 			if(trainTestParams.getTrainData()==null){
@@ -272,6 +276,7 @@ public class TrainTest{
 			}
 		}
 
+		@Override
 		public Object getMainResult(){
 			return resultToShow;
 		}
@@ -300,6 +305,7 @@ public class TrainTest{
 					main=this;
 					final Viewer v=new ComponentViewer(){
 						static final long serialVersionUID=20080128L;
+						@Override
 						public JComponent componentFor(Object o){
 							Viewer ts=
 									new TypeSelector(SELECTABLE_TYPES,"selectableTypes.txt",
@@ -329,6 +335,7 @@ public class TrainTest{
 							final JButton viewButton=
 									new JButton(new AbstractAction("View results"){
 										static final long serialVersionUID=20080128L;
+										@Override
 										public void actionPerformed(ActionEvent event){
 											Viewer rv=new SmartVanillaViewer();
 											rv.setContent(getMainResult());
@@ -348,6 +355,7 @@ public class TrainTest{
 							// a button to start this thread
 							JButton goButton=new JButton(new AbstractAction("Start task"){
 								static final long serialVersionUID=20080128L;
+								@Override
 								public void actionPerformed(ActionEvent event){
 									console.start();
 								}
@@ -356,6 +364,7 @@ public class TrainTest{
 							JButton showLabelsButton=
 									new JButton(new AbstractAction("Show train data"){
 										static final long serialVersionUID=20080128L;
+										@Override
 										public void actionPerformed(ActionEvent ev){
 											new ViewerFrame(
 													"Labeled TextBase",
@@ -366,6 +375,7 @@ public class TrainTest{
 							JButton clearButton=
 									new JButton(new AbstractAction("Clear window"){
 										static final long serialVersionUID=20080128L;
+										@Override
 										public void actionPerformed(ActionEvent ev){
 											console.clear();
 										}
@@ -374,6 +384,7 @@ public class TrainTest{
 							JButton helpParamsButton=
 									new JButton(new AbstractAction("Parameters"){
 										static final long serialVersionUID=20080128L;
+										@Override
 										public void actionPerformed(ActionEvent ev){
 											PrintStream oldSystemOut=System.out;
 											ByteArrayOutputStream outBuffer=

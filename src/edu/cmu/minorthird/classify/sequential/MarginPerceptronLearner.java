@@ -38,6 +38,7 @@ public class MarginPerceptronLearner extends CollinsPerceptronLearner
 		this.beta = beta;
 		this.topK = topK;
 	}
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();
@@ -82,7 +83,7 @@ public class MarginPerceptronLearner extends CollinsPerceptronLearner
 					for (int j=0; j<sequence.length; j++) {
 						boolean differenceAtJ = false;
 						for (int s = 0; s < viterbiS.size(); s++) {
-							ClassLabel[] viterbi = (ClassLabel[]) viterbiS.elementAt(s);
+							ClassLabel[] viterbi = viterbiS.elementAt(s);
 							differenceAtJ = !viterbi[j].isCorrect( sequence[j].getLabel() );
 							for (int k=1; j-k>=0 && !differenceAtJ && k<=getHistorySize(); k++) {
 								if (!viterbi[j-k].isCorrect( sequence[j-k].getLabel() )) {
@@ -99,7 +100,7 @@ public class MarginPerceptronLearner extends CollinsPerceptronLearner
 							Instance correctXj = new InstanceFromSequence( sequence[j], history );
 							c.update( sequence[j].getLabel().bestClassName(), correctXj, 1.0 ); 
 							for (int s = 0; s < viterbiS.size(); s++) {
-								ClassLabel[] viterbi = (ClassLabel[]) viterbiS.elementAt(s);
+								ClassLabel[] viterbi = viterbiS.elementAt(s);
 								InstanceFromSequence.fillHistory( history, viterbi, j );
 								Instance wrongXj = new InstanceFromSequence( sequence[j], history );
 								c.update( viterbi[j].bestClassName(), wrongXj, -1.0/viterbiS.size()); 

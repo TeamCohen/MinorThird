@@ -40,11 +40,13 @@ public class SpanTypeTokenizer extends CompoundTokenizer{
 	}
 
 	/** Tokenize a string */
+	@Override
 	public String[] splitIntoTokens(String string){
 		return parentTokenizer.splitIntoTokens(string);
 	}
 
 	/** Tokenize a document. */
+	@Override
 	public TextToken[] splitIntoTokens(Document document){
 
 		//TextToken[] parentTokens;
@@ -84,7 +86,7 @@ public class SpanTypeTokenizer extends CompoundTokenizer{
 		//  characters can be created in its place.
 		List<TextToken> tokenList=new ArrayList<TextToken>();
 		Iterator<TextToken> oldTokenIterator=sortedTokens.iterator();
-		TextToken currOldToken=(TextToken)oldTokenIterator.next();
+		TextToken currOldToken=oldTokenIterator.next();
 		Iterator<Span> typeIterator=labels.instanceIterator(spanType,document.getId());
 		while(typeIterator.hasNext()){
 			Span currSpan=typeIterator.next();
@@ -92,7 +94,7 @@ public class SpanTypeTokenizer extends CompoundTokenizer{
 			while(currOldToken.getLo()<currSpan.getTextToken(0).getLo()){
 				tokenList.add(new TextToken(document,currOldToken.getLo(),currOldToken
 						.getLength()));
-				currOldToken=(TextToken)oldTokenIterator.next();
+				currOldToken=oldTokenIterator.next();
 			}
 			tokenList.add(new TextToken(document,currSpan.getTextToken(0).getLo(),
 					currSpan.asString().length()));
@@ -108,13 +110,13 @@ public class SpanTypeTokenizer extends CompoundTokenizer{
 			tokenList.add(new TextToken(document,currOldToken.getLo(),currOldToken
 					.getLength()));
 		while(oldTokenIterator.hasNext()){
-			currOldToken=(TextToken)oldTokenIterator.next();
+			currOldToken=oldTokenIterator.next();
 			tokenList.add(new TextToken(document,currOldToken.getLo(),currOldToken
 					.getLength()));
 		}
 
 		// Convert the ArrayList into a TextToken[] to return
-		TextToken[] tokenArray=(TextToken[])tokenList.toArray(new TextToken[0]);
+		TextToken[] tokenArray=tokenList.toArray(new TextToken[0]);
 		return tokenArray;
 	}
 }

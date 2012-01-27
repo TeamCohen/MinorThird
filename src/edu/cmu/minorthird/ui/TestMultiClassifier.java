@@ -62,6 +62,7 @@ public class TestMultiClassifier extends UIMain{
 		test=p;
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,test});
@@ -71,6 +72,7 @@ public class TestMultiClassifier extends UIMain{
 	// load and test a classifier
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(test.loadFrom==null)
@@ -129,6 +131,7 @@ public class TestMultiClassifier extends UIMain{
 		evaluation.summarize();
 	}
 
+	@Override
 	public Object getMainResult(){
 		return result;
 	}

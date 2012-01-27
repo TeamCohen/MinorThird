@@ -17,6 +17,7 @@ public class Trie{
 
 		public List<String> endIds=null;
 
+		@Override
 		public String toString(){
 			return "TrieNode(ends="+endIds+",map="+map+")";
 		}
@@ -89,6 +90,7 @@ public class Trie{
 	}
 
 	/** Pretty-print the entire trie. */
+	@Override
 	public String toString(){
 		StringBuilder b=new StringBuilder();
 		toString(b,0,root);
@@ -149,18 +151,22 @@ public class Trie{
 //			estSize=c.size();
 		}
 
+		@Override
 		public boolean hasNext(){
 			return i.hasNext();
 		}
 
+		@Override
 		public void remove(){
 			i.remove();
 		}
 
+		@Override
 		public List<String> getAssociatedIds(){
 			return lastIdList;
 		}
 
+		@Override
 		public Span next(){
 			TrieMatch match=i.next();
 			lastIdList=match.endIds;

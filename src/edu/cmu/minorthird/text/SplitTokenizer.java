@@ -17,11 +17,13 @@ public class SplitTokenizer implements Tokenizer{
 		return splitString;
 	}
 
+	@Override
 	public String[] splitIntoTokens(String string){
 		return string.split(splitString);
 	}
 
 	/** Tokenize a document */
+	@Override
 	public TextToken[] splitIntoTokens(Document document){
 		List<TextToken> tokenList=new ArrayList<TextToken>();
 		TextToken[] tokenArray;
@@ -40,7 +42,7 @@ public class SplitTokenizer implements Tokenizer{
 			// Skip past the text in the token.
 			currPos=currPos+tokenValues[i].length();
 		}
-		tokenArray=(TextToken[])tokenList.toArray(new TextToken[0]);
+		tokenArray=tokenList.toArray(new TextToken[0]);
 
 		return tokenArray;
 	}

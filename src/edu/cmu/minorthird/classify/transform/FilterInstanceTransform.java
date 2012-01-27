@@ -16,7 +16,8 @@ public class FilterInstanceTransform implements FeatureFilter {
     static final String PATTERN = "[\\W\\d]+";
 
     /** Should I retain feature f in the given instance. */
-    public boolean match(Feature f, Instance instance){
+    @Override
+		public boolean match(Feature f, Instance instance){
         boolean retain = false;
         Pattern p = Pattern.compile(PATTERN);
         Matcher m = p.matcher( f.toString() );

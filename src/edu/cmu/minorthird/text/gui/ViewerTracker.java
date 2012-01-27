@@ -132,6 +132,7 @@ abstract public class ViewerTracker extends JComponent implements
 	 * implement ListSelectionListener, so can use this to listen to the
 	 * documentList.
 	 */
+	@Override
 	public void valueChanged(ListSelectionEvent e){
 		synchronized(documentList){
 			Span s=(Span)documentList.getSelectedValue();
@@ -207,6 +208,7 @@ abstract public class ViewerTracker extends JComponent implements
 			super(s);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			try{
 				System.out.println("saving to file="+saveAsFile);
@@ -226,6 +228,7 @@ abstract public class ViewerTracker extends JComponent implements
 			super(0,10,0);
 			addChangeListener(new ChangeListener(){
 
+				@Override
 				public void stateChanged(ChangeEvent e){
 					ContextWidthSlider slider=(ContextWidthSlider)e.getSource();
 					if(!slider.getValueIsAdjusting()){
@@ -249,6 +252,7 @@ abstract public class ViewerTracker extends JComponent implements
 			this.delta=delta;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			synchronized(documentList){
 				int currentCursor=documentList.getSelectedIndex();

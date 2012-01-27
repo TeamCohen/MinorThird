@@ -39,6 +39,7 @@ public class MultiLearner implements ClassifierLearner{
 		this(new MaxEntLearner());
 	}
 
+	@Override
 	public ClassifierLearner copy(){
 		MultiLearner learner=null;
 		try{
@@ -50,13 +51,15 @@ public class MultiLearner implements ClassifierLearner{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return (ClassifierLearner)learner;
+		return learner;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		System.err.println("Must use setMultiSchema(MultiExampleSchema schema)");
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		return null;
 	}
@@ -76,14 +79,16 @@ public class MultiLearner implements ClassifierLearner{
 		return multiSchema;
 	}
 
+	@Override
 	public void reset(){
 		if(innerLearner!=null){
 			for(int i=0;i<innerLearner.size();i++){
-				((ClassifierLearner)(innerLearner.get(i))).reset();
+				((innerLearner.get(i))).reset();
 			}
 		}
 	}
 
+	@Override
 	public void setInstancePool(Iterator<Instance> it){
 		List<Instance> list=new ArrayList<Instance>();
 		while(it.hasNext())
@@ -93,6 +98,7 @@ public class MultiLearner implements ClassifierLearner{
 		}
 	}
 
+	@Override
 	public boolean hasNextQuery(){
 		for(int i=0;i<innerLearner.size();i++){
 			if(innerLearner.get(i).hasNextQuery()){
@@ -102,6 +108,7 @@ public class MultiLearner implements ClassifierLearner{
 		return false;
 	}
 
+	@Override
 	public Instance nextQuery(){
 		for(int i=0;i<innerLearner.size();i++){
 			if(innerLearner.get(i).hasNextQuery()){
@@ -111,6 +118,7 @@ public class MultiLearner implements ClassifierLearner{
 		return null;
 	}
 
+	@Override
 	public void addExample(Example answeredQuery){
 		System.err.println("Must use addMultiExample(MultiExample answeredQuery)");
 	}
@@ -122,6 +130,7 @@ public class MultiLearner implements ClassifierLearner{
 		}
 	}
 
+	@Override
 	public void completeTraining(){
 		for(int i=0;i<innerLearner.size();i++){
 			innerLearner.get(i).completeTraining();
@@ -129,6 +138,7 @@ public class MultiLearner implements ClassifierLearner{
 	}
 
 	/** Returns the classifier for the first dimension */
+	@Override
 	public Classifier getClassifier(){
 		if(innerLearner.get(0)==null){
 			return null;

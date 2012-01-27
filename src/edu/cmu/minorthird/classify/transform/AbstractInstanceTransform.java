@@ -18,6 +18,7 @@ import edu.cmu.minorthird.classify.multi.MultiExample;
 
 abstract public class AbstractInstanceTransform implements InstanceTransform
 {
+	@Override
 	final public Example transform(Example example) 
 	{ 
 		return new Example( transform(example.asInstance()), example.getLabel() );
@@ -29,6 +30,7 @@ abstract public class AbstractInstanceTransform implements InstanceTransform
 	}
 
 
+	@Override
 	final public Dataset transform(Dataset dataset)
 	{ 
 		Dataset transformed = new BasicDataset();
@@ -48,5 +50,6 @@ abstract public class AbstractInstanceTransform implements InstanceTransform
 	}
 
 
+	@Override
 	abstract public Instance transform(Instance instance);
 }

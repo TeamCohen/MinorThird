@@ -59,6 +59,7 @@ public class RegexTokenizer implements Tokenizer{
 	}
 
 	/** Tokenize a string. */
+	@Override
 	public String[] splitIntoTokens(String string){
 		List<String> list=new ArrayList<String>();
 		Pattern pattern=Pattern.compile(regexPattern);
@@ -66,10 +67,11 @@ public class RegexTokenizer implements Tokenizer{
 		while(matcher.find()){
 			list.add(matcher.group(1));
 		}
-		return (String[])list.toArray(new String[list.size()]);
+		return list.toArray(new String[list.size()]);
 	}
 
 	/** Tokenize a document. */
+	@Override
 	public TextToken[] splitIntoTokens(Document document){
 		List<TextToken> tokenList=new ArrayList<TextToken>();
 		TextToken[] tokenArray;
@@ -82,7 +84,7 @@ public class RegexTokenizer implements Tokenizer{
 			tokenList.add(new TextToken(document,matcher.start(1),matcher.end(1)-
 					matcher.start(1)));
 		}
-		tokenArray=(TextToken[])tokenList.toArray(new TextToken[0]);
+		tokenArray=tokenList.toArray(new TextToken[0]);
 
 		return tokenArray;
 	}

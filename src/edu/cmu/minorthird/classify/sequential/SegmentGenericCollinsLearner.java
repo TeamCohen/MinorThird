@@ -63,6 +63,7 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 		this.numberOfEpochs = epochs;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema)	{	;	}
 
 	//
@@ -79,6 +80,7 @@ public class SegmentGenericCollinsLearner implements BatchSegmenterLearner,Seque
 	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
 	
 
+	@Override
 	public Segmenter batchTrain(SegmentDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();

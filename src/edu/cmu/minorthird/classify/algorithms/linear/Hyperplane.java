@@ -93,6 +93,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 	}
 
 	/** Inner product of hyperplane and instance weights. */
+	@Override
 	public double score(Instance instance){
 		double score=0.0;
 		for(Iterator<Feature> j=instance.featureIterator();j.hasNext();){
@@ -104,6 +105,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 	}
 
 	/** Justify inner product of hyperplane and instance weights. */
+	@Override
 	public String explain(Instance instance){
 		StringBuffer buf=new StringBuffer("");
 		for(Iterator<Feature> j=instance.featureIterator();j.hasNext();){
@@ -119,6 +121,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 		return buf.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=new Explanation.Node("Hyperplane Explanation");
 		Explanation.Node tokens=new Explanation.Node("Tokens:");
@@ -210,15 +213,18 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 		final TObjectDoubleIterator ti=hyperplaneWeights.iterator();
 		Iterator<Feature> i=new Iterator<Feature>(){
 
+			@Override
 			public boolean hasNext(){
 				return ti.hasNext();
 			}
 
+			@Override
 			public Feature next(){
 				ti.advance();
 				return (Feature)ti.key();
 			}
 
+			@Override
 			public void remove(){
 				ti.remove();
 			}
@@ -230,6 +236,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 	// UI stuff
 	//
 
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=new ControlledViewer(new MyViewer(),new HyperplaneControls());
 		gui.setContent(this);
@@ -247,6 +254,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 		private JRadioButton treeButton;
 		//private JRadioButton noneButton;
 
+		@Override
 		public void initialize(){
 			ButtonGroup group=new ButtonGroup();
 			;
@@ -277,12 +285,14 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 
 		//private Vector features = new Vector();
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			this.controls=(HyperplaneControls)controls;
 			setContent(h,true);
 			revalidate();
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Hyperplane;
 		}
@@ -331,6 +341,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 			return tree;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			h=(Hyperplane)o;
 			Object[] keys=h.hyperplaneWeights.keys();
@@ -345,6 +356,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 			if(controls!=null){
 				Arrays.sort(tableData,new Comparator<Object[]>(){
 
+					@Override
 					public int compare(Object[] ra,Object[] rb){
 						if(controls.nameButton.isSelected()||
 								controls.treeButton.isSelected())
@@ -372,6 +384,7 @@ public class Hyperplane extends BinaryClassifier implements Visible,
 		}
 	}
 
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("[Hyperplane:");
 		for(Iterator<Feature> i=featureIterator();i.hasNext();){

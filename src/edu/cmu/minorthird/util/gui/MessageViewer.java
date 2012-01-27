@@ -53,18 +53,22 @@ public class MessageViewer extends Viewer{
 	// delegate operations to subViewer
 	//
 
+	@Override
 	final public void receiveContent(Object obj){
 		subViewer.setContent(obj);
 	}
 
+	@Override
 	public void clearContent(){
 		subViewer.clearContent();
 	}
 
+	@Override
 	final public boolean canReceive(Object obj){
 		return subViewer.canReceive(obj);
 	}
 
+	@Override
 	final protected boolean canHandle(int signal,Object argument,
 			List<Viewer> senders){
 		// grab TEXT_MESSAGE signals
@@ -74,6 +78,7 @@ public class MessageViewer extends Viewer{
 			return subViewer.canHandle(signal,argument,senders);
 	}
 
+	@Override
 	final protected void handle(int signal,Object argument,List<Viewer> senders){
 		if(signal==TEXT_MESSAGE){
 			statusField.setText(argument.toString());
@@ -82,6 +87,7 @@ public class MessageViewer extends Viewer{
 		}
 	}
 
+	@Override
 	final protected void initialize(){
 		setLayout(new GridBagLayout());
 	}

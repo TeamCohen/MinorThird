@@ -20,6 +20,7 @@ import java.util.concurrent.Semaphore;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import org.apache.log4j.Logger;
 
@@ -151,6 +152,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			this.s=s;
 		}
 
+		@Override
 		public void run(){
 			List<Example> newData=new LinkedList<Example>();
 			Set<Example> oobData=new HashSet<Example>();
@@ -190,6 +192,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 		}
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		Vector<Example> examples=new Vector<Example>(dataset.size());
 		Vector<Feature> allFeatures=getDatasetFeatures(dataset);
@@ -378,6 +381,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			return classifiers;
 		}
 
+		@Override
 		public double score(Instance instance){
 			double totalScore=0;
 			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
@@ -388,6 +392,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			return totalScore;
 		}
 
+		@Override
 		public String explain(Instance instance){
 			StringBuffer buf=new StringBuffer("");
 			double totalScore=0;
@@ -401,6 +406,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			return buf.toString();
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("Random Forest Explanation");
 
@@ -422,6 +428,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			return ex;
 		}
 
+		@Override
 		public String toString(){
 			StringBuffer buf=new StringBuffer("[voting classifiers:\n");
 			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
@@ -432,6 +439,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			return buf.toString();
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new VotingClassifierViewer();
 			v.setContent(this);
@@ -470,6 +478,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 
 		static final long serialVersionUID=20080609L;
 		
+		@Override
 		public JComponent componentFor(Object o){
 			VotingClassifier bc=(VotingClassifier)o;
 			JPanel panel=new JPanel();
@@ -489,7 +498,7 @@ public class RandomForests extends BatchBinaryClassifierLearner{
 			}
 			JScrollPane scroller=new JScrollPane(panel);
 			scroller
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			return scroller;
 		}
 	}

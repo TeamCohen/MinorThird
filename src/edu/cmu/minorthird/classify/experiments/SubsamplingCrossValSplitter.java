@@ -1,6 +1,8 @@
 package edu.cmu.minorthird.classify.experiments;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import edu.cmu.minorthird.classify.Splitter;
@@ -23,7 +25,8 @@ public class SubsamplingCrossValSplitter<T> implements Splitter<T>{
 
 	private double subsampleFraction;
 
-	private Iterator<T>[] trainIt,testIt;
+	private List<Iterator<T>> trainIt;
+	private List<Iterator<T>>testIt;
 
 	private CrossValSplitter<T> cvs;
 
@@ -60,32 +63,37 @@ public class SubsamplingCrossValSplitter<T> implements Splitter<T>{
 		this.subsampleFraction=d;
 	}
 
+	@Override
 	public void split(Iterator<T> i){
 		cvs=new CrossValSplitter<T>(random,folds);
 		rs=new RandomSplitter<T>(random,subsampleFraction);
 		cvs.split(i);
-		testIt=new Iterator[folds];
-		trainIt=new Iterator[folds];
+		testIt=new ArrayList<Iterator<T>>(folds);
+		trainIt=new ArrayList<Iterator<T>>(folds);
 		for(int k=0;k<folds;k++){
-			testIt[k]=cvs.getTest(k);
+			testIt.add(cvs.getTest(k));
 			rs.split(cvs.getTrain(k));
-			trainIt[k]=rs.getTrain(0);
+			trainIt.add(rs.getTrain(0));
 		}
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return folds;
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
-		return trainIt[k];
+		return trainIt.get(k);
 	}
 
 	//public Iterator getTest(int k) { return testIt[k]; }
+	@Override
 	public Iterator<T> getTest(int k){
 		return cvs.getTest(k);
 	}
 
+	@Override
 	public String toString(){
 		return "[SubCV "+folds+";"+subsampleFraction+"]";
 	}

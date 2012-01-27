@@ -45,6 +45,7 @@ public class TextToken implements Comparable<TextToken>,Serializable,Token{
 		return lo+len;
 	}
 
+	@Override
 	public String getValue(){
 		if(value==null)
 			value=document.getText().substring(lo,lo+len);
@@ -54,6 +55,7 @@ public class TextToken implements Comparable<TextToken>,Serializable,Token{
 	//
 	// implements Comparable
 	//
+	@Override
 	public int compareTo(TextToken other){
 		int cmp1=this.getDocumentId().compareTo(other.getDocumentId());
 		if(cmp1!=0)
@@ -67,10 +69,12 @@ public class TextToken implements Comparable<TextToken>,Serializable,Token{
 	//
 	// for safe hashing
 	//
+	@Override
 	public int hashCode(){
 		return getDocumentId().hashCode()^lo^len;
 	}
 
+	@Override
 	public boolean equals(Object o){
 		if(o instanceof TextToken){
 			return compareTo((TextToken)o)==0;
@@ -84,6 +88,7 @@ public class TextToken implements Comparable<TextToken>,Serializable,Token{
 		return getDocumentId()+"$Substr/"+lo+","+len+":'"+getValue()+"'";
 	}
 
+	@Override
 	public String toString(){
 		return "[token '"+getValue()+"']";
 	}

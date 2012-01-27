@@ -32,6 +32,7 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 
 	public Classifier[] getBinaryClassifiers() { return binaryClassifiers; }
 
+	@Override
 	public ClassLabel classification(Instance instance) 
 	{
 		ClassLabel classLabel = new ClassLabel();
@@ -41,6 +42,7 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 		return classLabel;
 	}
 
+	@Override
 	public String explain(Instance instance) 
 	{
 		StringBuffer buf = new StringBuffer("");
@@ -53,6 +55,7 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 		return buf.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance) {
 		Explanation.Node top = new Explanation.Node("OneVsAll Explanation");
 		for (int i=0; i<binaryClassifiers.length; i++) {
@@ -67,6 +70,7 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 
 	public String[] getClassNames() { return classNames; }
 
+	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer("[OneVsAllClassifier:\n");
 		for (int i=0; i<classNames.length; i++) {
@@ -76,10 +80,12 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 		return buf.toString();
 	}
 
+	@Override
 	public Viewer toGUI()
 	{
 		final Viewer v = new ComponentViewer() {
 			static final long serialVersionUID=20071015;
+			@Override
 			public JComponent componentFor(Object o) {
 				OneVsAllClassifier c = (OneVsAllClassifier)o;
 				JPanel panel = new JPanel();

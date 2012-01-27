@@ -31,6 +31,7 @@ public class LeaveOneOutSplitter<T> implements Splitter<T>{
 		this(new Random());
 	}
 
+	@Override
 	public void split(Iterator<T> i){
 		List<T> buf=new ArrayList<T>();
 		Set<String> subpops=new HashSet<String>();
@@ -51,18 +52,22 @@ public class LeaveOneOutSplitter<T> implements Splitter<T>{
 		crossValSplitter.split(buf.iterator());
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return crossValSplitter.getNumPartitions();
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
 		return crossValSplitter.getTrain(k);
 	}
 
+	@Override
 	public Iterator<T> getTest(int k){
 		return crossValSplitter.getTest(k);
 	}
 
+	@Override
 	public String toString(){
 		return "[LeaveOneOutSplitter]";
 	}

@@ -51,6 +51,7 @@ class KnnClassifier implements Classifier,Serializable{
 			log.debug("knn classifier for index:\n"+index);
 	}
 
+	@Override
 	public ClassLabel classification(Instance instance){
 		if(DEBUG)
 			log.debug("classifying: "+instance);
@@ -69,7 +70,7 @@ class KnnClassifier implements Classifier,Serializable{
 			Neighbor n=j.next();
 			String s=n.e.getLabel().bestClassName();
 			double w=n.e.getWeight()*n.sim;
-			Double d=(Double)classCounts.get(s);
+			Double d=classCounts.get(s);
 			if(d==null)
 				classCounts.put(s,(d=new Double(0)));
 			classCounts.put(s,new Double(d.doubleValue()+w));
@@ -87,7 +88,7 @@ class KnnClassifier implements Classifier,Serializable{
 			tot=0;
 			for(int i=0;i<schema.getNumberOfClasses();i++){
 				String s=schema.getClassName(i);
-				double d=(double)index.size(s);
+				double d=index.size(s);
 				classCounts.put(s,new Double(d));
 				tot+=d;
 			}
@@ -114,15 +115,18 @@ class KnnClassifier implements Classifier,Serializable{
 			this.sim=sim;
 		}
 
+		@Override
 		public int compareTo(Neighbor n){
 			return MathUtil.sign(n.sim-sim);
 		}
 	}
 
+	@Override
 	public String explain(Instance instance){
 		return "not implemented";
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation ex=new Explanation(explain(instance));
 		return ex;

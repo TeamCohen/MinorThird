@@ -24,19 +24,23 @@ public class MixupFinder implements SpanFinder,Serializable{
 		this.mixup=mixup;
 	}
 
+	@Override
 	public Iterator<Span> findSpans(TextLabels labels,Iterator<Span> documentSpanLooper){
 		return mixup.extract(labels,documentSpanLooper);
 	}
 
+	@Override
 	public Iterator<Span> findSpans(TextLabels labels,Span documentSpan){
 		Iterator<Span> singletonLooper=Collections.singleton(documentSpan).iterator();
 		return findSpans(labels,singletonLooper);
 	}
 
+	@Override
 	public Details getDetails(Span s){
 		return new Details(1.0,mixup);
 	}
 
+	@Override
 	public String explainFindSpans(TextLabels labels,Span documentSpan){
 		return "Spans found using mixup expression: "+mixup;
 	}

@@ -62,21 +62,25 @@ public class T1InstanceTransform implements InstanceTransform{
 	}
 
 	/** Create a transformed copy of the instance. */
+	@Override
 	public Instance transform(Instance instance){
 		System.out.println("Warning: cannot transform instance with T1 Statistic!");
 		return instance;
 	}
 
 	/** Create a transformed copy of the example. */
+	@Override
 	public Example transform(Example example){
 		System.out.println("Warning: cannot transform example with T1 Statistic!");
 		return example;
 	}
 
 	/** Create a transformed copy of a dataset. */
+	@Override
 	public Dataset transform(Dataset dataset){
 		BasicFeatureIndex index=new BasicFeatureIndex(dataset);
 		final Comparator<Pair> VAL_COMPARATOR=new Comparator<Pair>(){
+			@Override
 			public int compare(Pair p1,Pair p2){
 				if(p1.value<p2.value)
 					return -1;
@@ -126,7 +130,7 @@ public class T1InstanceTransform implements InstanceTransform{
 		Collections.sort(pValue,VAL_COMPARATOR);
 		int greatestIndexBeforeAccept=-1; // does not return any word at -1
 		for(int j=1;j<=pValue.size();j++){
-			double line=((double)j)*ALPHA/((double)pValue.size());
+			double line=(j)*ALPHA/(pValue.size());
 			if(line>pValue.get(j-1).value)
 				greatestIndexBeforeAccept=j-1;
 		}
@@ -145,7 +149,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	private double[] sampleT1Values(Feature f){
 		double[] T1array=new double[SAMPLE];
-		String s=(String)featurePdf.get(f);
+		String s=featurePdf.get(f);
 		// Sample from PDF of Feature f
 		if(s.equals("Poisson")){
 			Poisson Xp=new Poisson(getPosMu(f));
@@ -182,7 +186,7 @@ public class T1InstanceTransform implements InstanceTransform{
 		}
 		int greatestIndexBeforeT1Observed=0;
 		for(int j=0;j<t1array.length;j++){
-			if(t1array[j]<((Double)T1values.get(feature)).doubleValue())
+			if(t1array[j]<(T1values.get(feature)).doubleValue())
 				greatestIndexBeforeT1Observed=j;
 		}
 		Pair p=
@@ -231,6 +235,7 @@ public class T1InstanceTransform implements InstanceTransform{
 			this.feature=f;
 		}
 
+		@Override
 		public String toString(){
 			return "[ "+this.value+","+this.feature+" ]"; //this.key + " ]";
 		}
@@ -243,7 +248,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Set the value of T1 corresponding to feature f */
 	public void setT1(Feature f,double delta){
-		Double d=(Double)T1values.get(f);
+		Double d=T1values.get(f);
 		if(d==null)
 			T1values.put(f,new Double(delta));
 		else
@@ -253,7 +258,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Set mu corresponding to the Positive examples of feature f */
 	public void setPosMu(Feature f,double delta){
-		Double d=(Double)muPosExamples.get(f);
+		Double d=muPosExamples.get(f);
 		if(d==null)
 			muPosExamples.put(f,new Double(delta));
 		else
@@ -262,7 +267,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Get mu corresponding to the Positive examples of feature f */
 	public double getPosMu(Feature f){
-		Double d=(Double)muPosExamples.get(f);
+		Double d=muPosExamples.get(f);
 		if(d==null)
 			return 0.0;
 		else
@@ -271,7 +276,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Set mu corresponding to the Positive examples of feature f */
 	public void setNegMu(Feature f,double delta){
-		Double d=(Double)muNegExamples.get(f);
+		Double d=muNegExamples.get(f);
 		if(d==null)
 			muNegExamples.put(f,new Double(delta));
 		else
@@ -280,7 +285,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Get mu corresponding to the Positive examples of feature f */
 	public double getNegMu(Feature f){
-		Double d=(Double)muNegExamples.get(f);
+		Double d=muNegExamples.get(f);
 		if(d==null)
 			return 0.0;
 		else
@@ -289,7 +294,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Set mu corresponding to the Positive examples of feature f */
 	public void setPosDelta(Feature f,double delta){
-		Double d=(Double)deltaPosExamples.get(f);
+		Double d=deltaPosExamples.get(f);
 		if(d==null)
 			deltaPosExamples.put(f,new Double(delta));
 		else
@@ -298,7 +303,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Get mu corresponding to the Positive examples of feature f */
 	public double getPosDelta(Feature f){
-		Double d=(Double)deltaPosExamples.get(f);
+		Double d=deltaPosExamples.get(f);
 		if(d==null)
 			return 0.0;
 		else
@@ -307,7 +312,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Set mu corresponding to the Positive examples of feature f */
 	public void setNegDelta(Feature f,double delta){
-		Double d=(Double)deltaNegExamples.get(f);
+		Double d=deltaNegExamples.get(f);
 		if(d==null)
 			deltaNegExamples.put(f,new Double(delta));
 		else
@@ -316,7 +321,7 @@ public class T1InstanceTransform implements InstanceTransform{
 
 	/** Get mu corresponding to the Positive examples of feature f */
 	public double getNegDelta(Feature f){
-		Double d=(Double)deltaNegExamples.get(f);
+		Double d=deltaNegExamples.get(f);
 		if(d==null)
 			return 0.0;
 		else

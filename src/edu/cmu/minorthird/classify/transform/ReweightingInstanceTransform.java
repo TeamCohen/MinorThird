@@ -21,6 +21,7 @@ public class ReweightingInstanceTransform extends AbstractInstanceTransform
 		this.reweighter = reweighter;
 	}
 
+	@Override
 	public Instance transform(Instance instance)
 	{
 		MutableInstance result = new MutableInstance(instance.getSource(), instance.getSubpopulationId());
@@ -31,5 +32,6 @@ public class ReweightingInstanceTransform extends AbstractInstanceTransform
 		return result;
 	}
 
+	@Override
 	public String toString() { return "[ReweightInstTranform "+reweighter+"]"; }
 }

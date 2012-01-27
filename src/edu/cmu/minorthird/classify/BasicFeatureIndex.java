@@ -34,8 +34,9 @@ public class BasicFeatureIndex extends DatasetIndex implements FeatureIndex{
 	}
 
 	/** Get counts of feature f in i-th example containing feature f */
+	@Override
 	public double getCounts(Feature f,int i){
-		return ((Example)featureIndex(f).get(i)).getWeight(f);
+		return (featureIndex(f).get(i)).getWeight(f);
 	}
 
 	/** Get counts of feature f in examples with label l */
@@ -44,7 +45,7 @@ public class BasicFeatureIndex extends DatasetIndex implements FeatureIndex{
 		for(int j=0;j<size(f);j++){
 			//System.out.println( getExample(f,j).getLabel().bestClassName() );
 			if(label.equals(getExample(f,j).getLabel().bestClassName())){
-				total+=((Example)featureIndex(f).get(j)).getWeight(f);
+				total+=(featureIndex(f).get(j)).getWeight(f);
 			}
 		}
 		return total;
@@ -62,6 +63,7 @@ public class BasicFeatureIndex extends DatasetIndex implements FeatureIndex{
 		return total;
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder buf=new StringBuilder("[index");
 		for(Iterator<Feature> i=featureIterator();i.hasNext();){

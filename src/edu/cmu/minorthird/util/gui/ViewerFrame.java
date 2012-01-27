@@ -101,6 +101,7 @@ public class ViewerFrame extends JFrame{
 		menu.add(openItem);
 		openItem.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				JFileChooser chooser=wrapper.makeFileChooser(wrapper);
 				int returnVal=chooser.showOpenDialog(ViewerFrame.this);
@@ -124,6 +125,7 @@ public class ViewerFrame extends JFrame{
 		menu.add(saveItem);
 		saveItem.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				if(wrapper.isSaveable()){
 					log.debug("Wrapper is saveable");
@@ -155,6 +157,7 @@ public class ViewerFrame extends JFrame{
 		menu.add(exitItem);
 		exitItem.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				ViewerFrame.this.dispose();
 			}
@@ -167,6 +170,7 @@ public class ViewerFrame extends JFrame{
 		menu2.add(zoomItem);
 		zoomItem.addActionListener(new ActionListener(){
 
+			@Override
 			public void actionPerformed(ActionEvent ev){
 				final JDialog dialog=
 						new JDialog(ViewerFrame.this,"Subpanes to zoom into",true);
@@ -185,6 +189,7 @@ public class ViewerFrame extends JFrame{
 				}
 				JButton launchButton=new JButton(new AbstractAction("Zoom"){
 					static final long serialVersionUID=20080517L;
+					@Override
 					public void actionPerformed(ActionEvent ev){
 						for(int i=0;i<buttons.length;i++){
 							if(buttons[i].isSelected()){
@@ -200,12 +205,13 @@ public class ViewerFrame extends JFrame{
 				pane.add(launchButton);
 				JButton cancelButton=new JButton(new AbstractAction("Cancel"){
 					static final long serialVersionUID=20080517L;
+					@Override
 					public void actionPerformed(ActionEvent ev){
 						dialog.dispose();
 					}
 				});
 				pane.add(cancelButton);
-				dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+				dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 				dialog.pack();
 				dialog.setLocationRelativeTo(ViewerFrame.this);
 				dialog.setVisible(true);
@@ -216,7 +222,7 @@ public class ViewerFrame extends JFrame{
 	public static void main(String[] args){
 		try{
 			File file=new File(args[0]);
-			Object obj=(Visible)IOUtil.loadSerialized(file);
+			Object obj=IOUtil.loadSerialized(file);
 			if(!(obj instanceof Visible)){
 				System.out.println("Not visible object: "+obj.getClass());
 			}
@@ -262,10 +268,12 @@ public class ViewerFrame extends JFrame{
 			return formats.length>0;
 		}
 
+		@Override
 		public String[] getFormatNames(){
 			return formats;
 		}
 
+		@Override
 		public String getExtensionFor(String formatName){
 			if(formatName.equals(SERIALIZED_FORMAT_NAME))
 				return SERIALIZED_EXT;
@@ -280,16 +288,19 @@ public class ViewerFrame extends JFrame{
 			final String fmt=formats[i];
 			return new FileFilter(){
 
+				@Override
 				public boolean accept(File f){
 					return f.isDirectory()||f.getName().endsWith(ext);
 				}
 
+				@Override
 				public String getDescription(){
 					return fmt;
 				}
 			};
 		}
 
+		@Override
 		public void saveAs(File file,String formatName) throws IOException{
 			if(!isSaveable())
 				throw new IllegalArgumentException("can't save "+obj);
@@ -299,6 +310,7 @@ public class ViewerFrame extends JFrame{
 				((Saveable)obj).saveAs(file,formatName);
 		}
 
+		@Override
 		public Object restore(File file) throws IOException{
 			if(!isSaveable())
 				throw new IllegalArgumentException("can't restore something like "+obj);

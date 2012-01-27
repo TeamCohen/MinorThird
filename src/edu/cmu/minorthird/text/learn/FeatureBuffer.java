@@ -49,10 +49,12 @@ public class FeatureBuffer extends SpanFE{
 		return instance;
 	}
 
+	@Override
 	public void extractFeatures(TextLabels labels,Span s){
 		throw new IllegalStateException("improper use of FeatureBuffer");
 	}
 
+	@Override
 	public void extractFeatures(Span s){
 		throw new IllegalStateException("improper use of FeatureBuffer");
 	}

@@ -17,7 +17,8 @@ import edu.cmu.minorthird.classify.ExampleSchema;
 
 public class HMMLearner implements BatchSequenceClassifierLearner,SequenceConstants{
 
-  public int getHistorySize() { return 1; }
+  @Override
+	public int getHistorySize() { return 1; }
   protected int historySize;
   protected String[] history;
   int numClasses;
@@ -53,8 +54,10 @@ public class HMMLearner implements BatchSequenceClassifierLearner,SequenceConsta
 
 
 
+	@Override
 	public void setSchema(ExampleSchema schema)	{	;	}
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 System.out.println("\nbatch train is called\n");

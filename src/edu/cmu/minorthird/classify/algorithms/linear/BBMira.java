@@ -50,12 +50,14 @@ public class BBMira extends OnlineBinaryClassifierLearner{
 		this(true,1.0);
 	}
 
+	@Override
 	public void reset(){
 		cache=new LinkedList<WeightedExample>();
 		w_t=new Hyperplane();
 		usedFeatures=new TreeSet<Feature>();
 	}
 
+	@Override
 	public void addExample(Example example){
 		double y=example.getLabel().numericLabel();
 		Instance x=example.asInstance();
@@ -85,6 +87,7 @@ public class BBMira extends OnlineBinaryClassifierLearner{
 		}
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		return w_t;
 	}
@@ -125,6 +128,7 @@ public class BBMira extends OnlineBinaryClassifierLearner{
 			this.alpha=alpha;
 		}
 
+		@Override
 		public String toString(){
 			return "[WX: "+example+" alpha="+alpha+"]";
 		}
@@ -136,7 +140,7 @@ public class BBMira extends OnlineBinaryClassifierLearner{
 		while(somethingRemoved){
 			somethingRemoved=false;
 			for(ListIterator<WeightedExample> i=cache.listIterator();i.hasNext();){
-				WeightedExample wx=(WeightedExample)i.next();
+				WeightedExample wx=i.next();
 				double y=wx.example.getLabel().numericLabel();
 				Instance x=wx.example.asInstance();
 				//double currentPrediction = cacheScore(cache,x);
@@ -152,6 +156,7 @@ public class BBMira extends OnlineBinaryClassifierLearner{
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "[BBMira "+useBudget+";"+minimalMargin+"]";
 	}

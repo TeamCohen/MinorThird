@@ -57,16 +57,19 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 		this.PARAMETERIZATION=parameterization;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		if(ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema)){
 			throw new IllegalStateException("can only learn non-binary example data");
 		}
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		// initialize stuff
 		Classifier mc=new MultinomialClassifier();
@@ -93,8 +96,8 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 		}
 
 		// estimate parameters
-		double numberOfExamples=((double)dataset.size());
-		double numberOfFeatures=((double)index.numberOfFeatures());
+		double numberOfExamples=(dataset.size());
+		double numberOfFeatures=(index.numberOfFeatures());
 
 		double[] countsGivenClass=new double[numberOfClasses];
 		double[] examplesGivenClass=new double[numberOfClasses];
@@ -113,7 +116,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 			for(Iterator<Feature> j=index.featureIterator();j.hasNext();){
 				Feature f=j.next();
 				countsGivenClass[idx]+=ex.getWeight(f);
-				((double[])exampleWeightMatrix.get(idx))[excounter[idx]]+=
+				(exampleWeightMatrix.get(idx))[excounter[idx]]+=
 						ex.getWeight(f); // SCALE is HERE !!!
 			}
 			excounter[idx]+=1;
@@ -128,10 +131,10 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				Example ex=eloo.next();
 				int idx=schema.getClassIndex(ex.getLabel().bestClassName().toString());
 				if(MODEL.equals("Naive-Bayes")){
-					((double[])featureMatrix.get(idx))[counter[idx]++]=
+					(featureMatrix.get(idx))[counter[idx]++]=
 							Math.min(1.0,ex.getWeight(ft));
 				}else{
-					((double[])featureMatrix.get(idx))[counter[idx]++]=ex.getWeight(ft);
+					(featureMatrix.get(idx))[counter[idx]++]=ex.getWeight(ft);
 				}
 			}
 
@@ -141,7 +144,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				((MultinomialClassifier)mc).setUnseenModel("Naive-Bayes");
 				for(int j=0;j<numberOfClasses;j++){
 					double probabilityOfOccurrence=
-							estimateClassProbMLE(1.0,(double)numberOfClasses,
+							estimateClassProbMLE(1.0,numberOfClasses,
 									examplesGivenClass[j],numberOfExamples);
 					((MultinomialClassifier)mc).setClassParameter(j,
 							probabilityOfOccurrence);
@@ -149,12 +152,12 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 					if(PARAMETERIZATION.equals("default")|PARAMETERIZATION.equals("mean")){
 						Estimate mean=
 								Estimators.estimateNaiveBayesMean(1.0,numberOfFeatures,
-										sum((double[])featureMatrix.get(j)),examplesGivenClass[j]);
+										sum(featureMatrix.get(j)),examplesGivenClass[j]);
 						((MultinomialClassifier)mc)
 								.setFeatureGivenClassParameter(ft,j,mean);
 					}else if(PARAMETERIZATION.equals("weighted-mean")){
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate mean=
 								Estimators.estimateNaiveBayesWeightedMean(
 										countsFeatureGivenClass,countsGivenExample,
@@ -169,21 +172,21 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				((MultinomialClassifier)mc).setUnseenModel("Binomial");
 				for(int j=0;j<numberOfClasses;j++){
 					double probabilityOfOccurrence=
-							estimateClassProbMLE(1.0,(double)numberOfClasses,
+							estimateClassProbMLE(1.0,numberOfClasses,
 									examplesGivenClass[j],numberOfExamples);
 					((MultinomialClassifier)mc).setClassParameter(j,
 							probabilityOfOccurrence);
 
 					if(PARAMETERIZATION.equals("default")|PARAMETERIZATION.equals("p/N")){
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate pn=
 								Estimators.estimateBinomialPN(countsFeatureGivenClass,
 										countsGivenExample,1.0/numberOfFeatures,SCALE);
 						((MultinomialClassifier)mc).setFeatureGivenClassParameter(ft,j,pn);
 					}else if(PARAMETERIZATION.equals("mu/delta")){
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate mudelta=
 								Estimators.estimateBinomialMuDelta(countsFeatureGivenClass,
 										countsGivenExample,1.0/numberOfFeatures,SCALE);
@@ -198,15 +201,15 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				for(int j=0;j<numberOfClasses;j++){
 					double probabilityOfOccurrence;
 					probabilityOfOccurrence=
-							estimateClassProbMLE(1.0,(double)numberOfClasses,
+							estimateClassProbMLE(1.0,numberOfClasses,
 									examplesGivenClass[j],numberOfExamples);
 					((MultinomialClassifier)mc).setClassParameter(j,
 							probabilityOfOccurrence);
 
 					if(PARAMETERIZATION.equals("default")|
 							PARAMETERIZATION.equals("weighted-lambda")){
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate lambda=
 								Estimators.estimatePoissonWeightedLambda(
 										countsFeatureGivenClass,countsGivenExample,
@@ -216,7 +219,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 					}else if(PARAMETERIZATION.equals("lambda")){
 						Estimate lambda=
 								Estimators.estimatePoissonLambda(1.0/SCALE,numberOfFeatures,
-										sum((double[])featureMatrix.get(j)),countsGivenClass[j]/
+										sum(featureMatrix.get(j)),countsGivenClass[j]/
 												SCALE); // SCALE is HERE !!!
 						//System.out.println(ft+" ["+j+"] ... prob="+((Double)lambda.getPms().get("lambda")).doubleValue());
 						//System.out.println("#ft="+numberOfFeatures+" ft|class="+sum( (double[])featureMatrix.get(j) )+" tot|class="+countsGivenClass[j]+"\n");
@@ -230,15 +233,15 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				((MultinomialClassifier)mc).setUnseenModel("Negative-Binomial");
 				for(int j=0;j<numberOfClasses;j++){
 					double probabilityOfOccurrence=
-							estimateClassProbMLE(1.0,(double)numberOfClasses,
+							estimateClassProbMLE(1.0,numberOfClasses,
 									examplesGivenClass[j],numberOfExamples);
 					((MultinomialClassifier)mc).setClassParameter(j,
 							probabilityOfOccurrence);
 
 					if(PARAMETERIZATION.equals("default")|
 							PARAMETERIZATION.equals("mu/delta")){
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate mudelta=
 								Estimators.estimateNegativeBinomialMuDelta(
 										countsFeatureGivenClass,countsGivenExample,
@@ -255,12 +258,12 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				for(int j=0;j<numberOfClasses;j++){
 					double probabilityOfOccurrence;
 					probabilityOfOccurrence=
-							estimateClassProbMLE(1.0,(double)numberOfClasses,
+							estimateClassProbMLE(1.0,numberOfClasses,
 									examplesGivenClass[j],numberOfExamples);
 					((MultinomialClassifier)mc).setClassParameter(j,
 							probabilityOfOccurrence);
 
-					double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
+					double[] countsFeatureGivenClass=featureMatrix.get(j);
 					double mean=Estimators.estimateMean(countsFeatureGivenClass);
 					double var=Estimators.estimateVar(countsFeatureGivenClass);
 					//double max=Estimators.Max(countsFeatureGivenClass);
@@ -284,7 +287,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 					//
 
 					if(model.equals("Naive-Bayes")){
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate m=
 								Estimators.estimateNaiveBayesWeightedMean(
 										countsFeatureGivenClass,countsGivenExample,
@@ -292,7 +295,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 						//Estimate m = Estimators.estimateNaiveBayesMean( 1.0,numberOfFeatures,sum( (double[])featureMatrix.get(j) ),countsGivenClass[j] );
 						((MultinomialClassifier)mc).setFeatureGivenClassParameter(ft,j,m);
 					}else if(model.equals("Binomial")){
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						//Estimate pn = Estimators.estimateBinomialPN( countsFeatureGivenClass,countsGivenExample,1.0/numberOfFeatures,SCALE );
 						//((MultinomialClassifier)mc).setFeatureGivenClassParameter( ft,j,pn );
 						Estimate mudelta=
@@ -301,7 +304,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 						((MultinomialClassifier)mc).setFeatureGivenClassParameter(ft,j,
 								mudelta);
 					}else if(model.equals("Poisson")){
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate lambda=
 								Estimators.estimatePoissonWeightedLambda(
 										countsFeatureGivenClass,countsGivenExample,
@@ -309,7 +312,7 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 						((MultinomialClassifier)mc).setFeatureGivenClassParameter(ft,j,
 								lambda);
 					}else if(model.equals("Negative-Binomial")){
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate mudelta=
 								Estimators.estimateNegativeBinomialMuDelta(
 										countsFeatureGivenClass,countsGivenExample,
@@ -331,13 +334,13 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 						PARAMETERIZATION.equals("weighted-lambda")){
 					for(int j=0;j<numberOfClasses;j++){
 						double probabilityOfOccurrence=
-								estimateClassProbMLE(1.0,(double)numberOfClasses,
+								estimateClassProbMLE(1.0,numberOfClasses,
 										examplesGivenClass[j],numberOfExamples);
 						((MultinomialClassifier)mc).setClassParameter(j,
 								probabilityOfOccurrence);
 
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						lambda[j]=
 								Estimators.estimatePoissonWeightedLambda(
 										countsFeatureGivenClass,countsGivenExample,
@@ -350,8 +353,8 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 					}
 
 					double sigSD=
-							((Double)lambda[0].getPms().get("lambda")).doubleValue()+
-									((Double)lambda[1].getPms().get("lambda")).doubleValue();
+							(lambda[0].getPms().get("lambda")).doubleValue()+
+									(lambda[1].getPms().get("lambda")).doubleValue();
 					Estimate[] postLambdas=
 							Estimators.mcmcEstimateDirichletPoissonTauSigma(lambda,
 									new double[]{1e-7,1e-7},new double[]{1.0,150},
@@ -366,16 +369,16 @@ public class KWayMixtureLearner extends BatchClassifierLearner{
 				}else if(PARAMETERIZATION.equals("lambda")){
 					for(int j=0;j<numberOfClasses;j++){
 						double probabilityOfOccurrence=
-								estimateClassProbMLE(1.0,(double)numberOfClasses,
+								estimateClassProbMLE(1.0,numberOfClasses,
 										examplesGivenClass[j],numberOfExamples);
 						((MultinomialClassifier)mc).setClassParameter(j,
 								probabilityOfOccurrence);
 
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						lambda[j]=
 								Estimators.estimatePoissonLambda(1.0,numberOfFeatures,
-										sum((double[])featureMatrix.get(j)),countsGivenClass[j]);
+										sum(featureMatrix.get(j)),countsGivenClass[j]);
 						//((MultinomialClassifier)mc).setFeatureGivenClassParameter( ft,j,lambda );
 
 						sumCountsFeatureGivenClass[j]=sum(countsFeatureGivenClass);

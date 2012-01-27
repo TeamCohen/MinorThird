@@ -98,6 +98,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		pos_t=new Hyperplane();
 		excount=0;
@@ -118,6 +119,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 		}
 	}
 
+	@Override
 	public void addExample(Example example2){
 
 		excount++;
@@ -275,6 +277,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 		votedCount=0;
 	}
 
+	@Override
 	public Classifier getClassifier(){
 
 		if(voted){
@@ -291,7 +294,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 	public int getHistory(List<ClassLabel> ll){
 		int tmp=0;
 		for(int i=1;i<ll.size();i++){
-			if(((ClassLabel)ll.get(i)).isPositive())
+			if((ll.get(i)).isPositive())
 				tmp++;
 			else
 				tmp--;
@@ -299,6 +302,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 		return (tmp==0)?+1:tmp;
 	}
 
+	@Override
 	public String toString(){
 		return "RegretWinnow: voted="+voted+", regret="+mode;
 	}
@@ -322,6 +326,7 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 		}
 
 		//implements winnow decision rule
+		@Override
 		public ClassLabel classification(Instance instance1){
 			//winnow decision rule
 			Example a1=new Example(instance1,new ClassLabel("POS"));//dummy label
@@ -344,26 +349,31 @@ public class RegretWinnow extends OnlineBinaryClassifierLearner implements
 			return new Example(ins,ex.getLabel());
 		}
 
+		@Override
 		public String toString(){
 			return "POS = "+lpos_h.toString();
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "BalancedWinnow: Not implemented yet";
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("BalancedWinnow Explanation");
 			Explanation ex=new Explanation(top);
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TransformedViewer(new SmartVanillaViewer()){
 				static final long serialVersionUID=20080130L;
+				@Override
 				public Object transform(Object o){
 					MyClassifier mycl=(MyClassifier)o;
-					return (Classifier)mycl.lpos_h;//bug!
+					return mycl.lpos_h;//bug!
 				}
 			};
 			v.setContent(this);

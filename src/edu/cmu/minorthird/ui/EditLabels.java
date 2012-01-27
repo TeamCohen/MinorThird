@@ -36,6 +36,7 @@ public class EditLabels extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/EditLabels%20Tutorial.htm\">EditLabels Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				edit});
@@ -45,6 +46,7 @@ public class EditLabels extends UIMain{
 	// invoke the TextBaseLabeler 
 	//
 
+	@Override
 	public void doMain(){
 		if(edit.editFile==null)
 			throw new IllegalArgumentException("need to specify -edit");
@@ -73,6 +75,7 @@ public class EditLabels extends UIMain{
 
 	}
 
+	@Override
 	public Object getMainResult(){
 		return editorOutputLabels;
 	}

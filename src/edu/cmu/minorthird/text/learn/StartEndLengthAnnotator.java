@@ -67,6 +67,7 @@ public class StartEndLengthAnnotator extends AbstractAnnotator implements
 		return threshold;
 	}
 
+	@Override
 	public String getSpanType(){
 		return annotationType;
 	}
@@ -81,6 +82,7 @@ public class StartEndLengthAnnotator extends AbstractAnnotator implements
 		return new FilteredFinder(end,fe,tokenFinder);
 	}
 
+	@Override
 	protected void doAnnotate(MonotonicTextLabels labels){
 		Iterator<Span> i=labels.getTextBase().documentSpanIterator();
 		ProgressCounter pc=new ProgressCounter("annotate","document");
@@ -144,10 +146,12 @@ public class StartEndLengthAnnotator extends AbstractAnnotator implements
 		pc.finished();
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span documentSpan){
 		return "not implemented";
 	}
 
+	@Override
 	public String toString(){
 		return "[StartEndLen: "+start+";"+end+";"+lengthScorer+"]";
 	}
@@ -180,7 +184,7 @@ public class StartEndLengthAnnotator extends AbstractAnnotator implements
 
 		/** Return Prob(len) */
 		public double score(int len){
-			Integer freq=(Integer)lengthFreqMap.get(new Integer(len));
+			Integer freq=lengthFreqMap.get(new Integer(len));
 			double empiricalProb=freq==null?0:((double)freq.intValue())/numLengths;
 			double smoothedProb=
 					(mixingFactor/maxLength)+(1-mixingFactor)*empiricalProb;
@@ -189,6 +193,7 @@ public class StartEndLengthAnnotator extends AbstractAnnotator implements
 			return odds;
 		}
 
+		@Override
 		public String toString(){
 			return "[LengthScorer: "+maxLength+";"+lengthFreqMap+"]";
 		}

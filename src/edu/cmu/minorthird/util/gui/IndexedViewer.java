@@ -16,6 +16,7 @@ public abstract class IndexedViewer extends ComponentViewer
 	
 	static final long serialVersionUID=20081125L;
 	
+	@Override
 	public JComponent componentFor(Object o)
 	{
 		JList jList = new JList(indexFor(o));

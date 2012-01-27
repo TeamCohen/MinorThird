@@ -24,9 +24,11 @@ public class MakeBinaryTransform implements InstanceTransformLearner
    public MakeBinaryTransform() {;}
 
    /** The schema's not used here... */
-   public void setSchema(ExampleSchema schema) {;}
+   @Override
+	public void setSchema(ExampleSchema schema) {;}
 
-   public InstanceTransform batchTrain(Dataset dataset)
+   @Override
+	public InstanceTransform batchTrain(Dataset dataset)
    {
       BasicFeatureIndex fidx = new BasicFeatureIndex(dataset);
 
@@ -38,7 +40,8 @@ public class MakeBinaryTransform implements InstanceTransformLearner
 
       // build an InstanceTransform that transforms counts into 0/1
       return new AbstractInstanceTransform() {
-         public Instance transform(Instance instance) {
+         @Override
+				public Instance transform(Instance instance) {
             Instance i = new MutableInstance();
             for (Iterator<Feature> j=instance.featureIterator();j.hasNext();)
             {
@@ -49,7 +52,8 @@ public class MakeBinaryTransform implements InstanceTransformLearner
             }
             return new MaskedInstance(i, activeFeatureSet);
          }
-         public String toString() {
+         @Override
+				public String toString() {
             return "[InstanceTransform: from counts to 0/1]";
          }
       };

@@ -62,6 +62,7 @@ public class TestClassifier extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TestClassifier%20Tutorial.htm\">TestClassifier Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,test});
@@ -71,6 +72,7 @@ public class TestClassifier extends UIMain{
 	// load and test a classifier
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(test.loadFrom==null)
@@ -108,7 +110,7 @@ public class TestClassifier extends UIMain{
 
 		if(save.saveAs!=null){
 			try{
-				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
+				IOUtil.saveSerialized(evaluation,save.saveAs);
 			}catch(IOException e){
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
@@ -116,6 +118,7 @@ public class TestClassifier extends UIMain{
 		evaluation.summarize();
 	}
 
+	@Override
 	public Object getMainResult(){
 		return result;
 	}

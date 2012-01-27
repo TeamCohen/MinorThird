@@ -60,6 +60,7 @@ public class RankingBoosted extends BatchRankingLearner
 		this.exampleSize=exampleSize;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset data)
 	{
 //		int numUpdates = 0;
@@ -187,17 +188,17 @@ public class RankingBoosted extends BatchRankingLearner
 		double maxGain =0;
 		double W_Pos=0, W_Neg=0;
 		for (Iterator<Feature> it=features.iterator();it.hasNext();){
-			Feature ftr = (Feature)it.next();
+			Feature ftr = it.next();
 			double cur_W_Pos=0, cur_W_Neg=0;
 			if (A_pos.containsKey(ftr)){
 				for (Iterator<Index> itIndex=A_pos.get(ftr).iterator();itIndex.hasNext();){
-					Index index = (Index)itIndex.next();
+					Index index = itIndex.next();
 					cur_W_Pos += Math.exp(-1*margins[index.i][index.j]);
 				}
 			}
 			if (A_neg.containsKey(ftr)){
 				for (Iterator<Index> itIndex=A_neg.get(ftr).iterator();itIndex.hasNext();){
-					Index index = (Index)itIndex.next();
+					Index index = itIndex.next();
 					cur_W_Neg += Math.exp(-1*margins[index.i][index.j]);
 				}
 			}

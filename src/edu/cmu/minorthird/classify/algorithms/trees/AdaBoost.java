@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import org.apache.log4j.Logger;
 
@@ -62,6 +63,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			super(baseLearner,maxRounds);
 		}
 
+		@Override
 		protected double discountFactor(double y,double yhat){
 			return 1.0+Math.exp(y*yhat);
 		}
@@ -92,6 +94,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 		this.baseLearner=learner;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		// so that a local copy of weights can be stored...
 		Dataset weightedData=new BasicDataset();
@@ -159,6 +162,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			this.classifiers=classifiers;
 		}
 
+		@Override
 		public double score(Instance instance){
 			double totalScore=0;
 			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
@@ -168,6 +172,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			return totalScore;
 		}
 
+		@Override
 		public String explain(Instance instance){
 			StringBuffer buf=new StringBuffer("");
 			double totalScore=0;
@@ -181,6 +186,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			return buf.toString();
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("AdaBoost Explanation");
 
@@ -201,6 +207,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			return ex;
 		}
 
+		@Override
 		public String toString(){
 			StringBuffer buf=new StringBuffer("[boosted classifier:\n");
 			for(Iterator<Classifier> i=classifiers.iterator();i.hasNext();){
@@ -211,6 +218,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			return buf.toString();
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new BoostedClassifierViewer();
 			v.setContent(this);
@@ -222,6 +230,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 
 		static final long serialVersionUID=20080609L;
 		
+		@Override
 		public JComponent componentFor(Object o){
 			BoostedClassifier bc=(BoostedClassifier)o;
 			JPanel panel=new JPanel();
@@ -241,7 +250,7 @@ public class AdaBoost extends BatchBinaryClassifierLearner{
 			}
 			JScrollPane scroller=new JScrollPane(panel);
 			scroller
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			return scroller;
 		}
 	}

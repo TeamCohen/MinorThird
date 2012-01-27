@@ -62,12 +62,15 @@ Console.Task{
 	}
 
 	/** Do the main action, after setting all parameters. */
+	@Override
 	abstract public void doMain();
 
 	/** Return the result of the action. */
+	@Override
 	abstract public Object getMainResult();
 
 	/** Returns whether base.labels exits */
+	@Override
 	public boolean getLabels(){
 		return(base.labels!=null);
 	}
@@ -93,6 +96,7 @@ Console.Task{
 
 					static final long serialVersionUID=20071024L;
 
+					@Override
 					public JComponent componentFor(Object o){
 						Viewer ts;
 						if(base.classic)
@@ -126,6 +130,7 @@ Console.Task{
 						// a button to show the results
 						viewButton=new JButton(new AbstractAction("View results"){
 							static final long serialVersionUID=20071024L;
+							@Override
 							public void actionPerformed(ActionEvent event){
 								Viewer rv=new SmartVanillaViewer();
 								rv.setContent(getMainResult());
@@ -145,6 +150,7 @@ Console.Task{
 						// a button to start this thread
 						JButton goButton=new JButton(new AbstractAction("Start Task"){
 							static final long serialVersionUID=20071024L;
+							@Override
 							public void actionPerformed(ActionEvent event){
 								console.start();
 							}
@@ -154,6 +160,7 @@ Console.Task{
 						JButton showLabelsButton=
 							new JButton(new AbstractAction("Show labels"){
 								static final long serialVersionUID=20071024L;
+								@Override
 								public void actionPerformed(ActionEvent ev){
 									if(base.labels==null)
 										noLabelsMessage(console);
@@ -166,6 +173,7 @@ Console.Task{
 						// and a button to clear the errorArea
 						JButton clearButton=new JButton(new AbstractAction("Clear window"){
 							static final long serialVersionUID=20071024L;
+							@Override
 							public void actionPerformed(ActionEvent ev){
 								console.clear();
 							}
@@ -175,6 +183,7 @@ Console.Task{
 						JButton helpParamsButton=
 							new JButton(new AbstractAction("Parameters"){
 								static final long serialVersionUID=20071024L;
+								@Override
 								public void actionPerformed(ActionEvent ev){
 									PrintStream oldSystemOut=System.out;
 									ByteArrayOutputStream outBuffer=new ByteArrayOutputStream();
@@ -189,6 +198,7 @@ Console.Task{
 						JButton helpRepositoryButton=
 							new JButton(new AbstractAction("Repository"){
 								static final long serialVersionUID=20071024L;
+								@Override
 								public void actionPerformed(ActionEvent ev){
 									repositoryHelp(console);
 								}

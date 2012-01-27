@@ -43,7 +43,8 @@ public class DictionaryTransform extends AbstractInstanceTransform implements Se
       }
     }
   }
-  public Instance transform(Instance instance)
+  @Override
+	public Instance transform(Instance instance)
   {
     for (int i = 0; i < newFeatureValues.length; newFeatureValues[i++] = 0);
     //System.out.println("transforming "+instance);
@@ -78,7 +79,8 @@ public class DictionaryTransform extends AbstractInstanceTransform implements Se
       }
     }
   }
-  public String toString() 
+  @Override
+	public String toString() 
   { 
     StringBuffer buf = new StringBuffer("[DictionaryTransform: dictSize");
     for (int i=0; i<schema.getNumberOfClasses(); i++) {

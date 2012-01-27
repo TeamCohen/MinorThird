@@ -83,6 +83,7 @@ public class MutableCandidateSegmentGroup implements CandidateSegmentGroup
 	// implement the rest of the interface...
 	//
 
+	@Override
 	public Example getSubsequenceExample(int start,int end)
 	{
 		if (window[start][end-start-1]!=null) 
@@ -93,20 +94,27 @@ public class MutableCandidateSegmentGroup implements CandidateSegmentGroup
 
 	/** Return the class label associated with getSubsequenceExample(start,end).
 	 */
+	@Override
 	public ClassLabel getSubsequenceLabel(int start,int end) { return label[start][end-start-1]; }
 
 	/** Return the instance corresponding to the segment from positions start...end.
 	 */
+	@Override
 	public Instance getSubsequenceInstance(int start,int end) { return window[start][end-start-1]; }
 
+	@Override
 	public int getSequenceLength() { return sequenceLength; }
 
+	@Override
 	public int getMaxWindowSize() { return maxWindowSize; }
 
+	@Override
 	public String getSubpopulationId() { return subPopId; }
 
+	@Override
 	public int size() {	return totalSize; }
 
+	@Override
 	public Set<String> classNameSet()
 	{
 		Set<String> result = new HashSet<String>();
@@ -122,6 +130,7 @@ public class MutableCandidateSegmentGroup implements CandidateSegmentGroup
 	// debug output
 	//
 
+	@Override
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer(""); 

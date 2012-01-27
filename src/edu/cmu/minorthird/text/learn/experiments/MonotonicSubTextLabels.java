@@ -22,10 +22,12 @@ public class MonotonicSubTextLabels extends SubTextLabels implements
 
 	private MonotonicTextLabels monotonicLabels;
 
+	@Override
 	public void setAnnotatorLoader(AnnotatorLoader newLoader){
 		monotonicLabels.setAnnotatorLoader(newLoader);
 	}
 
+	@Override
 	public AnnotatorLoader getAnnotatorLoader(){
 		return monotonicLabels.getAnnotatorLoader();
 	}
@@ -35,62 +37,75 @@ public class MonotonicSubTextLabels extends SubTextLabels implements
 		this.monotonicLabels=labels;
 	}
 
+	@Override
 	public void defineDictionary(String dictName,Set<String> dict){
 		monotonicLabels.defineDictionary(dictName,dict);
 	}
 
 	/** Associate a dictionary from this file */
+	@Override
 	public void defineDictionary(String dictName,List<String> fileNames,
 			boolean ignoreCase){
 		monotonicLabels.defineDictionary(dictName,fileNames,ignoreCase);
 	}
 
 	/** Return a trie if defined */
+	@Override
 	public Trie getTrie(){
 		return monotonicLabels.getTrie();
 	}
 
 	/** Define a trie */
+	@Override
 	public void defineTrie(List<String> phraseList){
 		monotonicLabels.defineTrie(phraseList);
 	}
 
+	@Override
 	public void setProperty(Token token,String prop,String value){
 		monotonicLabels.setProperty(token,prop,value);
 	}
 
+	@Override
 	public void setProperty(Token token,String prop,String value,Details details){
 		monotonicLabels.setProperty(token,prop,value,details);
 	}
 
+	@Override
 	public void setProperty(Span span,String prop,String value){
 		if(subBase.contains(span))
 			monotonicLabels.setProperty(span,prop,value);
 	}
 
+	@Override
 	public void setProperty(Span span,String prop,String value,Details details){
 		if(subBase.contains(span))
 			monotonicLabels.setProperty(span,prop,value,details);
 	}
 
+	@Override
 	public void addToType(Span span,String type){
 		if(subBase.contains(span))
 			monotonicLabels.addToType(span,type);
 	}
 
+	@Override
 	public void addToType(Span span,String type,Details details){
 		if(subBase.contains(span))
 			monotonicLabels.addToType(span,type,details);
 	}
 
+	@Override
 	public void declareType(String type){
 		monotonicLabels.declareType(type);
 	}
 
+	@Override
 	public void require(String annotationType,String fileToLoad){
 		monotonicLabels.require(annotationType,fileToLoad);
 	}
 
+	@Override
 	public void require(String annotationType,String fileToLoad,
 			AnnotatorLoader loader){
 		monotonicLabels.require(annotationType,fileToLoad,loader);

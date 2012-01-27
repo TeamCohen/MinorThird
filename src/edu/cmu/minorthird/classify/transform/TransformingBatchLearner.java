@@ -41,10 +41,12 @@ public class TransformingBatchLearner extends BatchClassifierLearner{
 		return classifierLearner;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		classifierLearner.setSchema(schema);
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		return classifierLearner.getSchema();
 	}
@@ -55,6 +57,7 @@ public class TransformingBatchLearner extends BatchClassifierLearner{
 		this.classifierLearner=classifierLearner;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset){
 		final InstanceTransform transformer=transformLearner.batchTrain(dataset);
 		final Classifier classifier=

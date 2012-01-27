@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableCellRenderer;
 
 import libsvm.svm_model;
@@ -218,7 +219,7 @@ public class VisibleSVM implements Visible,Serializable{
 
 			m_hyperplanes[index]=new Hyperplane();
 
-			m_hyperplanes[index].setBias((-1.0)*rhos[index]*(double)m_posIndicator);
+			m_hyperplanes[index].setBias((-1.0)*rhos[index]*m_posIndicator);
 
 		}
 	}
@@ -449,6 +450,7 @@ public class VisibleSVM implements Visible,Serializable{
 	/************************************************************************
 	 * GUI
 	 *************************************************************************/
+	@Override
 	public Viewer toGUI(){
 
 		ParallelViewer pv=new ParallelViewer();
@@ -534,6 +536,7 @@ public class VisibleSVM implements Visible,Serializable{
 
 		}
 
+		@Override
 		public void initialize(){
 			//Init in construtor with two parameters, # of buttons, and button labels array
 		}
@@ -577,6 +580,7 @@ public class VisibleSVM implements Visible,Serializable{
 
 		private VisibleSVM vsSVM=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			this.controls=(SVsControls)controls;
 
@@ -585,11 +589,13 @@ public class VisibleSVM implements Visible,Serializable{
 			revalidate();
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 
 			return o instanceof VisibleSVM;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 
 			vsSVM=(VisibleSVM)o;
@@ -644,6 +650,7 @@ public class VisibleSVM implements Visible,Serializable{
 
 			table.setDefaultRenderer(Example.class,new TableCellRenderer(){
 
+				@Override
 				public Component getTableCellRendererComponent(JTable table,
 						Object value,boolean isSelected,boolean hasFocus,int row,int column){
 					return GUI.conciseExampleRendererComponent((Example)value,60,
@@ -656,7 +663,7 @@ public class VisibleSVM implements Visible,Serializable{
 			JScrollPane scrollpane=new JScrollPane(table);
 
 			scrollpane
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 			return scrollpane;
 
@@ -668,6 +675,7 @@ public class VisibleSVM implements Visible,Serializable{
 
 			Arrays.sort(tableData,new Comparator<Object[]>(){
 
+				@Override
 				public int compare(Object[] ra,Object[] rb){
 
 					if(rb[fidx].toString()=="null"){
@@ -697,11 +705,13 @@ public class VisibleSVM implements Visible,Serializable{
 
 		private int m_hyperplaneId;
 
+		@Override
 		public boolean canReceive(Object o){
 
 			return o instanceof VisibleSVM;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 
 			final VisibleSVM vsSVM=(VisibleSVM)o;

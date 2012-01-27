@@ -30,10 +30,12 @@ public class TextLabelsAnnotatorTeacher extends AnnotatorTeacher{
 		this.userLabelProp=userLabelProp;
 	}
 
+	@Override
 	public Iterator<Span> documentPool(){
 		return labels.getTextBase().documentSpanIterator();
 	}
 
+	@Override
 	public AnnotationExample labelInstance(Span query){
 		if(query.documentSpanStartIndex()!=0||
 				query.size()!=query.documentSpan().size()){
@@ -46,10 +48,12 @@ public class TextLabelsAnnotatorTeacher extends AnnotatorTeacher{
 		return example;
 	}
 
+	@Override
 	public boolean hasAnswers(){
 		return true;
 	}
 
+	@Override
 	public TextLabels availableLabels(){
 		return labels;
 	}

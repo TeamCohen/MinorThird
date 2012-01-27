@@ -412,6 +412,7 @@ public class CommandLineUtil{
 			new String(
 			"The Directory of labeled or unlabeled documents you\n                                 would like to load OR the repository key");
 
+		@Override
 		public void usage(){
 			System.out.println("basic parameters:");
 			System.out
@@ -469,6 +470,7 @@ public class CommandLineUtil{
 			useGUI=true;
 		}
 
+		@Override
 		public void usage(){
 			System.out.println("presentation parameters:");
 			System.out
@@ -492,6 +494,7 @@ public class CommandLineUtil{
 		public String saveHelp=
 			new String("Save final result of this operation in FILE");
 
+		@Override
 		public void usage(){
 			System.out.println("save parameters:");
 			System.out.println(" [-saveAs FILE]                  "+saveHelp);
@@ -544,6 +547,7 @@ public class CommandLineUtil{
 		private String trueTypeHelp=
 			new String("hand-corrected labels saved as type TYPE");
 
+		@Override
 		public void usage(){
 			System.out.println("edit parameters:");
 			System.out.println(" [-edit FILE]             "+editFilenameHelp);
@@ -655,6 +659,7 @@ public class CommandLineUtil{
 			new String(
 			"classify all spans of the given TYPE.\n                                 - default is to classify all document spans");
 
+		@Override
 		public void usage(){
 			System.out.println("classification 'signal' parameters:");
 			System.out.println(" -spanType TYPE                  "+spanTypeHelp);
@@ -824,6 +829,7 @@ public class CommandLineUtil{
 			new String(
 			"the type or property that is produced by the learned\n                                 ClassifierAnnotator - default is \"_prediction\"");
 
+		@Override
 		public void usage(){
 			System.out.println("classification training parameters:");
 			System.out.println(" [-learner BSH]                  "+learnerHelp);
@@ -970,6 +976,7 @@ public class CommandLineUtil{
 			new String(
 			"interactively view the classifier in a new window when you run the experiment");
 
+		@Override
 		public void usage(){
 			System.out.println("classifier testing parameters:");
 			System.out.println(" -loadFrom FILE           "+loadFromHelp);
@@ -1005,6 +1012,7 @@ public class CommandLineUtil{
 		}
 
 		// help buttons
+		@Override
 		public String getLoadFromHelp(){
 			return loadFromHelp;
 		}
@@ -1031,6 +1039,7 @@ public class CommandLineUtil{
 			this.showExtractor=true;
 		}
 
+		@Override
 		public void usage(){
 			System.out.println("extractor testing parameters:");
 			System.out
@@ -1072,6 +1081,7 @@ public class CommandLineUtil{
 		private String loadFromHelp=
 			new String("file containing serialized Annotator");
 
+		@Override
 		public void usage(){
 			System.out.println("annotation loading parameters:");
 			System.out.println(" -loadFrom FILE           "+loadFromHelp);
@@ -1120,6 +1130,7 @@ public class CommandLineUtil{
 		public String spanTypeHelp=
 			new String("learn how to extract the given TYPE");
 
+		@Override
 		public void usage(){
 			System.out.println("extraction 'signal' parameters:");
 			System.out.println(" -spanType TYPE           "+spanTypeHelp);
@@ -1172,6 +1183,7 @@ public class CommandLineUtil{
 		private String showResultHelp=
 			new String("interactively view final result of this operation");
 
+		@Override
 		public void usage(){
 			System.out.println("basic parameters:");
 			System.out.println(" -labeledData                  "+labeledDataHelp);
@@ -1247,6 +1259,7 @@ public class CommandLineUtil{
 			this.experiment=true;
 		}
 
+		@Override
 		public void usage(){
 			System.out.println("Online Learning loading parameters:");
 			System.out
@@ -1323,6 +1336,7 @@ public class CommandLineUtil{
 			new String(
 			"Specify directory or repository key of test data\n  -Note: splitter will be ignored with this option");
 
+		@Override
 		public void usage(){
 			System.out.println("train/test experimentation parameters:");
 			System.out
@@ -1503,6 +1517,7 @@ public class CommandLineUtil{
 			new String(
 			"learn how to extract spans with the given property\n and label them with the given property");
 
+		@Override
 		public void usage(){
 			System.out.println("extraction 'signal' parameters:");
 			System.out.println(" -spanType TYPE           "+spanTypeHelp);
@@ -1612,6 +1627,7 @@ public class CommandLineUtil{
 			new String(
 			"Classify dataset and add the classification as features to each document");
 
+		@Override
 		public void usage(){
 			System.out.println("multi class classification 'signal' parameters:");
 			System.out.println(" -multSpanProp FILE             "+
@@ -1678,6 +1694,7 @@ public class CommandLineUtil{
 			new String(
 			"create a sequential dataset, where tokens are\n given the class associated with this token property");
 
+		@Override
 		public void usage(){
 			System.out.println("tagger 'signal' parameters:");
 			System.out.println(" -tokenProp TYPE          "+tokenPropHelp);
@@ -1798,6 +1815,7 @@ public class CommandLineUtil{
 			new String(
 			"the type or property that is produced by the learned\n ClassifierAnnotator - default is \"_prediction\"");
 
+		@Override
 		public void usage(){
 			System.out.println("extraction training parameters:");
 			System.out
@@ -1941,6 +1959,7 @@ public class CommandLineUtil{
 			new String(
 			"the type or property that is produced by the learned\n ClassifierAnnotator - default is \"_prediction\"");
 
+		@Override
 		public void usage(){
 			System.out.println("tagger training parameters:");
 			System.out
@@ -2026,6 +2045,7 @@ public class CommandLineUtil{
 			new String(
 			"run mixup program in FILE (existing file, or name on classpath)");
 
+		@Override
 		public void usage(){
 			System.out.println("mixup program parameters:");
 			System.out
@@ -2062,6 +2082,7 @@ public class CommandLineUtil{
 			new String(
 			"output results in format TYPE (either 'minorthird', 'xml', or 'strings'");
 
+		@Override
 		public void usage(){
 			System.out.println("annotation output parameters:");
 			System.out.println(" -format TYPE             "+formatHelp);
@@ -2111,6 +2132,7 @@ public class CommandLineUtil{
 			}
 		}
 
+		@Override
 		public void usage(){
 			System.out.println("labels output parameters:");
 			System.out

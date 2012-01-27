@@ -105,6 +105,7 @@ public class FeatureFactory implements Serializable{
 		return new MultiExample(compress(example.asInstance()),example.getMultiLabel(),example.getWeight());
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder b=new StringBuilder();
 		b.append(super.toString()).append(" : [");
@@ -149,7 +150,7 @@ public class FeatureFactory implements Serializable{
 			for(Iterator<Feature> it=instance.binaryFeatureIterator();it.hasNext();){
 				set.add(getFeature(it.next()));
 			}
-			binaryFeatures=(Feature[])set.toArray(new Feature[set.size()]);
+			binaryFeatures=set.toArray(new Feature[set.size()]);
 
 			set.clear();
 
@@ -157,7 +158,7 @@ public class FeatureFactory implements Serializable{
 			for(Iterator<Feature> it=instance.numericFeatureIterator();it.hasNext();){
 				set.add(getFeature(it.next()));
 			}
-			numericFeatures=(Feature[])set.toArray(new Feature[set.size()]);
+			numericFeatures=set.toArray(new Feature[set.size()]);
 
 			// store numeric feature weights
 			weights=new double[numericFeatures.length];
@@ -171,6 +172,7 @@ public class FeatureFactory implements Serializable{
 		public FeatureFactory getFactory(){return FeatureFactory.this;}
 
 		// using binary search to find feature weight; should it be more efficient?
+		@Override
 		public double getWeight(Feature f){
 			// search through binary features first
 			if(Arrays.binarySearch(binaryFeatures,f)>-1){
@@ -186,22 +188,27 @@ public class FeatureFactory implements Serializable{
 			}
 		}
 
+		@Override
 		public Iterator<Feature> binaryFeatureIterator(){
 			return new FeatureArrayIterator(binaryFeatures);
 		}
 
+		@Override
 		public Iterator<Feature> numericFeatureIterator(){
 			return new FeatureArrayIterator(numericFeatures);
 		}
 
+		@Override
 		public Iterator<Feature> featureIterator(){
 			return new UnionFeatureArrayIterator(binaryFeatures,numericFeatures);
 		}
 		
+		@Override
 		public int numFeatures(){
 			return binaryFeatures.length+numericFeatures.length;
 		}
 
+		@Override
 		public String toString(){
 			StringBuilder b=new StringBuilder();
 			b.append("[compact instance/").append(subpopulationId).append(":");
@@ -226,14 +233,17 @@ public class FeatureFactory implements Serializable{
 				this.features=features;
 			}
 
+			@Override
 			public boolean hasNext(){
 				return current<features.length;
 			}
 
+			@Override
 			public Feature next(){
 				return features[current++];
 			}
 
+			@Override
 			public void remove(){
 				throw new Error("method CompactInstance.FeatureArrayLooper: remove not implemented.");
 			}

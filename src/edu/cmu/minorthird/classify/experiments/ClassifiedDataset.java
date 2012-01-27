@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -83,6 +84,7 @@ public class ClassifiedDataset implements Visible{
 		return dataset;
 	}
 
+	@Override
 	public Viewer toGUI(){
 		Viewer v=new MessageViewer(new MyViewer());
 		v.setContent(this);
@@ -100,8 +102,11 @@ public class ClassifiedDataset implements Visible{
 
 		public Feature targetFeature;
 
-		public JRadioButton correctButton,incorrectButton,allButton;
+		public JRadioButton correctButton;
+		//public JRadioButton incorrectButton;
+		public JRadioButton allButton;
 
+		@Override
 		public void initialize(){
 			// indicates if we should filter on some feature
 			filterOnFeatureBox=new JCheckBox();
@@ -111,7 +116,7 @@ public class ClassifiedDataset implements Visible{
 
 			ButtonGroup group=new ButtonGroup();
 			correctButton=addButton("correct",false,group);
-			incorrectButton=addButton("incorrect",false,group);
+			//incorrectButton=addButton("incorrect",false,group);
 			allButton=addButton("all",true,group);
 
 			addApplyButton();
@@ -148,6 +153,7 @@ public class ClassifiedDataset implements Visible{
 
 		private Feature targetFeature=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			DataControls dc=(DataControls)controls;
 			if(dc.allButton.isSelected())
@@ -164,11 +170,13 @@ public class ClassifiedDataset implements Visible{
 			revalidate();
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			cd=(ClassifiedDataset)o;
 			JTable jtable=new JTable(new MyTableModel(filteredClassifiedDataset()));
 			jtable.setDefaultRenderer(Example.class,new TableCellRenderer(){
 
+				@Override
 				public Component getTableCellRendererComponent(JTable table,
 						Object value,boolean isSelected,boolean hasFocus,int row,int column){
 					return GUI.conciseExampleRendererComponent((Example)value,60,
@@ -178,7 +186,7 @@ public class ClassifiedDataset implements Visible{
 			monitorSelections(jtable,1);
 			JScrollPane scrollpane=new JScrollPane(jtable);
 			scrollpane
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			return scrollpane;
 		}
 
@@ -221,14 +229,17 @@ public class ClassifiedDataset implements Visible{
 				this.cd=cd;
 			}
 
+			@Override
 			public int getRowCount(){
 				return cd.dataset.size();
 			}
 
+			@Override
 			public int getColumnCount(){
 				return 2;
 			} // predicted, actual, instance
 
+			@Override
 			public Object getValueAt(int row,int col){
 				if(col==0)
 					return cd.classifier.classification(cd.dataset.getExample(row));
@@ -238,6 +249,7 @@ public class ClassifiedDataset implements Visible{
 					throw new IllegalArgumentException("illegal col "+col);
 			}
 
+			@Override
 			public String getColumnName(int col){
 				if(col==0)
 					return "Prediction";
@@ -260,10 +272,12 @@ public class ClassifiedDataset implements Visible{
 			setContent(ex);
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Explanation;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			ex=(Explanation)o;
 			JScrollPane p=new JScrollPane(ex.getExplanation());
@@ -285,6 +299,7 @@ public class ClassifiedDataset implements Visible{
 
 		private ClassifiedDataset cd;
 
+		@Override
 		public JComponent componentFor(Object o){
 			cd=(ClassifiedDataset)o;
 			JSplitPane left=new JSplitPane();
@@ -329,12 +344,14 @@ public class ClassifiedDataset implements Visible{
 			return main;
 		}
 
+		@Override
 		protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
 			// protected boolean canHandle(int signal,Object argument){
 			return (signal==OBJECT_SELECTED)&&(argument instanceof Example)||
 					(signal==OBJECT_SELECTED)&&(argument instanceof Feature);
 		}
 
+		@Override
 		protected void handle(int signal,Object argument,List<Viewer> senders){
 			// protected void handle(int signal,Object argument){
 			if(argument instanceof Example){

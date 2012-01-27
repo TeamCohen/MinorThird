@@ -31,10 +31,12 @@ public class HyperplaneInstance implements Instance
 		this.subpopulationId = subpopulationId;
 		this.source = source;
 	}
+	@Override
 	public Viewer toGUI() 
 	{ 
 		Viewer v = new ComponentViewer() {
 			static final long serialVersionUID=20080202L;
+				@Override
 				public JComponent componentFor(Object o) {
 					HyperplaneInstance hi = (HyperplaneInstance)o;
 					return hi.hyperplane.toGUI(); 
@@ -43,13 +45,20 @@ public class HyperplaneInstance implements Instance
 		v.setContent(this);
 		return v;
 	}
+	@Override
 	public double getWeight(Feature f) { return hyperplane.featureScore(f); }
+	@Override
 	public Iterator<Feature> binaryFeatureIterator() { return Collections.EMPTY_SET.iterator(); }
+	@Override
 	public Iterator<Feature> numericFeatureIterator() { return hyperplane.featureIterator(); }
+	@Override
 	public Iterator<Feature> featureIterator() { return hyperplane.featureIterator(); }
+	@Override
 	public int numFeatures() { throw new UnsupportedOperationException();}
 	public double getWeight() { return 1.0; }
+	@Override
 	public Object getSource() { return source; }
+	@Override
 	public String getSubpopulationId() { return subpopulationId; }
 	// iterate over all hyperplane features except the bias feature
 	// where is it used? - frank

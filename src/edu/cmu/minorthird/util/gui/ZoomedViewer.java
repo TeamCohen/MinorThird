@@ -33,12 +33,14 @@ public class ZoomedViewer extends SplitViewer{
 		this.zoomedIn=viewer2;
 	}
 
+	@Override
 	public void setSubViews(Viewer zoomedOut,Viewer zoomedIn){
 		super.setSubViews(zoomedOut,zoomedIn);
 		this.zoomedOut=viewer1;
 		this.zoomedIn=viewer2;
 	}
 
+	@Override
 	public void receiveContent(Object content){
 		log.info("recieving content: "+content);
 		zoomedOut.setContent(content);
@@ -46,19 +48,23 @@ public class ZoomedViewer extends SplitViewer{
 	}
 
 	/** Get the object being displayed as the user sees it.  */
+	@Override
 	public Object getVisibleContent(){
 		return zoomedOut.getVisibleContent();
 	}
 
+	@Override
 	public boolean canReceive(Object content){
 		return zoomedOut!=null&&zoomedOut.canReceive(content);
 	}
 
+	@Override
 	protected void handle(int signal,Object argument,List<Viewer> senders){
 		zoomedIn.setContent(argument);
 		revalidate();
 	}
 
+	@Override
 	protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
 		if(DEBUG&&signal==OBJECT_SELECTED){
 			log.debug("selection in zoomed viewer, content="+argument);

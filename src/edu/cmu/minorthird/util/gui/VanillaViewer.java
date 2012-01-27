@@ -20,10 +20,12 @@ public class VanillaViewer extends ComponentViewer{
 		super();
 	}
 
+	@Override
 	public JComponent componentFor(Object o){
 		return new JScrollPane(new JTextArea(o.toString()));
 	}
 
+	@Override
 	public boolean canReceive(Object obj){
 		return true;
 	}

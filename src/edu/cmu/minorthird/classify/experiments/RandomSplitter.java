@@ -43,6 +43,7 @@ public class RandomSplitter<T> implements Splitter<T>{
 		return trainFraction;
 	}
 
+	@Override
 	public void split(Iterator<T> i){
 		trainList=new ArrayList<T>();
 		testList=new ArrayList<T>();
@@ -56,18 +57,22 @@ public class RandomSplitter<T> implements Splitter<T>{
 		}
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return 1;
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
 		return trainList.iterator();
 	}
 
+	@Override
 	public Iterator<T> getTest(int k){
 		return testList.iterator();
 	}
 
+	@Override
 	public String toString(){
 		return "[RandomSplit "+trainFraction+"]";
 	}

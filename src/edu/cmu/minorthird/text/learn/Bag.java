@@ -26,7 +26,7 @@ class Bag<T>{
 
 	/** Add another instance of the object. */
 	public void add(T o){
-		Integer count=(Integer)map.get(o);
+		Integer count=map.get(o);
 		if(count==null)
 			map.put(o,ONE);
 		else if(count==ONE)
@@ -39,7 +39,7 @@ class Bag<T>{
 
 	/** Add another instance of the object. */
 	public void add(T o,int numCopies){
-		Integer count=(Integer)map.get(o);
+		Integer count=map.get(o);
 		if(count==null)
 			map.put(o,new Integer(numCopies));
 		else
@@ -53,7 +53,7 @@ class Bag<T>{
 
 	/** Get number of occurences of the object in the bag. */
 	public int getCount(Object o){
-		Integer count=(Integer)map.get(o);
+		Integer count=map.get(o);
 		if(count==null)
 			return 0;
 		else
@@ -72,6 +72,7 @@ class Bag<T>{
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "[Bag "+map+"]";
 	}

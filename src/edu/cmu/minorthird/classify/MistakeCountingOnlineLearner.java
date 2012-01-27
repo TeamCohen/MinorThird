@@ -36,11 +36,13 @@ public class MistakeCountingOnlineLearner extends OnlineClassifierLearner
 		numMistakes = numExamples = 0;
 	}
 
+	@Override
 	public ClassifierLearner copy() 
 	{ 
 		return new MistakeCountingOnlineLearner((OnlineClassifierLearner)innerLearner.copy(),reportMistakes);
 	}
 
+	@Override
 	public void completeTraining() 
 	{ 
 		innerLearner.completeTraining();
@@ -49,6 +51,7 @@ public class MistakeCountingOnlineLearner extends OnlineClassifierLearner
 		}
 	}
 
+	@Override
 	public void addExample(Example answeredQuery)
 	{
 		ClassLabel predicted = innerLearner.getClassifier().classification(answeredQuery.asInstance());
@@ -57,20 +60,24 @@ public class MistakeCountingOnlineLearner extends OnlineClassifierLearner
 		innerLearner.addExample(answeredQuery);
 	}
 
+	@Override
 	public Classifier getClassifier() 
 	{
 		return innerLearner.getClassifier();
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema)
 	{
 		innerLearner.setSchema(schema);
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		return innerLearner.getSchema();
 	}
 
+	@Override
 	public void reset() 
 	{
 		innerLearner.reset();
@@ -89,6 +96,7 @@ public class MistakeCountingOnlineLearner extends OnlineClassifierLearner
 		return numExamples; 
 	}
 
+	@Override
 	public String toString() 
 	{
 		return 

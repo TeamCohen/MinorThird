@@ -21,7 +21,8 @@ public class DatasetSemiSupervisedClassifierTeacher implements SemiSupervisedCla
 
    /** Currently, only support batch learners.
     */
-   public SemiSupervisedClassifier train(SemiSupervisedClassifierLearner learner)
+   @Override
+	public SemiSupervisedClassifier train(SemiSupervisedClassifierLearner learner)
    {
       //System.out.println("in SemiSupervisedClassifier.train()");
       SemiSupervisedBatchClassifierLearner batchLearner = (SemiSupervisedBatchClassifierLearner)learner;

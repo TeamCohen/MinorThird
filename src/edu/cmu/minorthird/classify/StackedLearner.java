@@ -92,6 +92,7 @@ public class StackedLearner extends BatchClassifierLearner
 		return innerLearners[0];
 	}
 
+	@Override
 	final public void setSchema(ExampleSchema schema)
 	{
 		this.schema = schema;
@@ -101,10 +102,12 @@ public class StackedLearner extends BatchClassifierLearner
 		finalLearner.setSchema(schema);
 	}
 	
+	@Override
 	final public ExampleSchema getSchema(){
 		return schema;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset dataset)
 	{
 		BasicDataset stackedData = new BasicDataset();
@@ -191,6 +194,7 @@ public class StackedLearner extends BatchClassifierLearner
 			this.innerClassifiers = innerClassifiers;
 			this.finalClassifier = finalClassifier;
 		}
+		@Override
 		public ClassLabel classification(Instance instance)
 		{
 			Instance newInstance = transformInstance(schema,instance,innerClassifiers);
@@ -199,6 +203,7 @@ public class StackedLearner extends BatchClassifierLearner
 //		public double score(Instance instance,String classLabelName) {
 //			return classification(instance).getWeight(classLabelName);
 //		}
+		@Override
 		public String explain(Instance instance)
 		{
 			StringBuffer buf = new StringBuffer("");
@@ -209,14 +214,17 @@ public class StackedLearner extends BatchClassifierLearner
 			return buf.toString();
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance) {
 			Explanation ex = new Explanation(explain(instance));
 			return ex;
 		}
+		@Override
 		public Viewer toGUI()
 		{
 			Viewer v = new ComponentViewer() {
 				static final long serialVersionUID=20071015;
+				@Override
 				public JComponent componentFor(Object o) {
 					StackedClassifier sc = (StackedClassifier)o;
 					JPanel mainPanel = new JPanel();

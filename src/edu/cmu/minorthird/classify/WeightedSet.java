@@ -53,6 +53,7 @@ public class WeightedSet<T> implements Serializable{
   	return map.size();
   }
 
+	@Override
 	public String toString(){
 		return map.toString();
 	}

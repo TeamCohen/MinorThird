@@ -19,7 +19,8 @@ public class URLAnnotator extends AbstractAnnotator
     static final String URL_SPANTYPE = "URL";
     static final String URL_ANNOTATION_TYPE = "URL";
 
-    protected void doAnnotate(MonotonicTextLabels labels)
+    @Override
+		protected void doAnnotate(MonotonicTextLabels labels)
     {
         for (Iterator<Span> i=labels.getTextBase().documentSpanIterator(); i.hasNext(); ) {
             Span docSpan = i.next();
@@ -46,7 +47,8 @@ public class URLAnnotator extends AbstractAnnotator
         return false;
     }
 
-    public String explainAnnotation(TextLabels labels,Span documentSpan)
+    @Override
+		public String explainAnnotation(TextLabels labels,Span documentSpan)
     {
         return "no explanation available";
     }

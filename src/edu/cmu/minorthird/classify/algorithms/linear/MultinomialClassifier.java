@@ -78,6 +78,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 	//
 	// methods in Classifier interface
 	//
+	@Override
 	public ClassLabel classification(Instance instance){
 		double[] score=score(instance);
 		//System.out.println("size="+score.length);
@@ -88,7 +89,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 				maxIndex=i;
 			}
 		}
-		return new ClassLabel((String)classNames.get(maxIndex));
+		return new ClassLabel(classNames.get(maxIndex));
 	}
 
 	public double[] score(Instance instance){
@@ -103,7 +104,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 
 		double[] score=new double[classNames.size()];
 		for(int i=0;i<classNames.size();i++){
-			double classProb=((Double)classParameters.get(i)).doubleValue();
+			double classProb=(classParameters.get(i)).doubleValue();
 			score[i]=Math.log(classProb);
 		}
 
@@ -112,6 +113,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 			double featureCounts=instance.getWeight(f);
 
 			for(int i=0;i<classNames.size();i++){
+				@SuppressWarnings("unchecked")
 				Estimate featureProb=((Map<Feature,Estimate>)featureGivenClassParameters.get(i)).get(f);
 				String model="";
 				try{
@@ -125,12 +127,12 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 					String parameterization=featureProb.getParameterization();
 					if(parameterization.equals("weighted-lambda")){
 						SortedMap<String,Double> pms=featureProb.getPms();
-						double lambda=((Double)pms.get("lambda")).doubleValue();
+						double lambda=(pms.get("lambda")).doubleValue();
 						score[i]+=
 								-lambda*exampleWeight/SCALE+featureCounts*Math.log(lambda);
 					}else if(parameterization.equals("lambda")){
 						SortedMap<String,Double> pms=featureProb.getPms();
-						double lambda=((Double)pms.get("lambda")).doubleValue();
+						double lambda=(pms.get("lambda")).doubleValue();
 						score[i]+=
 								-lambda*exampleWeight/SCALE+featureCounts*Math.log(lambda);
 						//System.out.println("ft = "+f+" :: counts = "+featureCounts+", mu["+i+"] = "+lambda+", log(mu["+i+"]) = "+Math.log(lambda)+", w = "+total+", scale = "+SCALE);
@@ -140,11 +142,11 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 					String parameterization=featureProb.getParameterization();
 					if(parameterization.equals("weighted-mean")){
 						SortedMap<String,Double> pms=featureProb.getPms();
-						double mean=((Double)pms.get("mean")).doubleValue();
+						double mean=(pms.get("mean")).doubleValue();
 						score[i]+=featureCounts*Math.log(mean);
 					}else if(parameterization.equals("mean")){
 						SortedMap<String,Double> pms=featureProb.getPms();
-						double mean=((Double)pms.get("mean")).doubleValue();
+						double mean=(pms.get("mean")).doubleValue();
 						score[i]+=featureCounts*Math.log(mean);
 					}
 				}else if(model.equals("Negative-Binomial")){
@@ -172,12 +174,12 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 					String parameterization=featureProb.getParameterization();
 					if(parameterization.equals("weighted-lambda")){
 						SortedMap<String,Double> pms=featureProb.getPms();
-						double lambda=((Double)pms.get("lambda")).doubleValue();
+						double lambda=(pms.get("lambda")).doubleValue();
 						score[i]+=
 								-lambda*exampleWeight/SCALE+featureCounts*Math.log(lambda);
 					}else if(parameterization.equals("lambda")){
 						SortedMap<String,Double> pms=featureProb.getPms();
-						double lambda=((Double)pms.get("lambda")).doubleValue();
+						double lambda=(pms.get("lambda")).doubleValue();
 						score[i]+=
 								-lambda*exampleWeight/SCALE+featureCounts*Math.log(lambda);
 					}
@@ -272,6 +274,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		return logProb;
 	}
 
+	@Override
 	public String explain(Instance instance){
 		StringBuffer buf=new StringBuffer("");
 		for(Iterator<Feature> j=instance.featureIterator();j.hasNext();){
@@ -287,6 +290,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		return buf.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=
 				new Explanation.Node("MultinomialClassifier Explanation");
@@ -345,6 +349,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		for(Iterator<Feature> j=instance.featureIterator();j.hasNext();){
 			Feature f=j.next();
 			double featureCounts=instance.getWeight(f);
+			@SuppressWarnings("unchecked")
 			double featureProb=((WeightedSet<Feature>)featureGivenClassParameters.get(idx)).getWeight(f);
 			//double classProb=classParameters.get(idx).doubleValue();
 			//System.out.println("feature="+f+" counts="+featureCounts+" prob="+featureProb+" class="+classProb);
@@ -385,13 +390,14 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 	}
 
 	public ClassLabel getLabel(int i){
-		return new ClassLabel((String)classNames.get(i));
+		return new ClassLabel(classNames.get(i));
 	}
 
 	public int indexOf(ClassLabel label){
 		return classNames.indexOf(label.bestClassName());
 	}
 
+	@SuppressWarnings("unchecked")
 	public void setFeatureGivenClassParameter(Feature f,int j,Estimate pms){
 		Map<Feature,Estimate> hmap;
 		try{
@@ -437,6 +443,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		// 1. create a new WeightedSet with all features
 		TObjectDoubleHashMap map=new TObjectDoubleHashMap();
 		for(int i=0;i<classNames.size();i++){
+			@SuppressWarnings("unchecked")
 			Map<Feature,Double> hmap=(Map<Feature,Double>)featureGivenClassParameters.get(i);
 			for(Iterator<Feature> j=hmap.keySet().iterator();j.hasNext();){
 				Feature f=j.next();
@@ -448,15 +455,18 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		final TObjectDoubleIterator ti=map.iterator();
 		Iterator<Feature> i=new Iterator<Feature>(){
 
+			@Override
 			public boolean hasNext(){
 				return ti.hasNext();
 			}
 
+			@Override
 			public Feature next(){
 				ti.advance();
 				return (Feature)ti.key();
 			}
 
+			@Override
 			public void remove(){
 				ti.remove();
 			}
@@ -467,6 +477,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 	public Object[] keys(){
 		TObjectDoubleHashMap map=new TObjectDoubleHashMap();
 		for(int i=0;i<classNames.size();i++){
+			@SuppressWarnings("unchecked")
 			Map<Feature,Double> hmap=(Map<Feature,Double>)featureGivenClassParameters.get(i);
 			for(Iterator<Feature> j=hmap.keySet().iterator();j.hasNext();){
 				Feature f=j.next();
@@ -520,6 +531,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 	//
 	// GUI related stuff
 	//
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=
 				new ControlledViewer(new MyViewer(),new MultinomialClassifierControls());
@@ -537,6 +549,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		private JRadioButton nameButton;
 		//private JRadioButton noneButton;
 
+		@Override
 		public void initialize(){
 			add(new JLabel("Sort by"));
 			ButtonGroup group=new ButtonGroup();
@@ -563,16 +576,19 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 
 		private MultinomialClassifier h=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			this.controls=(MultinomialClassifierControls)controls;
 			setContent(h,true);
 			revalidate();
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof MultinomialClassifier;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			h=(MultinomialClassifier)o;
 			Object[] keys=h.keys();
@@ -582,6 +598,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 				Feature f=i.next();
 				tableData[k][0]=f;
 				for(int l=0;l<h.classNames.size();l++){
+					@SuppressWarnings("unchecked")
 					String content=((Map<Feature,Estimate>)h.featureGivenClassParameters.get(l)).get(f).toTableInViewer();
 					tableData[k][(l+1)]=content;
 					//tableData[k][(l+1)] = new Double( ((WeightedSet)h.featureGivenClassParameters.get(l)).getWeight(f) );
@@ -591,6 +608,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 			if(controls!=null){
 				Arrays.sort(tableData,new Comparator<Object[]>(){
 
+					@Override
 					public int compare(Object[] ra,Object[] rb){
 						if(controls.nameButton.isSelected())
 							return ra[0].toString().compareTo(rb[0].toString());
@@ -615,6 +633,7 @@ public class MultinomialClassifier implements Classifier,Visible,Serializable{
 		}
 	}
 
+	@Override
 	public String toString(){
 		return null;
 	}

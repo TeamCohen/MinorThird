@@ -57,7 +57,7 @@ public class MostFrequentFirstLearner extends OneVsAllLearner{
 			for(int j=0;j<unsortedLearners.size();j++){
 				try{
 					BatchClassifierLearner learner=
-							((BatchClassifierLearner)unsortedLearners.get(j));
+							(unsortedLearners.get(j));
 					Dataset d=learner.dataset;
 					int numPosEx=0;
 					for(Iterator<Example> it=d.iterator();it.hasNext();){
@@ -76,27 +76,29 @@ public class MostFrequentFirstLearner extends OneVsAllLearner{
 
 			//add learner to sortedLearners
 			ClassifierLearner learner=
-					(ClassifierLearner)unsortedLearners.remove(learnerIndex);
+					unsortedLearners.remove(learnerIndex);
 			innerLearner.add(learner);
 
-			String className=(String)unsortedClassNames.remove(learnerIndex);
+			String className=unsortedClassNames.remove(learnerIndex);
 			sortedClassNames[position]=className;
 			position++;
 		}
 
 	}
 
+	@Override
 	public void completeTraining(){
 		for(int i=0;i<innerLearner.size();i++){
-			((ClassifierLearner)innerLearner.get(i)).completeTraining();
+			(innerLearner.get(i)).completeTraining();
 		}
 		sortLearners();
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		Classifier[] classifiers=new Classifier[innerLearner.size()];
 		for(int i=0;i<innerLearner.size();i++){
-			classifiers[i]=((ClassifierLearner)(innerLearner.get(i))).getClassifier();
+			classifiers[i]=((innerLearner.get(i))).getClassifier();
 		}
 		return new OneVsAllClassifier(sortedClassNames,classifiers);
 	}

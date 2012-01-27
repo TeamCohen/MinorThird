@@ -79,16 +79,17 @@ public abstract class BatchRankingLearner extends BatchBinaryClassifierLearner{
 	/** Sort a List of Instances by score according to the classifier. */
 	static public void sortByScore(final BinaryClassifier c,List<Example> data){
 		Collections.sort(data,new Comparator<Example>(){
+			@Override
 			public int compare(Example instA,Example instB){
-				double diff=c.score((Instance)instB)-c.score((Instance)instA);
+				double diff=c.score(instB)-c.score(instA);
 				int cmp=diff>0?+1:(diff<0?-1:0);
 				if(cmp!=0)
 					return cmp;
 				// rather than be random, sort negative examples
 				// above positive if scores are the same
 				if((instA instanceof Example)&&(instB instanceof Example)){
-					Example exA=(Example)instA;
-					Example exB=(Example)instB;
+					Example exA=instA;
+					Example exB=instB;
 					return (int)(exA.getLabel().numericLabel()-exB.getLabel()
 							.numericLabel());
 				}else{

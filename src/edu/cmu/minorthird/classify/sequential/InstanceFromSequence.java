@@ -47,39 +47,48 @@ public class InstanceFromSequence implements Instance,SequenceConstants
 	//
 	// delegate to wrapped instance
 	//
+	@Override
 	final public Object getSource() { return instance.getSource(); }
+	@Override
 	final public String getSubpopulationId() { return instance.getSubpopulationId(); }
+	@Override
 	final public Iterator<Feature> numericFeatureIterator() { return instance.numericFeatureIterator(); }
 
 	//
 	// extend the binary feature set
 	//
 
+	@Override
 	final public Iterator<Feature> binaryFeatureIterator() 
 	{ 
 		return new UnionIterator<Feature>( history.iterator(), instance.binaryFeatureIterator() ) ;
 	}
 
+	@Override
 	final public Iterator<Feature> featureIterator() 
 	{ 
 		return new UnionIterator<Feature>( history.iterator(), instance.featureIterator() );
 	}
 	
+	@Override
 	final public int numFeatures(){
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
 	final public double getWeight(Feature f) 
 	{ 
 		if (history.contains(f)) return 1.0;
 		else return instance.getWeight(f); 
 	}
 
+	@Override
 	public String toString()
 	{
 		return "[instFromSeq "+history+" "+instance+"]";
 	}
 
+	@Override
 	final public Viewer toGUI()
 	{
 		return new GUI.InstanceViewer(this);

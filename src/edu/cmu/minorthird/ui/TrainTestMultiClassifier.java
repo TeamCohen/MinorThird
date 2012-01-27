@@ -77,6 +77,7 @@ public class TrainTestMultiClassifier extends UIMain{
 		this.trainTest=trainTest;
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,train,trainTest});
@@ -86,6 +87,7 @@ public class TrainTestMultiClassifier extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(train.learner==null)
@@ -105,7 +107,7 @@ public class TrainTestMultiClassifier extends UIMain{
 		// construct the splitter, if necessary
 		if(trainTest.labels!=null){
 			MultiDataset testData=
-					CommandLineUtil.toMultiDataset((MonotonicTextLabels)trainTest.labels,
+					CommandLineUtil.toMultiDataset(trainTest.labels,
 							train.fe,signal.multiSpanProp);
 			trainTest.splitter=new FixedTestSetSplitter<MultiExample>(testData.multiIterator());
 		}
@@ -141,6 +143,7 @@ public class TrainTestMultiClassifier extends UIMain{
 		evaluation.summarize();
 	}
 
+	@Override
 	public Object getMainResult(){
 		return result;
 	}

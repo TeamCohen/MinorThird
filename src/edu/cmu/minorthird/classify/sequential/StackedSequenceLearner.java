@@ -76,6 +76,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 	
 	/** Number of instances before the current target for which the
 	 * predicted class will be used as a feature. */
+	@Override
 	public int getHistorySize() { return params.historySize; }
 	public void setHistorySize(int newHistorySize) { params.setHistorySize(newHistorySize); }
 
@@ -119,8 +120,10 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 		params.setFutureSize(windowSize);
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema) {;}
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		SequenceClassifier[] m = new SequenceClassifier[params.stackingDepth+1];
@@ -222,6 +225,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 			this.params = params;
 		}
 
+		@Override
 		public ClassLabel[] classification(Instance[] sequence)
 		{
 //			String[] history = new String[params.historySize];
@@ -237,16 +241,19 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 			}
 			return labels;
 		}
+		@Override
 		public String explain(Instance[] sequence)
 		{
 			return "not implemented";
 		}
 
-	    public Explanation getExplanation(Instance[] sequence) {
+	    @Override
+			public Explanation getExplanation(Instance[] sequence) {
 		Explanation ex = new Explanation(explain(sequence));
 		return ex;
 	    }
 
+		@Override
 		public Viewer toGUI()
 		{
 			ParallelViewer v = new ParallelViewer();
@@ -256,6 +263,7 @@ public class StackedSequenceLearner implements BatchSequenceClassifierLearner
 					"Level "+k+" classifier",
 					new TransformedViewer( new SmartVanillaViewer(m[k]) ) {
 						static final long serialVersionUID=20080207L;
+						@Override
 						public Object transform(Object o) {
 							StackedSequenceClassifier s = (StackedSequenceClassifier)o;
 							return s.m[k];

@@ -29,10 +29,12 @@ public class TFIDFTransformLearner implements InstanceTransformLearner,
 	private double numDocuments;
 
 	/** The schema's not used here... */
+	@Override
 	public void setSchema(ExampleSchema schema){
 		;
 	}
 
+	@Override
 	public InstanceTransform batchTrain(Dataset dataset){
 		// figure out frequency of each feature
 		numDocuments=dataset.size();
@@ -63,6 +65,7 @@ public class TFIDFTransformLearner implements InstanceTransformLearner,
 			this.featureFreq=featureFreq;
 		}
 
+		@Override
 		public Instance transform(Instance instance){
 			double norm=0.0;
 			for(Iterator<Feature> i=instance.featureIterator();i.hasNext();){
@@ -89,6 +92,7 @@ public class TFIDFTransformLearner implements InstanceTransformLearner,
 			return Math.log(instance.getWeight(f)+1)*Math.log(numDocuments/df);
 		}
 
+		@Override
 		public String toString(){
 			return "[TFIDFWeighter]";
 		}

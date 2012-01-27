@@ -441,6 +441,7 @@ public class Recommended{
 		//
 		// command-line based configuration
 		//
+		@Override
 		public CommandLineProcessor getCLP(){
 			return new MyCLP();
 		}
@@ -471,6 +472,7 @@ public class Recommended{
 		//
 		// real code (i.e., not configuration code)
 		//
+		@Override
 		public void extractFeatures(TextLabels labels,Span s){
 			requireMyAnnotation(labels);
 			setMyTokenPropertyList(labels);
@@ -514,6 +516,7 @@ public class Recommended{
 		 * default setRequiredAnnotation() method to reset the
 		 * tokenPropertyFeatures to null when this changes.
 		 */
+		@Override
 		public void setRequiredAnnotation(String requiredAnnotation,
 				String annotationProvider){
 			super.setRequiredAnnotation(requiredAnnotation,annotationProvider);
@@ -541,7 +544,7 @@ public class Recommended{
 		 * that will be used as features. */
 		public void setTokenPropertyFeatures(Set<String> propertySet){
 			tokenPropertyFeatures=
-					(String[])propertySet.toArray(new String[propertySet.size()]);
+					propertySet.toArray(new String[propertySet.size()]);
 		}
 
 		protected void setMyTokenPropertyList(TextLabels labels){
@@ -561,6 +564,7 @@ public class Recommended{
 		
 		protected boolean foldCase=true;
 
+		@Override
 		public void extractFeatures(TextLabels labels,Span s){
 			requireMyAnnotation(labels);
 			setMyTokenPropertyList(labels);
@@ -645,6 +649,7 @@ public class Recommended{
 		//
 		// command-line based configuration
 		//
+		@Override
 		public CommandLineProcessor getCLP(){
 			return new MyCLP();
 		}
@@ -684,6 +689,7 @@ public class Recommended{
 		//
 		// real code (i.e., not configuration code)
 		//
+		@Override
 		public void extractFeatures(TextLabels labels,Span s){
 			requireMyAnnotation(labels);
 			setMyTokenPropertyList(labels);
@@ -776,6 +782,7 @@ public class Recommended{
 		//
 		// command-line configuration
 		//
+		@Override
 		public CommandLineProcessor getCLP(){
 			return new JointCommandLineProcessor(new CommandLineProcessor[]{
 					super.getCLP(),new MyCLP()});
@@ -819,6 +826,7 @@ public class Recommended{
 		//
 		// 'real' code
 		//
+		@Override
 		public void extractFeatures(TextLabels labels,Span span){
 			super.extractFeatures(labels,span);
 			// text of span & its charTypePattern

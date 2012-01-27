@@ -130,14 +130,17 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		params.setStackingDepth(depth);
 	}
 
+	@Override
 	final public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 	}
 
+	@Override
 	final public ExampleSchema getSchema(){
 		return schema;
 	}
 
+	@Override
 	public Classifier batchTrain(RealRelationalDataset dataset){
 		Classifier[] m=new Classifier[params.stackingDepth+1];
 		RealRelationalDataset stackedDataset=dataset;
@@ -193,7 +196,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 		} //get cv-like predictions for all training examples
 
 		Map<String,Map<String,Set<String>>> LinksMap=
-				RealRelationalDataset.getLinksMap();
+				CoreRelationalDataset.getLinksMap();
 		Map<String,Set<String>> Aggregators=RealRelationalDataset.getAggregators();
 
 		for(Iterator<Example> i=dataset.iterator();i.hasNext();){
@@ -294,6 +297,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 			//this.dataset=ds;
 		}
 
+		@Override
 		public ClassLabel classification(Instance instance){
 			return m[0].classification(instance);
 		}
@@ -322,7 +326,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 			RealRelationalDataset result=new RealRelationalDataset();
 
 			Map<String,Map<String,Set<String>>> LinksMap=
-					RealRelationalDataset.getLinksMap();
+					CoreRelationalDataset.getLinksMap();
 			Map<String,Set<String>> Aggregators=
 					RealRelationalDataset.getAggregators();
 
@@ -340,15 +344,18 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 			return classification(instance).getWeight(classLabelName);
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "sorry, not implemented yet";
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation ex=new Explanation(explain(instance));
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			ParallelViewer v=new ParallelViewer();
 			for(int i=0;i<m.length;i++){
@@ -356,6 +363,7 @@ public class StackedGraphicalLearner extends StackedBatchClassifierLearner{
 				v.addSubView("Level "+k+" classifier",new TransformedViewer(
 						new SmartVanillaViewer(m[k])){
 					static final long serialVersionUID=20080202L;
+					@Override
 					public Object transform(Object o){
 						StackedGraphicalClassifier s=(StackedGraphicalClassifier)o;
 						return s.m[k];

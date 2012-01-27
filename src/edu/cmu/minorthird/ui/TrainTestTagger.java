@@ -39,6 +39,7 @@ public class TrainTestTagger extends UIMain{
 	Object result=null; // the main result
 
 	// for command-line ui
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				signal,train,trainTest});
@@ -81,6 +82,7 @@ public class TrainTestTagger extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(train.learner==null)
@@ -128,7 +130,7 @@ public class TrainTestTagger extends UIMain{
 
 		if(save.saveAs!=null){
 			try{
-				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
+				IOUtil.saveSerialized(evaluation,save.saveAs);
 			}catch(IOException e){
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
@@ -136,6 +138,7 @@ public class TrainTestTagger extends UIMain{
 		evaluation.summarize();
 	}
 
+	@Override
 	public Object getMainResult(){
 		return result;
 	}

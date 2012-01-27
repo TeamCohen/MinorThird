@@ -55,6 +55,7 @@ public class SVMUtils{
 	}
 
 	private static final Comparator<svm_node> NODE_COMPARATOR=new Comparator<svm_node>(){
+		@Override
 		public int compare(svm_node n1,svm_node n2){
 			return n1.index-n2.index;
 		}
@@ -90,7 +91,7 @@ public class SVMUtils{
 		}
 		// sorting in ascending order is required by LIBSVM
 		Collections.sort(nodes,NODE_COMPARATOR);
-		return (svm_node[])nodes.toArray(new svm_node[nodes.size()]);
+		return nodes.toArray(new svm_node[nodes.size()]);
 	}
 
 	/**

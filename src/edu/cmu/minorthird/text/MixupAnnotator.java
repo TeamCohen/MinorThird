@@ -33,11 +33,13 @@ public class MixupAnnotator extends AbstractAnnotator implements Serializable{
 	 * any final results back to the root level using the importLabelsFromLevel method in
 	 * {@link edu.cmu.minorthird.text.mixup.MixupInterpreter}.  Otherwise these results will be lost.
 	 */
+	@Override
 	protected void doAnnotate(MonotonicTextLabels labels){
 		MixupInterpreter interp=new MixupInterpreter(program);
 		interp.eval(labels);
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span documentSpan){
 		return "annotated with mixup program";
 	}

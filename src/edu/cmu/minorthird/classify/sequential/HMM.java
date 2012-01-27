@@ -120,9 +120,9 @@ public class HMM {
 		String[] y = new String[x.length];
 		for( int i=0; i<x.length;i++){
 			if( esym_tok2idx.containsKey( x[i] ) ){
-				y[i]= (String)esym_tok2idx.get( x[i] );
+				y[i]= esym_tok2idx.get( x[i] );
 			}else{
-				y[i]= (String)esym_tok2idx.get( "UNSEEN" );
+				y[i]= esym_tok2idx.get( "UNSEEN" );
 			}
 				
 			System.out.println("string "+x[i]+" corresponds to state idx "+y[i]);
@@ -243,8 +243,8 @@ public class HMM {
                                Backward[] bwds, double[] logP) {
     double loglikelihood = 0;
     for (int s=0; s<xs.size(); s++) {
-      fwds[s] = new Forward(hmm, (String[])xs.get(s));
-      bwds[s] = new Backward(hmm, (String[])xs.get(s));
+      fwds[s] = new Forward(hmm, xs.get(s));
+      bwds[s] = new Backward(hmm, xs.get(s));
       logP[s] = fwds[s].logprob();
       loglikelihood += logP[s];
     }

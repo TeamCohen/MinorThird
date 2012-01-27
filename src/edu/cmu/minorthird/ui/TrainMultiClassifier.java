@@ -62,6 +62,7 @@ public class TrainMultiClassifier extends UIMain{
 		train=p;
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,train});
@@ -71,6 +72,7 @@ public class TrainMultiClassifier extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(train.learner==null)
@@ -102,7 +104,7 @@ public class TrainMultiClassifier extends UIMain{
 		if(base.showResult){
 			Viewer cv=new SmartVanillaViewer();
 			if(classifier instanceof TransformingMultiClassifier)
-				cv.setContent((TransformingMultiClassifier)classifier);
+				cv.setContent(classifier);
 			else
 				cv.setContent(classifier);
 			new ViewerFrame("Classifier",cv);
@@ -113,13 +115,14 @@ public class TrainMultiClassifier extends UIMain{
 
 		if(save.saveAs!=null){
 			try{
-				IOUtil.saveSerialized((Serializable)ann,save.saveAs);
+				IOUtil.saveSerialized(ann,save.saveAs);
 			}catch(IOException e){
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
 		}
 	}
 
+	@Override
 	public Object getMainResult(){
 		return classifier;
 	}

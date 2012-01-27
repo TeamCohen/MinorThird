@@ -45,9 +45,11 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
   }
 
   /** The schema's not used here... */
-  public void setSchema(ExampleSchema schema) {;}
+  @Override
+	public void setSchema(ExampleSchema schema) {;}
 
-  public InstanceTransform batchTrain(Dataset dataset)
+  @Override
+	public InstanceTransform batchTrain(Dataset dataset)
   {
     final Set<Feature> activeFeatureSet = new HashSet<Feature>();
 
@@ -83,10 +85,12 @@ public class FrequencyBasedTransformLearner implements InstanceTransformLearner
 
     // build an InstanceTransform that removes low-frequency features
     return new AbstractInstanceTransform() {
-      public Instance transform(Instance instance) {
+      @Override
+			public Instance transform(Instance instance) {
         return new MaskedInstance(instance, activeFeatureSet);
       }
-      public String toString() {
+      @Override
+			public String toString() {
         return "[InstanceTransform: model = "+frequencyModel+", features appear >= "+minimumFrequency+" times]";
       }
     };

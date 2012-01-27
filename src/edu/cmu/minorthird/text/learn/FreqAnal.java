@@ -78,7 +78,7 @@ public class FreqAnal{
 	public void print(){
 		for(Iterator<String> it=tokenHash.keySet().iterator();it.hasNext();){
 			String next=it.next();
-			Double[] array=(Double[])tokenHash.get(next);
+			Double[] array=tokenHash.get(next);
 			System.out.println(next+" "+array[0]+" "+array[1]+" "+array[2]+" "+
 					array[3]);
 		}
@@ -87,7 +87,7 @@ public class FreqAnal{
 	private static void updateHScore(int numDoc,int type){
 		for(Iterator<String> i=tokenHash.keySet().iterator();i.hasNext();){
 			String token=i.next();
-			Double[] array=(Double[])tokenHash.get(token);
+			Double[] array=tokenHash.get(token);
 			if(array==null){
 				array=new Double[LAST];
 				for(int j=0;j<array.length;j++)
@@ -107,7 +107,7 @@ public class FreqAnal{
 	private static void updateHash(List<String> list,int type){
 		for(Iterator<String> i=list.iterator();i.hasNext();){
 			String token=i.next();
-			Double[] array=(Double[])tokenHash.get(token);
+			Double[] array=tokenHash.get(token);
 			if(array==null){
 				array=new Double[LAST];
 				for(int j=0;j<array.length;j++)
@@ -141,7 +141,7 @@ public class FreqAnal{
 	}
 
 	public Double getHScore(String term){
-		Double[] array=(Double[])tokenHash.get(term);
+		Double[] array=tokenHash.get(term);
 		return (array!=null)?array[HS]:null;
 	}
 

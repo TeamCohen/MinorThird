@@ -31,17 +31,20 @@ public abstract class ComponentViewer extends Viewer{
 	}
 
 	/** Called at creation time. */
+	@Override
 	protected void initialize(){
 		setLayout(new GridBagLayout());
 	}
 
 	/** Get new content. */
+	@Override
 	public void receiveContent(Object content){
 		removeAll();
 		JComponent c=componentFor(content);
 		add(c,fillerGBC());
 	}
 
+	@Override
 	public void clearContent(){
 		removeAll();
 	}
@@ -50,11 +53,13 @@ public abstract class ComponentViewer extends Viewer{
 	// override if needed
 	//
 
+	@Override
 	protected void handle(int signal,Object argument,List<Viewer> senders){
 		throw new IllegalStateException("signal:"+signal+" argument:"+argument+
 				" at:"+this);
 	}
 
+	@Override
 	protected boolean canHandle(int signal,Object argument,List<Viewer> senders){
 		return false;
 	}
@@ -66,6 +71,7 @@ public abstract class ComponentViewer extends Viewer{
 	abstract public JComponent componentFor(Object o);
 
 	// default: recieve anything that can be converted to a component
+	@Override
 	public boolean canReceive(Object obj){
 		try{
 			componentFor(obj);

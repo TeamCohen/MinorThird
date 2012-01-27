@@ -175,6 +175,7 @@ public class SpanLabeler extends ViewerTracker{
 		}
 	}
 
+	@Override
 	protected void loadSpanHook(){
 		String oldLabel=editLabels.getProperty(documentSpan,LABEL_PROP);
 		if(oldLabel==null){
@@ -199,6 +200,7 @@ public class SpanLabeler extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			String type=newTypeField.getText().trim();
 			if(!editLabels.isType(type)){
@@ -221,6 +223,7 @@ public class SpanLabeler extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			String type=(String)typeBox.getSelectedItem();
 			if(!NULL_TYPE.equals(type))
@@ -240,6 +243,7 @@ public class SpanLabeler extends ViewerTracker{
 			}
 			addActionListener(new ActionListener(){
 
+				@Override
 				public void actionPerformed(ActionEvent event){
 					String t=(String)getSelectedItem();
 					if(!NULL_TYPE.equals(t))
@@ -255,8 +259,7 @@ public class SpanLabeler extends ViewerTracker{
 		String oldLabel=editLabels.getProperty(documentSpan,LABEL_PROP);
 		if(oldLabel!=null){
 			// clear the old label
-			editLabels.defineTypeInside(oldLabel,documentSpan,Collections.EMPTY_SET
-					.iterator());
+			editLabels.defineTypeInside(oldLabel,documentSpan,Collections.<Span>emptySet().iterator());
 		}
 		editLabels.setProperty(documentSpan,LABEL_PROP,type);
 		editLabels.addToType(documentSpan,type);

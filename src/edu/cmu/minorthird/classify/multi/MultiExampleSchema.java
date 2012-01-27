@@ -35,6 +35,7 @@ public class MultiExampleSchema implements Serializable{
 		return numDimensions;
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder b=new StringBuilder();
 		for(int i=0;i<schemas.length;i++){

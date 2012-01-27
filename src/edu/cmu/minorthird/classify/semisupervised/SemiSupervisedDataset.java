@@ -49,9 +49,10 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 
 	protected FeatureFactory factory=new FeatureFactory();
 
+	@Override
 	public ExampleSchema getSchema(){
 		ExampleSchema schema=
-				new ExampleSchema((String[])classNameSet
+				new ExampleSchema(classNameSet
 						.toArray(new String[classNameSet.size()]));
 		if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA))
 			return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
@@ -62,23 +63,28 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	//
 	// methods for semi-supervised data,  part of the SemiSupervisedDataset interface
 	//
+	@Override
 	public void addUnlabeled(Instance instance){
 		unlabeledExamples.add(factory.compress(instance));
 	}
 
+	@Override
 	public Iterator<Instance> iteratorOverUnlabeled(){
 		return unlabeledExamples.iterator();
 	}
 
 	//public ArrayList getUnlabeled() { return this.unlabeledExamples; }
+	@Override
 	public int sizeUnlabeled(){
 		return unlabeledExamples.size();
 	}
 
+	@Override
 	public boolean hasUnlabeled(){
 		return (unlabeledExamples.size()>0)?true:false;
 	}
 
+	@Override
 	public FeatureFactory getFeatureFactory(){
 		return factory;
 	}
@@ -95,6 +101,7 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	 *
 	 * @param example The Example that you want to add to the dataset.
 	 */
+	@Override
 	public void add(Example example){
 		add(example,true);
 	}
@@ -108,6 +115,7 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	 * @param example The example to add to the dataset
 	 * @param compress Boolean specifying whether or not to compress the example.
 	 */
+	@Override
 	public void add(Example example,boolean compress){
 		if(compress)
 			examples.add(factory.compress(example));
@@ -116,22 +124,27 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 		classNameSet.addAll(example.getLabel().possibleLabels());
 	}
 
+	@Override
 	public Iterator<Example> iterator(){
 		return examples.iterator();
 	}
 
+	@Override
 	public int size(){
 		return examples.size();
 	}
 
+	@Override
 	public void shuffle(Random r){
 		Collections.shuffle(examples,r);
 	}
 
+	@Override
 	public void shuffle(){
 		shuffle(new Random(999));
 	}
 
+	@Override
 	public Dataset shallowCopy(){
 		Dataset copy=new BasicDataset();
 		for(Iterator<Example> i=iterator();i.hasNext();){
@@ -145,20 +158,24 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	//
 	static private final String FORMAT_NAME="Minorthird Dataset";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{FORMAT_NAME};
 	}
 
+	@Override
 	public String getExtensionFor(String s){
 		return ".data";
 	}
 
+	@Override
 	public void saveAs(File file,String format) throws IOException{
 		if(!format.equals(FORMAT_NAME))
 			throw new IllegalArgumentException("illegal format "+format);
 		DatasetLoader.save(this,file);
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		try{
 			return DatasetLoader.loadFile(file);
@@ -168,6 +185,7 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	}
 
 	/** A string view of the dataset */
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("");
 		for(Iterator<Example> i=this.iterator();i.hasNext();){
@@ -179,6 +197,7 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	}
 
 	/** A GUI view of the dataset. */
+	@Override
 	public Viewer toGUI(){
 		Viewer dbGui=new BasicDataset.SimpleDatasetViewer();
 		dbGui.setContent(this);
@@ -190,10 +209,12 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 		
 		static final long serialVersionUID=20080207L;
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof Dataset;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			final Dataset d=(Dataset)o;
 			final Example[] tmp=new Example[d.size()];
@@ -204,10 +225,11 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 			final JList jList=new JList(tmp);
 			jList.setCellRenderer(new ListCellRenderer(){
 
+				@Override
 				public Component getListCellRendererComponent(JList el,Object v,
 						int index,boolean sel,boolean focus){
 					return GUI
-							.conciseExampleRendererComponent((Example)tmp[index],60,sel);
+							.conciseExampleRendererComponent(tmp[index],60,sel);
 				}
 			});
 			monitorSelections(jList);
@@ -219,18 +241,22 @@ public class SemiSupervisedDataset implements Dataset,SemiSupervisedActions,
 	// splitter
 	//
 
+	@Override
 	public Split split(final Splitter<Example> splitter){
 		splitter.split(examples.iterator());
 		return new Split(){
 
+			@Override
 			public int getNumPartitions(){
 				return splitter.getNumPartitions();
 			}
 
+			@Override
 			public Dataset getTrain(int k){
 				return invertIteration(splitter.getTrain(k));
 			}
 
+			@Override
 			public Dataset getTest(int k){
 				return invertIteration(splitter.getTest(k));
 			}

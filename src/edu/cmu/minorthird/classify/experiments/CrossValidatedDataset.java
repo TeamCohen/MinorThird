@@ -63,6 +63,7 @@ public class CrossValidatedDataset implements Visible
 		return buf.toString();
 	}
 
+	@Override
 	public Viewer toGUI()
 	{
 		ParallelViewer main = new ParallelViewer();
@@ -72,6 +73,7 @@ public class CrossValidatedDataset implements Visible
 				"Test Partition "+(i+1), 
 				new TransformedViewer(cds[0].toGUI()) {
 					static final long serialVersionUID=20080130L;
+					@Override
 					public Object transform(Object o) {
 					//what is this for? - frank
 						//CrossValidatedDataset cvd = (CrossValidatedDataset)o;
@@ -85,6 +87,7 @@ public class CrossValidatedDataset implements Visible
 					"Train Partition "+(i+1), 
 					new TransformedViewer(cds[0].toGUI()) {
 						static final long serialVersionUID=20080130L;
+						@Override
 						public Object transform(Object o) {
 							//what is this for? - frank
 							//CrossValidatedDataset cvd = (CrossValidatedDataset)o;
@@ -96,6 +99,7 @@ public class CrossValidatedDataset implements Visible
 			"Overall Evaluation", 
 			new TransformedViewer(v.toGUI()) {
 				static final long serialVersionUID=20080130L;
+				@Override
 				public Object transform(Object o) {
 					CrossValidatedDataset cvd = (CrossValidatedDataset)o;												
 					return cvd.v;

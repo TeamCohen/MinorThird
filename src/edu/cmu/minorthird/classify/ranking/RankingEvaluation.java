@@ -86,7 +86,7 @@ public class RankingEvaluation implements Visible, Saveable
 	private List<Example> getRanking(String rankingId) { return rankedListMap.get(rankingId); }
 	private double getScore(String rankingId,int rank) { return scoreMap.get(rankingId).get(rank-1); }
 	private Iterator<String> getRankingIterator() { return rankedListMap.keySet().iterator(); }
-	private int numPosExamples(String rankingId) {return ((Integer)numPosExamples.get(rankingId)).intValue();}
+	private int numPosExamples(String rankingId) {return (numPosExamples.get(rankingId)).intValue();}
 	private boolean isPositive(String rankingId,Example ex) { return ex.getLabel().isPositive(); }
 	private int numRankings() { return rankedListMap.keySet().size(); }
 	private Set<Example> getUnrankedPositives(String rankingId) { return Collections.EMPTY_SET; }
@@ -354,7 +354,7 @@ public class RankingEvaluation implements Visible, Saveable
 		}
 		// now print the false negatives - ie the unranked positives
 		for (Iterator<Example> i=getUnrankedPositives(name).iterator(); i.hasNext(); ) {
-			Example id = (Example)i.next();
+			Example id = i.next();
 			String tag = "+";
 			buf.append(">"+rank+"\t0\t"+tag+"\t"+id+"\n");
 		}
@@ -362,11 +362,13 @@ public class RankingEvaluation implements Visible, Saveable
 
 	}
 
+	@Override
 	public Viewer toGUI()
 	{
 		ParallelViewer v = new ParallelViewer();
 		v.addSubView( "Summary Table", new ComponentViewer() {
 			static final long serialVersionUID=20080206L;
+			@Override
 			public JComponent componentFor(Object o) {
 				RankingEvaluation gsEval = (RankingEvaluation)o; 
 				return new VanillaViewer( gsEval.toTable() );
@@ -376,6 +378,7 @@ public class RankingEvaluation implements Visible, Saveable
 		v.addSubView( "11-Pt Precision", v2 );
 		v2.addSubView( "Averaged", new ComponentViewer() {
 			static final long serialVersionUID=20080206L;
+			@Override
 			public JComponent componentFor(Object o) {
 				RankingEvaluation gsEval = (RankingEvaluation)o; 
 				double[] avgPrec = gsEval.averageElevenPointPrecision();
@@ -393,6 +396,7 @@ public class RankingEvaluation implements Visible, Saveable
 			final String[] group = groups[i]; 
 			v2.addSubView( tag, new ComponentViewer() {
 				static final long serialVersionUID=20080206L;
+				@Override
 				public JComponent componentFor(Object o) {
 					RankingEvaluation gsEval = (RankingEvaluation)o; 
 					LineCharter lc = new LineCharter();
@@ -411,6 +415,7 @@ public class RankingEvaluation implements Visible, Saveable
 		}
 		v.addSubView( "AvgRecall vs Rank", new ComponentViewer() {
 			static final long serialVersionUID=20080206L;
+			@Override
 			public JComponent componentFor(Object o) {
 				//RankingEvaluation gsEval = (RankingEvaluation)o; 
 				double[] avgRec = averageRecallAtEachK();
@@ -429,6 +434,7 @@ public class RankingEvaluation implements Visible, Saveable
 			final String name = i.next();
 			v3.addSubView( name, new ComponentViewer() {
 				static final long serialVersionUID=20080206L;
+				@Override
 				public JComponent componentFor(Object o) {
 					return new VanillaViewer( toTable(name,NUM_TOP_TO_SHOW) );
 				}
@@ -443,9 +449,13 @@ public class RankingEvaluation implements Visible, Saveable
 	//
 	final static private String EVAL_FORMAT_NAME = "Graph Searcher Evaluation";
 	final static private String EVAL_EXT = ".gsev";
+	@Override
 	public String[] getFormatNames() { return new String[]{EVAL_FORMAT_NAME}; }
+	@Override
 	public String getExtensionFor(String format) { return EVAL_EXT; }
+	@Override
 	public void saveAs(File file,String formatName) throws IOException { save(file);	}
+	@Override
 	public Object restore(File file) throws IOException	{ return load(file); }
 
 //	final static private StringEncoder encoder = new StringEncoder('%',"/\\:;$ \t\n");
@@ -528,7 +538,7 @@ public class RankingEvaluation implements Visible, Saveable
 				} else {
 					ranking.set(j, new Example( new MutableInstance(exId), ClassLabel.binaryLabel(-1) ));
 				}
-				newScores[j] = ((Double)scores.get(j)).doubleValue();
+				newScores[j] = (scores.get(j)).doubleValue();
 			}
 			
 			List<Double> newScoresList = new ArrayList<Double>(scores.size());

@@ -24,29 +24,33 @@ public class MultiDatasetClassifierTeacher extends MultiClassifierTeacher{
 		this.dataset=dataset;
 	}
 
+	@Override
 	public MultiExampleSchema schema(){
 		return dataset.getMultiSchema();
 	}
 
+	@Override
 	public Iterator<MultiExample> examplePool(){
 		if(activeLearning){
-			return Collections.EMPTY_SET.iterator();
+			return Collections.<MultiExample>emptySet().iterator();
 		}
 		else{
 			return dataset.multiIterator();
 		}
 	}
 
+	@Override
 	public Iterator<Instance> instancePool(){
 		if(activeLearning){
 			return Util.toInstanceIterator(dataset.multiIterator());
 		}else if(dataset instanceof MultiDataset){
 			return dataset.iteratorOverUnlabeled();
 		}else{
-			return Collections.EMPTY_SET.iterator();
+			return Collections.<Instance>emptySet().iterator();
 		}
 	}
 
+	@Override
 	public MultiExample labelInstance(Instance query){
 		if(query instanceof MultiExample)
 			return (MultiExample)query;
@@ -54,6 +58,7 @@ public class MultiDatasetClassifierTeacher extends MultiClassifierTeacher{
 			return null;
 	}
 
+	@Override
 	public boolean hasAnswers(){
 		return activeLearning;
 	}

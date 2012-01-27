@@ -54,6 +54,7 @@ public class ExtractAbbrev extends AbstractAnnotator
   //
   private List<StringSpan> accum = new ArrayList<StringSpan>();   // accumulator, used by Schwartz's code
   private boolean annotationMode = false; // flag, used by Schwartz's code
+	@Override
 	protected void doAnnotate(MonotonicTextLabels labels)
   {
     annotationMode = true;
@@ -85,7 +86,8 @@ public class ExtractAbbrev extends AbstractAnnotator
     annotationMode = false;
     labels.setAnnotatedBy( PROVIDED_ANNOTATION );
   }
-  public String explainAnnotation(TextLabels labels,Span span)
+  @Override
+	public String explainAnnotation(TextLabels labels,Span span)
   {
     return "No explanation implemented.";
   }

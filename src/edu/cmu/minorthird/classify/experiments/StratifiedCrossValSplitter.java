@@ -41,6 +41,7 @@ public class StratifiedCrossValSplitter implements Splitter<Example>{
 		this(5);
 	}
 
+	@Override
 	public void split(Iterator<Example> i){
 		strata=new ArrayList<List<Example>>();
 		for(Iterator<List<Example>> j=new StrataSorter(random,i).strataIterator();j.hasNext();){
@@ -48,10 +49,12 @@ public class StratifiedCrossValSplitter implements Splitter<Example>{
 		}
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return folds;
 	}
 
+	@Override
 	public Iterator<Example> getTrain(int k){
 		List<Example> trainList=new ArrayList<Example>();
 		for(int i=0;i<strata.size();i++){
@@ -64,6 +67,7 @@ public class StratifiedCrossValSplitter implements Splitter<Example>{
 		return trainList.iterator();
 	}
 
+	@Override
 	public Iterator<Example> getTest(int k){
 		List<Example> testList=new ArrayList<Example>();
 		for(int i=0;i<strata.size();i++){
@@ -76,6 +80,7 @@ public class StratifiedCrossValSplitter implements Splitter<Example>{
 		return testList.iterator();
 	}
 
+	@Override
 	public String toString(){
 		return "["+folds+"-Stratified CV splitter]";
 	}

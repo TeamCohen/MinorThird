@@ -32,7 +32,8 @@ public class ChiSquareTransformLearner implements InstanceTransformLearner
   }
 
   /** only accepts binary schemas */
-  public void setSchema(ExampleSchema schema)
+  @Override
+	public void setSchema(ExampleSchema schema)
   {
     if (!ExampleSchema.BINARY_EXAMPLE_SCHEMA.equals(schema))
     {
@@ -41,7 +42,8 @@ public class ChiSquareTransformLearner implements InstanceTransformLearner
   }
 
   /** Examine data, build an instance transformer */
-  public InstanceTransform batchTrain(Dataset dataset)
+  @Override
+	public InstanceTransform batchTrain(Dataset dataset)
   {
     ChiSquareInstanceTransform filter = new ChiSquareInstanceTransform();
     BasicFeatureIndex index = new BasicFeatureIndex(dataset);

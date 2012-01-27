@@ -77,6 +77,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 	//
 	// methods in Classifier interface
 	//
+	@Override
 	public ClassLabel classification(Instance instance){
 		double[] score=score(instance); // implement smoothing for *unseen* features
 		//System.out.println("size="+score.length);
@@ -88,7 +89,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 			}
 		}
 		//System.out.println( classNames.get(0)+","+score[0]+" "+classNames.get(1)+","+score[1]);
-		return new ClassLabel((String)classNames.get(maxIndex));
+		return new ClassLabel(classNames.get(maxIndex));
 	}
 
 	public double[] score(Instance instance){
@@ -125,12 +126,13 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 					System.exit(1);
 				}
 			}
-			double classProb=((Double)classParameters.get(i)).doubleValue();
+			double classProb=(classParameters.get(i)).doubleValue();
 			score[i]+=Math.log(classProb);
 		}
 		return score;
 	}
 
+	@Override
 	public String explain(Instance instance){
 		StringBuffer buf=new StringBuffer("");
 		for(Iterator<Feature> j=instance.featureIterator();j.hasNext();){
@@ -146,6 +148,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 		return buf.toString();
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation.Node top=
 				new Explanation.Node("MultinomialClassifier Explanation");
@@ -243,7 +246,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 	}
 
 	public ClassLabel getLabel(int i){
-		return new ClassLabel((String)classNames.get(i));
+		return new ClassLabel(classNames.get(i));
 	}
 
 	public int indexOf(ClassLabel label){
@@ -297,15 +300,18 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 		final TObjectDoubleIterator ti=map.iterator();
 		Iterator<Feature> i=new Iterator<Feature>(){
 
+			@Override
 			public boolean hasNext(){
 				return ti.hasNext();
 			}
 
+			@Override
 			public Feature next(){
 				ti.advance();
 				return (Feature)ti.key();
 			}
 
+			@Override
 			public void remove(){
 				ti.remove();
 			}
@@ -329,6 +335,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 	//
 	// GUI related stuff
 	//
+	@Override
 	public Viewer toGUI(){
 		Viewer gui=
 				new ControlledViewer(new MyViewer(),new MultinomialClassifierControls());
@@ -346,6 +353,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 		private JRadioButton nameButton;
 //		private JRadioButton noneButton;
 
+		@Override
 		public void initialize(){
 			add(new JLabel("Sort by"));
 			ButtonGroup group=new ButtonGroup();
@@ -372,16 +380,19 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 
 		private MultinomialClassifier h=null;
 
+		@Override
 		public void applyControls(ViewerControls controls){
 			this.controls=(MultinomialClassifierControls)controls;
 			setContent(h,true);
 			revalidate();
 		}
 
+		@Override
 		public boolean canReceive(Object o){
 			return o instanceof MultinomialClassifier;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			h=(MultinomialClassifier)o;
 			Object[] keys=h.keys();
@@ -399,6 +410,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 			}
 			if(controls!=null){
 				Arrays.sort(tableData,new Comparator<Object[]>(){
+					@Override
 					public int compare(Object[] ra,Object[] rb){
 						if(controls.nameButton.isSelected())
 							return ra[0].toString().compareTo(rb[0].toString());
@@ -423,6 +435,7 @@ public class MultinomialClassifier implements SemiSupervisedClassifier,
 		}
 	}
 
+	@Override
 	public String toString(){
 		return null;
 	}

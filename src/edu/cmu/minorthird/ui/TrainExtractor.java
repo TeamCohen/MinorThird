@@ -63,6 +63,7 @@ public class TrainExtractor extends UIMain{
 		return "<A HREF=\"http://minorthird.sourceforge.net/tutorials/TrainExtractor%20Tutorial.htm\">TrainExtractor Tutorial</A></html>";
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,
 				save,signal,train});
@@ -72,6 +73,7 @@ public class TrainExtractor extends UIMain{
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(train.learner==null){
@@ -104,6 +106,7 @@ public class TrainExtractor extends UIMain{
 		}
 	}
 
+	@Override
 	public Object getMainResult(){
 		return ann;
 	}

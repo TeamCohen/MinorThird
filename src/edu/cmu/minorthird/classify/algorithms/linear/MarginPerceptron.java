@@ -32,6 +32,7 @@ public class MarginPerceptron extends OnlineBinaryClassifierLearner
 		reset();
 	}
 
+	@Override
 	public void reset() 
 	{
 		s_t = new Hyperplane();
@@ -40,6 +41,7 @@ public class MarginPerceptron extends OnlineBinaryClassifierLearner
 		numExamples = 0;
 	}
 
+	@Override
 	public void addExample(Example example)
 	{
 		numExamples++;
@@ -55,12 +57,14 @@ public class MarginPerceptron extends OnlineBinaryClassifierLearner
 		}
 	}
 
+	@Override
 	public void completeTraining()
 	{
 		trainingComplete = true;
 		s_t.multiply( 1.0/numExamples );
 	}
 
+	@Override
 	public Classifier getClassifier() 
 	{
 		if (voteBeforeTrainingComplete) return s_t;
@@ -68,6 +72,7 @@ public class MarginPerceptron extends OnlineBinaryClassifierLearner
 		else return w_t;
 	}
 
+	@Override
 	public String toString() 
 	{ 
 		return "[MarginPerceptron "+minMargin+";"+voteBeforeTrainingComplete+";"+voteAfterTrainingComplete+"]"; 

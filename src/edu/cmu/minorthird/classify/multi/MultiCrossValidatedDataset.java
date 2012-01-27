@@ -94,6 +94,7 @@ public class MultiCrossValidatedDataset implements Visible{
 //		return buf.toString();
 //	}
 
+	@Override
 	public Viewer toGUI(){
 		ParallelViewer main=new ParallelViewer();
 		for(int i=0;i<cds.length;i++){
@@ -102,6 +103,7 @@ public class MultiCrossValidatedDataset implements Visible{
 			main.addSubView("Test Partition "+(i+1),new TransformedViewer(cds[0]
 					.toGUI()){
 				static final long serialVersionUID=20080130L;
+				@Override
 				public Object transform(Object o){
 //					MultiCrossValidatedDataset cvd=(MultiCrossValidatedDataset)o;
 					return cds[k];
@@ -114,6 +116,7 @@ public class MultiCrossValidatedDataset implements Visible{
 				main.addSubView("Train Partition "+(i+1),new TransformedViewer(cds[0]
 						.toGUI()){
 					static final long serialVersionUID=20080130L;
+					@Override
 					public Object transform(Object o){
 //						MultiCrossValidatedDataset cvd=(MultiCrossValidatedDataset)o;
 						return trainCds[k];
@@ -123,6 +126,7 @@ public class MultiCrossValidatedDataset implements Visible{
 		}
 		main.addSubView("Overall Evaluation",new TransformedViewer(v.toGUI()){
 			static final long serialVersionUID=20080130L;
+			@Override
 			public Object transform(Object o){
 				MultiCrossValidatedDataset cvd=(MultiCrossValidatedDataset)o;
 				return cvd.v;

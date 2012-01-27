@@ -53,22 +53,27 @@ public class SubTextBase extends AbstractTextBase{
 
 	//
 	// Implementations of abstract methods from AbstractTextBase
+	@Override
 	public Tokenizer getTokenizer(){
 		return base.getTokenizer();
 	}
 
+	@Override
 	public Document getDocument(String documentId){
 		return base.getDocument(documentId);
 	}
 
+	@Override
 	public int size(){
 		return validDocumentSpans.size();
 	}
 
+	@Override
 	public Iterator<Span> documentSpanIterator(){
 		return validDocumentSpans.iterator();
 	}
 
+	@Override
 	public Span documentSpan(String documentId){
 		Span span=base.documentSpan(documentId);
 		return validDocumentSpans.contains(span)?span:null;

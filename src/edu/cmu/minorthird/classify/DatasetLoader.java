@@ -153,7 +153,7 @@ public class DatasetLoader{
 		LineNumberReader in=new LineNumberReader(new FileReader(file));
 		String line;
 		while((line=in.readLine())!=null){
-			RealRelationalDataset.addLink(LinkparseLine(line,file,in));
+			CoreRelationalDataset.addLink(LinkparseLine(line,file,in));
 			pc.progress();
 		}
 		log.info("loaded "+dataset.size()+" examples from "+file.getName());
@@ -204,7 +204,7 @@ public class DatasetLoader{
 		log.info("loaded "+dataset.size()+" examples from "+file.getName());
 		in.close();
 		pc.finished();
-		return (Dataset)dataset;
+		return dataset;
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class DatasetLoader{
 	}
 
 	static private void clearBuffer(List<Example> list,SequenceDataset dataset){
-		Example[] seq=(Example[])list.toArray(new Example[list.size()]);
+		Example[] seq=list.toArray(new Example[list.size()]);
 		dataset.addSequence(seq);
 		list.clear();
 	}
@@ -337,7 +337,7 @@ public class DatasetLoader{
 				instance.addBinary(parseFeatureName(arr[i]));
 			}
 		}
-		ClassLabel label=(ClassLabel)classLabelDict.get(arr[2]);
+		ClassLabel label=classLabelDict.get(arr[2]);
 		if(label==null){
 			if("b".equals(arr[0])){
 				throw new IllegalArgumentException("should be POS/NEG but label is '"+
@@ -378,7 +378,7 @@ public class DatasetLoader{
 				instance.addBinary(parseFeatureName(arr[i]));
 			}
 		}
-		ClassLabel label=(ClassLabel)classLabelDict.get(arr[3]);
+		ClassLabel label=classLabelDict.get(arr[3]);
 		if(label==null){
 			if("b".equals(arr[1])){
 				throw new IllegalArgumentException("should be POS/NEG but label is '"+
@@ -428,7 +428,7 @@ public class DatasetLoader{
 		}
 		ClassLabel[] labels=new ClassLabel[numDim];
 		for(int i=2;i<2+numDim;i++){
-			ClassLabel label=(ClassLabel)classLabelDict.get(arr[i]);
+			ClassLabel label=classLabelDict.get(arr[i]);
 			labels[i-2]=label;
 		}
 		for(int i=0;i<labels.length;i++){

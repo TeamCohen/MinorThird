@@ -36,22 +36,28 @@ public class Example implements Instance,Visible,Serializable
 	public ClassLabel getLabel() { return label; }
 
 	/** Get the underlying object */
+	@Override
 	final public Object getSource() { return instance.getSource(); }
 
 	/** Get the weight assigned to a feature in the instance.
 	 */
+	@Override
 	final public double getWeight(Feature f) { return instance.getWeight(f); }
 
 	/** Return an iterator over all binary features  */
+	@Override
 	final public Iterator<Feature> binaryFeatureIterator() { return instance.binaryFeatureIterator(); }
 
 	/** Return an iterator over all numeric features */
+	@Override
 	final public Iterator<Feature> numericFeatureIterator() { return instance.numericFeatureIterator(); }
 
 	/** Return an iterator over all features */
+	@Override
 	final public Iterator<Feature> featureIterator() { return instance.featureIterator(); }
 	
 	/** Return the number of all features */
+	@Override
 	final public int numFeatures(){ return instance.numFeatures(); }
 	
 	/** Get the weight of this example. */
@@ -61,14 +67,17 @@ public class Example implements Instance,Visible,Serializable
 	final public void setWeight(double newWeight) { this.weight=newWeight; }
 
 	/** Return the subpopulation Id of the instance. **/
+	@Override
 	final public String getSubpopulationId() { return instance.getSubpopulationId(); }
 
 	/** Return an unlabeled version of the example (an Instance) */
 	final public Instance asInstance() { return instance; }
 
+	@Override
 	public String toString() { return "[example: "+getLabel()+" "+asInstance().toString()+"]"; }
 
 	/** Create a viewer */
+	@Override
 	public Viewer toGUI() { return new GUI.ExampleViewer(this);	}
 
 }

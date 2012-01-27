@@ -59,6 +59,7 @@ public class PreprocessTextForExtractor extends PreprocessTextForClassifier{
 		System.out.println();
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{
 				new LinkFileParams(),new ExtractionReductionParams(),gui,base,signal,
@@ -85,6 +86,7 @@ public class PreprocessTextForExtractor extends PreprocessTextForClassifier{
 	// do it
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(signal.spanProp==null&&signal.spanType==null){

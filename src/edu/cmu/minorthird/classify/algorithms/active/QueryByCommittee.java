@@ -48,6 +48,7 @@ public class QueryByCommittee implements ClassifierLearner{
 		reset();
 	}
 
+	@Override
 	public ClassifierLearner copy(){
 		ClassifierLearner learner=null;
 		try{
@@ -59,16 +60,19 @@ public class QueryByCommittee implements ClassifierLearner{
 		return learner;
 	}
 
+	@Override
 	final public void reset(){
 		unlabeled=new TreeMap<Double,Instance>();
 		labeled=new RandomAccessDataset();
 		innerLearner.reset();
 	}
 
+	@Override
 	final public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 	}
 
+	@Override
 	final public ExampleSchema getSchema(){
 		return schema;
 	}
@@ -77,6 +81,7 @@ public class QueryByCommittee implements ClassifierLearner{
 	// active learning code
 	//
 
+	@Override
 	final public void setInstancePool(Iterator<Instance> i){
 		unlabeled.clear();
 		Random r=new Random(0);
@@ -86,10 +91,12 @@ public class QueryByCommittee implements ClassifierLearner{
 		log.info(unlabeled.size()+" unlabeled examples available");
 	}
 
+	@Override
 	final public boolean hasNextQuery(){
 		return unlabeled.size()>0;
 	}
 
+	@Override
 	final public Instance nextQuery(){
 		Object key=null;
 		if(labeled.size()<minLabelsBeforeQuerying){
@@ -100,7 +107,7 @@ public class QueryByCommittee implements ClassifierLearner{
 			Classifier[] committee=committeeLearner.batchTrainCommittee(labeled);
 			key=keyOfBestUnlabeledInstance(committee);
 		}
-		Instance query=(Instance)unlabeled.get(key);
+		Instance query=unlabeled.get(key);
 		unlabeled.remove(key);
 		return query;
 	}
@@ -111,7 +118,7 @@ public class QueryByCommittee implements ClassifierLearner{
 		Object queryKey=null;
 		for(Iterator<Double> i=unlabeled.keySet().iterator();i.hasNext();){
 			Object key=i.next();
-			Instance instance=(Instance)unlabeled.get(key);
+			Instance instance=unlabeled.get(key);
 			TObjectDoubleHashMap counts=new TObjectDoubleHashMap();
 			double biggestCount=0;
 			for(int j=0;j<committee.length;j++){
@@ -134,12 +141,14 @@ public class QueryByCommittee implements ClassifierLearner{
 		return queryKey;
 	}
 
+	@Override
 	public void addExample(Example example){
 		log.info("adding example: "+example);
 		labeled.add(example);
 		innerLearner.addExample(example);
 	}
 
+	@Override
 	final public void completeTraining(){
 		innerLearner.completeTraining();
 	}
@@ -148,6 +157,7 @@ public class QueryByCommittee implements ClassifierLearner{
 	// get trained classifier
 	//
 
+	@Override
 	public Classifier getClassifier(){
 		return innerLearner.getClassifier();
 	}

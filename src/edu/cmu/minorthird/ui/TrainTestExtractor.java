@@ -39,6 +39,7 @@ public class TrainTestExtractor extends UIMain
 	}
 
 	// for command-line ui
+	@Override
 	public CommandLineProcessor getCLP()
 	{
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{gui,base,save,signal,train,trainTest});
@@ -58,6 +59,7 @@ public class TrainTestExtractor extends UIMain
 	// do the experiment
 	// 
 
+	@Override
 	public void doMain()
 	{
 		// check that inputs are valid
@@ -99,7 +101,7 @@ public class TrainTestExtractor extends UIMain
 
 		if (save.saveAs!=null) {
 			try {
-				IOUtil.saveSerialized((Serializable)evaluation,save.saveAs);
+				IOUtil.saveSerialized(evaluation,save.saveAs);
 			} catch (IOException e) {
 				throw new IllegalArgumentException("can't save to "+save.saveAs+": "+e);
 			}
@@ -107,6 +109,7 @@ public class TrainTestExtractor extends UIMain
 
 	}
 
+	@Override
 	public Object getMainResult() { return result; }
 
 	public static void main(String args[])

@@ -40,6 +40,7 @@ public class FilteredFinder extends AbstractSpanFinder implements Serializable{
 		this.detailMap=new TreeMap<Span,Details>();
 	}
 
+	@Override
 	public Iterator<Span> findSpans(TextLabels labels,Span documentSpan){
 		detailMap.clear();
 		for(Iterator<Span> i=candidateFinder.findSpans(labels,documentSpan);i
@@ -53,14 +54,17 @@ public class FilteredFinder extends AbstractSpanFinder implements Serializable{
 		return detailMap.keySet().iterator();
 	}
 
+	@Override
 	public Details getDetails(Span s){
 		return detailMap.get(s);
 	}
 
+	@Override
 	public String toString(){
 		return "[FilteredFinder "+spanFilter+"]";
 	}
 
+	@Override
 	public String explainFindSpans(TextLabels labels,Span documentSpan){
 		StringBuffer buf=new StringBuffer("");
 		buf.append("Explaining findSpans for "+documentSpan+":\n");

@@ -14,7 +14,6 @@ import javax.swing.WindowConstants;
 
 import edu.cmu.minorthird.text.FancyLoader;
 import edu.cmu.minorthird.text.MutableTextLabels;
-import edu.cmu.minorthird.text.SampleTextBases;
 import edu.cmu.minorthird.text.TextBase;
 import edu.cmu.minorthird.text.TextLabels;
 
@@ -80,6 +79,7 @@ public class TextBaseEditorPlusLabeler extends TrackedTextBaseComponent{
 	}
 
 	/** add a 'save' button */
+	@Override
 	public void setSaveAs(File file){
 		viewerTracker.setSaveAs(file);
 		viewerTracker2.setSaveAs(file);

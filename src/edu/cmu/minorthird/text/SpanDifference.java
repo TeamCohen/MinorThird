@@ -333,14 +333,17 @@ public class SpanDifference{
 			this.i=i;
 		}
 
+		@Override
 		public void remove(){
 			throw new UnsupportedOperationException("not implemented");
 		}
 
+		@Override
 		public boolean hasNext(){
 			return i.hasNext();
 		}
 
+		@Override
 		public Span next(){
 			last=i.next();
 			return last.diffSpan;
@@ -383,11 +386,13 @@ public class SpanDifference{
 			this.originalGuessSpan=originalGuessSpan;
 		}
 
+		@Override
 		public String toString(){
 			return "["+point.toString()+";"+(isLeft?"L":"R")+";"+
 					strCode[guessTruthClosure]+"]";
 		}
 
+		@Override
 		public int compareTo(ChangeBoundary cb){
 			int tmp=point.compareTo(cb.point);
 			if(tmp!=0)
@@ -432,15 +437,18 @@ public class SpanDifference{
 				originalGuessSpan=rightBoundary.originalGuessSpan;
 		}
 
+		@Override
 		public String toString(){
 			return "[Diff "+status+" "+diffSpan+"]";
 		}
 
+		@Override
 		public int compareTo(DiffedSpan o){
 			return diffSpan.compareTo(o.diffSpan);
 		}
 	}
 
+	@Override
 	public String toString(){
 		return "[SpanDiff: token p/r="+tokenPrecision()+"/"+tokenRecall()+
 				" span p/r="+spanPrecision()+"/"+spanRecall()+"]";

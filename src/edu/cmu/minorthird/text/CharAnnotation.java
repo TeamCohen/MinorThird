@@ -43,7 +43,8 @@ public class CharAnnotation
   public void setType(String type)
   { this.type = type; }
 
-  public String toString()
+  @Override
+	public String toString()
   {
     String string = "[CharAnnotation:";
     string += " offset=" + offset;

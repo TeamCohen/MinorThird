@@ -40,19 +40,22 @@ public class DatasetClassifierTeacher extends ClassifierTeacher{
 		this.activeLearning=activeLearning;
 	}
 
+	@Override
 	public ExampleSchema schema(){
 		return dataset.getSchema();
 	}
 
+	@Override
 	public Iterator<Example> examplePool(){
 		if(activeLearning){
-			return Collections.EMPTY_SET.iterator();
+			return Collections.<Example>emptySet().iterator();
 		}
 		else{
 			return dataset.iterator();
 		}
 	}
 
+	@Override
 	public Iterator<Instance> instancePool(){
 		if(activeLearning){
 			return Util.toInstanceIterator(dataset.iterator());
@@ -61,10 +64,11 @@ public class DatasetClassifierTeacher extends ClassifierTeacher{
 			// unlabeled examples available for semi-supervised learning.
 			return ((BasicDataset)dataset).iteratorOverUnlabeled();
 		}else{
-			return Collections.EMPTY_SET.iterator();
+			return Collections.<Instance>emptySet().iterator();
 		}
 	}
 
+	@Override
 	public Example labelInstance(Instance query){
 		// the label was hidden by just hiding the type
 		if(query instanceof Example)
@@ -73,6 +77,7 @@ public class DatasetClassifierTeacher extends ClassifierTeacher{
 			return null;
 	}
 
+	@Override
 	public boolean hasAnswers(){
 		return activeLearning;
 	}

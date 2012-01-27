@@ -69,7 +69,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 						token = sequence[j].numericFeatureIterator().next().getPart(size-1);
 						tok[j] = token;
 						if ( dict_tok.containsKey(token) ){
-							int cnt = Integer.parseInt((String)dict_tok.get(token));
+							int cnt = Integer.parseInt(dict_tok.get(token));
 							cnt++;
 							dict_tok.put(token,String.valueOf(cnt));
 						}else{
@@ -102,6 +102,7 @@ import edu.cmu.minorthird.util.gui.Visible;
 
 // I think here you need the viterbi to get the ClassLabel[] for the instance[], something to
 //take the place of h[i].score(instance)
+		@Override
 		public ClassLabel[] classification(Instance[] sequence)
 		{
 			ClassLabel[] label = new ClassLabel[sequence.length];
@@ -135,6 +136,7 @@ System.out.println("tag_seq["+i+"] is "+tag_seq[i]);
 
 /** Return some string that 'explains' the classification, 
 this function is also required to be re-written*/
+		@Override
 		public String explain(Instance[] instance)
 		{
 			StringBuffer buf = new StringBuffer("");
@@ -146,7 +148,8 @@ this function is also required to be re-written*/
 			return buf.toString();
 		}
 
-	    public Explanation getExplanation(Instance[] instance) {
+	    @Override
+			public Explanation getExplanation(Instance[] instance) {
 		Explanation.Node top = new Explanation.Node("MultiClassHMM Explanation");
 		for (int i=0; i<numStates; i++) {			
 		    Explanation.Node classEx = new Explanation.Node("Hyperplane for class "+schema.getClassName(i)+":\n");
@@ -157,10 +160,12 @@ this function is also required to be re-written*/
 	    }
 
 /*This one is for visualization*/
+		@Override
 		public Viewer toGUI()
 		{
 			Viewer gui = new ComponentViewer() {
 				static final long serialVersionUID=20080207L;
+					@Override
 					public JComponent componentFor(Object o) {
 						MultiClassHMMClassifier c = (MultiClassHMMClassifier)o;
 						JPanel main = new JPanel();
@@ -181,6 +186,7 @@ this function is also required to be re-written*/
 
 
 /*This one could be used to output the model, say all the matrix*/
+		@Override
 		public String toString() 
 		{
 			return "[MultiClassHMMClassifier:";

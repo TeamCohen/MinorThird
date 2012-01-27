@@ -14,10 +14,12 @@ public class UnionIterator<E> implements Iterator<E>{
 		this.b=b;
 	}
 	
+	@Override
 	public boolean hasNext(){ 
 		return a.hasNext()||b.hasNext(); 
 	}
 	
+	@Override
 	public E next(){
 		if(a.hasNext()){
 			return a.next();
@@ -30,6 +32,7 @@ public class UnionIterator<E> implements Iterator<E>{
 		}
 	}
 	
+	@Override
 	public void remove(){
 		System.err.println("remove() not implemented by "+this.getClass());
 	}

@@ -92,6 +92,7 @@ public class TextBaseEditor extends TrackedTextBaseComponent{
 			this.spanEditor=spanEditor;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			String truthType=(String)truthBox.getSelectedItem();
 			String guessType=(String)guessBox.getSelectedItem();

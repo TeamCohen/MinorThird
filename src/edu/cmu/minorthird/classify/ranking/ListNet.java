@@ -58,6 +58,7 @@ public class ListNet extends BatchRankingLearner{
 		devData=data;
 	}
 
+	@Override
 	public Classifier batchTrain(Dataset data){
 		double x=0,smallestCE=Double.MAX_VALUE;
 		int outcount=0;
@@ -88,14 +89,14 @@ public class ListNet extends BatchRankingLearner{
 			if(x<minCEImprovement){
 				outcount++;
 				if(outcount>maxNumBadSteps)
-					return (Hyperplane)ar.get(ar.size()-1);
+					return ar.get(ar.size()-1);
 
 				//try to find a new hypothesis by changing the learnRate
 				int count=0;
 				while((x<0)&&(count++<maxNumBadSteps)){
 					learnRate=learnRate/5.0;
 					Hyperplane hii=new Hyperplane();
-					hii.increment((Hyperplane)ar.get(ar.size()-1));
+					hii.increment(ar.get(ar.size()-1));
 					learnStep(queryMap,hii);//it modifies hii
 					cur_ce=calculateLoss(splitIntoRankings(devData),hii);
 					x=smallestCE-cur_ce;
@@ -145,7 +146,7 @@ public class ListNet extends BatchRankingLearner{
 		Hyperplane hyp=new Hyperplane();
 		//calculates first term
 		for(int i=0;i<list.size();i++){
-			Instance ins=(Instance)list.get(i);
+			Instance ins=list.get(i);
 			//for each feature in this example
 			for(Iterator<Feature> loop=ins.featureIterator();loop.hasNext();){
 				Feature f=loop.next();
@@ -197,8 +198,8 @@ public class ListNet extends BatchRankingLearner{
 					(ex.getLabel().isPositive())?Math.exp(RELEVANT):Math
 							.exp(NON_RELEVANT);
 			;
-			py[i]=tmp/(double)sumY;
-			pz[i]=Math.exp(w.score(ex))/(double)sumZ;
+			py[i]=tmp/sumY;
+			pz[i]=Math.exp(w.score(ex))/sumZ;
 		}
 	}
 
@@ -222,7 +223,7 @@ public class ListNet extends BatchRankingLearner{
 		double ce=0;
 //		selfEntropy = 0.0;
 		for(Iterator<String> i=queryMap.keySet().iterator();i.hasNext();){
-			String subpop=(String)i.next();
+			String subpop=i.next();
 			List<Example> ranking=queryMap.get(subpop);
 			initialize(ranking,w);
 			ce+=crossEntropy(py,pz);

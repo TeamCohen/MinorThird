@@ -25,6 +25,7 @@ abstract public class BinaryClassifier implements Classifier,Serializable
 		return classifierLearner;
 	}
 
+	@Override
 	public ClassLabel classification(Instance instance)
 	{
 		double s = score(instance);

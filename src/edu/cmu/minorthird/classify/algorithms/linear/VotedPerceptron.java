@@ -62,6 +62,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner implements
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		s_t=new Hyperplane();
 		w_t=new Hyperplane();
@@ -72,6 +73,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner implements
 		//mistakeCount=0;
 	}
 
+	@Override
 	public void addExample(Example example){
 		double y_t=example.getLabel().numericLabel();
 		if(w_t.score(example.asInstance())*y_t<=0){
@@ -80,6 +82,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner implements
 		s_t.increment(w_t,1.0);
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		return s_t;
 	}
@@ -110,6 +113,7 @@ public class VotedPerceptron extends OnlineBinaryClassifierLearner implements
 //	}
 	//---------------------------------------------------------
 
+	@Override
 	public String toString(){
 		return "VotedPerceptron";
 	}

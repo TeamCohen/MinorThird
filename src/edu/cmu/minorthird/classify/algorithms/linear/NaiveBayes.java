@@ -46,6 +46,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner implements
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		log.info("resetting NaiveBayes");
 		numGivenPos=new Hyperplane();
@@ -55,6 +56,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner implements
 		numNeg=0;
 	}
 
+	@Override
 	public void addExample(Example example){
 		boolean isPos=example.getLabel().isPositive();
 		if(isPos)
@@ -71,6 +73,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner implements
 		}
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		Hyperplane c=new Hyperplane();
 		for(Iterator<Feature> i=featureSet.iterator();i.hasNext();){
@@ -103,6 +106,7 @@ public class NaiveBayes extends OnlineBinaryClassifierLearner implements
 		return 1.0;
 	}
 
+	@Override
 	public String toString(){
 		return "[NaiveBayes]";
 	}

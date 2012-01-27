@@ -264,6 +264,7 @@ public class SpanEditor extends ViewerTracker{
 		ioTypeLabel.setText("Edit: "+importType+"/"+exportType);
 	}
 
+	@Override
 	protected void loadSpanHook(){
 		if(readOnly&&!DUMMY_ID.equals(documentSpan.getDocumentId())){
 			importDocumentListMarkup(documentSpan.getDocumentId());
@@ -303,6 +304,7 @@ public class SpanEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			setReadOnly(!readOnly);
 			if(documentSpan!=null)
@@ -321,6 +323,7 @@ public class SpanEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			if(importType==null){
 				statusMsg.display("what type?");
@@ -352,6 +355,7 @@ public class SpanEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			if(exportType==null){
 				statusMsg.display("what type?");
@@ -375,6 +379,7 @@ public class SpanEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			int lo=editorPane.getSelectionStart();
 			int hi=editorPane.getSelectionEnd();
@@ -410,6 +415,7 @@ public class SpanEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			Span span=null;
 			if(editSpanCursor>=0){
@@ -440,6 +446,7 @@ public class SpanEditor extends ViewerTracker{
 			super(msg);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			Span span=null;
 			if(editSpanCursor>=0){
@@ -459,6 +466,7 @@ public class SpanEditor extends ViewerTracker{
 
 		static final long serialVersionUID=200803014L;
 		
+		@Override
 		public JComponent componentFor(Object o){
 			final Span span=(Span)o;
 			final JTabbedPane pane=new JTabbedPane();
@@ -471,6 +479,7 @@ public class SpanEditor extends ViewerTracker{
 
 						static final long serialVersionUID=200803014L;
 						
+						@Override
 						public void actionPerformed(ActionEvent event){
 							editLabels.setProperty(span,propField.getText(),valField
 									.getText());
@@ -527,6 +536,7 @@ public class SpanEditor extends ViewerTracker{
 			this.delta=delta;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			if(editedSpans==null||editedSpans.isEmpty())
 				return;

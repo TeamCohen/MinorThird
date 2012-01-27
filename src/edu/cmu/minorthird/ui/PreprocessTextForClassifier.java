@@ -58,6 +58,7 @@ public class PreprocessTextForClassifier extends UIMain{
 			return tryToGetCLP(fe);
 		}
 
+		@Override
 		public void usage(){
 			System.out.println("special parameters:");
 			System.out.println(" [-linkFile FILE]           "+linkFileHelp);
@@ -73,6 +74,7 @@ public class PreprocessTextForClassifier extends UIMain{
 		}
 	}
 
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new JointCommandLineProcessor(new CommandLineProcessor[]{
 				new LinkFileParams(),gui,base,signal,save});
@@ -106,6 +108,7 @@ public class PreprocessTextForClassifier extends UIMain{
 	// do it
 	// 
 
+	@Override
 	public void doMain(){
 		// check that inputs are valid
 		if(signal.spanProp==null&&signal.spanType==null){
@@ -173,6 +176,7 @@ public class PreprocessTextForClassifier extends UIMain{
 		out.close();
 	}
 
+	@Override
 	public Object getMainResult(){
 		return dataset;
 	}

@@ -49,6 +49,7 @@ public class AnnotationExample
 	public String getInputProp()
 	{ return inputSpanProp; }
 
+	@Override
 	public String toString() {
 		return "[AnnEx: document="+document+"]";
 	}

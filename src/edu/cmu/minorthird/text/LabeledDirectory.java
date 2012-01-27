@@ -30,6 +30,7 @@ import edu.cmu.minorthird.util.gui.ViewerFrame;
 public class LabeledDirectory implements CommandLineProcessor.Configurable{
 
 	private static final FileFilter TEXT_FILE_FILTER=new FileFilter(){
+		@Override
 		public boolean accept(File file){
 			return file.getName().endsWith(".txt");
 		}
@@ -70,6 +71,7 @@ public class LabeledDirectory implements CommandLineProcessor.Configurable{
 	}
 
 	/** Return a CommandLineProcessor that be used to configure a LabeledDirectory */
+	@Override
 	public CommandLineProcessor getCLP(){
 		return new MyCLP();
 	}

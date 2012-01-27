@@ -82,6 +82,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements
 		reset();
 	}
 
+	@Override
 	public void reset(){
 		pos_t=new Hyperplane();
 		neg_t=new Hyperplane();
@@ -93,6 +94,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements
 		}
 	}
 
+	@Override
 	public void addExample(Example example2){
 		excount++;
 		Example example=Winnow.normalizeWeights(example2,true);
@@ -148,6 +150,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements
 		votedCount=0;
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		if(voted){
 			updateVotedHyperplane(votedCount);//first, update it
@@ -165,6 +168,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements
 		return(pos_t.score(ins)-neg_t.score(ins)-theta);
 	}
 
+	@Override
 	public String toString(){
 		return "BalancedWinnow, voted="+voted;
 	}
@@ -186,6 +190,7 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements
 		}
 
 		//implements winnow decision rule
+		@Override
 		public ClassLabel classification(Instance instance1){
 			//winnow decision rule
 			Example a1=new Example(instance1,new ClassLabel("POS"));
@@ -208,26 +213,31 @@ public class BalancedWinnow extends OnlineBinaryClassifierLearner implements
 			return new Example(ins,ex.getLabel());
 		}
 
+		@Override
 		public String toString(){
 			return "POS = "+pos_h.toString()+"\nNEG = "+neg_h.toString();
 		}
 
+		@Override
 		public String explain(Instance instance){
 			return "BalancedWinnow: Not implemented yet";
 		}
 
+		@Override
 		public Explanation getExplanation(Instance instance){
 			Explanation.Node top=new Explanation.Node("BalancedWinnow Explanation");
 			Explanation ex=new Explanation(top);
 			return ex;
 		}
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new TransformedViewer(new SmartVanillaViewer()){
 				static final long serialVersionUID=20080128L;
+				@Override
 				public Object transform(Object o){
 					MyClassifier mycl=(MyClassifier)o;
-					return (Classifier)mycl.pos_h;//bug!
+					return mycl.pos_h;//bug!
 				}
 			};
 			v.setContent(this);

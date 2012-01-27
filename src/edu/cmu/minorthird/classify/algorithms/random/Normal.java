@@ -95,7 +95,8 @@ public class Normal {
     /**
      * Returns a String representation of the receiver.
      */
-    public String toString() {
+    @Override
+		public String toString() {
         return this.getClass().getName()+"("+mean+","+standardDeviation+")";
     }
 

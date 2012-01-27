@@ -31,6 +31,7 @@ public class KnnLearner extends OnlineClassifierLearner implements Serializable{
 		reset();
 	}
 
+	@Override
 	public ClassifierLearner copy(){
 		KnnLearner knn=null;
 		try{
@@ -39,7 +40,7 @@ public class KnnLearner extends OnlineClassifierLearner implements Serializable{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return (ClassifierLearner)knn;
+		return knn;
 	}
 
 	public int getK(){
@@ -50,26 +51,32 @@ public class KnnLearner extends OnlineClassifierLearner implements Serializable{
 		this.k=k;
 	}
 
+	@Override
 	public void reset(){
 		index=new DatasetIndex();
 	}
 
+	@Override
 	public void addExample(Example e){
 		index.addExample(e);
 	}
 
+	@Override
 	public Classifier getClassifier(){
 		return new KnnClassifier(index,schema,k);
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		this.schema=schema;
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		return schema;
 	}
 
+	@Override
 	public String toString(){
 		return "[KnnLearner k:"+k+"]";
 	}

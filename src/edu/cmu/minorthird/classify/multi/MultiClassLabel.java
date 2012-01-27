@@ -2,10 +2,13 @@
 
 package edu.cmu.minorthird.classify.multi;
 
-import edu.cmu.minorthird.classify.*;
-
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import edu.cmu.minorthird.classify.ClassLabel;
+import edu.cmu.minorthird.classify.ExampleSchema;
 
 /** 
  * A label which is associated with an instance---either by a classifier,
@@ -153,10 +156,10 @@ public class MultiClassLabel implements Serializable{
 	}
 
 	/** Returns the set of labels that appear in the ranking. */
-	public Set<String>[] possibleLabels(){
-		Set<String>[] sets=new Set[dimensions];
+	public List<Set<String>> possibleLabels(){
+		List<Set<String>> sets=new ArrayList<Set<String>>(dimensions);
 		for(int i=0;i<dimensions;i++){
-			sets[i]=labels[i].possibleLabels();
+			sets.add(labels[i].possibleLabels());
 		}
 		return sets;
 	}
@@ -196,6 +199,7 @@ public class MultiClassLabel implements Serializable{
 		return correct;
 	}
 
+	@Override
 	public String toString(){
 		String labelString="";
 		for(int i=0;i<dimensions;i++){

@@ -21,11 +21,13 @@ abstract public class TransformedVanillaViewer extends ComponentViewer
 
 	abstract public Object transform(Object o);
 
+	@Override
 	final public JComponent componentFor(Object o) 
 	{
 		return new JTextArea(transform(o).toString());
 	}
 
+	@Override
 	public boolean canReceive(Object o)
 	{
 		try {

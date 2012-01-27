@@ -33,11 +33,13 @@ public class ClassifiedSequenceDataset implements Visible
 	{
 		return adaptedClassifier;
 	}
+	@Override
 	public Viewer toGUI()
 	{
 		Viewer cdv = new ClassifiedDataset(adaptedClassifier,sequenceDataset).toGUI();
 		Viewer v = new TransformedViewer(cdv) {
 			static final long serialVersionUID=20080207L;
+				@Override
 				public Object transform(Object o) {
 					ClassifiedSequenceDataset csd = (ClassifiedSequenceDataset)o;
 					return new ClassifiedDataset(csd.adaptedClassifier,csd.sequenceDataset);
@@ -73,6 +75,7 @@ public class ClassifiedSequenceDataset implements Visible
 				}
 			}
 		}
+		@Override
 		public ClassLabel classification(Instance instance)
 		{
 			Place place = instanceToPlace.get(instance.getSource());
@@ -84,6 +87,7 @@ public class ClassifiedSequenceDataset implements Visible
 			}
 			return labelSeq[place.index];
 		}
+		@Override
 		public String explain(Instance instance)
 		{
 			Place place = instanceToPlace.get(instance.getSource());
@@ -95,13 +99,15 @@ public class ClassifiedSequenceDataset implements Visible
 			}
 			return explanation;
 		}
-	    public Explanation getExplanation(Instance instance) {
+	    @Override
+			public Explanation getExplanation(Instance instance) {
 		Place place = instanceToPlace.get(instance.getSource());
 		if (place==null) 
 		    throw new IllegalArgumentException("no explanation available");
 		Explanation ex = sequenceClassifier.getExplanation(place.seq);
 		return ex;
 	    }
+		@Override
 		public Viewer toGUI()
 		{
 			return new SmartVanillaViewer(sequenceClassifier);

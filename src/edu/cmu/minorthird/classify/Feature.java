@@ -40,6 +40,7 @@ public class Feature implements Comparable<Feature>,Serializable{
 	}
 
 	/** Implements Comparable */
+	@Override
 	public int compareTo(Feature other){
 		int cmp=name.length-other.name.length;
 		if(cmp!=0){
@@ -57,6 +58,7 @@ public class Feature implements Comparable<Feature>,Serializable{
 	}
 
 	/** Overrides equals */
+	@Override
 	public boolean equals(Object object){
 		if(object instanceof Feature){
 			return compareTo((Feature)object)==0;
@@ -66,6 +68,7 @@ public class Feature implements Comparable<Feature>,Serializable{
 		}
 	}
 
+	@Override
 	public int hashCode(){
 		int h=783233;
 		for(int i=0;i<name.length;i++){
@@ -74,6 +77,7 @@ public class Feature implements Comparable<Feature>,Serializable{
 		return h;
 	}
 
+	@Override
 	public String toString(){
 		if(name.length==1){
 			return name[0];

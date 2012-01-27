@@ -96,6 +96,7 @@ public class Console{
 		// mainthread - runs the main task with doMain
 		mainThread=new Thread(){
 
+			@Override
 			public void run(){
 				if(task instanceof Console.Task){
 					viewButton.setEnabled(false);
@@ -130,6 +131,7 @@ public class Console{
 		// console window
 		readerThread=new Thread(){
 
+			@Override
 			public void run(){
 				try{
 					byte[] buf=new byte[2048];

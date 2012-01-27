@@ -32,6 +32,7 @@ public class SampleFE{
 	public static class BagOfWordsFE extends AnnotatedSpanFE implements
 	Serializable{
 		static final long serialVersionUID=20080306L;
+		@Override
 		public void extractFeatures(TextLabels labels,Span s){
 			from(s).tokens().emit();
 		}
@@ -47,6 +48,7 @@ public class SampleFE{
 	public static class BagOfLowerCaseWordsFE extends AnnotatedSpanFE implements
 	Serializable{
 		static final long serialVersionUID=20080306L;
+		@Override
 		public void extractFeatures(TextLabels labels,Span s){
 			from(s).tokens().eq().lc().emit();
 		}
@@ -147,13 +149,15 @@ public class SampleFE{
 
 		public void setTokenPropertyFeatures(Set<String> propertySet){
 			tokenPropertyFeatures=
-				(String[])propertySet.toArray(new String[propertySet.size()]);
+				propertySet.toArray(new String[propertySet.size()]);
 		}
 
+		@Override
 		public void extractFeatures(Span s){
 			extractFeatures(new EmptyLabels(),s);
 		}
 
+		@Override
 		public void extractFeatures(TextLabels labels,Span s){
 			requireMyAnnotation(labels);
 

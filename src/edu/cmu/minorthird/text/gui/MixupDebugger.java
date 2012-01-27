@@ -65,6 +65,9 @@ public class MixupDebugger extends JComponent{
 			File groundTruthLabelsFile,File mixupProgramFile,boolean readOnly,
 			boolean stem) throws IOException{
 		super();
+		if(mixupProgramFile==null){
+			throw new IllegalArgumentException("mixup program must be specified");
+		}
 		MutableTextLabels truthLabels=null;
 		MonotonicTextLabels programLabels;
 		MixupProgram program=new MixupProgram();
@@ -95,8 +98,6 @@ public class MixupDebugger extends JComponent{
 				new NestedTextLabels(new NestedTextLabels(baseLabels),truthLabels);
 		System.out.println("evaluating program from "+mixupProgramFile.getName()+
 				"...");
-		if(mixupProgramFile==null)
-			throw new IllegalArgumentException("mixup program must be specified");
 		MixupInterpreter interp=new MixupInterpreter(program);
 		interp.eval(programLabels);
 		new TextLabelsLoader()
@@ -239,6 +240,7 @@ public class MixupDebugger extends JComponent{
 			this.statusMsg=statusMsg;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			if(saveFile==null){
 				statusMsg.display("no save file specified?");
@@ -254,7 +256,7 @@ public class MixupDebugger extends JComponent{
 		}
 	}
 
-	static private class RefreshProgramAction extends AbstractAction{
+	private static class RefreshProgramAction extends AbstractAction{
 
 		static final long serialVersionUID=20080306L;
 
@@ -264,7 +266,7 @@ public class MixupDebugger extends JComponent{
 
 		private TextLabels truthLabels;
 
-		private TextBase base;
+		//private TextBase base;
 
 		private JScrollPane errorPane;
 
@@ -275,13 +277,14 @@ public class MixupDebugger extends JComponent{
 				TextBaseViewer viewer,JScrollPane errorPane){
 			super(msg);
 			this.mixupFile=mixupFile;
-			this.base=base;
+			//this.base=base;
 			this.initProgramLabels=initProgramLabels;
 			this.truthLabels=truthLabels;
 			this.viewer=viewer;
 			this.errorPane=errorPane;
 		}	
 		
+		/*
 		public TextBase getBase(){
 			return base;
 		}
@@ -289,7 +292,9 @@ public class MixupDebugger extends JComponent{
 		public void setBase(TextBase base){
 			this.base=base;
 		}
+		*/
 
+		@Override
 		public void actionPerformed(ActionEvent event){
 			MixupProgram program=new MixupProgram();
 			try{
@@ -352,6 +357,7 @@ public class MixupDebugger extends JComponent{
 			this.newTypeField=newTypeField;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e){
 			String newType=newTypeField.getText().trim();
 			if(newType.length()>0&&truthTypeSet.add(newType)){

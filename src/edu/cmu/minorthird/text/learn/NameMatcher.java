@@ -81,6 +81,7 @@ public class NameMatcher extends AbstractAnnotator{
 		this.spanType=spanType;
 	}
 
+	@Override
 	protected void doAnnotate(MonotonicTextLabels labels){
 		// create dictionary, sorted by names' length
 		Set<String> allNames=new HashSet<String>();
@@ -91,6 +92,7 @@ public class NameMatcher extends AbstractAnnotator{
 		nameDict=new ArrayList<String>(allNames);
 		Collections.sort(nameDict,new Comparator<String>(){
 
+			@Override
 			public int compare(String o1,String o2){
 				return new Integer(o2.length()).compareTo(new Integer(o1.length()));
 			}
@@ -127,6 +129,7 @@ public class NameMatcher extends AbstractAnnotator{
 			applyDictIncreasePrecision(postLabels);
 	}
 
+	@Override
 	public String explainAnnotation(TextLabels labels,Span span){
 		return "No explanation implemented.";
 	}
@@ -300,6 +303,7 @@ public class NameMatcher extends AbstractAnnotator{
 	private List<String> uniqueSortedList(List<String> list){
 		List<String> al=new ArrayList<String>(new HashSet<String>(list));
 		Collections.sort(al,new Comparator<String>(){
+			@Override
 			public int compare(String o1,String o2){
 				return new Integer(o2.length()).compareTo(new Integer(o1.length()));
 			}

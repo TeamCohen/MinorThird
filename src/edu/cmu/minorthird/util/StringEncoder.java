@@ -25,7 +25,7 @@ public class StringEncoder
 				buf.append(escapeChar);
 			} else if (isIllegal(ch)) {
 				buf.append(escapeChar);
-				int code = (int)ch;
+				int code = ch;
 				int hex1 = code/16;
 				int hex2 = code%16;
 				buf.append(Character.forDigit(hex1,16));

@@ -87,11 +87,13 @@ public class D2TransformLearner implements InstanceTransformLearner{
 	}
 
 	/** ExampleSchema not used here ... */
+	@Override
 	public void setSchema(ExampleSchema schema){
 		;
 	}
 
 	/** Examine data, build an instance transformer */
+	@Override
 	public InstanceTransform batchTrain(Dataset dataset){
 		InitReset();
 		this.schema=dataset.getSchema();
@@ -147,7 +149,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 					Estimate est=
 							Estimators.estimatePoissonWeightedLambda(x,omega,featurePrior,
 									REF_LENGTH);
-					double mu=((Double)est.getPms().get("lambda")).doubleValue();
+					double mu=(est.getPms().get("lambda")).doubleValue();
 					setPosMu(f,mu); // overall rate of occurrence
 					setFeaturePdf(f,"Poisson");
 
@@ -202,7 +204,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 				exampleWeightMatrix.add(exampleWeights);
 			}
 			// count occurrences of features given class & example weights given class
-			double numberOfExamples=((double)dataset.size());
+			double numberOfExamples=(dataset.size());
 			double[] countsGivenClass=new double[numberOfClasses];
 			double[] examplesGivenClass=new double[numberOfClasses];
 			int[] excounter=new int[numberOfClasses];
@@ -214,7 +216,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 				for(Iterator<Feature> j=index.featureIterator();j.hasNext();){
 					Feature f=j.next();
 					countsGivenClass[idx]+=ex.getWeight(f);
-					((double[])exampleWeightMatrix.get(idx))[excounter[idx]]+=
+					(exampleWeightMatrix.get(idx))[excounter[idx]]+=
 							ex.getWeight(f); // SCALE is HERE !!!
 				}
 				excounter[idx]+=1;
@@ -230,22 +232,22 @@ public class D2TransformLearner implements InstanceTransformLearner{
 					Example ex=eloo.next();
 					int idx=
 							schema.getClassIndex(ex.getLabel().bestClassName().toString());
-					((double[])featureMatrix.get(idx))[counter[idx]++]=ex.getWeight(ft);
+					(featureMatrix.get(idx))[counter[idx]++]=ex.getWeight(ft);
 				}
 
 				if(PDF.equals("Poisson")){
 					double featurePrior=1.0/index.numberOfFeatures();
 					for(int j=0;j<numberOfClasses;j++){
 						Estimate est=
-								Estimators.estimateNaiveBayesMean(1.0,(double)numberOfClasses,
+								Estimators.estimateNaiveBayesMean(1.0,numberOfClasses,
 										examplesGivenClass[j],numberOfExamples);
 						double probabilityOfOccurrence=
-								((Double)est.getPms().get("mean")).doubleValue();
+								(est.getPms().get("mean")).doubleValue();
 						setClassParameter(j,probabilityOfOccurrence);
 
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
 						sums[j]=Estimators.Sum(countsFeatureGivenClass);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate lambda=
 								Estimators.estimatePoissonWeightedLambda(
 										countsFeatureGivenClass,countsGivenExample,featurePrior,
@@ -257,15 +259,15 @@ public class D2TransformLearner implements InstanceTransformLearner{
 					double featurePrior=1.0/index.numberOfFeatures();
 					for(int j=0;j<numberOfClasses;j++){
 						Estimate est=
-								Estimators.estimateNaiveBayesMean(1.0,(double)numberOfClasses,
+								Estimators.estimateNaiveBayesMean(1.0,numberOfClasses,
 										examplesGivenClass[j],numberOfExamples);
 						double probabilityOfOccurrence=
-								((Double)est.getPms().get("mean")).doubleValue();
+								(est.getPms().get("mean")).doubleValue();
 						setClassParameter(j,probabilityOfOccurrence);
 
-						double[] countsFeatureGivenClass=(double[])featureMatrix.get(j);
+						double[] countsFeatureGivenClass=featureMatrix.get(j);
 						sums[j]=Estimators.Sum(countsFeatureGivenClass);
-						double[] countsGivenExample=(double[])exampleWeightMatrix.get(j);
+						double[] countsGivenExample=exampleWeightMatrix.get(j);
 						Estimate mudelta=
 								Estimators.estimateNegativeBinomialMuDelta(
 										countsFeatureGivenClass,countsGivenExample,featurePrior,
@@ -366,6 +368,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 		// find relevent features using D^2 p-values and FDR correction
 
 		final Comparator<Pair> VAL_COMPARATOR=new Comparator<Pair>(){
+			@Override
 			public int compare(Pair p1,Pair p2){
 				if(p1.value<p2.value)
 					return -1;
@@ -385,10 +388,12 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 		return new AbstractInstanceTransform(){
 
+			@Override
 			public Instance transform(Instance instance){
 				return new MaskedInstance(instance,availableFeatures);
 			}
 
+			@Override
 			public String toString(){
 				return "[InstanceTransform: model = "+PDF+" by D^2]";
 			}
@@ -409,7 +414,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	/** Set the value of T1 corresponding to feature f */
 	private void setT1(Feature f,double delta){
-		Double d=(Double)T1values.get(f);
+		Double d=T1values.get(f);
 		if(d==null)
 			T1values.put(f,new Double(delta));
 		else
@@ -419,7 +424,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	/** Set mu corresponding to the Positive examples of feature f */
 	private void setPosMu(Feature f,double delta){
-		Double d=(Double)muPosExamples.get(f);
+		Double d=muPosExamples.get(f);
 		if(d==null)
 			muPosExamples.put(f,new Double(delta));
 		else
@@ -428,7 +433,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	/** Get mu corresponding to the Positive examples of feature f */
 	private double getPosMu(Feature f){
-		Double d=(Double)muPosExamples.get(f);
+		Double d=muPosExamples.get(f);
 		if(d==null)
 			return 0.0;
 		else
@@ -494,7 +499,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	/** Set the value of T1 corresponding to feature f and classes (i,j) */
 	private void setT1many(Feature f,double delta,int i,int j){
-		Double[][] d=(Double[][])T1valuesMany.get(f);
+		Double[][] d=T1valuesMany.get(f);
 		if(d==null){
 			int N=schema.getNumberOfClasses();
 			d=new Double[N][N];
@@ -562,6 +567,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 			this.feature=f;
 		}
 
+		@Override
 		public String toString(){
 			return "[ "+this.value+","+this.feature+" ]"; //this.key + " ]";
 		}
@@ -573,7 +579,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 		Collections.sort(pValue,VAL_COMPARATOR);
 		int greatestIndexBeforeAccept=-1; // does not return any word at -1
 		for(int j=1;j<=pValue.size();j++){
-			double line=((double)j)*ALPHA/((double)pValue.size());
+			double line=(j)*ALPHA/(pValue.size());
 			if(line>pValue.get(j-1).value){
 				greatestIndexBeforeAccept=j-1;
 			}
@@ -622,7 +628,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	private double[] sampleT1Values(Feature f){
 		double[] T1array=new double[SAMPLE];
-		String s=(String)featurePdf.get(f);
+		String s=featurePdf.get(f);
 		// Sample from PDF of Feature f
 		if(s.equals("Poisson")){
 			Poisson Xp=new Poisson(getPosMu(f));
@@ -641,7 +647,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 
 	private double[] sampleT1Values(Feature f,int ci,int cj){
 		double[] T1array=new double[SAMPLE];
-		String s=(String)featurePdf.get(f);
+		String s=featurePdf.get(f);
 		// Sample from PDF of Feature f
 		if(s.equals("Poisson")){
 			Estimate esti=
@@ -650,10 +656,10 @@ public class D2TransformLearner implements InstanceTransformLearner{
 					((Map<Feature,Estimate>)featureGivenClassParameters.get(cj)).get(f);
 			SortedMap<String,Double> pmi=esti.getPms();
 			SortedMap<String,Double> pmj=estj.getPms();
-			double lambdai=((Double)pmi.get("lambda")).doubleValue();
-			double lambdaj=((Double)pmj.get("lambda")).doubleValue();
-			double pci=((Double)classParameters.get(ci)).doubleValue();
-			double pcj=((Double)classParameters.get(cj)).doubleValue();
+			double lambdai=(pmi.get("lambda")).doubleValue();
+			double lambdaj=(pmj.get("lambda")).doubleValue();
+			double pci=(classParameters.get(ci)).doubleValue();
+			double pcj=(classParameters.get(cj)).doubleValue();
 			double lambda=pci/(pci+pcj)*lambdai+pcj/(pci+pcj)*lambdaj;
 			Poisson Xi=new Poisson(lambda);
 			Poisson Xj=new Poisson(lambda);
@@ -668,7 +674,7 @@ public class D2TransformLearner implements InstanceTransformLearner{
 			SortedMap<String,Double> pmi=esti.getPms();
 			SortedMap<String,Double> pmj=estj.getPms();
 			TreeMap<String,Number> npi=
-					mudelta2np(((Double)pmi.get("mu")).doubleValue(),((Double)pmi
+					mudelta2np((pmi.get("mu")).doubleValue(),(pmi
 							.get("delta")).doubleValue(),1.0);
 			TreeMap<String,Number> npj=
 					mudelta2np(((Double)pmj.get("mu")).doubleValue(),((Double)pmj

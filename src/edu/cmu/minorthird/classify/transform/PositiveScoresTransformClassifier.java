@@ -55,6 +55,7 @@ public class PositiveScoresTransformClassifier implements Classifier,
 		System.out.println("Threshold = "+threshold);
 	}
 
+	@Override
 	public ClassLabel classification(Instance instance){
 		double s=score(instance,minFeatScore);
 		double th=s-threshold;
@@ -137,10 +138,12 @@ public class PositiveScoresTransformClassifier implements Classifier,
 		return score;
 	}
 
+	@Override
 	public String explain(Instance instance){
 		return "classify using only features with positive hyperplane weights";
 	}
 
+	@Override
 	public Explanation getExplanation(Instance instance){
 		Explanation ex=new Explanation(explain(instance));
 		return ex;

@@ -79,6 +79,7 @@ public class MultiEvaluation implements Visible{
 			this.eval_num=eval_num;
 		}
 
+		@Override
 		public JComponent componentFor(Object o){
 			MultiEvaluation me=(MultiEvaluation)o;
 			Evaluation e=me.evals[eval_num];
@@ -86,13 +87,14 @@ public class MultiEvaluation implements Visible{
 		}
 	}
 
+	@Override
 	public Viewer toGUI(){
 		ParallelViewer main=new ParallelViewer();
 
 		for(int i=0;i<evals.length;i++){
 			main.addSubView("Dimension: "+i,new EvaluationViewer(i));
 		}
-		main.setContent((Object)this);
+		main.setContent(this);
 
 		return main;
 	}

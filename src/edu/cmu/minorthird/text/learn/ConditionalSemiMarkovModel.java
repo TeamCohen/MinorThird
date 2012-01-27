@@ -181,10 +181,12 @@ public class ConditionalSemiMarkovModel{
 		}
 
 		//
+		@Override
 		public SpanFeatureExtractor getSpanFeatureExtractor(){
 			return fe;
 		}
 
+		@Override
 		public void setSpanFeatureExtractor(SpanFeatureExtractor fe){
 			this.fe=fe;
 		}
@@ -193,30 +195,37 @@ public class ConditionalSemiMarkovModel{
 		// AnnotatorLearner implementation: query all documents, and accumulate
 		// examples in exampleList
 		//
+		@Override
 		public void reset(){
 			exampleList=new ArrayList<AnnotationExample>();
 		}
 
+		@Override
 		public void setDocumentPool(Iterator<Span> documentLooper){
 			this.documentLooper=documentLooper;
 		}
 
+		@Override
 		public boolean hasNextQuery(){
 			return documentLooper.hasNext();
 		}
 
+		@Override
 		public Span nextQuery(){
 			return documentLooper.next();
 		}
 
+		@Override
 		public void setAnswer(AnnotationExample answeredQuery){
 			exampleList.add(answeredQuery);
 		}
 
+		@Override
 		public void setAnnotationType(String s){
 			this.annotationType=s;
 		}
 
+		@Override
 		public String getAnnotationType(){
 			return annotationType;
 		}
@@ -224,6 +233,7 @@ public class ConditionalSemiMarkovModel{
 		/**
 		 * Learning takes place here.
 		 */
+		@Override
 		public Annotator getAnnotator(){
 			classifierLearner.reset();
 
@@ -343,11 +353,13 @@ public class ConditionalSemiMarkovModel{
 
 		private int maxSegSize;
 
+		@Override
 		public Viewer toGUI(){
 			Viewer v=new ComponentViewer(){
 
 				static final long serialVersionUID=20080306L;
 
+				@Override
 				public JComponent componentFor(Object o){
 					CSMMAnnotator ann=(CSMMAnnotator)o;
 					JPanel mainPanel=new JPanel();
@@ -374,10 +386,12 @@ public class ConditionalSemiMarkovModel{
 			this.maxSegSize=maxSegSize;
 		}
 
+		@Override
 		public String getSpanType(){
 			return annotationType;
 		}
 
+		@Override
 		public void doAnnotate(MonotonicTextLabels labels){
 			ProgressCounter pc=
 					new ProgressCounter("annotating","document",labels.getTextBase()
@@ -395,6 +409,7 @@ public class ConditionalSemiMarkovModel{
 			pc.finished();
 		}
 
+		@Override
 		public String explainAnnotation(TextLabels labels,Span documentSpan){
 			return "not implemented";
 		}
@@ -527,10 +542,12 @@ public class ConditionalSemiMarkovModel{
 			setTokenPropertyFeatures("*");
 		}
 
+		@Override
 		public void extractFeatures(Span span){
 			extractFeatures(new EmptyLabels(),span);
 		}
 
+		@Override
 		public void extractFeatures(TextLabels labels,Span span){
 			super.extractFeatures(labels,span);
 			// text of span & its charTypePattern
@@ -652,6 +669,7 @@ public class ConditionalSemiMarkovModel{
 			// numAdded);
 		}
 
+		@Override
 		public void extractFeatures(TextLabels labels,Span span){
 			super.extractFeatures(labels,span);
 			StringWrapper spanString=new BasicStringWrapper(span.asString());
@@ -689,6 +707,7 @@ public class ConditionalSemiMarkovModel{
 			return spanSet.contains(span);
 		}
 
+		@Override
 		public String toString(){
 			return "[Segments: "+spanSet.toString()+"]";
 		}

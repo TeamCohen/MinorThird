@@ -55,6 +55,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 
 	protected FeatureFactory factory=new FeatureFactory();
 
+	@Override
 	public FeatureFactory getFeatureFactory(){
 		return factory;
 	}
@@ -76,9 +77,10 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 		return historyLength;
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		ExampleSchema schema=
-				new ExampleSchema((String[])classNameSet
+				new ExampleSchema(classNameSet
 						.toArray(new String[classNameSet.size()]));
 		if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA))
 			return ExampleSchema.BINARY_EXAMPLE_SCHEMA;
@@ -93,6 +95,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	 *
 	 * @param example The example to add to the dataset.
 	 */
+	@Override
 	public void add(Example example){
 		addSequence(new Example[]{example});
 	}
@@ -105,6 +108,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	 * @param example The example to add to the dataset.
 	 * @param compress Boolean specifying whether or not to compress the example.
 	 */
+	@Override
 	public void add(Example example,boolean compress){
 		addSequence(new Example[]{example},compress);
 	}
@@ -147,11 +151,13 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	}
 
 	/** Iterate over all examples, extended so as to contain history information. */
+	@Override
 	public Iterator<Example> iterator(){
 		return new MyIterator();
 	}
 
 	/** Return the number of examples. */
+	@Override
 	public int size(){
 		return totalSize;
 	}
@@ -168,17 +174,20 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	}
 
 	/** Randomly re-order the examples. */
+	@Override
 	public void shuffle(Random r){
 		Collections.shuffle(sequenceList,r);
 	}
 
 	/** Randomly re-order the examples. */
+	@Override
 	public void shuffle(){
 		shuffle(new Random(0));
 	}
 
 	/** Make a shallow copy of the dataset. Sequences are shared, but not the 
 	 * ordering of the Sequences. */
+	@Override
 	public Dataset shallowCopy(){
 		SequenceDataset copy=new SequenceDataset();
 		copy.setHistorySize(getHistorySize());
@@ -192,6 +201,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	// split
 	//
 
+	@Override
 	public Split split(final Splitter<Example> splitter){
 		throw new UnsupportedOperationException("Use splitSequence instead.");
 	}
@@ -200,14 +210,17 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 		splitter.split(sequenceList.iterator());
 		return new Split(){
 
+			@Override
 			public int getNumPartitions(){
 				return splitter.getNumPartitions();
 			}
 
+			@Override
 			public Dataset getTrain(int k){
 				return invertIteration(splitter.getTrain(k));
 			}
 
+			@Override
 			public Dataset getTest(int k){
 				return invertIteration(splitter.getTest(k));
 			}
@@ -245,10 +258,12 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 			j=0;
 		}
 
+		@Override
 		public boolean hasNext(){
 			return(j<buf.length||i.hasNext());
 		}
 
+		@Override
 		public Example next(){
 			if(j>=buf.length){
 				buf=i.next();
@@ -267,11 +282,13 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 			return new Example(new InstanceFromSequence(e,history),e.getLabel());
 		}
 
+		@Override
 		public void remove(){
 			throw new UnsupportedOperationException("can't remove");
 		}
 	}
 
+	@Override
 	public String toString(){
 		StringBuffer buf=new StringBuffer("[SeqData:\n");
 		for(Iterator<Example[]> i=sequenceList.iterator();i.hasNext();){
@@ -290,20 +307,24 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	//
 	static private final String FORMAT_NAME="Minorthird Sequential Dataset";
 
+	@Override
 	public String[] getFormatNames(){
 		return new String[]{FORMAT_NAME};
 	}
 
+	@Override
 	public String getExtensionFor(String s){
 		return ".seqdata";
 	}
 
+	@Override
 	public void saveAs(File file,String format) throws IOException{
 		if(!format.equals(FORMAT_NAME))
 			throw new IllegalArgumentException("illegal format "+format);
 		DatasetLoader.saveSequence(this,file);
 	}
 
+	@Override
 	public Object restore(File file) throws IOException{
 		try{
 			return DatasetLoader.loadSequence(file);
@@ -313,6 +334,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 	}
 
 	/** A GUI view of the dataset. */
+	@Override
 	public Viewer toGUI(){
 		Viewer dbGui=new MyDataViewer();
 		dbGui.setContent(this);
@@ -324,6 +346,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 
 		static final long serialVersionUID=20080207L;
 
+		@Override
 		public JComponent componentFor(Object o){
 			SequenceDataset d=(SequenceDataset)o;
 			final Example[] arr=new Example[d.size()];
@@ -334,6 +357,7 @@ public class SequenceDataset implements Dataset,SequenceConstants,Visible,
 			JList jList=new JList(arr);
 			jList.setCellRenderer(new ListCellRenderer(){
 
+				@Override
 				public Component getListCellRendererComponent(JList el,Object v,
 						int index,boolean sel,boolean focus){
 					return GUI.conciseExampleRendererComponent(arr[index],100,sel);

@@ -44,6 +44,7 @@ public class CrossValSplitter<T> implements Splitter<T>{
 		this.folds=k;
 	}
 
+	@Override
 	public void split(Iterator<T> i){
 		subpops=new ArrayList<List<T>>();
 		for(Iterator<List<T>> j=new SubpopSorter<T>(random,i).subpopIterator();j.hasNext();){
@@ -51,10 +52,12 @@ public class CrossValSplitter<T> implements Splitter<T>{
 		}
 	}
 
+	@Override
 	public int getNumPartitions(){
 		return folds;
 	}
 
+	@Override
 	public Iterator<T> getTrain(int k){
 		List<T> trainList=new ArrayList<T>();
 		for(int i=0;i<subpops.size();i++){
@@ -65,6 +68,7 @@ public class CrossValSplitter<T> implements Splitter<T>{
 		return trainList.iterator();
 	}
 
+	@Override
 	public Iterator<T> getTest(int k){
 		List<T> testList=new ArrayList<T>();
 		for(int i=0;i<subpops.size();i++){
@@ -75,6 +79,7 @@ public class CrossValSplitter<T> implements Splitter<T>{
 		return testList.iterator();
 	}
 
+	@Override
 	public String toString(){
 		return "["+folds+"-CV splitter]";
 	}

@@ -40,6 +40,7 @@ public class BeginContinueEndUniqueReduction extends
 
 	private boolean useSpanType=true;
 
+	@Override
 	public void reduceExtraction2Tagging(AnnotationExample example){
 		reduceDocument(example.getDocumentSpan(),example.getLabels(),example
 				.getInputType(),example.getInputProp());
@@ -83,10 +84,12 @@ public class BeginContinueEndUniqueReduction extends
 		}
 	}
 
+	@Override
 	public String getTokenProp(){
 		return tokenProp;
 	}
 
+	@Override
 	public Set<String> getNonDefaultTagValues(){
 		Set<String> result=new HashSet<String>();
 		for(Iterator<String> i=tagset.iterator();i.hasNext();){
@@ -99,17 +102,19 @@ public class BeginContinueEndUniqueReduction extends
 		return result;
 	}
 
+	@Override
 	public TextLabels getTaggedLabels(){
 		return taggedLabels;
 	}
 
 	/** Return a TextLabels in which tagged tokens are used 
 	 * to solve the extraction problem. */
+	@Override
 	public void extractFromTags(String output,MonotonicTextLabels taggedLabels){
 		try{
 			MixupProgram p=new MixupProgram();
 			if(useSpanType){
-				String baseTag=(String)tagset.iterator().next();
+				String baseTag=tagset.iterator().next();
 				p.addStatement("defSpanType "+output+" =: "+makePattern(baseTag));
 			}else{
 				for(Iterator<String> i=tagset.iterator();i.hasNext();){

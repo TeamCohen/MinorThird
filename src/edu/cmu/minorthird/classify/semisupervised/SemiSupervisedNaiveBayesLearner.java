@@ -40,18 +40,22 @@ public class SemiSupervisedNaiveBayesLearner extends
 		this.MAX_ITER=iterations;
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema){
 		;
 	}
 
+	@Override
 	public void setInstancePool(Iterator<Instance> i){
 		this.iteratorOverUnlabeled=i;
 	}
 
+	@Override
 	public ExampleSchema getSchema(){
 		return null;
 	}
 
+	@Override
 	public ClassifierLearner copy(){
 		ClassifierLearner learner=null;
 		try{
@@ -63,6 +67,7 @@ public class SemiSupervisedNaiveBayesLearner extends
 		return learner;
 	}
 
+	@Override
 	public Classifier batchTrain(SemiSupervisedDataset dataset){
 		Classifier mc=new MultinomialClassifier();
 		//System.out.println(dataset);
@@ -83,8 +88,8 @@ public class SemiSupervisedNaiveBayesLearner extends
 		double[] examplesGivenClass=new double[numberOfClasses];
 		;
 		// 2.1. toStal counts
-		double numberOfExamples=((double)dataset.size());
-		double numberOfFeatures=((double)index.numberOfFeatures());
+		double numberOfExamples=(dataset.size());
+		double numberOfFeatures=(index.numberOfFeatures());
 		for(Iterator<Example> i=dataset.iterator();i.hasNext();){
 			Example ex=i.next();
 			int classIndex=((MultinomialClassifier)mc).indexOf(ex.getLabel());
@@ -98,7 +103,7 @@ public class SemiSupervisedNaiveBayesLearner extends
 		for(int j=0;j<numberOfClasses;j++){
 			//System.out.println("classes="+numberOfClasses+" ex|class="+examplesGivenClass[j]+" examples="+numberOfExamples);
 			double probabilityOfOccurrence=
-					estimateClassProbMLE(1.0,(double)numberOfClasses,
+					estimateClassProbMLE(1.0,numberOfClasses,
 							examplesGivenClass[j],numberOfExamples);
 			((MultinomialClassifier)mc).setClassParameter(j,probabilityOfOccurrence);
 			//System.out.println("classP="+probabilityOfOccurrence);
@@ -167,8 +172,8 @@ public class SemiSupervisedNaiveBayesLearner extends
 			examplesGivenClass=new double[numberOfClasses];
 			;
 			// 5.2.1. toStal counts
-			numberOfExamples=((double)combinedDataset.size());
-			numberOfFeatures=((double)index.numberOfFeatures());
+			numberOfExamples=(combinedDataset.size());
+			numberOfFeatures=(index.numberOfFeatures());
 			//el = new Example.Looper( dataset.iterator() );
 			for(Iterator<Example> i=dataset.iterator();i.hasNext();){
 				Example ex=i.next();
@@ -183,7 +188,7 @@ public class SemiSupervisedNaiveBayesLearner extends
 			for(int j=0;j<numberOfClasses;j++){
 				//System.out.println("classes="+numberOfClasses+" ex|class="+examplesGivenClass[j]+" examples="+numberOfExamples);
 				double probabilityOfOccurrence=
-						estimateClassProbMLE(1.0,(double)numberOfClasses,
+						estimateClassProbMLE(1.0,numberOfClasses,
 								examplesGivenClass[j],numberOfExamples);
 				((MultinomialClassifier)mc)
 						.setClassParameter(j,probabilityOfOccurrence);

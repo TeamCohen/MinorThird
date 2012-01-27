@@ -20,10 +20,12 @@ public class JointCommandLineProcessor implements CommandLineProcessor{
 		helpConsumed=false;
 	}
 
+	@Override
 	public boolean shouldTerminate(){
 		return helpConsumed;
 	}
 
+	@Override
 	final public void processArguments(String[] args){
 		int k=0;
 		while(k<args.length){
@@ -44,6 +46,7 @@ public class JointCommandLineProcessor implements CommandLineProcessor{
 		}
 	}
 
+	@Override
 	final public int consumeArguments(String[] args,int startPos){
 		int pos=startPos;
 		boolean somethingConsumed=true;
@@ -77,11 +80,13 @@ public class JointCommandLineProcessor implements CommandLineProcessor{
 		return pos-startPos;
 	}
 
+	@Override
 	final public void usage(String errorMessage){
 		System.out.println(errorMessage);
 		usage();
 	}
 
+	@Override
 	final public void usage(){
 		for(int i=0;i<subprocessor.length;i++){
 			log.info("Subprocessor"+i+" usage invoked");

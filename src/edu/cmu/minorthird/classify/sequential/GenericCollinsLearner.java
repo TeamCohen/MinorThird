@@ -58,6 +58,7 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 		this.history = new String[historySize];
 	}
 
+	@Override
 	public void setSchema(ExampleSchema schema)	{	;	}
 
 	//
@@ -69,12 +70,14 @@ public class GenericCollinsLearner implements BatchSequenceClassifierLearner,Seq
 	public void setInnerLearner(OnlineClassifierLearner newInnerLearner) {
 		this.innerLearnerPrototype = newInnerLearner;
 	}
+	@Override
 	public int getHistorySize() { return historySize; }
 	public void setHistorySize(int newHistorySize) { this.historySize = newHistorySize; }
 	public int getNumberOfEpochs() { return numberOfEpochs; }
 	public void setNumberOfEpochs(int newNumberOfEpochs) { this.numberOfEpochs = newNumberOfEpochs; }
 	
 
+	@Override
 	public SequenceClassifier batchTrain(SequenceDataset dataset)
 	{
 		ExampleSchema schema = dataset.getSchema();
