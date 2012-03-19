@@ -1,7 +1,6 @@
 package edu.cmu.minorthird.ui;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 

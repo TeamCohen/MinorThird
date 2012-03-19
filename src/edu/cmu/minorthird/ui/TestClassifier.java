@@ -1,7 +1,6 @@
 package edu.cmu.minorthird.ui;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.experiments.ClassifiedDataset;

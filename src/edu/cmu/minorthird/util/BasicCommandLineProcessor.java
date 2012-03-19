@@ -35,8 +35,8 @@ public abstract class BasicCommandLineProcessor implements CommandLineProcessor,
 	@Override
 	public final void processArguments(String[] args){
 		processedArgs=args;
-		//int k=consumeArguments(args,0);
-		//if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
+		int k=consumeArguments(args,0);
+		if (k<args.length) throw new IllegalArgumentException("illegal argument "+args[k]);
 	}
 	
 	@Override
