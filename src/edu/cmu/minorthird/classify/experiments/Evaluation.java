@@ -529,7 +529,12 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		double[] err=errorsByClass();
 		double[] wgt=numberOfExamplesByClass();
 		for(int i=0;i<K;i++){
-			errRate[i]=err[i]/wgt[i];
+			if(wgt[i]==0){
+				errRate[i]=0.0;
+			}
+			else{
+				errRate[i]=err[i]/wgt[i];
+			}
 		}
 		return errRate;
 	}
@@ -731,7 +736,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			names[2]="Balanced Error Rate";
 			for(int i=0;i<K;i++){
 				String classname=schema.getClassName(i);
-				names[(2+2*i+1)]=new String(". error Rate on "+classname);
+				names[(2+2*i+1)]=new String(". error rate on "+classname);
 				names[(2+2*i+2)]=new String(". std. deviation on "+classname);
 			}
 			names[(3+2*K)]="Average Precision";
@@ -749,7 +754,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			names[2]="Balanced Error Rate";
 			for(int i=0;i<K;i++){
 				String classname=schema.getClassName(i);
-				names[(2+2*i+1)]=new String(". error Rate on "+classname);
+				names[(2+2*i+1)]=new String(". error rate on "+classname);
 				names[(2+2*i+2)]=new String(". std. deviation on "+classname);
 			}
 			names[(3+2*K)]="Kappa";
