@@ -32,20 +32,20 @@ public class CrossValidatedDataset implements Visible
 		trainCds = saveTrainPartitions ? new ClassifiedDataset[s.getNumPartitions()] : null;
 		v = new Evaluation(d.getSchema());
 		ProgressCounter pc = new ProgressCounter("train/test","fold",s.getNumPartitions());
+		log.info("Number of splits: "+s.getNumPartitions());
 		for (int k=0; k<s.getNumPartitions(); k++) {
 			Dataset trainData = s.getTrain(k);
 			Dataset testData = s.getTest(k);
-			log.info("splitting with "+splitter+", preparing to train on "+trainData.size()
-							 +" and test on "+testData.size());
+			log.info("Split with "+splitter+": training on "+trainData.size()+" and testing on "+testData.size());
 			Classifier c = new DatasetClassifierTeacher(trainData).train(learner);
 			DatasetIndex testIndex = new DatasetIndex(testData);
 			cds[k] = new ClassifiedDataset(c, testData, testIndex);
 			if (trainCds!=null) trainCds[k] = new ClassifiedDataset(c, trainData, testIndex);
-			v.extend( cds[k].getClassifier(), testData, k );
-			v.setProperty("classesInFold"+(k+1), 
+			v.extend(cds[k].getClassifier(),testData,k);
+			v.setProperty("classesInFold"+(k+1),
 										"train: "+classDistributionString(trainData.getSchema(),new DatasetIndex(trainData))
 										+"     test: "+classDistributionString(testData.getSchema(),testIndex));
-			log.info("splitting with "+splitter+", stored classified dataset");
+			log.info("Stored classified dataset");
 			pc.progress();
 		}
 		pc.finished();

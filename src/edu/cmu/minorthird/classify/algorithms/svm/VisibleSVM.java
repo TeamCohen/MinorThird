@@ -51,14 +51,14 @@ import edu.cmu.minorthird.util.gui.ZoomedViewer;
 public class VisibleSVM implements Visible,Serializable{
 	
 	static final long serialVersionUID=20071130L;
+	
+	private svm_model model;
 
 	private String[] m_classStrLabels;//Label class name
 
 	private Example[] m_examples;//SVs info.
 
 	private String[][] m_exampleWeightLabels;//example has different weight according to different hyperplane for multiclass svm, mxn,m=#SVs,n=#Hyperplane
-
-	private libsvm.m3gateway m_gate;//gate to the information stored in svm_model 
 
 	private Hyperplane[] m_hyperplanes;//hyperplane for each pair of C(n,2), n=# of class label
 
@@ -190,9 +190,10 @@ public class VisibleSVM implements Visible,Serializable{
 	 * 
 	 */
 	private void initialize(svm_model model,ExampleSchema schema){
-		m_gate=new libsvm.m3gateway(model);
-
-		int[] labelTypes=m_gate.getLabelForEachClass();//numeric value of ClassLabel
+		
+		this.model=model;
+		
+		int[] labelTypes=model.label;
 
 		if(schema!=null){
 
@@ -209,7 +210,7 @@ public class VisibleSVM implements Visible,Serializable{
 						.equals(ExampleSchema.POS_CLASS_NAME))||labelTypes.length>2)?1:-1;
 
 		// Construct Hyperplanes and the corresponding tab labels
-		double[] rhos=m_gate.getConstantsInDecisionFunctions();
+		double[] rhos=model.rho;
 
 		m_hyperplanes=new Hyperplane[rhos.length];
 
@@ -260,13 +261,14 @@ public class VisibleSVM implements Visible,Serializable{
 	 * 
 	 */
 	private void setExamples(svm_model model,FeatureFactory factory){
-		svm_node[][] supportVectorsTemp=m_gate.getSVMnodes();
+		
+		svm_node[][] supportVectorsTemp=model.SV; // support vectors
 
 		//int[] labelTypes=m_gate.getLabelForEachClass();//numeric value of ClassLabel
 
-		int[] numSVs=m_gate.getNumSVsForEachClass();//number of SVs for each different class label
+		int[] numSVs=model.nSV; //number of SVs for each different class label
 
-		double[][] coef=m_gate.getCoefficientsForSVsInDecisionFunctions();//(numLabels-1) X (numSVs) coefficient array
+		double[][] coef=model.sv_coef; //(numLabels-1) X (numSVs) coefficient array
 
 		int labelIndex=0;//current label
 
@@ -315,7 +317,7 @@ public class VisibleSVM implements Visible,Serializable{
 		//set # of SVs
 		int numOfSupportVectors=0;
 
-		int[] numSVs=m_gate.getNumSVsForEachClass();
+		int[] numSVs=model.nSV;
 
 		for(int idx=0;idx<numSVs.length;++idx){
 
@@ -346,13 +348,13 @@ public class VisibleSVM implements Visible,Serializable{
 	 */
 	private void setHyperplanes(){
 
-		int[] labelTypes=m_gate.getLabelForEachClass();
+		int[] labelTypes=model.label;
 
-		double[][] coef=m_gate.getCoefficientsForSVsInDecisionFunctions();
+		double[][] coef=model.sv_coef;
 
 		// Init started index for different class labels
-		int[] numSVs=m_gate.getNumSVsForEachClass();
-
+		int[] numSVs=model.nSV;
+		
 		int[] startIdx=new int[labelTypes.length];
 
 		startIdx[0]=0;
@@ -413,7 +415,7 @@ public class VisibleSVM implements Visible,Serializable{
 	 */
 	private void setClassStrLabels(){
 
-		int[] numericLabels=m_gate.getLabelForEachClass();
+		int[] numericLabels=model.label;
 
 		m_classStrLabels=new String[numericLabels.length];
 
@@ -436,7 +438,7 @@ public class VisibleSVM implements Visible,Serializable{
 	 */
 	private void setClassStrLabels(ExampleSchema schema){
 
-		int[] numericLabels=m_gate.getLabelForEachClass();
+		int[] numericLabels=model.label;
 
 		m_classStrLabels=new String[numericLabels.length];
 

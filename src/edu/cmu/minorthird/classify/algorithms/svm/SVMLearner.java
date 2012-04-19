@@ -25,6 +25,7 @@ import edu.cmu.minorthird.classify.ExampleSchema;
  *
  * @author ksteppe, Frank Lin
  */
+
 public class SVMLearner extends BatchClassifierLearner{
 
 	static Logger logger=Logger.getLogger(SVMLearner.class);
@@ -37,6 +38,7 @@ public class SVMLearner extends BatchClassifierLearner{
 	 *
 	 * @param parameters parameters to the SVM
 	 */
+	
 	public SVMLearner(svm_parameter parameters){
 		this.parameters=parameters;
 	}

@@ -20,7 +20,9 @@ public class RandomSplitter<T> implements Splitter<T>{
 
 	private double trainFraction;
 
-	private List<T> trainList=null,testList=null;
+	private List<T> trainList=null;
+	
+	private List<T> testList=null;
 
 	public RandomSplitter(Random random,double trainFraction){
 		this.random=random;
@@ -50,10 +52,12 @@ public class RandomSplitter<T> implements Splitter<T>{
 		Iterator<List<T>> j=new SubpopSorter<T>(i).subpopIterator();
 		while(j.hasNext()){
 			List<T> subpop=j.next();
-			if(random.nextDouble()<=trainFraction)
+			if(random.nextDouble()<=trainFraction){
 				trainList.addAll(subpop);
-			else
+			}
+			else{
 				testList.addAll(subpop);
+			}
 		}
 	}
 

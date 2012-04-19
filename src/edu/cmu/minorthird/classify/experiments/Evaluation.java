@@ -178,11 +178,15 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	/** Record the result of predicting the give class label on the given example */
 	public void extend(ClassLabel predicted,Example example,int cvID){
-		if(predicted.bestClassName()==null)
-			throw new IllegalArgumentException(
-					"predicted can't be null! for example: "+example);
-		if(example.getLabel()==null)
-			throw new IllegalArgumentException("predicted can't be null!");
+		if(predicted.bestClassName()==null){
+//			for(String label:predicted.possibleLabels()){
+//				log.info(label+"="+predicted.getWeight(label));
+//			}
+			throw new IllegalArgumentException("Best predicted class name is NULL: "+predicted);
+		}
+		if(example.getLabel()==null){
+			throw new IllegalArgumentException("True label is NULL: "+example);
+		}
 		if(log.isDebugEnabled()){
 			String ok=predicted.isCorrect(example.getLabel())?"Y":"N";
 			log.debug("ok: "+ok+"\tpredict: "+predicted+"\ton: "+example);
@@ -364,8 +368,8 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			double[] numerOfExamplesByClass=numberOfExamplesByClass(k);
 			for(int i=0;i<K;i++){
 				stdev[i]+=
-						Math.pow(errorsByClass[i]/numerOfExamplesByClass[i]-mean[i],2)/
-								((double)cvFolds);
+					Math.pow(errorsByClass[i]/numerOfExamplesByClass[i]-mean[i],2)/
+					((double)cvFolds);
 			}
 		}
 		for(int i=0;i<K;i++){
@@ -389,8 +393,8 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		double variance=0.0;
 		for(int k=0;k<cvFolds;k++){
 			variance+=
-					Math.pow(errorsPos(k)/numberOfPositiveExamples(k)-mean,2)/
-							((double)cvFolds);
+				Math.pow(errorsPos(k)/numberOfPositiveExamples(k)-mean,2)/
+				((double)cvFolds);
 		}
 		return Math.sqrt(variance);
 	}
@@ -410,8 +414,8 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		double variance=0.0;
 		for(int k=0;k<cvFolds;k++){
 			variance+=
-					Math.pow(errorsNeg(k)/numberOfNegativeExamples(k)-mean,2)/
-							((double)cvFolds);
+				Math.pow(errorsNeg(k)/numberOfNegativeExamples(k)-mean,2)/
+				((double)cvFolds);
 		}
 		return Math.sqrt(variance);
 	}
@@ -519,7 +523,12 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 	/** Error rate. */
 	public double errorRate(){
-		return errors()/numberOfInstances();
+		if(numberOfInstances()>0){
+			return errors()/numberOfInstances();
+		}
+		else{
+			return 0.0;
+		}
 	}
 
 	/** Error rate by Class. */
@@ -554,9 +563,14 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		double errorBalanced=0.0;
 		int K=schema.getNumberOfClasses();
 		double[] errorsByClass=errorsByClass();
-		double[] numerOfExamplesByClass=numberOfExamplesByClass();
+		double[] numberOfExamplesByClass=numberOfExamplesByClass();
 		for(int i=0;i<K;i++){
-			errorBalanced+=1.0/(double)K*errorsByClass[i]/numerOfExamplesByClass[i];
+			if(numberOfExamplesByClass[i]>0){
+				errorBalanced+=1.0/(double)K*errorsByClass[i]/numberOfExamplesByClass[i];
+			}
+			else{
+				errorBalanced+=0.0;
+			}
 		}
 		return errorBalanced;
 	}
@@ -624,9 +638,14 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	}
 
 	public double kappa(){
+
 		Matrix cm=confusionMatrix();
 		double n=entryList.size();
 		int k=schema.getNumberOfClasses();
+		
+		if(n<1){
+			return 0.0;
+		}
 
 		double[] numActual=new double[k];
 		double[] numPredicted=new double[k];
@@ -643,7 +662,9 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		for(int i=0;i<k;i++){
 			randomAgreement+=(numActual[i]/n)*(numPredicted[i]/n);
 		}
+
 		return (numAgree/n-randomAgreement)/(1.0-randomAgreement);
+
 	}
 
 	public int numExamples(){
@@ -822,7 +843,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 		if(!isBinary)
 			throw new IllegalArgumentException(
-					"can't compute precisionRecallScore for non-binary data");
+			"can't compute precisionRecallScore for non-binary data");
 		byBinaryScore();
 		int allActualPos=0;
 		int allActualNeg=0;
@@ -830,8 +851,8 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		int firstIndexOfActualNeg=0;
 		boolean notFoundYet=true;
 		ProgressCounter pc=
-				new ProgressCounter("counting positive examples","examples",entryList
-						.size());
+			new ProgressCounter("counting positive examples","examples",entryList
+					.size());
 		for(int i=0;i<entryList.size();i++){
 			if(getEntry(i).actual.isPositive()){
 				allActualPos++;
@@ -856,7 +877,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		double falsePosSoFar=0;
 		double tpf=1,fpf=1,score=0;
 		ProgressCounter pc2=
-				new ProgressCounter("computing statistics","examples",entryList.size());
+			new ProgressCounter("computing statistics","examples",entryList.size());
 		double[][] result=new double[length][3];
 		for(int i=0;i<entryList.size();i++){
 			Entry e=getEntry(i);
@@ -933,13 +954,13 @@ public class Evaluation implements Visible,Serializable,Saveable{
 
 		if(!isBinary)
 			throw new IllegalArgumentException(
-					"can't compute precisionRecallScore for non-binary data");
+			"can't compute precisionRecallScore for non-binary data");
 		byBinaryScore();
 		int allActualPos=0;
 		int lastIndexOfActualPos=0;
 		ProgressCounter pc=
-				new ProgressCounter("counting positive examples","examples",entryList
-						.size());
+			new ProgressCounter("counting positive examples","examples",entryList
+					.size());
 		for(int i=0;i<entryList.size();i++){
 			if(getEntry(i).actual.isPositive()){
 				allActualPos++;
@@ -952,8 +973,8 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		double falsePosSoFar=0;
 		double precision=1,recall=1,score=0;
 		ProgressCounter pc2=
-				new ProgressCounter("computing statistics","examples",
-						lastIndexOfActualPos);
+			new ProgressCounter("computing statistics","examples",
+					lastIndexOfActualPos);
 		double[][] result=new double[lastIndexOfActualPos+1][3];
 		for(int i=0;i<=lastIndexOfActualPos;i++){
 			Entry e=getEntry(i);
@@ -1017,7 +1038,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	static public class PropertyViewer extends ComponentViewer{
 
 		static final long serialVersionUID=20080130L;
-		
+
 		@Override
 		public JComponent componentFor(Object o){
 			final Evaluation e=(Evaluation)o;
@@ -1027,16 +1048,16 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			final JTable table=makePropertyTable(e);
 			final JScrollPane tableScroller=new JScrollPane(table);
 			final JButton addButton=
-					new JButton(new AbstractAction("Insert Property"){
-						static final long serialVersionUID=20080130L;
-						@Override
-						public void actionPerformed(ActionEvent event){
-							e.setProperty(propField.getText(),valField.getText());
-							tableScroller.getViewport().setView(makePropertyTable(e));
-							tableScroller.revalidate();
-							panel.revalidate();
-						}
-					});
+				new JButton(new AbstractAction("Insert Property"){
+					static final long serialVersionUID=20080130L;
+					@Override
+					public void actionPerformed(ActionEvent event){
+						e.setProperty(propField.getText(),valField.getText());
+						tableScroller.getViewport().setView(makePropertyTable(e));
+						tableScroller.revalidate();
+						panel.revalidate();
+					}
+				});
 			panel.setLayout(new GridBagLayout());
 			GridBagConstraints gbc=fillerGBC();
 			//gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -1098,7 +1119,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 				lc.addPoint(i/10.0,p[i]);
 			}
 			return lc.getPanel("11-Pt Interpolated Precision vs. Recall","Recall",
-					"Precision");
+			"Precision");
 		}
 	}
 
@@ -1120,13 +1141,13 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			double area=0.0;
 			for(int i=0;i<(p.values.length-1);i++){
 				area+=
-						(p.values[i][0]+p.values[i+1][0])*
-								(p.values[i+1][1]-p.values[i][1])/2.0;
+					(p.values[i][0]+p.values[i+1][0])*
+					(p.values[i+1][1]-p.values[i][1])/2.0;
 				//System.out.println("("+p.values[i][0]+"+"+p.values[i+1][0]+") * ("+p.values[i+1][1]+"-"+p.values[i][1]+") /2.0");
 			}
 			return lc.getPanel("Actual ROC Curve",
 					"False Positive / All Negative   (AUC = "+area+")",
-					"True Positive / All Positive");
+			"True Positive / All Positive");
 
 		}
 	}
@@ -1267,7 +1288,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	//
 	public void save(File file) throws IOException{
 		PrintStream out=
-				new PrintStream(new GZIPOutputStream(new FileOutputStream(file)));
+			new PrintStream(new GZIPOutputStream(new FileOutputStream(file)));
 		save(out);
 	}
 
@@ -1293,8 +1314,8 @@ public class Evaluation implements Visible,Serializable,Saveable{
 		//try {	return (Evaluation)IOUtil.loadSerialized(file); } catch (Exception ex) { ;  }
 
 		LineNumberReader in=
-				new LineNumberReader(new InputStreamReader(new GZIPInputStream(
-						new FileInputStream(file))));
+			new LineNumberReader(new InputStreamReader(new GZIPInputStream(
+					new FileInputStream(file))));
 		String line=in.readLine();
 		if(line==null)
 			throw new IllegalArgumentException("no class list on line 1 of file "+
@@ -1407,13 +1428,13 @@ public class Evaluation implements Visible,Serializable,Saveable{
 	public class MyTableCellRenderer extends DefaultTableCellRenderer{
 
 		static final long serialVersionUID=20080130L;
-		
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table,Object value,
 				boolean isSelected,boolean hasFocus,int row,int column){
 			JLabel label=
-					(JLabel)super.getTableCellRendererComponent(table,value,isSelected,
-							hasFocus,row,column);
+				(JLabel)super.getTableCellRendererComponent(table,value,isSelected,
+						hasFocus,row,column);
 			if((row%2)!=0){
 				label.setBackground(Color.lightGray);
 				label.setOpaque(true);
@@ -1436,7 +1457,7 @@ public class Evaluation implements Visible,Serializable,Saveable{
 			new ViewerFrame("From file "+args[0],v.toGUI());
 		}catch(Exception e){
 			System.out
-					.println("usage: Evaluation [serializedFile|evaluationFile] [evaluationFile]");
+			.println("usage: Evaluation [serializedFile|evaluationFile] [evaluationFile]");
 			e.printStackTrace();
 		}
 	}

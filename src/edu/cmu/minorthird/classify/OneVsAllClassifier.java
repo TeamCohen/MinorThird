@@ -2,9 +2,17 @@
 
 package edu.cmu.minorthird.classify;
 
-import edu.cmu.minorthird.util.gui.*;
-import javax.swing.*;
 import java.io.Serializable;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import edu.cmu.minorthird.util.gui.ComponentViewer;
+import edu.cmu.minorthird.util.gui.SmartVanillaViewer;
+import edu.cmu.minorthird.util.gui.Viewer;
+import edu.cmu.minorthird.util.gui.Visible;
 
 
 /** A Classifier composed of a bunch of binary classifiers, each of
@@ -13,8 +21,10 @@ import java.io.Serializable;
  * @author William Cohen
  */
 
-public class OneVsAllClassifier implements Classifier,Visible,Serializable
-{
+public class OneVsAllClassifier implements Classifier,Visible,Serializable{
+	
+	//private static Logger log=Logger.getLogger(OneVsAllClassifier.class);
+	
 	static private final long serialVersionUID = 1;
 
 	private String[] classNames;
@@ -33,13 +43,14 @@ public class OneVsAllClassifier implements Classifier,Visible,Serializable
 	public Classifier[] getBinaryClassifiers() { return binaryClassifiers; }
 
 	@Override
-	public ClassLabel classification(Instance instance) 
-	{
+	public ClassLabel classification(Instance instance){
+		
 		ClassLabel classLabel = new ClassLabel();
-		for (int i=0; i<classNames.length; i++) {
-			classLabel.add(classNames[i], binaryClassifiers[i].classification(instance).posWeight());
+		for (int i=0; i<classNames.length; i++){
+			classLabel.add(classNames[i],binaryClassifiers[i].classification(instance).posWeight());
 		}
 		return classLabel;
+		
 	}
 
 	@Override

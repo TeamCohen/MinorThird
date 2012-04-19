@@ -7,6 +7,9 @@ import javax.swing.JComponent;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
+
+import org.apache.log4j.Logger;
+
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.ExampleSchema;
@@ -31,6 +34,8 @@ import edu.cmu.minorthird.util.gui.Visible;
 
 public class SVMClassifier implements Classifier,Serializable,Visible{
 
+//	private static Logger log=Logger.getLogger(SVMClassifier.class);
+	
 	static final long serialVersionUID=20071130L;
 
 	private svm_model model;
@@ -89,7 +94,7 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 
 	@Override
 	public ClassLabel classification(Instance instance){
-
+		
 		// make sure to compress the instance first, otherwise things go to crap
 		instance=featureFactory.compress(instance);
 
@@ -154,18 +159,49 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 			/* Otherwise just call the predict method, which simply returns the class.
 			 * This method is faster than predict_probability.
 			 */
-			prediction=svm.svm_predict(model,nodeArray);
+			double[] predValues=new double[schema.getNumberOfClasses()];
+			prediction=svm.svm_predict_values(model,nodeArray,predValues);
+//			log.info("===");
+//			log.info("svm labels: "+Arrays.toString(model.label));
+//			log.info("svm pred val: "+Arrays.toString(predValues));
+			// a hack - normalize the prediction values so we can get a confidence score
+			int min=0;
+			for(int i=1;i<predValues.length;i++){
+				if(predValues[i]<predValues[min]){
+					min=i;
+				}
+			}
+			double minValue=predValues[min];
+			for(int i=0;i<predValues.length;i++){
+				predValues[i]=predValues[i]-minValue;
+			}
+//			log.info("svm pred val norm: "+Arrays.toString(predValues));
 			if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)){
-				if(prediction<0){
-					label.add(ExampleSchema.NEG_CLASS_NAME,1.0);
+				// libsvm is not consistent in its prediction value index, need to figure it out
+				double negValue;
+				double posValue;
+				if(model.label[0]<0){
+					negValue=predValues[0];
+					posValue=predValues[1];
 				}
 				else{
-					label.add(ExampleSchema.POS_CLASS_NAME,1.0);
+					negValue=predValues[1];
+					posValue=predValues[0];
 				}
+				if(prediction<0){
+					label.add(ExampleSchema.NEG_CLASS_NAME,negValue);
+				}
+				else{
+					label.add(ExampleSchema.POS_CLASS_NAME,posValue);
+				}
+//				log.info("svm pred dist: "+label.bestWeight());
 			}
 			else{
-				label.add(schema.getClassName((int)prediction),1.0);
+				label.add(schema.getClassName((int)prediction),predValues[(int)prediction]);
 			}
+			
+//			log.info(label);
+			
 		}
 
 		return label;

@@ -29,39 +29,45 @@ import java.util.Set;
  * used.
  *
  * @author William Cohen
-*/
+ */
 
-public class ClassLabel implements Serializable
-{
-  static private final long serialVersionUID = 1;
+public class ClassLabel implements Serializable{
 
-	private WeightedSet<String> wset = new WeightedSet<String>();
-	private String bestLabel = null;
-	private double bestWeight = -Double.MAX_VALUE;
+	static private final long serialVersionUID = 1;
 
-	public ClassLabel() {;}
-	public ClassLabel(String label) { this(label,1.0); }
-	public ClassLabel(String label,double weight) { add(label,weight); }
+	private WeightedSet<String> wset=new WeightedSet<String>();
+	private String bestLabel=null;
+	private double bestWeight=Double.NEGATIVE_INFINITY;
 
-    /** Create a positive binary label, with the associated score (in logits). */
-    static public ClassLabel multiPosLabel(String label, double score)
+	public ClassLabel(String label,double weight){
+		add(label,weight);
+	}
+
+	public ClassLabel(String label){
+		this(label,1.0);
+	}
+
+	public ClassLabel(){}
+
+	/** Create a positive binary label, with the associated score (in logits). */
+	static public ClassLabel multiPosLabel(String label, double score)
 	{
 		ClassLabel result = new ClassLabel(label,score);
 		//String negLabel = "NOT" + label;
 		return result;
 	}
 
-    /** Create a positive binary label, with the associated score (in logits). */
-    static public ClassLabel multiNegLabel(String label, double score)
+	/** Create a positive binary label, with the associated score (in logits). */
+	static public ClassLabel multiNegLabel(String label, double score)
 	{
 		ClassLabel result = new ClassLabel(label,score);
 		return result;
 	}
 
-    /** Create a binary label, either positive or negative, as appropriate, with the associated score (in logits). */
-    static public ClassLabel multiLabel(String name, double score)
+	/** Create a binary label, either positive or negative, as appropriate, with the associated score (in logits). */
+	static public ClassLabel multiLabel(String name, double score)
 	{
-	    return (score>=0?multiPosLabel(name, score):multiNegLabel(name, score));
+		return (score>=0?multiPosLabel(name, score):multiNegLabel(name, score));
 	}
 
 	/** Create a positive binary label, with the associated score (in logits). */
@@ -119,13 +125,13 @@ public class ClassLabel implements Serializable
 	/** Returns the weight of the label. */
 	public double getWeight(String label) { return wset.getWeight(label,-Double.MAX_VALUE); }
 
-  /** Returns the probability of a label. */
-  public double getProbability(String label) 
-  { 
+	/** Returns the probability of a label. */
+	public double getProbability(String label) 
+	{ 
 		// same as MathUtil.logistic, I think
-    double expOdds = Math.exp( getWeight(label) );
-    return expOdds/(1.0 + expOdds);
-  }
+		double expOdds = Math.exp( getWeight(label) );
+		return expOdds/(1.0 + expOdds);
+	}
 
 	/** Returns the set of labels that appear in the ranking. */
 	public Set<String> possibleLabels() { return wset.asSet(); }
@@ -156,13 +162,13 @@ public class ClassLabel implements Serializable
 
 	@Override
 	public String toString() 
-  {
+	{
 		return "[Class: "+bestLabel+" "+bestWeight+"]";
 	}
 
-  public String toDetails()
-  {
-    return "[ClassLabel: "+wset+"]"; 
-  }
+	public String toDetails()
+	{
+		return "[ClassLabel: "+wset+"]"; 
+	}
 }
 
