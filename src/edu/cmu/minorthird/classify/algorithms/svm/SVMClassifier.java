@@ -7,9 +7,6 @@ import javax.swing.JComponent;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
-
-import org.apache.log4j.Logger;
-
 import edu.cmu.minorthird.classify.ClassLabel;
 import edu.cmu.minorthird.classify.Classifier;
 import edu.cmu.minorthird.classify.ExampleSchema;
@@ -164,35 +161,13 @@ public class SVMClassifier implements Classifier,Serializable,Visible{
 //			log.info("===");
 //			log.info("svm labels: "+Arrays.toString(model.label));
 //			log.info("svm pred val: "+Arrays.toString(predValues));
-			// a hack - normalize the prediction values so we can get a confidence score
-			int min=0;
-			for(int i=1;i<predValues.length;i++){
-				if(predValues[i]<predValues[min]){
-					min=i;
-				}
-			}
-			double minValue=predValues[min];
-			for(int i=0;i<predValues.length;i++){
-				predValues[i]=predValues[i]-minValue;
-			}
-//			log.info("svm pred val norm: "+Arrays.toString(predValues));
 			if(schema.equals(ExampleSchema.BINARY_EXAMPLE_SCHEMA)){
-				// libsvm is not consistent in its prediction value index, need to figure it out
-				double negValue;
-				double posValue;
-				if(model.label[0]<0){
-					negValue=predValues[0];
-					posValue=predValues[1];
-				}
-				else{
-					negValue=predValues[1];
-					posValue=predValues[0];
-				}
+				double diff=Math.max(predValues[0],predValues[1])-Math.min(predValues[0],predValues[1]);
 				if(prediction<0){
-					label.add(ExampleSchema.NEG_CLASS_NAME,negValue);
+					label.add(ExampleSchema.NEG_CLASS_NAME,diff);
 				}
 				else{
-					label.add(ExampleSchema.POS_CLASS_NAME,posValue);
+					label.add(ExampleSchema.POS_CLASS_NAME,diff);
 				}
 //				log.info("svm pred dist: "+label.bestWeight());
 			}
