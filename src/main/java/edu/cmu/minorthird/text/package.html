@@ -1,0 +1,146 @@
+  <body>
+    Storing and manipulating annotated text.
+
+    <h2>Basic Concepts In this Package</h2>
+    
+    <p>
+    A {@link edu.cmu.minorthird.text.TextToken} is a "token" (usually a single word in a
+    document), plus some additional information that allows one to
+    find out where this word/token occured. Specifically one can
+    recover the string that contained the token, a shorter string
+    <em>identifier</em> of this "document" string, and the character
+    offsets of the token--i.e., where it appeared in the document
+    string.
+
+    <p>A {@link edu.cmu.minorthird.text.Span} is a sequence of adjacent TextTokens from the
+    same document.
+
+    <p>Spans and TextTokens are considered to be inheritantly ordered.
+    If two Spans or TextTokens are from different document, they are
+    ordered lexigraphically based on the <em>identifiers</em> of those
+    documents.  Within a single document, TextTokens are according
+    to their position in their document, and Spans are ordered
+    according to their leftmost TextToken (using the rightmost
+    TextToken to break ties.)
+
+    <p>A {@link edu.cmu.minorthird.text.TextBase} is a collection of tokenized "document"
+    strings, accessible as Spans.
+
+    <p>A {@link edu.cmu.minorthird.text.TextLabels} contains <em>markup</em> for
+    a {@link edu.cmu.minorthird.text.TextBase}.  This markup can consist of
+      <ul>
+      <li>String-valued properties of individual TextTokens (i.e.,
+      individual occurances in the TextBase of words.)  
+      <li>String-valued properties of Spans of TextTokens in the
+      TextBase.
+      <li>Groupings of Spans into "types".  A Span can belong to
+	multiple types, and unlike properties, it is possible to
+	quickly find all Spans of a given type in a TextLabels, or
+	find all Spans of a given type in a specific document.
+      </ul>
+    There are a couple of different varieties of TextLabels's.  An {@link
+    edu.cmu.minorthird.text.TextLabels} can only be read, not modified.
+    A {@link edu.cmu.minorthird.text.MonotonicTextLabels} can be modified by
+    changing attribute values, adding new attribute values, or adding
+    Spans to a type; however, Spans cannot be removed from a type.  A
+    plain old {@link edu.cmu.minorthird.text.TextLabels} allows spans to be
+    removed from a type as well (ie is mutable).
+
+    <h2>Annotators and AnnotatorLoaders</h2>
+
+    <p>Markup in a TextLabels object is usually provided by an {@link
+    edu.cmu.minorthird.text.Annotator}.  A sort of subroutine-calling
+    mechanism for Annotators is provided by the
+    <code>textLabels.require</code> call, the
+    <code>textLabels.isAnnotatedBy</code> call, and the {@link
+    edu.cmu.minorthird.text.AnnotatorLoader} mechanism.  If one
+    Annotator relies on the output of another---for instance, an NP
+    chunker requires POS tags---it should use the
+    <code>textLabels.require</code> method to make sure that the
+    annotation is present. <code>textLabels.require</code> then uses
+    an AnnotatorLoader to find an Annotator that will produce the
+    required annotation type, using the
+    <code>annotatorLoader.findAnnotator</code> method.  Annotators
+    record the fact that they have been run on a textLabels object by
+    using the <code>textLabels.setAnnotatedBy(...)</code> method;
+    this ensures that annotations are not run more than once.
+
+    <p>Taken together these mechanisms provide something in between a
+    programming language for annotations, and a simple planner for
+    constructing annotations.  As a planner, each Annotator
+    corresponds to an operator: its preconditions are specified by
+    calls to "require", and its postconditions are specified by calls
+    to "setAnnotatedBy" (or in mixup, by "provide" statements.)  The
+    AnnotatorLoader corresponds to a backwards-chaining planner, and
+    its decisions about what Annotator to use are how the plan is
+    constructed.
+
+    <p>However, the AnnotatorLoader don't do anything fancy to find
+    Annotators: in response to a "require" call for label "foo", the
+    AnnotatorLoader looks for a file "foo.mixup" or a Java class names
+    "foo", in that order.  So the default behavior is simple enough
+    that it looks more like a programming language, with the
+    AnnotatorLoader being just a binding mechanism.  
+
+    <p>There are several ways the binding mechanism can be modified.
+    <ol>
+      <li>In the <code>require</code> call, one can specify a filename
+      in addition to a desired label type (in mixup, this is the
+      second argument to the "require" call).  This causes this
+      filename to be used instead of the the default "foo.mixup" or
+      Java class "foo".  
+
+      <li>In the <code>annotators.config</code> file, (usually located
+      in minorthird/config), one can specify default filenames for a
+      set of label types "foo".  These will be used instead of
+      "foo.mixup", unless some other filename is specified.
+
+      <li>The rules above rely on low-level routines to find files
+      (like mixup files) and find Java classes.  In the {@link
+      edu.cmu.minorthird.text.DefaultAnnotatorLoader}, this is done
+      using the system ClassLoader.  One can also specify a
+      non-default AnnotatorLoader in a call to <code>require</code>,
+      which uses different rules to find files.  
+
+      <p>The main use of this mechanisms is the {@link
+      edu.cmu.minorthird.text.EncapsulatingAnnotatorLoader}, which
+      contains a cache of files and/or Java classes that it will use in 
+      preference to anything on the classpath.  This is useful
+      if you want to bundle a bunch of Annotators along with
+      a classifier or extractor that uses them.
+    </ol>
+
+    <p>Currently, AnnotatorLoaders are <strong>not</strong> used for
+    loading Mixup resources like dictionary files, only for loading
+    Annotators.
+
+    <h2>NestedTextLabels</h2>
+
+    <p>A {@link edu.cmu.minorthird.text.NestedTextLabels} is an odd
+    sort of implementation of a MonotonicTextLabels. It combines two
+    TextLabels's, an "inner" one and an "outer" one, such that the
+    outer one can be monotonically added to, but the inner one is
+    never modified.  Semantically, the markup in a NestedTextLabels is
+    the union of the markup in the inner and outer TextLabels's,
+    except that property values in the outer TextLabels "shadow"
+    values in the inner TextLabels.
+
+      This has several possible uses, for instance:
+      <ol>
+      <li>One can add change a TextLabels and then "back out" the changes
+      by (a) creating NestedTextLabels with an empty "outer"
+      MonotonicTextLabels, (b) monotonically adding to this new "outer"
+      TextLabels, and then (c) discarding the NestedTextLabels and reverting
+      to the old "inner" TextLabels to undo the modifications.
+
+      <li>One can easily construct and view the union of two TextLabels's
+      (or at least, some well-defined approximation of this), which
+      still being able to modify either underlying TextLabels.  For
+      instance, one can construct a single TextLabels which contains the
+      output of a {@link edu.cmu.minorthird.text.mixup.MixupProgram}, plus some hand-labeled
+      "ground truth" data, while still being able to re-run the
+      program and get new output and/or edit the "ground truth".
+      </ol>
+
+  </body>
+

@@ -1,0 +1,230 @@
+<body>
+Little language for creating annotations for text.
+
+    <h3>Mixup expressions</h3>
+
+    At the simplest level, Mixup is a pattern language for 
+    Spans (i.e. token sequences).  Each expression is defined 
+    relative to labeling called a {@link edu.cmu.minorthird.text.TextLabels}.
+    From the ground up:
+    <ul>
+    <li>A "simple pattern component" (SPC) matches a <em>single</em>
+    token.  The SPC's include:
+	<ul>
+	  <li><code>any</code> matches any token.
+	  <li><code>eq('foo')</code> matches the token <code>foo</code>.
+	    This can also be abbreviated as <code>'foo'</code> (in single quotes).
+	  <li><code>re('regex')</code> matches any token whose string
+	    value matches the given regular expression (from the java.util.regex
+	    package).  For instance, <code>re('^\\d+$')</code> matches any
+	    sequence of digits.
+	  <li><code>a(foo)</code> matches any token whose string value
+	  in the dictionary named <code>foo</code>.  Dictionaries are
+	  defined in a TextLabels. For example, <code>a(weekday)</code> might match
+	    one of 'sun', 'mon', 'tues', ..., 'sat'.
+	  <li><code>foo:bar</code> matches any token that has been tagged
+	    as having the value <code>bar</code> for the property <code>foo</code>.
+	    For example, <code>pos:det</code> might match a determiner.
+	  <li>SPC's can be negated by prefixing them with a bang (<code>!</code>).
+	    A conjunction of (optionally, negated) SPC's can be formed with angle
+	    brackets and commas, for instance: <code>&lt;a(month),!may&gt;</code>
+	    might match any of 'jan', 'feb', ..., 'april', 'june', ..., or 'december'.
+	</ul>
+      <li>A "repeated pattern component" (RPC) matches a <em>sequence of 
+	adjacent tokens</em>.  An RPC is formed by appending one of the regex-like
+	postfix operators <code>*</code>, <code>+</code>, <code>?</code>, or 
+	<code>{i,j}</code> (where <code>i</code> and <code>j</code> are numbers)
+	to a SPC.  The RPC <code>any*</code> can be abbreviated as <code>...</code>.
+	An RPC matches any sequence of between <code>i</code> and <code>j</code>
+	tokens such that every token in the sequence matches the underlying SPC.
+	For example:
+	<ul>
+	  <li><code>a(name){1,3}</code> matches any sequences of 1-3 tokens in the 'name' dictionary.
+	  <li><code>&lt;!a(punct),!'and'&gt;*</code> matches any sequence of tokens that are not in the
+		'punct' dictionary and are not the token 'and'.
+	  <li><code>pos:noun?</code> matches the a one-token sequence with the 'pos' property set to
+	    'noun', or an empty sequence.
+	</ul>
+      <li>A "repeated pattern component" (RPC) can also be preceded by the 
+	token 'L' or followed by the token 'R'.  An RPC modified by a 'L' matches unless
+	the sequence it corresponds to can be extended one token to the left, and still
+	match.  An RPC modified by a 'R' is analogous, but can't be extended to the right.
+	For instance:
+	<ul>
+	  <li><code>pos:adj+</code></li> matches any sequence of adjectives (if that's what 'pos:adj' means).
+	However, <code>L pos:adj+</code> only matches a sequence of adjectives that does NOT have
+	an adjective immediately to the left of it.
+	  <li><code>any{3,5}</code></li> matches any sequence of 3-5 tokens.
+	However, <code>any{3,5} R</code> only matches a sequence of 3-5 tokens that can't be
+        extended to the right---in other words, a sequence that is either exactly 5 tokens
+        long, or which ends with the final token of a document.
+	</ul>
+      <li>A "repeated pattern component" (RPC) can also be either <code>@foo</code>
+	or <code>@foo?</code>, where <code>foo</code> is a type.  The RPC <code>@foo</code>
+        matches a span of type 'foo'.  The RPC <code>@foo?</code>matches either a span of
+        type foo or an empty sequence.
+      <li>A "mixup pattern" is a bunch of RPC's concatenated together.  A mixup
+	pattern matches a token sequence if all tokens in the sequence match up
+	with some RPC.  For instance:
+	<ul>
+	  <li><code>... ',' 'Ph' '.' 'D'</code> matches any token sequence ending
+	    in ", Ph.D".
+	  <li><code>... '(' !eq(')'){,10} ')' ...</code> matches any sequence containing
+	      a parenthesized expression with less than 10 tokens in it.
+	</ul>
+      <li>Returning for a moment to the 'L' and 'R' operators, which say that a matched sequence
+	  can't be extended to the left of right...note that "can't be extended" can be 
+	  interpreted two ways:  either (a) any extension causes that RPC to fail to match
+	  or (b) any extension causes that RPC to fail to match, or else causes some
+	  other RPC pattern elsewhere in mixup pattern to fail.  The implemenentation
+	  current adopts the first interpretation, (a).  
+    </ul>
+
+    <h3>Extraction with Mixup</h3>
+
+    Mixup is normally used for extraction, not matching.  For
+    extraction, every Mixup expression should contain matching left
+    and right square brackets.  For each Span that the expression is
+    matched against, and for <em>every possible way the expression can
+    be matched</em>, a subspan of the tokens matching the RPCS's
+    inside the square brackets will be extracted.
+    
+    <p>For example:
+      <ul>
+      <li><code>... a(endOfSent) [ re('^[A-Z]') !a(endOfSent){3,}  a(endOfSent)] ...</code> 
+	will extract "sentences" (roughly - really, every sequence of at least three words
+	between things in the <code>endOfSent</code> dictionary.)
+      <li><code>... [any any] ...</code> will extract all token bi-grams.
+      </ul>
+
+
+    <h3>Mixup Programs</h3>
+
+	  <p>
+	  The MixupProgram class allows a series of statements to be
+	  executed, one after another, in order to modify a text
+	  labeling.  Most of these statements are based on
+	  evaluating Mixup patterns, and then modifying the labels
+	  in response to those patterns.
+	  </p>
+
+	  The types of Mixup statements are:
+	  <ul>
+	    <li><code>defDict D = W1,W2,...,Wk</code>: adds words W1...Wk to dictionary D.
+	      If Wi is in double quotes, then Wi is interpreted as a filename, and
+	      all lines from that file are loaded in the dictionary.
+	    <li><code>provide ANNOTATION_TYPE</code>: puts a marker in the labels
+	      that annotations of the given type are present.
+	    <li><code>require ANNOTATION_TYPE,FILE</code>: sees if 
+	      annotations of the given type are present in the current labels.
+	      If not, the mixup program in 'file' is executed. (File might be in
+	      single quotes.)
+	    <li><code>defSpanType TYPE SPAN_GENERATOR</code>: adds all spans generated by the
+	      SPAN_GENERATOR to the given TYPE.  There are several types of SPAN_GENERATOR's.
+	      <ul>
+		<li><code>=T: EXPR</code> runs the Mixup expression EXPR on every span
+		  of type T, and returns all spans extracted by it.
+		<li><code>=T- EXPR</code> runs the Mixup expression EXPR on every span
+		  of type T, and returns all spans S in T such that nothing was successfully
+		  extracted by EXPR.
+		<li><code>=T~ re REGEX,N</code> runs the Java 1.4 regular expression REGEX
+		  on the string associated with each span S in T, and returns the span
+		  associated with the N-th group in that REGEX.  If the N-th group of the regex 
+		  matches something that doesn't align with token boundaries, the closest
+		  legal token span will be used instead.
+	      </ul>
+	    <li><code>defSpanProp PROP:VAL SPAN_GENERATOR</code>:
+	    same, but asserts that property PROP has value VAL for all generated spans.
+	    <li><code>defoTokenProp PROP:VAL SPAN_GENERATOR</code>:
+	    same, but asserts that property PROP has value VAL for all tokens contained
+	    in a generated span.
+	  </ul>
+
+    <h3>An Example Mixup Program</h3>
+
+Here's an extended example.
+
+<font -1><pre>  
+//=============================================================================
+// Extract phrases about cells from biomedical captions.
+//
+// known current bugs:
+//  need better sentence-starting rules, not using stems
+//  (sentence start should be based on linguistically proper use of ":")
+//  need to discard things with unbalanced parens
+// undesirable examples:	
+//  "in Hela-tet Of f cells" extracts "f cells"
+//  "in contrast cells" extracts "in contrast cells"
+//  "respective cells" extracts "respective cells"
+//=============================================================================
+
+// words that might start a plural noun phrase about cells
+defDict pluralStart = ,, no, with, within, from, of, the, these, all, in, on, only, for, by, to, other, 
+	have, indicate, represent, show, and, or;
+
+// end of a plural noun phrase about cells - ie, a plural cell-related noun
+defDict pluralEnd = cells,strains,clones;
+
+// end of a singular noun phrase about cells
+defDict singEnd = cell,strain,clone;
+
+// start of a singular noun phrase about cells
+defDict singStart = ,, with, from, of, the, in, on, or, a, an, each, to, other, indicate, represent, 
+	and, or, per;
+
+// numbers
+defDict number = one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve,
+	thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen, twenty;
+
+// simplify syntax for these, since there's no good way to quote them
+defDict openParen = (;
+defDict closeParen = );
+
+// 'context' is anything near a cell end.  This is used to restrict search
+
+defSpanType end =: ... [a(pluralEnd)] ... || ... [a(singEnd)] ...;
+defSpanType context =: any+ [ any{15} @end any{2}] ... ||  [ any{,15} @end any{2}] ... ;
+
+// the start of a sentence might have a panel label like (a) before it.
+
+defSpanType sentStart =context: ... ['.' a(openParen) !a(closeParen){1,4} a(closeParen)] ... ;
+defSpanType sentStart =context: ... ['.' ] re('^[A-Z]') ... ;
+
+// something to ignore (not extract) that precedes a plural noun phrase
+
+defSpanType ignoredPluralStart =context: ... [stem:a(pluralStart)] <!a(number),!re('^[0-9]+$')> ...;
+defSpanType ignoredPluralStart =context: ... [stem:a(pluralStart) a(number) ] ...; 
+defSpanType ignoredPluralStart =context: ... [stem:a(pluralStart) re('^[0-9]+$') ] ...; 
+defSpanType ignoredPluralStart =context: ... [@sentStart] ...;
+
+// something to ignore (not extract) that precedes a singular noun phrase
+
+defSpanType ignoredSingStart =context: ... [stem:a(singStart)] ...;
+defSpanType ignoredSingStart =context: ... [@sentStart] ...;
+
+// don't allow 'breaks' (commands, periods, etc) in the adjectives that qualify a 
+// cell-related noun.
+
+defDict breakPunct = ,, .;
+defSpanType qualifiers =context: 
+	... [<!stem:a(pluralStart),!stem:a(pluralEnd),!stem:a(singStart),!stem:a(singEnd),!a(breakPunct)>{1,8}] ...;
+
+// finally define noun phrases as start,qualifiers,end
+
+defSpanType cell =context: ... @ignoredPluralStart [@qualifiers a(pluralEnd)] ... ;
+defSpanType cell =context: ... @ignoredSingStart [@qualifiers a(singEnd)] ... ;
+
+// other cases seem to be like 'strain XY123' and 'strain XY123-fobar'
+
+defSpanType cell =context: ... ['strain' re('^[A-Z]+[0-9]+$') '-' any] ... ;
+defSpanType cell =context: ... ['strain' re('^[A-Z]+[0-9]+$') !'-'] ... ;
+</pre></font>
+
+    <hr>
+    <address><a href="mailto:wcohen@cs.cmu.edu"></a></address>
+<!-- Created: Mon Jul 14 16:06:19 Eastern Daylight Time 2003 -->
+<!-- hhmts start -->
+Last modified: Sun Feb 08 20:31:21 Eastern Standard Time 2004
+<!-- hhmts end -->
+  </body>
+</html>

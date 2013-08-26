@@ -1,0 +1,36 @@
+In this package you will find a whole bunch of files designed to make
+it easy to add features without bothering about counting them and
+setting the id right.  There is a class called FeatureTypes which you
+inherit from for creating any kind of feature. You will see various
+derived classes from them, EdgeFeatures, StartFeatures, etc, etc.
+In FeatureTypes the num() and setOffset() methods are irrelevant after
+the FeatureMaps class. Also the ".id" field of FeatureImpl does not
+need to be set by the FEatureTypes.next() methods.  
+
+
+The FeatureGenerator is an aggregator over all these different feature
+types. It is responsible for converting the string-ids that the
+FeatureTypes assign to their features into distinct numbers. It has a
+inner class called FeatureMap that will make one pass over the
+training data and create the map of featurenames->integer id and as a
+side effect count the number of features. You can then just inherit
+from the FeatureGenImpl class and after calling one of the
+constructors that does not make a call to (addFeatures()) you can then
+implement your own addFeatures class. There you will typically add the
+EdgeFeatures feature first and then the rest.  So, for example if you
+wanted to add some parameter for each label (like a prior), you can
+create a new FeatureTypes class that will create as many featureids as
+the number of labels. You will have to create a new class that is
+derived from FeatureGenImpl and just have a different implementation
+of the addFeatures subroutine. The rest will be handled by the parent
+class.
+
+
+
+Another important class is the dictionary class that is WordsInTrain
+class. This is created by FeatureGenTypes and is available for any
+featureTypes class to use. What it does is provide you counts of the
+number of times a word occurs in a state.  A third class is the
+various graph class. This allows you to create CRFs where you can have
+more than one state per label. 
+

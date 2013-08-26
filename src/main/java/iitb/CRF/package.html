@@ -1,0 +1,41 @@
+<body bgcolor="white">
+
+Provides an implementation of Conditional Random Fields (CRF) for use
+in sequential classification tasks.  This package can be used
+independent of the other packages in this distribution.
+
+<p>
+This implementation of CRF is as described in the following two papers.
+<ul>
+<li>
+John Lafferty and Andrew McCallum and Fernando Pereira, 
+<a href="http://citeseer.nj.nec.com/lafferty01conditional.html">
+Conditional Random Fields: Probabilistic 
+Models for Segmenting and Labeling Sequence Data</a>, "Proceedings of the International Conference on 
+Machine Learning (ICML-2001)",2001
+</li>
+<li>
+F. Sha and F. Pereira, <a href="http://www.cis.upenn.edu/~pereira/papers/shallow.pdf">Shallow
+parsing with conditional random fields</a>, "In Proceedings of
+HLT-NAACL", "2003"
+</li>
+
+<p>
+The code relies on a sparse matrix operations available from the <a
+href="http://hoschek.home.cern.ch/hoschek/colt/">COLT</a>
+distribution</a> and an implementation of the Quasi-Newton
+optimization algorithm (<a href="http://riso.sourceforge.net/LBFGS-20020202.java.jar">LBFGS</a>) available under the package name <a
+href="http://riso.sourceforge.net/">riso.numerical</a>
+
+<p>
+The basic package is intentionally kept barebones without any code for
+data input/output and feature design.  Before you can start using the
+package you need to provide implementations of the FeatureGenerator
+and DataIter classes.  The best way to learn how to use this code is
+to examples in the package @see iitb.usingCRFs.Segment for Sequence
+annotations and @see iitb.usingCRFs.MaxentClassifier for a basic
+maximum entropy based classifier.
+
+@author Sunita Sarawagi, IIT Bombay (sunita@iitb.ac.in)
+
+</body>

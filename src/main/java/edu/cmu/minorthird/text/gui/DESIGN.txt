@@ -1,0 +1,31 @@
+Required:
+ - view a textbase/textlabels only - TextBaseEditor with read-only zoom window.
+ - view/edit a text/textlabels - TextBaseEditor with std zoom window
+ - test a mixup program on fixed ground truth - TextBaseEditor with read-only zoom window
+ plus extra pane to load/refresh a mixup program (program is stored off-line)
+
+Plan:
+ - read-only option for zoom window -DONE
+ - option for nested labels and mixup program
+ 
+ - Implement a 'layered' SeqLabels using an array of SeqLabel's; earlier ones will shadow the later ones (DONE)
+ - Implement a TestEditor which creates a simple seqBase and simple labels for testing. (DONE - main in SeqBaseEditor)
+ - Split into SeqBaseEditor, and MixupDebugger.
+ - SeqBaseEditor lets you 
+ -- view a selected type of spans; -done
+ -- view differences between two types of spans, Guess and Truth  -done 
+ -- see a birds-eye view (or zoom in and out by changing font sizes)
+ -- optionally, zoom into a particular document -done
+ -- optimally, edit the documents from the main list and/or from the zoomed-in document
+    to edit, one can delete/add Truth spans, move from Guess to Truth [+ - < > a z] 
+ -- might also want a concept of completely labeled areas (vs unlabeled documents) ???
+
+ - MixupDebugger additionally lets you edit a program and see the results as 'guess'
+with a SeqBaseEditor.
+
+Issues:
+ - should this all be in edu.cmu.minorthird.wcohen ? YES
+ - should overlapping Seq's be ok? NO
+ - how to avoid re-creating JTextPanes?
+ - should SeqBase be a ListModel for a JList? this might be more efficient
+

@@ -1,0 +1,67 @@
+  <body>
+    Minorthird is a collection of methods for learning to extract
+    entities and categorize text.
+
+    <p>Some basic concepts: in Minorthird, a collection of documents
+    are stored in a {@link edu.cmu.minorthird.text.TextBase}.
+    Annotations about these documents are stored in a corresponding
+    {@link edu.cmu.minorthird.text.TextLabels} object.  Each
+    annotation asserts a category or property for a word, a document,
+    or a subsequence of words (aka a {@link
+    edu.cmu.minorthird.text.Span}).  TextLabels stored information
+    from many sources: they might hold annotations produced by human
+    labelers (perhaps using a GUI tool like the {@link
+    edu.cmu.minorthird.text.gui.TextBaseEditor}) or, annotations
+    produced by a hand-writted program, or annotations produced by a
+    learned program.  Multiple TextLabels can annotate a single
+    TextBase, if necessary.
+
+    <p>More about the text manipulation and processing can
+    be found in the Javadocs for the minorthird.text and
+    minorthird.text.mixup packages.
+
+    <p>Annotated TextBases can be stored in many ways, so a
+    "repository" can be configured to hold a bunch of TextLabels and
+    their associated TextBases.  TextLabels in the repository are
+    loaded with the {@link edu.cmu.minorthird.text.FancyLoader}.
+    TextLabels and TextBases can also be loaded directly with 
+    the {@link edu.cmu.minorthird.text.TextBaseLoader} and the 
+    {@link edu.cmu.minorthird.text.gui.TextBaseEditor}.
+          
+    <p>Moderately complex annotation programs can be implemented with
+    {@link edu.cmu.minorthird.text.mixup.Mixup}, a special-purpose
+    annotation language which is part of Minorthird.  Mixup can also
+    be used to generate features for learning algorithms.  A sequence
+    of Mixup commands can be combined in a {@link
+    edu.cmu.minorthird.text.mixup.MixupProgram}. The {@link
+    edu.cmu.minorthird.text.gui.MixupDebugger} is a gui tool for
+    testing a MixupProgram.
+
+    <p>Minorthird contains a number of methods for learning to extract
+    Spans from a document, or learning to classify Spans.  Top-level
+    programs for conducting learning experiments and training, testing
+    and applying {@link edu.cmu.minorthird.text.Annotator}s can be found in
+    the {@link edu.cmu.minorthird.ui} package.  (The {@link
+    edu.cmu.minorthird.ui.Help} class is a main program that, when
+    invoked, lists the relevant main methods.)
+
+    <p>Under the hood, learning is performed using classes from inside
+    the {@link edu.cmu.minorthird.classify} package.  A {@link
+    edu.cmu.minorthird.classify.ClassifierLearner} learns a {@link
+    edu.cmu.minorthird.classify.Classifier} from a set of labeled
+    {@link edu.cmu.minorthird.classify.Example}s, usually stored in a
+    {@link edu.cmu.minorthird.classify.Dataset}.  Several sequential
+    classification algorithms are also implemented in the package
+    {@link edu.cmu.minorthird.classify.sequential}.  The classify
+    package is independent of the {@link edu.cmu.minorthird.text}
+    package, but linked to it by the routines in {@link
+    edu.cmu.minorthird.text.learn}.  Most importantly, the {@link
+    edu.cmu.minorthird.text.learn.SpanFE} package implements what is
+    essentially a small feature extraction sub-language, embedded in
+    Java, which makes it possible to easily generate a wide variety of
+    features of a document, token, or Span.  This language is even
+    more powerful because it can base features on annotations stored
+    in {@link edu.cmu.minorthird.text.TextLabels} that are associated with
+    the Span.
+
+</body>
