@@ -2,12 +2,12 @@
 
 package edu.cmu.minorthird.classify;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -24,12 +24,10 @@ public class FeatureFactory implements Serializable{
 	static private final long serialVersionUID=20080115L;
 
 	// maps features to canonical features
-	private HashMap<Feature,Feature> canonicalMap=new HashMap<Feature,Feature>();
-	// maps canonical features to feature ID's
-	private HashMap<Feature,Integer> featureIdMap=new HashMap<Feature,Integer>();
+	private Object2ObjectArrayMap<Feature, Feature> canonicalMap = new Object2ObjectArrayMap<>();
 	// maps feature ID's to canonical features
-	private List<Feature> idFeatureMap=new ArrayList<Feature>();
-
+	private ObjectArrayList<Feature> idFeatureMap = new ObjectArrayList<>();
+	
 	public int getMaxFeatureIndex(){
 		return idFeatureMap.size()-1;
 	}
@@ -45,7 +43,6 @@ public class FeatureFactory implements Serializable{
 			// not yet stored, so create a canonical version
 			canonical=new Feature(f.getName(),idFeatureMap.size());
 			canonicalMap.put(f,canonical);
-			featureIdMap.put(canonical,idFeatureMap.size());
 			idFeatureMap.add(canonical);
 		}
 		return canonical;
@@ -71,7 +68,7 @@ public class FeatureFactory implements Serializable{
 	}
 
 	public int getID(Feature feature){
-		return featureIdMap.get(feature);
+		return idFeatureMap.indexOf(feature);
 	}
 
 	/**
