@@ -1,0 +1,1109 @@
+/// --- scanner.jlex ------------------------------------------ vim:syntax=lex
+/// Author: Nick Rizzolo
+/// Usage:
+///   java JLex.Main scanner.jlex
+/// Description:
+///   JLex scanner specification for LBJ2.  Currently, the LBJ2 language
+///   supports C and C++ style comments that may be nested, identifiers
+///   containing alpha-numeric characters and underscores and beginning with
+///   either an alphabetic character or an underscore, and a minimum of
+///   operators and keywords.
+/// --------------------------------------------------------------------------
+
+package LBJ2.frontend;
+
+import java_cup.runtime.Symbol;
+
+
+%%
+
+%cup    // Defines next_token() with a return type of java_cup.runtime.Symbol.
+%public // Makes the generated lexer class public.
+
+
+%{
+  // Declarations for variables, subroutines, etc. accessible to all
+  // scanner actions.
+  public String sourceFilename;  
+  private int comment_nest = 0;
+%}
+
+
+
+%line  // Make the "yyline" (line number in file) and "yychar" (byte offset in
+%char  // file) variables available to the scanner actions.
+
+%state BLOCK_COMMENT, LINE_COMMENT, JAVADOC_COMMENT
+
+%{
+  // Scanner macros.
+%}
+DIGIT=[0-9]
+NON_ZERO_DIGIT=[1-9]
+OCTAL_DIGIT=[0-7]
+HEX_DIGIT=[0-9A-Fa-f]
+UNICODE=[\u0080-\uFFFF]
+ALPHA=[A-Za-z_\$]
+ALPHA_NUMERIC={ALPHA}|{DIGIT}
+WHITE_SPACE_CHAR=[\r\n\ \t\b\012]
+CHARACTER_CONSTANT="'"([^\\']|{UNICODE}|\\[btnfr\"'\\]|\\u+{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}\\[0-7]|\\[0-7][0-7]|\\[0-3][0-7][0-7])"'"
+STRING_CONSTANT="\""([^\\\"]|{UNICODE}|\\[btnfr\"'\\]|\\u+{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}\\[0-7]|\\[0-7][0-7]|\\[0-3][0-7][0-7])*"\""
+
+
+%{
+  // The text inside a block comment can include any characters including "/"
+  // and "*", as long as they don't fall in either of these orders: "/*" or
+  // "*/".  Notice that the COMMENT_TEXT regular expression will not match any
+  // amount of consecutive "*" characters if they are immediately followed by
+  // a "/".
+%}
+
+COMMENT_TEXT=([^/*]|("*")+[^/*]|"/"[^*])*
+
+
+%eofval{
+  // Actions appropriate to the end of file go here. This block must return a
+  // lexical token corresponding to the end of file.
+
+  // It's an error to be here with any block comments not yet terminated.
+  // Since they can be nested, it would be nice to return one error for each
+  // unclosed block comment.  This is achieved with the first line of code
+  // inside the "if" block.  When comment_nest finally reaches zero, the
+  // appropriate number of error tokens have been returned, and the eof token
+  // is all that's left.
+  if (comment_nest > 0)
+  {
+    comment_nest--;
+    ScannerError.unterminatedCommentError();
+    return
+      new Symbol(sym.error,
+                 new TokenValue(yytext(), yyline, yychar, sourceFilename));
+  }
+
+  return new Symbol(sym.EOF, null);
+%eofval}
+
+ 
+%%
+
+<YYINITIAL> ({WHITE_SPACE_CHAR})+ { }
+
+<YYINITIAL> "//" { yybegin(LINE_COMMENT); }
+<LINE_COMMENT> ([^\n])+ { }
+<LINE_COMMENT> [\n] { yybegin(YYINITIAL); }
+
+<YYINITIAL> "/**" { yybegin(JAVADOC_COMMENT); }
+<JAVADOC_COMMENT> {COMMENT_TEXT}
+{
+  return new Symbol(sym.JAVADOC_COMMENT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+<JAVADOC_COMMENT> ("*")+"/"
+{
+  yybegin(YYINITIAL);
+  return new Symbol(sym.JAVADOC_END_COMMENT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> "/*" { yybegin(BLOCK_COMMENT); comment_nest++; }
+<BLOCK_COMMENT> "/*" { comment_nest++; }
+"*/"
+{ 
+  // It should be ok to match "*/" in any state.  Of course, we wanted to
+  // match it in the BLOCK_COMMENT state anyway.  It's also ok in YYINITIAL,
+  // since "*/" is not an operator or delimiter and it can't be part of a
+  // reserved word or identifier.  Also, it's never syntactically correct for
+  // the "*" operator to be immediately followed by the "/" operator.
+  // Finally, this rule will never be matched in the LINE_COMMENT state, since
+  // the first LINE_COMMENT rule above matches as much as possible and it
+  // appears before this rule.
+
+  comment_nest--;
+  if (comment_nest == 0) yybegin(YYINITIAL);
+  else if (comment_nest < 0)
+  {
+    // If this ever happens, it will be because comment_nest == -1.  If more
+    // code follows, and in particular another block comment, the comment_nest
+    // variable should not be starting from -1 when it begins to keep track of
+    // the new nested comments.  Hence, the next line of code below.
+    comment_nest++;
+    ScannerError.commentEndWithoutBegin();
+    return
+      new Symbol(sym.error,
+                 new TokenValue(yytext(), yyline, yychar, sourceFilename));
+  }
+}
+
+<BLOCK_COMMENT> ("*")+"/"
+{
+  // It might have been a little cleaner to include zero width look ahead
+  // assertions in the COMMENT_TEXT regular expressions so that this rule
+  // wasn't necessary, but jlex does not support them.  So, this rule takes
+  // care of comments ended with more than one "*" and then a "/" in the
+  // BLOCK_COMMENT state.  In the YYINITIAL state, we will let the extra "*"
+  // characters be treated as operators, but "*/" will still be treated as an
+  // end of comment delimiter.
+  comment_nest--;
+  if (comment_nest == 0) yybegin(YYINITIAL);
+}
+
+<BLOCK_COMMENT> {COMMENT_TEXT} { }
+
+
+
+
+<YYINITIAL> ({DIGIT})+\.({DIGIT})*([Ee][+-]?({DIGIT})+)?[DdFf]?
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> \.({DIGIT})+([Ee][+-]?({DIGIT})+)?[DdFf]?
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> ({DIGIT})+([Ee][+-]?({DIGIT})+)[DdFf]?
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> ({DIGIT})+[DdFf]
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> ({NON_ZERO_DIGIT})({DIGIT})*[Ll]?
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> "0"({OCTAL_DIGIT})+[Ll]?
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> "0"[Xx]({HEX_DIGIT})+[Ll]?
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> "0"|"0l"|"0L"
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+
+
+
+<YYINITIAL> {STRING_CONSTANT}
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> {CHARACTER_CONSTANT}
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename));
+}
+
+<YYINITIAL> "abstract"
+{
+  return new Symbol(sym.ABSTRACT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "alpha"
+{
+  return new Symbol(sym.ALPHA,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "assert"
+{
+  return new Symbol(sym.ASSERT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "atleast"
+{
+  return new Symbol(sym.ATLEAST,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "atmost"
+{
+  return new Symbol(sym.ATMOST,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "boolean"
+{
+  return new Symbol(sym.BOOLEAN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "break"
+{
+  return new Symbol(sym.BREAK,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "byte"
+{
+  return new Symbol(sym.BYTE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "cached"
+{
+  return new Symbol(sym.CACHED,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "cachedin"
+{
+  return new Symbol(sym.CACHEDIN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "cachedinmap"
+{
+  return new Symbol(sym.CACHEDINMAP,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "case"
+{
+  return new Symbol(sym.CASE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "catch"
+{
+  return new Symbol(sym.CATCH,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "char"
+{
+  return new Symbol(sym.CHAR,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "class"
+{
+  return new Symbol(sym.CLASS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "const"
+{
+  return new Symbol(sym.CONST,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "constraint"
+{
+  return new Symbol(sym.CONSTRAINT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "continue"
+{
+  return new Symbol(sym.CONTINUE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "cval"
+{
+  return new Symbol(sym.CVAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "default"
+{
+  return new Symbol(sym.DEFAULT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "discrete"
+{
+  return new Symbol(sym.DISCRETE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "do"
+{
+  return new Symbol(sym.DO,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "double"
+{
+  return new Symbol(sym.DOUBLE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "else"
+{
+  return new Symbol(sym.ELSE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "encoding"
+{
+  return new Symbol(sym.ENCODING,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "end"
+{
+  return new Symbol(sym.END,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "evaluate"
+{
+  return new Symbol(sym.EVALUATE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "extends"
+{
+  return new Symbol(sym.EXTENDS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "exists"
+{
+  return new Symbol(sym.EXISTS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "false"
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "final"
+{
+  return new Symbol(sym.FINAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "finally"
+{
+  return new Symbol(sym.FINALLY,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "float"
+{
+  return new Symbol(sym.FLOAT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "for"
+{
+  return new Symbol(sym.FOR,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "forall"
+{
+  return new Symbol(sym.FORALL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "from"
+{
+  return new Symbol(sym.FROM,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "goto"
+{
+  return new Symbol(sym.GOTO,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "head"
+{
+  return new Symbol(sym.HEAD,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "if"
+{
+  return new Symbol(sym.IF,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "in"
+{
+  return new Symbol(sym.IN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "implements"
+{
+  return new Symbol(sym.IMPLEMENTS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "import"
+{
+  return new Symbol(sym.IMPORT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "inference"
+{
+  return new Symbol(sym.INFERENCE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "instanceof"
+{
+  return new Symbol(sym.INSTANCEOF,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "int"
+{
+  return new Symbol(sym.INT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "interface"
+{
+  return new Symbol(sym.INTERFACE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "learn"
+{
+  return new Symbol(sym.LEARN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "long"
+{
+  return new Symbol(sym.LONG,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "maximize"
+{
+  return new Symbol(sym.MAXIMIZE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "minimize"
+{
+  return new Symbol(sym.MINIMIZE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "mixed"
+{
+  return new Symbol(sym.MIXED,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "native"
+{
+  return new Symbol(sym.NATIVE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "new"
+{
+  return new Symbol(sym.NEW,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "normalizedby"
+{
+  return new Symbol(sym.NORMALIZEDBY,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "null"
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "of"
+{
+  return new Symbol(sym.OF,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "package"
+{
+  return new Symbol(sym.PACKAGE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "preExtract"
+{
+  return new Symbol(sym.PREEXTRACT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "private"
+{
+  return new Symbol(sym.PRIVATE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "progressOutput"
+{
+  return new Symbol(sym.PROGRESSOUTPUT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "protected"
+{
+  return new Symbol(sym.PROTECTED,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "prune"
+{
+  return new Symbol(sym.PRUNE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "public"
+{
+  return new Symbol(sym.PUBLIC,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "real"
+{
+  return new Symbol(sym.REAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "return"
+{
+  return new Symbol(sym.RETURN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "rounds"
+{
+  return new Symbol(sym.ROUNDS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "sense"
+{
+  return new Symbol(sym.SENSE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "senseall"
+{
+  return new Symbol(sym.SENSEALL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "short"
+{
+  return new Symbol(sym.SHORT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "static"
+{
+  return new Symbol(sym.STATIC,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "strictfp"
+{
+  return new Symbol(sym.STATIC,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "subjectto"
+{
+  return new Symbol(sym.SUBJECTTO,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "super"
+{
+  return new Symbol(sym.SUPER,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "switch"
+{
+  return new Symbol(sym.SWITCH,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "synchronized"
+{
+  return new Symbol(sym.SYNCHRONIZED,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "testFrom"
+{
+  return new Symbol(sym.TESTFROM,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "testingMetric"
+{
+  return new Symbol(sym.TESTINGMETRIC,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "this"
+{
+  return new Symbol(sym.THIS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "throw"
+{
+  return new Symbol(sym.THROW,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "throws"
+{
+  return new Symbol(sym.THROWS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "transient"
+{
+  return new Symbol(sym.TRANSIENT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "true"
+{
+  return new Symbol(sym.LITERAL,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "try"
+{
+  return new Symbol(sym.TRY,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "using"
+{
+  return new Symbol(sym.USING,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "void"
+{
+  return new Symbol(sym.VOID,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "volatile"
+{
+  return new Symbol(sym.VOLATILE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "while"
+{
+  return new Symbol(sym.WHILE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "with"
+{
+  return new Symbol(sym.WITH,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+
+<YYINITIAL> {ALPHA}({ALPHA_NUMERIC})*
+{
+  return new Symbol(sym.IDENTIFIER,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+
+<YYINITIAL> ";"
+{ 
+  return new Symbol(sym.SEMICOLON,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "("
+{ 
+  return new Symbol(sym.LPAREN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> ")"
+{ 
+  return new Symbol(sym.RPAREN,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "["
+{ 
+  return new Symbol(sym.LBRACK,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "]"
+{ 
+  return new Symbol(sym.RBRACK,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "{"
+{ 
+  return new Symbol(sym.LBRACE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "{{"
+{ 
+  return new Symbol(sym.LBRACEBRACE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "}"
+{ 
+  return new Symbol(sym.RBRACE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "}}"
+{ 
+  return new Symbol(sym.RBRACEBRACE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> ","
+{ 
+  return new Symbol(sym.COMMA,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+
+<YYINITIAL> "+"
+{ 
+  return new Symbol(sym.PLUS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "-"
+{ 
+  return new Symbol(sym.MINUS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "*"
+{ 
+  return new Symbol(sym.TIMES,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "/"
+{ 
+  return new Symbol(sym.DIVIDE,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "%"
+{ 
+  return new Symbol(sym.MOD,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "."
+{ 
+  return new Symbol(sym.DOT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> ".."
+{ 
+  return new Symbol(sym.DOTDOT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "|"
+{ 
+  return new Symbol(sym.OR,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "&"
+{ 
+  return new Symbol(sym.AND,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "^"
+{
+  return new Symbol(sym.XOR,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "<"
+{
+  return new Symbol(sym.LT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> ">"
+{
+  return new Symbol(sym.GT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "?"
+{ 
+  return new Symbol(sym.QUESTION,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> ":"
+{ 
+  return new Symbol(sym.COLON,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "="
+{ 
+  return new Symbol(sym.EQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "~"
+{
+  return new Symbol(sym.BITWISE_NOT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "!"
+{
+  return new Symbol(sym.NOT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "@"
+{
+  return new Symbol(sym.AT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "|="
+{ 
+  return new Symbol(sym.OREQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "&="
+{ 
+  return new Symbol(sym.ANDEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "+="
+{ 
+  return new Symbol(sym.PLUSEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "-="
+{ 
+  return new Symbol(sym.MINUSEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "*="
+{ 
+  return new Symbol(sym.MULTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "/="
+{ 
+  return new Symbol(sym.DIVEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "%="
+{ 
+  return new Symbol(sym.MODEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "^="
+{ 
+  return new Symbol(sym.XOREQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "++"
+{ 
+  return new Symbol(sym.PLUSPLUS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "--"
+{ 
+  return new Symbol(sym.MINUSMINUS,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+} 
+
+<YYINITIAL> "<<"
+{
+  return new Symbol(sym.LSHIFT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> ">>"
+{
+  return new Symbol(sym.RSHIFT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "<="
+{
+  return new Symbol(sym.LTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> ">="
+{
+  return new Symbol(sym.GTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "=="
+{
+  return new Symbol(sym.EQEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "!="
+{
+  return new Symbol(sym.NOTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "&&"
+{
+  return new Symbol(sym.ANDAND,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "||"
+{
+  return new Symbol(sym.OROR,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "::"
+{
+  return new Symbol(sym.COLONCOLON,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "!:"
+{
+  return new Symbol(sym.BANGCOLON,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "/"\\
+{
+  return new Symbol(sym.CONJUNCTION,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> \\"/"
+{
+  return new Symbol(sym.DISJUNCTION,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "=>"
+{
+  return new Symbol(sym.IMPLICATION,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "<-"
+{
+  return new Symbol(sym.ARROW,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "->"
+{
+  return new Symbol(sym.RARROW,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "<=>"
+{
+  return new Symbol(sym.DOUBLEIMPLICATION,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> "<<="
+{
+  return new Symbol(sym.LSHIFTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> ">>="
+{
+  return new Symbol(sym.RSHIFTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> ">>>"
+{
+  return new Symbol(sym.URSHIFT,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+<YYINITIAL> ">>>="
+{
+  return new Symbol(sym.URSHIFTEQ,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+
+.
+{
+  ScannerError.illegalCharacterError();
+  return new Symbol(sym.error,
+                    new TokenValue(yytext(), yyline, yychar, sourceFilename)); 
+}
+

@@ -1,0 +1,1406 @@
+// vim:syntax=yacc
+
+/* Java 1.4 parser for CUP.  
+ * Copyright (C) 2002 C. Scott Ananian <cananian@alumni.princeton.edu>
+ * This program is released under the terms of the GPL; see the file
+ * COPYING for more details.  There is NO WARRANTY on this code.
+ */
+
+/**
+  * Modifications:
+  *
+  * This grammar has been modified to suit the purposes of the LBJ programming
+  * framework, which requires only the syntax of method bodies in addition to
+  * its novel syntax elements.  In particular, references to the following
+  * declarations were removed:
+  *   - class declarations
+  *   - interface declarations
+  *   - field declarations
+  *   - constructor declarations
+  *   This means that classes and interfaces may not be declared within method
+  *   bodies, and anonymous classes cannot be instantiated.
+ **/
+
+package LBJ2.frontend;
+
+import java.util.LinkedList;
+import LBJ2.IR.*;
+
+
+parser code
+{:
+  public void syntax_error(java_cup.runtime.Symbol current)
+  {
+    if (current.value != null)
+    {
+      TokenValue t = (TokenValue) current.value;
+      report_error("Syntax error in line " + (t.line + 1) + " near \""
+                   + t + "\".", current);
+    }
+    else report_error("Syntax error: " + current, current);
+  }
+:}
+
+
+terminal TokenValue
+  ABSTRACT, ALPHA, AND, ANDAND, ANDEQ, ARROW, ASSERT, AT, ATLEAST, ATMOST,
+  BANGCOLON, BITWISE_NOT, BOOLEAN, BREAK, BYTE, CACHED, CACHEDIN, CACHEDINMAP,
+  CASE, CATCH, CHAR, CLASS, COLON, COLONCOLON, COMMA, CONJUNCTION, CONST,
+  CONSTRAINT, CONTINUE, CVAL, DEFAULT, DISCRETE, DISJUNCTION, DIVEQ, DIVIDE,
+  DO, DOT, DOTDOT, DOUBLE, DOUBLEIMPLICATION, ELSE, ENCODING, END, EQ, EQEQ,
+  EVALUATE, EXISTS, EXTENDS, FINAL, FINALLY, FLOAT, FOR, FORALL, FROM, GOTO,
+  GT, GTEQ, HEAD, IDENTIFIER, IF, IMPLEMENTS, IMPLICATION, IMPORT, IN,
+  INFERENCE, INSTANCEOF, INT, INTERFACE, JAVADOC_COMMENT, JAVADOC_END_COMMENT,
+  LBRACE, LBRACEBRACE, LBRACK, LEARN, LITERAL, LONG, LPAREN, LSHIFT, LSHIFTEQ,
+  LT, LTEQ, MAXIMIZE, MINIMIZE, MINUS, MINUSEQ, MINUSMINUS, MIXED, MOD, MODEQ,
+  MULTEQ, NATIVE, NEW, NORMALIZEDBY, NOT, NOTEQ, OF, OR, OREQ, OROR, PACKAGE,
+  PLUS, PLUSEQ, PLUSPLUS, PREEXTRACT, PRIVATE, PROGRESSOUTPUT, PROTECTED,
+  PRUNE, PUBLIC, QUESTION, RARROW, RBRACE, RBRACEBRACE, RBRACK, REAL, RETURN,
+  ROUNDS, RPAREN, RSHIFT, RSHIFTEQ, SEMICOLON, SENSE, SENSEALL, SHORT, STATIC,
+  SUBJECTTO, SUPER, SWITCH, SYNCHRONIZED, TESTFROM, TESTINGMETRIC, THIS,
+  THROW, THROWS, TIMES, TRANSIENT, TRY, URSHIFT, URSHIFTEQ, USING, VOID,
+  VOLATILE, WHILE, WITH, XOR, XOREQ;
+
+nonterminal AST program;
+nonterminal ArrayType array_type;
+nonterminal Integer dims;
+nonterminal ImportDeclaration import_declaration;
+nonterminal ImportList import_list;
+nonterminal DeclarationList declaration_list;
+nonterminal Constant literal;
+nonterminal ConstantList literals;
+nonterminal Name name;
+nonterminal PackageDeclaration package_declaration;
+nonterminal PrimitiveType primitive_type;
+nonterminal Type reference_type;
+nonterminal Type type;
+nonterminal ClassifierExpression
+              classifier_atom, classifier_cast_expression, learner,
+              classifier_and_expression, classifier_expression;
+nonterminal LinkedList learner_clauses;
+nonterminal LearningClassifierExpression.Clause learner_clause;
+nonterminal ClassifierAssignment classifier_assignment;
+nonterminal Declaration declaration;
+nonterminal VariableDeclaration variable_declarators, variable_declarator;
+nonterminal Name variable_declarator_id;
+nonterminal Expression variable_initializer;
+nonterminal ArrayInitializer array_initializer;
+nonterminal ExpressionList variable_initializers;
+nonterminal Argument formal_parameter;
+nonterminal Block block;
+nonterminal StatementList block_statements;
+nonterminal Statement block_statement;
+nonterminal VariableDeclaration local_variable_declaration_statement,
+                                local_variable_declaration;
+nonterminal EmptyStatement empty_statement;
+nonterminal LabeledStatement labeled_statement, labeled_statement_no_short_if;
+nonterminal Statement statement, statement_no_short_if,
+                      statement_without_trailing_substatement;
+nonterminal ExpressionStatement expression_statement;
+nonterminal StatementExpression statement_expression;
+nonterminal ExpressionList statement_expression_list;
+nonterminal Operator assignment_operator;
+nonterminal ExpressionList argument_list, dim_exprs;
+nonterminal Expression primary, primary_no_new_array, dim_expr;
+nonterminal InstanceCreationExpression class_instance_creation_expression;
+nonterminal ArrayCreationExpression array_creation_expression;
+nonterminal FieldAccess field_access;
+nonterminal MethodInvocation method_invocation;
+nonterminal SubscriptVariable array_access;
+nonterminal Expression expression, postfix_expression, left_hand_side;
+nonterminal IncrementExpression
+              preincrement_expression, predecrement_expression,
+              postincrement_expression, postdecrement_expression;
+nonterminal Expression unary_expression, unary_expression_not_plus_minus;
+nonterminal CastExpression cast_expression;
+nonterminal ExpressionList for_update;
+nonterminal ForStatement for_statement, for_statement_no_short_if;
+nonterminal Assignment assignment;
+nonterminal BreakStatement break_statement;
+nonterminal ContinueStatement continue_statement;
+nonterminal ReturnStatement return_statement;
+nonterminal SenseStatement sense_statement;
+nonterminal ThrowStatement throw_statement;
+nonterminal CatchList catches;
+nonterminal CatchClause catch_clause;
+nonterminal AssertStatement assert_statement;
+nonterminal SynchronizedStatement synchronized_statement;
+nonterminal TryStatement try_statement;
+nonterminal Expression multiplicative_expression, additive_expression,
+                       shift_expression, relational_expression,
+                       equality_expression, and_expression,
+                       exclusive_or_expression, inclusive_or_expression,
+                       conditional_and_expression, conditional_or_expression,
+                       conditional_expression;
+nonterminal IfStatement if_then_statement, if_then_else_statement,
+                        if_then_else_statement_no_short_if;
+nonterminal SwitchLabel switch_label;
+nonterminal SwitchLabelList switch_labels;
+nonterminal SwitchStatement switch_statement;
+nonterminal SwitchBlock switch_block;
+nonterminal SwitchGroupList switch_block_statement_groups;
+nonterminal SwitchGroup switch_block_statement_group;
+nonterminal WhileStatement while_statement, while_statement_no_short_if;
+nonterminal DoStatement do_statement;
+nonterminal ClassifierReturnType classifier_return_type;
+nonterminal ConstraintDeclaration constraint_declaration;
+nonterminal InferenceDeclaration inference_declaration;
+nonterminal InferenceDeclaration.Clause inference_clause;
+nonterminal LinkedList inference_clauses;
+nonterminal ConstraintExpression
+              constraint_expression, double_implication_expression,
+              implication_expression, disjunction_expression,
+              conjunction_expression, logic_atom;
+nonterminal ParameterSet parameter_set;
+
+
+start with program;
+
+
+program ::= package_declaration:p import_list:l declaration_list:d
+    {:
+      RESULT = new AST(p, l, d);
+    :}
+  | import_list:l declaration_list:d {: RESULT = new AST(l, d); :}
+  | package_declaration:p declaration_list:d
+    {:
+      RESULT = new AST(p, d);
+    :}
+  | declaration_list:d {: RESULT = new AST(d); :}
+  ;
+
+package_declaration ::= PACKAGE:p name:n SEMICOLON
+    {:
+      RESULT = new PackageDeclaration(n, p.line, p.byteOffset);
+    :}
+  ;
+
+import_list ::= import_declaration:i {: RESULT = new ImportList(i); :}
+  | import_list:l import_declaration:i
+    {:
+      l.add(i);
+      RESULT = l;
+    :}
+  ;
+
+import_declaration ::= IMPORT:i name:n SEMICOLON
+    {:
+      RESULT = new ImportDeclaration(n, i.line, i.byteOffset);
+    :}
+  | IMPORT:i name:n DOT TIMES SEMICOLON
+    {:
+      RESULT =
+        new ImportDeclaration(new Name(n + ".*", n.line, n.byteOffset),
+                              i.line, i.byteOffset);
+    :}
+  ;
+
+declaration_list ::= declaration:d {: RESULT = new DeclarationList(d); :}
+  | JAVADOC_COMMENT:c JAVADOC_END_COMMENT:e declaration:d
+    {:
+      d.comment = "/**" + c.text + e.text;
+      RESULT = new DeclarationList(d);
+    :}
+  | declaration_list:l declaration:d
+    {:
+      l.add(d);
+      RESULT = l;
+    :}
+  | declaration_list:l JAVADOC_COMMENT:c JAVADOC_END_COMMENT:e declaration:d
+    {:
+      d.comment = "/**" + c.text + e.text;
+      l.add(d);
+      RESULT = l;
+    :}
+  ;
+
+declaration ::= classifier_assignment:a {: RESULT = a; :}
+  | constraint_declaration:c {: RESULT = c; :}
+  | inference_declaration:i {: RESULT = i; :}
+  ;
+
+classifier_assignment ::= classifier_return_type:r IDENTIFIER:i LPAREN
+    formal_parameter:f RPAREN ARROW classifier_expression:e
+    {: RESULT = new ClassifierAssignment(r, i, f, e); :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHED ARROW classifier_expression:e
+    {: RESULT = new ClassifierAssignment(r, i, f, e, true); :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHEDIN name:n ARROW classifier_expression:e
+    {: RESULT = new ClassifierAssignment(r, i, f, e, n); :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHEDINMAP ARROW classifier_expression:e
+    {:
+      RESULT =
+        new ClassifierAssignment(r, i, f, e,
+                                 new Name(ClassifierAssignment.mapCache));
+    :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHED CACHEDIN name:n ARROW classifier_expression:e
+    {: RESULT = new ClassifierAssignment(r, i, f, e, n, true); :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHED CACHEDINMAP ARROW classifier_expression:e
+    {:
+      RESULT =
+        new ClassifierAssignment(r, i, f, e,
+                                 new Name(ClassifierAssignment.mapCache),
+                                 true);
+    :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHEDIN name:n CACHED ARROW classifier_expression:e
+    {: RESULT = new ClassifierAssignment(r, i, f, e, n, true); :}
+  | classifier_return_type:r IDENTIFIER:i LPAREN formal_parameter:f RPAREN
+    CACHEDINMAP CACHED ARROW classifier_expression:e
+    {:
+      RESULT =
+        new ClassifierAssignment(r, i, f, e,
+                                 new Name(ClassifierAssignment.mapCache),
+                                 true);
+    :}
+  ;
+
+classifier_expression ::=
+    classifier_expression:e COMMA classifier_and_expression:a
+    {: RESULT = new CompositeGenerator(e, a); :}
+  | classifier_and_expression:a {: RESULT = a; :}
+  ;
+
+classifier_and_expression ::=
+    classifier_and_expression:e ANDAND:o classifier_cast_expression:c
+    {: RESULT = new Conjunction(e, c, o.line, o.byteOffset); :}
+  | classifier_cast_expression:c {: RESULT = c; :}
+  ;
+
+classifier_cast_expression ::=
+    LPAREN classifier_return_type:t RPAREN classifier_atom:e
+    {: RESULT = new ClassifierCastExpression(t, e); :}
+  | classifier_atom:e {: RESULT = e; :}
+  ;
+
+classifier_atom ::= name:n {: RESULT = new ClassifierName(n); :}
+  | learner:l {: RESULT = l; :}
+  | block:b {: RESULT = new CodedClassifier(b); :}
+  | name:i LPAREN name:n RPAREN {: RESULT = new InferenceInvocation(i, n); :}
+  | LPAREN classifier_expression:e RPAREN
+    {:
+      e.parenthesized = true;
+      RESULT = e;
+    :}
+  ;
+
+learner ::= LEARN:l learner_clauses:c END
+    {: RESULT = new LearningClassifierExpression(c, l.line, l.byteOffset); :}
+  | LEARN:l classifier_expression:t learner_clauses:c END
+    {:
+      RESULT = new LearningClassifierExpression(t, c, l.line, l.byteOffset);
+    :}
+  ;
+
+learner_clauses ::= learner_clauses:l learner_clause:c
+    {:
+      l.add(c);
+      RESULT = l;
+    :}
+  | learner_clause:c
+    {:
+      RESULT = new LinkedList();
+      RESULT.add(c);
+    :}
+  ;
+
+learner_clause ::= USING classifier_expression:e
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.USING, e);
+    :}
+  | FROM class_instance_creation_expression:c
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.FROM, c);
+    :}
+  | FROM class_instance_creation_expression:c expression:l ROUNDS
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.FROM, c, l);
+    :}
+  | WITH class_instance_creation_expression:c
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.WITH, c);
+    :}
+  | WITH name:n block:b
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.WITH, n, b);
+    :}
+  | ENCODING literal:e
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.ENCODING, e);
+    :}
+  | TESTFROM class_instance_creation_expression:c
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.TESTFROM, c);
+    :}
+  | EVALUATE expression:e
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.EVALUATE, e);
+    :}
+  | CVAL literal:k literal:s
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.CVAL, k, s);
+    :}
+  | CVAL literal:k
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.CVAL, k);
+    :}
+  | PREEXTRACT literal:s
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.PREEXTRACT, s);
+    :}
+  | PRUNE literal:x literal:y literal:z
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.PRUNE, x, y, z);
+    :}
+  | PROGRESSOUTPUT literal:n
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.PROGRESSOUTPUT, n);
+    :}
+  | TESTINGMETRIC class_instance_creation_expression:c
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.TESTINGMETRIC, c);
+    :}
+  | ALPHA literal:a
+    {:
+      RESULT =
+        new LearningClassifierExpression.Clause(
+            LearningClassifierExpression.Clause.ALPHA, a);
+    :}
+  ;
+
+classifier_return_type ::= DISCRETE:d
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.DISCRETE, d.line,
+                                        d.byteOffset);
+    :}
+  | DISCRETE:d LBRACE literals:l RBRACE
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.DISCRETE, l,
+                                        d.line, d.byteOffset);
+    :}
+  | REAL:r
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.REAL, r.line,
+                                        r.byteOffset);
+    :}
+  | MIXED:m
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.MIXED, m.line,
+                                        m.byteOffset);
+    :}
+  | DISCRETE:d LBRACK RBRACK
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.DISCRETE_ARRAY,
+                                        d.line, d.byteOffset);
+    :}
+  | DISCRETE:d LBRACE literals:l RBRACE LBRACK RBRACK
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.DISCRETE_ARRAY,
+                                        l, d.line, d.byteOffset);
+    :}
+  | REAL:r LBRACK RBRACK
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.REAL_ARRAY,
+                                        r.line, r.byteOffset);
+    :}
+  | MIXED:m LBRACK RBRACK
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.MIXED_ARRAY,
+                                        m.line, m.byteOffset);
+    :}
+  | DISCRETE:d MOD
+    {:
+      RESULT =
+        new ClassifierReturnType(ClassifierReturnType.DISCRETE_GENERATOR,
+                                 d.line, d.byteOffset);
+    :}
+  | DISCRETE:d LBRACE literals:l RBRACE MOD
+    {:
+      RESULT =
+        new ClassifierReturnType(ClassifierReturnType.DISCRETE_GENERATOR, l,
+                                 d.line, d.byteOffset);
+    :}
+  | REAL:r MOD
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.REAL_GENERATOR,
+                                        r.line, r.byteOffset);
+    :}
+  | MIXED:m MOD
+    {:
+      RESULT = new ClassifierReturnType(ClassifierReturnType.MIXED_GENERATOR,
+                                        m.line, m.byteOffset);
+    :}
+  ;
+
+constraint_declaration ::= CONSTRAINT:t IDENTIFIER:i LPAREN formal_parameter:p
+    RPAREN block:b
+    {: RESULT = new ConstraintDeclaration(t, i, p, b); :}
+  ;
+
+inference_declaration ::= INFERENCE:t IDENTIFIER:i HEAD formal_parameter:p
+    LBRACE inference_clauses:c RBRACE
+    {: RESULT = new InferenceDeclaration(t, i, p, c); :}
+  ;
+
+inference_clause ::= formal_parameter:p block:b
+    {:
+      RESULT =
+        new InferenceDeclaration.Clause(
+            InferenceDeclaration.Clause.HEAD_FINDER,
+            new InferenceDeclaration.HeadFinder(p, b));
+    :}
+  | SUBJECTTO block:b
+    {:
+      RESULT =
+        new InferenceDeclaration.Clause(
+            InferenceDeclaration.Clause.SUBJECTTO, b);
+    :}
+  | WITH class_instance_creation_expression:c
+    {:
+      RESULT =
+        new InferenceDeclaration.Clause(InferenceDeclaration.Clause.WITH, c);
+    :}
+  | NORMALIZEDBY:t class_instance_creation_expression:c
+    {:
+      RESULT =
+        new InferenceDeclaration.Clause(
+            InferenceDeclaration.Clause.NORMALIZER_DECLARATION,
+            new InferenceDeclaration.NormalizerDeclaration(t, null, c));
+    :}
+  | name:n NORMALIZEDBY:t class_instance_creation_expression:c
+    {:
+      RESULT =
+        new InferenceDeclaration.Clause(
+            InferenceDeclaration.Clause.NORMALIZER_DECLARATION,
+            new InferenceDeclaration.NormalizerDeclaration(t, n, c));
+    :}
+  ;
+inference_clauses ::= inference_clause:l
+    {:
+      RESULT = new LinkedList();
+      RESULT.add(l);
+    :}
+  | inference_clauses:list inference_clause:l
+    {:
+      list.add(l);
+      RESULT = list;
+    :}
+  ;
+
+constraint_expression ::= double_implication_expression:e {: RESULT = e; :}
+  | FORALL:t LPAREN formal_parameter:p IN expression:c RPAREN
+    constraint_expression:e
+    {: RESULT = new UniversalQuantifierExpression(t, p, c, e); :}
+  | EXISTS:t LPAREN formal_parameter:p IN expression:c RPAREN
+    constraint_expression:e
+    {: RESULT = new ExistentialQuantifierExpression(t, p, c, e); :}
+  | ATLEAST:t expression:m OF LPAREN formal_parameter:p IN expression:c RPAREN
+    constraint_expression:e
+    {: RESULT = new AtLeastQuantifierExpression(t, m, p, c, e); :}
+  | ATMOST:t expression:m OF LPAREN formal_parameter:p IN expression:c RPAREN
+    constraint_expression:e
+    {: RESULT = new AtMostQuantifierExpression(t, m, p, c, e); :}
+  ;
+
+double_implication_expression ::= implication_expression:e {: RESULT = e; :}
+  | double_implication_expression:e1 DOUBLEIMPLICATION:o
+    implication_expression:e2
+    {:
+      RESULT =
+        new BinaryConstraintExpression(
+            new Operator(Operator.DOUBLE_IMPLICATION, o.line, o.byteOffset),
+            e1, e2);
+    :}
+  ;
+
+implication_expression ::= disjunction_expression:e {: RESULT = e; :}
+  | implication_expression:e1 IMPLICATION:o disjunction_expression:e2
+    {:
+      RESULT =
+        new BinaryConstraintExpression(
+            new Operator(Operator.IMPLICATION, o.line, o.byteOffset),
+            e1, e2);
+    :}
+  ;
+
+disjunction_expression ::= conjunction_expression:e {: RESULT = e; :}
+  | disjunction_expression:e1 DISJUNCTION:o conjunction_expression:e2
+    {:
+      RESULT =
+        new BinaryConstraintExpression(
+            new Operator(Operator.LOGICAL_DISJUNCTION, o.line, o.byteOffset),
+            e1, e2);
+    :}
+  ;
+
+conjunction_expression ::= logic_atom:e {: RESULT = e; :}
+  | conjunction_expression:e1 CONJUNCTION:o logic_atom:e2
+    {:
+      RESULT =
+        new BinaryConstraintExpression(
+            new Operator(Operator.LOGICAL_CONJUNCTION, o.line, o.byteOffset),
+            e1, e2);
+    :}
+  ;
+
+logic_atom ::=
+    AT:t method_invocation:m {: RESULT = new ConstraintInvocation(t, m); :}
+  | expression:e1 COLONCOLON:o expression:e2
+    {:
+      RESULT =
+        new ConstraintEqualityExpression(
+            new Operator(Operator.CONSTRAINT_EQUAL, o.line, o.byteOffset),
+            e1, e2);
+    :}
+  | expression:e1 BANGCOLON:o expression:e2
+    {:
+      RESULT =
+        new ConstraintEqualityExpression(
+            new Operator(Operator.CONSTRAINT_NOT_EQUAL, o.line, o.byteOffset),
+            e1, e2);
+    :}
+  | LPAREN constraint_expression:e RPAREN
+    {:
+      e.parenthesized = true;
+      RESULT = e;
+    :}
+  | NOT:t LPAREN constraint_expression:e RPAREN
+    {:
+      e.parenthesized = true;
+      RESULT = new NegatedConstraintExpression(t, e);
+    :}
+  ;
+
+
+
+
+literal ::= LITERAL:l {: RESULT = new Constant(l); :}
+  ;
+literals ::= literal:l {: RESULT = new ConstantList(l); :}
+  | literals:list COMMA literal:l
+    {:
+      list.add(l);
+      RESULT = list;
+    :}
+  ;
+
+type ::= primitive_type:p {: RESULT = p; :}
+  | reference_type:r {: RESULT = r; :}
+  ;
+primitive_type ::= BOOLEAN:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.BOOLEAN, p.line, p.byteOffset);
+    :}
+  | BYTE:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.BYTE, p.line, p.byteOffset);
+    :}
+  | CHAR:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.CHAR, p.line, p.byteOffset);
+    :}
+  | SHORT:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.SHORT, p.line, p.byteOffset);
+    :}
+  | INT:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.INT, p.line, p.byteOffset);
+    :}
+  | LONG:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.LONG, p.line, p.byteOffset);
+    :}
+  | FLOAT:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.FLOAT, p.line, p.byteOffset);
+    :}
+  | DOUBLE:p
+    {:
+      RESULT = new PrimitiveType(PrimitiveType.DOUBLE, p.line, p.byteOffset);
+    :}
+  ;
+
+reference_type ::= name:n {: RESULT = new ReferenceType(n); :}
+  | array_type:a {: RESULT = a; :}
+  ;
+
+array_type ::= primitive_type:p dims:d
+    {:
+      RESULT = new ArrayType(p);
+      for (int i = 1; i < d.intValue(); ++i)
+        RESULT = new ArrayType(RESULT);
+    :}
+  | name:n dims:d
+    {:
+      RESULT = new ArrayType(new ReferenceType(n));
+      for (int i = 1; i < d.intValue(); ++i)
+        RESULT = new ArrayType(RESULT);
+    :}
+  ;
+name ::= IDENTIFIER:i {: RESULT = new Name(i); :}
+  | name:n DOT IDENTIFIER:i {: RESULT = new Name(n, i); :}
+  ;
+
+variable_declarators ::= variable_declarator:d {: RESULT = d; :}
+  | variable_declarators:v COMMA variable_declarator:d
+    {:
+      v.addVariables(d);
+      RESULT = v;
+    :}
+  ;
+variable_declarator ::= variable_declarator_id:n
+    {: RESULT = new VariableDeclaration(n); :}
+  | variable_declarator_id:n EQ variable_initializer:i
+    {: RESULT = new VariableDeclaration(n, i); :}
+  ;
+variable_declarator_id ::= IDENTIFIER:i {: RESULT = new Name(i); :}
+  | variable_declarator_id:n LBRACK RBRACK
+    {:
+      ++n.dimensions;
+      RESULT = n;
+    :}
+  ;
+variable_initializer ::= expression:e {: RESULT = e; :}
+  | array_initializer:a {: RESULT = a; :}
+  ;
+
+formal_parameter ::= type:t variable_declarator_id:n
+    {:
+      Type parameterType = t;
+      while (n.dimensions-- > 0) parameterType = new ArrayType(parameterType);
+      RESULT = new Argument(parameterType, "" + n);
+    :}
+  | FINAL type:t variable_declarator_id:n
+    {:
+      Type parameterType = t;
+      while (n.dimensions-- > 0) parameterType = new ArrayType(parameterType);
+      RESULT = new Argument(parameterType, "" + n, true);
+    :}
+  ;
+
+array_initializer ::= LBRACE:b variable_initializers:l COMMA RBRACE
+    {: RESULT = new ArrayInitializer(l, b.line, b.byteOffset); :}
+  | LBRACE:b variable_initializers:l RBRACE
+    {: RESULT = new ArrayInitializer(l, b.line, b.byteOffset); :}
+  | LBRACE:b COMMA RBRACE
+    {: RESULT = new ArrayInitializer(b.line, b.byteOffset); :}
+  | LBRACE:b RBRACE
+    {: RESULT = new ArrayInitializer(b.line, b.byteOffset); :}
+  ;
+variable_initializers ::= variable_initializer:i
+    {: RESULT = new ExpressionList(i); :}
+  | variable_initializers:l COMMA variable_initializer:i
+    {:
+      l.add(i);
+      RESULT = l;
+    :}
+  ;
+
+block ::= LBRACE:l RBRACE {: RESULT = new Block(l.line, l.byteOffset); :}
+  | LBRACE block_statements:s RBRACE {: RESULT = new Block(s); :}
+  ;
+block_statements ::= block_statement:s {: RESULT = new StatementList(s); :}
+  | block_statements:l block_statement:s
+    {:
+      l.add(s);
+      RESULT = l;
+    :}
+  ;
+block_statement ::= local_variable_declaration_statement:l {: RESULT = l; :}
+  | statement:s {: RESULT = s; :}
+  ;
+local_variable_declaration_statement ::=
+    local_variable_declaration:l SEMICOLON {: RESULT = l; :}
+  ;
+local_variable_declaration ::= type:t variable_declarators:v
+    {:
+      v.setType(t);
+      RESULT = v;
+    :}
+  | FINAL type:t variable_declarators:v
+    {:
+      v.setType(t);
+      v.isFinal = true;
+      RESULT = v;
+    :}
+  ;
+
+statement ::= statement_without_trailing_substatement:s {: RESULT = s; :}
+  | labeled_statement:s {: RESULT = s; :}
+  | if_then_statement:s {: RESULT = s; :}
+  | if_then_else_statement:s {: RESULT = s; :}
+  | while_statement:s {: RESULT = s; :}
+  | for_statement:s {: RESULT = s; :}
+  ;
+statement_no_short_if ::=
+    statement_without_trailing_substatement:s {: RESULT = s; :}
+  | labeled_statement_no_short_if:s {: RESULT = s; :}
+  | if_then_else_statement_no_short_if:s {: RESULT = s; :}
+  | while_statement_no_short_if:s {: RESULT = s; :}
+  | for_statement_no_short_if:s {: RESULT = s; :}
+  ;
+statement_without_trailing_substatement ::= block:s {: RESULT = s; :}
+  | empty_statement:s {: RESULT = s; :}
+  | expression_statement:s {: RESULT = s; :}
+  | switch_statement:s {: RESULT = s; :}
+  | do_statement:s {: RESULT = s; :}
+  | break_statement:s {: RESULT = s; :}
+  | continue_statement:s {: RESULT = s; :}
+  | return_statement:s {: RESULT = s; :}
+  | sense_statement:s {: RESULT = s; :}
+  | synchronized_statement:s {: RESULT = s; :}
+  | throw_statement:s {: RESULT = s; :}
+  | try_statement:s {: RESULT = s; :}
+  | assert_statement:s {: RESULT = s; :}
+  ;
+empty_statement ::=
+    SEMICOLON:s {: RESULT = new EmptyStatement(s.line, s.byteOffset); :}
+  ;
+labeled_statement ::= IDENTIFIER:i COLON statement:s
+    {: RESULT = new LabeledStatement(i, s); :}
+  ;
+labeled_statement_no_short_if ::= IDENTIFIER:i COLON statement_no_short_if:s
+    {: RESULT = new LabeledStatement(i, s); :}
+  ;
+expression_statement ::= statement_expression:e SEMICOLON
+    {: RESULT = new ExpressionStatement(e); :}
+  ;
+statement_expression ::= assignment:e {: RESULT = e; :}
+  | preincrement_expression:e {: RESULT = e; :}
+  | predecrement_expression:e {: RESULT = e; :}
+  | postincrement_expression:e {: RESULT = e; :}
+  | postdecrement_expression:e {: RESULT = e; :}
+  | method_invocation:e {: RESULT = e; :}
+  | class_instance_creation_expression:e {: RESULT = e; :}
+  | constraint_expression:e
+    {: RESULT = new ConstraintStatementExpression(e); :}
+  ;
+if_then_statement ::= IF:i LPAREN expression:e RPAREN statement:s
+    {: RESULT = new IfStatement(e, s, i.line, i.byteOffset); :}
+  ;
+if_then_else_statement ::=
+    IF:i LPAREN expression:e RPAREN statement_no_short_if:s1 ELSE statement:s2
+    {: RESULT = new IfStatement(e, s1, s2, i.line, i.byteOffset); :}
+  ;
+if_then_else_statement_no_short_if ::=
+    IF:i LPAREN expression:e RPAREN statement_no_short_if:s1
+    ELSE statement_no_short_if:s2
+    {: RESULT = new IfStatement(e, s1, s2, i.line, i.byteOffset); :}
+  ;
+switch_statement ::= SWITCH:s LPAREN expression:e RPAREN switch_block:b
+    {: RESULT = new SwitchStatement(e, b, s.line, s.byteOffset); :}
+  ;
+switch_block ::= LBRACE switch_block_statement_groups:g switch_labels:l RBRACE
+    {: RESULT = new SwitchBlock(g, l); :}
+  | LBRACE switch_block_statement_groups:g RBRACE
+    {: RESULT = new SwitchBlock(g); :}
+  | LBRACE switch_labels:l RBRACE {: RESULT = new SwitchBlock(l); :}
+  | LBRACE:l RBRACE {: RESULT = new SwitchBlock(l.line, l.byteOffset); :}
+  ;
+switch_block_statement_groups ::=
+    switch_block_statement_group:g {: RESULT = new SwitchGroupList(g); :}
+  | switch_block_statement_groups:l switch_block_statement_group:g
+    {:
+      l.add(g);
+      RESULT = l;
+    :}
+  ;
+switch_block_statement_group ::= switch_labels:l block_statements:s
+    {: RESULT = new SwitchGroup(l, s); :}
+  ;
+switch_labels ::= switch_label:s {: RESULT = new SwitchLabelList(s); :}
+  | switch_labels:l switch_label:s
+    {:
+      l.add(s);
+      RESULT = l;
+    :}
+  ;
+switch_label ::= CASE:c expression:e COLON
+    {: RESULT = new SwitchLabel(e, c.line, c.byteOffset); :}
+  | DEFAULT:d COLON
+    {: RESULT = new SwitchLabel(null, d.line, d.byteOffset); :}
+  ;
+
+while_statement ::= WHILE:w LPAREN expression:e RPAREN statement:s
+    {: RESULT = new WhileStatement(e, s, w.line, w.byteOffset); :}
+  ;
+while_statement_no_short_if ::=
+    WHILE:w LPAREN expression:e RPAREN statement_no_short_if:s
+    {: RESULT = new WhileStatement(e, s, w.line, w.byteOffset); :}
+  ;
+do_statement ::= DO:d statement:s WHILE LPAREN expression:e RPAREN SEMICOLON
+    {: RESULT = new DoStatement(s, e, d.line, d.byteOffset); :}
+  ;
+for_statement ::= FOR:f LPAREN SEMICOLON SEMICOLON RPAREN statement:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, null, null, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN SEMICOLON SEMICOLON for_update:u RPAREN statement:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, null, u, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN SEMICOLON expression:e SEMICOLON RPAREN statement:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, e, null, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN SEMICOLON expression:e SEMICOLON for_update:u RPAREN
+    statement:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, e, u, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON SEMICOLON RPAREN
+    statement:s
+    {: RESULT = new ForStatement(i, null, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON SEMICOLON for_update:u
+    RPAREN statement:s
+    {: RESULT = new ForStatement(i, null, u, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON expression:e SEMICOLON
+    RPAREN statement:s
+    {: RESULT = new ForStatement(i, e, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON expression:e SEMICOLON
+    for_update:u RPAREN statement:s
+    {: RESULT = new ForStatement(i, e, u, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON SEMICOLON RPAREN
+    statement:s
+    {: RESULT = new ForStatement(v, null, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON SEMICOLON for_update:u
+    RPAREN statement:s
+    {: RESULT = new ForStatement(v, null, u, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON expression:e SEMICOLON
+    RPAREN statement:s
+    {: RESULT = new ForStatement(v, e, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON expression:e SEMICOLON
+    for_update:u RPAREN statement:s
+    {: RESULT = new ForStatement(v, e, u, s, f.line, f.byteOffset); :}
+  ;
+for_statement_no_short_if ::=
+    FOR:f LPAREN SEMICOLON SEMICOLON RPAREN statement_no_short_if:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, null, null, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN SEMICOLON SEMICOLON for_update:u RPAREN
+    statement_no_short_if:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, null, u, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN SEMICOLON expression:e SEMICOLON RPAREN
+    statement_no_short_if:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, e, null, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN SEMICOLON expression:e SEMICOLON for_update:u RPAREN
+    statement_no_short_if:s
+    {:
+      RESULT = new ForStatement((ExpressionList) null, e, u, s, f.line,
+                                f.byteOffset);
+    :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON SEMICOLON RPAREN
+    statement_no_short_if:s
+    {: RESULT = new ForStatement(i, null, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON SEMICOLON for_update:u
+    RPAREN statement_no_short_if:s
+    {: RESULT = new ForStatement(i, null, u, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON expression:e SEMICOLON
+    RPAREN statement_no_short_if:s
+    {: RESULT = new ForStatement(i, e, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN statement_expression_list:i SEMICOLON expression:e SEMICOLON
+    for_update:u RPAREN statement_no_short_if:s
+    {: RESULT = new ForStatement(i, e, u, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON SEMICOLON RPAREN
+    statement_no_short_if:s
+    {: RESULT = new ForStatement(v, null, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON SEMICOLON for_update:u
+    RPAREN statement_no_short_if:s
+    {: RESULT = new ForStatement(v, null, u, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON expression:e SEMICOLON
+    RPAREN statement_no_short_if:s
+    {: RESULT = new ForStatement(v, e, null, s, f.line, f.byteOffset); :}
+  | FOR:f LPAREN local_variable_declaration:v SEMICOLON expression:e SEMICOLON
+    for_update:u RPAREN statement_no_short_if:s
+    {: RESULT = new ForStatement(v, e, u, s, f.line, f.byteOffset); :}
+  ;
+for_update ::= statement_expression_list:l {: RESULT = l; :}
+  ;
+statement_expression_list ::= statement_expression:e
+    {: RESULT = new ExpressionList(e); :}
+  | statement_expression_list:l COMMA statement_expression:e
+    {:
+      l.add(e);
+      RESULT = l;
+    :}
+  ;
+
+break_statement ::= BREAK:b SEMICOLON
+    {: RESULT = new BreakStatement(null, b.line, b.byteOffset); :}
+  | BREAK:b IDENTIFIER:i SEMICOLON
+    {: RESULT = new BreakStatement("" + i, b.line, b.byteOffset); :}
+  ;
+
+continue_statement ::= CONTINUE:c SEMICOLON
+    {: RESULT = new ContinueStatement(null, c.line, c.byteOffset); :}
+  | CONTINUE:c IDENTIFIER:i SEMICOLON
+    {: RESULT = new ContinueStatement("" + i, c.line, c.byteOffset); :}
+  ;
+return_statement ::= RETURN:r expression:e SEMICOLON
+    {: RESULT = new ReturnStatement(e, r.line, r.byteOffset); :}
+  ;
+sense_statement ::= SENSE:s expression:e SEMICOLON
+    {: RESULT = new SenseStatement(e, s.line, s.byteOffset); :}
+  | SENSE:s expression:e1 COLON expression:e2 SEMICOLON
+    {: RESULT = new SenseStatement(e1, e2, s.line, s.byteOffset); :}
+  | SENSEALL:s expression:e SEMICOLON
+    {: RESULT = new SenseStatement(e, true, s.line, s.byteOffset); :}
+  ;
+throw_statement ::= THROW:t expression:e SEMICOLON
+    {: RESULT = new ThrowStatement(e, t.line, t.byteOffset); :}
+  ;
+synchronized_statement ::= SYNCHRONIZED:s LPAREN expression:e RPAREN block:b
+    {: RESULT = new SynchronizedStatement(e, b, s.line, s.byteOffset); :}
+  ;
+try_statement ::= TRY:t block:b catches:l
+    {: RESULT = new TryStatement(b, l, t.line, t.byteOffset); :}
+  | TRY:t block:b FINALLY block:f
+    {: RESULT = new TryStatement(b, f, t.line, t.byteOffset); :}
+  | TRY:t block:b catches:l FINALLY block:f
+    {: RESULT = new TryStatement(b, l, f, t.line, t.byteOffset); :}
+  ;
+catches ::= catch_clause:c {: RESULT = new CatchList(c); :}
+  | catches:l catch_clause:c
+    {:
+      l.add(c);
+      RESULT = l;
+    :}
+  ;
+catch_clause ::= CATCH:c LPAREN formal_parameter:f RPAREN block:b
+    {: RESULT = new CatchClause(f, b, c.line, c.byteOffset); :}
+  ;
+assert_statement ::= ASSERT:a expression:e SEMICOLON
+    {: RESULT = new AssertStatement(e, a.line, a.byteOffset); :}
+  | ASSERT:a expression:e1 COLON expression:e2 SEMICOLON
+    {: RESULT = new AssertStatement(e1, e2, a.line, a.byteOffset); :}
+  ;
+
+primary ::= primary_no_new_array:e {: RESULT = e; :}
+  | array_creation_expression:e {: RESULT = e; :}
+  ;
+primary_no_new_array ::= literal:e {: RESULT = e; :}
+  | THIS:e {: RESULT = new Name(e); :}
+  | LPAREN expression:e RPAREN
+    {:
+      e.parenthesized = true;
+      RESULT = e;
+    :}
+  | class_instance_creation_expression:e {: RESULT = e; :}
+  | field_access:e {: RESULT = e; :}
+  | method_invocation:e {: RESULT = e; :}
+  | array_access:e {: RESULT = e; :}
+  | primitive_type:e DOT CLASS
+    {: RESULT = new Name("" + e + ".class", e.line, e.byteOffset); :}
+  | VOID:e DOT CLASS
+    {: RESULT = new Name("void.class", e.line, e.byteOffset); :}
+  | array_type:e DOT CLASS
+    {: RESULT = new Name("" + e + ".class", e.line, e.byteOffset); :}
+  | name:e DOT CLASS:i {: RESULT = new Name(e, i); :}
+  | name:e DOT THIS:i {: RESULT = new Name(e, i); :}
+  ;
+class_instance_creation_expression ::= NEW:t name:n LPAREN RPAREN
+    {: RESULT = new InstanceCreationExpression(n, t.line, t.byteOffset); :}
+  | NEW:t name:n LPAREN argument_list:a RPAREN
+    {: RESULT = new InstanceCreationExpression(n, a, t.line, t.byteOffset); :}
+  | name:p DOT NEW:t IDENTIFIER:n LPAREN RPAREN
+    {:
+      RESULT =
+        new InstanceCreationExpression(p, new Name(n), t.line, t.byteOffset);
+    :}
+  | name:p DOT NEW:t IDENTIFIER:n LPAREN argument_list:a RPAREN
+    {:
+      RESULT = new InstanceCreationExpression(p, new Name(n), a, t.line,
+                                              t.byteOffset);
+    :}
+  | primary:p DOT NEW:t IDENTIFIER:n LPAREN RPAREN
+    {:
+      RESULT =
+        new InstanceCreationExpression(p, new Name(n), t.line, t.byteOffset);
+    :}
+  | primary:p DOT NEW:t IDENTIFIER:n LPAREN argument_list:a RPAREN
+    {:
+      RESULT = new InstanceCreationExpression(p, new Name(n), a, t.line,
+                                              t.byteOffset);
+    :}
+  ;
+argument_list ::= expression:e {: RESULT = new ExpressionList(e); :}
+  | argument_list:l COMMA expression:e
+    {:
+      l.add(e);
+      RESULT = l;
+    :}
+  ;
+parameter_set ::= LBRACEBRACE:b argument_list:l RBRACEBRACE
+    {: RESULT = new ParameterSet(b.line, b.byteOffset, l); :}
+  | LBRACEBRACE:b expression:e1 RARROW expression:e2 COLON expression:e3 
+    RBRACEBRACE
+    {: RESULT = new ParameterSet(b.line, b.byteOffset, e1, e2, e3); :}
+  ;
+array_creation_expression ::= NEW:t primitive_type:p dim_exprs:l
+    {:
+      RESULT =
+        new ArrayCreationExpression(p, l, l.size(), t.line, t.byteOffset);
+    :}
+  | NEW:t primitive_type:p dim_exprs:l dims:d
+    {:
+      RESULT =
+        new ArrayCreationExpression(p, l, l.size() + d.intValue(), t.line,
+                                    t.byteOffset);
+    :}
+  | NEW:t name:n dim_exprs:l
+    {:
+      RESULT =
+        new ArrayCreationExpression(new ReferenceType(n), l, l.size(), t.line,
+                                    t.byteOffset);
+    :}
+  | NEW:t name:n dim_exprs:l dims:d
+    {:
+      RESULT =
+        new ArrayCreationExpression(new ReferenceType(n), l,
+                                    l.size() + d.intValue(), t.line,
+                                    t.byteOffset);
+    :}
+  | NEW:t primitive_type:p dims:d array_initializer:i
+    {:
+      RESULT = new ArrayCreationExpression(p, d.intValue(), i, t.line,
+                                           t.byteOffset);
+    :}
+  | NEW:t name:n dims:d array_initializer:i
+    {:
+      RESULT = new ArrayCreationExpression(new ReferenceType(n), d.intValue(),
+                                           i, t.line, t.byteOffset);
+    :}
+  ;
+dim_exprs ::= dim_expr:e {: RESULT = new ExpressionList(e); :}
+  | dim_exprs:l dim_expr:e
+    {:
+      l.add(e);
+      RESULT = l;
+    :}
+  ;
+dim_expr ::= LBRACK expression:e RBRACK {: RESULT = e; :}
+  ;
+dims ::= LBRACK RBRACK {: RESULT = new Integer(1); :}
+  | dims:d LBRACK RBRACK {: RESULT = new Integer(d.intValue() + 1); :}
+  ;
+field_access ::= primary:e DOT IDENTIFIER:i
+    {: RESULT = new FieldAccess(e, i); :}
+  | SUPER:s DOT IDENTIFIER:i {: RESULT = new FieldAccess(new Name(s), i); :}
+  | name:n DOT SUPER:s DOT IDENTIFIER:i
+    {: RESULT = new FieldAccess(new Name(n, s), i); :}
+  ;
+method_invocation ::= name:n LPAREN RPAREN
+    {: RESULT = new MethodInvocation(n); :}
+  | name:n LPAREN argument_list:a RPAREN
+    {: RESULT = new MethodInvocation(n, a); :}
+  | primary:p DOT IDENTIFIER:i LPAREN RPAREN
+    {: RESULT = new MethodInvocation(p, i); :}
+  | primary:p DOT IDENTIFIER:i LPAREN argument_list:a RPAREN
+    {: RESULT = new MethodInvocation(p, i, a); :}
+  | SUPER:s DOT IDENTIFIER:i LPAREN RPAREN
+    {: RESULT = new MethodInvocation(new Name(s), i); :}
+  | SUPER:s DOT IDENTIFIER:i LPAREN argument_list:a RPAREN
+    {: RESULT = new MethodInvocation(new Name(s), i, a); :}
+  | name:n DOT SUPER:s DOT IDENTIFIER:i LPAREN RPAREN
+    {: RESULT = new MethodInvocation(new Name(n, s), i); :}
+  | name:n DOT SUPER:s DOT IDENTIFIER:i LPAREN argument_list:a RPAREN
+    {: RESULT = new MethodInvocation(new Name(n, s), i, a); :}
+  ;
+array_access ::= name:n LBRACK expression:e RBRACK
+    {: RESULT = new SubscriptVariable(n, e); :}
+  | primary_no_new_array:p LBRACK expression:e RBRACK
+    {: RESULT = new SubscriptVariable(p, e); :}
+  ;
+postfix_expression ::= primary:e {: RESULT = e; :}
+  | name:e {: RESULT = e; :}
+  | postincrement_expression:e {: RESULT = e; :}
+  | postdecrement_expression:e {: RESULT = e; :}
+  ;
+postincrement_expression ::= postfix_expression:e PLUSPLUS:o
+    {:
+      RESULT = new IncrementExpression(
+          new Operator(Operator.POST_INCREMENT, o.line, o.byteOffset), e);
+    :}
+  ;
+postdecrement_expression ::= postfix_expression:e MINUSMINUS:o
+    {:
+      RESULT = new IncrementExpression(
+          new Operator(Operator.POST_DECREMENT, o.line, o.byteOffset), e);
+    :}
+  ;
+unary_expression ::= preincrement_expression:e {: RESULT = e; :}
+  | predecrement_expression:e {: RESULT = e; :}
+  | PLUS:o unary_expression:e
+    {:
+      RESULT = new UnaryExpression(
+          new Operator(Operator.PLUS, o.line, o.byteOffset), e);
+    :}
+  | MINUS:o unary_expression:e
+    {:
+        RESULT = new UnaryExpression(
+            new Operator(Operator.MINUS, o.line, o.byteOffset), e);
+    :}
+  | unary_expression_not_plus_minus:e {: RESULT = e; :}
+  ;
+preincrement_expression ::= PLUSPLUS:o unary_expression:e
+    {:
+      RESULT = new IncrementExpression(
+          new Operator(Operator.PRE_INCREMENT, o.line, o.byteOffset), e);
+    :}
+  ;
+predecrement_expression ::= MINUSMINUS:o unary_expression:e
+    {:
+      RESULT = new IncrementExpression(
+          new Operator(Operator.PRE_DECREMENT, o.line, o.byteOffset), e);
+    :}
+  ;
+unary_expression_not_plus_minus ::= postfix_expression:e {: RESULT = e; :}
+  | BITWISE_NOT:o unary_expression:e
+    {:
+      RESULT = new UnaryExpression(
+          new Operator(Operator.BITWISE_NOT, o.line, o.byteOffset), e);
+    :}
+  | NOT:o unary_expression:e
+    {:
+      RESULT = new UnaryExpression(
+          new Operator(Operator.NOT, o.line, o.byteOffset), e);
+    :}
+  | cast_expression:e {: RESULT = e; :}
+  ;
+cast_expression ::= LPAREN primitive_type:t RPAREN unary_expression:e
+    {: RESULT = new CastExpression(t, e); :}
+  | LPAREN primitive_type:t dims:d RPAREN unary_expression:e
+    {:
+      Type castType = t;
+      for (int i = 0; i < d.intValue(); ++i)
+        castType = new ArrayType(castType);
+      RESULT = new CastExpression(castType, e);
+    :}
+  | LPAREN expression:n RPAREN unary_expression_not_plus_minus:e
+    {: RESULT = new CastExpression(new ReferenceType((Name) n), e); :}
+  | LPAREN name:n dims:d RPAREN unary_expression_not_plus_minus:e
+    {:
+      Type castType = new ReferenceType(n);
+      for (int i = 0; i < d.intValue(); ++i)
+        castType = new ArrayType(castType);
+      RESULT = new CastExpression(castType, e);
+    :}
+  ;
+multiplicative_expression ::= unary_expression:e {: RESULT = e; :}
+  | multiplicative_expression:e1 TIMES:o unary_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.TIMES, o.line, o.byteOffset), e1, e2);
+    :}
+  | multiplicative_expression:e1 DIVIDE:o unary_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.DIVIDE, o.line, o.byteOffset), e1, e2);
+    :}
+  | multiplicative_expression:e1 MOD:o unary_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.MOD, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+additive_expression ::= multiplicative_expression:e {: RESULT = e; :}
+  | additive_expression:e1 PLUS:o multiplicative_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.PLUS, o.line, o.byteOffset), e1, e2);
+    :}
+  | additive_expression:e1 MINUS:o multiplicative_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.MINUS, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+shift_expression ::= additive_expression:e {: RESULT = e; :}
+  | shift_expression:e1 LSHIFT:o additive_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.LEFT_SHIFT, o.line, o.byteOffset), e1, e2);
+    :}
+  | shift_expression:e1 RSHIFT:o additive_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.SIGNED_RIGHT_SHIFT, o.line, o.byteOffset), e1,
+          e2);
+    :}
+  | shift_expression:e1 URSHIFT:o additive_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.UNSIGNED_RIGHT_SHIFT, o.line, o.byteOffset),
+          e1, e2);
+    :}
+  ;
+relational_expression ::= shift_expression:e {: RESULT = e; :}
+  | relational_expression:e1 LT:o shift_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.LESS_THAN, o.line, o.byteOffset), e1, e2);
+    :}
+  | relational_expression:e1 GT:o shift_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.GREATER_THAN, o.line, o.byteOffset), e1, e2);
+    :}
+  | relational_expression:e1 LTEQ:o shift_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.LESS_THAN_OR_EQUAL, o.line, o.byteOffset), e1,
+          e2);
+    :}
+  | relational_expression:e1 GTEQ:o shift_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.GREATER_THAN_OR_EQUAL, o.line, o.byteOffset),
+          e1, e2);
+    :}
+  | relational_expression:e INSTANCEOF:o reference_type:t
+    {: RESULT = new InstanceofExpression(e, t, o.line, o.byteOffset); :}
+  ;
+equality_expression ::= relational_expression:e {: RESULT = e; :}
+  | equality_expression:e1 EQEQ:o relational_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.EQUAL, o.line, o.byteOffset), e1, e2);
+    :}
+  | equality_expression:e1 NOTEQ:o relational_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.NOT_EQUAL, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+and_expression ::= equality_expression:e {: RESULT = e; :}
+  | and_expression:e1 AND:o equality_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.BITWISE_AND, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+exclusive_or_expression ::= and_expression:e {: RESULT = e; :}
+  | exclusive_or_expression:e1 XOR:o and_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.XOR, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+inclusive_or_expression ::= exclusive_or_expression:e {: RESULT = e; :}
+  | inclusive_or_expression:e1 OR:o exclusive_or_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.BITWISE_OR, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+conditional_and_expression ::= inclusive_or_expression:e {: RESULT = e; :}
+  | conditional_and_expression:e1 ANDAND:o inclusive_or_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.AND, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+conditional_or_expression ::= conditional_and_expression:e {: RESULT = e; :}
+  | conditional_or_expression:e1 OROR:o conditional_and_expression:e2
+    {:
+      RESULT = new BinaryExpression(
+          new Operator(Operator.OR, o.line, o.byteOffset), e1, e2);
+    :}
+  ;
+conditional_expression ::= conditional_or_expression:e {: RESULT = e; :}
+  | conditional_or_expression:e1 QUESTION:o expression:e2 COLON
+    conditional_expression:e3
+    {: RESULT = new Conditional(e1, e2, e3, o.line, o.byteOffset); :}
+  ;
+expression ::= conditional_expression:e {: RESULT = e; :}
+  | parameter_set:e {: RESULT = e; :}
+  | assignment:e {: RESULT = e; :}
+  ;
+assignment ::= left_hand_side:l assignment_operator:o expression:e
+    {: RESULT = new Assignment(o, l, e); :}
+  ;
+left_hand_side ::= name:e {: RESULT = e; :}
+  | field_access:e {: RESULT = e; :}
+  | array_access:e {: RESULT = e; :}
+  ;
+assignment_operator ::= EQ:o
+    {: RESULT = new Operator(Operator.ASSIGN, o.line, o.byteOffset); :}
+  | MULTEQ:o
+    {:
+      RESULT = new Operator(Operator.MULTIPLY_ASSIGN, o.line, o.byteOffset);
+    :}
+  | DIVEQ:o
+   {: RESULT = new Operator(Operator.DIVIDE_ASSIGN, o.line, o.byteOffset); :}
+  | MODEQ:o
+    {: RESULT = new Operator(Operator.MOD_ASSIGN, o.line, o.byteOffset); :}
+  | PLUSEQ:o
+    {: RESULT = new Operator(Operator.PLUS_ASSIGN, o.line, o.byteOffset); :}
+  | MINUSEQ:o
+    {: RESULT = new Operator(Operator.MINUS_ASSIGN, o.line, o.byteOffset); :}
+  | LSHIFTEQ:o
+    {:
+      RESULT = new Operator(Operator.LEFT_SHIFT_ASSIGN, o.line, o.byteOffset);
+    :}
+  | RSHIFTEQ:o
+    {:
+      RESULT = new Operator(Operator.SIGNED_RIGHT_SHIFT_ASSIGN, o.line,
+                            o.byteOffset);
+    :}
+  | URSHIFTEQ:o
+    {:
+      RESULT = new Operator(Operator.UNSIGNED_RIGHT_SHIFT_ASSIGN, o.line,
+                            o.byteOffset);
+    :}
+  | ANDEQ:o
+    {: RESULT = new Operator(Operator.AND_ASSIGN, o.line, o.byteOffset); :}
+  | XOREQ:o
+    {: RESULT = new Operator(Operator.XOR_ASSIGN, o.line, o.byteOffset); :}
+  | OREQ:o
+    {: RESULT = new Operator(Operator.OR_ASSIGN, o.line, o.byteOffset); :}
+  ;
+

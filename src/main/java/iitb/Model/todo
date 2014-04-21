@@ -1,0 +1,2 @@
+WordScoreFeatures: do not need to return the 0 value for non-occuring
+state-token pairs.
