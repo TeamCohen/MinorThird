@@ -16,8 +16,8 @@ import iitb.CRF.FeatureGenCache;
 
 import java.util.Iterator;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class FeatureStore {
     BFeatureGenerator bfgen;

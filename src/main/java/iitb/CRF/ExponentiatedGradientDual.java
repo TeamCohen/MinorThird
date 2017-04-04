@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.Vector;
 
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class ExponentiatedGradientDual extends Trainer {
     Vector<DataSequence> dataSeqs = new Vector<DataSequence>();

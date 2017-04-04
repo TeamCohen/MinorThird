@@ -4,9 +4,9 @@
  */
 package iitb.CRF;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 
 public class LogSparseDoubleMatrix2D extends SparseDoubleMatrix2D {
     static double map(double val) { return LogSparseDoubleMatrix1D.map(val);}

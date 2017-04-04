@@ -7,12 +7,12 @@ package iitb.CRF;
 
 import java.util.TreeSet;
 
-import cern.colt.function.tdouble.DoubleDoubleFunction;
-import cern.colt.function.tdouble.IntDoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D;
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.IntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 //this needs to be done to support an efficient sparse implementation
 //of matrices in the log-space
 

@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-import com.lgc.wsh.inv.ScalarSolver;
-
 import edu.cmu.minorthird.classify.sequential.CMM;
 import edu.cmu.minorthird.classify.sequential.CMMTweaker;
 import edu.cmu.minorthird.classify.sequential.SequenceClassifier;
@@ -17,6 +15,7 @@ import edu.cmu.minorthird.util.BasicCommandLineProcessor;
 import edu.cmu.minorthird.util.CommandLineProcessor;
 import edu.cmu.minorthird.util.IOUtil;
 import edu.cmu.minorthird.util.StringUtil;
+import edu.mines.jtk.opt.ScalarSolver;
 
 /**
  * Allows one to adjust the parameters of a learned extractor.

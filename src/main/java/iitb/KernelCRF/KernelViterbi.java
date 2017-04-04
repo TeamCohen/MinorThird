@@ -10,8 +10,8 @@ package iitb.KernelCRF;
 import iitb.CRF.DataSequence;
 import iitb.CRF.Viterbi;
 import iitb.KernelCRF.KernelCRF.SupportVector;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class KernelViterbi extends Viterbi {
 

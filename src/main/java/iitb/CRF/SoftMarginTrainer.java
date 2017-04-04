@@ -5,8 +5,8 @@
  */
 package iitb.CRF;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class SoftMarginTrainer extends Trainer {
     public SoftMarginTrainer(CrfParams p) {

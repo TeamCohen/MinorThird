@@ -6,9 +6,9 @@ package iitb.CRF;
 
 import java.util.Properties;
 
-import cern.colt.function.tdouble.DoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
+import cern.colt.function.DoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 
 /**
  * This one implements the classical Maximum entropy tagger (as in Ratnaparkhi's thesis)

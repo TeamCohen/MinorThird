@@ -34,8 +34,8 @@ import edu.cmu.minorthird.util.gui.ControlledViewer;
 import edu.cmu.minorthird.util.gui.Viewer;
 import edu.cmu.minorthird.util.gui.ViewerControls;
 import edu.cmu.minorthird.util.gui.Visible;
-import gnu.trove.iterator.TObjectDoubleIterator;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleIterator;
+import gnu.trove.TObjectDoubleHashMap;
 
 /**
  * @author Edoardo Airoldi

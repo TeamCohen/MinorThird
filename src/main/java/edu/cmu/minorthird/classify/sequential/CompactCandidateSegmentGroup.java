@@ -3,9 +3,9 @@
 package edu.cmu.minorthird.classify.sequential;
 
 import edu.cmu.minorthird.classify.*;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gnu.trove.procedure.TObjectProcedure;
-import gnu.trove.set.hash.THashSet;
+import gnu.trove.TObjectDoubleHashMap;
+import gnu.trove.TObjectProcedure;
+import gnu.trove.THashSet;
 
 import java.io.Serializable;
 import java.util.*;

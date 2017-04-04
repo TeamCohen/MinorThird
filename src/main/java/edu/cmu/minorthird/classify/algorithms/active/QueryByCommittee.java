@@ -2,7 +2,7 @@ package edu.cmu.minorthird.classify.algorithms.active;
 
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.classify.algorithms.trees.DecisionTreeLearner;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleHashMap;
 
 import org.apache.log4j.Logger;
 

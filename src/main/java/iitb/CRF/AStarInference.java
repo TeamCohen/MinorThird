@@ -8,8 +8,8 @@
  */
 package iitb.CRF;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.hash.TIntHashSet;
+import gnu.trove.TIntObjectHashMap;
+import gnu.trove.TIntHashSet;
 import iitb.AStar.AStarSearch;
 import iitb.AStar.State;
 import iitb.CRF.Viterbi.Entry;
@@ -18,10 +18,10 @@ import iitb.Model.Model;
 import java.io.Serializable;
 import java.util.BitSet;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class AStarInference implements Serializable {
     private static final long serialVersionUID = 81236L;
@@ -34,7 +34,10 @@ public class AStarInference implements Serializable {
 
     DataSequence dataSeq;
 
-    TIntObjectHashMap<BitSet> conflictingLabels;
+    //TODO this used to be a generic
+    //TIntObjectHashMap<BitSet> conflictingLabels;
+
+    TIntObjectHashMap conflictingLabels;
 
     Model graphModel;
 
@@ -69,11 +72,14 @@ public class AStarInference implements Serializable {
 
     protected class CloneableIntSet extends TIntHashSet implements Cloneable{
         public Object clone() {
-            try {
+
+            return super.clone();
+
+            /*try {
                 return super.clone();
             } catch (CloneNotSupportedException cnse) {
                 return null; // it's supported
-            }
+            }*/
         }
     }
     
@@ -135,7 +141,7 @@ public class AStarInference implements Serializable {
             debug = true;
     }
 
-    public AStarInference(CRF model, int bs, TIntObjectHashMap<TIntHashSet> confLabelMap,
+    public AStarInference(CRF model, int bs, TIntObjectHashMap confLabelMap,
             Model graphModel) {
         this.model = model;
         this.graphModel = graphModel;
@@ -148,10 +154,10 @@ public class AStarInference implements Serializable {
         initConflictLables(confLabelMap);        
     }
 
-    private void initConflictLables(TIntObjectHashMap<TIntHashSet> confLabelMap) {
+    private void initConflictLables(TIntObjectHashMap confLabelMap) {
         if (confLabelMap == null || confLabelMap.size() == 0)
             return;
-        conflictingLabels = new TIntObjectHashMap<BitSet>();
+        conflictingLabels = new TIntObjectHashMap();
         int keys[] = confLabelMap.keys();
         TIntHashSet labelSet;
         BitSet bitSet;
@@ -279,11 +285,11 @@ public class AStarInference implements Serializable {
         return null;
     }
 
-    public TIntObjectHashMap<BitSet> getConflictingLabels() {
+    public TIntObjectHashMap getConflictingLabels() {
         return conflictingLabels;
     }
 
-    public void setConflictingLabels(TIntObjectHashMap<BitSet> conflictingLabels) {
+    public void setConflictingLabels(TIntObjectHashMap conflictingLabels) {
         this.conflictingLabels = conflictingLabels;
     }
 
