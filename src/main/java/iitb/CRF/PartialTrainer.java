@@ -2,7 +2,7 @@ package iitb.CRF;
 
 import java.util.Arrays;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix1D;
 
 public class PartialTrainer extends SparseTrainer {
 

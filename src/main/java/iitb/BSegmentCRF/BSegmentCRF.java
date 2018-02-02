@@ -10,7 +10,7 @@
  */
 package iitb.BSegmentCRF;
 
-import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.TIntDoubleHashMap;
 import iitb.CRF.DataSequence;
 import iitb.CRF.SegmentCRF;
 import iitb.CRF.Trainer;

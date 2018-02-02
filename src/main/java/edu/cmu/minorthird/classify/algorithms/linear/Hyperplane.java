@@ -5,8 +5,8 @@ package edu.cmu.minorthird.classify.algorithms.linear;
 import edu.cmu.minorthird.classify.*;
 import edu.cmu.minorthird.util.MathUtil;
 import edu.cmu.minorthird.util.gui.*;
-import gnu.trove.iterator.TObjectDoubleIterator;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleIterator;
+import gnu.trove.TObjectDoubleHashMap;
 
 import javax.swing.*;
 import javax.swing.tree.*;

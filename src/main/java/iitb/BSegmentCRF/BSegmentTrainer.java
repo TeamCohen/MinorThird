@@ -14,7 +14,7 @@ import iitb.CRF.FeatureGenerator;
 import iitb.CRF.RobustMath;
 import iitb.CRF.SegmentTrainer;
 import iitb.CRF.Segmentation;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix1D;
 
 /**
  *

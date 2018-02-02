@@ -1,0 +1,14 @@
+// call date, RoomNumber
+
+provide 'zall';
+
+// a nested mixup annotator, which calls xtime
+require 'xdate'; 
+// a java annotator, in RoomNumberTest.class
+require 'RoomNumber';
+
+// a big dictionary found in the library
+defDict name = "allnames.txt";
+
+defSpanType extracted_name =: ... [L <re('^[A-Z][a-z]+$'),ai(name)>{2,} R] ... ;
+

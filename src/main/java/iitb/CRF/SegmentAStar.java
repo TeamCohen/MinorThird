@@ -6,7 +6,7 @@
  */
 package iitb.CRF;
 
-import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.TIntArrayList;
 import iitb.AStar.AStarSearch;
 import iitb.AStar.BoundUpdate;
 import iitb.AStar.State;
@@ -18,9 +18,9 @@ import iitb.Utils.StaticObjectHeap;
 
 import java.util.ArrayList;
 
-import cern.colt.function.tdouble.IntIntDoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.function.IntIntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class SegmentAStar extends AStarInference {
     private static final long serialVersionUID = 8124L;

@@ -6,7 +6,7 @@
  */
 
 package iitb.Model;
-import gnu.trove.set.hash.TIntHashSet;
+import gnu.trove.TIntHashSet;
 import iitb.CRF.DataIter;
 import iitb.CRF.DataSequence;
 import iitb.CRF.Feature;

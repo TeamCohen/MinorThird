@@ -1,0 +1,77 @@
+// copy of library date.mixup, frozen for testing
+
+require 'time';
+provide 'ydate';
+
+///////////////////////////////////////////////////////////////////////
+//  Date is defined here as any expression referring to a specific day.
+//  included: July 1st, next Monday, yesterday
+//  not included: when you are ready, or - next semester
+///////////////////////////////////////////////////////////////////////
+
+defDict monthName = january, jan, february, feb, march, mar, april, apr, may, june, jun, july, jul, august, aug, september, sep, sept, october, oct, november, nov, december, dec;	
+defDict weekDay = monday, mon, tuesday, tue, tues, wednesday, wed, weds, thursday, thu, thur, thurs, friday, fri, saturday, sat, sunday, sun;
+defDict commonWord = may, sun, jan, sat; 
+defDict dateOther = week, weekend, year, month;
+defDict dtDayWord = today, tomorrow, yesterday, weekend; // May prefer to eliminate today
+defDict datePrefix = this, next, some, following, after, before, until, till, by, through, beginning, starting, every, from;
+defDict qttyWord = $, USD, dollars, dollar, unit, units, %, precent, precents;
+defDict midWord = or, -, and, to, & ;
+defDict fromWord = between, btw, bw, bt, from;
+
+defDict monthNo = 1,2,3,4,5,6,7,8,9,10,11,12;
+defDict dayNo   = 1,01,2,02,3,03,4,04,5,05,6,06,7,07,8,08,9,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31;
+defDict daySuffix = st, nd, rd, th ;
+defDict yearNum  = 95,96,97,98,99,00,01,02,03,04,05,06,07,08,09,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020;
+defDict dateSep = - , /, . ;
+
+
+defTokenProp dateWord:1 =: ... [ai(weekDay)] ... || ... [ai(dtDayWord)] ... ; 
+
+defTokenProp monthName:1  =: ... [ai(monthName)] ... ;
+defTokenProp monthNo:1    =: ... [a(monthNo)] ... ;
+defTokenProp month:1      =: ... [ai(monthName)] ... || ... [a(monthNo)] ... ;
+
+defTokenProp weekDay:1    =: ... [ai(weekDay)] ... ;
+defTokenProp dtDayWord:1  =: ... [ai(dtDayWord)] ... ;
+
+defTokenProp dayNo:1      =: ... [ai(dayNo)] ... ;
+defTokenProp dayNoSufx:1  =: ... ['st'] ... || ... ['nd'] ... || ... ['rd'] ... || ... ['th'] ... ;
+
+defTokenProp year:1       =: ... [ai(yearNum)] ... ;
+
+defTokenProp dateOther:1  =: ... [ai(dateOther)] ... ;
+defTokenProp dateCommon:1 =: ... [ai(commonWord)] ... ;
+
+defTokenProp dateSep:1    =: ... [ai(dateSep)] ... ;
+defTokenProp datePrefix:1 =: ... [ai(datePrefix)] ... ;
+
+defTokenProp qtty:1 	  =: ... [ai(qttyWord)] ... ;
+defTokenProp midWord:1 	  =: ... [ai(midWord)] ... ;
+defTokenProp fromWord:1   =: ... [ai(fromWord)] ... ;
+
+defTokenProp date:1 =: ... [dateWord:1] ... ;
+defTokenProp date:1 =: ... [month:1 dateSep:1 dayNo:1 dateSep:1 year:1] ... ;
+defTokenProp date:1 =: ... [dayNo:1 dateSep:1 month:1 dateSep:1 year:1] ... ;
+defTokenProp date:1 =: ... [dayNo:1 monthName:1] ... ;
+defTokenProp date:1 =: ... [month:1 dateSep:1 dayNo:1] ... ;
+defTokenProp date:1 =: ... [dayNo:1 dateSep:1 month:1] ... ;
+defTokenProp date:1 =: ... [monthName:1 dayNo:1 dayNoSufx:1] ... ;  // e.g. July 2nd
+defTokenProp date:1 =: ... [monthName:1 dayNo:1] ... ;      // e.g. July 2
+defTokenProp date:1 =: ... [<dateWord:1, !dateCommon:1>] ... ;
+defTokenProp date:1 =: ... date:1+R [year:1] ... || ... date:1+R ',' [year:1] ... ;
+defTokenProp date:1 =: ... <date:1, dayNo:1> [dayNoSufx:1] ... ;
+defTokenProp date:1 =: ... [dayNo:1 dateSep:1] <dayNo:1, date:1> ... || ... [dayNo:1 midWword:1] <dayNo:1, date:1> ... ;
+defTokenProp date:1 =: ... date:1 ['the' dayNo:1 dayNoSufx:1] ... || ... date:1 ',' ['the' dayNo:1 dayNoSufx:1] ... ;
+
+defTokenProp dt:1 =: ... [<date:1, !extracted_time:1>] ... ;  // eliminate whatever is marked as time
+defTokenProp dt:1 =: ... [fromWord:1] dt:1+R ai(midWord) dt:1+R ... ;
+defTokenProp dt:1 =: ...  !eqi('the') L dt:1+R [ai(midWord)] dt:1 ... ; 
+
+
+defSpanType extracted_date =: ... !ai(qttyWord) [L dt:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [L dt:1+R] || !ai(qttyWord) [L dt:1+R] ... ;
+defSpanType extracted_date =: ... !ai(qttyWord) [datePrefix:1+R L dt:1+R] !ai(qttyWord) ... || ... !ai(qttyWord) [datePrefix:1+R L dt:1+R] || ... !ai(qttyWord) [datePrefix:1+R L dt:1+R] ... ;
+
+defTokenProp extracted_date:1 =: ... [@extracted_date] ... ;
+
+defSpanType year =: ... [<year:1, !date:1>] ... ;

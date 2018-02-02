@@ -9,8 +9,8 @@
  */
 package iitb.CRF;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 
 public class SoftLogMarginTrainer extends Trainer {
     @Override

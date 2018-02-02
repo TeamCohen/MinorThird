@@ -13,16 +13,16 @@
  */
 package iitb.CRF;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.procedure.TObjectProcedure;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
+import gnu.trove.TObjectProcedure;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix1D;
 
 public class FeatureGenCache implements FeatureGeneratorNested {
     private static final long serialVersionUID = 1L;
@@ -435,7 +435,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
         int maxSegSize;
         int pos, prevPos;
         int thisSegmentOffsets[];
-        TIntObjectHashMap<int[]> segmentFeatureOffsets;
+        TIntObjectHashMap segmentFeatureOffsets;
         BitSet seenSegments = new BitSet();
         boolean cacheThis;
         boolean cacheEdgeFeatures = false;

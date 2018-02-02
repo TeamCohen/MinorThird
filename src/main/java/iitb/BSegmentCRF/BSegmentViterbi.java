@@ -5,10 +5,10 @@
 package iitb.BSegmentCRF;
 
 import cern.colt.function.*;
-import cern.colt.function.tdouble.IntDoubleFunction;
-import cern.colt.function.tdouble.IntIntDoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.function.IntDoubleFunction;
+import cern.colt.function.IntIntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 import iitb.BSegmentCRF.BSegmentTrainer.MatrixWithRange;
 import iitb.CRF.*;
 import iitb.CRF.SegmentViterbi.SegmentationImpl;

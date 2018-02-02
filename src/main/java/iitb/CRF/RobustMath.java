@@ -9,10 +9,10 @@ import iitb.CRF.Trainer.SumFunc;
 
 import java.util.TreeSet;
 
-import cern.colt.function.tdouble.DoubleDoubleFunction;
-import cern.colt.function.tdouble.IntIntDoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.IntIntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;

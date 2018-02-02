@@ -1,6 +1,6 @@
 package iitb.CRF;
 
-import cern.colt.matrix.tdouble.impl.*;
+import cern.colt.matrix.impl.*;
 
 
 /**
