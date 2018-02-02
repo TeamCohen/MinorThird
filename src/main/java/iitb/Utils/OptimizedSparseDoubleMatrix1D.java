@@ -6,8 +6,8 @@
  */
 package iitb.Utils;
 
-import gnu.trove.map.hash.TIntDoubleHashMap;
-import gnu.trove.procedure.TIntDoubleProcedure;
+import gnu.trove.TIntDoubleHashMap;
+import gnu.trove.TIntDoubleProcedure;
 
 public class OptimizedSparseDoubleMatrix1D implements TIntDoubleProcedure{
 

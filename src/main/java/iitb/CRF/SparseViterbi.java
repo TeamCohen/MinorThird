@@ -11,11 +11,11 @@ import iitb.Utils.StaticObjectHeap;
 
 import java.util.Stack;
 
-import cern.colt.function.tdouble.IntDoubleFunction;
-import cern.colt.function.tdouble.IntIntDoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tobject.impl.DenseObjectMatrix1D;
+import cern.colt.function.IntDoubleFunction;
+import cern.colt.function.IntIntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseObjectMatrix1D;
 
 
 public class SparseViterbi extends Viterbi {

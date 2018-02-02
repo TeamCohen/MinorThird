@@ -6,16 +6,16 @@
  */
 package iitb.CRF;
 
-import gnu.trove.iterator.TIntDoubleIterator;
-import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.TIntDoubleIterator;
+import gnu.trove.TIntDoubleHashMap;
 
 import java.util.TreeSet;
 
-import cern.colt.function.tdouble.DoubleDoubleFunction;
-import cern.colt.function.tdouble.IntDoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix1D;
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.IntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.SparseDoubleMatrix1D;
 
 public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
     

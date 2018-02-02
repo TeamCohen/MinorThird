@@ -6,13 +6,13 @@
  */
 package iitb.CRF;
 
-import gnu.trove.iterator.TIntDoubleIterator;
-import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.TIntDoubleIterator;
+import gnu.trove.TIntDoubleHashMap;
 
 import java.util.Iterator;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 /**
  *

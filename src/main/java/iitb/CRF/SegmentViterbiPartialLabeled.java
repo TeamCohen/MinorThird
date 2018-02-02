@@ -6,9 +6,9 @@
  */
 package iitb.CRF;
 
-import gnu.trove.set.hash.TIntHashSet;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import gnu.trove.TIntHashSet;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class SegmentViterbiPartialLabeled extends SegmentViterbi {
 

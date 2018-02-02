@@ -10,9 +10,9 @@
  */
 package iitb.CRF;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntDoubleHashMap;
-import gnu.trove.map.hash.TIntFloatHashMap;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntDoubleHashMap;
+import gnu.trove.TIntFloatHashMap;
 
 public class SegmentCRF extends CRF {
 	/**

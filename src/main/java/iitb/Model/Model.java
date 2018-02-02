@@ -9,7 +9,7 @@
  * @version 1.3
  */
 package iitb.Model;
-import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.TIntArrayList;
 import iitb.CRF.DataSequence;
 import iitb.CRF.SegmentCRF;
 import iitb.CRF.SegmentDataSequence;

@@ -11,7 +11,7 @@ import edu.cmu.minorthird.classify.ExampleSchema;
 import edu.cmu.minorthird.classify.Feature;
 import edu.cmu.minorthird.classify.Instance;
 import edu.cmu.minorthird.classify.MutableInstance;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleHashMap;
 
 /**
  * Replaces feature counts by a TFIDF version of counts.

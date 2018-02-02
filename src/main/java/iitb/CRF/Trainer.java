@@ -13,12 +13,12 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import riso.numerical.LBFGS;
-import cern.colt.function.tdouble.DoubleDoubleFunction;
-import cern.colt.function.tdouble.DoubleFunction;
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D;
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.DoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 /**
  *
  * @author Sunita Sarawagi

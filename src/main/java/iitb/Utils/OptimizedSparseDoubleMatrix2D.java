@@ -7,13 +7,13 @@
  */
 package iitb.Utils;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.TIntObjectHashMap;
 
 public class OptimizedSparseDoubleMatrix2D {
-    TIntObjectHashMap<OptimizedSparseDoubleMatrix1D> rows; //row-index --> row (OptimizedSparseDoubleMatrix1D
+    TIntObjectHashMap rows; //row-index --> row (OptimizedSparseDoubleMatrix1D
 
     public OptimizedSparseDoubleMatrix2D(int capacity) {
-        rows = new TIntObjectHashMap<OptimizedSparseDoubleMatrix1D>(capacity);
+        rows = new TIntObjectHashMap(capacity);
     }
     
     public OptimizedSparseDoubleMatrix2D() {

@@ -6,17 +6,17 @@
  */
 package iitb.CRF;
 
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.map.hash.TIntFloatHashMap;
-import gnu.trove.procedure.TIntProcedure;
-import gnu.trove.set.hash.TIntHashSet;
+import gnu.trove.TIntIterator;
+import gnu.trove.TIntFloatHashMap;
+import gnu.trove.TIntProcedure;
+import gnu.trove.TIntHashSet;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import cern.colt.matrix.tdouble.DoubleMatrix1D;
-import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 /**
  *

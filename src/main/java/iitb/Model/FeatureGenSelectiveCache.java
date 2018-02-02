@@ -7,7 +7,7 @@
  */
 package iitb.Model;
 
-import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.TIntIntHashMap;
 import iitb.CRF.DataSequence;
 import iitb.CRF.Feature;
 import iitb.CRF.FeatureGenCache;
